@@ -1,9 +1,6 @@
-# Fabric Example Mod
+# Hiiro Sakura
 
-## Setup
+普通的客户端mod
 
-For setup instructions please see the [fabric wiki page](https://fabricmc.net/wiki/tutorial:setup) that relates to the IDE that you are using.
+[使用说明](https://suika.forpleuvoir.com/forpleuvoir/hiiro-sakura/) 
 
-## License
-
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.

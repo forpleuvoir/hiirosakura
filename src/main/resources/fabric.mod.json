@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "hiirosakura",
+  "version": "${version}",
+
+  "name": "Hiiro Sakura",
+  "description": "不知道",
+  "authors": [
+    "forpleuvoir"
+  ],
+  "contact": {
+    "homepage": "https://suika.forpleuvoir.com/forpleuvoir/hiiro-sakura/",
+    "sources": "https://github.com/forpleuvoir/hiirosakura",
+    "issues": "https://github.com/forpleuvoir/hiirosakura/issues"
+  },
+
+  "license": "MIT",
+  "icon": "assets/hiirosakura/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "forpleuvoir.hiirosakura.client.HiiroSakuraClient"
+    ],
+    "modmenu": [
+      "forpleuvoir.hiirosakura.client.compat.modmenu.ModMenuImpl"
+    ]
+  },
+  "mixins": [
+    "modid.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.17.x",
+    "java": ">=16"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}

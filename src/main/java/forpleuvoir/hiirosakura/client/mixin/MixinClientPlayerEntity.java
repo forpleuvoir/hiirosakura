@@ -1,6 +1,5 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
-import forpleuvoir.hiirosakura.client.command.common.HiiroSakuraClientCommand;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

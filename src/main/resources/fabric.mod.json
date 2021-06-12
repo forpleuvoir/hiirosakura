@@ -27,7 +27,7 @@
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "hiirosakura.mixins.json"
   ],
 
   "depends": {

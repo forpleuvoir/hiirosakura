@@ -34,6 +34,8 @@ public abstract class MixinTntEntityRenderer extends EntityRenderer<TntEntity> {
                        VertexConsumerProvider vertexConsumerProvider, int light,
                        CallbackInfo callbackInfo
     ) {
+        //todo 添加开关
+        if (false) return;
         TextRenderUtil.renderEntityText(tntEntity, new LiteralText(String.format("tick:%d", tntEntity.getFuse())),
                                         this.dispatcher, getTextRenderer(), matrixStack,
                                         vertexConsumerProvider, light

@@ -7,6 +7,7 @@
     "MixinChatHudListener",
     "MixinClientPlayerEntity",
     "MixinEntity",
+    "MixinInGameHud",
     "MixinItemEntityRenderer",
     "MixinMinecraftClient",
     "MixinPlayerEntityRenderer",

@@ -1,5 +1,6 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
+import forpleuvoir.hiirosakura.client.util.ItemStackUtil;
 import forpleuvoir.hiirosakura.client.util.TextRenderUtil;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -32,15 +33,19 @@ public abstract class MixinItemEntityRenderer extends EntityRenderer<ItemEntity>
     public void render(ItemEntity itemEntity, float f, float g, MatrixStack matrixStack,
                        VertexConsumerProvider vertexConsumerProvider, int light, CallbackInfo callbackInfo
     ) {
+        //todo 添加物品名称渲染显示距离自定义 以及开关
         //渲染距离相机实体 50(单位未知) 之内的的实体
-        if (this.dispatcher.getSquaredDistanceToCamera(itemEntity) > 50) {
+        if (this.dispatcher.getSquaredDistanceToCamera(itemEntity) > 50 || false) {
             return;
         }
+        var texts = ItemStackUtil.getEnchantmentsWithLvl(itemEntity.getStack());
         LiteralText text = new LiteralText("");
         text.append(itemEntity.getStack().getName());
-        text.append(String.format(" %d", itemEntity.getStack().getCount()));
-        TextRenderUtil.renderEntityText(itemEntity, text, this.dispatcher, getTextRenderer(), matrixStack,
-                                        vertexConsumerProvider, light
+        if (itemEntity.getStack().getCount() > 1)
+            text.append(String.format(" %d", itemEntity.getStack().getCount()));
+        texts.add(text);
+        TextRenderUtil.renderEntityMultiText(itemEntity, texts, this.dispatcher, getTextRenderer(), matrixStack,
+                                             vertexConsumerProvider, light
         );
     }
 }

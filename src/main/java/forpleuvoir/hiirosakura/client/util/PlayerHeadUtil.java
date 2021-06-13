@@ -10,7 +10,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
-
 import java.util.function.Consumer;
 
 /**
@@ -23,6 +22,11 @@ import java.util.function.Consumer;
 public class PlayerHeadUtil {
     public static final String OWNER="SkullOwner";
 
+    /**
+     * 通过玩家名称获取头颅
+     * @param playerName 玩家名称
+     * @return {@link ItemStack} {@link Items#PLAYER_HEAD}
+     */
     public static ItemStack getPlayerHead(String playerName) {
         ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
         NbtCompound tag = new NbtCompound();

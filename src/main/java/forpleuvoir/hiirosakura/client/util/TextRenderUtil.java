@@ -9,6 +9,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Matrix4f;
 
+import java.util.List;
+
+import static forpleuvoir.hiirosakura.client.chatshow.HiiroSakuraChatShow.CHAT_SHOW_CONFIG;
+
 /**
  * @author forpleuvoir
  * <p>#project_name hiirosakura
@@ -20,24 +24,47 @@ public class TextRenderUtil {
 
     /**
      * 在实体上方渲染文本
-     * @param entity 目标实体
-     * @param text 需要渲染的文本
-     * @param dispatcher {@link EntityRenderDispatcher}
-     * @param textRenderer {@link TextRenderer}
-     * @param matrixStack {@link MatrixStack}
+     *
+     * @param entity                 目标实体
+     * @param text                   需要渲染的文本
+     * @param dispatcher             {@link EntityRenderDispatcher}
+     * @param textRenderer           {@link TextRenderer}
+     * @param matrixStack            {@link MatrixStack}
      * @param vertexConsumerProvider {@link VertexConsumerProvider}
-     * @param light 亮度
+     * @param light                  亮度
      */
     public static void renderEntityText(Entity entity, Text text, EntityRenderDispatcher dispatcher,
                                         TextRenderer textRenderer,
                                         MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider,
                                         int light
     ) {
-        //渲染高度
+        renderEntityText(entity, 0, text, dispatcher, textRenderer,
+                         matrixStack, vertexConsumerProvider, light
+        );
+    }
+
+
+    /**
+     * 在实体上方渲染文本
+     *
+     * @param entity                 目标实体
+     * @param textHeight                 高度
+     * @param text                   需要渲染的文本
+     * @param dispatcher             {@link EntityRenderDispatcher}
+     * @param textRenderer           {@link TextRenderer}
+     * @param matrixStack            {@link MatrixStack}
+     * @param vertexConsumerProvider {@link VertexConsumerProvider}
+     * @param light                  亮度
+     */
+    public static void renderEntityText(Entity entity, double textHeight, Text text, EntityRenderDispatcher dispatcher,
+                                        TextRenderer textRenderer,
+                                        MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider,
+                                        int light
+    ) {
+        double height = entity.getHeight() + 0.5f + textHeight;
         matrixStack.push();
-        matrixStack.translate(0.0D, entity.getHeight() + 0.5F, 0.0D);
+        matrixStack.translate(0.0D, height, 0.0D);
         matrixStack.multiply(dispatcher.getRotation());
-        //缩放
         matrixStack.scale(-0.025f, -0.025f, 0.025f);
         Matrix4f matrix4f = matrixStack.peek().getModel();
         float g = MinecraftClient.getInstance().options.getTextBackgroundOpacity(0.25F);
@@ -47,6 +74,32 @@ public class TextRenderUtil {
                           backgroundColor, light
         );
         matrixStack.pop();
+    }
+
+    /**
+     * 在实体上方渲染多行文本
+     *
+     * @param entity                 目标实体
+     * @param text                   需要渲染的文本列表
+     * @param dispatcher             {@link EntityRenderDispatcher}
+     * @param textRenderer           {@link TextRenderer}
+     * @param matrixStack            {@link MatrixStack}
+     * @param vertexConsumerProvider {@link VertexConsumerProvider}
+     * @param light                  亮度
+     */
+    public static void renderEntityMultiText(Entity entity, List<Text> text, EntityRenderDispatcher dispatcher,
+                                             TextRenderer textRenderer,
+                                             MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider,
+                                             int light
+    ) {
+        int textRows = text.size();
+        double height = textRows * 0.25f;
+        for (Text item : text) {
+            height -= 0.25f;
+            renderEntityText(entity, height, item, dispatcher, textRenderer,
+                             matrixStack, vertexConsumerProvider, light
+            );
+        }
     }
 
 }

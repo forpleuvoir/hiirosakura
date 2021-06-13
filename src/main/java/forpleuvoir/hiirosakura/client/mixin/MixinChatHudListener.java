@@ -34,6 +34,7 @@ public abstract class MixinChatHudListener {
             cancellable = true
     )
     public void postSay(MessageType type, Text text, UUID senderUuid, CallbackInfo ci) {
+        //todo 添加聊天显示开关
         if (type == MessageType.CHAT)
             HiiroSakuraChatShow.INSTANCE.addChatShow(text, senderUuid);
     }

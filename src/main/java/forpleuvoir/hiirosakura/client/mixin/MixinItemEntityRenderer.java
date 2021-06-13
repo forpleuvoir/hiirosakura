@@ -32,7 +32,7 @@ public abstract class MixinItemEntityRenderer extends EntityRenderer<ItemEntity>
     public void render(ItemEntity itemEntity, float f, float g, MatrixStack matrixStack,
                        VertexConsumerProvider vertexConsumerProvider, int light, CallbackInfo callbackInfo
     ) {
-        //渲染距离相机实体10格之内的的实体
+        //渲染距离相机实体 50(单位未知) 之内的的实体
         if (this.dispatcher.getSquaredDistanceToCamera(itemEntity) > 50) {
             return;
         }

@@ -25,7 +25,7 @@ import java.util.UUID;
  * <p>#create_time 2021/6/13 0:11
  */
 @Mixin(ChatHudListener.class)
-public class MixinChatHudListener {
+public abstract class MixinChatHudListener {
     private transient static final Logger log = LoggerFactory.getLogger(MixinChatHudListener.class);
 
     @Inject(

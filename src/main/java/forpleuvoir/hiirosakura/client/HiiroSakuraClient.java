@@ -46,6 +46,10 @@ public class HiiroSakuraClient implements ClientModInitializer{
 
     }
 
+    /**
+     * 客户端tick之后会调用
+     * @param client {@link MinecraftClient}
+     */
     public void onEndTick(MinecraftClient client) {
         tickers.forEach(minecraftClientConsumer -> minecraftClientConsumer.accept(client));
         HiiroSakuraClient.runTask(client);

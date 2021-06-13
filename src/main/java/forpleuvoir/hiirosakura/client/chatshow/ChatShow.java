@@ -51,6 +51,16 @@ public class ChatShow {
         timer = HiiroSakuraClient.getTrackingTick() + time;
     }
 
+    /**
+     * 渲染文本
+     *
+     * @param player                 玩家
+     * @param dispatcher             {@link EntityRenderDispatcher}
+     * @param textRenderer           {@link TextRenderer}
+     * @param matrixStack            {@link MatrixStack}
+     * @param vertexConsumerProvider {@link VertexConsumerProvider}
+     * @param light                  亮度
+     */
     public void render(AbstractClientPlayerEntity player, EntityRenderDispatcher dispatcher, TextRenderer textRenderer,
                        MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light
     ) {
@@ -70,6 +80,18 @@ public class ChatShow {
         }
     }
 
+    /**
+     * 渲染单行文本
+     *
+     * @param textHeight             文本高度
+     * @param text                   文本
+     * @param player                 玩家
+     * @param dispatcher             {@link EntityRenderDispatcher}
+     * @param textRenderer           {@link TextRenderer}
+     * @param matrixStack            {@link MatrixStack}
+     * @param vertexConsumerProvider {@link VertexConsumerProvider}
+     * @param light                  亮度
+     */
     public void renderText(double textHeight, Text text, AbstractClientPlayerEntity player,
                            EntityRenderDispatcher dispatcher,
                            TextRenderer textRenderer,
@@ -92,9 +114,22 @@ public class ChatShow {
 
     }
 
-    private static List<Text> textHandler(Text text) {
-        Object arg = ((TranslatableText) text).getArgs()[1];
+    /**
+     * 处理文本
+     * 多字符换行并去掉玩家名
+     * @param text 原文本
+     * @return 处理之后的文本 {@link List}
+     */
+    private List<Text> textHandler(Text text) {
         List<Text> list = new LinkedList<>();
+        try {
+            Object message = ((TranslatableText) text).getArgs()[1];
+            for (String s : StringUtil.strSplit((String) message, CHAT_SHOW_CONFIG.width)) {
+                list.add(new LiteralText(s));
+            }
+            return list;
+        }catch (Exception ignored){}
+
         String content = text.getString().replaceFirst(CHAT_SHOW_CONFIG.playerNameRegex, "");
         for (String s : StringUtil.strSplit(content, CHAT_SHOW_CONFIG.width)) {
             list.add(new LiteralText(s));

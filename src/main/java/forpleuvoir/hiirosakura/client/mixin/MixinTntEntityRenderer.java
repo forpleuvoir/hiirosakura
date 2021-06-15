@@ -1,5 +1,6 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
+import forpleuvoir.hiirosakura.client.config.Configs;
 import forpleuvoir.hiirosakura.client.util.TextRenderUtil;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -34,8 +35,7 @@ public abstract class MixinTntEntityRenderer extends EntityRenderer<TntEntity> {
                        VertexConsumerProvider vertexConsumerProvider, int light,
                        CallbackInfo callbackInfo
     ) {
-        //todo 添加开关
-        if (false) return;
+        if (!Configs.Toggles.SHOW_TNT_FUSE.getBooleanValue()) return;
         TextRenderUtil.renderEntityText(tntEntity, new LiteralText(String.format("tick:%d", tntEntity.getFuse())),
                                         this.dispatcher, getTextRenderer(), matrixStack,
                                         vertexConsumerProvider, light

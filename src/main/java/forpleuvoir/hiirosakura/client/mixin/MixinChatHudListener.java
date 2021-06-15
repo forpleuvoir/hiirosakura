@@ -1,5 +1,6 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
+import forpleuvoir.hiirosakura.client.config.Configs;
 import forpleuvoir.hiirosakura.client.feature.chatshow.HiiroSakuraChatShow;
 import net.minecraft.client.gui.hud.ChatHudListener;
 import net.minecraft.network.MessageType;
@@ -32,9 +33,9 @@ public abstract class MixinChatHudListener {
             cancellable = true
     )
     public void postSay(MessageType type, Text text, UUID senderUuid, CallbackInfo ci) {
-        //todo 添加聊天显示开关
-        if (type == MessageType.CHAT)
-            HiiroSakuraChatShow.INSTANCE.addChatShow(text, senderUuid);
+        if (Configs.Toggles.CHAT_SHOW.getBooleanValue())
+            if (type == MessageType.CHAT)
+                HiiroSakuraChatShow.INSTANCE.addChatShow(text, senderUuid);
     }
 
 }

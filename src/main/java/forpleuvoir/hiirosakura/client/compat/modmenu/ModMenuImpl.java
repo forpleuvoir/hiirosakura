@@ -2,9 +2,11 @@ package forpleuvoir.hiirosakura.client.compat.modmenu;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
+import forpleuvoir.hiirosakura.client.gui.GuiConfig;
 
 /**
  * ModMenu 接口
+ *
  * @author forpleuvoir
  * <p>#project_name hiirosakura
  * <p>#package forpleuvoir.hiirosakura.client.compat.modmenu
@@ -13,5 +15,12 @@ import com.terraformersmc.modmenu.api.ModMenuApi;
  */
 public class ModMenuImpl implements ModMenuApi {
 
-
+    @Override
+    public ConfigScreenFactory<?> getModConfigScreenFactory() {
+        return (screen) -> {
+            var gui = new GuiConfig();
+            gui.setParent(screen);
+            return gui;
+        };
+    }
 }

@@ -1,4 +1,14 @@
 {
-  "suika.command.feedback.gamma": "当前伽马值:%s"
+  "hiirosakura.command.feedback.gamma": "当前伽马值:%s",
+  "hiirosakura.gui.title.configs": "Hiiro Sakura 设置",
+  "hiirosakura.gui.button.config_gui.toggles": "开关",
+  "hiirosakura.gui.button.config_gui.values": "数值设置",
+  "chatShow": "聊天显示",
+  "showEnchantment": "切换物品显示附魔",
+  "showTNTFuse": "TNT剩余爆炸TICK",
+  "showItemEntityName": "掉落物名称显示",
+  "showItemEntityEnchantment": "掉落物附魔显示",
+  "showItemEntityCount": "掉落物显示数量",
+  "itemEntityTextRenderDistance": "掉落物相关显示的距离"
 
 }

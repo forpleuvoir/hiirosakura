@@ -1,11 +1,10 @@
 package forpleuvoir.hiirosakura.client;
 
-import forpleuvoir.hiirosakura.client.chatshow.HiiroSakuraChatShow;
-import forpleuvoir.hiirosakura.client.command.common.HiiroSakuraClientCommand;
+import fi.dy.masa.malilib.event.InitializationHandler;
+import forpleuvoir.hiirosakura.client.feature.chatshow.HiiroSakuraChatShow;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import org.slf4j.Logger;
@@ -37,8 +36,7 @@ public class HiiroSakuraClient implements ClientModInitializer{
 
     @Override
     public void onInitializeClient() {
-        //客户端指令注册
-        HiiroSakuraClientCommand.registerClientCommands(ClientCommandManager.DISPATCHER);
+        InitializationHandler.getInstance().registerInitializationHandler(new InitHandler());
         //初始化聊天泡泡
         HiiroSakuraChatShow.initialize();
         //MinecraftClient.tick注册

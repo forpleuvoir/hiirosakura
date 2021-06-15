@@ -38,7 +38,7 @@ public class GammaCommand {
     public static int set(CommandContext<FabricClientCommandSource> context) {
         var value = DoubleArgumentType.getDouble(context, "value");
         context.getSource().getClient().options.gamma = value;
-        context.getSource().sendFeedback(new TranslatableText("suika.command.feedback.gamma", value));
+        context.getSource().sendFeedback(new TranslatableText("hiirosakura.command.feedback.gamma", value));
         return 1;
     }
 

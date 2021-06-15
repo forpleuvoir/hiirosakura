@@ -1,4 +1,4 @@
-package forpleuvoir.hiirosakura.client.chatshow;
+package forpleuvoir.hiirosakura.client.feature.chatshow;
 
 import net.minecraft.util.math.Vec3f;
 
@@ -7,7 +7,7 @@ import net.minecraft.util.math.Vec3f;
  *
  * @author forpleuvoir
  * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.chatshow
+ * <p>#package forpleuvoir.hiirosakura.client.feature.chatshow
  * <p>#class_name ChatShowConfig
  * <p>#create_time 2021/6/13 0:22
  */

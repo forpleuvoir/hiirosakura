@@ -1,6 +1,6 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
-import forpleuvoir.hiirosakura.client.chatshow.HiiroSakuraChatShow;
+import forpleuvoir.hiirosakura.client.feature.chatshow.HiiroSakuraChatShow;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;

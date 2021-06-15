@@ -1,8 +1,6 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
-import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
-import forpleuvoir.hiirosakura.client.chatshow.ChatShow;
-import forpleuvoir.hiirosakura.client.chatshow.HiiroSakuraChatShow;
+import forpleuvoir.hiirosakura.client.feature.chatshow.HiiroSakuraChatShow;
 import net.minecraft.client.gui.hud.ChatHudListener;
 import net.minecraft.network.MessageType;
 import net.minecraft.text.Text;

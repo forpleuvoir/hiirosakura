@@ -1,4 +1,4 @@
-package forpleuvoir.hiirosakura.client.chatshow;
+package forpleuvoir.hiirosakura.client.feature.chatshow;
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.util.StringUtil;
@@ -19,14 +19,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-import static forpleuvoir.hiirosakura.client.chatshow.HiiroSakuraChatShow.CHAT_SHOW_CONFIG;
+import static forpleuvoir.hiirosakura.client.feature.chatshow.HiiroSakuraChatShow.CHAT_SHOW_CONFIG;
 
 /**
  * 聊天消息显示
  *
  * @author forpleuvoir
  * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.chatshow
+ * <p>#package forpleuvoir.hiirosakura.client.feature.chatshow
  * <p>#class_name ChatShow
  * <p>#create_time 2021/6/12 21:47
  */

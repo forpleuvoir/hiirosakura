@@ -11,8 +11,6 @@ import net.minecraft.util.math.Matrix4f;
 
 import java.util.List;
 
-import static forpleuvoir.hiirosakura.client.chatshow.HiiroSakuraChatShow.CHAT_SHOW_CONFIG;
-
 /**
  * @author forpleuvoir
  * <p>#project_name hiirosakura

@@ -1,5 +1,6 @@
-package forpleuvoir.hiirosakura.client.chatshow;
+package forpleuvoir.hiirosakura.client.feature.chatshow;
 
+import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -21,7 +22,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *
  * @author forpleuvoir
  * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.chatshow
+ * <p>#package forpleuvoir.hiirosakura.client.feature.chatshow
  * <p>#class_name HiiroSakuraChatShow
  * <p>#create_time 2021/6/12 21:01
  */
@@ -37,6 +38,7 @@ public class HiiroSakuraChatShow {
      * 初始化
      */
     public static void initialize() {
+        log.info("{}聊天显示初始化...", HiiroSakuraClient.MOD_NAME);
         INSTANCE = new HiiroSakuraChatShow();
         CHAT_SHOW_CONFIG = new ChatShowConfig();
     }

@@ -6,7 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 import net.minecraft.text.TranslatableText;
 
-import static forpleuvoir.hiirosakura.client.command.common.HiiroSakuraClientCommand.*;
+import static forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.*;
 import static net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.*;
 
 /**

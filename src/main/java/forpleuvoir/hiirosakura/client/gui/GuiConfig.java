@@ -8,6 +8,7 @@ import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.util.StringUtils;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.config.Configs;
+import forpleuvoir.hiirosakura.client.config.HotKeys;
 
 import java.util.List;
 import java.util.Objects;
@@ -43,6 +44,10 @@ public class GuiConfig extends GuiConfigsBase {
         return button.getWidth() + 2;
     }
 
+    @Override
+    protected boolean useKeybindSearch() {
+        return GuiConfig.tab == ConfigGuiTab.HOTKEYS;
+    }
 
     @Override
     protected int getConfigWidth() {
@@ -50,6 +55,7 @@ public class GuiConfig extends GuiConfigsBase {
         return switch (tab) {
             case TOGGLES -> 80;
             case VALUES -> 120;
+            case HOTKEYS -> 200;
         };
     }
 
@@ -60,6 +66,7 @@ public class GuiConfig extends GuiConfigsBase {
         configs = switch (tab) {
             case TOGGLES -> Configs.Toggles.OPTIONS;
             case VALUES -> Configs.Values.OPTIONS;
+            case HOTKEYS -> HotKeys.HOTKEY_LIST;
         };
         return ConfigOptionWrapper.createFor(configs);
     }
@@ -77,13 +84,14 @@ public class GuiConfig extends GuiConfigsBase {
 
 
     public enum ConfigGuiTab {
-        TOGGLES("hiirosakura.gui.button.config_gui.toggles"),
-        VALUES("hiirosakura.gui.button.config_gui.values");
+        TOGGLES("button.config_gui.toggles"),
+        VALUES("button.config_gui.values"),
+        HOTKEYS("button.config_gui.hotkeys");
 
         private final String translationKey;
 
-        private ConfigGuiTab(String translationKey) {
-            this.translationKey = translationKey;
+        ConfigGuiTab(String translationKey) {
+            this.translationKey = String.format("%s.gui.%s", HiiroSakuraClient.MOD_ID, translationKey);
         }
 
         public String getDisplayName() {

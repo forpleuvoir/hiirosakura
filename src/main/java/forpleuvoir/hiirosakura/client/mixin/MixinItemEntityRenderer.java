@@ -49,7 +49,7 @@ public abstract class MixinItemEntityRenderer extends EntityRenderer<ItemEntity>
         if (Configs.Toggles.SHOW_ITEM_ENTITY_NAME.getBooleanValue())
             text.append(itemEntity.getStack().getName());
         if (itemEntity.getStack().getCount() > 1 && Configs.Toggles.SHOW_ITEM_ENTITY_COUNT.getBooleanValue())
-            text.append(String.format(" %d", itemEntity.getStack().getCount()));
+            text.append(String.format(" %d ", itemEntity.getStack().getCount()));
         texts.add(text);
         TextRenderUtil.renderEntityMultiText(itemEntity, texts, this.dispatcher, getTextRenderer(), matrixStack,
                                              vertexConsumerProvider, light

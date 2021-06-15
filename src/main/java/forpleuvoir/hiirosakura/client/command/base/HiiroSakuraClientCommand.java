@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author forpleuvoir
  * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.command
+ * <p>#package forpleuvoir.hiirosakura.client.command.base
  * <p>#class_name HiiroSakuraClientCommand
  * <p>#create_time 2021/6/10 22:16
  */

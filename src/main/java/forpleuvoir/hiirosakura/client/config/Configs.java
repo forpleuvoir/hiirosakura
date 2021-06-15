@@ -13,6 +13,7 @@ import fi.dy.masa.malilib.util.JsonUtils;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 
 import java.io.File;
+import java.sql.Connection;
 
 /**
  * Mod配置
@@ -55,10 +56,14 @@ public class Configs implements IConfigHandler {
                 "showItemEntityCount", false,
                 "开启或关闭掉落物品渲染时数量的显示"
         );
+        public static final ConfigBoolean AUTO_REBIRTH = new ConfigBoolean(
+                "autoRebirth", false,
+                "开启或关闭自动复活"
+        );
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 CHAT_SHOW, SHOW_ENCHANTMENT, SHOW_TNT_FUSE, SHOW_ITEM_ENTITY_NAME, SHOW_ITEM_ENTITY_ENCHANTMENT,
-                SHOW_ITEM_ENTITY_COUNT
+                SHOW_ITEM_ENTITY_COUNT,AUTO_REBIRTH
         );
 
     }

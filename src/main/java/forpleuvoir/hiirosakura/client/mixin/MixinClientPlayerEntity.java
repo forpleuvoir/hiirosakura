@@ -1,10 +1,12 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
+import forpleuvoir.hiirosakura.client.config.Configs;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * ClientPlayerEntity注入
@@ -26,5 +28,14 @@ public abstract class MixinClientPlayerEntity {
     @Inject(method = "sendChatMessage", at = @At("HEAD"), cancellable = true)
     public void sendChatMessage(String message, CallbackInfo callbackInfo){
 
+    }
+
+    /**
+     * 是否显示死亡画面
+     * @param cir {@link CallbackInfoReturnable}
+     */
+    @Inject(method = "showsDeathScreen", at = @At("HEAD"), cancellable = true)
+    public void showsDeathScreen(CallbackInfoReturnable<Boolean> cir) {
+        cir.setReturnValue(!Configs.Toggles.AUTO_REBIRTH.getBooleanValue());
     }
 }

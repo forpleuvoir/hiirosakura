@@ -9,6 +9,7 @@
   "showItemEntityName": "掉落物名称显示",
   "showItemEntityEnchantment": "掉落物附魔显示",
   "showItemEntityCount": "掉落物显示数量",
-  "itemEntityTextRenderDistance": "掉落物相关显示的距离"
+  "itemEntityTextRenderDistance": "掉落物相关显示的距离",
+  "autoRebirth": "自动复活"
 
 }

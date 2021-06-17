@@ -24,7 +24,8 @@ public class GammaCommand {
         dispatcher.register(
                 literal(COMMAND_PREFIX + "gamma")
                         .then(argument("value", DoubleArgumentType.doubleArg(0, 100))
-                                      .executes(GammaCommand::set)));
+                                      .executes(GammaCommand::set))
+        );
 
     }
 

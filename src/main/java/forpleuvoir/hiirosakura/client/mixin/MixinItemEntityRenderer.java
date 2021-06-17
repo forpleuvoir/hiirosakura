@@ -1,6 +1,7 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
 import forpleuvoir.hiirosakura.client.config.Configs;
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
 import forpleuvoir.hiirosakura.client.util.ItemStackUtil;
 import forpleuvoir.hiirosakura.client.util.TextRenderUtil;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -42,9 +43,12 @@ public abstract class MixinItemEntityRenderer extends EntityRenderer<ItemEntity>
             return;
         }
         var texts = new LinkedList<Text>();
-        if (Configs.Toggles.SHOW_ITEM_ENTITY_ENCHANTMENT.getBooleanValue()) {
+        //渲染附魔
+        if (Configs.Toggles.SHOW_ITEM_ENTITY_ENCHANTMENT.getBooleanValue())
             texts.addAll(ItemStackUtil.getEnchantmentsWithLvl(itemEntity.getStack()));
-        }
+        //渲染工具提示
+        if (Configs.Toggles.SHOW_TOOLTIP_ON_ITEM_ENTITY.getBooleanValue())
+            texts.addAll(HiiroSakuraDatas.TOOLTIP.getTooltip(itemEntity.getStack()));
         LiteralText text = new LiteralText("");
         if (Configs.Toggles.SHOW_ITEM_ENTITY_NAME.getBooleanValue())
             text.append(itemEntity.getStack().getName());

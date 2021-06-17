@@ -1,6 +1,7 @@
 package forpleuvoir.hiirosakura.client.feature.chatshow;
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
+import forpleuvoir.hiirosakura.client.util.HSLogger;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -27,7 +28,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * <p>#create_time 2021/6/12 21:01
  */
 public class HiiroSakuraChatShow {
-    private transient static final Logger log = LoggerFactory.getLogger(HiiroSakuraChatShow.class);
+    private transient static final HSLogger log = HSLogger.getLogger(HiiroSakuraChatShow.class);
     public static HiiroSakuraChatShow INSTANCE;
     public static ChatShowConfig CHAT_SHOW_CONFIG;
     private final Map<UUID, ChatShow> chatShows = new ConcurrentHashMap<>();

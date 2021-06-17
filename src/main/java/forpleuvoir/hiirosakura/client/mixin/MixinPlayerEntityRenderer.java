@@ -25,7 +25,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(PlayerEntityRenderer.class)
 public abstract class MixinPlayerEntityRenderer extends EntityRenderer<AbstractClientPlayerEntity> {
-    private transient static final Logger log = LoggerFactory.getLogger(MixinPlayerEntityRenderer.class);
     protected MixinPlayerEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
     }

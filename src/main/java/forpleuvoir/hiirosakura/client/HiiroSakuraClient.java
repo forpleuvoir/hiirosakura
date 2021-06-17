@@ -7,9 +7,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -24,7 +21,7 @@ import java.util.function.Consumer;
  */
 @Environment(EnvType.CLIENT)
 public class HiiroSakuraClient implements ClientModInitializer{
-    public static final Logger log = LoggerFactory.getLogger(HiiroSakuraClient.class);
+
     //客户端tick处理器
     private static final Queue<Consumer<MinecraftClient>> tickers = new ConcurrentLinkedQueue<>();
     //客户端任务队列

@@ -11,10 +11,8 @@ import fi.dy.masa.malilib.config.options.ConfigDouble;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
-import org.lwjgl.system.CallbackI;
 
 import java.io.File;
-import java.sql.Connection;
 
 /**
  * Mod配置
@@ -26,7 +24,7 @@ import java.sql.Connection;
  * <p>#create_time 2021/6/15 20:04
  */
 public class Configs implements IConfigHandler {
-
+    private final static IConfigHandler configHandler = new Configs();
     public static final File CONFIG_FILE_PATH = new File(FileUtils.getConfigDirectory(), HiiroSakuraClient.MOD_ID);
     private static final String CONFIG_FILE_NAME = HiiroSakuraClient.MOD_ID + "_config.json";
 
@@ -62,11 +60,25 @@ public class Configs implements IConfigHandler {
                 translationKey("autoRebirth"), false,
                 translationKey("autoRebirth.comment")
         );
+        public static final ConfigBoolean SHOW_TOOLTIP = new ConfigBoolean(
+                translationKey("showTooltip"), false,
+                translationKey("showTooltip.comment")
+        );
+        public static final ConfigBoolean SHOW_TOOLTIP_ON_ITEM_TOGGLE = new ConfigBoolean(
+                translationKey("showTooltipOnItemToggle"), false,
+                translationKey("showTooltipOnItemToggle.comment")
+        );
+        public static final ConfigBoolean SHOW_TOOLTIP_ON_ITEM_ENTITY = new ConfigBoolean(
+                translationKey("showTooltipOnItemEntity"), false,
+                translationKey("showTooltipOnItemEntity.comment")
+        );
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 CHAT_SHOW, SHOW_ENCHANTMENT, SHOW_TNT_FUSE, SHOW_ITEM_ENTITY_NAME, SHOW_ITEM_ENTITY_ENCHANTMENT,
-                SHOW_ITEM_ENTITY_COUNT, AUTO_REBIRTH
+                SHOW_ITEM_ENTITY_COUNT, AUTO_REBIRTH, SHOW_TOOLTIP, SHOW_TOOLTIP_ON_ITEM_TOGGLE,
+                SHOW_TOOLTIP_ON_ITEM_ENTITY
         );
+
 
         public static String translationKey(String key) {
             return Configs.translationKey("toggles", key);
@@ -119,6 +131,10 @@ public class Configs implements IConfigHandler {
 
             JsonUtils.writeJsonToFile(root, new File(dir, CONFIG_FILE_NAME));
         }
+    }
+
+    public static IConfigHandler getConfigHandler() {
+        return Configs.configHandler;
     }
 
 }

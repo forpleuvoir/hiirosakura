@@ -31,7 +31,6 @@ import static forpleuvoir.hiirosakura.client.feature.chatshow.HiiroSakuraChatSho
  * <p>#create_time 2021/6/12 21:47
  */
 public class ChatShow {
-    private transient static final Logger log = LoggerFactory.getLogger(ChatShow.class);
     /**
      * 文本
      */

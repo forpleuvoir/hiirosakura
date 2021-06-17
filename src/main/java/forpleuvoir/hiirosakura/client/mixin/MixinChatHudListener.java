@@ -25,7 +25,6 @@ import java.util.UUID;
  */
 @Mixin(ChatHudListener.class)
 public abstract class MixinChatHudListener {
-    private transient static final Logger log = LoggerFactory.getLogger(MixinChatHudListener.class);
 
     @Inject(
             method = "onChatMessage",

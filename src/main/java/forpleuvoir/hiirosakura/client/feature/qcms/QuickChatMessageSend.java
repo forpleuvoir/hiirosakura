@@ -30,8 +30,7 @@ public class QuickChatMessageSend extends AbstractHiiroSakuraData {
 
     public boolean add(String remark, String messageStr) {
         if (datas.containsKey(remark)) return false;
-        datas.put(remark, messageStr);
-        return true;
+        return put(remark, messageStr);
     }
 
     public Set<String> getKeySet() {
@@ -40,9 +39,11 @@ public class QuickChatMessageSend extends AbstractHiiroSakuraData {
         return set;
     }
 
-    public void put(String remark, String messageStr) {
+    public boolean put(String remark, String messageStr) {
+        if (getKeyLength(remark) < 1) return false;
         datas.put(remark, messageStr);
         this.onValueChanged();
+        return true;
     }
 
     public void remove(String remark) {
@@ -51,6 +52,7 @@ public class QuickChatMessageSend extends AbstractHiiroSakuraData {
     }
 
     public void reset(String oldRemark, String newRemark, String newValue) {
+        if (oldRemark == null || newRemark == null || newValue == null) return;
         if (datas.containsKey(oldRemark)) {
             if (!oldRemark.equals(newRemark)) {
                 rename(oldRemark, newRemark);
@@ -70,7 +72,7 @@ public class QuickChatMessageSend extends AbstractHiiroSakuraData {
 
     public Map<Text, String> getTextDatas() {
         final Map<Text, String> map = new HashMap<>();
-        this.datas.forEach((key, value) -> map.put(new LiteralText(key.replace("&","§")), value));
+        this.datas.forEach((key, value) -> map.put(new LiteralText(key.replace("&", "§")), value));
         return map;
     }
 
@@ -106,6 +108,17 @@ public class QuickChatMessageSend extends AbstractHiiroSakuraData {
                 text.append(new LiteralText(",  "));
         }
         return text;
+    }
+
+    public static int getKeyLength(String str) {
+        if (str.contains("&")) {
+            int size = str.length();
+            for (char c : str.toCharArray()) {
+                if (c == '&')
+                    size -= 2;
+            }
+            return size;
+        } else return str.length();
     }
 
     @Override

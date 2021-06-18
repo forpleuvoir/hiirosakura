@@ -72,11 +72,15 @@ public class Configs implements IConfigHandler {
                 translationKey("showTooltipOnItemEntity"), false,
                 translationKey("showTooltipOnItemEntity.comment")
         );
+        public static final ConfigBoolean  ENABLE_QCMS_GUI = new ConfigBoolean(
+                translationKey("enableQcmsGui"), false,
+                translationKey("enableQcmsGui.comment")
+        );
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 CHAT_SHOW, SHOW_ENCHANTMENT, SHOW_TNT_FUSE, SHOW_ITEM_ENTITY_NAME, SHOW_ITEM_ENTITY_ENCHANTMENT,
                 SHOW_ITEM_ENTITY_COUNT, AUTO_REBIRTH, SHOW_TOOLTIP, SHOW_TOOLTIP_ON_ITEM_TOGGLE,
-                SHOW_TOOLTIP_ON_ITEM_ENTITY
+                SHOW_TOOLTIP_ON_ITEM_ENTITY,ENABLE_QCMS_GUI
         );
 
 

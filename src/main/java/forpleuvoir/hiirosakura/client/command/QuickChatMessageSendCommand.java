@@ -81,7 +81,10 @@ public class QuickChatMessageSendCommand {
     public static int add(CommandContext<FabricClientCommandSource> context) {
         var remark = StringArgumentType.getString(context, "remark");
         var messageStr = StringArgumentType.getString(context, "messageStr");
-        HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.add(remark, messageStr);
+        if (!HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.add(remark, messageStr)) {
+            context.getSource().sendFeedback(new TranslatableText(getTranslatableTextKey(TYPE, "add.fail"), remark));
+            return 1;
+        }
         context.getSource().sendFeedback(new TranslatableText(getTranslatableTextKey(TYPE, "add"), remark));
         return 1;
     }

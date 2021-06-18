@@ -3,8 +3,12 @@ package forpleuvoir.hiirosakura.client.config;
 import com.google.common.collect.ImmutableList;
 import fi.dy.masa.malilib.config.options.ConfigHotkey;
 import fi.dy.masa.malilib.gui.GuiBase;
+import fi.dy.masa.malilib.util.InfoUtils;
 import forpleuvoir.hiirosakura.client.gui.GuiConfig;
+import forpleuvoir.hiirosakura.client.gui.QCMSScreen;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.network.MessageType;
+import net.minecraft.util.Util;
 
 import java.util.List;
 
@@ -23,8 +27,13 @@ public class HotKeys {
             translationKey("openConfig.comment")
     );
 
+    public static final ConfigHotkey OPEN_QCMS = new ConfigHotkey(
+            translationKey("openQcms"), "B",
+            translationKey("openQcms.comment")
+    );
+
     public static final List<ConfigHotkey> HOTKEY_LIST = ImmutableList.of(
-            OPEN_CONFIG_GUI
+            OPEN_CONFIG_GUI, OPEN_QCMS
     );
 
     public static String translationKey(String key) {
@@ -34,6 +43,14 @@ public class HotKeys {
     public static void callback(MinecraftClient client) {
         OPEN_CONFIG_GUI.getKeybind().setCallback((action, key) -> {
             GuiBase.openGui(new GuiConfig());
+            return true;
+        });
+        OPEN_QCMS.getKeybind().setCallback((action, key) -> {
+            if (Configs.Toggles.ENABLE_QCMS_GUI.getBooleanValue()) {
+                GuiBase.openGui(new QCMSScreen(false));
+            } else {
+                client.inGameHud.addChatMessage(MessageType.SYSTEM, HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.getAsText(), Util.NIL_UUID);
+            }
             return true;
         });
     }

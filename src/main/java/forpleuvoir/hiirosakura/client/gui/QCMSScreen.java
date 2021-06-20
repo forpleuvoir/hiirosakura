@@ -144,7 +144,6 @@ public class QCMSScreen extends Screen {
 
         @Override
         public void initGui() {
-            super.initGui();
             int x = this.dialogLeft + 10;
             int y = this.dialogTop + this.dialogHeight - 24;
             int buttonWidth = this.dialogWidth / 2 - 20;

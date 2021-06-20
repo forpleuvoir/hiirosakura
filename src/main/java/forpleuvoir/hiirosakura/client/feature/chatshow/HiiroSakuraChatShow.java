@@ -50,12 +50,12 @@ public class HiiroSakuraChatShow {
 
     public void render(AbstractClientPlayerEntity player, EntityRenderDispatcher dispatcher,
                        TextRenderer textRenderer,
-                       MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light
+                       MatrixStack matrixStack
     ) {
         removeList.forEach(chatShows::remove);
         removeList.clear();
         chatShows.forEach((uuid, chatShow) -> chatShow
-                .render(player, dispatcher, textRenderer, matrixStack, vertexConsumerProvider, light));
+                .render(player, dispatcher, textRenderer, matrixStack));
     }
 
     public void remove(UUID uuid) {

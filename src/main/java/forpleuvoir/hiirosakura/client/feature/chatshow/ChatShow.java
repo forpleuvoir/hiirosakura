@@ -1,20 +1,25 @@
 package forpleuvoir.hiirosakura.client.feature.chatshow;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import fi.dy.masa.malilib.render.RenderUtils;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.util.StringUtil;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3f;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.awt.image.RenderedImage;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +36,10 @@ import static forpleuvoir.hiirosakura.client.feature.chatshow.HiiroSakuraChatSho
  * <p>#create_time 2021/6/12 21:47
  */
 public class ChatShow {
+    public static final Identifier BACKGROUND_TEXTURE = new Identifier(HiiroSakuraClient.MOD_ID,
+                                                                       "texture/gui/feature/chatshow/bubble.png"
+    );
+
     /**
      * 文本
      */
@@ -44,6 +53,7 @@ public class ChatShow {
      */
     private final long timer;
 
+
     public ChatShow(Text text, UUID uuid, int time) {
         this.text = text;
         this.uuid = uuid;
@@ -53,15 +63,13 @@ public class ChatShow {
     /**
      * 渲染文本
      *
-     * @param player                 玩家
-     * @param dispatcher             {@link EntityRenderDispatcher}
-     * @param textRenderer           {@link TextRenderer}
-     * @param matrixStack            {@link MatrixStack}
-     * @param vertexConsumerProvider {@link VertexConsumerProvider}
-     * @param light                  亮度
+     * @param player       玩家
+     * @param dispatcher   {@link EntityRenderDispatcher}
+     * @param textRenderer {@link TextRenderer}
+     * @param matrixStack  {@link MatrixStack}
      */
     public void render(AbstractClientPlayerEntity player, EntityRenderDispatcher dispatcher, TextRenderer textRenderer,
-                       MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light
+                       MatrixStack matrixStack
     ) {
         if (timer <= HiiroSakuraClient.getTrackingTick()) {
             HiiroSakuraChatShow.INSTANCE.remove(uuid);
@@ -70,64 +78,63 @@ public class ChatShow {
         if (!player.getUuid().equals(uuid)) {
             return;
         }
-        List<Text> texts = textHandler(text);
-        int textRows = texts.size();
-        double height = textRows * CHAT_SHOW_CONFIG.lineSpacing;
-        for (Text text1 : texts) {
-            height -= CHAT_SHOW_CONFIG.lineSpacing;
-            renderText(height, text1, player, dispatcher, textRenderer, matrixStack, vertexConsumerProvider, light);
-        }
-    }
+        int maxWidth = 90;
+        var list = textHandler(textRenderer, maxWidth);
+        int width = getMaxWidth(textRenderer, maxWidth);
+        int spacing = 5;
 
-    /**
-     * 渲染单行文本
-     *
-     * @param textHeight             文本高度
-     * @param text                   文本
-     * @param player                 玩家
-     * @param dispatcher             {@link EntityRenderDispatcher}
-     * @param textRenderer           {@link TextRenderer}
-     * @param matrixStack            {@link MatrixStack}
-     * @param vertexConsumerProvider {@link VertexConsumerProvider}
-     * @param light                  亮度
-     */
-    public void renderText(double textHeight, Text text, AbstractClientPlayerEntity player,
-                           EntityRenderDispatcher dispatcher,
-                           TextRenderer textRenderer,
-                           MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light
-    ) {
-        //渲染高度
-        double height = player.getHeight() + CHAT_SHOW_CONFIG.height + textHeight;
+        int count = list.size();
+        int lineSpacing = 3;
+        int textHeight = 9;
+        int height = getHeight(count, textHeight, lineSpacing);
+
         matrixStack.push();
-        matrixStack.translate(0.0D, height, 0.0D);
+        matrixStack.translate(0.0D, player.getHeight() + 1f, 0.0D);
+        float scale = -0.05f;
+        matrixStack.scale(scale, scale, scale);
         matrixStack.multiply(dispatcher.getRotation());
-        //缩放
-        Vec3f scale = CHAT_SHOW_CONFIG.scale;
-        matrixStack.scale(-scale.getX(), -scale.getY(), scale.getZ());
-        Matrix4f matrix4f = matrixStack.peek().getModel();
-        float h = (float) (-textRenderer.getWidth(text) / 2);
-        textRenderer.draw(text, h, 0f, CHAT_SHOW_CONFIG.textColor, true, matrix4f, vertexConsumerProvider, false,
-                          CHAT_SHOW_CONFIG.backgroundColor, light
-        );
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE);
+        DrawableHelper
+                .drawTexture(matrixStack, -(width / 2) - spacing, -height - lineSpacing, 0.0F, 0.0F,
+                             width + 2 * spacing,
+                             height + 2 * lineSpacing, width + 2 * spacing,
+                             height + 2 * lineSpacing
+                );
+        int index = 0;
+        for (Text text : list) {
+            textRenderer
+                    .draw(matrixStack, text, -(int) (width / 2),
+                          -height + getHeight(count, textHeight, lineSpacing, index),
+                          CHAT_SHOW_CONFIG.textColor
+                    );
+            index++;
+        }
         matrixStack.pop();
-
     }
 
     /**
      * 处理文本
      * 多字符换行并去掉玩家名
-     * @param text 原文本
+     *
      * @return 处理之后的文本 {@link List}
      */
-    private List<Text> textHandler(Text text) {
+    private List<Text> textHandler(TextRenderer textRenderer, int maxWidth) {
         List<Text> list = new LinkedList<>();
         try {
-            Object message = ((TranslatableText) text).getArgs()[1];
-            for (String s : StringUtil.strSplit((String) message, CHAT_SHOW_CONFIG.width)) {
-                list.add(new LiteralText(s));
+            String message = (String) ((TranslatableText) text).getArgs()[1];
+            StringBuilder sb = new StringBuilder();
+            for (char c : message.toCharArray()) {
+                sb.append(c);
+                if (textRenderer.getWidth(sb.toString()) >= maxWidth) {
+                    list.add(new LiteralText(sb.toString()));
+                    sb = new StringBuilder();
+                }
             }
+            list.add(new LiteralText(sb.toString()));
             return list;
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
 
         String content = text.getString().replaceFirst(CHAT_SHOW_CONFIG.playerNameRegex, "");
         for (String s : StringUtil.strSplit(content, CHAT_SHOW_CONFIG.width)) {
@@ -136,4 +143,36 @@ public class ChatShow {
         return list;
     }
 
+    private int getMaxWidth(TextRenderer textRenderer, int maxWidth) {
+        int max = 0;
+        for (Text text : textHandler(textRenderer, maxWidth)) {
+            if (max < textRenderer.getWidth(text)) {
+                max = textRenderer.getWidth(text);
+            }
+        }
+        return max;
+    }
+
+    private int getHeight(int count, int textHeight, int lineSpacing) {
+        int height = textHeight;
+        for (int i = 0; i < count; i++) {
+            if (i != 0) {
+                height += textHeight + lineSpacing;
+            }
+        }
+        return height;
+    }
+
+    private int getHeight(int count, int textHeight, int lineSpacing, int index) {
+        int height = 0;
+        for (int i = 0; i < count; i++) {
+            if (i != 0) {
+                height += textHeight + lineSpacing;
+            }
+            if (i == index) {
+                return height;
+            }
+        }
+        return height;
+    }
 }

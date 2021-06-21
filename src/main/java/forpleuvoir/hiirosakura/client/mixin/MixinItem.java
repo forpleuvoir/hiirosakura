@@ -24,7 +24,7 @@ import java.util.List;
  * <p>#create_time 2021/6/17 21:50
  */
 @Mixin(Item.class)
-public class MixinItem {
+public abstract class MixinItem {
 
     @Inject(method = "appendTooltip", at = @At("HEAD"))
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context,

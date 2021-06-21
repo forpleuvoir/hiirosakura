@@ -6,8 +6,7 @@ import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.config.ConfigUtils;
 import fi.dy.masa.malilib.config.IConfigBase;
 import fi.dy.masa.malilib.config.IConfigHandler;
-import fi.dy.masa.malilib.config.options.ConfigBoolean;
-import fi.dy.masa.malilib.config.options.ConfigDouble;
+import fi.dy.masa.malilib.config.options.*;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
@@ -72,7 +71,7 @@ public class Configs implements IConfigHandler {
                 translationKey("showTooltipOnItemEntity"), false,
                 translationKey("showTooltipOnItemEntity.comment")
         );
-        public static final ConfigBoolean  ENABLE_QCMS_GUI = new ConfigBoolean(
+        public static final ConfigBoolean ENABLE_QCMS_GUI = new ConfigBoolean(
                 translationKey("enableQcmsGui"), false,
                 translationKey("enableQcmsGui.comment")
         );
@@ -80,7 +79,7 @@ public class Configs implements IConfigHandler {
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 CHAT_SHOW, SHOW_ENCHANTMENT, SHOW_TNT_FUSE, SHOW_ITEM_ENTITY_NAME, SHOW_ITEM_ENTITY_ENCHANTMENT,
                 SHOW_ITEM_ENTITY_COUNT, AUTO_REBIRTH, SHOW_TOOLTIP, SHOW_TOOLTIP_ON_ITEM_TOGGLE,
-                SHOW_TOOLTIP_ON_ITEM_ENTITY,ENABLE_QCMS_GUI
+                SHOW_TOOLTIP_ON_ITEM_ENTITY, ENABLE_QCMS_GUI
         );
 
 
@@ -94,9 +93,31 @@ public class Configs implements IConfigHandler {
                 translationKey("itemEntityTextRenderDistance"), 50, 0, 999,
                 translationKey("itemEntityTextRenderDistance.comment")
         );
+        public static final ConfigDouble CHAT_SHOW_HEIGHT = new ConfigDouble(
+                translationKey("chatShowHeight"), 1D, 0, 10D,
+                translationKey("chatShowHeight.comment")
+        );
+        public static final ConfigColor CHAT_SHOW_TEXT_COLOR = new ConfigColor(
+                translationKey("chatShowTextColor"), "#AFFFFFFF",
+                translationKey("chatShowTextColor.comment")
+        );
+        public static final ConfigInteger CHAT_SHOW_TEXT_MAX_WIDTH = new ConfigInteger(
+                translationKey("chatShowTextMaxWidth"), 96, 9, 480,
+                translationKey("chatShowTextMaxWidth.comment")
+        );
+        public static final ConfigInteger CHAT_SHOW_TIME = new ConfigInteger(
+                translationKey("chatShowTime"), 200, 0, 9999,
+                translationKey("chatShowTime.comment")
+        );
+        public static final ConfigString CHAT_SHOW_PLAYER_NAME_REGEX = new ConfigString(
+                translationKey("chatShowPlayerNameRegex"), "<(\\S*)>",
+                translationKey("chatShowPlayerNameRegex.comment")
+        );
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
-                ITEM_ENTITY_TEXT_RENDER_DISTANCE
+                ITEM_ENTITY_TEXT_RENDER_DISTANCE, CHAT_SHOW_HEIGHT, CHAT_SHOW_TEXT_COLOR, CHAT_SHOW_TEXT_MAX_WIDTH,
+                CHAT_SHOW_TIME,CHAT_SHOW_PLAYER_NAME_REGEX
+
         );
 
         public static String translationKey(String key) {

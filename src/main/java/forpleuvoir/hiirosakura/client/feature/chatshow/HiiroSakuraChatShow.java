@@ -1,6 +1,7 @@
 package forpleuvoir.hiirosakura.client.feature.chatshow;
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
+import forpleuvoir.hiirosakura.client.config.Configs;
 import forpleuvoir.hiirosakura.client.util.HSLogger;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -30,7 +31,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class HiiroSakuraChatShow {
     private transient static final HSLogger log = HSLogger.getLogger(HiiroSakuraChatShow.class);
     public static HiiroSakuraChatShow INSTANCE;
-    public static ChatShowConfig CHAT_SHOW_CONFIG;
     private final Map<UUID, ChatShow> chatShows = new ConcurrentHashMap<>();
     private final Queue<UUID> removeList = new ConcurrentLinkedQueue<>();
 
@@ -41,11 +41,10 @@ public class HiiroSakuraChatShow {
     public static void initialize() {
         log.info("{}聊天显示初始化...", HiiroSakuraClient.MOD_NAME);
         INSTANCE = new HiiroSakuraChatShow();
-        CHAT_SHOW_CONFIG = new ChatShowConfig();
     }
 
     public void addChatShow(Text text, UUID uuid) {
-        this.chatShows.put(uuid, new ChatShow(text, uuid, CHAT_SHOW_CONFIG.time));
+        this.chatShows.put(uuid, new ChatShow(text, uuid, Configs.Values.CHAT_SHOW_TIME.getIntegerValue()));
     }
 
     public void render(AbstractClientPlayerEntity player, EntityRenderDispatcher dispatcher,

@@ -42,6 +42,16 @@
   "#config#values": "values",
   "hiirosakura.config.values.itemEntityTextRenderDistance": "掉落物相关渲染的距离",
   "hiirosakura.config.values.itemEntityTextRenderDistance.comment": "掉落物相关选项的渲染距离",
+  "hiirosakura.config.values.chatShowHeight": "聊天显示高度",
+  "hiirosakura.config.values.chatShowHeight.comment": "聊天显示高度，一般是离玩家头顶的高度",
+  "hiirosakura.config.values.chatShowTextColor": "聊天显示文本颜色",
+  "hiirosakura.config.values.chatShowTextColor.comment": "聊天显示文本颜色",
+  "hiirosakura.config.values.chatShowTextMaxWidth": "聊天显示文本宽度",
+  "hiirosakura.config.values.chatShowTextMaxWidth.comment": "聊天显示文本宽度",
+  "hiirosakura.config.values.chatShowTime": "聊天显示持续时间",
+  "hiirosakura.config.values.chatShowTime.comment": "聊天显示持续时间（单位是tick，客户端每秒20tick）",
+  "hiirosakura.config.values.chatShowPlayerNameRegex": "聊天显示玩家名称正则表达式",
+  "hiirosakura.config.values.chatShowPlayerNameRegex.comment": "聊天显示玩家名称正则表达式（原版服务器一般用不到）",
   "#command": "command",
   "hiirosakura.command.qcms.add": "qcms %s 添加成功",
   "hiirosakura.command.qcms.add.fail": "qcms %s 添加失败,备注重复或者不符合规范",
@@ -57,5 +67,4 @@
   "hiirosakura.command.data.save": "数据已保存",
   "#feature": "feature",
   "hiirosakura.feature.qcms.data.empty": "没有qcms数据"
-
 }

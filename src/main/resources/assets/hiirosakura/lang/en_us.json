@@ -16,6 +16,8 @@
   "hiirosakura.config.hotkeys.openConfig.comment": "Open config gui",
   "hiirosakura.config.hotkeys.openQcms": "openQcms",
   "hiirosakura.config.hotkeys.openQcms.comment": "Open Qcms",
+  "hiirosakura.config.hotkeys.switchCameraEntity": "switchCameraEntity",
+  "hiirosakura.config.hotkeys.switchCameraEntity.comment": "Switch Camera Entity",
   "#config#toggles": "toggles",
   "hiirosakura.config.toggles.chatShow": "ChatShow",
   "hiirosakura.config.toggles.chatShow.comment": "chatShow",

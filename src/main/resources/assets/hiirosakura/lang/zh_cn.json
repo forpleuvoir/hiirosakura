@@ -16,6 +16,8 @@
   "hiirosakura.config.hotkeys.openConfig.comment": "打开Mod配置界面",
   "hiirosakura.config.hotkeys.openQcms": "显示QCMS",
   "hiirosakura.config.hotkeys.openQcms.comment": "显示QCMS",
+  "hiirosakura.config.hotkeys.switchCameraEntity": "切换相机实体",
+  "hiirosakura.config.hotkeys.switchCameraEntity.comment": "按下之后会将相机实体切换为目标实体，再次按下切回玩家",
   "#config#toggles": "toggles",
   "hiirosakura.config.toggles.chatShow": "聊天显示",
   "hiirosakura.config.toggles.chatShow.comment": "开启或关闭聊天显示",

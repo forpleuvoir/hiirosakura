@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import fi.dy.masa.malilib.config.options.ConfigHotkey;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.util.InfoUtils;
+import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity;
 import forpleuvoir.hiirosakura.client.gui.GuiConfig;
 import forpleuvoir.hiirosakura.client.gui.QCMSScreen;
 import net.minecraft.client.MinecraftClient;
@@ -26,14 +27,17 @@ public class HotKeys {
             translationKey("openConfig"), "H,S",
             translationKey("openConfig.comment")
     );
-
     public static final ConfigHotkey OPEN_QCMS = new ConfigHotkey(
             translationKey("openQcms"), "B",
             translationKey("openQcms.comment")
     );
+    public static final ConfigHotkey SWITCH_CAMERA_ENTITY = new ConfigHotkey(
+            translationKey("switchCameraEntity"), "V",
+            translationKey("switchCameraEntity.comment")
+    );
 
     public static final List<ConfigHotkey> HOTKEY_LIST = ImmutableList.of(
-            OPEN_CONFIG_GUI, OPEN_QCMS
+            OPEN_CONFIG_GUI, OPEN_QCMS,SWITCH_CAMERA_ENTITY
     );
 
     public static String translationKey(String key) {
@@ -51,6 +55,10 @@ public class HotKeys {
             } else {
                 client.inGameHud.addChatMessage(MessageType.SYSTEM, HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.getAsText(), Util.NIL_UUID);
             }
+            return true;
+        });
+        SWITCH_CAMERA_ENTITY.getKeybind().setCallback((action, key) -> {
+            SwitchCameraEntity.INSTANCE.switchEntity();
             return true;
         });
     }

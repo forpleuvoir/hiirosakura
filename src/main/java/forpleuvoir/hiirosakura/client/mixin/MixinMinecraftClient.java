@@ -33,4 +33,9 @@ public abstract class MixinMinecraftClient {
         tutorialManager.setStep(TutorialStep.NONE);
     }
 
+    @Inject(method = "doAttack", at = @At("HEAD"),cancellable = true)
+    public void doAttack(CallbackInfo callbackInfo) {
+
+    }
+
 }

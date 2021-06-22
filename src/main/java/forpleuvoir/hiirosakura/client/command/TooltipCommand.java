@@ -5,6 +5,8 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 import net.minecraft.command.argument.ItemStackArgumentType;
@@ -28,6 +30,17 @@ import static net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.lit
  */
 public class TooltipCommand {
     public static final String TYPE = "tooltip";
+    private static final SimpleCommandExceptionType AIR = new SimpleCommandExceptionType(
+            new TranslatableText(getTranslatableTextKey(TYPE, "air")));
+    private static final DynamicCommandExceptionType REMOVE_FAILED = new DynamicCommandExceptionType(itemName ->
+                                                                                                             new TranslatableText(
+                                                                                                                     getTranslatableTextKey(
+                                                                                                                             TYPE,
+                                                                                                                             "removeFailed"
+                                                                                                                     ),
+                                                                                                                     itemName
+                                                                                                             ));
+
 
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
         dispatcher.register(literal(COMMAND_PREFIX + TYPE)
@@ -37,23 +50,26 @@ public class TooltipCommand {
                                                                               .executes(TooltipCommand::add)
                                                                 )
                                                   )
-                                    )
+                                                  .then(argument("tip", StringArgumentType.string())
+                                                                .executes(TooltipCommand::addMainHandItem)
+                                                  ))
                                     .then(literal("remove")
                                                   .then(argument("item", ItemStackArgumentType.itemStack())
                                                                 .then(argument("index", IntegerArgumentType.integer(-1))
                                                                               .executes(TooltipCommand::remove)
                                                                 )
                                                   )
+                                                  .then(argument("index", IntegerArgumentType.integer(-1))
+                                                                .executes(TooltipCommand::removeMainHandItem)
+                                                  )
                                     )
         );
     }
 
-    public static int add(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
-        var item = ItemStackArgumentType.getItemStackArgument(context, "item").createStack(1, false);
+    public static int addMainHandItem(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
         var tip = StringArgumentType.getString(context, "tip");
-        if (item.getItem().equals(Items.AIR)) {
-            item = context.getSource().getPlayer().getMainHandStack();
-        }
+        var item = context.getSource().getPlayer().getMainHandStack();
+        if (item.getItem().equals(Items.AIR)) throw AIR.create();
         HiiroSakuraDatas.TOOLTIP.add(item, tip);
         var feedback = new LiteralText("").append(item.toHoverableText());
         feedback.append(new TranslatableText(getTranslatableTextKey(TYPE, "add")));
@@ -62,12 +78,23 @@ public class TooltipCommand {
         return 1;
     }
 
-    public static int remove(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
+    public static int add(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
         var item = ItemStackArgumentType.getItemStackArgument(context, "item").createStack(1, false);
+        var tip = StringArgumentType.getString(context, "tip");
+        if (item.getItem().equals(Items.AIR)) throw AIR.create();
+        HiiroSakuraDatas.TOOLTIP.add(item, tip);
+        var feedback = new LiteralText("").append(item.toHoverableText());
+        feedback.append(new TranslatableText(getTranslatableTextKey(TYPE, "add")));
+        feedback.append(new LiteralText(tip));
+        context.getSource().sendFeedback(feedback);
+        return 1;
+    }
+
+    public static int removeMainHandItem(CommandContext<FabricClientCommandSource> context
+    ) throws CommandSyntaxException {
         var index = IntegerArgumentType.getInteger(context, "index");
-        if (item.getItem().equals(Items.AIR)) {
-            item = context.getSource().getPlayer().getMainHandStack();
-        }
+        var item = context.getSource().getPlayer().getMainHandStack();
+        if (item.getItem().equals(Items.AIR)) throw REMOVE_FAILED.create(item.getName());
         String remove = HiiroSakuraDatas.TOOLTIP.remove(item, index);
         if (!StringUtils.isEmpty(remove)) {
             var feedback = new LiteralText("").append(item.toHoverableText());
@@ -75,9 +102,23 @@ public class TooltipCommand {
             feedback.append(new LiteralText(remove));
             context.getSource().sendFeedback(feedback);
         } else {
+            throw REMOVE_FAILED.create(item.getName());
+        }
+        return 1;
+    }
+
+    public static int remove(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
+        var item = ItemStackArgumentType.getItemStackArgument(context, "item").createStack(1, false);
+        var index = IntegerArgumentType.getInteger(context, "index");
+        if (item.getItem().equals(Items.AIR)) throw REMOVE_FAILED.create(item.getName());
+        String remove = HiiroSakuraDatas.TOOLTIP.remove(item, index);
+        if (!StringUtils.isEmpty(remove)) {
             var feedback = new LiteralText("").append(item.toHoverableText());
-            feedback.append(new TranslatableText(getTranslatableTextKey(TYPE, "removeFailed")));
+            feedback.append(new TranslatableText(getTranslatableTextKey(TYPE, "remove")));
+            feedback.append(new LiteralText(remove));
             context.getSource().sendFeedback(feedback);
+        } else {
+            throw REMOVE_FAILED.create(item.getName());
         }
         return 1;
     }

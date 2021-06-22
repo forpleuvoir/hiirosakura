@@ -108,7 +108,7 @@ public class ChatShow {
 
         matrixStack.push();
         matrixStack.translate(0.0D, player.getHeight() + Configs.Values.CHAT_SHOW_HEIGHT.getDoubleValue(), 0.0D);
-        float scale = -0.025f;
+        float scale = (-0.025f) * (float) Configs.Values.CHAT_SHOW_SCALE.getDoubleValue();
         matrixStack.scale(scale, scale, scale);
         matrixStack.multiply(dispatcher.getRotation());
         renderBackground(matrixStack, width + 5, height + lineSpacing);

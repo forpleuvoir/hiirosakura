@@ -113,10 +113,14 @@ public class Configs implements IConfigHandler {
                 translationKey("chatShowPlayerNameRegex"), "<(\\S*)>",
                 translationKey("chatShowPlayerNameRegex.comment")
         );
+        public static final ConfigDouble CHAT_SHOW_SCALE = new ConfigDouble(
+                translationKey("chatShowScale"), 1D,0.1D,10D,
+                translationKey("chatShowScale.comment")
+        );
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 ITEM_ENTITY_TEXT_RENDER_DISTANCE, CHAT_SHOW_HEIGHT, CHAT_SHOW_TEXT_COLOR, CHAT_SHOW_TEXT_MAX_WIDTH,
-                CHAT_SHOW_TIME,CHAT_SHOW_PLAYER_NAME_REGEX
+                CHAT_SHOW_TIME,CHAT_SHOW_PLAYER_NAME_REGEX,CHAT_SHOW_SCALE
 
         );
 

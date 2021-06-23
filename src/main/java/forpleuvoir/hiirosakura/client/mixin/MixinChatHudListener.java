@@ -33,8 +33,7 @@ public abstract class MixinChatHudListener {
     )
     public void postSay(MessageType type, Text text, UUID senderUuid, CallbackInfo ci) {
         if (Configs.Toggles.CHAT_SHOW.getBooleanValue())
-            if (type == MessageType.CHAT)
-                HiiroSakuraChatShow.INSTANCE.addChatShow(text, senderUuid);
+            HiiroSakuraChatShow.INSTANCE.addChatShow(text);
     }
 
 }

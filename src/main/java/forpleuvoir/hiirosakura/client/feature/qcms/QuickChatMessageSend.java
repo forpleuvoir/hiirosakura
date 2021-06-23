@@ -111,14 +111,7 @@ public class QuickChatMessageSend extends AbstractHiiroSakuraData {
     }
 
     public static int getKeyLength(String str) {
-        if (str.contains("&")) {
-            int size = str.length();
-            for (char c : str.toCharArray()) {
-                if (c == '&')
-                    size -= 2;
-            }
-            return size;
-        } else return str.length();
+       return str.replaceAll("(&.)","").length();
     }
 
     @Override

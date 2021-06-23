@@ -4,17 +4,20 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.config.Configs;
+import forpleuvoir.hiirosakura.client.feature.regex.ChatMessageRegex;
+import forpleuvoir.hiirosakura.client.util.HSLogger;
 import forpleuvoir.hiirosakura.client.util.RenderUtil;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 
 /**
@@ -27,6 +30,7 @@ import java.util.*;
  * <p>#create_time 2021/6/12 21:47
  */
 public class ChatShow {
+    private transient static final HSLogger log = HSLogger.getLogger(ChatShow.class);
     public static final Identifier BACKGROUND_TEXTURE1 = new Identifier(HiiroSakuraClient.MOD_ID,
                                                                         "texture/gui/feature/chatshow/bubbles/1.png"
     );
@@ -63,49 +67,53 @@ public class ChatShow {
     /**
      * 文本
      */
-    private final Text text;
-    /**
-     * 发送者的UUID
-     */
-    private final UUID uuid;
+    private final String text;
     /**
      * 显示时间
      */
     private final long timer;
+    private final List<Text> list;
+    private final TextRenderer textRenderer;
+    private final String playerName;
 
+    public static ChatShow getInstance(ChatMessageRegex chatMessageRegex) {
+        if (chatMessageRegex == null) return null;
+        try {
+            return new ChatShow(chatMessageRegex.getMessage(), chatMessageRegex.getPlayerName());
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
 
-    public ChatShow(Text text, UUID uuid, int time) {
+    public ChatShow(String text, String playerName) {
         this.text = text;
-        this.uuid = uuid;
-        timer = HiiroSakuraClient.getTrackingTick() + time;
+        this.playerName = playerName;
+        this.timer = HiiroSakuraClient.getTrackingTick() + Configs.Values.CHAT_SHOW_TIME.getIntegerValue();
+        this.textRenderer = MinecraftClient.getInstance().textRenderer;
+        this.list = textHandler(Configs.Values.CHAT_SHOW_TEXT_MAX_WIDTH.getIntegerValue());
     }
 
     /**
      * 渲染文本
      *
-     * @param player       玩家
-     * @param dispatcher   {@link EntityRenderDispatcher}
-     * @param textRenderer {@link TextRenderer}
-     * @param matrixStack  {@link MatrixStack}
+     * @param player      玩家
+     * @param dispatcher  {@link EntityRenderDispatcher}
+     * @param matrixStack {@link MatrixStack}
      */
-    public void render(AbstractClientPlayerEntity player, EntityRenderDispatcher dispatcher, TextRenderer textRenderer,
-                       MatrixStack matrixStack
+    public void render(AbstractClientPlayerEntity player, EntityRenderDispatcher dispatcher, MatrixStack matrixStack
     ) {
         if (timer <= HiiroSakuraClient.getTrackingTick()) {
-            HiiroSakuraChatShow.INSTANCE.remove(uuid);
+            HiiroSakuraChatShow.INSTANCE.remove(playerName);
             return;
         }
-        if (!player.getUuid().equals(uuid)) {
-            return;
-        }
-        int maxWidth = Configs.Values.CHAT_SHOW_TEXT_MAX_WIDTH.getIntegerValue();
-        var list = textHandler(textRenderer, maxWidth);
-        int width = getMaxWidth(textRenderer, maxWidth);
+        if (playerName != null) {
+            if (!player.getEntityName().equals(playerName)) return;
+        } else return;
+        int width = getMaxWidth();
         int count = list.size();
         int lineSpacing = 4;
         int textHeight = 9;
         int height = getHeight(count, textHeight, lineSpacing);
-
         matrixStack.push();
         matrixStack.translate(0.0D, player.getHeight() + Configs.Values.CHAT_SHOW_HEIGHT.getDoubleValue(), 0.0D);
         float scale = (-0.025f) * (float) Configs.Values.CHAT_SHOW_SCALE.getDoubleValue();
@@ -173,28 +181,10 @@ public class ChatShow {
      *
      * @return 处理之后的文本 {@link List}
      */
-    private List<Text> textHandler(TextRenderer textRenderer, int maxWidth) {
+    private List<Text> textHandler(int maxWidth) {
         List<Text> list = new LinkedList<>();
-        try {
-            String message = (String) ((TranslatableText) text).getArgs()[1];
-            StringBuilder sb = new StringBuilder();
-            for (char c : message.toCharArray()) {
-
-                if (textRenderer.getWidth(sb.toString()) > maxWidth) {
-                    list.add(new LiteralText(sb.toString()));
-                    sb = new StringBuilder();
-                }
-                sb.append(c);
-            }
-            list.add(new LiteralText(sb.toString()));
-            return list;
-        } catch (Exception ignored) {
-        }
-
-        String content = text.getString().replaceFirst(Configs.Values.CHAT_SHOW_PLAYER_NAME_REGEX.getStringValue(), "");
         StringBuilder sb = new StringBuilder();
-        for (char c : content.toCharArray()) {
-
+        for (char c : text.toCharArray()) {
             if (textRenderer.getWidth(sb.toString()) > maxWidth) {
                 list.add(new LiteralText(sb.toString()));
                 sb = new StringBuilder();
@@ -203,11 +193,12 @@ public class ChatShow {
         }
         list.add(new LiteralText(sb.toString()));
         return list;
+
     }
 
-    private int getMaxWidth(TextRenderer textRenderer, int maxWidth) {
+    private int getMaxWidth() {
         int max = 0;
-        for (Text text : textHandler(textRenderer, maxWidth)) {
+        for (Text text : list) {
             if (max < textRenderer.getWidth(text)) {
                 max = textRenderer.getWidth(text);
             }

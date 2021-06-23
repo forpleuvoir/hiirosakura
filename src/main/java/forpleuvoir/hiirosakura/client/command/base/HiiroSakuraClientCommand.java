@@ -2,10 +2,7 @@ package forpleuvoir.hiirosakura.client.command.base;
 
 import com.mojang.brigadier.CommandDispatcher;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
-import forpleuvoir.hiirosakura.client.command.ConfigCommand;
-import forpleuvoir.hiirosakura.client.command.GammaCommand;
-import forpleuvoir.hiirosakura.client.command.QuickChatMessageSendCommand;
-import forpleuvoir.hiirosakura.client.command.TooltipCommand;
+import forpleuvoir.hiirosakura.client.command.*;
 import forpleuvoir.hiirosakura.client.util.HSLogger;
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 
@@ -37,6 +34,7 @@ public class HiiroSakuraClientCommand {
         QuickChatMessageSendCommand.register(commandDispatcher);
         TooltipCommand.register(commandDispatcher);
         ConfigCommand.register(commandDispatcher);
+        ServerChatMessageRegexCommand.register(commandDispatcher);
     }
 
     public static String getTranslatableTextKey(String type, String key) {

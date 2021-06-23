@@ -13,7 +13,8 @@ public class StringUtil {
 
     /**
      * 将字符串分割为等长的字符串
-     * @param str 原字符串
+     *
+     * @param str    原字符串
      * @param length 每一份长度
      * @return 字符串数组
      */
@@ -27,5 +28,9 @@ public class StringUtil {
             arr[i / length] = str.substring(i, i + n);
         }
         return arr;
+    }
+
+    public static boolean isEmpty(String regex) {
+        return regex == null || regex.isEmpty();
     }
 }

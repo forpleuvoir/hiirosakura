@@ -33,6 +33,6 @@ public abstract class MixinPlayerEntityRenderer extends EntityRenderer<AbstractC
     public void render(AbstractClientPlayerEntity abstractClientPlayerEntity, float f, float g, MatrixStack matrixStack,
                        VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo callbackInfo
     ) {
-        HiiroSakuraChatShow.INSTANCE.render(abstractClientPlayerEntity, this.dispatcher, this.getTextRenderer(), matrixStack);
+        HiiroSakuraChatShow.INSTANCE.render(abstractClientPlayerEntity, this.dispatcher, matrixStack);
     }
 }

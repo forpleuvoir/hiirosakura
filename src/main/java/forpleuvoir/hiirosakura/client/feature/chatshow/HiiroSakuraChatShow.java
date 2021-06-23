@@ -1,20 +1,16 @@
 package forpleuvoir.hiirosakura.client.feature.chatshow;
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
-import forpleuvoir.hiirosakura.client.config.Configs;
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
+import forpleuvoir.hiirosakura.client.feature.regex.ChatMessageRegex;
 import forpleuvoir.hiirosakura.client.util.HSLogger;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Queue;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -31,8 +27,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class HiiroSakuraChatShow {
     private transient static final HSLogger log = HSLogger.getLogger(HiiroSakuraChatShow.class);
     public static HiiroSakuraChatShow INSTANCE;
-    private final Map<UUID, ChatShow> chatShows = new ConcurrentHashMap<>();
-    private final Queue<UUID> removeList = new ConcurrentLinkedQueue<>();
+    private final Map<String, ChatShow> chatShows = new ConcurrentHashMap<>();
+    private final Queue<String> removeList = new ConcurrentLinkedQueue<>();
 
 
     /**
@@ -43,22 +39,24 @@ public class HiiroSakuraChatShow {
         INSTANCE = new HiiroSakuraChatShow();
     }
 
-    public void addChatShow(Text text, UUID uuid) {
-        this.chatShows.put(uuid, new ChatShow(text, uuid, Configs.Values.CHAT_SHOW_TIME.getIntegerValue()));
+    public void addChatShow(Text text) {
+        ChatMessageRegex chatMessageRegex = HiiroSakuraDatas.SERVER_CHAT_MESSAGE_REGEX.chatMessageRegex(text);
+        ChatShow chatShow = ChatShow.getInstance(chatMessageRegex);
+        if (chatMessageRegex != null && chatShow != null)
+            this.chatShows.put(chatMessageRegex.getPlayerName(), chatShow);
     }
 
     public void render(AbstractClientPlayerEntity player, EntityRenderDispatcher dispatcher,
-                       TextRenderer textRenderer,
                        MatrixStack matrixStack
     ) {
         removeList.forEach(chatShows::remove);
         removeList.clear();
-        chatShows.forEach((uuid, chatShow) -> chatShow
-                .render(player, dispatcher, textRenderer, matrixStack));
+        chatShows.forEach((playerName, chatShow) -> chatShow
+                .render(player, dispatcher, matrixStack));
     }
 
-    public void remove(UUID uuid) {
-        removeList.add(uuid);
+    public void remove(String playerName) {
+        removeList.add(playerName);
     }
 
 

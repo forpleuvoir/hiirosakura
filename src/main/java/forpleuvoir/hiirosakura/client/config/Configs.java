@@ -77,9 +77,9 @@ public class Configs implements IConfigHandler {
         );
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
-                CHAT_SHOW, SHOW_ENCHANTMENT, SHOW_TNT_FUSE, SHOW_ITEM_ENTITY_NAME, SHOW_ITEM_ENTITY_ENCHANTMENT,
-                SHOW_ITEM_ENTITY_COUNT, AUTO_REBIRTH, SHOW_TOOLTIP, SHOW_TOOLTIP_ON_ITEM_TOGGLE,
-                SHOW_TOOLTIP_ON_ITEM_ENTITY, ENABLE_QCMS_GUI
+                CHAT_SHOW, SHOW_ENCHANTMENT, SHOW_TNT_FUSE, SHOW_ITEM_ENTITY_NAME,
+                SHOW_ITEM_ENTITY_ENCHANTMENT, SHOW_ITEM_ENTITY_COUNT, AUTO_REBIRTH, SHOW_TOOLTIP,
+                SHOW_TOOLTIP_ON_ITEM_TOGGLE, SHOW_TOOLTIP_ON_ITEM_ENTITY, ENABLE_QCMS_GUI
         );
 
 
@@ -109,18 +109,19 @@ public class Configs implements IConfigHandler {
                 translationKey("chatShowTime"), 200, 0, 9999,
                 translationKey("chatShowTime.comment")
         );
-        public static final ConfigString CHAT_SHOW_PLAYER_NAME_REGEX = new ConfigString(
-                translationKey("chatShowPlayerNameRegex"), "<(\\S*)>",
-                translationKey("chatShowPlayerNameRegex.comment")
-        );
         public static final ConfigDouble CHAT_SHOW_SCALE = new ConfigDouble(
-                translationKey("chatShowScale"), 1D,0.1D,10D,
+                translationKey("chatShowScale"), 1D, 0.1D, 10D,
                 translationKey("chatShowScale.comment")
         );
+        public static final ConfigString CHAT_MESSAGE_DEFAULT_REGEX = new ConfigString(
+                translationKey("chatMessageDefaultRegex"), "(<(?<name>(.*))>)\\s(?<message>.*)",
+                translationKey("chatMessageDefaultRegex.comment")
+        );
+
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 ITEM_ENTITY_TEXT_RENDER_DISTANCE, CHAT_SHOW_HEIGHT, CHAT_SHOW_TEXT_COLOR, CHAT_SHOW_TEXT_MAX_WIDTH,
-                CHAT_SHOW_TIME,CHAT_SHOW_PLAYER_NAME_REGEX,CHAT_SHOW_SCALE
+                CHAT_SHOW_TIME, CHAT_SHOW_SCALE, CHAT_MESSAGE_DEFAULT_REGEX
 
         );
 

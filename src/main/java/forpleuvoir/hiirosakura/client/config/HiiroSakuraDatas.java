@@ -9,6 +9,7 @@ import fi.dy.masa.malilib.util.JsonUtils;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData;
 import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessageSend;
+import forpleuvoir.hiirosakura.client.feature.regex.ServerChatMessageRegex;
 import forpleuvoir.hiirosakura.client.feature.tooltip.Tooltip;
 
 import java.io.File;
@@ -30,9 +31,10 @@ public class HiiroSakuraDatas implements IConfigHandler {
 
     public static final QuickChatMessageSend QUICK_CHAT_MESSAGE_SEND = new QuickChatMessageSend();
     public static final Tooltip TOOLTIP = new Tooltip();
+    public static final ServerChatMessageRegex SERVER_CHAT_MESSAGE_REGEX = new ServerChatMessageRegex();
 
     public static final List<AbstractHiiroSakuraData> DATAS = ImmutableList.of(
-            QUICK_CHAT_MESSAGE_SEND, TOOLTIP
+            QUICK_CHAT_MESSAGE_SEND, TOOLTIP, SERVER_CHAT_MESSAGE_REGEX
     );
 
     public static void initialize() {
@@ -46,7 +48,7 @@ public class HiiroSakuraDatas implements IConfigHandler {
             JsonElement element = JsonUtils.parseJsonFile(configFile);
             if (element != null && element.isJsonObject()) {
                 JsonObject root = element.getAsJsonObject();
-                AbstractHiiroSakuraData.readData(root, "DATAS",DATAS);
+                AbstractHiiroSakuraData.readData(root, "DATAS", DATAS);
             }
         }
     }
@@ -56,7 +58,7 @@ public class HiiroSakuraDatas implements IConfigHandler {
         File dir = CONFIG_FILE_PATH;
         if ((dir.exists() && dir.isDirectory()) || dir.mkdirs()) {
             JsonObject root = new JsonObject();
-            AbstractHiiroSakuraData.writeData(root, "DATAS",DATAS);
+            AbstractHiiroSakuraData.writeData(root, "DATAS", DATAS);
             JsonUtils.writeJsonToFile(root, new File(dir, CONFIG_FILE_NAME));
         }
     }

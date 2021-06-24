@@ -3,6 +3,7 @@ package forpleuvoir.hiirosakura.client.feature.regex;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+import forpleuvoir.hiirosakura.client.config.Configs;
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData;
 import forpleuvoir.hiirosakura.client.util.HSLogger;
 import forpleuvoir.hiirosakura.client.util.JsonUtil;
@@ -26,7 +27,7 @@ import java.util.Objects;
 public class ServerChatMessageRegex extends AbstractHiiroSakuraData {
     private transient static final HSLogger log = HSLogger.getLogger(ServerChatMessageRegex.class);
     private final Map<String, String> regex = new HashMap<>();
-    public static String VANILLA_REGEX = "(<(?<name>(.*))>)\\s(?<message>.*)";
+    public static String VANILLA_REGEX = Configs.Values.CHAT_MESSAGE_DEFAULT_REGEX.getStringValue();
 
 
     public ServerChatMessageRegex() {

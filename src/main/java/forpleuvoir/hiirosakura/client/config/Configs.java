@@ -75,11 +75,24 @@ public class Configs implements IConfigHandler {
                 translationKey("enableQcmsGui"), false,
                 translationKey("enableQcmsGui.comment")
         );
+        public static final ConfigBoolean CHAT_MESSAGE_INJECT = new ConfigBoolean(
+                translationKey("chatMessageInject"), false,
+                translationKey("chatMessageInject.comment")
+        );
+        public static final ConfigBoolean ENABLE_CHAT_MESSAGE_INJECT_REGEX = new ConfigBoolean(
+                translationKey("enableChatMessageInjectRegex"), false,
+                translationKey("enableChatMessageInjectRegex.comment")
+        );
+        public static final ConfigBoolean REVERSE_CHAT_MESSAGE_INJECT_REGEX = new ConfigBoolean(
+                translationKey("reverseChatMessageInjectRegex"), false,
+                translationKey("reverseChatMessageInjectRegex.comment")
+        );
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 CHAT_SHOW, SHOW_ENCHANTMENT, SHOW_TNT_FUSE, SHOW_ITEM_ENTITY_NAME,
                 SHOW_ITEM_ENTITY_ENCHANTMENT, SHOW_ITEM_ENTITY_COUNT, AUTO_REBIRTH, SHOW_TOOLTIP,
-                SHOW_TOOLTIP_ON_ITEM_TOGGLE, SHOW_TOOLTIP_ON_ITEM_ENTITY, ENABLE_QCMS_GUI
+                SHOW_TOOLTIP_ON_ITEM_TOGGLE, SHOW_TOOLTIP_ON_ITEM_ENTITY, ENABLE_QCMS_GUI, CHAT_MESSAGE_INJECT,
+                ENABLE_CHAT_MESSAGE_INJECT_REGEX,REVERSE_CHAT_MESSAGE_INJECT_REGEX
         );
 
 
@@ -117,12 +130,23 @@ public class Configs implements IConfigHandler {
                 translationKey("chatMessageDefaultRegex"), "(<(?<name>(.*))>)\\s(?<message>.*)",
                 translationKey("chatMessageDefaultRegex.comment")
         );
-
+        public static final ConfigString CHAT_MESSAGE_INJECT_PREFIX = new ConfigString(
+                translationKey("chatMessageInjectPrefix"), "",
+                translationKey("chatMessageInjectPrefix.comment")
+        );
+        public static final ConfigString CHAT_MESSAGE_INJECT_SUFFIX = new ConfigString(
+                translationKey("chatMessageInjectSuffix"), "",
+                translationKey("chatMessageInjectSuffix.comment")
+        );
+        public static final ConfigStringList CHAT_MESSAGE_INJECT_REGEX = new ConfigStringList(
+                translationKey("chatMessageInjectRegex"), ImmutableList.of("^\\/"),
+                translationKey("chatMessageInjectRegex.comment")
+        );
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 ITEM_ENTITY_TEXT_RENDER_DISTANCE, CHAT_SHOW_HEIGHT, CHAT_SHOW_TEXT_COLOR, CHAT_SHOW_TEXT_MAX_WIDTH,
-                CHAT_SHOW_TIME, CHAT_SHOW_SCALE, CHAT_MESSAGE_DEFAULT_REGEX
-
+                CHAT_SHOW_TIME, CHAT_SHOW_SCALE, CHAT_MESSAGE_DEFAULT_REGEX, CHAT_MESSAGE_INJECT_PREFIX,
+                CHAT_MESSAGE_INJECT_SUFFIX, CHAT_MESSAGE_INJECT_REGEX
         );
 
         public static String translationKey(String key) {

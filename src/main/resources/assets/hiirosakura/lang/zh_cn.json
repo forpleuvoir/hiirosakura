@@ -5,6 +5,7 @@
   "hiirosakura.gui.button.config_gui.toggles": "开关",
   "hiirosakura.gui.button.config_gui.values": "通用",
   "hiirosakura.gui.button.config_gui.hotkeys": "热键",
+  "hiirosakura.gui.button.add": "添加",
   "hiirosakura.gui.button.apply": "应用",
   "hiirosakura.gui.button.cancel": "取消",
   "hiirosakura.gui.title.qcms": "Hiiro Sakura 快捷消息发送",

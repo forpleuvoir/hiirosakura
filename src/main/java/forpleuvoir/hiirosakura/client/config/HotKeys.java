@@ -28,11 +28,11 @@ public class HotKeys {
             translationKey("openConfig.comment")
     );
     public static final ConfigHotkey OPEN_QCMS = new ConfigHotkey(
-            translationKey("openQcms"), "B",
+            translationKey("openQcms"), "",
             translationKey("openQcms.comment")
     );
     public static final ConfigHotkey SWITCH_CAMERA_ENTITY = new ConfigHotkey(
-            translationKey("switchCameraEntity"), "V",
+            translationKey("switchCameraEntity"), "",
             translationKey("switchCameraEntity.comment")
     );
 

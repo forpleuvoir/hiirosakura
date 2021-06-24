@@ -10,6 +10,7 @@ import fi.dy.masa.malilib.util.StringUtils;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
 import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessageSend;
+import forpleuvoir.hiirosakura.client.util.Colors;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -68,9 +69,9 @@ public class QCMSScreen extends Screen {
                                          if (client.cameraEntity != null) {
                                              List<Text> list = new ArrayList<>();
                                              list.add(new LiteralText(v).styled(style -> style.withColor(
-                                                     Formatting.RED)));
+                                                     Colors.DHWUIA.getColor())));
                                              list.add(getModeText().styled(style -> style.withColor(
-                                                     Formatting.RED)));
+                                                     Colors.FORPLEUVOIR.getColor())));
                                              renderTooltip(matrices, list, mouseX, mouseY);
                                          }
                                      }
@@ -88,7 +89,12 @@ public class QCMSScreen extends Screen {
                                  })
                 )
         );
-
+        this.addDrawableChild(
+                new ButtonWidget(this.width /2 -40, this.height - 75, 80, 20,
+                                 new TranslatableText(String.format("%s.gui.button.add", HiiroSakuraClient.MOD_ID)),
+                                 (button -> openAddScreen())
+                )
+        );
     }
 
     @Override
@@ -121,6 +127,10 @@ public class QCMSScreen extends Screen {
         GuiBase.openGui(new EditScreen(key, value, this));
     }
 
+    private void openAddScreen() {
+        GuiBase.openGui(new EditScreen(this));
+    }
+
     public void toggleMode() {
         this.editMode = !this.editMode;
     }
@@ -131,19 +141,28 @@ public class QCMSScreen extends Screen {
         private final String value;
         private GuiTextFieldGeneric remarkText;
         private GuiTextFieldGeneric valueText;
+        private final boolean editModel;
 
         public EditScreen(String remark, String value, Screen parent) {
             this.setParent(parent);
             this.remark = remark;
             this.value = value;
-            this.setWidthAndHeight(200, 112);
-            this.setTitle("QCMS Edit");
-            this.centerOnScreen();
+            this.editModel = true;
+        }
+
+        public EditScreen(Screen parent) {
+            this.setParent(parent);
+            this.remark = null;
+            this.value = null;
+            this.editModel = false;
         }
 
 
         @Override
         public void initGui() {
+            this.setWidthAndHeight(200, 112);
+            this.setTitle("QCMS Edit");
+            this.centerOnScreen();
             int x = this.dialogLeft + 10;
             int y = this.dialogTop + this.dialogHeight - 24;
             int buttonWidth = this.dialogWidth / 2 - 20;
@@ -160,7 +179,7 @@ public class QCMSScreen extends Screen {
             int x = this.dialogLeft + 10;
             int width = this.dialogWidth - 20;
             remarkText = new GuiTextFieldGeneric(x, y, width, 20, this.textRenderer);
-            remarkText.setText(remark);
+            if (editModel) remarkText.setText(remark);
             this.addTextField(remarkText, null);
         }
 
@@ -168,7 +187,7 @@ public class QCMSScreen extends Screen {
             int x = this.dialogLeft + 10;
             int width = this.dialogWidth - 20;
             valueText = new GuiTextFieldGeneric(x, y, width, 20, this.textRenderer);
-            valueText.setText(value);
+            if (editModel) valueText.setText(value);
             this.addTextField(valueText, null);
         }
 
@@ -201,7 +220,10 @@ public class QCMSScreen extends Screen {
 
         private void apply(ButtonBase button, int mouseButton) {
             if (mouseButton == 0) {
-                HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.reset(remark, remarkText.getText(), valueText.getText());
+                if (editModel)
+                    HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.reset(remark, remarkText.getText(), valueText.getText());
+                else
+                    HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.add(remarkText.getText(), valueText.getText());
             }
             this.closeGui(true);
         }

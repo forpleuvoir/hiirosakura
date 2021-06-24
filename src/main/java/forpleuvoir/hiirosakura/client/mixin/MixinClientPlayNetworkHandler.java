@@ -18,12 +18,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * <p>#create_time 2021/6/22 21:22
  */
 @Mixin(ClientPlayNetworkHandler.class)
-public class MixinClientPlayNetworkHandler {
+public abstract class MixinClientPlayNetworkHandler {
 
-    @Shadow @Final private MinecraftClient client;
+    @Shadow
+    @Final
+    private MinecraftClient client;
 
-    @Inject(method = "onGameJoin",at=@At("RETURN"))
-    public void onGameJoin(CallbackInfo callbackInfo){
+    @Inject(method = "onGameJoin", at = @At("RETURN"))
+    public void onGameJoin(CallbackInfo callbackInfo) {
         SwitchCameraEntity.INSTANCE.setPlayer(client.player);
+        SwitchCameraEntity.INSTANCE.setWorld(client.world);
     }
 }

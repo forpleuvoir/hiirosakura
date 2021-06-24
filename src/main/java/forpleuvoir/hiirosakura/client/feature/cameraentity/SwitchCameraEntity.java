@@ -1,9 +1,17 @@
 package forpleuvoir.hiirosakura.client.feature.cameraentity;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.hit.EntityHitResult;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 import static net.minecraft.util.hit.HitResult.Type.ENTITY;
 
@@ -20,12 +28,29 @@ public class SwitchCameraEntity {
     public static final SwitchCameraEntity INSTANCE = new SwitchCameraEntity(MinecraftClient.getInstance());
     private ClientPlayerEntity player;
     private Entity targetEntity;
+    private ClientWorld world;
     private final MinecraftClient client;
+
 
     public SwitchCameraEntity(MinecraftClient client) {
         this.client = client;
     }
 
+    public List<AbstractClientPlayerEntity> getPlayers() {
+        return world.getPlayers();
+    }
+
+    public List<String> getPlayersSuggest() {
+        List<String> playerNames = new LinkedList<>();
+        getPlayers().forEach(player -> playerNames.add(player.getEntityName()));
+        return playerNames;
+    }
+
+    public void switchOtherPlayer(String playerName) {
+        getPlayers().stream().filter(
+                player -> player.getEntityName().equals(playerName)
+        ).findFirst().ifPresent(client::setCameraEntity);
+    }
 
     public void switchEntity() {
         if (client.getCameraEntity() != null) {
@@ -57,5 +82,9 @@ public class SwitchCameraEntity {
 
     public void setPlayer(ClientPlayerEntity player) {
         this.player = player;
+    }
+
+    public void setWorld(ClientWorld world) {
+        this.world = world;
     }
 }

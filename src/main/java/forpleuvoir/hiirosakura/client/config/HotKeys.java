@@ -3,7 +3,6 @@ package forpleuvoir.hiirosakura.client.config;
 import com.google.common.collect.ImmutableList;
 import fi.dy.masa.malilib.config.options.ConfigHotkey;
 import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.util.InfoUtils;
 import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity;
 import forpleuvoir.hiirosakura.client.gui.GuiConfig;
 import forpleuvoir.hiirosakura.client.gui.QCMSScreen;

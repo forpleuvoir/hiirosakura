@@ -17,7 +17,7 @@
   "license": "MIT",
   "icon": "assets/hiirosakura/icon.png",
 
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
     "client": [
       "forpleuvoir.hiirosakura.client.HiiroSakuraClient"

@@ -2,6 +2,7 @@ package forpleuvoir.hiirosakura.client.feature.chatshow;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
+import fi.dy.masa.malilib.render.RenderUtils;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.config.Configs;
 import forpleuvoir.hiirosakura.client.feature.regex.ChatMessageRegex;
@@ -135,40 +136,32 @@ public class ChatShow {
 
     private void renderBackground(MatrixStack matrixStack, int width, int height) {
         RenderSystem.enableDepthTest();
-        RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE1);
-        RenderUtil.drawTexture(matrixStack, -(width / 2) - 12, -height - 12, -1, 0.0F, 0.0F,
+        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+        RenderUtil.drawTexture(BACKGROUND_TEXTURE1, matrixStack, -(width / 2) - 12, -height - 12, -1, 0.0F, 0.0F,
                                12, 12, 12, 12
         );
-        RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE2);
-        RenderUtil.drawTexture(matrixStack, -(width / 2), -height - 12, -1, 0.0F, 0.0F,
+        RenderUtil.drawTexture(BACKGROUND_TEXTURE2, matrixStack, -(width / 2), -height - 12, -1, 0.0F, 0.0F,
                                width, 12, width, 12
         );
-        RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE3);
-        RenderUtil.drawTexture(matrixStack, width / 2, -height - 12, -1, 0.0F, 0.0F,
+        RenderUtil.drawTexture(BACKGROUND_TEXTURE3, matrixStack, width / 2, -height - 12, -1, 0.0F, 0.0F,
                                12, 12, 12, 12
         );
-        RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE4);
-        RenderUtil.drawTexture(matrixStack, -(width / 2) - 12, -height, -1, 0.0F, 0.0F,
+        RenderUtil.drawTexture(BACKGROUND_TEXTURE4, matrixStack, -(width / 2) - 12, -height, -1, 0.0F, 0.0F,
                                12, height, 12, height
         );
-        RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE5);
-        RenderUtil.drawTexture(matrixStack, -(width / 2), -height, -1, 0.0F, 0.0F,
+        RenderUtil.drawTexture(BACKGROUND_TEXTURE5, matrixStack, -(width / 2), -height, -1, 0.0F, 0.0F,
                                width, height, width, height
         );
-        RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE6);
-        RenderUtil.drawTexture(matrixStack, width / 2, -height, -1, 0.0F, 0.0F,
+        RenderUtil.drawTexture(BACKGROUND_TEXTURE6, matrixStack, width / 2, -height, -1, 0.0F, 0.0F,
                                12, height, 12, height
         );
-        RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE7);
-        RenderUtil.drawTexture(matrixStack, -(width / 2) - 12, 0, -1, 0.0F, 0.0F,
+        RenderUtil.drawTexture(BACKGROUND_TEXTURE7, matrixStack, -(width / 2) - 12, 0, -1, 0.0F, 0.0F,
                                12, 12, 12, 12
         );
-        RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE8);
-        RenderUtil.drawTexture(matrixStack, -(width / 2), 0, -1, 0.0F, 0.0F,
+        RenderUtil.drawTexture(BACKGROUND_TEXTURE8, matrixStack, -(width / 2), 0, -1, 0.0F, 0.0F,
                                width, 12, width, 12
         );
-        RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE9);
-        RenderUtil.drawTexture(matrixStack, width / 2, 0, -1, 0.0F, 0.0F,
+        RenderUtil.drawTexture(BACKGROUND_TEXTURE9, matrixStack, width / 2, 0, -1, 0.0F, 0.0F,
                                12, 12, 12, 12
         );
         RenderSystem.disableDepthTest();

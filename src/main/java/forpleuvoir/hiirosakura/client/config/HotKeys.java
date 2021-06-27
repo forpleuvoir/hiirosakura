@@ -50,7 +50,7 @@ public class HotKeys {
         });
         OPEN_QCMS.getKeybind().setCallback((action, key) -> {
             if (Configs.Toggles.ENABLE_QCMS_GUI.getBooleanValue()) {
-                GuiBase.openGui(new QCMSScreen(false));
+                GuiBase.openGui(new QCMSScreen());
             } else {
                 client.inGameHud.addChatMessage(MessageType.SYSTEM, HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.getAsText(), Util.NIL_UUID);
             }

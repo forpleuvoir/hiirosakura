@@ -7,6 +7,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
+
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -20,15 +21,15 @@ import java.util.function.Consumer;
  * <p>#create_time 2021/6/10 21:38
  */
 @Environment(EnvType.CLIENT)
-public class HiiroSakuraClient implements ClientModInitializer{
-
+public class HiiroSakuraClient implements ClientModInitializer {
+    public static final MinecraftClient mc = MinecraftClient.getInstance();
     //客户端tick处理器
     private static final Queue<Consumer<MinecraftClient>> tickers = new ConcurrentLinkedQueue<>();
     //客户端任务队列
     private static final Queue<Consumer<MinecraftClient>> tasks = new ConcurrentLinkedQueue<>();
     public static final String MOD_ID = "hiirosakura";
     public static final String MOD_NAME = "Hiiro Sakura";
-    private static long trackingTick = 0;
+    private static long tickCounter = 0;
 
 
     @Override
@@ -41,12 +42,13 @@ public class HiiroSakuraClient implements ClientModInitializer{
 
     /**
      * 客户端tick之后会调用
+     *
      * @param client {@link MinecraftClient}
      */
     public void onEndTick(MinecraftClient client) {
         tickers.forEach(minecraftClientConsumer -> minecraftClientConsumer.accept(client));
         HiiroSakuraClient.runTask(client);
-        trackingTick++;
+        tickCounter++;
     }
 
     /**
@@ -83,7 +85,7 @@ public class HiiroSakuraClient implements ClientModInitializer{
         tickers.add(handler);
     }
 
-    public static long getTrackingTick() {
-        return trackingTick;
+    public static long getTickCounter() {
+        return tickCounter;
     }
 }

@@ -1,10 +1,10 @@
 package forpleuvoir.hiirosakura.client.gui;
 
-import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.gui.GuiDialogBase;
-import fi.dy.masa.malilib.gui.GuiTextFieldGeneric;
+import fi.dy.masa.malilib.gui.*;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
+import fi.dy.masa.malilib.gui.button.IButtonActionListener;
+import fi.dy.masa.malilib.interfaces.IConfirmationListener;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
@@ -12,7 +12,6 @@ import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
 import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessageSend;
 import forpleuvoir.hiirosakura.client.util.Colors;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
@@ -20,11 +19,8 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -36,18 +32,32 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>#class_name QCMSScreen
  * <p>#create_time 2021/6/18 21:12
  */
-public class QCMSScreen extends Screen {
-    private boolean editMode;
+public class QCMSScreen extends GuiBase {
+    private final TranslatableText title = new TranslatableText(
+            String.format("%s.gui.title.qcms", HiiroSakuraClient.MOD_ID));
+    private final TranslatableText empty = new TranslatableText(
+            String.format("%s.feature.qcms.data.empty", HiiroSakuraClient.MOD_ID));
+    private final List<QCMSButton> buttons = new LinkedList<>();
 
-    public QCMSScreen(boolean editMode) {
-        super(new TranslatableText(String.format("%s.gui.title.qcms", HiiroSakuraClient.MOD_ID)));
-        this.editMode = editMode;
+    public QCMSScreen() {
+        super();
+        this.setTitle(StringUtils.translate(title.getKey()));
     }
 
     @Override
-    protected void init() {
+    public void initGui() {
+        super.initGui();
         var datas = HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.getDatas();
-        if (datas.isEmpty()) return;
+        this.addButton(
+                new QCMSButton(this.width / 2 - 40, this.height - 55, 80, 20,
+                               StringUtils.translate(String.format("%s.gui.button.add", HiiroSakuraClient.MOD_ID))
+                ),
+                (button, mouseButton) -> openAddScreen()
+        );
+        if (datas.isEmpty()) {
+            this.addGuiMessage(Message.MessageType.WARNING, 2000, empty.getKey());
+            return;
+        }
         int padding = 10;
         AtomicInteger indexX = new AtomicInteger(40);
         AtomicInteger indexY = new AtomicInteger(40);
@@ -60,41 +70,43 @@ public class QCMSScreen extends Screen {
                 indexY.addAndGet(20);
                 indexX.set(40);
             }
-            this.addDrawableChild(
-                    new ButtonWidget(x + padding, y + padding, width, 20,
-                                     new LiteralText(k.replace("&", "§")),
-                                     (button -> this.buttonClick(k, v)),
-                                     (button, matrices, mouseX, mouseY) -> {
-                                         assert client != null;
-                                         if (client.cameraEntity != null) {
-                                             List<Text> list = new ArrayList<>();
-                                             list.add(new LiteralText(v).styled(style -> style.withColor(
-                                                     Colors.DHWUIA.getColor())));
-                                             list.add(getModeText().styled(style -> style.withColor(
-                                                     Colors.FORPLEUVOIR.getColor())));
-                                             renderTooltip(matrices, list, mouseX, mouseY);
-                                         }
-                                     }
-                    ));
+            MutableText message = new LiteralText(v).styled(style -> style.withColor(
+                    Colors.DHWUIA.getColor()));
+            MutableText tooltip = new TranslatableText(String.format("%s.gui.qcms.hover",
+                                                                     HiiroSakuraClient.MOD_ID
+            )).styled(style -> style.withColor(Colors.FORPLEUVOIR.getColor()));
+            var qcmsButton = new QCMSButton(x + padding, y + padding, width, 20,
+                                            k.replace("&", "§"),
+                                            message, tooltip
+            );
+            this.addButton(qcmsButton, (button, mouseButton) ->
+                    this.buttonClick(mouseButton, k, v)
+            );
         });
-        this.addDrawableChild(
-                new ButtonWidget(this.width / 2 - 40, this.height - 50, 80, 20,
-                                 new TranslatableText(String.format("%s.gui.qcms.toggleMode", HiiroSakuraClient.MOD_ID))
-                                         .append(getModeText()),
-                                 (button -> {
-                                     toggleMode();
-                                     button.setMessage(new TranslatableText(
-                                             String.format("%s.gui.qcms.toggleMode", HiiroSakuraClient.MOD_ID))
-                                                               .append(getModeText()));
-                                 })
-                )
-        );
-        this.addDrawableChild(
-                new ButtonWidget(this.width /2 -40, this.height - 75, 80, 20,
-                                 new TranslatableText(String.format("%s.gui.button.add", HiiroSakuraClient.MOD_ID)),
-                                 (button -> openAddScreen())
-                )
-        );
+    }
+
+    private void sendChatMessage(String message) {
+        assert Objects.requireNonNull(client).player != null;
+        if (client.player != null) {
+            client.player.sendChatMessage(message);
+            this.onClose();
+        }
+    }
+
+    protected void drawButtonHoverTexts(int mouseX, int mouseY, float partialTicks, MatrixStack matrixStack) {
+        for (QCMSButton button : buttons) {
+            if (button.hasHoverText() && button.isMouseOver()) {
+                renderTooltip(matrixStack, button.getHoverText(), mouseX + 10, mouseY);
+            }
+        }
+    }
+
+    @Override
+    public <T extends ButtonBase> T addButton(T button, IButtonActionListener listener) {
+        if (button instanceof QCMSButton qcmsButton) {
+            this.buttons.add(qcmsButton);
+        }
+        return super.addButton(button, listener);
     }
 
     @Override
@@ -102,25 +114,41 @@ public class QCMSScreen extends Screen {
         return false;
     }
 
-    private MutableText getModeText() {
-        return !editMode ?
-                new TranslatableText(String.format("%s.gui.qcms.send",
-                                                   HiiroSakuraClient.MOD_ID
-                )) :
-                new TranslatableText(String.format("%s.gui.qcms.edit",
-                                                   HiiroSakuraClient.MOD_ID
-                ));
+    private void buttonClick(int mouseButton, String key, String value) {
+        switch (mouseButton) {
+            case 0 -> sendChatMessage(value);
+            case 1 -> openEditScreen(key, value);
+            case 2 -> openDeleteScreen(key);
+        }
     }
 
-    private void buttonClick(String key, String value) {
-        if (!editMode) {
-            assert client != null;
-            ((ClientPlayerEntity) Objects.requireNonNull(client.getCameraEntity()))
-                    .networkHandler.sendPacket(new ChatMessageC2SPacket(value));
-            this.onClose();
-        } else {
-            openEditScreen(key, value);
-        }
+    private void openDeleteScreen(String key) {
+        String titleKey = String.format("%s.gui.title.qcms.delete", HiiroSakuraClient.MOD_ID);
+        String messageKey = String.format("%s.gui.qcms.confirmDelete", HiiroSakuraClient.MOD_ID);
+        int width = Math.max(textRenderer
+                                     .getWidth(StringUtils.translate(titleKey)),
+                             textRenderer
+                                     .getWidth(StringUtils.translate(messageKey))
+        );
+        var dialog = new GuiConfirmAction(width,
+                                          titleKey,
+                                          new IConfirmationListener() {
+                                              @Override
+                                              public boolean onActionConfirmed() {
+                                                  HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.remove(key);
+                                                  return true;
+                                              }
+
+                                              @Override
+                                              public boolean onActionCancelled() {
+                                                  return false;
+                                              }
+                                          },
+                                          this,
+                                          messageKey,
+                                          key
+        );
+        openGui(dialog);
     }
 
     private void openEditScreen(String key, String value) {
@@ -131,16 +159,34 @@ public class QCMSScreen extends Screen {
         GuiBase.openGui(new EditScreen(this));
     }
 
-    public void toggleMode() {
-        this.editMode = !this.editMode;
-    }
+    public static class QCMSButton extends ButtonGeneric {
+        private final List<Text> hoverText = new LinkedList<>();
 
+        public QCMSButton(int x, int y, int width, int height, String text, Text... hoverText) {
+            super(x, y, width, height, text, "");
+            if (hoverText != null && hoverText.length > 0)
+                this.hoverText.addAll(Arrays.asList(hoverText));
+        }
+
+        public List<Text> getHoverText() {
+            return hoverText;
+        }
+
+        @Override
+        public boolean hasHoverText() {
+            return !hoverText.isEmpty();
+        }
+    }
 
     public static class EditScreen extends GuiDialogBase {
         private final String remark;
         private final String value;
-        private GuiTextFieldGeneric remarkText;
-        private GuiTextFieldGeneric valueText;
+        private GuiTextFieldGeneric remarkTextField;
+        private GuiTextFieldGeneric valueTextField;
+        private final TranslatableText remarkText = new TranslatableText(
+                String.format("%s.gui.qcms.key", HiiroSakuraClient.MOD_ID));
+        private final TranslatableText valueText = new TranslatableText(
+                String.format("%s.gui.qcms.value", HiiroSakuraClient.MOD_ID));
         private final boolean editModel;
 
         public EditScreen(String remark, String value, Screen parent) {
@@ -161,7 +207,7 @@ public class QCMSScreen extends Screen {
         @Override
         public void initGui() {
             this.setWidthAndHeight(200, 112);
-            this.setTitle("QCMS Edit");
+            this.setTitle(StringUtils.translate(String.format("%s.gui.qcms.edit", HiiroSakuraClient.MOD_ID)));
             this.centerOnScreen();
             int x = this.dialogLeft + 10;
             int y = this.dialogTop + this.dialogHeight - 24;
@@ -171,24 +217,30 @@ public class QCMSScreen extends Screen {
             createButton(x, y, buttonWidth, ButtonType.CANCEL);
             int tY = this.dialogTop + 24;
             createRemarkTextField(tY);
-            tY += 20;
+            tY += 35;
             createValueTextField(tY);
         }
 
         public void createRemarkTextField(int y) {
             int x = this.dialogLeft + 10;
             int width = this.dialogWidth - 20;
-            remarkText = new GuiTextFieldGeneric(x, y, width, 20, this.textRenderer);
-            if (editModel) remarkText.setText(remark);
-            this.addTextField(remarkText, null);
+            int textWidth = this.textRenderer.getWidth(remarkText);
+            remarkTextField = new GuiTextFieldGeneric(x + textWidth + 5, y, width - textWidth - 6, 20,
+                                                      this.textRenderer
+            );
+            if (editModel) remarkTextField.setText(remark);
+            this.addTextField(remarkTextField, null);
         }
 
         public void createValueTextField(int y) {
             int x = this.dialogLeft + 10;
             int width = this.dialogWidth - 20;
-            valueText = new GuiTextFieldGeneric(x, y, width, 20, this.textRenderer);
-            if (editModel) valueText.setText(value);
-            this.addTextField(valueText, null);
+            int textWidth = this.textRenderer.getWidth(valueText);
+            valueTextField = new GuiTextFieldGeneric(x + textWidth + 5, y, width - textWidth - 6, 20,
+                                                     this.textRenderer
+            );
+            if (editModel) valueTextField.setText(value);
+            this.addTextField(valueTextField, null);
         }
 
 
@@ -208,9 +260,22 @@ public class QCMSScreen extends Screen {
             this.drawStringWithShadow(matrixStack, this.getTitleString(), this.dialogLeft + 10, this.dialogTop + 4,
                                       COLOR_WHITE
             );
+            this.drawStringWithShadow(matrixStack, StringUtils.translate(remarkText.getKey()), this.dialogLeft + 10,
+                                      this.remarkTextField.getY() + 5,
+                                      COLOR_WHITE
+            );
+            this.drawStringWithShadow(matrixStack, StringUtils.translate(valueText.getKey()), this.dialogLeft + 10,
+                                      this.valueTextField.getY() + 5,
+                                      COLOR_WHITE
+            );
             this.drawTextFields(mouseX, mouseY, matrixStack);
             this.drawButtons(mouseX, mouseY, partialTicks, matrixStack);
             matrixStack.pop();
+        }
+
+        @Override
+        protected void drawTitle(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+
         }
 
         protected void createButton(int x, int y, int buttonWidth, ButtonType type) {
@@ -221,9 +286,10 @@ public class QCMSScreen extends Screen {
         private void apply(ButtonBase button, int mouseButton) {
             if (mouseButton == 0) {
                 if (editModel)
-                    HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.reset(remark, remarkText.getText(), valueText.getText());
+                    HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND
+                            .reset(remark, remarkTextField.getText(), valueTextField.getText());
                 else
-                    HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.add(remarkText.getText(), valueText.getText());
+                    HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.add(remarkTextField.getText(), valueTextField.getText());
             }
             this.closeGui(true);
         }

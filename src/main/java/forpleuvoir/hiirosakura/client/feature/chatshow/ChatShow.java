@@ -2,7 +2,6 @@ package forpleuvoir.hiirosakura.client.feature.chatshow;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
-import fi.dy.masa.malilib.render.RenderUtils;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.config.Configs;
 import forpleuvoir.hiirosakura.client.feature.regex.ChatMessageRegex;
@@ -89,7 +88,7 @@ public class ChatShow {
     public ChatShow(String text, String playerName) {
         this.text = text;
         this.playerName = playerName;
-        this.timer = HiiroSakuraClient.getTrackingTick() + Configs.Values.CHAT_SHOW_TIME.getIntegerValue();
+        this.timer = HiiroSakuraClient.getTickCounter() + Configs.Values.CHAT_SHOW_TIME.getIntegerValue();
         this.textRenderer = MinecraftClient.getInstance().textRenderer;
         this.list = textHandler(Configs.Values.CHAT_SHOW_TEXT_MAX_WIDTH.getIntegerValue());
     }
@@ -103,7 +102,7 @@ public class ChatShow {
      */
     public void render(AbstractClientPlayerEntity player, EntityRenderDispatcher dispatcher, MatrixStack matrixStack
     ) {
-        if (timer <= HiiroSakuraClient.getTrackingTick()) {
+        if (timer <= HiiroSakuraClient.getTickCounter()) {
             HiiroSakuraChatShow.INSTANCE.remove(playerName);
             return;
         }

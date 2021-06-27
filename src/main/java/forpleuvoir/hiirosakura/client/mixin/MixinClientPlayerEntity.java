@@ -8,6 +8,7 @@ import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -33,6 +34,7 @@ public abstract class MixinClientPlayerEntity {
     public String sendChatMessage(String message) {
         return ChatMessageInject.INSTANCE.handlerMessage(message);
     }
+
 
     /**
      * 是否显示死亡画面

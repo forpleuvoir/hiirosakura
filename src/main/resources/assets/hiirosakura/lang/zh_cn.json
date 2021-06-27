@@ -51,6 +51,8 @@
   "hiirosakura.config.toggles.enableChatMessageInjectRegex.comment": "开启或关闭聊天消息注入正则表达式匹配",
   "hiirosakura.config.toggles.reverseChatMessageInjectRegex": "反转聊天消息注入正则表达式匹配",
   "hiirosakura.config.toggles.reverseChatMessageInjectRegex.comment": "开启或关闭反转聊天消息注入正则表达式匹配",
+  "hiirosakura.config.toggles.disableScoreboardSidebarRender": "关闭侧边计分板渲染",
+  "hiirosakura.config.toggles.disableScoreboardSidebarRender.comment": "开启或关闭侧边计分板渲染",
   "#config#values": "values",
   "hiirosakura.config.values.itemEntityTextRenderDistance": "掉落物相关渲染的距离",
   "hiirosakura.config.values.itemEntityTextRenderDistance.comment": "掉落物相关选项的渲染距离",

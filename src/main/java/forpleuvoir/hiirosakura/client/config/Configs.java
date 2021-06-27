@@ -87,12 +87,17 @@ public class Configs implements IConfigHandler {
                 translationKey("reverseChatMessageInjectRegex"), false,
                 translationKey("reverseChatMessageInjectRegex.comment")
         );
+        public static final ConfigBoolean DISABLE_SCOREBOARD_SIDEBAR_RENDER = new ConfigBoolean(
+                translationKey("disableScoreboardSidebarRender"), false,
+                translationKey("disableScoreboardSidebarRender.comment")
+        );
+
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 CHAT_SHOW, SHOW_ENCHANTMENT, SHOW_TNT_FUSE, SHOW_ITEM_ENTITY_NAME,
                 SHOW_ITEM_ENTITY_ENCHANTMENT, SHOW_ITEM_ENTITY_COUNT, AUTO_REBIRTH, SHOW_TOOLTIP,
                 SHOW_TOOLTIP_ON_ITEM_TOGGLE, SHOW_TOOLTIP_ON_ITEM_ENTITY, ENABLE_QCMS_GUI, CHAT_MESSAGE_INJECT,
-                ENABLE_CHAT_MESSAGE_INJECT_REGEX,REVERSE_CHAT_MESSAGE_INJECT_REGEX
+                ENABLE_CHAT_MESSAGE_INJECT_REGEX,REVERSE_CHAT_MESSAGE_INJECT_REGEX,DISABLE_SCOREBOARD_SIDEBAR_RENDER
         );
 
 

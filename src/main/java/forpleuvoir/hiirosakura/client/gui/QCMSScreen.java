@@ -206,6 +206,7 @@ public class QCMSScreen extends GuiBase {
 
         @Override
         public void initGui() {
+            super.initGui();
             this.setWidthAndHeight(200, 112);
             this.setTitle(StringUtils.translate(String.format("%s.gui.qcms.edit", HiiroSakuraClient.MOD_ID)));
             this.centerOnScreen();

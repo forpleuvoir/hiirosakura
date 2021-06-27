@@ -51,6 +51,8 @@
   "hiirosakura.config.toggles.enableChatMessageInjectRegex.comment": "Enabled chat message inject regex match",
   "hiirosakura.config.toggles.reverseChatMessageInjectRegex": "reverseChatMessageInjectRegex",
   "hiirosakura.config.toggles.reverseChatMessageInjectRegex.comment": "Enabled chat message inject reverse regex match",
+  "hiirosakura.config.toggles.disableScoreboardSidebarRender": "disableScoreboardSidebarRender",
+  "hiirosakura.config.toggles.disableScoreboardSidebarRender.comment": "Enabled scoreboard sidebar render",
   "#config#values": "values",
   "hiirosakura.config.values.itemEntityTextRenderDistance": "itemEntityTextRenderDistance",
   "hiirosakura.config.values.itemEntityTextRenderDistance.comment": "ItemEntity TextRender render distance",

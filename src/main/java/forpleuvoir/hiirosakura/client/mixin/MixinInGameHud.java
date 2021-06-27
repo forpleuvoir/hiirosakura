@@ -89,4 +89,11 @@ public abstract class MixinInGameHud {
         }
         RenderSystem.disableBlend();
     }
+
+    @Inject(method = "renderScoreboardSidebar", at = @At("HEAD"), cancellable = true)
+    public void renderScoreboardSidebar(CallbackInfo callbackInfo) {
+        if (Configs.Toggles.DISABLE_SCOREBOARD_SIDEBAR_RENDER.getBooleanValue()) {
+            callbackInfo.cancel();
+        }
+    }
 }

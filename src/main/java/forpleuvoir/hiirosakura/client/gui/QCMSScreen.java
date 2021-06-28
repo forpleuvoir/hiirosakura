@@ -12,15 +12,16 @@ import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
 import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessageSend;
 import forpleuvoir.hiirosakura.client.util.Colors;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**

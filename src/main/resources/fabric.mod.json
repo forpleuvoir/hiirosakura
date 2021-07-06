@@ -14,7 +14,7 @@
     "issues": "https://github.com/forpleuvoir/hiirosakura/issues"
   },
 
-  "license": "MIT",
+  "license": "LGPLv3",
   "icon": "assets/hiirosakura/icon.png",
 
   "environment": "client",
@@ -34,9 +34,10 @@
     "fabricloader": ">=0.11.3",
     "fabric": "*",
     "minecraft": "1.17.x",
-    "java": ">=16"
+    "java": ">=16",
+    "malilib": ">=0.10.0-dev.22+beta.1"
   },
   "suggests": {
-    "another-mod": "*"
+    "another-mod": "modmenu"
   }
 }

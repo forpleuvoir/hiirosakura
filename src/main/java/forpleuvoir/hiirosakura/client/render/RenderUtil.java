@@ -1,4 +1,5 @@
-package forpleuvoir.hiirosakura.client.util;
+package forpleuvoir.hiirosakura.client.render;
+
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import fi.dy.masa.malilib.render.RenderUtils;
@@ -23,7 +24,7 @@ public class RenderUtil {
     }
 
     public static void drawTexture(Identifier texture, MatrixStack matrices, int x, int y, float z, int u, int v,
-                                int width, int height
+                                   int width, int height
     ) {
         RenderSystem.setShaderTexture(0, texture);
         RenderUtils.drawTexturedRect(x, y, u, v, width, height, z);

@@ -6,7 +6,6 @@
   "mixins": [
     "MixinChatHudListener",
     "MixinClientPlayerEntity",
-    "MixinClientPlayNetworkHandler",
     "MixinEntity",
     "MixinInGameHud",
     "MixinItem",

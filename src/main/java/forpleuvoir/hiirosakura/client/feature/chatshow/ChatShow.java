@@ -6,7 +6,7 @@ import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.config.Configs;
 import forpleuvoir.hiirosakura.client.feature.regex.ChatMessageRegex;
 import forpleuvoir.hiirosakura.client.util.HSLogger;
-import forpleuvoir.hiirosakura.client.util.RenderUtil;
+import forpleuvoir.hiirosakura.client.render.RenderUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.AbstractClientPlayerEntity;

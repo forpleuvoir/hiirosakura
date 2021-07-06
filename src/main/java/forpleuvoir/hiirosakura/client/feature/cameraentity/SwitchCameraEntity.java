@@ -2,16 +2,11 @@ package forpleuvoir.hiirosakura.client.feature.cameraentity;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.hit.EntityHitResult;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 import static net.minecraft.util.hit.HitResult.Type.ENTITY;
 
@@ -26,9 +21,7 @@ import static net.minecraft.util.hit.HitResult.Type.ENTITY;
  */
 public class SwitchCameraEntity {
     public static final SwitchCameraEntity INSTANCE = new SwitchCameraEntity(MinecraftClient.getInstance());
-    private ClientPlayerEntity player;
     private Entity targetEntity;
-    private ClientWorld world;
     private final MinecraftClient client;
 
 
@@ -37,12 +30,15 @@ public class SwitchCameraEntity {
     }
 
     public List<AbstractClientPlayerEntity> getPlayers() {
-        return world.getPlayers();
+        if (client.world != null)
+            return client.world.getPlayers();
+        return null;
     }
 
     public List<String> getPlayersSuggest() {
         List<String> playerNames = new LinkedList<>();
-        getPlayers().forEach(player -> playerNames.add(player.getEntityName()));
+        if (getPlayers() != null)
+            getPlayers().forEach(player -> playerNames.add(player.getEntityName()));
         return playerNames;
     }
 
@@ -54,7 +50,7 @@ public class SwitchCameraEntity {
 
     public void switchEntity() {
         if (client.getCameraEntity() != null) {
-            if (client.getCameraEntity().equals(player)) {
+            if (client.getCameraEntity().equals(client.player)) {
                 setTargetEntity();
                 if (targetEntity != null)
                     client.setCameraEntity(targetEntity);
@@ -63,7 +59,7 @@ public class SwitchCameraEntity {
                 targetEntity = null;
             }
         } else {
-            if (player != null) {
+            if (client.player != null) {
                 resetCamera();
             }
         }
@@ -77,14 +73,7 @@ public class SwitchCameraEntity {
     }
 
     public void resetCamera() {
-        client.setCameraEntity(player);
+        client.setCameraEntity(client.player);
     }
 
-    public void setPlayer(ClientPlayerEntity player) {
-        this.player = player;
-    }
-
-    public void setWorld(ClientWorld world) {
-        this.world = world;
-    }
 }

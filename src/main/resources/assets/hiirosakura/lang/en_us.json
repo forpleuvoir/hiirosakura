@@ -14,6 +14,7 @@
   "hiirosakura.gui.qcms.edit": "Edit",
   "hiirosakura.gui.qcms.key": "Remark",
   "hiirosakura.gui.qcms.value": "Value",
+  "hiirosakura.gui.qcms.level": "Level",
   "hiirosakura.gui.qcms.confirmDelete": "Are you sure you want to delete the message [%s] ",
   "#config#hotkeys": "hotkeys",
   "hiirosakura.config.hotkeys.openConfig": "openConfig",

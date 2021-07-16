@@ -5,7 +5,7 @@ import fi.dy.masa.malilib.config.options.ConfigHotkey;
 import fi.dy.masa.malilib.gui.GuiBase;
 import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity;
 import forpleuvoir.hiirosakura.client.gui.GuiConfig;
-import forpleuvoir.hiirosakura.client.gui.QCMSScreen;
+import forpleuvoir.hiirosakura.client.gui.qcms.QCMSScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.MessageType;
 import net.minecraft.util.Util;

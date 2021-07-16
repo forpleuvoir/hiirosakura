@@ -9,6 +9,7 @@ import fi.dy.masa.malilib.util.JsonUtils;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData;
 import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessageSend;
+import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessageSort;
 import forpleuvoir.hiirosakura.client.feature.regex.ServerChatMessageRegex;
 import forpleuvoir.hiirosakura.client.feature.tooltip.Tooltip;
 
@@ -32,9 +33,10 @@ public class HiiroSakuraDatas implements IConfigHandler {
     public static final QuickChatMessageSend QUICK_CHAT_MESSAGE_SEND = new QuickChatMessageSend();
     public static final Tooltip TOOLTIP = new Tooltip();
     public static final ServerChatMessageRegex SERVER_CHAT_MESSAGE_REGEX = new ServerChatMessageRegex();
+    public static final QuickChatMessageSort QUICK_CHAT_MESSAGE_SORT = new QuickChatMessageSort();
 
     public static final List<AbstractHiiroSakuraData> DATAS = ImmutableList.of(
-            QUICK_CHAT_MESSAGE_SEND, TOOLTIP, SERVER_CHAT_MESSAGE_REGEX
+            QUICK_CHAT_MESSAGE_SEND, TOOLTIP, SERVER_CHAT_MESSAGE_REGEX,QUICK_CHAT_MESSAGE_SORT
     );
 
     public static void initialize() {

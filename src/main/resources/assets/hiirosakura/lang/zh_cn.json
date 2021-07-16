@@ -14,6 +14,7 @@
   "hiirosakura.gui.qcms.edit": "编辑",
   "hiirosakura.gui.qcms.key": "备注",
   "hiirosakura.gui.qcms.value": "内容",
+  "hiirosakura.gui.qcms.level": "等级",
   "hiirosakura.gui.qcms.confirmDelete": "确定要删除消息[%s]吗 ",
   "#config#hotkeys": "hotkeys",
   "hiirosakura.config.hotkeys.openConfig": "打开配置界面",

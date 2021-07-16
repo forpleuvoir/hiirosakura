@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData;
 import forpleuvoir.hiirosakura.client.util.HSLogger;
 import forpleuvoir.hiirosakura.client.util.JsonUtil;
@@ -22,7 +23,7 @@ import java.util.*;
  */
 public class QuickChatMessageSend extends AbstractHiiroSakuraData {
     private transient static final HSLogger log = HSLogger.getLogger(QuickChatMessageSend.class);
-    public final Map<String, String> datas = new HashMap<>();
+    private final Map<String, String> datas = new HashMap<>();
 
     public QuickChatMessageSend() {
         super("quick_chat_message_send");
@@ -47,8 +48,8 @@ public class QuickChatMessageSend extends AbstractHiiroSakuraData {
     }
 
     public void remove(String remark) {
-        datas.remove(remark);
-        this.onValueChanged();
+        if (datas.remove(remark) != null)
+            this.onValueChanged();
     }
 
     public void reset(String oldRemark, String newRemark, String newValue) {
@@ -70,10 +71,10 @@ public class QuickChatMessageSend extends AbstractHiiroSakuraData {
         }
     }
 
-    public Map<Text, String> getTextDatas() {
-        final Map<Text, String> map = new HashMap<>();
-        this.datas.forEach((key, value) -> map.put(new LiteralText(key.replace("&", "§")), value));
-        return map;
+    public LinkedList<QuickChatMessage> getTextDatas() {
+        LinkedList<QuickChatMessage> sortedData = HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SORT.getSortedData();
+        HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SORT.getUnSortedData().forEach(sortedData::addLast);
+        return sortedData;
     }
 
     public Map<String, String> getDatas() {
@@ -85,21 +86,19 @@ public class QuickChatMessageSend extends AbstractHiiroSakuraData {
             return new TranslatableText(String.format("%s.feature.qcms.data.empty", HiiroSakuraClient.MOD_ID));
         }
         MutableText text = new LiteralText("");
-        Iterator<Map.Entry<Text, String>> iterator = getTextDatas().entrySet().iterator();
+        Iterator<QuickChatMessage> iterator = getTextDatas().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<Text, String> entry = iterator.next();
-            Text key = entry.getKey();
-            String val = entry.getValue();
+            QuickChatMessage next = iterator.next();
             text.append(
                     Texts.bracketed(
                             new LiteralText("")
-                                    .append(key)
+                                    .append(next.remark().replace("&", "§"))
                                     .styled(style ->
                                                     style.withClickEvent(new ClickEvent(
-                                                            ClickEvent.Action.RUN_COMMAND, val))
+                                                            ClickEvent.Action.RUN_COMMAND, next.message()))
                                                          .withHoverEvent(new HoverEvent(
                                                                  HoverEvent.Action.SHOW_TEXT,
-                                                                 new LiteralText(val)
+                                                                 new LiteralText(next.message())
                                                          ))
                                     )
                     )
@@ -111,7 +110,7 @@ public class QuickChatMessageSend extends AbstractHiiroSakuraData {
     }
 
     public static int getKeyLength(String str) {
-       return str.replaceAll("(&.)","").length();
+        return str.replaceAll("(&.)", "").length();
     }
 
     @Override

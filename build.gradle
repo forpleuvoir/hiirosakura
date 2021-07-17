@@ -11,7 +11,7 @@ version = project.mod_version + "-" + time + "-minecraft." + project.minecraft_v
 group = project.maven_group
 
 repositories {
-	maven { url 'https://maven.terraformersmc.com/releases/' }
+	maven { url 'https://maven.quiltmc.org/repository/release/' }
 	maven { url 'https://masa.dy.fi/maven' }
 }
 

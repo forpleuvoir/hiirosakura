@@ -42,13 +42,13 @@ public abstract class MixinInGameHud {
     private ItemStack currentStack;
 
     @Shadow
-    public abstract TextRenderer getFontRenderer();
-
-    @Shadow
     private int scaledWidth;
 
     @Shadow
     private int scaledHeight;
+
+    @Shadow
+    public abstract TextRenderer getTextRenderer();
 
     @Inject(method = "renderHeldItemTooltip", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/option/GameOptions;getTextBackgroundColor(I)I",
@@ -79,12 +79,12 @@ public abstract class MixinInGameHud {
         int size = mutableTexts.size();
         int newK = k - ((size - 1) * padding) - padding;
         for (Text e : mutableTexts) {
-            int a = this.getFontRenderer().getWidth(e);
+            int a = this.getTextRenderer().getWidth(e);
             int b = (this.scaledWidth - a) / 2;
-            this.getFontRenderer()
-                .drawWithShadow(matrices, e, (float) b, (float) newK + (count * padding),
-                                16777215 + (l << 24)
-                );
+            this.getTextRenderer()
+                    .drawWithShadow(matrices, e, (float) b, (float) newK + (count * padding),
+                            16777215 + (l << 24)
+                    );
             count++;
         }
         RenderSystem.disableBlend();

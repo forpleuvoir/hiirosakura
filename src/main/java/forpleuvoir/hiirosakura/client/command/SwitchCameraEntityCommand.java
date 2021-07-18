@@ -3,7 +3,9 @@ package forpleuvoir.hiirosakura.client.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity;
+import forpleuvoir.hiirosakura.client.util.StringUtil;
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -35,12 +37,29 @@ public class SwitchCameraEntityCommand {
                                                   )
                                                   .executes(SwitchCameraEntityCommand::execute)
                                     )
+                                    .then(literal("switchToTarget")
+                                                  .executes(SwitchCameraEntityCommand::switchToTarget))
+                                    .then(literal("setTarget")
+                                                  .executes(SwitchCameraEntityCommand::setTarget))
         );
     }
 
     private static int execute(CommandContext<FabricClientCommandSource> context) {
-        var playerName = StringArgumentType.getString(context,"player");
+        var playerName = StringArgumentType.getString(context, "player");
         SwitchCameraEntity.INSTANCE.switchOtherPlayer(playerName);
+        return 1;
+    }
+
+    private static int switchToTarget(CommandContext<FabricClientCommandSource> context) {
+        if (!SwitchCameraEntity.INSTANCE.switchToTarget())
+            HiiroSakuraClient.showMessage(StringUtil.translatableText("command.sce.target.null"));
+        return 1;
+    }
+
+    private static int setTarget(CommandContext<FabricClientCommandSource> context) {
+        if (!SwitchCameraEntity.INSTANCE.setTargetEntity())
+            HiiroSakuraClient.showMessage(StringUtil.translatableText("command.sce.target.null"));
+        else HiiroSakuraClient.showMessage(StringUtil.translatableText("command.sce.target.set"));
         return 1;
     }
 }

@@ -1,5 +1,6 @@
 package forpleuvoir.hiirosakura.client.feature.cameraentity;
 
+import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
@@ -24,6 +25,18 @@ public class SwitchCameraEntity {
     private Entity targetEntity;
     private final MinecraftClient client;
 
+    static {
+        HiiroSakuraClient.addTickHandler(mc -> {
+            if (mc.options.keySneak.wasPressed()) {
+                if (mc.getCameraEntity() == SwitchCameraEntity.INSTANCE.targetEntity)
+                    mc.setCameraEntity(mc.player);
+            }
+        });
+    }
+
+    public boolean isSwitched() {
+        return client.getCameraEntity() == targetEntity;
+    }
 
     public SwitchCameraEntity(MinecraftClient client) {
         this.client = client;
@@ -48,16 +61,27 @@ public class SwitchCameraEntity {
         ).findFirst().ifPresent(client::setCameraEntity);
     }
 
+    public boolean switchToTarget() {
+        if (targetEntity != null) {
+            if (targetEntity.isLiving()) {
+                if (targetEntity.isAlive()) {
+                    client.setCameraEntity(targetEntity);
+                } else {
+                    return false;
+                }
+            } else {
+                client.setCameraEntity(targetEntity);
+            }
+            return true;
+        }
+        return false;
+    }
+
     public void switchEntity() {
         if (client.getCameraEntity() != null) {
-            if (client.getCameraEntity().equals(client.player)) {
-                setTargetEntity();
-                if (targetEntity != null)
-                    client.setCameraEntity(targetEntity);
-            } else {
-                resetCamera();
-                targetEntity = null;
-            }
+            setTargetEntity();
+            if (targetEntity != null)
+                client.setCameraEntity(targetEntity);
         } else {
             if (client.player != null) {
                 resetCamera();
@@ -65,11 +89,17 @@ public class SwitchCameraEntity {
         }
     }
 
-    public void setTargetEntity() {
-        if (client.crosshairTarget == null) return;
+    public boolean setTargetEntity() {
+        if (client.crosshairTarget == null) return false;
         if (client.crosshairTarget.getType().equals(ENTITY)) {
             targetEntity = ((EntityHitResult) client.crosshairTarget).getEntity();
+            if (targetEntity == client.player) {
+                targetEntity = null;
+                return false;
+            }
+            return true;
         }
+        return false;
     }
 
     public void resetCamera() {

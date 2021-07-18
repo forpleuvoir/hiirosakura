@@ -1,8 +1,12 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
+import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.tutorial.TutorialManager;
 import net.minecraft.client.tutorial.TutorialStep;
+import net.minecraft.entity.Entity;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -33,9 +37,11 @@ public abstract class MixinMinecraftClient {
         tutorialManager.setStep(TutorialStep.NONE);
     }
 
-    @Inject(method = "doAttack", at = @At("HEAD"),cancellable = true)
+    @Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
     public void doAttack(CallbackInfo callbackInfo) {
-
+        if (SwitchCameraEntity.INSTANCE.isSwitched()) {
+            callbackInfo.cancel();
+        }
     }
 
 }

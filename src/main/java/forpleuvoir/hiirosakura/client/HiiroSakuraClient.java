@@ -7,6 +7,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.network.MessageType;
+import net.minecraft.text.Text;
 
 import java.util.Iterator;
 import java.util.Queue;
@@ -38,6 +40,14 @@ public class HiiroSakuraClient implements ClientModInitializer {
         //MinecraftClient.tick注册
         ClientTickEvents.END_CLIENT_TICK.register(this::onEndTick);
 
+    }
+
+    /**
+     * 添加游戏信息
+     * @param message 消息文本
+     */
+    public static void showMessage(Text message){
+        mc.inGameHud.addChatMessage(MessageType.GAME_INFO,message,null);
     }
 
     /**

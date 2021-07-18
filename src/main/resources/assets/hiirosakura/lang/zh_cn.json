@@ -93,6 +93,8 @@
   "hiirosakura.command.config.save": "配置已保存",
   "hiirosakura.command.data.reload": "数据已重新加载",
   "hiirosakura.command.data.save": "数据已保存",
+  "hiirosakura.command.sce.target.null": "目标实体为空",
+  "hiirosakura.command.sce.target.set": "目标实体已设置",
   "#feature": "feature",
   "hiirosakura.feature.qcms.data.empty": "没有qcms数据"
 }

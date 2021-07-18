@@ -1,5 +1,8 @@
 package forpleuvoir.hiirosakura.client.util;
 
+import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
+import net.minecraft.text.TranslatableText;
+
 /**
  * 字符串工具
  *
@@ -32,5 +35,9 @@ public class StringUtil {
 
     public static boolean isEmpty(String regex) {
         return regex == null || regex.isEmpty();
+    }
+
+    public static TranslatableText translatableText(String key,Object... params){
+        return new TranslatableText(String.format("%s.%s", HiiroSakuraClient.MOD_ID,key),params);
     }
 }

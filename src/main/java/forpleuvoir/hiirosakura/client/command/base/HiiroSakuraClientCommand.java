@@ -36,6 +36,7 @@ public class HiiroSakuraClientCommand {
         ConfigCommand.register(commandDispatcher);
         ServerChatMessageRegexCommand.register(commandDispatcher);
         SwitchCameraEntityCommand.register(commandDispatcher);
+        TaskCommand.register(commandDispatcher);
     }
 
     public static String getTranslatableTextKey(String type, String key) {

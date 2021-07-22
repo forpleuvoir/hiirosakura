@@ -9,6 +9,7 @@ import forpleuvoir.hiirosakura.client.config.Configs;
 import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
 import forpleuvoir.hiirosakura.client.config.HotKeys;
 import forpleuvoir.hiirosakura.client.feature.chatshow.HiiroSakuraChatShow;
+import forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler;
 import forpleuvoir.hiirosakura.client.util.HSLogger;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.minecraft.client.MinecraftClient;
@@ -37,7 +38,8 @@ public class InitHandler implements IInitializationHandler {
         HiiroSakuraChatShow.initialize();
         //初始化输入处理程序
         InputEventHandler.getKeybindManager().registerKeybindProvider(InputHandler.getInstance());
-
+        //按键回调
         HotKeys.callback(MinecraftClient.getInstance());
+        TimeTaskHandler.initialize();
     }
 }

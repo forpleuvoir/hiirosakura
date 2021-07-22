@@ -23,6 +23,7 @@ import static net.minecraft.command.CommandSource.suggestMatching;
  * <p>#create_time 2021/6/24 20:56
  */
 public class SwitchCameraEntityCommand {
+    private final static HiiroSakuraClient hs = HiiroSakuraClient.getINSTANCE();
     public static final String TYPE = "sce";
 
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
@@ -52,14 +53,14 @@ public class SwitchCameraEntityCommand {
 
     private static int switchToTarget(CommandContext<FabricClientCommandSource> context) {
         if (!SwitchCameraEntity.INSTANCE.switchToTarget())
-            HiiroSakuraClient.showMessage(StringUtil.translatableText("command.sce.target.null"));
+            hs.showMessage(StringUtil.translatableText("command.sce.target.null"));
         return 1;
     }
 
     private static int setTarget(CommandContext<FabricClientCommandSource> context) {
         if (!SwitchCameraEntity.INSTANCE.setTargetEntity())
-            HiiroSakuraClient.showMessage(StringUtil.translatableText("command.sce.target.null"));
-        else HiiroSakuraClient.showMessage(StringUtil.translatableText("command.sce.target.set"));
+            hs.showMessage(StringUtil.translatableText("command.sce.target.null"));
+        else hs.showMessage(StringUtil.translatableText("command.sce.target.set"));
         return 1;
     }
 }

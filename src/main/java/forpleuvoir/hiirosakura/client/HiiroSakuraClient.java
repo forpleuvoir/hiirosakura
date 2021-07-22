@@ -11,6 +11,7 @@ import net.minecraft.network.MessageType;
 import net.minecraft.text.Text;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
@@ -24,18 +25,20 @@ import java.util.function.Consumer;
  */
 @Environment(EnvType.CLIENT)
 public class HiiroSakuraClient implements ClientModInitializer {
-    public static final MinecraftClient mc = MinecraftClient.getInstance();
+    private static HiiroSakuraClient INSTANCE;
+    public final MinecraftClient mc = MinecraftClient.getInstance();
     //客户端tick处理器
-    private static final Queue<Consumer<MinecraftClient>> tickers = new ConcurrentLinkedQueue<>();
+    private final Queue<Consumer<HiiroSakuraClient>> tickers = new ConcurrentLinkedQueue<>();
     //客户端任务队列
-    private static final Queue<Consumer<MinecraftClient>> tasks = new ConcurrentLinkedQueue<>();
+    private final Queue<Consumer<MinecraftClient>> tasks = new ConcurrentLinkedQueue<>();
     public static final String MOD_ID = "hiirosakura";
     public static final String MOD_NAME = "Hiiro Sakura";
-    private static long tickCounter = 0;
+    private long tickCounter = 0;
 
 
     @Override
     public void onInitializeClient() {
+        INSTANCE = this;
         InitializationHandler.getInstance().registerInitializationHandler(new InitHandler());
         //MinecraftClient.tick注册
         ClientTickEvents.END_CLIENT_TICK.register(this::onEndTick);
@@ -44,10 +47,11 @@ public class HiiroSakuraClient implements ClientModInitializer {
 
     /**
      * 添加游戏信息
+     *
      * @param message 消息文本
      */
-    public static void showMessage(Text message){
-        mc.inGameHud.addChatMessage(MessageType.GAME_INFO,message,null);
+    public void showMessage(Text message) {
+        mc.inGameHud.addChatMessage(MessageType.GAME_INFO, message, null);
     }
 
     /**
@@ -56,8 +60,8 @@ public class HiiroSakuraClient implements ClientModInitializer {
      * @param client {@link MinecraftClient}
      */
     public void onEndTick(MinecraftClient client) {
-        tickers.forEach(minecraftClientConsumer -> minecraftClientConsumer.accept(client));
-        HiiroSakuraClient.runTask(client);
+        tickers.forEach(minecraftClientConsumer -> minecraftClientConsumer.accept(this));
+        this.runTask(client);
         tickCounter++;
     }
 
@@ -66,7 +70,7 @@ public class HiiroSakuraClient implements ClientModInitializer {
      *
      * @param client {@link MinecraftClient}
      */
-    public static void runTask(MinecraftClient client) {
+    public void runTask(MinecraftClient client) {
         Iterator<Consumer<MinecraftClient>> iterator = tasks.iterator();
         while (iterator.hasNext()) {
             Consumer<MinecraftClient> next = iterator.next();
@@ -81,7 +85,7 @@ public class HiiroSakuraClient implements ClientModInitializer {
      *
      * @param task {@link Consumer<MinecraftClient>}
      */
-    public static void addTask(Consumer<MinecraftClient> task) {
+    public void addTask(Consumer<MinecraftClient> task) {
         tasks.add(task);
     }
 
@@ -91,11 +95,19 @@ public class HiiroSakuraClient implements ClientModInitializer {
      *
      * @param handler {@link Consumer<MinecraftClient>}
      */
-    public static void addTickHandler(Consumer<MinecraftClient> handler) {
+    public void addTickHandler(Consumer<HiiroSakuraClient> handler) {
         tickers.add(handler);
     }
 
-    public static long getTickCounter() {
+    public void sendMessage(String message) {
+        Objects.requireNonNull(mc.player).sendChatMessage(message);
+    }
+
+    public long getTickCounter() {
         return tickCounter;
+    }
+
+    public static HiiroSakuraClient getINSTANCE() {
+        return INSTANCE;
     }
 }

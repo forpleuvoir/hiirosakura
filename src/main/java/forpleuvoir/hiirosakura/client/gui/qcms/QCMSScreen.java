@@ -9,6 +9,8 @@ import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
 import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessage;
 import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessageSend;
+import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
+import forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler;
 import forpleuvoir.hiirosakura.client.util.Colors;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -88,7 +90,8 @@ public class QCMSScreen extends GuiBase {
         assert Objects.requireNonNull(client).player != null;
         if (client.player != null) {
             client.player.sendChatMessage(message);
-            this.onClose();
+            TimeTaskHandler.getInstance()
+                           .addTask("Close_QCMS_Screen", TimeTask.once(hiiroSakuraClient -> this.onClose(), 5));
         }
     }
 

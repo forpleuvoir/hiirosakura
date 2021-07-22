@@ -88,7 +88,7 @@ public class ChatShow {
     public ChatShow(String text, String playerName) {
         this.text = text;
         this.playerName = playerName;
-        this.timer = HiiroSakuraClient.getTickCounter() + Configs.Values.CHAT_SHOW_TIME.getIntegerValue();
+        this.timer = HiiroSakuraClient.getINSTANCE().getTickCounter() + Configs.Values.CHAT_SHOW_TIME.getIntegerValue();
         this.textRenderer = MinecraftClient.getInstance().textRenderer;
         this.list = textHandler(Configs.Values.CHAT_SHOW_TEXT_MAX_WIDTH.getIntegerValue());
     }
@@ -102,7 +102,7 @@ public class ChatShow {
      */
     public void render(AbstractClientPlayerEntity player, EntityRenderDispatcher dispatcher, MatrixStack matrixStack
     ) {
-        if (timer <= HiiroSakuraClient.getTickCounter()) {
+        if (timer <= HiiroSakuraClient.getINSTANCE().getTickCounter()) {
             HiiroSakuraChatShow.INSTANCE.remove(playerName);
             return;
         }

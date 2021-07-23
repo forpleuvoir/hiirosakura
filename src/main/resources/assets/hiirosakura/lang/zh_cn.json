@@ -95,6 +95,7 @@
   "hiirosakura.command.data.save": "数据已保存",
   "hiirosakura.command.sce.target.null": "目标实体为空",
   "hiirosakura.command.sce.target.set": "目标实体已设置",
+  "hiirosakura.command.arg.event.error": "未知事件类型",
   "#feature": "feature",
   "hiirosakura.feature.qcms.data.empty": "没有qcms数据"
 }

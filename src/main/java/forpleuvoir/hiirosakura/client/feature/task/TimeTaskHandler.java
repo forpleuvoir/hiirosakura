@@ -1,6 +1,8 @@
 package forpleuvoir.hiirosakura.client.feature.task;
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
+import forpleuvoir.hiirosakura.client.feature.event.OnGameJoinEvent;
+import forpleuvoir.hiirosakura.client.feature.event.base.EventBus;
 import net.minecraft.client.MinecraftClient;
 
 import java.util.Iterator;
@@ -31,6 +33,10 @@ public class TimeTaskHandler {
 
     public void addTask(String name, TimeTask task) {
         timeTaskHashMap.put(name, task);
+    }
+
+    public void addTask(TimeTask task) {
+        timeTaskHashMap.put(task.getName(), task);
     }
 
     public void removeTask(String name) {

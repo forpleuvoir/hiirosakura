@@ -95,6 +95,7 @@
   "hiirosakura.command.data.save": "Data save",
   "hiirosakura.command.sce.target.null": "Target is null",
   "hiirosakura.command.sce.target.set": "Target set success",
+  "hiirosakura.command.arg.event.error": "Un know event type",
   "#feature": "feature",
   "hiirosakura.feature.qcms.data.empty": "Have not qcms data"
 }

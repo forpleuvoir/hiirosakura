@@ -16,43 +16,21 @@ import java.util.function.Consumer;
  */
 public class TimeTask {
     private final Consumer<HiiroSakuraClient> task;
-    /**
-     * 初次执行时间间隔 客户端tick
-     */
-    private final Integer startTime;
-    /**
-     * 循环次数
-     */
-    private final Integer cycles;
-    /**
-     * 每次循环执行的间隔
-     */
-    private final Integer cyclesTime;
-
+    private final TimeTaskData data;
     private Integer counter = 0;
     private Integer timeCounter = 0;
 
-    public static TimeTask once(Consumer<HiiroSakuraClient> task) {
-        return new TimeTask(task, 0, 1, 0);
+    public static TimeTask once(Consumer<HiiroSakuraClient> task, String name) {
+        return once(task, 0, name);
     }
 
-    public static TimeTask once(Consumer<HiiroSakuraClient> task, Integer startTime) {
-        return new TimeTask(task, startTime, 1, 0);
+    public static TimeTask once(Consumer<HiiroSakuraClient> task, Integer startTime, String name) {
+        return new TimeTask(task, new TimeTaskData(startTime, 1, 0, name));
     }
 
-    public TimeTask(Consumer<HiiroSakuraClient> task, Integer cycles,
-                    Integer cyclesTime
-    ) {
-        this(task, 0, cycles, cyclesTime);
-    }
-
-    public TimeTask(Consumer<HiiroSakuraClient> task, Integer startTime, Integer cycles,
-                    Integer cyclesTime
-    ) {
+    public TimeTask(Consumer<HiiroSakuraClient> task, TimeTaskData data) {
         this.task = task;
-        this.startTime = startTime;
-        this.cycles = cycles;
-        this.cyclesTime = cyclesTime;
+        this.data = data;
     }
 
     public void executes(HiiroSakuraClient client) {
@@ -65,14 +43,18 @@ public class TimeTask {
     private boolean shouldExecute() {
         timeCounter++;
         if (counter == 0) {
-            return timeCounter >= startTime;
+            return timeCounter >= data.startTime();
         } else {
-            return timeCounter >= cyclesTime;
+            return timeCounter >= data.cyclesTime();
         }
 
     }
 
     public boolean isOver() {
-        return counter >= cycles;
+        return counter >= data.cycles();
+    }
+
+    public String getName() {
+        return data.name();
     }
 }

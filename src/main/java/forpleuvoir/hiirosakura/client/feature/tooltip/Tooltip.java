@@ -30,7 +30,7 @@ import static forpleuvoir.hiirosakura.client.util.PlayerHeadUtil.getSkullOwner;
 public class Tooltip extends AbstractHiiroSakuraData {
 
     private transient static final HSLogger log = HSLogger.getLogger(Tooltip.class);
-    public Map<String, List<String>> datas = new HashMap<>();
+    public Map<String, List<String>> data = new HashMap<>();
 
     public Tooltip() {
         super("tooltip");
@@ -40,10 +40,10 @@ public class Tooltip extends AbstractHiiroSakuraData {
         if (tooltip == null || tooltip.length == 0) return;
         List<String> tooltips = Lists.newArrayList();
         Arrays.stream(tooltip).forEach(s -> tooltips.add(s.replace("&", "§")));
-        if (datas.containsKey(key)) {
-            datas.get(key).addAll(tooltips);
+        if (data.containsKey(key)) {
+            data.get(key).addAll(tooltips);
         } else {
-            datas.put(key, tooltips);
+            data.put(key, tooltips);
         }
         this.onValueChanged();
     }
@@ -57,21 +57,21 @@ public class Tooltip extends AbstractHiiroSakuraData {
     }
 
     private String remove(String key, int index) {
-        if (datas.containsKey(key)) {
+        if (data.containsKey(key)) {
             StringBuilder s = new StringBuilder();
             if (index < 0) {
-                for (String s1 : datas.get(key)) {
+                for (String s1 : data.get(key)) {
                     s.append(s1);
                     s.append(",");
                 }
                 s.deleteCharAt(s.length()-1);
-                datas.remove(key);
+                data.remove(key);
             } else {
                 try {
-                    s = new StringBuilder(datas.get(key).get(index));
-                    datas.get(key).remove(index);
-                    if(datas.get(key).size()==0){
-                        datas.remove(key);
+                    s = new StringBuilder(data.get(key).get(index));
+                    data.get(key).remove(index);
+                    if(data.get(key).size()==0){
+                        data.remove(key);
                     }
                 } catch (IndexOutOfBoundsException e) {
                     return null;
@@ -87,8 +87,8 @@ public class Tooltip extends AbstractHiiroSakuraData {
         var list = new ArrayList<Text>();
         if (Configs.Toggles.SHOW_TOOLTIP.getBooleanValue()) {
             String key = getKey(stack);
-            if (datas.containsKey(key)) {
-                var tips = datas.get(key);
+            if (data.containsKey(key)) {
+                var tips = data.get(key);
                 tips.forEach(tip -> list.add(new LiteralText(tip)));
             }
         }
@@ -103,8 +103,8 @@ public class Tooltip extends AbstractHiiroSakuraData {
                 Map<String, List<String>> data = JsonUtil.gson
                         .fromJson(object, new TypeToken<Map<String, List<String>>>() {
                         }.getType());
-                datas.clear();
-                datas.putAll(data);
+                this.data.clear();
+                this.data.putAll(data);
             } else {
                 log.warn("{}无法从JsonElement{}中读取数据", this.getName(), element);
             }
@@ -115,7 +115,7 @@ public class Tooltip extends AbstractHiiroSakuraData {
 
     @Override
     public JsonElement getAsJsonElement() {
-        return JsonUtil.gson.toJsonTree(datas);
+        return JsonUtil.gson.toJsonTree(data);
     }
 
     public static String getKey(ItemStack stack) {

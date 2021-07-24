@@ -1,6 +1,7 @@
 package forpleuvoir.hiirosakura.client.feature.event.base;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonObject;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 
 import java.util.function.Consumer;
@@ -27,4 +28,10 @@ public abstract class Event {
             }
         }
     }
+
+    /**
+     * 处理JSON文本
+     * @param json json文本
+     */
+    public abstract String handlerJsonStr(String json);
 }

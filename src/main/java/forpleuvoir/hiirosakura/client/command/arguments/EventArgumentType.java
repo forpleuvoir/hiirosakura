@@ -13,7 +13,6 @@ import forpleuvoir.hiirosakura.client.util.StringUtil;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
 
 /**
  * 事件参数类型

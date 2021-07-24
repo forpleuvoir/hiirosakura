@@ -37,9 +37,8 @@ public class JsonUtil {
      *
      * @param json 需要转换的字符串对象
      * @return JsonObject对象
-     * @throws Exception
      */
-    public static JsonObject strToJsonObject(String json) {
+    public static JsonObject parseToJsonObject(String json) {
         return new JsonParser().parse(json).getAsJsonObject();
     }
 

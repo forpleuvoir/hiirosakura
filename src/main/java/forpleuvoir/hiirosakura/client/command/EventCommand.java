@@ -1,14 +1,12 @@
 package forpleuvoir.hiirosakura.client.command;
 
-import com.google.gson.JsonParser;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import forpleuvoir.hiirosakura.client.command.arguments.EventArgumentType;
-import forpleuvoir.hiirosakura.client.feature.event.base.EventBus;
-import forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler;
-import forpleuvoir.hiirosakura.client.feature.task.TimeTaskParser;
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
+import net.minecraft.command.argument.NbtPathArgumentType;
 
 import static forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.COMMAND_PREFIX;
 import static net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.argument;
@@ -30,10 +28,8 @@ public class EventCommand {
         dispatcher.register(literal(COMMAND_PREFIX + TYPE)
                 .then(literal("subscribe")
                         .then(argument("eventType", EventArgumentType.event())
-                                .then(argument("name", StringArgumentType.string())
-                                        .then(argument("timeTask", StringArgumentType.string())
-                                                .executes(EventCommand::subscribe)
-                                        )
+                                .then(argument("timeTask", NbtPathArgumentType.nbtPath())
+                                        .executes(EventCommand::subscribe)
                                 )
                         )
                 )
@@ -48,17 +44,16 @@ public class EventCommand {
     }
 
     public static int subscribe(CommandContext<FabricClientCommandSource> context) {
+        var nbt = (NbtPathArgumentType.NbtPath) context.getArgument("timeTask", NbtPathArgumentType.NbtPath.class);
         var eventType = EventArgumentType.getEventType(context, "eventType");
-        var name = StringArgumentType.getString(context, "name");
-        var timeTaskJson = new JsonParser().parse(StringArgumentType.getString(context, "timeTask")).getAsJsonObject();
-        EventBus.subscribe(eventType, name, event -> TimeTaskHandler.getInstance().addTask(TimeTaskParser.parse(timeTaskJson)));
+        HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.subscriber(eventType, nbt.toString());
         return 1;
     }
 
     public static int unsubscribe(CommandContext<FabricClientCommandSource> context) {
         var eventType = EventArgumentType.getEventType(context, "eventType");
         var name = StringArgumentType.getString(context, "name");
-        EventBus.unsubscribe(eventType, name);
+        HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.unsubscribe(eventType, name);
         return 1;
     }
 }

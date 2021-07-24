@@ -2,7 +2,6 @@ package forpleuvoir.hiirosakura.client.feature.task.executor;
 
 import com.google.gson.JsonObject;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
-import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskData;
 
 import java.util.function.Consumer;
@@ -29,8 +28,6 @@ public class SendChatMessageExecutor implements IExecutor {
 
     @Override
     public Consumer<HiiroSakuraClient> getExecutor() {
-        return hiiroSakuraClient -> {
-            hiiroSakuraClient.sendMessage(message);
-        };
+        return hiiroSakuraClient -> hiiroSakuraClient.sendMessage(message);
     }
 }

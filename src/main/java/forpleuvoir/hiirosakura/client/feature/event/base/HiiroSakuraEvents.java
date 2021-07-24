@@ -1,9 +1,18 @@
 package forpleuvoir.hiirosakura.client.feature.event.base;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData;
 import forpleuvoir.hiirosakura.client.feature.event.OnGameJoinEvent;
+import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
+import forpleuvoir.hiirosakura.client.feature.task.TimeTaskParser;
+import forpleuvoir.hiirosakura.client.util.HSLogger;
+import forpleuvoir.hiirosakura.client.util.JsonUtil;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * MOD事件集合
@@ -14,9 +23,87 @@ import java.util.Map;
  * <p>#class_name HiiroSakuraEvents
  * <p>#create_time 2021-07-23 13:44
  */
-public class HiiroSakuraEvents {
+public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
+    private static transient final HSLogger log = HSLogger.getLogger(HiiroSakuraEvents.class);
     public static final Map<String, Class<? extends Event>> events = ImmutableMap.of(
             "OnGameJoin", OnGameJoinEvent.class
     );
+
+    /**
+     * key:事件名
+     * <p>value:订阅该事件 的task json数据 集合
+     */
+    private final Map<String, Map<String, String>> data = new ConcurrentHashMap<>();
+
+    private static String getEventType(Class<? extends Event> eventType) {
+        for (Map.Entry<String, Class<? extends Event>> next : events.entrySet()) {
+            if (next.getValue().equals(eventType)) {
+                return next.getKey();
+            }
+        }
+        return null;
+    }
+
+    public HiiroSakuraEvents() {
+        super("event");
+    }
+
+
+    public void subscriber(Class<? extends Event> eventType, String json) {
+        subscriber(getEventType(eventType), json);
+    }
+
+    public void subscriber(String eventType, String json) {
+        TimeTask timeTask = TimeTaskParser.parse(JsonUtil.parseToJsonObject(json));
+        if (data.containsKey(eventType)) {
+            data.get(eventType).put(timeTask.getName(), json);
+        } else {
+            data.put(eventType, Map.of(timeTask.getName(), json));
+        }
+        this.onValueChanged();
+    }
+
+    public void unsubscribe(Class<? extends Event> eventType, String name) {
+        unsubscribe(getEventType(eventType), name);
+    }
+
+    public void unsubscribe(String eventType, String name) {
+        if (data.containsKey(eventType))
+            data.get(eventType).remove(name);
+        EventBus.unsubscribe(events.get(eventType), name);
+        this.onValueChanged();
+    }
+
+    public void sync() {
+        data.forEach((k, v) ->
+                v.forEach((name, task) ->
+                        EventBus.subscribeRunAsTimeTask(events.get(k), task)
+                )
+        );
+    }
+
+    @Override
+    public void setValueFromJsonElement(JsonElement element) {
+        try {
+            if (element.isJsonObject()) {
+                JsonObject object = element.getAsJsonObject();
+                Map<String, Map<String, String>> saveData = JsonUtil.gson.fromJson(object, new TypeToken<Map<String, Map<String, String>>>() {
+                }.getType());
+                this.data.clear();
+                this.data.putAll(saveData);
+                sync();
+            } else {
+                log.warn("{}无法从JsonElement{}中读取数据", this.getName(), element);
+            }
+        } catch (Exception e) {
+            log.warn("{}无法从JsonElement{}中读取数据", this.getName(), element, e);
+        }
+    }
+
+    @Override
+    public JsonElement getAsJsonElement() {
+        return JsonUtil.gson.toJsonTree(data);
+    }
+
 
 }

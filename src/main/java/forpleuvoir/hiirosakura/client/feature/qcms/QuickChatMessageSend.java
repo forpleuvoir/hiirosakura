@@ -3,11 +3,11 @@ package forpleuvoir.hiirosakura.client.feature.qcms;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData;
 import forpleuvoir.hiirosakura.client.util.HSLogger;
 import forpleuvoir.hiirosakura.client.util.JsonUtil;
+import forpleuvoir.hiirosakura.client.util.StringUtil;
 import net.minecraft.text.*;
 
 import java.util.*;
@@ -23,38 +23,38 @@ import java.util.*;
  */
 public class QuickChatMessageSend extends AbstractHiiroSakuraData {
     private transient static final HSLogger log = HSLogger.getLogger(QuickChatMessageSend.class);
-    private final Map<String, String> datas = new HashMap<>();
+    private final Map<String, String> data = new HashMap<>();
 
     public QuickChatMessageSend() {
         super("quick_chat_message_send");
     }
 
     public boolean add(String remark, String messageStr) {
-        if (datas.containsKey(remark)) return false;
+        if (data.containsKey(remark)) return false;
         return put(remark, messageStr);
     }
 
     public Set<String> getKeySet() {
         Set<String> set = new HashSet<>();
-        datas.keySet().forEach(key -> set.add(String.format("\"%s\"", key)));
+        data.keySet().forEach(key -> set.add(String.format("\"%s\"", key)));
         return set;
     }
 
     public boolean put(String remark, String messageStr) {
         if (getKeyLength(remark) < 1) return false;
-        datas.put(remark, messageStr);
+        data.put(remark, messageStr);
         this.onValueChanged();
         return true;
     }
 
     public void remove(String remark) {
-        if (datas.remove(remark) != null)
+        if (data.remove(remark) != null)
             this.onValueChanged();
     }
 
     public void reset(String oldRemark, String newRemark, String newValue) {
         if (oldRemark == null || newRemark == null || newValue == null) return;
-        if (datas.containsKey(oldRemark)) {
+        if (data.containsKey(oldRemark)) {
             if (!oldRemark.equals(newRemark)) {
                 rename(oldRemark, newRemark);
             }
@@ -63,10 +63,10 @@ public class QuickChatMessageSend extends AbstractHiiroSakuraData {
     }
 
     public void rename(String oldRemark, String newRemark) {
-        if (datas.containsKey(oldRemark)) {
-            String value = datas.get(oldRemark);
-            datas.remove(oldRemark);
-            datas.put(newRemark, value);
+        if (data.containsKey(oldRemark)) {
+            String value = data.get(oldRemark);
+            data.remove(oldRemark);
+            data.put(newRemark, value);
             this.onValueChanged();
         }
     }
@@ -77,13 +77,13 @@ public class QuickChatMessageSend extends AbstractHiiroSakuraData {
         return sortedData;
     }
 
-    public Map<String, String> getDatas() {
-        return this.datas;
+    public Map<String, String> getData() {
+        return this.data;
     }
 
     public Text getAsText() {
-        if (datas.isEmpty()) {
-            return new TranslatableText(String.format("%s.feature.qcms.data.empty", HiiroSakuraClient.MOD_ID));
+        if (data.isEmpty()) {
+            return StringUtil.translatableText("%s.feature.qcms.data.empty");
         }
         MutableText text = new LiteralText("");
         Iterator<QuickChatMessage> iterator = getTextDatas().iterator();
@@ -120,8 +120,8 @@ public class QuickChatMessageSend extends AbstractHiiroSakuraData {
                 JsonObject object = element.getAsJsonObject();
                 Map<String, String> data = JsonUtil.gson.fromJson(object, new TypeToken<Map<String, String>>() {
                 }.getType());
-                datas.clear();
-                datas.putAll(data);
+                this.data.clear();
+                this.data.putAll(data);
             } else {
                 log.warn("{}无法从JsonElement{}中读取数据", this.getName(), element);
             }
@@ -132,6 +132,6 @@ public class QuickChatMessageSend extends AbstractHiiroSakuraData {
 
     @Override
     public JsonElement getAsJsonElement() {
-        return JsonUtil.gson.toJsonTree(datas);
+        return JsonUtil.gson.toJsonTree(data);
     }
 }

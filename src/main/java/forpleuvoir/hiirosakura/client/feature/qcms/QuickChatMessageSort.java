@@ -25,19 +25,19 @@ import java.util.stream.Stream;
 public class QuickChatMessageSort extends AbstractHiiroSakuraData {
     private transient static final HSLogger log = HSLogger.getLogger(QuickChatMessageSort.class);
 
-    private final Map<String, Integer> datas = new HashMap<>();
+    private final Map<String, Integer> data = new HashMap<>();
 
     public QuickChatMessageSort() {
         super("quick_chat_message_sort");
     }
 
     public void setSort(String remark, @NotNull Integer level) {
-        datas.put(remark, level);
+        data.put(remark, level);
         this.onValueChanged();
     }
 
     public void remove(String key) {
-        if (datas.remove(key) != null)
+        if (data.remove(key) != null)
             this.onValueChanged();
     }
 
@@ -49,13 +49,13 @@ public class QuickChatMessageSort extends AbstractHiiroSakuraData {
      */
     @Nullable
     public Integer getLevel(String remark) {
-        return datas.getOrDefault(remark, null);
+        return data.getOrDefault(remark, null);
     }
 
     public void resetLevel(String oldRemark, String newRemark, Integer level) {
         if (oldRemark == null || newRemark == null) return;
-        if (datas.containsKey(oldRemark)) {
-            datas.remove(oldRemark);
+        if (data.containsKey(oldRemark)) {
+            data.remove(oldRemark);
             if (level != null)
                 this.setSort(newRemark, level);
             else this.onValueChanged();
@@ -81,14 +81,14 @@ public class QuickChatMessageSort extends AbstractHiiroSakuraData {
      */
     public LinkedList<QuickChatMessage> getSortedData(boolean isReversed) {
         var list = new LinkedList<QuickChatMessage>();
-        Map<String, String> datas = HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.getDatas();
+        Map<String, String> datas = HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.getData();
         if (!datas.isEmpty()) {
-            Collection<Integer> values = this.datas.values();
+            Collection<Integer> values = this.data.values();
             Stream<Integer> sorted = values.stream().sorted();
             if (!values.isEmpty()) {
-                sorted.forEach(value -> this.datas.forEach((k, v) -> {
+                sorted.forEach(value -> this.data.forEach((k, v) -> {
                     if (v.equals(value)) {
-                        var quickChatMessage = new QuickChatMessage(k, datas.get(k), this.datas.get(k));
+                        var quickChatMessage = new QuickChatMessage(k, datas.get(k), this.data.get(k));
                         if (!list.contains(quickChatMessage)) {
                             if (isReversed)
                                 list.addLast(quickChatMessage);
@@ -110,8 +110,8 @@ public class QuickChatMessageSort extends AbstractHiiroSakuraData {
      */
     public LinkedList<QuickChatMessage> getUnSortedData() {
         var list = new LinkedList<QuickChatMessage>();
-        Map<String, String> datas = HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.getDatas();
-        Set<String> keySet = this.datas.keySet();
+        Map<String, String> datas = HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.getData();
+        Set<String> keySet = this.data.keySet();
         Set<String> set = datas.keySet();
         set.stream().filter(s -> !keySet.contains(s))
            .forEach(key -> list.addLast(new QuickChatMessage(key, datas.get(key), null)));
@@ -125,8 +125,8 @@ public class QuickChatMessageSort extends AbstractHiiroSakuraData {
                 JsonObject object = element.getAsJsonObject();
                 Map<String, Integer> data = JsonUtil.gson.fromJson(object, new TypeToken<Map<String, Integer>>() {
                 }.getType());
-                datas.clear();
-                datas.putAll(data);
+                this.data.clear();
+                this.data.putAll(data);
             } else {
                 log.warn("{}无法从JsonElement{}中读取数据", this.getName(), element);
             }
@@ -137,7 +137,7 @@ public class QuickChatMessageSort extends AbstractHiiroSakuraData {
 
     @Override
     public JsonElement getAsJsonElement() {
-        return JsonUtil.gson.toJsonTree(datas);
+        return JsonUtil.gson.toJsonTree(data);
     }
 
 

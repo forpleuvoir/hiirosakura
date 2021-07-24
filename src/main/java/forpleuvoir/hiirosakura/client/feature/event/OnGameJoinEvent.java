@@ -29,4 +29,11 @@ public class OnGameJoinEvent extends Event {
         this.name = name;
         this.address = address;
     }
+
+
+    @Override
+    public String handlerJsonStr(String json) {
+        return json.replace("${event.name}", name != null ? name : "${event.name}")
+                .replace("${event.address}", address != null ? address : "${event.address}");
+    }
 }

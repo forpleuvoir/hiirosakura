@@ -7,8 +7,11 @@ import com.mojang.brigadier.context.CommandContext;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskData;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler;
+import forpleuvoir.hiirosakura.client.feature.task.TimeTaskParser;
+import forpleuvoir.hiirosakura.client.util.JsonUtil;
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.command.argument.NbtPathArgumentType;
 
 import static forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.COMMAND_PREFIX;
 import static net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.argument;
@@ -29,30 +32,29 @@ public class TaskCommand {
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
         dispatcher.register(literal(COMMAND_PREFIX + TYPE)
                 .then(literal("add")
-                        .then(argument("name", StringArgumentType.string())
-                                .then(argument("startTime", IntegerArgumentType.integer(0))
-                                        .then(argument("cycles", IntegerArgumentType.integer(1))
-                                                .then(argument("cyclesTime", IntegerArgumentType.integer(0))
-                                                        .then(argument("message", StringArgumentType.string())
-                                                                .executes(TaskCommand::test)
-                                                        )
-                                                )
-                                        )
-                                )
+                        .then(argument("timeTask", StringArgumentType.string())
+                                .executes(TaskCommand::add)
+                        )
+                )
+                .then(literal("test")
+                        .then(argument("nbt", NbtPathArgumentType.nbtPath())
+                                .executes(TaskCommand::test)
                         )
                 )
         );
     }
 
     public static int test(CommandContext<FabricClientCommandSource> context) {
-        var name = StringArgumentType.getString(context, "name");
-        var startTime = IntegerArgumentType.getInteger(context, "startTime");
-        var cycles = IntegerArgumentType.getInteger(context, "cycles");
-        var cyclesTime = IntegerArgumentType.getInteger(context, "cyclesTime");
-        var message = StringArgumentType.getString(context, "message");
-        TimeTaskHandler.getInstance().addTask(new TimeTask(client -> {
-            client.sendMessage(message);
-        }, new TimeTaskData(startTime, cycles, cyclesTime, name)));
+        var nbt = (NbtPathArgumentType.NbtPath) context.getArgument("nbt", NbtPathArgumentType.NbtPath.class);
+        TimeTask timeTask = TimeTaskParser.parse(JsonUtil.parseToJsonObject(nbt.toString()));
+        TimeTaskHandler.getInstance().addTask(timeTask);
+        return 1;
+    }
+
+    public static int add(CommandContext<FabricClientCommandSource> context) {
+        var json = StringArgumentType.getString(context, "timeTask");
+        TimeTask timeTask = TimeTaskParser.parse(JsonUtil.parseToJsonObject(json));
+        TimeTaskHandler.getInstance().addTask(timeTask);
         return 1;
     }
 }

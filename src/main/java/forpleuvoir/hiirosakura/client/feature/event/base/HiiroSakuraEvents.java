@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData;
+import forpleuvoir.hiirosakura.client.feature.event.OnDisconnectedEvent;
 import forpleuvoir.hiirosakura.client.feature.event.OnGameJoinEvent;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskParser;
@@ -26,7 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
     private static transient final HSLogger log = HSLogger.getLogger(HiiroSakuraEvents.class);
     public static final Map<String, Class<? extends Event>> events = ImmutableMap.of(
-            "OnGameJoin", OnGameJoinEvent.class
+            "OnGameJoin", OnGameJoinEvent.class,
+            "OnDisconnected", OnDisconnectedEvent.class
     );
 
     /**
@@ -76,9 +78,9 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
 
     public void sync() {
         data.forEach((k, v) ->
-                v.forEach((name, task) ->
-                        EventBus.subscribeRunAsTimeTask(events.get(k), task)
-                )
+                             v.forEach((name, task) ->
+                                               EventBus.subscribeRunAsTimeTask(events.get(k), task)
+                             )
         );
     }
 
@@ -87,8 +89,9 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
         try {
             if (element.isJsonObject()) {
                 JsonObject object = element.getAsJsonObject();
-                Map<String, Map<String, String>> saveData = JsonUtil.gson.fromJson(object, new TypeToken<Map<String, Map<String, String>>>() {
-                }.getType());
+                Map<String, Map<String, String>> saveData = JsonUtil.gson
+                        .fromJson(object, new TypeToken<Map<String, Map<String, String>>>() {
+                        }.getType());
                 this.data.clear();
                 this.data.putAll(saveData);
                 sync();

@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  *
  * @author forpleuvoir
  * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.feature.event
+ * <p>#package forpleuvoir.hiirosakura.client.feature.event.base
  * <p>#class_name EventBus
  * <p>#create_time 2021-07-23 13:18
  */

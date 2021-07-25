@@ -1,7 +1,7 @@
 package forpleuvoir.hiirosakura.client.feature.task;
 
 import com.google.gson.JsonObject;
-import forpleuvoir.hiirosakura.client.feature.task.executor.ExecutorParser;
+import forpleuvoir.hiirosakura.client.feature.task.executor.base.ExecutorParser;
 
 
 /**

@@ -3,6 +3,7 @@ package forpleuvoir.hiirosakura.client.feature.task.executor;
 import com.google.gson.JsonObject;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskData;
+import forpleuvoir.hiirosakura.client.feature.task.executor.base.IExecutor;
 
 import java.util.function.Consumer;
 

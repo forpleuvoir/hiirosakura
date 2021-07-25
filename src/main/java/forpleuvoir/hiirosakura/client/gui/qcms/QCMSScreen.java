@@ -50,7 +50,7 @@ public class QCMSScreen extends GuiBase {
         HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SORT.getUnSortedData().forEach(datas::addLast);
         this.addButton(
                 new QCMSButton(this.width / 2 - 40, this.height - 55, 80, 20,
-                        StringUtils.translate(String.format("%s.gui.button.add", HiiroSakuraClient.MOD_ID))
+                               StringUtils.translate(String.format("%s.gui.button.add", HiiroSakuraClient.MOD_ID))
                 ),
                 (button, mouseButton) -> openAddScreen()
         );
@@ -73,11 +73,11 @@ public class QCMSScreen extends GuiBase {
             MutableText message = new LiteralText(qcm.message()).styled(style -> style.withColor(
                     Colors.DHWUIA.getColor()));
             MutableText tooltip = new TranslatableText(String.format("%s.gui.qcms.hover",
-                    HiiroSakuraClient.MOD_ID
+                                                                     HiiroSakuraClient.MOD_ID
             )).styled(style -> style.withColor(Colors.FORPLEUVOIR.getColor()));
             var qcmsButton = new QCMSButton(x + padding, y + padding, width, 20,
-                    qcm.remark().replace("&", "§"),
-                    message, tooltip
+                                            qcm.remark().replace("&", "§"),
+                                            message, tooltip
             );
             this.addButton(qcmsButton, (button, mouseButton) ->
                     this.buttonClick(mouseButton, qcm)
@@ -87,12 +87,11 @@ public class QCMSScreen extends GuiBase {
     }
 
     private void sendChatMessage(String message) {
-        assert Objects.requireNonNull(client).player != null;
-        if (client.player != null) {
-            client.player.sendChatMessage(message);
-            TimeTaskHandler.getInstance()
-                    .addTask(TimeTask.once(hiiroSakuraClient -> this.onClose(), 5, "Close_QCMS_Screen"));
-        }
+        TimeTaskHandler.getInstance()
+                       .addTask(TimeTask.once(hiiroSakuraClient -> {
+                           hiiroSakuraClient.sendMessage(message);
+                           this.onClose();
+                       }, 5, "#Close_QCMS_Screen"));
     }
 
     protected void drawButtonHoverTexts(int mouseX, int mouseY, float partialTicks, MatrixStack matrixStack) {
@@ -128,28 +127,28 @@ public class QCMSScreen extends GuiBase {
         String titleKey = String.format("%s.gui.title.qcms.delete", HiiroSakuraClient.MOD_ID);
         String messageKey = String.format("%s.gui.qcms.confirmDelete", HiiroSakuraClient.MOD_ID);
         int width = Math.max(textRenderer
-                        .getWidth(StringUtils.translate(titleKey)),
-                textRenderer
-                        .getWidth(StringUtils.translate(messageKey))
+                                     .getWidth(StringUtils.translate(titleKey)),
+                             textRenderer
+                                     .getWidth(StringUtils.translate(messageKey))
         );
         var dialog = new GuiConfirmAction(width,
-                titleKey,
-                new IConfirmationListener() {
-                    @Override
-                    public boolean onActionConfirmed() {
-                        HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.remove(key);
-                        HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SORT.remove(key);
-                        return true;
-                    }
+                                          titleKey,
+                                          new IConfirmationListener() {
+                                              @Override
+                                              public boolean onActionConfirmed() {
+                                                  HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.remove(key);
+                                                  HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SORT.remove(key);
+                                                  return true;
+                                              }
 
-                    @Override
-                    public boolean onActionCancelled() {
-                        return false;
-                    }
-                },
-                this,
-                messageKey,
-                key
+                                              @Override
+                                              public boolean onActionCancelled() {
+                                                  return false;
+                                              }
+                                          },
+                                          this,
+                                          messageKey,
+                                          key
         );
         openGui(dialog);
     }

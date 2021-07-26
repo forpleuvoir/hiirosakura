@@ -1,6 +1,6 @@
 # 关于
 
-![](http://hiirosakura.forpleuvoir.com/icon.png?e=1627280071&token=Vp-SO-HDOpiEverdl1CWRPScr7kDaZdAsXobRmg4:4fsGO4OgRKG1p_ik-FeYFcKoBUI=)
+<img src ="http://hiirosakura.forpleuvoir.com/icon.png?e=1627280071&token=Vp-SO-HDOpiEverdl1CWRPScr7kDaZdAsXobRmg4:4fsGO4OgRKG1p_ik-FeYFcKoBUI=" width="200">
 
 配置界面快捷键默认`H+S`
 
@@ -218,6 +218,15 @@ RT
 |  name | String  | true  | 服务器名 |
 |  address | String  |  true | 服务器IP地址 |
 
+##### OnDisconnect
+
+当从服务器断开连接 包括主动退出服务器
+
+|  属性名 | 类型  | 可能为空  | 描述|
+| ------------ | ------------ | ------------ | ------------ |
+|  name | String  | true  | 服务器名 |
+|  address | String  |  true | 服务器IP地址 |
+
 #### 定时任务
 
 作为指令参数是NbtPath格式
@@ -281,6 +290,18 @@ RT
 | ------------ | ------------ | ------------ | ------------ | ------------ |
 |type|String|true|joinServer|加入一个服务器|
 |address|String|true|-|加入的服务器IP地址|
+
+###### doAttack
+
+|  属性名 | 类型  | 必填  | 默认值|描述|
+| ------------ | ------------ | ------------ | ------------ | ------------ |
+|type|String|true|doAttack|模拟攻击键按下1tick|
+
+###### doItemUse
+
+|  属性名 | 类型  | 必填  | 默认值|描述|
+| ------------ | ------------ | ------------ | ------------ | ------------ |
+|type|String|true|doItemUse|模拟使用键按下1tick|
 
 ------------
 

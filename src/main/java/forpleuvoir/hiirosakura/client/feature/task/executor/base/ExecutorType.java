@@ -11,7 +11,9 @@ package forpleuvoir.hiirosakura.client.feature.task.executor.base;
  */
 public enum ExecutorType {
     sendChatMessage("sendChatMessage"),
-    joinServer("joinServer")
+    joinServer("joinServer"),
+    doAttack("doAttack"),
+    doItemUse("doItemUse")
     ;
 
 

@@ -3,6 +3,8 @@ package forpleuvoir.hiirosakura.client.feature.task.executor.base;
 import com.google.gson.JsonObject;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskData;
+import forpleuvoir.hiirosakura.client.feature.task.executor.DoAttackExecutor;
+import forpleuvoir.hiirosakura.client.feature.task.executor.DoItemUseExecutor;
 import forpleuvoir.hiirosakura.client.feature.task.executor.JoinServerExecutor;
 import forpleuvoir.hiirosakura.client.feature.task.executor.SendChatMessageExecutor;
 
@@ -24,6 +26,8 @@ public class ExecutorParser {
         IExecutor executor = switch (type) {
             case sendChatMessage -> new SendChatMessageExecutor(object, data);
             case joinServer -> new JoinServerExecutor(object, data);
+            case doAttack -> new DoAttackExecutor();
+            case doItemUse -> new DoItemUseExecutor();
         };
         return executor.getExecutor();
 

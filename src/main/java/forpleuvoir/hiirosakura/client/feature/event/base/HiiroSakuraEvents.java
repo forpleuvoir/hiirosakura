@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData;
+import forpleuvoir.hiirosakura.client.feature.event.OnDisconnectEvent;
 import forpleuvoir.hiirosakura.client.feature.event.OnDisconnectedEvent;
 import forpleuvoir.hiirosakura.client.feature.event.OnGameJoinEvent;
 import forpleuvoir.hiirosakura.client.feature.event.OnServerJoinEvent;
@@ -30,7 +31,8 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
     public static final Map<String, Class<? extends Event>> events = ImmutableMap.of(
             "OnGameJoin", OnGameJoinEvent.class,
             "OnServerJoin", OnServerJoinEvent.class,
-            "OnDisconnected", OnDisconnectedEvent.class
+            "OnDisconnected", OnDisconnectedEvent.class,
+            "OnDisconnect", OnDisconnectEvent.class
     );
 
     /**
@@ -51,7 +53,6 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
     public HiiroSakuraEvents() {
         super("event");
     }
-
 
     public void subscriber(Class<? extends Event> eventType, String json) {
         subscriber(getEventType(eventType), json);
@@ -80,9 +81,9 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
 
     public void sync() {
         data.forEach((k, v) ->
-                             v.forEach((name, task) ->
-                                               EventBus.subscribeRunAsTimeTask(events.get(k), task)
-                             )
+                v.forEach((name, task) ->
+                        EventBus.subscribeRunAsTimeTask(events.get(k), task)
+                )
         );
     }
 

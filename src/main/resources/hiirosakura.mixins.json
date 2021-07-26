@@ -12,6 +12,7 @@
     "MixinItem",
     "MixinItemEntityRenderer",
     "MixinMinecraftClient",
+    "MixinMinecraftClientInterface",
     "MixinPlayerEntityRenderer",
     "MixinTntEntityRenderer"
   ],

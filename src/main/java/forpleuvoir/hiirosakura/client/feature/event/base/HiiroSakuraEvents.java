@@ -37,7 +37,7 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
      */
     private final Map<String, Map<String, String>> data = new ConcurrentHashMap<>();
 
-    private static String getEventType(Class<? extends Event> eventType) {
+    public static String getEventType(Class<? extends Event> eventType) {
         for (Map.Entry<String, Class<? extends Event>> next : events.entrySet()) {
             if (next.getValue().equals(eventType)) {
                 return next.getKey();

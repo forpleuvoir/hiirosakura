@@ -30,7 +30,7 @@ public class EventBus {
     }
 
     public static <E extends Event> void subscribe(Class<E> channel, String listenerName, Consumer<E> listener) {
-        log.info("事件订阅({},{})", channel.getSimpleName(),listenerName);
+        log.info("事件订阅({},{})", channel.getSimpleName(), listenerName);
         if (eventListeners.containsKey(channel)) {
             if (!eventListeners.get(channel).containsKey(listenerName)) {
                 eventListeners.get(channel).put(listenerName, listener);
@@ -44,8 +44,11 @@ public class EventBus {
 
     public static <E extends Event> void subscribeRunAsTimeTask(Class<E> channel, String json) {
         var jsonObject = JsonUtil.parseToJsonObject(json);
-        subscribe(channel, jsonObject.get("name").getAsString(), e ->
-                TimeTaskHandler.getInstance().addTask(TimeTaskParser.parse(JsonUtil.parseToJsonObject(e.handlerJsonStr(json))))
+        var name = jsonObject.get("name").getAsString();
+        subscribe(channel, name, e -> {
+                    jsonObject.addProperty("name", String.format("#%s.%s", HiiroSakuraEvents.getEventType(channel), name));
+                    TimeTaskHandler.getInstance().addTask(TimeTaskParser.parse(JsonUtil.parseToJsonObject(e.handlerJsonStr(json))));
+                }
         );
     }
 
@@ -57,7 +60,7 @@ public class EventBus {
     }
 
     public static <E extends Event> void unsubscribe(Class<E> channel, String listenerName) {
-        log.info("事件退订({}:{})", channel.getSimpleName(),listenerName);
+        log.info("事件退订({}:{})", channel.getSimpleName(), listenerName);
         if (eventListeners.containsKey(channel)) {
             eventListeners.get(channel).remove(listenerName);
         }

@@ -1,5 +1,7 @@
 # 关于
 
+![](http://hiirosakura.forpleuvoir.com/icon.png?e=1627280071&token=Vp-SO-HDOpiEverdl1CWRPScr7kDaZdAsXobRmg4:4fsGO4OgRKG1p_ik-FeYFcKoBUI=)
+
 配置界面快捷键默认`H+S`
 
 基本上是重写了之前的suika mod 大体使用不会有太大区别 
@@ -124,7 +126,7 @@ public void getPickBlockStack(CallbackInfoReturnable<ItemStack> returnable){
 
 通过正则过滤来获取玩家名和消息内容
 
-![](https://suika.forpleuvoir.com/wp-content/uploads/2021/06/2021-07-18_13.23.23.png)
+![](http://hiirosakura.forpleuvoir.com/%E8%81%8A%E5%A4%A9%E6%98%BE%E7%A4%BA.png?e=1627280071&token=Vp-SO-HDOpiEverdl1CWRPScr7kDaZdAsXobRmg4:_66dnhVNyQPhKQiXomwK1sAN8hQ=)
 在服务器时，通过指令 `/hs:scmr set "regex"` 设置正则表达式 
 
 匹配内容必须要有 `name`以及`message`分组 例如原版的消息正则表达式为
@@ -132,17 +134,17 @@ public void getPickBlockStack(CallbackInfoReturnable<ItemStack> returnable){
 
 ## 掉落物显示物品名称以及数量
 
-![](https://suika.forpleuvoir.com/wp-content/uploads/2021/06/2021-06-13_17.03.07.png)
+![](http://hiirosakura.forpleuvoir.com/%E6%8E%89%E8%90%BD%E7%89%A9%E5%93%81%E5%90%8D%E6%98%BE%E7%A4%BA.png?e=1627280071&token=Vp-SO-HDOpiEverdl1CWRPScr7kDaZdAsXobRmg4:LsPcVn2-BrSKWXF-h4GprN3bgEs=)
 
 距离相机实体一定距离内会渲染，之后会改成可以自定义的距离 通过`Mixin`注入`ItemEntityRenderer`的`render`方法 
 
 ## TNT显示剩余爆炸时间
 
-![](https://suika.forpleuvoir.com/wp-content/uploads/2021/06/2021-06-13_17.03.22.png)
+![](http://hiirosakura.forpleuvoir.com/TNT%E7%88%86%E7%82%B8%E4%BA%8B%E4%BB%B6%E6%98%BE%E7%A4%BA.png?e=1627280071&token=Vp-SO-HDOpiEverdl1CWRPScr7kDaZdAsXobRmg4:Snmo1jocmwNwNQQggQsDUqMf-nA=)
 
 ## 切换物品时会显示附魔
 
-![](https://suika.forpleuvoir.com/wp-content/uploads/2021/06/2021-06-13_16.01.42.png)
+![](http://hiirosakura.forpleuvoir.com/%E5%88%87%E6%8D%A2%E7%89%A9%E5%93%81%E6%98%BE%E7%A4%BA%E9%99%84%E9%AD%94.png?e=1627280071&token=Vp-SO-HDOpiEverdl1CWRPScr7kDaZdAsXobRmg4:a579YlcZmMW_ZR2yWtdGxMDfJEI=)
 
 ## 自动复活
 
@@ -154,8 +156,8 @@ public void getPickBlockStack(CallbackInfoReturnable<ItemStack> returnable){
 > 值越小排序越靠前
 > 为空时不参与排序 且会排在已排序的消息之后
 
-![](https://suika.forpleuvoir.com/wp-content/uploads/2021/06/7HTK7SWOGVVK0RBVO.png)
-![](https://suika.forpleuvoir.com/wp-content/uploads/2021/06/ZT80PAI@R25RQMJ7B2J.png)
+![](http://hiirosakura.forpleuvoir.com/%E5%BF%AB%E6%8D%B7%E8%81%8A%E5%A4%A9%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E6%B7%BB%E5%8A%A0.png?e=1627280071&token=Vp-SO-HDOpiEverdl1CWRPScr7kDaZdAsXobRmg4:cVVggdmo3YYG9WvNj9KS_aWV_ns=)
+![](http://hiirosakura.forpleuvoir.com/%E5%BF%AB%E6%8D%B7%E8%81%8A%E5%A4%A9%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81.png?e=1627280071&token=Vp-SO-HDOpiEverdl1CWRPScr7kDaZdAsXobRmg4:1w2-eIkIQPl5bLHUSaS25xiMsEo=)
 
 ## 聊天消息过滤
 

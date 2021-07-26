@@ -297,10 +297,10 @@ RT
  * @return {@link ItemStack} {@link Items#PLAYER_HEAD}
  */
 public static ItemStack getPlayerHead(String playerName){
-    ItemStack stack=new ItemStack(Items.PLAYER_HEAD);
-    NbtCompound tag=new NbtCompound();
+    ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
+    NbtCompound tag = new NbtCompound();
     tag.put("SkullOwner",NbtString.of(playerName));
-    stack.setTag(tag);
+    stack.setNbt(tag);
     return stack;
 }
 ```

@@ -1,8 +1,15 @@
 # 关于
 
 配置界面快捷键默认`H+S`
-基本上是重写了之前的suika mod 大体使用不会有太大区别 基于 [Fabric](https://fabricmc.net/ "Fabric") 编写
-贴出代码基本都是 [Fabric](https://fabricmc.net/ "Fabric") 开发环境下的 如果代码不是很长的话 尽量贴一下
+
+基本上是重写了之前的suika mod 大体使用不会有太大区别 
+
+基于 [Fabric](https://fabricmc.net/ "Fabric") 编写
+
+贴出代码基本都是 [Fabric](https://fabricmc.net/ "Fabric") 
+
+开发环境下的 如果代码不是很长的话 尽量贴一下
+
 前置Mod[Malilib](https://github.com/maruohon/malilib "Malilib")
 
 ------------
@@ -16,7 +23,7 @@
 `/hs:gmma <value>`
 `value(double)` 0~100的数字，可以是小数点 修改游戏伽马值（其实就是亮度） 具体实现代码大概如下
 
-```java
+```
 MinecraftClient.getInstance().options.gamma=value;
 ```
 
@@ -42,14 +49,21 @@ MinecraftClient.getInstance().options.gamma=value;
 
 ## tooltip
 
-`/hs:tooltip add <itemStack>(可空) <tip>`  为`<itemStack>`物品添加一条工具提示`<tip>`
-> `<itemStack>`参数填入为空时会选择玩家主手上的物品添加
-`&`字符可以作为格式字符 在给玩家头颅添加时需要输出NBT标签 例`/hs:tooltip add minecraft:player_head{"SkullOwner":"dhwuia"} "傻子"`
+`/hs:tooltip add <itemStack>(可空) <tip>` 
+> 为`<itemStack>`物品添加一条工具提示`<tip>`
+> 
+> `<itemStack>`参数填入为空时会选择玩家主手上的物品添加 
+> 
+>`&`字符可以作为格式字符 在给玩家头颅添加时需要输出NBT标签
+> 
+> 例`/hs:tooltip add minecraft:player_head{"SkullOwner":"dhwuia"} "傻子"`
 
-`/hs:tooltip remove <itemStack>(可空) <index>`
+`/hs:tooltip remove <itemStack>(可空) <index>` 移除
 > 删除`<itemStack>`物品下标为`<index>`的一条工具提示
-`<itemStack>`参数填入为空时会选择玩家主手上的物品 数组下标是从`0`开始计算的
-`<index> `为`-1`时 删除该物品的所有工具提示
+> 
+>`<itemStack>`参数填入为空时会选择玩家主手上的物品 数组下标是从`0`开始计算的
+> 
+>`<index> `为`-1`时 删除该物品的所有工具提示
 
 ## scmr
 
@@ -84,24 +98,24 @@ MinecraftClient.getInstance().options.gamma=value;
 
 RT没什么用但还是加了而且不给开关（非常任性） 通过`Mixin`注入`MinecraftClient`的构造方法
 
-```java
+```
 @Inject(method = "<init>", at = @At("RETURN"))
 public void init(CallbackInfo ci){
-        tutorialManager.setStep(TutorialStep.NONE);
-        }
+    tutorialManager.setStep(TutorialStep.NONE);
+}
 ```
 
 ## 创造模式鼠标中键获取玩家头颅
 
 RT依然是没什么用但还是加了并且依旧默认开启不能关闭 通过`Mixin`注入`Entity`的`getPickBlockStack`方法
 
-```java
+```
 @Inject(method = "getPickBlockStack", at = @At("RETURN"), cancellable = true)
 public void getPickBlockStack(CallbackInfoReturnable<ItemStack> returnable){
-        if(this.type.equals(EntityType.PLAYER)){
+    if(this.type.equals(EntityType.PLAYER)){
         returnable.setReturnValue(PlayerHeadUtil.getPlayerHead(getEntityName()));
-        }
-        }
+    }
+}
 ```
 
 其中` PlayerHeadUtil.getPlayerHead(String playerName)`[参见](#通过玩家名称获取玩家头)
@@ -109,14 +123,18 @@ public void getPickBlockStack(CallbackInfoReturnable<ItemStack> returnable){
 ## 聊天显示(气泡)
 
 通过正则过滤来获取玩家名和消息内容
+
 ![](https://suika.forpleuvoir.com/wp-content/uploads/2021/06/2021-07-18_13.23.23.png)
-在服务器时，通过指令 `/hs:scmr set "regex"` 设置正则表达式 匹配内容必须要有 `name`以及`message`分组 例如原版的消息正则表达式为
+在服务器时，通过指令 `/hs:scmr set "regex"` 设置正则表达式 
+
+匹配内容必须要有 `name`以及`message`分组 例如原版的消息正则表达式为
 `(<(?<name>(.*))>)\s(?<message>.*)`
 
 ## 掉落物显示物品名称以及数量
 
 ![](https://suika.forpleuvoir.com/wp-content/uploads/2021/06/2021-06-13_17.03.07.png)
-距离相机实体一定距离内会渲染，之后会改成可以自定义的距离 通过`Mixin`注入`ItemEntityRenderer`的`render`方法 相关提交
+
+距离相机实体一定距离内会渲染，之后会改成可以自定义的距离 通过`Mixin`注入`ItemEntityRenderer`的`render`方法 
 
 ## TNT显示剩余爆炸时间
 
@@ -261,17 +279,17 @@ RT
 
 ## 通过玩家名称获取玩家头
 
-```java
+```
 /**
  * 通过玩家名称获取头颅
  * @param playerName 玩家名称
  * @return {@link ItemStack} {@link Items#PLAYER_HEAD}
  */
 public static ItemStack getPlayerHead(String playerName){
-        ItemStack stack=new ItemStack(Items.PLAYER_HEAD);
-        NbtCompound tag=new NbtCompound();
-        tag.put("SkullOwner",NbtString.of(playerName));
-        stack.setTag(tag);
-        return stack;
-        }
+    ItemStack stack=new ItemStack(Items.PLAYER_HEAD);
+    NbtCompound tag=new NbtCompound();
+    tag.put("SkullOwner",NbtString.of(playerName));
+    stack.setTag(tag);
+    return stack;
+}
 ```

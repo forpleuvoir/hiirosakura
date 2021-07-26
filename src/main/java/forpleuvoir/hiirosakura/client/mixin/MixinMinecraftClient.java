@@ -1,8 +1,11 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
 import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity;
+import forpleuvoir.hiirosakura.client.util.ServerInfoUtil;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.tutorial.TutorialManager;
 import net.minecraft.client.tutorial.TutorialStep;
 import net.minecraft.entity.Entity;
@@ -43,5 +46,11 @@ public abstract class MixinMinecraftClient {
             callbackInfo.cancel();
         }
     }
+
+    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"), cancellable = true)
+    public void disconnect(Screen screen, CallbackInfo callbackInfo) {
+        ServerInfoUtil.clear();
+    }
+
 
 }

@@ -200,6 +200,15 @@ RT
 |  name | String  | true  | 服务器名 |
 |  address | String  |  true | 服务器IP地址 |
 
+##### OnServerJoin
+
+加入服务器时触发 群组服内切换不会触发
+
+|  属性名 | 类型  | 可能为空  | 描述|
+| ------------ | ------------ | ------------ | ------------ |
+|  name | String  | false  | 服务器名 |
+|  address | String  |  false | 服务器IP地址 |
+
 ##### OnDisconnected
 
 当从服务器断开连接 不包括主动退出服务器

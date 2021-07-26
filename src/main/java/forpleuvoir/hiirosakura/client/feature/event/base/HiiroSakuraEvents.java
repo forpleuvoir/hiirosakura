@@ -7,6 +7,7 @@ import com.google.gson.reflect.TypeToken;
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData;
 import forpleuvoir.hiirosakura.client.feature.event.OnDisconnectedEvent;
 import forpleuvoir.hiirosakura.client.feature.event.OnGameJoinEvent;
+import forpleuvoir.hiirosakura.client.feature.event.OnServerJoinEvent;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskParser;
 import forpleuvoir.hiirosakura.client.util.HSLogger;
@@ -28,6 +29,7 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
     private static transient final HSLogger log = HSLogger.getLogger(HiiroSakuraEvents.class);
     public static final Map<String, Class<? extends Event>> events = ImmutableMap.of(
             "OnGameJoin", OnGameJoinEvent.class,
+            "OnServerJoin", OnServerJoinEvent.class,
             "OnDisconnected", OnDisconnectedEvent.class
     );
 

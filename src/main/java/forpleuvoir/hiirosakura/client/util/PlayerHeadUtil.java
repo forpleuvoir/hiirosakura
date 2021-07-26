@@ -31,7 +31,7 @@ public class PlayerHeadUtil {
         ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
         NbtCompound tag = new NbtCompound();
         tag.put("SkullOwner", NbtString.of(playerName));
-        stack.setTag(tag);
+        stack.setNbt(tag);
         return stack;
     }
 
@@ -44,10 +44,10 @@ public class PlayerHeadUtil {
     }
 
     public static String getPlayerName(ItemStack stack) {
-        if (stack.hasTag()) {
-            assert stack.getTag() != null;
-            if (stack.getTag().contains("SkullOwner", 8)) {
-                return stack.getTag().getString("SkullOwner");
+        if (stack.hasNbt()) {
+            assert stack.getNbt() != null;
+            if (stack.getNbt().contains("SkullOwner", 8)) {
+                return stack.getNbt().getString("SkullOwner");
             }
         }
         return "";
@@ -62,9 +62,9 @@ public class PlayerHeadUtil {
     }
 
     public static String getSkullOwner(ItemStack stack) {
-        if (stack.getItem() == Items.PLAYER_HEAD && stack.hasTag()) {
+        if (stack.getItem() == Items.PLAYER_HEAD && stack.hasNbt()) {
             String string = null;
-            NbtCompound compoundTag = stack.getTag();
+            NbtCompound compoundTag = stack.getNbt();
             assert compoundTag != null;
             if (compoundTag.getString(OWNER).isEmpty()) {
                 if (compoundTag.contains(OWNER, 8)) {

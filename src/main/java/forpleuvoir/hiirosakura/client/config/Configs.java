@@ -95,6 +95,10 @@ public class Configs implements IConfigHandler {
                 translationKey("chatMessageFilter"),false,
                 translationKey("chatMessageFilter.comment")
         );
+        public static final ConfigBoolean DISABLE_BLOCK_INTERACTION = new ConfigBoolean(
+                translationKey("disableBlockInteraction"),false,
+                translationKey("disableBlockInteraction.comment")
+        );
 
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
@@ -102,7 +106,7 @@ public class Configs implements IConfigHandler {
                 SHOW_ITEM_ENTITY_ENCHANTMENT, SHOW_ITEM_ENTITY_COUNT, AUTO_REBIRTH, SHOW_TOOLTIP,
                 SHOW_TOOLTIP_ON_ITEM_TOGGLE, SHOW_TOOLTIP_ON_ITEM_ENTITY, ENABLE_QCMS_GUI, CHAT_MESSAGE_INJECT,
                 ENABLE_CHAT_MESSAGE_INJECT_REGEX,REVERSE_CHAT_MESSAGE_INJECT_REGEX,DISABLE_SCOREBOARD_SIDEBAR_RENDER,
-                CHAT_MESSAGE_FILTER
+                CHAT_MESSAGE_FILTER,DISABLE_BLOCK_INTERACTION
         );
 
 
@@ -110,6 +114,8 @@ public class Configs implements IConfigHandler {
             return Configs.translationKey("toggles", key);
         }
     }
+
+
 
     public static class Values {
         public static final ConfigDouble ITEM_ENTITY_TEXT_RENDER_DISTANCE = new ConfigDouble(
@@ -183,6 +189,7 @@ public class Configs implements IConfigHandler {
                 ConfigUtils.readConfigBase(root, "Toggles", Toggles.OPTIONS);
                 ConfigUtils.readConfigBase(root, "Values", Values.OPTIONS);
                 ConfigUtils.readConfigBase(root, "Hotkeys", HotKeys.HOTKEY_LIST);
+                ConfigUtils.readConfigBase(root, "TogglesHotKeys", TogglesHotKeys.HOTKEY_LIST);
             }
         }
     }
@@ -196,6 +203,7 @@ public class Configs implements IConfigHandler {
             ConfigUtils.writeConfigBase(root, "Toggles", Toggles.OPTIONS);
             ConfigUtils.writeConfigBase(root, "Values", Values.OPTIONS);
             ConfigUtils.writeConfigBase(root, "Hotkeys", HotKeys.HOTKEY_LIST);
+            ConfigUtils.writeConfigBase(root, "TogglesHotKeys", TogglesHotKeys.HOTKEY_LIST);
 
             JsonUtils.writeJsonToFile(root, new File(dir, CONFIG_FILE_NAME));
         }

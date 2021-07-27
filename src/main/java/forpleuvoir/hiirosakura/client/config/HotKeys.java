@@ -3,6 +3,7 @@ package forpleuvoir.hiirosakura.client.config;
 import com.google.common.collect.ImmutableList;
 import fi.dy.masa.malilib.config.options.ConfigHotkey;
 import fi.dy.masa.malilib.gui.GuiBase;
+import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity;
 import forpleuvoir.hiirosakura.client.gui.GuiConfig;
 import forpleuvoir.hiirosakura.client.gui.qcms.QCMSScreen;
@@ -36,14 +37,14 @@ public class HotKeys {
     );
 
     public static final List<ConfigHotkey> HOTKEY_LIST = ImmutableList.of(
-            OPEN_CONFIG_GUI, OPEN_QCMS,SWITCH_CAMERA_ENTITY
+            OPEN_CONFIG_GUI, OPEN_QCMS, SWITCH_CAMERA_ENTITY
     );
 
     public static String translationKey(String key) {
         return Configs.translationKey("hotkeys", key);
     }
 
-    public static void callback(MinecraftClient client) {
+    public static void initCallback(HiiroSakuraClient hs) {
         OPEN_CONFIG_GUI.getKeybind().setCallback((action, key) -> {
             GuiBase.openGui(new GuiConfig());
             return true;
@@ -52,7 +53,7 @@ public class HotKeys {
             if (Configs.Toggles.ENABLE_QCMS_GUI.getBooleanValue()) {
                 GuiBase.openGui(new QCMSScreen());
             } else {
-                client.inGameHud.addChatMessage(MessageType.SYSTEM, HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.getAsText(), Util.NIL_UUID);
+                hs.showMessage(HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.getAsText());
             }
             return true;
         });

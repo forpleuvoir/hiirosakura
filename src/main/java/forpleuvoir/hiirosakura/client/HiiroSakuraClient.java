@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.MessageType;
 import net.minecraft.text.Text;
+import net.minecraft.util.Util;
 
 import java.util.Iterator;
 import java.util.Objects;
@@ -51,7 +52,7 @@ public class HiiroSakuraClient implements ClientModInitializer {
      * @param message 消息文本
      */
     public void showMessage(Text message) {
-        mc.inGameHud.addChatMessage(MessageType.GAME_INFO, message, null);
+        mc.inGameHud.addChatMessage(MessageType.GAME_INFO, message, Util.NIL_UUID);
     }
 
     /**
@@ -101,6 +102,10 @@ public class HiiroSakuraClient implements ClientModInitializer {
 
     public void sendMessage(String message) {
         Objects.requireNonNull(mc.player).sendChatMessage(message);
+    }
+
+    public void showGameInfo(Text info) {
+        mc.inGameHud.addChatMessage(MessageType.GAME_INFO, info, Util.NIL_UUID);
     }
 
     public long getTickCounter() {

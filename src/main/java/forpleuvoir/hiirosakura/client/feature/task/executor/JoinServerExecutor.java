@@ -2,6 +2,7 @@ package forpleuvoir.hiirosakura.client.feature.task.executor;
 
 import com.google.gson.JsonObject;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
+import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskData;
 import forpleuvoir.hiirosakura.client.feature.task.executor.base.IExecutor;
 import net.minecraft.client.gui.screen.ConnectScreen;
@@ -30,8 +31,8 @@ public class JoinServerExecutor implements IExecutor {
     }
 
     @Override
-    public Consumer<HiiroSakuraClient> getExecutor() {
-        return hiiroSakuraClient ->
-                ConnectScreen.connect(null, hiiroSakuraClient.mc, ServerAddress.parse(address), null);
+    public Consumer<TimeTask> getExecutor() {
+        return timeTask ->
+                ConnectScreen.connect(null, timeTask.hs.mc, ServerAddress.parse(address), null);
     }
 }

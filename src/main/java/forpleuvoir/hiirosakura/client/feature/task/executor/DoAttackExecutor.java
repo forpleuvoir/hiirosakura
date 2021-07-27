@@ -1,6 +1,6 @@
 package forpleuvoir.hiirosakura.client.feature.task.executor;
 
-import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
+import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
 import forpleuvoir.hiirosakura.client.feature.task.executor.base.IExecutor;
 import forpleuvoir.hiirosakura.client.mixin.MixinMinecraftClientInterface;
 
@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 public class DoAttackExecutor implements IExecutor {
 
     @Override
-    public Consumer<HiiroSakuraClient> getExecutor() {
-        return hiiroSakuraClient -> ((MixinMinecraftClientInterface) hiiroSakuraClient.mc).callDoAttack();
+    public Consumer<TimeTask> getExecutor() {
+        return timeTask -> ((MixinMinecraftClientInterface) timeTask.hs.mc).callDoAttack();
     }
 }

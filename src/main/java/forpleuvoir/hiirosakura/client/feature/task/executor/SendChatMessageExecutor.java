@@ -1,7 +1,7 @@
 package forpleuvoir.hiirosakura.client.feature.task.executor;
 
 import com.google.gson.JsonObject;
-import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
+import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskData;
 import forpleuvoir.hiirosakura.client.feature.task.executor.base.IExecutor;
 
@@ -22,13 +22,13 @@ public class SendChatMessageExecutor implements IExecutor {
     public SendChatMessageExecutor(JsonObject object, TimeTaskData data) {
         var message = object.get("message").getAsString();
         message = message.replace("${startTime}", data.startTime().toString())
-                .replace("${cycles}", data.cycles().toString())
-                .replace("${cyclesTime}", data.cyclesTime().toString());
+                         .replace("${cycles}", data.cycles().toString())
+                         .replace("${cyclesTime}", data.cyclesTime().toString());
         this.message = message;
     }
 
     @Override
-    public Consumer<HiiroSakuraClient> getExecutor() {
-        return hiiroSakuraClient -> hiiroSakuraClient.sendMessage(message);
+    public Consumer<TimeTask> getExecutor() {
+        return timeTask -> timeTask.hs.sendMessage(message);
     }
 }

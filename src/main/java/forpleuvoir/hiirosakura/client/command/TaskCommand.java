@@ -28,22 +28,22 @@ public class TaskCommand {
 
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
         dispatcher.register(literal(COMMAND_PREFIX + TYPE)
-                .then(literal("add")
-                        .then(argument("timeTask", NbtPathArgumentType.nbtPath())
-                                .executes(TaskCommand::add)
-                        )
-                )
-                .then(literal("remove")
-                        .then(argument("name", StringArgumentType.string())
-                                .executes(TaskCommand::remove)
-                        )
-                )
+                                    .then(literal("add")
+                                                  .then(argument("timeTask", NbtPathArgumentType.nbtPath())
+                                                                .executes(TaskCommand::add)
+                                                  )
+                                    )
+                                    .then(literal("remove")
+                                                  .then(argument("name", StringArgumentType.string())
+                                                                .executes(TaskCommand::remove)
+                                                  )
+                                    )
         );
     }
 
     public static int add(CommandContext<FabricClientCommandSource> context) {
         var nbt = (NbtPathArgumentType.NbtPath) context.getArgument("timeTask", NbtPathArgumentType.NbtPath.class);
-        TimeTask timeTask = TimeTaskParser.parse(JsonUtil.parseToJsonObject(nbt.toString()));
+        TimeTask timeTask = TimeTaskParser.parse(JsonUtil.parseToJsonObject(nbt.toString()), null);
         TimeTaskHandler.getInstance().addTask(timeTask);
         return 1;
     }

@@ -55,12 +55,16 @@ public class HiiroSakuraClient implements ClientModInitializer {
         mc.inGameHud.addChatMessage(MessageType.GAME_INFO, message, Util.NIL_UUID);
     }
 
+    public void addChatMessage(Text message){
+        mc.inGameHud.addChatMessage(MessageType.SYSTEM, message, Util.NIL_UUID);
+    }
+
     /**
      * 客户端tick之后会调用
      *
      * @param client {@link MinecraftClient}
      */
-    public void onEndTick(MinecraftClient client) {
+    private void onEndTick(MinecraftClient client) {
         tickers.forEach(minecraftClientConsumer -> minecraftClientConsumer.accept(this));
         this.runTask(client);
         tickCounter++;
@@ -71,7 +75,7 @@ public class HiiroSakuraClient implements ClientModInitializer {
      *
      * @param client {@link MinecraftClient}
      */
-    public void runTask(MinecraftClient client) {
+    private void runTask(MinecraftClient client) {
         Iterator<Consumer<MinecraftClient>> iterator = tasks.iterator();
         while (iterator.hasNext()) {
             Consumer<MinecraftClient> next = iterator.next();
@@ -102,10 +106,6 @@ public class HiiroSakuraClient implements ClientModInitializer {
 
     public void sendMessage(String message) {
         Objects.requireNonNull(mc.player).sendChatMessage(message);
-    }
-
-    public void showGameInfo(Text info) {
-        mc.inGameHud.addChatMessage(MessageType.GAME_INFO, info, Util.NIL_UUID);
     }
 
     public long getTickCounter() {

@@ -1,7 +1,9 @@
 package forpleuvoir.hiirosakura.client.feature.task;
 
 import com.google.gson.JsonObject;
+import forpleuvoir.hiirosakura.client.feature.event.base.Event;
 import forpleuvoir.hiirosakura.client.feature.task.executor.base.ExecutorParser;
+import org.jetbrains.annotations.Nullable;
 
 
 /**
@@ -15,13 +17,13 @@ import forpleuvoir.hiirosakura.client.feature.task.executor.base.ExecutorParser;
  */
 public class TimeTaskParser {
 
-    public static TimeTask parse(JsonObject object) {
+    public static TimeTask parse(JsonObject object, @Nullable Event event) {
         var startTime = object.get("startTime") != null ? object.get("startTime").getAsInt() : 0;
         var cycles = object.get("cycles") != null ? object.get("cycles").getAsInt() : 1;
         var cyclesTime = object.get("cyclesTime") != null ? object.get("cyclesTime").getAsInt() : 0;
         var name = object.get("name").getAsString();
         var timeTaskData = new TimeTaskData(startTime, cycles, cyclesTime, name);
-        var executor = ExecutorParser.parse(object.get("executor").getAsJsonObject(), timeTaskData);
+        var executor = ExecutorParser.parse(object.get("executor").getAsJsonObject(), timeTaskData, event);
         return new TimeTask(executor, timeTaskData);
     }
 

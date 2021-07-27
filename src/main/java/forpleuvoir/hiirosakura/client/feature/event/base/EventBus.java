@@ -47,7 +47,7 @@ public class EventBus {
         var name = jsonObject.get("name").getAsString();
         subscribe(channel, name, e -> {
                     jsonObject.addProperty("name", String.format("#%s.%s", HiiroSakuraEvents.getEventType(channel), name));
-                    TimeTaskHandler.getInstance().addTask(TimeTaskParser.parse(JsonUtil.parseToJsonObject(e.handlerJsonStr(json))));
+                    TimeTaskHandler.getInstance().addTask(TimeTaskParser.parse(JsonUtil.parseToJsonObject(e.handlerJsonStr(json)),e));
                 }
         );
     }

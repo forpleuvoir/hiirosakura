@@ -25,7 +25,7 @@ public class ToggleHotkey extends ConfigHotkey {
     public void initCallback(HiiroSakuraClient hs) {
         this.getKeybind().setCallback((action, key) -> {
             toggle.setBooleanValue(!toggle.getBooleanValue());
-            hs.showGameInfo(
+            hs.showMessage(
                     new LiteralText("§b" + toggle.getPrettyName())
                             .append(new LiteralText(toggle.getBooleanValue() ? " :§a true" : " :§4 false"))
             );

@@ -13,7 +13,8 @@ public enum ExecutorType {
     sendChatMessage("sendChatMessage"),
     joinServer("joinServer"),
     doAttack("doAttack"),
-    doItemUse("doItemUse")
+    doItemUse("doItemUse"),
+    javaScript("javaScript")
     ;
 
 

@@ -88,8 +88,8 @@ public class QCMSScreen extends GuiBase {
 
     private void sendChatMessage(String message) {
         TimeTaskHandler.getInstance()
-                       .addTask(TimeTask.once(hiiroSakuraClient -> {
-                           hiiroSakuraClient.sendMessage(message);
+                       .addTask(TimeTask.once(timeTask -> {
+                           timeTask.hs.sendMessage(message);
                            this.onClose();
                        }, 5, "#Close_QCMS_Screen"));
     }

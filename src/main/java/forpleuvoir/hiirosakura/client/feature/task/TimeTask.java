@@ -15,27 +15,28 @@ import java.util.function.Consumer;
  * <p>#create_time 2021/7/22 22:27
  */
 public class TimeTask {
-    private final Consumer<HiiroSakuraClient> task;
+    private final Consumer<TimeTask> task;
     private final TimeTaskData data;
     private Integer counter = 0;
     private Integer timeCounter = 0;
+    public HiiroSakuraClient hs = HiiroSakuraClient.getINSTANCE();
 
-    public static TimeTask once(Consumer<HiiroSakuraClient> task, String name) {
+    public static TimeTask once(Consumer<TimeTask> task, String name) {
         return once(task, 0, name);
     }
 
-    public static TimeTask once(Consumer<HiiroSakuraClient> task, Integer startTime, String name) {
+    public static TimeTask once(Consumer<TimeTask> task, Integer startTime, String name) {
         return new TimeTask(task, new TimeTaskData(startTime, 1, 0, name));
     }
 
-    public TimeTask(Consumer<HiiroSakuraClient> task, TimeTaskData data) {
+    public TimeTask(Consumer<TimeTask> task, TimeTaskData data) {
         this.task = task;
         this.data = data;
     }
 
     public void executes(HiiroSakuraClient client) {
         if (isOver() || !shouldExecute()) return;
-        task.accept(client);
+        task.accept(this);
         counter++;
         timeCounter = 0;
     }
@@ -56,5 +57,13 @@ public class TimeTask {
 
     public String getName() {
         return data.name();
+    }
+
+    public TimeTaskData getData() {
+        return data;
+    }
+
+    public Integer getCounter() {
+        return counter;
     }
 }

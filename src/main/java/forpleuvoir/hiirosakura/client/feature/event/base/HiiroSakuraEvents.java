@@ -59,7 +59,7 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
     }
 
     public void subscriber(String eventType, String json) {
-        TimeTask timeTask = TimeTaskParser.parse(JsonUtil.parseToJsonObject(json));
+        TimeTask timeTask = TimeTaskParser.parse(JsonUtil.parseToJsonObject(json), null);
         if (data.containsKey(eventType)) {
             data.get(eventType).put(timeTask.getName(), json);
         } else {
@@ -81,9 +81,9 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
 
     public void sync() {
         data.forEach((k, v) ->
-                v.forEach((name, task) ->
-                        EventBus.subscribeRunAsTimeTask(events.get(k), task)
-                )
+                             v.forEach((name, task) ->
+                                               EventBus.subscribeRunAsTimeTask(events.get(k), task)
+                             )
         );
     }
 

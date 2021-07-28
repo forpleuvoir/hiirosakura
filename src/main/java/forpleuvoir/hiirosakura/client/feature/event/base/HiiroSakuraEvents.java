@@ -75,11 +75,12 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
     public void unsubscribe(String eventType, String name) {
         if (data.containsKey(eventType))
             data.get(eventType).remove(name);
-        EventBus.unsubscribe(events.get(eventType), name);
+        EventBus.unsubscribeRunAsTimeTask(events.get(eventType), name);
         this.onValueChanged();
     }
 
     public void sync() {
+        EventBus.clearRunAsTimeTask();
         data.forEach((k, v) ->
                              v.forEach((name, task) ->
                                                EventBus.subscribeRunAsTimeTask(events.get(k), task)

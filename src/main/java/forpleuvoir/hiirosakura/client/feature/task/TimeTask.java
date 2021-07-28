@@ -1,7 +1,6 @@
 package forpleuvoir.hiirosakura.client.feature.task;
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
-import net.minecraft.client.MinecraftClient;
 
 import java.util.function.Consumer;
 
@@ -16,10 +15,10 @@ import java.util.function.Consumer;
  */
 public class TimeTask {
     private final Consumer<TimeTask> task;
-    private final TimeTaskData data;
+    public final TimeTaskData data;
     private Integer counter = 0;
     private Integer timeCounter = 0;
-    public HiiroSakuraClient hs = HiiroSakuraClient.getINSTANCE();
+    public HiiroSakuraClient hs = HiiroSakuraClient.getInstance();
 
     public static TimeTask once(Consumer<TimeTask> task, String name) {
         return once(task, 0, name);
@@ -57,10 +56,6 @@ public class TimeTask {
 
     public String getName() {
         return data.name();
-    }
-
-    public TimeTaskData getData() {
-        return data;
     }
 
     public Integer getCounter() {

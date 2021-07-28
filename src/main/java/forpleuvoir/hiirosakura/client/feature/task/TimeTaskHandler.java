@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentMap;
  * <p>#create_time 2021/7/22 23:00
  */
 public class TimeTaskHandler {
-    private static final HiiroSakuraClient hs = HiiroSakuraClient.getINSTANCE();
+    private static final HiiroSakuraClient hs = HiiroSakuraClient.getInstance();
     private static TimeTaskHandler INSTANCE;
     private final ConcurrentMap<String, TimeTask> timeTaskHashMap = new ConcurrentHashMap<>();
     private final ConcurrentLinkedQueue<String> removeList = new ConcurrentLinkedQueue<>();

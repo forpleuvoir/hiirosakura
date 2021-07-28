@@ -33,9 +33,26 @@ public class JavaScriptExecutor implements IExecutor {
     private final String script;
     @Nullable
     private final Event event;
+    private static final String include = """
+            var $TimeTask = Java.type('forpleuvoir.hiirosakura.client.feature.task.TimeTask');
+            var $TimeTaskHandler = Java.type('forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler');
+            function $sendMessage(message){$hs.sendChatMessage(message);}
+            function $attack(){$hs.doAttack();}
+            function $use(){$hs.doItemUse();}
+            function $pick(){$hs.doItemPick();}
+            function $move(dir,tick){
+                switch(dir){
+                    case 'forward':$hs.forward(tick);break;
+                    case 'back':$hs.back(tick);break;
+                    case 'left':$hs.left(tick);break;
+                    case 'right':$hs.right(tick);break;
+                }
+            }
+            function $joinServer(address){$hs.joinServer(address);}
+            """;
 
-    public JavaScriptExecutor(JsonObject object, @Nullable Event event) {
-        this.script = object.get("script").getAsString();
+    public JavaScriptExecutor(String script, @Nullable Event event) {
+        this.script = script;
         this.event = event;
     }
 
@@ -43,20 +60,15 @@ public class JavaScriptExecutor implements IExecutor {
     public Consumer<TimeTask> getExecutor() {
         return timeTask -> {
             try {
+                engine.eval(include);
+                engine.put("$task", timeTask);
+                engine.put("$log", log);
+                engine.put("$hs", javaScriptInterface);
+                if (event != null)
+                    engine.put("$event", event);
                 engine.eval(script);
-                if (engine instanceof Invocable invocable) {
-                    engine.put("$task", timeTask);
-                    engine.put("$log",log);
-                    engine.put("$hs", javaScriptInterface);
-                    if (event != null)
-                        engine.put("$event", event);
-                    invocable.invokeFunction(MAIN_FUNCTION_NAME);
-                }
-
-            } catch (ScriptException e) {
+            } catch (Exception e) {
                 timeTask.hs.addChatMessage(new LiteralText("§c" + e.getMessage()));
-            } catch (NoSuchMethodException e) {
-                timeTask.hs.addChatMessage(new LiteralText("§c main function not found"));
             }
         };
     }

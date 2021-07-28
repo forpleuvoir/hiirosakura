@@ -21,16 +21,7 @@ import java.util.function.Consumer;
  */
 public class ExecutorParser {
 
-    public static Consumer<TimeTask> parse(JsonObject object, TimeTaskData data, @Nullable Event event) {
-        var type = ExecutorType.valueOf(object.get("type").getAsString());
-        IExecutor executor = switch (type) {
-            case sendChatMessage -> new SendChatMessageExecutor(object, data);
-            case joinServer -> new JoinServerExecutor(object, data);
-            case doAttack -> new DoAttackExecutor();
-            case doItemUse -> new DoItemUseExecutor();
-            case javaScript -> new JavaScriptExecutor(object,event);
-        };
-        return executor.getExecutor();
-
+    public static Consumer<TimeTask> parse(String script, @Nullable Event event) {
+        return new JavaScriptExecutor(script,event).getExecutor();
     }
 }

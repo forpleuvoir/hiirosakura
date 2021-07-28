@@ -13,17 +13,12 @@ import forpleuvoir.hiirosakura.client.feature.event.base.Event;
  */
 public class OnServerJoinEvent extends Event {
 
-    private final String name;
-    private final String address;
+    public final String name;
+    public final String address;
 
     public OnServerJoinEvent(String name, String address) {
         this.name = name;
         this.address = address;
     }
 
-    @Override
-    public String handlerJsonStr(String json) {
-        return json.replace("${event.name}", name != null ? name : "${event.name}")
-                   .replace("${event.address}", address != null ? address : "${event.address}");
-    }
 }

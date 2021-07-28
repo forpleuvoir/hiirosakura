@@ -26,7 +26,7 @@ public class SwitchCameraEntity {
     private final MinecraftClient client;
 
     static {
-        HiiroSakuraClient.getINSTANCE().addTickHandler(hiiroSakuraClient -> {
+        HiiroSakuraClient.getInstance().addTickHandler(hiiroSakuraClient -> {
             var mc = hiiroSakuraClient.mc;
             if (mc.options.keySneak.wasPressed()) {
                 if (mc.getCameraEntity() == SwitchCameraEntity.INSTANCE.targetEntity)

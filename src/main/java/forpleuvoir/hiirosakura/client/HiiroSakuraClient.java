@@ -112,7 +112,7 @@ public class HiiroSakuraClient implements ClientModInitializer {
         return tickCounter;
     }
 
-    public static HiiroSakuraClient getINSTANCE() {
+    public static HiiroSakuraClient getInstance() {
         return INSTANCE;
     }
 }

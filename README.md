@@ -185,12 +185,6 @@ RT
 
 #### 事件
 
-事件属性可以用`${event.属性名}`来获取属性值
-
-例:`/hs:event subscribe OnGameJoin {startTime:50,name:"加入游戏事件1",executor:{type:sendChatMessage,message:"加入了地址为${event.address}的服务器"}}`
-
-该指令订阅了`OnGameJoin`事件，会在加入本地服务器(本地服务器地址为:127.0.0.1)50客户端tick之后发送消息:`加入了地址为127.0.0.1的服务器`
-
 ##### OnGameJoin
 
 加入游戏时触发 需要注意的是群组服内切换其他子服务器也是会触发该事件的
@@ -241,7 +235,7 @@ RT
 |startTime|int|false|0|第一次执行等待时间|
 |cycles|int|false|1|循环次数|
 |cyclesTime|int|false|0|第一次执行之后 每次循环之间的时间间隔|
-|executor|object|true|-|执行器|
+|executor|String|true|-|执行器,javaScript脚本|
 
 例:
 ```json5
@@ -250,64 +244,80 @@ RT
   cycles: 10,
   cyclesTime: 20,
   name: "定时任务",
-  executor: {
-    type: "sendChatMessage",
-    message: "消息发送执行器"
-  }
+  executor: "$sendMessage('消息发送执行器');"
 }
 ```
 50tick之后发送消息`"消息发送执行器"` 循环十次 每次间隔20tick
 
 ##### 执行器
 
-依然是json对象
+javaScript脚本
 
-|  属性名 | 类型  | 必填  | 默认值|描述|
-| ------------ | ------------ | ------------ | ------------ | ------------ |
-|type|String|true|-|执行器类型|
+提供以下内置对象
 
-不同的type有相应的执行器对象 属性也不一样
+###### $event
+
+可能为空
+
+订阅事件时 会提供对应的事件对象
+
+例：如果为`OnServerJoin`事件,获取`address`属性可以通过一下方法
+
+>$event.address
+
+###### $hs
+提供一部分对外开放的接口
 
 例:
+>$hs.doAttack();
+> 
+>$hs.sendChatMessage("114514");
 
-```json5
-{
-  type: "sendChatMessage",
-  message: "消息发送执行器"
-}
-```
+| 方法 | 参数 |描述 | 
+| ------------ | ------------ | ------------ | 
+| doAttack() | - |客户端玩家攻击一次|
+| doItemUse() | - |客户端玩家使用物品一次|
+| doItemPick() | - |模拟客户端玩家按下鼠标中间|
+|forward(Int tick)|按住的持续时间(客户端tick)|模拟按下方向前进按键|
+|back(Int tick)|按住的持续时间(客户端tick)|模拟按下方向后退按键|
+|left(Int tick)|按住的持续时间(客户端tick)|模拟按下方向左按键|
+|right(Int tick)|按住的持续时间(客户端tick)|模拟按下方向右按键|
+|jump(Int tick)|按住的持续时间(客户端tick)|模拟按下跳跃按键|
+|sneak(Int tick)|按住的持续时间(客户端tick)|模拟按下潜行按键|
+|joinServer(String address)|加入的服务器IP地址|加入服务器|
+|sendChatMessage(String message)|消息文本|发送聊天消息|
 
-###### sendChatMessage
+###### $task
 
-|  属性名 | 类型  | 必填  | 默认值|描述|
-| ------------ | ------------ | ------------ | ------------ | ------------ |
-|type|String|true|sendChatMessage|发送聊天消息|
-|message|String|true|-|发送的消息内容|
+属性
 
-###### joinServer
+| 属性名 | 类型 |
+| ------------ | ------------ | 
+|data|TimeTaskData|
 
-|  属性名 | 类型  | 必填  | 默认值|描述|
-| ------------ | ------------ | ------------ | ------------ | ------------ |
-|type|String|true|joinServer|加入一个服务器|
-|address|String|true|-|加入的服务器IP地址|
+TimeTaskData
 
-###### doAttack
+| 方法 | 返回值类型 |返回值 |描述 |
+| ------------ | ------------ | ------------ | ------------| 
+|startTime()|Integer|第一次执行等待时间|-|
+|cycles()|Integer|循环执行次数|时间单位:客户端tick|
+|cyclesTime()|Integer|每次循环之间的时间间隔|时间单位:客户端tick|
+|name()|String|任务名|-|
 
-|  属性名 | 类型  | 必填  | 默认值|描述|
-| ------------ | ------------ | ------------ | ------------ | ------------ |
-|type|String|true|doAttack|模拟攻击键按下1tick|
 
-###### doItemUse
+方法
 
-|  属性名 | 类型  | 必填  | 默认值|描述|
-| ------------ | ------------ | ------------ | ------------ | ------------ |
-|type|String|true|doItemUse|模拟使用键按下1tick|
+| 方法 | 参数 |返回值类型 |返回值|描述 |
+| ------------ | ------------ | ------------ | ------------| ------------| 
+|getName()|-|String|任务名|-|
+|getCounter()|-|Integer|当前执行次数|-|
+|isOver()|-|boolean|任务是否已执行完成|所有次数已执行完毕|
+
+
 
 ------------
 
 # 相关代码
-
-<a id="通过玩家名称获取玩家头"></a>
 
 ## 通过玩家名称获取玩家头
 

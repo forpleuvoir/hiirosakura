@@ -21,4 +21,7 @@ public interface MixinMinecraftClientInterface {
 
     @Invoker("doItemUse")
     void callDoItemUse();
+
+    @Invoker("doItemPick")
+    void callDoItemPick();
 }

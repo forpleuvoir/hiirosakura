@@ -7,8 +7,6 @@ import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity;
 import forpleuvoir.hiirosakura.client.util.StringUtil;
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
-import net.minecraft.command.argument.EntityArgumentType;
 
 import static forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.COMMAND_PREFIX;
 import static net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.argument;
@@ -23,7 +21,7 @@ import static net.minecraft.command.CommandSource.suggestMatching;
  * <p>#create_time 2021/6/24 20:56
  */
 public class SwitchCameraEntityCommand {
-    private final static HiiroSakuraClient hs = HiiroSakuraClient.getINSTANCE();
+    private final static HiiroSakuraClient hs = HiiroSakuraClient.getInstance();
     public static final String TYPE = "sce";
 
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {

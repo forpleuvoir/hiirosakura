@@ -14,18 +14,13 @@ import org.jetbrains.annotations.Nullable;
  */
 public class OnDisconnectEvent extends Event {
     @Nullable
-    private final String name;
+    public final String name;
     @Nullable
-    private final String address;
+    public final String address;
 
     public OnDisconnectEvent(@Nullable String name, @Nullable String address) {
         this.name = name;
         this.address = address;
     }
 
-    @Override
-    public String handlerJsonStr(String json) {
-        return json.replace("${event.name}", name != null ? name : "${event.name}")
-                .replace("${event.address}", address != null ? address : "${event.address}");
-    }
 }

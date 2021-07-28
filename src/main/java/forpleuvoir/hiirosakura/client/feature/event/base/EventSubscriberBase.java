@@ -44,7 +44,7 @@ public class EventSubscriberBase {
 
     public List<String> getWidgetHoverLines() {
         return Lists.newArrayList(
-                String.format("%s : §a%s", "name", name),
+                String.format("%s : §b%s", "name", name),
                 String.format("%s : %s", "event", eventType),
                 String.format("%s : %s", "enabled", enabled ? "§a" + true : "§c" + false),
                 String.format("§b%s : §6%s", "timeTask", timeTask)

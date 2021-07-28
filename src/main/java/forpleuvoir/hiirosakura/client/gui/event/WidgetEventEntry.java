@@ -87,7 +87,7 @@ public class WidgetEventEntry extends WidgetListEntryBase<EventSubscriberBase> {
             RenderUtils.drawOutline(this.x, this.y, this.width, this.height, 0x7FE0E0E0);
         }
 
-        String name = this.eventSubscriberBase.name;
+        String name = "§6"+this.eventSubscriberBase.eventType + "§d >> §b" + this.eventSubscriberBase.name;
         this.drawString(this.x + 4, this.y + 7, 0xFFFFFFFF, name, matrixStack);
 
         RenderUtils.color(1f, 1f, 1f, 1f);

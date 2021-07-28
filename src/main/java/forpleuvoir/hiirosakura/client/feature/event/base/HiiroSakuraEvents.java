@@ -13,6 +13,7 @@ import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskParser;
 import forpleuvoir.hiirosakura.client.util.HSLogger;
 import forpleuvoir.hiirosakura.client.util.JsonUtil;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,6 +42,7 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
      */
     private final Map<String, Map<String, String>> data = new ConcurrentHashMap<>();
 
+
     public static String getEventType(Class<? extends Event> eventType) {
         for (Map.Entry<String, Class<? extends Event>> next : events.entrySet()) {
             if (next.getValue().equals(eventType)) {
@@ -52,6 +54,15 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
 
     public HiiroSakuraEvents() {
         super("event");
+    }
+
+    @Nullable
+    public Map<String,String> getEventData(String eventName){
+        return data.get(eventName);
+    }
+
+    public void unsubscribe(EventBase eventBase){
+
     }
 
     public void subscriber(Class<? extends Event> eventType, String json) {

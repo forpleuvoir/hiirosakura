@@ -3,8 +3,11 @@ package forpleuvoir.hiirosakura.client.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import fi.dy.masa.malilib.gui.GuiBase;
+import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.command.arguments.EventArgumentType;
 import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
+import forpleuvoir.hiirosakura.client.gui.event.EventScreen;
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 import net.minecraft.command.argument.NbtPathArgumentType;
 
@@ -39,6 +42,14 @@ public class EventCommand {
                                         .executes(EventCommand::unsubscribe)
                                 )
                         )
+                )
+                .then(literal("gui")
+                    .executes(context -> {
+                        HiiroSakuraClient.getInstance().addTask(client -> {
+                            GuiBase.openGui(new EventScreen());
+                        });
+                        return 1;
+                    })
                 )
         );
     }

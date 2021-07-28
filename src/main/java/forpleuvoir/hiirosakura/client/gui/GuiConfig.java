@@ -47,7 +47,7 @@ public class GuiConfig extends GuiConfigsBase {
 
     @Override
     protected boolean useKeybindSearch() {
-        return GuiConfig.tab == ConfigGuiTab.HOTKEYS;
+        return GuiConfig.tab == ConfigGuiTab.HOTKEYS || GuiConfig.tab == ConfigGuiTab.TOGGLES_HOTKEYS;
     }
 
     @Override

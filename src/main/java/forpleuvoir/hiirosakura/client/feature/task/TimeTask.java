@@ -33,7 +33,7 @@ public class TimeTask {
         this.data = data;
     }
 
-    public void executes(HiiroSakuraClient client) {
+    public void executes() {
         if (isOver() || !shouldExecute()) return;
         task.accept(this);
         counter++;

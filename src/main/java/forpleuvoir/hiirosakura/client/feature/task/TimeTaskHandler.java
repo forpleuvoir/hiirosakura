@@ -48,7 +48,7 @@ public class TimeTaskHandler {
             if (value.isOver()) {
                 iterator.remove();
             } else {
-                value.executes(client);
+                value.executes();
             }
         }
     }

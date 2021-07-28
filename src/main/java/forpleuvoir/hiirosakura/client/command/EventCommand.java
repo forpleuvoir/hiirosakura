@@ -57,7 +57,7 @@ public class EventCommand {
     public static int subscribe(CommandContext<FabricClientCommandSource> context) {
         var nbt = (NbtPathArgumentType.NbtPath) context.getArgument("timeTask", NbtPathArgumentType.NbtPath.class);
         var eventType = EventArgumentType.getEventType(context, "eventType");
-        HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.subscriber(eventType, nbt.toString());
+        HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.subscribe(eventType, nbt.toString());
         return 1;
     }
 

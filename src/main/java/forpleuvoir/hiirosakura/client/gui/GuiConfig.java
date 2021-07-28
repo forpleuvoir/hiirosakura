@@ -1,6 +1,7 @@
 package forpleuvoir.hiirosakura.client.gui;
 
 import fi.dy.masa.malilib.config.IConfigBase;
+import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.GuiConfigsBase;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
@@ -10,7 +11,9 @@ import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.config.Configs;
 import forpleuvoir.hiirosakura.client.config.HotKeys;
 import forpleuvoir.hiirosakura.client.config.TogglesHotKeys;
+import forpleuvoir.hiirosakura.client.gui.event.EventScreen;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,7 +25,7 @@ import java.util.Objects;
  * <p>#create_time 2021/6/15 20:28
  */
 public class GuiConfig extends GuiConfigsBase {
-    private static ConfigGuiTab tab = ConfigGuiTab.TOGGLES;
+    public static ConfigGuiTab tab = ConfigGuiTab.TOGGLES;
 
     public GuiConfig() {
         super(10, 50, HiiroSakuraClient.MOD_ID, null, "hiirosakura.gui.title.configs");
@@ -30,6 +33,10 @@ public class GuiConfig extends GuiConfigsBase {
 
     @Override
     public void initGui() {
+        if (tab == ConfigGuiTab.EVENT) {
+            GuiBase.openGui(new EventScreen());
+            return;
+        }
         super.initGui();
         this.clearOptions();
         int x = 10;
@@ -57,6 +64,7 @@ public class GuiConfig extends GuiConfigsBase {
             case TOGGLES -> 80;
             case VALUES -> 120;
             case HOTKEYS, TOGGLES_HOTKEYS -> 200;
+            default -> super.getConfigWidth();
         };
     }
 
@@ -69,6 +77,7 @@ public class GuiConfig extends GuiConfigsBase {
             case TOGGLES_HOTKEYS -> TogglesHotKeys.HOTKEY_LIST;
             case VALUES -> Configs.Values.OPTIONS;
             case HOTKEYS -> HotKeys.HOTKEY_LIST;
+            default -> Collections.emptyList();
         };
         return ConfigOptionWrapper.createFor(configs);
     }
@@ -78,9 +87,13 @@ public class GuiConfig extends GuiConfigsBase {
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
             GuiConfig.tab = this.tab;
-            this.parent.reCreateListWidget(); // apply the new config width
-            Objects.requireNonNull(this.parent.getListWidget()).resetScrollbarPosition();
-            this.parent.initGui();
+            if (tab == ConfigGuiTab.EVENT) {
+                GuiBase.openGui(new EventScreen());
+            } else {
+                this.parent.reCreateListWidget();
+                Objects.requireNonNull(this.parent.getListWidget()).resetScrollbarPosition();
+                this.parent.initGui();
+            }
         }
     }
 
@@ -89,7 +102,8 @@ public class GuiConfig extends GuiConfigsBase {
         TOGGLES("button.config_gui.toggles"),
         TOGGLES_HOTKEYS("button.config_gui.toggles.hotkeys"),
         VALUES("button.config_gui.values"),
-        HOTKEYS("button.config_gui.hotkeys");
+        HOTKEYS("button.config_gui.hotkeys"),
+        EVENT("button.config_gui.event");
 
 
         private final String translationKey;

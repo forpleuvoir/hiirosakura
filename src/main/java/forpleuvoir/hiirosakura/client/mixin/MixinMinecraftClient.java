@@ -1,6 +1,8 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
 import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity;
+import forpleuvoir.hiirosakura.client.feature.event.OnDisconnectEvent;
+import forpleuvoir.hiirosakura.client.feature.event.base.EventBus;
 import forpleuvoir.hiirosakura.client.util.ServerInfoUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -36,6 +38,8 @@ public abstract class MixinMinecraftClient {
     @Final
     private TutorialManager tutorialManager;
 
+    @Shadow @Nullable public abstract ServerInfo getCurrentServerEntry();
+
     @Inject(method = "<init>", at = @At("RETURN"))
     public void init(CallbackInfo ci) {
         //关闭游戏自带教程
@@ -51,6 +55,7 @@ public abstract class MixinMinecraftClient {
 
     @Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"), cancellable = true)
     public void disconnect(Screen screen, CallbackInfo callbackInfo) {
+        EventBus.broadcast(new OnDisconnectEvent(ServerInfoUtil.getName(),ServerInfoUtil.getAddress()));
         ServerInfoUtil.clear();
     }
 

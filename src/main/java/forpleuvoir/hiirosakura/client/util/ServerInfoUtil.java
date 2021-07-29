@@ -1,6 +1,8 @@
 package forpleuvoir.hiirosakura.client.util;
 
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * 服务器信息工具类
  *
@@ -11,7 +13,9 @@ package forpleuvoir.hiirosakura.client.util;
  * <p>#create_time 2021-07-26 15:41
  */
 public class ServerInfoUtil {
+    @Nullable
     private static String name;
+    @Nullable
     private static String address;
 
     public static void clear() {
@@ -24,10 +28,12 @@ public class ServerInfoUtil {
         ServerInfoUtil.address = address;
     }
 
+    @Nullable
     public static String getName() {
         return name;
     }
 
+    @Nullable
     public static String getAddress() {
         return address;
     }

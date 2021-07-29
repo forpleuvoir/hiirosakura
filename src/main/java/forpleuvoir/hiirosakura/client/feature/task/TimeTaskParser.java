@@ -23,7 +23,7 @@ public class TimeTaskParser {
         var cyclesTime = object.get("cyclesTime") != null ? object.get("cyclesTime").getAsInt() : 0;
         var name = object.get("name").getAsString();
         var timeTaskData = new TimeTaskData(startTime, cycles, cyclesTime, name);
-        var executor = ExecutorParser.parse(object.get("executor").getAsString(), event);
+        var executor = ExecutorParser.parse(object.get("script").getAsString(), event);
         return new TimeTask(executor, timeTaskData);
     }
 

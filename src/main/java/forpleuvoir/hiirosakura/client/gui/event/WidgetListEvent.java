@@ -16,16 +16,22 @@ import java.util.Collection;
  */
 public class WidgetListEvent extends WidgetListBase<EventSubscriberBase, WidgetEventEntry> {
 
-    public WidgetListEvent(int x, int y, int width, int height,
+    private final String eventType;
+
+    public WidgetListEvent(int x, int y, int width, int height, String eventType,
                            ISelectionListener<EventSubscriberBase> selectionListener
     ) {
         super(x, y, width, height, selectionListener);
         this.browserEntryHeight = 22;
+        this.eventType = eventType;
     }
 
     @Override
     protected Collection<EventSubscriberBase> getAllEntries() {
-        return HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.getAllEventSubscriberBase();
+        if (eventType.equals(EventScreen.ALL))
+            return HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.getAllEventSubscriberBase();
+        else
+            return HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.getAllEventSubscriberBase(eventType);
     }
 
     @Override
@@ -33,12 +39,12 @@ public class WidgetListEvent extends WidgetListBase<EventSubscriberBase, WidgetE
                                                      EventSubscriberBase entry
     ) {
         return new WidgetEventEntry(x, y,
-                                    this.browserEntryWidth,
-                                    this.getBrowserEntryHeightFor(entry),
-                                    isOdd,
-                                    entry,
-                                    listIndex,
-                                    this
+                this.browserEntryWidth,
+                this.getBrowserEntryHeightFor(entry),
+                isOdd,
+                entry,
+                listIndex,
+                this
         );
     }
 }

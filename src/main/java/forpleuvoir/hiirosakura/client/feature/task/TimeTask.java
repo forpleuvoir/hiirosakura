@@ -1,5 +1,6 @@
 package forpleuvoir.hiirosakura.client.feature.task;
 
+import com.google.gson.JsonObject;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 
 import java.util.function.Consumer;
@@ -61,4 +62,5 @@ public class TimeTask {
     public Integer getCounter() {
         return counter;
     }
+
 }

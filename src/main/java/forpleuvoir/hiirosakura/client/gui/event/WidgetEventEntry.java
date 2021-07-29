@@ -58,8 +58,8 @@ public class WidgetEventEntry extends WidgetListEntryBase<EventSubscriberBase> {
 
     private int createButtonOnOff(int xRight, int y, boolean isCurrentlyOn, ButtonListener.Type type) {
         ButtonOnOff button = new ButtonOnOff(xRight, y, -1, true,
-                                             type.getDisplayName() + ":" + (isCurrentlyOn ? "§a" : "§c") + isCurrentlyOn,
-                                             isCurrentlyOn
+                type.getDisplayName() + ":" + (isCurrentlyOn ? "§a" : "§c") + isCurrentlyOn,
+                isCurrentlyOn
         );
         this.addButton(button, new ButtonListener(type, this));
         return button.getWidth() + 2;
@@ -87,7 +87,7 @@ public class WidgetEventEntry extends WidgetListEntryBase<EventSubscriberBase> {
             RenderUtils.drawOutline(this.x, this.y, this.width, this.height, 0x7FE0E0E0);
         }
 
-        String name = "§6"+this.eventSubscriberBase.eventType + "§d >> §b" + this.eventSubscriberBase.name;
+        String name = "§6" + this.eventSubscriberBase.eventType + "§d >> §b" + this.eventSubscriberBase.name;
         this.drawString(this.x + 4, this.y + 7, 0xFFFFFFFF, name, matrixStack);
 
         RenderUtils.color(1f, 1f, 1f, 1f);
@@ -107,14 +107,14 @@ public class WidgetEventEntry extends WidgetListEntryBase<EventSubscriberBase> {
         }
     }
 
-    private record ButtonListener(WidgetEventEntry.ButtonListener.Type type,
+    private record ButtonListener(Type type,
                                   WidgetEventEntry widget) implements IButtonActionListener {
 
         @Override
         public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
             switch (this.type) {
                 case EDIT -> {
-                    GuiBase.openGui(new EventEditScreen(this.widget.eventSubscriberBase));
+                    GuiBase.openGui(new EventEditScreen(this.widget.eventSubscriberBase, new EventScreen()));
                 }
                 case REMOVE -> {
                     HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.unsubscribe(this.widget.eventSubscriberBase);

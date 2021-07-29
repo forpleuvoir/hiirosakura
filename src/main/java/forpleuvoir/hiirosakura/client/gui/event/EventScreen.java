@@ -1,6 +1,6 @@
 package forpleuvoir.hiirosakura.client.gui.event;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.GuiListBase;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
@@ -13,6 +13,7 @@ import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
 import forpleuvoir.hiirosakura.client.feature.event.base.EventSubscriberBase;
 import forpleuvoir.hiirosakura.client.feature.event.base.HiiroSakuraEvents;
 import forpleuvoir.hiirosakura.client.gui.GuiConfig;
+import net.minecraft.client.util.math.MatrixStack;
 import org.jetbrains.annotations.Nullable;
 
 import static forpleuvoir.hiirosakura.client.gui.GuiConfig.ConfigGuiTab;
@@ -29,21 +30,26 @@ import static forpleuvoir.hiirosakura.client.gui.GuiConfig.ConfigGuiTab;
 public class EventScreen extends GuiListBase<EventSubscriberBase, WidgetEventEntry, WidgetListEvent> implements ISelectionListener<EventSubscriberBase> {
 
     protected final WidgetDropDownList<String> widgetDropDown;
+    public static final String ALL = "all";
+    private String currentEntry;
 
     public EventScreen() {
         super(10, 64);
+        var lists = Lists.newArrayList(HiiroSakuraEvents.events.keySet());
+        lists.add(ALL);
         this.setTitle(StringUtils.translate("hiirosakura.gui.title.event"));
         this.widgetDropDown = new WidgetDropDownList<>
-                (0, 0, 160, 18, 200, 10,
-                 ImmutableList.copyOf(
-                         HiiroSakuraEvents.events.keySet()),
-                 (type) -> "§6§l§n" + type
+                (0, 0, 160, 17, 200, 10,
+                        lists,
+                        (type) -> "§6§l§n" + type
                 );
+        this.widgetDropDown.setSelectedEntry(ALL);
+        this.currentEntry = ALL;
     }
 
     @Override
     protected WidgetListEvent createListWidget(int listX, int listY) {
-        return new WidgetListEvent(listX, listY, this.getBrowserWidth(), this.getBrowserHeight(), this);
+        return new WidgetListEvent(listX, listY, this.getBrowserWidth(), this.getBrowserHeight(), currentEntry, this);
     }
 
     @Override
@@ -63,7 +69,16 @@ public class EventScreen extends GuiListBase<EventSubscriberBase, WidgetEventEnt
         this.clearWidgets();
         this.clearButtons();
         this.createTabButtons();
+    }
 
+    @Override
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
+        if (!currentEntry.equals(widgetDropDown.getSelectedEntry())) {
+            currentEntry = widgetDropDown.getSelectedEntry();
+            this.reCreateListWidget();
+            this.initGui();
+        }
     }
 
     protected void createTabButtons() {
@@ -92,7 +107,7 @@ public class EventScreen extends GuiListBase<EventSubscriberBase, WidgetEventEnt
         x = getListX();
 
         x += this.addButton(x, y);
-        this.widgetDropDown.setPosition(x+1 , y+2);
+        this.widgetDropDown.setPosition(x + 1, y + 2);
         this.addWidget(this.widgetDropDown);
     }
 
@@ -107,7 +122,7 @@ public class EventScreen extends GuiListBase<EventSubscriberBase, WidgetEventEnt
     protected int addButton(int x, int y) {
         ButtonGeneric button = new ButtonGeneric(x, y, -1, false, "hiirosakura.gui.button.subscribe");
         this.addButton(button, (button1, mouseButton) -> {
-            GuiBase.openGui(new EventEditScreen());
+            GuiBase.openGui(new EventEditScreen(this));
         });
         return button.getWidth();
     }

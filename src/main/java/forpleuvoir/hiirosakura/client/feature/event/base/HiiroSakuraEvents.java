@@ -65,6 +65,12 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
         return this.selected;
     }
 
+    public void update(EventSubscriberBase old, EventSubscriberBase current) {
+        if (old.equals(current)) return;
+        unsubscribe(old);
+        subscribe(current);
+    }
+
     public boolean isSelected(EventSubscriberBase eventSubscriberBase) {
         return eventSubscriberBase.equals(selected);
     }
@@ -75,6 +81,10 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
 
     public void unsubscribe(EventSubscriberBase eventBase) {
         unsubscribe(eventBase.eventType, eventBase.name);
+    }
+
+    public void subscribe(EventSubscriberBase eventBase) {
+        subscribe(eventBase.eventType, eventBase.timeTask);
     }
 
     public void subscribe(Class<? extends Event> eventType, String json) {
@@ -107,8 +117,8 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
     public boolean isEnabled(Class<? extends Event> eventType, String name) {
         AtomicBoolean returnValue = new AtomicBoolean(false);
         Optional<EventSubscriberBase> first = datas.get(getEventType(eventType)).stream()
-                                                   .filter(eventSubscriberBase -> eventSubscriberBase.name.equals(name))
-                                                   .findFirst();
+                .filter(eventSubscriberBase -> eventSubscriberBase.name.equals(name))
+                .findFirst();
         first.ifPresent(eventSubscriberBase -> returnValue.set(eventSubscriberBase.enabled));
         return returnValue.get();
     }
@@ -121,11 +131,15 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
         return list;
     }
 
+    public Collection<EventSubscriberBase> getAllEventSubscriberBase(String event) {
+        return datas.get(event) != null ? datas.get(event) : new ArrayList<>();
+    }
+
     public void toggleEnabled(EventSubscriberBase eventSubscriberBase) {
         datas.get(eventSubscriberBase.eventType).stream().filter(eventSubscriberBase::equals).findFirst()
-             .ifPresent(eventSubscriberBase1 -> {
-                 eventSubscriberBase1.enabled = !eventSubscriberBase1.enabled;
-             });
+                .ifPresent(eventSubscriberBase1 -> {
+                    eventSubscriberBase1.enabled = !eventSubscriberBase1.enabled;
+                });
         this.onValueChanged();
     }
 
@@ -135,7 +149,7 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
             v.forEach(eventSubscriberBase -> {
                 if (eventSubscriberBase.enabled)
                     EventBus.subscribeRunAsTimeTask(events.get(eventSubscriberBase.eventType),
-                                                    eventSubscriberBase.timeTask
+                            eventSubscriberBase.timeTask
                     );
             });
         });

@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
+import forpleuvoir.hiirosakura.client.feature.task.TimeTaskParser;
+import forpleuvoir.hiirosakura.client.util.JsonUtil;
 
 import java.util.List;
 import java.util.Objects;
@@ -49,6 +51,15 @@ public class EventSubscriberBase {
                 String.format("%s : %s", "enabled", enabled ? "§a" + true : "§c" + false),
                 String.format("§b%s : §6%s", "timeTask", timeTask)
         );
+    }
+
+    public TimeTask getTimeTask() {
+        return TimeTaskParser.parse(JsonUtil.parseToJsonObject(timeTask), null);
+    }
+
+    public String getScript() {
+        JsonObject object = JsonUtil.parseToJsonObject(timeTask);
+        return object.get("script").getAsString();
     }
 
     public void toggleEnable() {

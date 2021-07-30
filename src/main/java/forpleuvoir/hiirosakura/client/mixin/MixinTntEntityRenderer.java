@@ -36,9 +36,16 @@ public abstract class MixinTntEntityRenderer extends EntityRenderer<TntEntity> {
                        CallbackInfo callbackInfo
     ) {
         if (!Configs.Toggles.SHOW_TNT_FUSE.getBooleanValue()) return;
-        TextRenderUtil.renderEntityText(tntEntity, new LiteralText(String.format("tick:%d", tntEntity.getFuse())),
-                                        this.dispatcher, getTextRenderer(), matrixStack,
-                                        vertexConsumerProvider, light
+        int maxAge = 80;
+        int age = tntEntity.getFuse();
+        TextRenderUtil.renderEntityText(tntEntity,
+                                        TextRenderUtil.ageColorText(String.valueOf(age), age, maxAge,false)
+                                                      .append("§rt"),
+                                        this.dispatcher,
+                                        getTextRenderer(),
+                                        matrixStack,
+                                        vertexConsumerProvider,
+                                        light
         );
     }
 }

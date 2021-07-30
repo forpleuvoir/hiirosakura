@@ -6,6 +6,8 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Matrix4f;
 
@@ -21,17 +23,26 @@ import java.util.List;
  */
 public class TextRenderUtil {
 
-    public static int ageColor(final float age, final float maxAge) {
-        if (age < 0) return new Color(0, 0, 0).getRGB();
-        int green = (int) ((((maxAge - age) / maxAge)) * 255);
-        int red = (int) ((1f - ((maxAge - age) / maxAge)) * 255);
+    public static MutableText ageColorText(String text, final float age, final float maxAge, boolean r2g) {
+        return new LiteralText(text).styled(style -> style.withColor(ageColor(age, maxAge, r2g)));
+    }
+
+    public static int ageColor(final float age, final float maxAge, boolean r2g) {
+        if (age < 0) return new Color(255, 0, 0).getRGB();
+        if (maxAge < 0) return new Color(0, 255, 0).getRGB();
+        int maxColor = (int) ((((maxAge - age) / maxAge)) * 255);
+        int minColor = (int) ((1f - ((maxAge - age) / maxAge)) * 255);
+        int green;
+        int red;
+        if (r2g) {
+            green = maxColor;
+            red = minColor;
+        } else {
+            red = maxColor;
+            green = minColor;
+        }
         return new Color(red, green, 0).getRGB();
     }
-
-    public static int ageColor(final int age) {
-        return ageColor(age, 6000);
-    }
-
 
     /**
      * 在实体上方渲染文本

@@ -65,16 +65,13 @@ public abstract class MixinItemEntityRenderer extends EntityRenderer<ItemEntity>
             texts.add(text);
 
         //渲染剩余生命
-        if (SHOW_ENTITY_AGE.getBooleanValue())
-            texts.add(new LiteralText(
-                              "age :"
-                      ).append(
-                    new LiteralText("" + (6000 - itemEntity.getItemAge()))
-                            .styled(style -> style.withColor(TextRenderUtil.ageColor(
-                                    itemEntity.getItemAge())))
-                      )
+        if (SHOW_ENTITY_AGE.getBooleanValue()) {
+            int maxAge = 6000;
+            int age = maxAge - itemEntity.getItemAge();
+            texts.add(TextRenderUtil.ageColorText(String.valueOf(age / 20), age, maxAge,false)
+                                    .append("§rs")
             );
-
+        }
 
         if (!texts.isEmpty())
             TextRenderUtil.renderEntityMultiText(itemEntity, texts, this.dispatcher, getTextRenderer(), matrixStack,

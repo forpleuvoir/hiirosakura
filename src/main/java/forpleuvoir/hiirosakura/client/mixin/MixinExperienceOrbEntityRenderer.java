@@ -57,16 +57,14 @@ public abstract class MixinExperienceOrbEntityRenderer extends EntityRenderer<Ex
         }
 
         //渲染剩余销毁时间
-        if (Configs.Toggles.SHOW_ENTITY_AGE.getBooleanValue())
-            texts.add(new LiteralText(
-                              "age :"
-                      ).append(
-                    new LiteralText("" + (6000 - ((MixinExperienceOrbEntityInterface) experienceOrbEntity).getAge()))
-                            .styled(style -> style.withColor(TextRenderUtil.ageColor(
-                                    ((MixinExperienceOrbEntityInterface) experienceOrbEntity).getAge())))
-                      )
+        if (Configs.Toggles.SHOW_ENTITY_AGE.getBooleanValue()) {
+            int maxAge = 6000;
+            int age = maxAge - ((MixinExperienceOrbEntityInterface) experienceOrbEntity).getAge();
+            texts.add(TextRenderUtil.ageColorText(String.valueOf(age / 20), age, maxAge,false)
+                                    .append("s")
             );
 
+        }
         if (!texts.isEmpty())
             TextRenderUtil
                     .renderEntityMultiText(experienceOrbEntity, texts,

@@ -19,6 +19,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.LinkedList;
 
+import static forpleuvoir.hiirosakura.client.config.Configs.Toggles.*;
+
 /**
  * 物品实体渲染器注入
  *
@@ -44,20 +46,39 @@ public abstract class MixinItemEntityRenderer extends EntityRenderer<ItemEntity>
         }
         var texts = new LinkedList<Text>();
         //渲染附魔
-        if (Configs.Toggles.SHOW_ITEM_ENTITY_ENCHANTMENT.getBooleanValue())
+        if (SHOW_ITEM_ENTITY_ENCHANTMENT.getBooleanValue())
             texts.addAll(ItemStackUtil.getEnchantmentsWithLvl(itemEntity.getStack()));
+
         //渲染工具提示
-        if (Configs.Toggles.SHOW_TOOLTIP_ON_ITEM_ENTITY.getBooleanValue())
+        if (SHOW_TOOLTIP_ON_ITEM_ENTITY.getBooleanValue())
             texts.addAll(HiiroSakuraDatas.TOOLTIP.getTooltip(itemEntity.getStack()));
+
+        //渲染名字
         LiteralText text = new LiteralText("");
-        if (Configs.Toggles.SHOW_ITEM_ENTITY_NAME.getBooleanValue())
+        if (SHOW_ITEM_ENTITY_NAME.getBooleanValue())
             text.append(itemEntity.getStack().getName());
-        if (itemEntity.getStack().getCount() > 1 && Configs.Toggles.SHOW_ITEM_ENTITY_COUNT.getBooleanValue())
+
+        //渲染数量
+        if (itemEntity.getStack().getCount() > 1 && SHOW_ITEM_ENTITY_COUNT.getBooleanValue())
             text.append(String.format(" %d ", itemEntity.getStack().getCount()));
         if (!text.getString().equals(""))
             texts.add(text);
-        TextRenderUtil.renderEntityMultiText(itemEntity, texts, this.dispatcher, getTextRenderer(), matrixStack,
-                                             vertexConsumerProvider, light
-        );
+
+        //渲染剩余生命
+        if (SHOW_ENTITY_AGE.getBooleanValue())
+            texts.add(new LiteralText(
+                              "age :"
+                      ).append(
+                    new LiteralText("" + (6000 - itemEntity.getItemAge()))
+                            .styled(style -> style.withColor(TextRenderUtil.ageColor(
+                                    itemEntity.getItemAge())))
+                      )
+            );
+
+
+        if (!texts.isEmpty())
+            TextRenderUtil.renderEntityMultiText(itemEntity, texts, this.dispatcher, getTextRenderer(), matrixStack,
+                                                 vertexConsumerProvider, light
+            );
     }
 }

@@ -9,6 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Matrix4f;
 
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -19,6 +20,18 @@ import java.util.List;
  * <p>#create_time 2021/6/13 12:43
  */
 public class TextRenderUtil {
+
+    public static int ageColor(final float age, final float maxAge) {
+        if (age < 0) return new Color(0, 0, 0).getRGB();
+        int green = (int) ((((maxAge - age) / maxAge)) * 255);
+        int red = (int) ((1f - ((maxAge - age) / maxAge)) * 255);
+        return new Color(red, green, 0).getRGB();
+    }
+
+    public static int ageColor(final int age) {
+        return ageColor(age, 6000);
+    }
+
 
     /**
      * 在实体上方渲染文本
@@ -46,7 +59,7 @@ public class TextRenderUtil {
      * 在实体上方渲染文本
      *
      * @param entity                 目标实体
-     * @param textHeight                 高度
+     * @param textHeight             高度
      * @param text                   需要渲染的文本
      * @param dispatcher             {@link EntityRenderDispatcher}
      * @param textRenderer           {@link TextRenderer}

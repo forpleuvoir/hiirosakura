@@ -55,6 +55,10 @@ public class Configs implements IConfigHandler {
                 translationKey("showItemEntityCount"), false,
                 translationKey("showItemEntityCount.comment")
         );
+        public static final ConfigBoolean SHOW_ENTITY_AGE = new ConfigBoolean(
+                translationKey("showEntityAge"), false,
+                translationKey("showEntityAge.comment")
+        );
         public static final ConfigBoolean AUTO_REBIRTH = new ConfigBoolean(
                 translationKey("autoRebirth"), false,
                 translationKey("autoRebirth.comment")
@@ -92,21 +96,25 @@ public class Configs implements IConfigHandler {
                 translationKey("disableScoreboardSidebarRender.comment")
         );
         public static final ConfigBoolean CHAT_MESSAGE_FILTER = new ConfigBoolean(
-                translationKey("chatMessageFilter"),false,
+                translationKey("chatMessageFilter"), false,
                 translationKey("chatMessageFilter.comment")
         );
         public static final ConfigBoolean DISABLE_BLOCK_INTERACTION = new ConfigBoolean(
-                translationKey("disableBlockInteraction"),false,
+                translationKey("disableBlockInteraction"), false,
                 translationKey("disableBlockInteraction.comment")
+        );
+        public static final ConfigBoolean EXPERIENCE_ORB_ENTITY_VALUE_RENDER = new ConfigBoolean(
+                translationKey("experienceOrbEntityValueRender"), false,
+                translationKey("experienceOrbEntityValueRender.comment")
         );
 
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 CHAT_SHOW, SHOW_ENCHANTMENT, SHOW_TNT_FUSE, SHOW_ITEM_ENTITY_NAME,
-                SHOW_ITEM_ENTITY_ENCHANTMENT, SHOW_ITEM_ENTITY_COUNT, AUTO_REBIRTH, SHOW_TOOLTIP,
+                SHOW_ITEM_ENTITY_ENCHANTMENT, SHOW_ITEM_ENTITY_COUNT, SHOW_ENTITY_AGE, AUTO_REBIRTH, SHOW_TOOLTIP,
                 SHOW_TOOLTIP_ON_ITEM_TOGGLE, SHOW_TOOLTIP_ON_ITEM_ENTITY, ENABLE_QCMS_GUI, CHAT_MESSAGE_INJECT,
-                ENABLE_CHAT_MESSAGE_INJECT_REGEX,REVERSE_CHAT_MESSAGE_INJECT_REGEX,DISABLE_SCOREBOARD_SIDEBAR_RENDER,
-                CHAT_MESSAGE_FILTER,DISABLE_BLOCK_INTERACTION
+                ENABLE_CHAT_MESSAGE_INJECT_REGEX, REVERSE_CHAT_MESSAGE_INJECT_REGEX, DISABLE_SCOREBOARD_SIDEBAR_RENDER,
+                CHAT_MESSAGE_FILTER, DISABLE_BLOCK_INTERACTION, EXPERIENCE_ORB_ENTITY_VALUE_RENDER
         );
 
 
@@ -114,7 +122,6 @@ public class Configs implements IConfigHandler {
             return Configs.translationKey("toggles", key);
         }
     }
-
 
 
     public static class Values {
@@ -158,15 +165,15 @@ public class Configs implements IConfigHandler {
                 translationKey("chatMessageInjectRegex"), ImmutableList.of("^\\/"),
                 translationKey("chatMessageInjectRegex.comment")
         );
-        public  static final ConfigStringList CHAT_MESSAGE_FILTER_REGEX = new ConfigStringList(
-               translationKey("chatMessageFilterRegex"),ImmutableList.of(""),
-               translationKey("chatMessageFilterRegex.comment")
+        public static final ConfigStringList CHAT_MESSAGE_FILTER_REGEX = new ConfigStringList(
+                translationKey("chatMessageFilterRegex"), ImmutableList.of(""),
+                translationKey("chatMessageFilterRegex.comment")
         );
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 ITEM_ENTITY_TEXT_RENDER_DISTANCE, CHAT_SHOW_HEIGHT, CHAT_SHOW_TEXT_COLOR, CHAT_SHOW_TEXT_MAX_WIDTH,
                 CHAT_SHOW_TIME, CHAT_SHOW_SCALE, CHAT_MESSAGE_DEFAULT_REGEX, CHAT_MESSAGE_INJECT_PREFIX,
-                CHAT_MESSAGE_INJECT_SUFFIX, CHAT_MESSAGE_INJECT_REGEX,CHAT_MESSAGE_FILTER_REGEX
+                CHAT_MESSAGE_INJECT_SUFFIX, CHAT_MESSAGE_INJECT_REGEX, CHAT_MESSAGE_FILTER_REGEX
         );
 
         public static String translationKey(String key) {

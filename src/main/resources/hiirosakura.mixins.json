@@ -8,6 +8,8 @@
     "MixinClientPlayerEntity",
     "MixinClientPlayNetworkHandler",
     "MixinEntity",
+    "MixinExperienceOrbEntityInterface",
+    "MixinExperienceOrbEntityRenderer",
     "MixinInGameHud",
     "MixinItem",
     "MixinItemEntityRenderer",

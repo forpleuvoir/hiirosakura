@@ -107,6 +107,10 @@ public class Configs implements IConfigHandler {
                 translationKey("experienceOrbEntityValueRender"), false,
                 translationKey("experienceOrbEntityValueRender.comment")
         );
+        public static final ConfigBoolean ENABLE_PLAYER_TICK_EVENT = new ConfigBoolean(
+                translationKey("enablePlayerTickEvent"), false,
+                translationKey("enablePlayerTickEvent.comment")
+        );
 
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
@@ -114,7 +118,8 @@ public class Configs implements IConfigHandler {
                 SHOW_ITEM_ENTITY_ENCHANTMENT, SHOW_ITEM_ENTITY_COUNT, SHOW_ENTITY_AGE, AUTO_REBIRTH, SHOW_TOOLTIP,
                 SHOW_TOOLTIP_ON_ITEM_TOGGLE, SHOW_TOOLTIP_ON_ITEM_ENTITY, ENABLE_QCMS_GUI, CHAT_MESSAGE_INJECT,
                 ENABLE_CHAT_MESSAGE_INJECT_REGEX, REVERSE_CHAT_MESSAGE_INJECT_REGEX, DISABLE_SCOREBOARD_SIDEBAR_RENDER,
-                CHAT_MESSAGE_FILTER, DISABLE_BLOCK_INTERACTION, EXPERIENCE_ORB_ENTITY_VALUE_RENDER
+                CHAT_MESSAGE_FILTER, DISABLE_BLOCK_INTERACTION, EXPERIENCE_ORB_ENTITY_VALUE_RENDER,
+                ENABLE_PLAYER_TICK_EVENT
         );
 
 

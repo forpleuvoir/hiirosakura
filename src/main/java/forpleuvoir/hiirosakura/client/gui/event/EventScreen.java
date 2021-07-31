@@ -16,6 +16,8 @@ import forpleuvoir.hiirosakura.client.gui.GuiConfig;
 import net.minecraft.client.util.math.MatrixStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
+
 import static forpleuvoir.hiirosakura.client.gui.GuiConfig.ConfigGuiTab;
 
 /**
@@ -35,8 +37,8 @@ public class EventScreen extends GuiListBase<EventSubscriberBase, WidgetEventEnt
 
     public EventScreen() {
         super(10, 64);
-        var lists = Lists.newArrayList(HiiroSakuraEvents.events.keySet());
-        lists.add(ALL);
+        var lists = Lists.newLinkedList(HiiroSakuraEvents.events.keySet());
+        lists.addFirst(ALL);
         this.setTitle(StringUtils.translate("hiirosakura.gui.title.event"));
         this.widgetDropDown = new WidgetDropDownList<>
                 (0, 0, 160, 17, 200, 10,

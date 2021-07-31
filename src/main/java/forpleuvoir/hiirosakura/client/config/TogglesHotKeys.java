@@ -1,6 +1,7 @@
 package forpleuvoir.hiirosakura.client.config;
 
 import com.google.common.collect.ImmutableList;
+import fi.dy.masa.malilib.config.options.ConfigBoolean;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.config.base.ToggleHotkey;
 
@@ -95,14 +96,20 @@ public class TogglesHotKeys {
             translationKey("experienceOrbEntityValueRender"), "",
             translationKey("experienceOrbEntityValueRender.comment"), EXPERIENCE_ORB_ENTITY_VALUE_RENDER
     );
+    public static final ToggleHotkey ENABLE_PLAYER_TICK_EVENT_HOTKEY = new ToggleHotkey(
+            translationKey("enablePlayerTickEvent"), "",
+            translationKey("enablePlayerTickEvent.comment"), ENABLE_PLAYER_TICK_EVENT
+    );
 
     public static final List<ToggleHotkey> HOTKEY_LIST = ImmutableList.of(
             CHAT_SHOW_HOTKEY, SHOW_ENCHANTMENT_HOTKEY, SHOW_TNT_FUSE_HOTKEY, SHOW_ITEM_ENTITY_NAME_HOTKEY,
-            SHOW_ITEM_ENTITY_ENCHANTMENT_HOTKEY, SHOW_ITEM_ENTITY_COUNT_HOTKEY, SHOW_ENTITY_AGE_HOTKEY, AUTO_REBIRTH_HOTKEY,
+            SHOW_ITEM_ENTITY_ENCHANTMENT_HOTKEY, SHOW_ITEM_ENTITY_COUNT_HOTKEY, SHOW_ENTITY_AGE_HOTKEY,
+            AUTO_REBIRTH_HOTKEY,
             SHOW_TOOLTIP_HOTKEY, SHOW_TOOLTIP_ON_ITEM_TOGGLE_HOTKEY, SHOW_TOOLTIP_ON_ITEM_ENTITY_HOTKEY,
             ENABLE_QCMS_GUI_HOTKEY, CHAT_MESSAGE_INJECT_HOTKEY, ENABLE_CHAT_MESSAGE_INJECT_REGEX_HOTKEY,
             REVERSE_CHAT_MESSAGE_INJECT_REGEX_HOTKEY, DISABLE_SCOREBOARD_SIDEBAR_RENDER_HOTKEY,
-            CHAT_MESSAGE_FILTER_HOTKEY, DISABLE_BLOCK_INTERACTION_HOTKEY, EXPERIENCE_ORB_ENTITY_VALUE_RENDER_HOTKEY
+            CHAT_MESSAGE_FILTER_HOTKEY, DISABLE_BLOCK_INTERACTION_HOTKEY, EXPERIENCE_ORB_ENTITY_VALUE_RENDER_HOTKEY,
+            ENABLE_PLAYER_TICK_EVENT_HOTKEY
     );
 
 

@@ -1,6 +1,7 @@
 package forpleuvoir.hiirosakura.client.feature.event;
 
 import forpleuvoir.hiirosakura.client.feature.event.base.Event;
+import forpleuvoir.hiirosakura.client.util.ServerInfoUtil;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -18,11 +19,19 @@ public class OnDisconnectedEvent extends Event {
     public final String name;
     @Nullable
     public final String address;
+    @Nullable
+    public final String title;
+    @Nullable
+    public final String reason;
 
-    public OnDisconnectedEvent(@Nullable String name, @Nullable String address) {
+    public OnDisconnectedEvent(@Nullable String name, @Nullable String address,
+                               @Nullable String title,
+                               @Nullable String reason
+    ) {
         this.name = name;
         this.address = address;
+        this.title = title;
+        this.reason = reason;
+        ServerInfoUtil.disconnect();
     }
-
-
 }

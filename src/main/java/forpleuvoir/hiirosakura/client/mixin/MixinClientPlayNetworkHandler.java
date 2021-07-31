@@ -40,9 +40,5 @@ public abstract class MixinClientPlayNetworkHandler {
     }
 
 
-    @Inject(method = "onDisconnected", at = @At("RETURN"))
-    public void onDisconnected(Text reason, CallbackInfo callbackInfo) {
-        EventBus.broadcast(new OnDisconnectedEvent(ServerInfoUtil.getName(), ServerInfoUtil.getAddress()));
-    }
 
 }

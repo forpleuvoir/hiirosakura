@@ -185,7 +185,7 @@ RT
 
 #### 事件
 
-##### OnGameJoin
+##### onGameJoin
 
 加入游戏时触发 需要注意的是群组服内切换其他子服务器也是会触发该事件的
 
@@ -194,7 +194,7 @@ RT
 |  name | String  | true  | 服务器名 |
 |  address | String  |  true | 服务器IP地址 |
 
-##### OnServerJoin
+##### onServerJoin
 
 加入服务器时触发 群组服内切换不会触发
 
@@ -203,7 +203,7 @@ RT
 |  name | String  | false  | 服务器名 |
 |  address | String  |  false | 服务器IP地址 |
 
-##### OnDisconnected
+##### onDisconnected
 
 当从服务器断开连接 不包括主动退出服务器
 
@@ -211,8 +211,10 @@ RT
 | ------------ | ------------ | ------------ | ------------ |
 |  name | String  | true  | 服务器名 |
 |  address | String  |  true | 服务器IP地址 |
+|  title | String  | true  | 断开连接界面标题 |
+|  reason | String  |  true | 断开连接原因 |
 
-##### OnDisconnect
+##### onDisconnect
 
 当从服务器断开连接 包括主动退出服务器
 
@@ -220,6 +222,45 @@ RT
 | ------------ | ------------ | ------------ | ------------ |
 |  name | String  | true  | 服务器名 |
 |  address | String  |  true | 服务器IP地址 |
+
+##### onMessage
+
+受到消息时触发
+
+|  属性名 | 类型  | 可能为空  | 描述|
+| ------------ | ------------ | ------------ | ------------ |
+|  message | String  | false  | 收到的消息文本 |
+|  type | int  |  false | 消息类型(0:聊天消息,1:系统消息,2:游戏信息) |
+
+##### onPlayerTick
+
+客户端玩家tick事件 每一次tick都会触发
+
+|  属性名 | 类型  | 可能为空  | 描述|
+| ------------ | ------------ | ------------ | ------------ |
+|  player | ClientPlayerEntity  | false  | 客户端玩家(不推荐使用该对象) |
+
+##### onDeath
+
+客服端玩家死亡触发
+
+|  属性名 | 类型  | 可能为空  | 描述|
+| ------------ | ------------ | ------------ | ------------ |
+|  showsDeathScreen | boolean  | false  | 是否显示死亡界面 |
+|  damageSource | String  |  true | 最近受到的伤害类型 |
+|  attacker | String  |  true | 最近受到的伤害的攻击者名称(不是很准确) |
+
+##### doAttack
+
+玩家攻击时触发
+
+##### doItemPick
+
+玩家按下鼠标中键时触发
+
+##### doItemUse
+
+玩家使用物品时触发
 
 #### 定时任务
 
@@ -261,7 +302,7 @@ javaScript脚本
 
 订阅事件时 会提供对应的事件对象
 
-例：如果为`OnServerJoin`事件,获取`address`属性可以通过一下方法
+例：如果为`onServerJoin`事件,获取`address`属性可以通过一下方法
 
 >$event.address
 
@@ -284,7 +325,7 @@ javaScript脚本
 |right(Int tick)|按住的持续时间(客户端tick)|模拟按下方向右按键|
 |jump(Int tick)|按住的持续时间(客户端tick)|模拟按下跳跃按键|
 |sneak(Int tick)|按住的持续时间(客户端tick)|模拟按下潜行按键|
-|joinServer(String address)|加入的服务器IP地址|加入服务器|
+|joinServer(String address,int maxConnect)|加入的服务器IP地址,单次退出调用该方法的最大次数|加入服务器|
 |sendChatMessage(String message)|消息文本|发送聊天消息|
 
 ###### $task

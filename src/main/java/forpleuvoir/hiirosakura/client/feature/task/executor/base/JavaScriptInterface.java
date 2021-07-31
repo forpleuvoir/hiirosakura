@@ -3,9 +3,14 @@ package forpleuvoir.hiirosakura.client.feature.task.executor.base;
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.feature.input.AnalogInput;
+import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
+import forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler;
 import forpleuvoir.hiirosakura.client.mixin.MixinMinecraftClientInterface;
+import forpleuvoir.hiirosakura.client.util.ServerInfoUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConnectScreen;
+import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.network.ServerAddress;
 
 /**
@@ -69,8 +74,23 @@ public class JavaScriptInterface implements IJavaScriptInterface {
 
     @Override
     public void joinServer(String address) {
-        if (mc.getCurrentServerEntry() == null && mc.world == null)
-            ConnectScreen.connect(null, mc, ServerAddress.parse(address), null);
+        joinServer(address, 5);
+    }
+
+    @Override
+    public void joinServer(String address, int maxConnect) {
+        if (mc.world == null && maxConnect > ServerInfoUtil.getDisConnectCounter()) {
+            var multiplayerScreen = new MultiplayerScreen(new TitleScreen());
+            mc.setScreen(multiplayerScreen);
+            TimeTaskHandler.getInstance().addTask(
+                    TimeTask.once(
+                            task ->
+                                    ConnectScreen.connect(multiplayerScreen, mc, ServerAddress.parse(address), null),
+                            15,
+                            "#joinServer"
+                    )
+            );
+        }
     }
 
     @Override

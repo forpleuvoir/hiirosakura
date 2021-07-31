@@ -1,6 +1,5 @@
 package forpleuvoir.hiirosakura.client.feature.task.executor;
 
-import com.google.gson.JsonObject;
 import forpleuvoir.hiirosakura.client.feature.event.base.Event;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
 import forpleuvoir.hiirosakura.client.feature.task.executor.base.IExecutor;
@@ -10,10 +9,8 @@ import forpleuvoir.hiirosakura.client.util.HSLogger;
 import net.minecraft.text.LiteralText;
 import org.jetbrains.annotations.Nullable;
 
-import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import java.util.function.Consumer;
 
 /**
@@ -35,11 +32,14 @@ public class JavaScriptExecutor implements IExecutor {
     private final Event event;
     private static final String include = """
             var $TimeTask = Java.type('forpleuvoir.hiirosakura.client.feature.task.TimeTask');
+            var $TimeTaskData = Java.type('forpleuvoir.hiirosakura.client.feature.task.TimeTaskData');
             var $TimeTaskHandler = Java.type('forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler');
             function $sendMessage(message){$hs.sendChatMessage(message);}
             function $attack(){$hs.doAttack();}
             function $use(){$hs.doItemUse();}
             function $pick(){$hs.doItemPick();}
+            function $sneak(tick){$hs.sneak(tick)}
+            function $jump(tick){$hs.jump(tick)}
             function $move(dir,tick){
                 switch(dir){
                     case 'forward':$hs.forward(tick);break;
@@ -49,6 +49,7 @@ public class JavaScriptExecutor implements IExecutor {
                 }
             }
             function $joinServer(address){$hs.joinServer(address);}
+            function $joinServer(address,maxConnect){$hs.joinServer(address,maxConnect);}
             """;
 
     public JavaScriptExecutor(String script, @Nullable Event event) {
@@ -69,6 +70,7 @@ public class JavaScriptExecutor implements IExecutor {
                 engine.eval(script);
             } catch (Exception e) {
                 timeTask.hs.addChatMessage(new LiteralText("§c" + e.getMessage()));
+                log.error(e);
             }
         };
     }

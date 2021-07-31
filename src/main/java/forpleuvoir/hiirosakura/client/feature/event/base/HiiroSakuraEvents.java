@@ -1,15 +1,11 @@
 package forpleuvoir.hiirosakura.client.feature.event.base;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData;
-import forpleuvoir.hiirosakura.client.feature.event.OnDisconnectEvent;
-import forpleuvoir.hiirosakura.client.feature.event.OnDisconnectedEvent;
-import forpleuvoir.hiirosakura.client.feature.event.OnGameJoinEvent;
-import forpleuvoir.hiirosakura.client.feature.event.OnServerJoinEvent;
+import forpleuvoir.hiirosakura.client.feature.event.*;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskParser;
 import forpleuvoir.hiirosakura.client.util.HSLogger;
@@ -31,11 +27,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
     private static transient final HSLogger log = HSLogger.getLogger(HiiroSakuraEvents.class);
-    public static final Map<String, Class<? extends Event>> events = ImmutableMap.of(
-            "OnGameJoin", OnGameJoinEvent.class,
-            "OnServerJoin", OnServerJoinEvent.class,
-            "OnDisconnected", OnDisconnectedEvent.class,
-            "OnDisconnect", OnDisconnectEvent.class
+    public static final Map<String, Class<? extends Event>> events = Map.of(
+            "onGameJoin", OnGameJoinEvent.class,
+            "onServerJoin", OnServerJoinEvent.class,
+            "onDisconnected", OnDisconnectedEvent.class,
+            "onDisconnect", OnDisconnectEvent.class,
+            "onMessage", OnMessageEvent.class,
+            "onDeath", OnDeathEvent.class,
+            "onPlayerTick", OnPlayerTickEvent.class,
+            "doAttack", DoAttackEvent.class,
+            "doItemPick", DoItemPickEvent.class,
+            "doItemUse", DoItemUseEvent.class
     );
 
     /**
@@ -117,8 +119,8 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
     public boolean isEnabled(Class<? extends Event> eventType, String name) {
         AtomicBoolean returnValue = new AtomicBoolean(false);
         Optional<EventSubscriberBase> first = datas.get(getEventType(eventType)).stream()
-                .filter(eventSubscriberBase -> eventSubscriberBase.name.equals(name))
-                .findFirst();
+                                                   .filter(eventSubscriberBase -> eventSubscriberBase.name.equals(name))
+                                                   .findFirst();
         first.ifPresent(eventSubscriberBase -> returnValue.set(eventSubscriberBase.enabled));
         return returnValue.get();
     }
@@ -137,9 +139,9 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
 
     public void toggleEnabled(EventSubscriberBase eventSubscriberBase) {
         datas.get(eventSubscriberBase.eventType).stream().filter(eventSubscriberBase::equals).findFirst()
-                .ifPresent(eventSubscriberBase1 -> {
-                    eventSubscriberBase1.enabled = !eventSubscriberBase1.enabled;
-                });
+             .ifPresent(eventSubscriberBase1 -> {
+                 eventSubscriberBase1.enabled = !eventSubscriberBase1.enabled;
+             });
         this.onValueChanged();
     }
 
@@ -149,7 +151,7 @@ public class HiiroSakuraEvents extends AbstractHiiroSakuraData {
             v.forEach(eventSubscriberBase -> {
                 if (eventSubscriberBase.enabled)
                     EventBus.subscribeRunAsTimeTask(events.get(eventSubscriberBase.eventType),
-                            eventSubscriberBase.timeTask
+                                                    eventSubscriberBase.timeTask
                     );
             });
         });

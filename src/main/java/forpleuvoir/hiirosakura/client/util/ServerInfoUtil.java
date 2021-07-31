@@ -17,6 +17,7 @@ public class ServerInfoUtil {
     private static String name;
     @Nullable
     private static String address;
+    private static int disConnectCounter = 0;
 
     public static void clear() {
         ServerInfoUtil.name = null;
@@ -26,6 +27,15 @@ public class ServerInfoUtil {
     public static void setValue(String name, String address) {
         ServerInfoUtil.name = name;
         ServerInfoUtil.address = address;
+        disConnectCounter = 0;
+    }
+
+    public static void disconnect() {
+        disConnectCounter++;
+    }
+
+    public static int getDisConnectCounter() {
+        return disConnectCounter;
     }
 
     @Nullable

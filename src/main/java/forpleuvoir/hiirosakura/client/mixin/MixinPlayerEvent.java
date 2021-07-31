@@ -1,7 +1,6 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
 import forpleuvoir.hiirosakura.client.config.Configs;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,4 +26,5 @@ public abstract class MixinPlayerEvent {
             callbackInfoReturnable.cancel();
         }
     }
+
 }

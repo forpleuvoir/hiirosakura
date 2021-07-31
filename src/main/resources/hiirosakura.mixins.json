@@ -6,7 +6,9 @@
   "mixins": [
     "MixinChatHudListener",
     "MixinClientPlayerEntity",
+    "MixinClientPlayerInteractionManager",
     "MixinClientPlayNetworkHandler",
+    "MixinDisconnectedScreen",
     "MixinEntity",
     "MixinExperienceOrbEntityInterface",
     "MixinExperienceOrbEntityRenderer",

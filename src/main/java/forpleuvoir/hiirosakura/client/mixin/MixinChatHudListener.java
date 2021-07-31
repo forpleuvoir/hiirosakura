@@ -3,6 +3,8 @@ package forpleuvoir.hiirosakura.client.mixin;
 import forpleuvoir.hiirosakura.client.config.Configs;
 import forpleuvoir.hiirosakura.client.feature.chatmessage.ChatMessageFilter;
 import forpleuvoir.hiirosakura.client.feature.chatshow.HiiroSakuraChatShow;
+import forpleuvoir.hiirosakura.client.feature.event.OnMessageEvent;
+import forpleuvoir.hiirosakura.client.feature.event.base.EventBus;
 import net.minecraft.client.gui.hud.ChatHudListener;
 import net.minecraft.network.MessageType;
 import net.minecraft.text.Text;
@@ -32,8 +34,10 @@ public abstract class MixinChatHudListener {
             at = @At("HEAD"),
             cancellable = true
     )
-    public void postSay(MessageType type, Text text, UUID senderUuid, CallbackInfo ci) {
-        if(Configs.Toggles.CHAT_MESSAGE_FILTER.getBooleanValue()){
+    public void onChatMessage(MessageType type, Text text, UUID senderUuid, CallbackInfo ci) {
+        EventBus.broadcast(new OnMessageEvent(text.getString(), (int) type.getId()));
+
+        if (Configs.Toggles.CHAT_MESSAGE_FILTER.getBooleanValue()) {
             if (ChatMessageFilter.INSTANCE.needToFilter(text)) {
                 ci.cancel();
             }

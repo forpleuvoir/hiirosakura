@@ -69,6 +69,13 @@ public interface IJavaScriptInterface {
     void joinServer(String address);
 
     /**
+     * 加入服务器
+     * @param address 服务器ip地址
+     * @param maxConnect 最大连接次数
+     */
+    void joinServer(String address,int maxConnect);
+
+    /**
      * 发送聊天消息
      * @param message 消息文本
      */

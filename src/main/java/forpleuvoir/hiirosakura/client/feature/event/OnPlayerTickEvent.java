@@ -1,6 +1,8 @@
 package forpleuvoir.hiirosakura.client.feature.event;
 
 import forpleuvoir.hiirosakura.client.feature.event.base.Event;
+import forpleuvoir.hiirosakura.client.feature.event.eventinterface.IClientPlayerInterface;
+import forpleuvoir.hiirosakura.client.feature.event.eventinterface.impl.ClientPlayerInterface;
 import net.minecraft.client.network.ClientPlayerEntity;
 
 /**
@@ -14,9 +16,9 @@ import net.minecraft.client.network.ClientPlayerEntity;
  */
 public class OnPlayerTickEvent extends Event {
 
-    public final ClientPlayerEntity player;
+    public final IClientPlayerInterface player;
 
     public OnPlayerTickEvent(ClientPlayerEntity player) {
-        this.player = player;
+        this.player = new ClientPlayerInterface(player);
     }
 }

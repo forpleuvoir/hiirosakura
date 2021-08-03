@@ -2,8 +2,10 @@ package forpleuvoir.hiirosakura.client.feature.task;
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
@@ -40,8 +42,14 @@ public class TimeTaskHandler {
         removeList.add(name);
     }
 
-    public void clear(){
+    public void clear() {
         timeTaskHashMap.clear();
+    }
+
+    public Set<String> getKeys() {
+        Set<String> strings = new HashSet<>();
+        timeTaskHashMap.keySet().forEach(s -> strings.add(String.format("\"%s\"", s)));
+        return strings;
     }
 
     private void handle(HiiroSakuraClient client) {

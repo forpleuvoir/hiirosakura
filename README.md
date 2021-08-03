@@ -4,11 +4,11 @@
 
 配置界面快捷键默认`H+S`
 
-基本上是重写了之前的suika mod 大体使用不会有太大区别 
+基本上是重写了之前的suika mod 大体使用不会有太大区别
 
 基于 [Fabric](https://fabricmc.net/ "Fabric") 编写
 
-贴出代码基本都是 [Fabric](https://fabricmc.net/ "Fabric") 
+贴出代码基本都是 [Fabric](https://fabricmc.net/ "Fabric")
 
 开发环境下的 如果代码不是很长的话 尽量贴一下
 
@@ -51,20 +51,20 @@ MinecraftClient.getInstance().options.gamma=value;
 
 ## tooltip
 
-`/hs:tooltip add <itemStack>(可空) <tip>` 
+`/hs:tooltip add <itemStack>(可空) <tip>`
 > 为`<itemStack>`物品添加一条工具提示`<tip>`
-> 
-> `<itemStack>`参数填入为空时会选择玩家主手上的物品添加 
-> 
+>
+> `<itemStack>`参数填入为空时会选择玩家主手上的物品添加
+>
 >`&`字符可以作为格式字符 在给玩家头颅添加时需要输出NBT标签
-> 
+>
 > 例`/hs:tooltip add minecraft:player_head{"SkullOwner":"dhwuia"} "傻子"`
 
 `/hs:tooltip remove <itemStack>(可空) <index>` 移除
 > 删除`<itemStack>`物品下标为`<index>`的一条工具提示
-> 
+>
 >`<itemStack>`参数填入为空时会选择玩家主手上的物品 数组下标是从`0`开始计算的
-> 
+>
 >`<index> `为`-1`时 删除该物品的所有工具提示
 
 ## scmr
@@ -127,7 +127,7 @@ public void getPickBlockStack(CallbackInfoReturnable<ItemStack> returnable){
 通过正则过滤来获取玩家名和消息内容
 
 ![](http://hiirosakura.forpleuvoir.com/%E8%81%8A%E5%A4%A9%E6%98%BE%E7%A4%BA.png?e=1627280071&token=Vp-SO-HDOpiEverdl1CWRPScr7kDaZdAsXobRmg4:_66dnhVNyQPhKQiXomwK1sAN8hQ=)
-在服务器时，通过指令 `/hs:scmr set "regex"` 设置正则表达式 
+在服务器时，通过指令 `/hs:scmr set "regex"` 设置正则表达式
 
 匹配内容必须要有 `name`以及`message`分组 例如原版的消息正则表达式为
 `(<(?<name>(.*))>)\s(?<message>.*)`
@@ -136,7 +136,7 @@ public void getPickBlockStack(CallbackInfoReturnable<ItemStack> returnable){
 
 ![](http://hiirosakura.forpleuvoir.com/%E6%8E%89%E8%90%BD%E7%89%A9%E5%93%81%E5%90%8D%E6%98%BE%E7%A4%BA.png?e=1627280071&token=Vp-SO-HDOpiEverdl1CWRPScr7kDaZdAsXobRmg4:LsPcVn2-BrSKWXF-h4GprN3bgEs=)
 
-距离相机实体一定距离内会渲染，之后会改成可以自定义的距离 通过`Mixin`注入`ItemEntityRenderer`的`render`方法 
+距离相机实体一定距离内会渲染，之后会改成可以自定义的距离 通过`Mixin`注入`ItemEntityRenderer`的`render`方法
 
 ## TNT显示剩余爆炸时间
 
@@ -240,145 +240,40 @@ RT
 | ------------ | ------------ | ------------ | ------------ |
 |  player | IClientPlayerInterface  | false  | 客户端玩家对外接口) |
 
-```java
-public interface IClientPlayerInterface {
+IClientPlayerInterface
 
-    /**
-     * 获取玩家 UUID
-     *
-     * @return UUID
-     */
-    String getUUID();
+| 方法 | 参数 | 返回值 | 描述 | 
+| ------------ | ------------ | ------------ |  ------------ | 
+| getUUID() | - |String(UUID字符串)|获取玩家UUID|
+| getName() | - |String(玩家名)|获取玩家名|
+| getHealth() | - |float(生命值)|获取生命值|
+| getMainHandItemRegisterId() | - |String(注册id 例 minecraft:melon)|获取主手物品注册id|
+| getMainHandItemTranslationKey() | - |String(翻译Key)|获取主手物品翻译key|
+| getMainHandItemDisplayName() | - |String(显示名)|获取助手物品显示名|
+| getMainHandItemDurable() | - |int(耐久值)|获取主手物品的耐久值|
+| getMainHandItemMaxDurable() | - |int(耐久值)|获取主手物品的最大耐久值|
+| getMainHandItemDurableProgress() | - |double(耐久百分比)|获取主手物品剩余耐久百分比|
+| isFireImmune() | - |boolean(免疫火焰状态)|是否免疫火焰|
+| isOnFire() | - |boolean(着火状态)|是否处于着火状态|
+| isTouchingWaterOrRain() | - |boolean(接触水或在淋雨状态)|是否接触水或在淋雨|
+| isSneaking() | - |boolean(潜行状态)|是否处于潜行状态|
+| isSwimming() | - |boolean(游泳状态)|是否正在游泳|
+| isInvisible() | - |boolean(隐形状态)|是否隐形|
+| getPosition() | - |double[](数组 0：X坐标 ，1：Y坐标，2：坐标)|获取玩家位置|
+| getPosX() | - |double(X 坐标)|获取玩家 X 坐标|
+| getPosY() | - |double(Y 坐标)|获取玩家 Y 坐标|
+| getPosZ() | - |double(Z 坐标)|获取玩家 Z 坐标|
+| getPitch() | - |double(Pitch)|获取X轴旋转|
+| getYaw() | - |double(Yaw)|获取Y轴旋转|
+| getSpeed() | - |double(速度)|获取玩家速度|
+| getExperienceLevel() | - |int(等级)|获取玩家经验等级|
+| getTotalExperience() | - |int(经验总量)|获取玩家经验总量|
+| getExperienceProgress() | - |double(升级进度百分比)|获取玩家经验 升级进度百分比|
 
-    /**
-     * 获取玩家名
-     *
-     * @return 玩家名
-     */
-    String getName();
 
-    /**
-     * 是否免疫火焰
-     *
-     * @return 免疫火焰状态
-     */
-    boolean isFireImmune();
 
-    /**
-     * 是否处于着火状态
-     *
-     * @return 着火状态
-     */
-    boolean isOnFire();
 
-    /**
-     * 是否接触水或在淋雨
-     *
-     * @return 接触水或在淋雨状态
-     */
-    boolean isTouchingWaterOrRain();
 
-    /**
-     * 是否处于潜行状态
-     *
-     * @return 潜行状态
-     */
-    boolean isSneaking();
-
-    /**
-     * 是否正在游泳
-     *
-     * @return 游泳状态
-     */
-    boolean isSwimming();
-
-    /**
-     * 是否隐形
-     *
-     * @return 隐形状态
-     */
-    boolean isInvisible();
-
-    /**
-     * 获取玩家位置
-     *
-     * @return 数组 0：X坐标 ，1：Y坐标，2：坐标
-     */
-    double[] getPosition();
-
-    /**
-     * 获取玩家 X 坐标
-     *
-     * @return X 坐标
-     */
-    double getPosX();
-
-    /**
-     * 获取玩家 Y 坐标
-     *
-     * @return Y 坐标
-     */
-    double getPosY();
-
-    /**
-     * 获取玩家 Z 坐标
-     *
-     * @return Z 坐标
-     */
-    double getPosZ();
-
-    /**
-     * 获取生命值
-     *
-     * @return 生命值
-     */
-    float getHealth();
-
-    /**
-     * 获取X轴旋转
-     *
-     * @return Pitch
-     */
-    float getPitch();
-
-    /**
-     * 获取Y轴旋转
-     *
-     * @return Yaw
-     */
-    float getYaw();
-
-    /**
-     * 获取玩家速度
-     *
-     * @return 速度
-     */
-    float getSpeed();
-
-    /**
-     * 获取玩家经验等级
-     *
-     * @return 经验等级
-     */
-    int getExperienceLevel();
-
-    /**
-     * 获取玩家经验总量
-     *
-     * @return 经验总量
-     */
-    int getTotalExperience();
-
-    /**
-     * 获取玩家经验 进度百分比
-     *
-     * @return 进度百分比
-     */
-    float getExperienceProgress();
-
-}
-
-```
 
 ##### onDeath
 
@@ -419,6 +314,7 @@ public interface IClientPlayerInterface {
 |script|String|true|-|执行器,javaScript脚本|
 
 例:
+
 ```json5
 {
   startTime: 50,
@@ -428,6 +324,7 @@ public interface IClientPlayerInterface {
   script: "$sendMessage('消息发送执行器');"
 }
 ```
+
 50tick之后发送消息`"消息发送执行器"` 循环十次 每次间隔20tick
 
 ##### 执行器
@@ -444,14 +341,15 @@ javaScript脚本
 
 例：如果为`onServerJoin`事件,获取`address`属性可以通过一下方法
 
->$event.address
+> $event.address
 
 ###### $hs
+
 提供一部分对外开放的接口
 
 例:
->$hs.doAttack();
-> 
+> $hs.doAttack();
+>
 >$hs.sendChatMessage("114514");
 
 | 方法 | 参数 |描述 | 
@@ -488,7 +386,6 @@ TimeTaskData
 |cyclesTime()|Integer|每次循环之间的时间间隔|时间单位:客户端tick|
 |name()|String|任务名|-|
 
-
 方法
 
 | 方法 | 参数 |返回值类型 |返回值|描述 |
@@ -496,8 +393,6 @@ TimeTaskData
 |getName()|-|String|任务名|-|
 |getCounter()|-|Integer|当前执行次数|-|
 |isOver()|-|boolean|任务是否已执行完成|所有次数已执行完毕|
-
-
 
 ------------
 

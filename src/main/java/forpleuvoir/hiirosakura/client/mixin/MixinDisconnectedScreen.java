@@ -27,7 +27,7 @@ public class MixinDisconnectedScreen {
     public void init(Screen parent, Text title, Text reason, CallbackInfo ci
     ) {
         EventBus.broadcast(
-                new OnDisconnectedEvent(ServerInfoUtil.getName(), ServerInfoUtil.getAddress(), title.getString(),
-                                        reason.getString()));
+                new OnDisconnectedEvent(ServerInfoUtil.getLastServerName(), ServerInfoUtil.getLastServerAddress(), title.getString(),
+                        reason.getString()));
     }
 }

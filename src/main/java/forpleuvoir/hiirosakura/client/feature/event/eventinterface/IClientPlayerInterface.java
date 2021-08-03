@@ -26,6 +26,49 @@ public interface IClientPlayerInterface {
     String getName();
 
     /**
+     * 获取生命值
+     *
+     * @return 生命值
+     */
+    float getHealth();
+
+    /**
+     * 获取主手物品注册id
+     * @return 注册id 例 minecraft:melon
+     */
+    String getMainHandItemRegisterId();
+
+    /**
+     * 获取主手物品翻译key
+     * @return 翻译key
+     */
+    String getMainHandItemTranslationKey();
+
+    /**
+     * 获取助手物品显示名
+     * @return 现实的名字
+     */
+    String getMainHandItemDisplayName();
+
+    /**
+     * 获取主手物品的耐久值
+     * @return 耐久值
+     */
+    int getMainHandItemDurable();
+
+    /**
+     * 获取主手物品的最大耐久值
+     * @return 耐久值
+     */
+    int getMainHandItemMaxDurable();
+
+    /**
+     * 获取主手物品剩余耐久百分比
+     * @return 耐久百分比
+     */
+    double getMainHandItemDurableProgress();
+
+    /**
      * 是否免疫火焰
      *
      * @return 免疫火焰状态
@@ -95,12 +138,7 @@ public interface IClientPlayerInterface {
      */
     double getPosZ();
 
-    /**
-     * 获取生命值
-     *
-     * @return 生命值
-     */
-    float getHealth();
+
 
     /**
      * 获取X轴旋转
@@ -138,9 +176,9 @@ public interface IClientPlayerInterface {
     int getTotalExperience();
 
     /**
-     * 获取玩家经验 进度百分比
+     * 获取玩家经验 升级进度百分比
      *
-     * @return 进度百分比
+     * @return 升级进度百分比
      */
     float getExperienceProgress();
 

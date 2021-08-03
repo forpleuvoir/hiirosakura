@@ -101,8 +101,10 @@ public class JavaScriptInterface implements IJavaScriptInterface {
             mc.setScreen(multiplayerScreen);
             TimeTaskHandler.getInstance().addTask(
                     TimeTask.once(
-                            task ->
-                                    ConnectScreen.connect(multiplayerScreen, mc, ServerAddress.parse(address), null),
+                            task -> {
+                                mc.disconnect();
+                                ConnectScreen.connect(multiplayerScreen, mc, ServerAddress.parse(address), null);
+                            },
                             15,
                             "#joinServer"
                     )

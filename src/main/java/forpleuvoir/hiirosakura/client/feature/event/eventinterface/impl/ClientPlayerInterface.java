@@ -2,6 +2,7 @@ package forpleuvoir.hiirosakura.client.feature.event.eventinterface.impl;
 
 import forpleuvoir.hiirosakura.client.feature.event.eventinterface.IClientPlayerInterface;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.util.registry.Registry;
 
 /**
  * 客户端玩家接口实现
@@ -28,6 +29,36 @@ public class ClientPlayerInterface implements IClientPlayerInterface {
     @Override
     public String getName() {
         return player.getEntityName();
+    }
+
+    @Override
+    public String getMainHandItemRegisterId() {
+        return Registry.ITEM.getId(player.getMainHandStack().getItem()).toString();
+    }
+
+    @Override
+    public String getMainHandItemTranslationKey() {
+        return player.getMainHandStack().getItem().getTranslationKey();
+    }
+
+    @Override
+    public String getMainHandItemDisplayName() {
+        return player.getMainHandStack().getName().getString();
+    }
+
+    @Override
+    public int getMainHandItemDurable() {
+        return getMainHandItemMaxDurable() - player.getMainHandStack().getDamage();
+    }
+
+    @Override
+    public int getMainHandItemMaxDurable() {
+        return player.getMainHandStack().getMaxDamage();
+    }
+
+    @Override
+    public double getMainHandItemDurableProgress() {
+        return ((double) getMainHandItemDurable()) / player.getMainHandStack().getMaxDamage();
     }
 
     @Override

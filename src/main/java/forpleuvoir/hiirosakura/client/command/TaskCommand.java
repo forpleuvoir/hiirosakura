@@ -13,6 +13,7 @@ import net.minecraft.command.argument.NbtPathArgumentType;
 import static forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.COMMAND_PREFIX;
 import static net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.argument;
 import static net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.literal;
+import static net.minecraft.command.CommandSource.suggestMatching;
 
 /**
  * 任务指令
@@ -35,6 +36,7 @@ public class TaskCommand {
                 )
                 .then(literal("remove")
                         .then(argument("name", StringArgumentType.string())
+                                .suggests(((context, builder) -> suggestMatching(TimeTaskHandler.getInstance().getKeys(), builder)))
                                 .executes(TaskCommand::remove)
                         )
                 )

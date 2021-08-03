@@ -1,6 +1,5 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
-import forpleuvoir.hiirosakura.client.feature.event.OnDisconnectedEvent;
 import forpleuvoir.hiirosakura.client.feature.event.OnGameJoinEvent;
 import forpleuvoir.hiirosakura.client.feature.event.OnServerJoinEvent;
 import forpleuvoir.hiirosakura.client.feature.event.base.EventBus;
@@ -8,7 +7,6 @@ import forpleuvoir.hiirosakura.client.util.ServerInfoUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ServerInfo;
-import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

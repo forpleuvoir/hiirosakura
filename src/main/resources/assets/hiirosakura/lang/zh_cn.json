@@ -160,6 +160,11 @@
   "hiirosakura.command.sce.target.null": "目标实体为空",
   "hiirosakura.command.sce.target.set": "目标实体已设置",
   "hiirosakura.command.arg.event.error": "未知事件类型",
+  "hiirosakura.command.task.add": "任务[%s]添加成功",
+  "hiirosakura.command.task.remove": "任务[%s]删除成功",
+  "hiirosakura.command.task.clear": "§6所有任务已清除",
+  "hiirosakura.command.task.reload": "§a任务脚本头文件已重新加载",
+  "hiirosakura.command.task.reload.fail": "§c任务脚本头文件加载失败",
   "#feature": "feature",
   "hiirosakura.feature.qcms.data.empty": "没有qcms数据"
 }

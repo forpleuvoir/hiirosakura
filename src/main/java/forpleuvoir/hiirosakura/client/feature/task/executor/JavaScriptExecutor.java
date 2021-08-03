@@ -24,54 +24,38 @@ import java.util.function.Consumer;
  */
 public class JavaScriptExecutor implements IExecutor {
     private transient static final HSLogger log = HSLogger.getLogger(JavaScriptExecutor.class);
-    private static final String MAIN_FUNCTION_NAME = "main";
     private transient final ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
     private final IJavaScriptInterface javaScriptInterface = new JavaScriptInterface();
     private final String script;
     @Nullable
     private final Event event;
-    private static final String include = """
-            var $TimeTask = Java.type('forpleuvoir.hiirosakura.client.feature.task.TimeTask');
-            var $TimeTaskData = Java.type('forpleuvoir.hiirosakura.client.feature.task.TimeTaskData');
-            var $TimeTaskHandler = Java.type('forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler');
-            function $sendMessage(message){$hs.sendChatMessage(message);}
-            function $attack(){$hs.doAttack();}
-            function $use(){$hs.doItemUse();}
-            function $pick(){$hs.doItemPick();}
-            function $sneak(tick){$hs.sneak(tick)}
-            function $jump(tick){$hs.jump(tick)}
-            function $move(dir,tick){
-                switch(dir){
-                    case 'forward':$hs.forward(tick);break;
-                    case 'back':$hs.back(tick);break;
-                    case 'left':$hs.left(tick);break;
-                    case 'right':$hs.right(tick);break;
-                }
-            }
-            function $joinServer(address){$hs.joinServer(address);}
-            function $joinServer(address,maxConnect){$hs.joinServer(address,maxConnect);}
-            """;
+    private final String include;
 
     public JavaScriptExecutor(String script, @Nullable Event event) {
         this.script = script;
         this.event = event;
+        this.include = JSHeadFile.getContent();
     }
 
     @Override
-    public Consumer<TimeTask> getExecutor() {
-        return timeTask -> {
-            try {
-                engine.eval(include);
-                engine.put("$task", timeTask);
-                engine.put("$log", log);
-                engine.put("$hs", javaScriptInterface);
-                if (event != null)
-                    engine.put("$event", event);
-                engine.eval(script);
-            } catch (Exception e) {
-                timeTask.hs.addChatMessage(new LiteralText("§c" + e.getMessage()));
-                log.error(e);
-            }
-        };
+    public void execute(TimeTask task) {
+        try {
+            engine.eval(include);
+            engine.put("$task", task);
+            engine.put("$log", log);
+            engine.put("$hs", javaScriptInterface);
+            if (event != null)
+                engine.put("$event", event);
+            engine.eval(script);
+        } catch (Exception e) {
+            task.hs.addChatMessage(new LiteralText("§c" + e.getMessage()));
+            log.error(e);
+        }
     }
+
+    @Override
+    public String getAsString() {
+        return script;
+    }
+
 }

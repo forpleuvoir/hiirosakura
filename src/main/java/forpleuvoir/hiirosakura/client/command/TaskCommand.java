@@ -6,7 +6,9 @@ import com.mojang.brigadier.context.CommandContext;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskParser;
+import forpleuvoir.hiirosakura.client.feature.task.executor.JSHeadFile;
 import forpleuvoir.hiirosakura.client.util.JsonUtil;
+import forpleuvoir.hiirosakura.client.util.StringUtil;
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 import net.minecraft.command.argument.NbtPathArgumentType;
 
@@ -28,24 +30,48 @@ public class TaskCommand {
     public static final String TYPE = "task";
 
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
-        dispatcher.register(literal(COMMAND_PREFIX + TYPE)
-                .then(literal("add")
-                        .then(argument("timeTask", NbtPathArgumentType.nbtPath())
-                                .executes(TaskCommand::add)
+        dispatcher.register(
+                literal(COMMAND_PREFIX + TYPE)
+                        .then(literal("add")
+                                      .then(argument("timeTask", NbtPathArgumentType.nbtPath())
+                                                    .executes(TaskCommand::add)
+                                      )
                         )
-                )
-                .then(literal("remove")
-                        .then(argument("name", StringArgumentType.string())
-                                .suggests(((context, builder) -> suggestMatching(TimeTaskHandler.getInstance().getKeys(), builder)))
-                                .executes(TaskCommand::remove)
+                        .then(literal("remove")
+                                      .then(argument("name", StringArgumentType.string())
+                                                    .suggests(((context, builder) -> suggestMatching(
+                                                            TimeTaskHandler.getInstance().getKeys(),
+                                                            builder
+                                                    )))
+                                                    .executes(TaskCommand::remove)
+                                      )
                         )
-                )
-                .then(literal("clear")
-                        .executes(context -> {
-                            TimeTaskHandler.getInstance().clear();
-                            return 1;
-                        })
-                )
+                        .then(literal("clear")
+                                      .executes(context -> {
+                                          TimeTaskHandler.getInstance().clear();
+                                          context.getSource()
+                                                 .sendFeedback(StringUtil.translatableText("command.task.clear"));
+                                          return 1;
+                                      })
+                        )
+                        .then(literal("headFile")
+                                      .then(literal("open")
+                                                    .executes(context -> {
+                                                        JSHeadFile.openFile();
+                                                        return 1;
+                                                    })
+                                      )
+                                      .then(literal("reload")
+                                                    .executes(context -> {
+                                                        if (JSHeadFile.read())
+                                                            context.getSource()
+                                                                   .sendFeedback(StringUtil.translatableText("command.task.reload"));
+                                                        else  context.getSource()
+                                                                     .sendFeedback(StringUtil.translatableText("command.task.reload.fail"));
+                                                        return 1;
+                                                    })
+                                      )
+                        )
         );
     }
 
@@ -53,11 +79,14 @@ public class TaskCommand {
         var nbt = (NbtPathArgumentType.NbtPath) context.getArgument("timeTask", NbtPathArgumentType.NbtPath.class);
         TimeTask timeTask = TimeTaskParser.parse(JsonUtil.parseToJsonObject(nbt.toString()), null);
         TimeTaskHandler.getInstance().addTask(timeTask);
+        context.getSource()
+               .sendFeedback(StringUtil.translatableText("command.task.add", "§a" + timeTask.getName() + "§r"));
         return 1;
     }
 
     public static int remove(CommandContext<FabricClientCommandSource> context) {
         var name = StringArgumentType.getString(context, "name");
+        context.getSource().sendFeedback(StringUtil.translatableText("command.task.remove", "§c" + name + "§r"));
         TimeTaskHandler.getInstance().removeTask(name);
         return 1;
     }

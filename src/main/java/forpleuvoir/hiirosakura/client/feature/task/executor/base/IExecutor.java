@@ -1,6 +1,5 @@
 package forpleuvoir.hiirosakura.client.feature.task.executor.base;
 
-import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
 
 import java.util.function.Consumer;
@@ -14,7 +13,10 @@ import java.util.function.Consumer;
  * <p>#class_name IExecutor
  * <p>#create_time 2021-07-23 16:21
  */
-@FunctionalInterface
 public interface IExecutor {
-    Consumer<TimeTask> getExecutor();
+    void execute(TimeTask task);
+
+    default String getAsString(){
+        return this.toString();
+    }
 }

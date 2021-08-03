@@ -160,6 +160,11 @@
   "hiirosakura.command.sce.target.null": "Target is null",
   "hiirosakura.command.sce.target.set": "Target set success",
   "hiirosakura.command.arg.event.error": "Un know event type",
+  "hiirosakura.command.task.add": "Task[%s] add success ",
+  "hiirosakura.command.task.remove": "Task[%s] removed success",
+  "hiirosakura.command.task.clear": "§6Task cleared",
+  "hiirosakura.command.task.reload": "§aTask head file was reload",
+  "hiirosakura.command.task.reload.fail": "§cTask head file load fail",
   "#feature": "feature",
   "hiirosakura.feature.qcms.data.empty": "Have not qcms data"
 }

@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * <p>#create_time 2021/8/1 0:28
  */
 @Mixin(DisconnectedScreen.class)
-public class MixinDisconnectedScreen {
+public abstract class MixinDisconnectedScreen {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void init(Screen parent, Text title, Text reason, CallbackInfo ci

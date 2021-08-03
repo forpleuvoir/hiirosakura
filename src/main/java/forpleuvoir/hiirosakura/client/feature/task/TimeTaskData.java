@@ -9,5 +9,5 @@ package forpleuvoir.hiirosakura.client.feature.task;
  * <p>#class_name TimeTaskData
  * <p>#create_time 2021-07-23 16:25
  */
-public record TimeTaskData(Integer startTime,Integer cycles,Integer cyclesTime,String name) {
+public record TimeTaskData(String name,Integer startTime,Integer cycles,Integer cyclesTime) {
 }

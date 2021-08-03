@@ -1,9 +1,7 @@
 package forpleuvoir.hiirosakura.client.feature.task;
 
-import com.google.gson.JsonObject;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
-
-import java.util.function.Consumer;
+import forpleuvoir.hiirosakura.client.feature.task.executor.base.IExecutor;
 
 /**
  * 定时任务
@@ -15,28 +13,28 @@ import java.util.function.Consumer;
  * <p>#create_time 2021/7/22 22:27
  */
 public class TimeTask {
-    private final Consumer<TimeTask> task;
+    private final IExecutor executor;
     public final TimeTaskData data;
     private Integer counter = 0;
     private Integer timeCounter = 0;
     public HiiroSakuraClient hs = HiiroSakuraClient.getInstance();
 
-    public static TimeTask once(Consumer<TimeTask> task, String name) {
-        return once(task, 0, name);
+    public static TimeTask once(IExecutor executor, String name) {
+        return once(executor, 0, name);
     }
 
-    public static TimeTask once(Consumer<TimeTask> task, Integer startTime, String name) {
-        return new TimeTask(task, new TimeTaskData(startTime, 1, 0, name));
+    public static TimeTask once(IExecutor executor, Integer startTime, String name) {
+        return new TimeTask(executor, new TimeTaskData(name, startTime, 1, 0));
     }
 
-    public TimeTask(Consumer<TimeTask> task, TimeTaskData data) {
-        this.task = task;
+    public TimeTask(IExecutor executor, TimeTaskData data) {
+        this.executor = executor;
         this.data = data;
     }
 
     public void executes() {
         if (isOver() || !shouldExecute()) return;
-        task.accept(this);
+        executor.execute(this);
         counter++;
         timeCounter = 0;
     }
@@ -57,6 +55,10 @@ public class TimeTask {
 
     public String getName() {
         return data.name();
+    }
+
+    public String getExecutorAsString() {
+        return executor.getAsString();
     }
 
     public Integer getCounter() {

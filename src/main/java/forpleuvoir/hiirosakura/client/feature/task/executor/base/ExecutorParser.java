@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  */
 public class ExecutorParser {
 
-    public static Consumer<TimeTask> parse(String script, @Nullable Event event) {
-        return new JavaScriptExecutor(script,event).getExecutor();
+    public static IExecutor parse(String script, @Nullable Event event) {
+        return new JavaScriptExecutor(script, event);
     }
 }

@@ -11,6 +11,7 @@ import forpleuvoir.hiirosakura.client.config.HotKeys;
 import forpleuvoir.hiirosakura.client.config.TogglesHotKeys;
 import forpleuvoir.hiirosakura.client.feature.chatshow.HiiroSakuraChatShow;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler;
+import forpleuvoir.hiirosakura.client.feature.task.executor.JSHeadFile;
 import forpleuvoir.hiirosakura.client.util.HSLogger;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 
@@ -42,5 +43,6 @@ public class InitHandler implements IInitializationHandler {
         HotKeys.initCallback(HiiroSakuraClient.getInstance());
         TogglesHotKeys.initCallback(HiiroSakuraClient.getInstance());
         TimeTaskHandler.initialize();
+        JSHeadFile.initialize();
     }
 }

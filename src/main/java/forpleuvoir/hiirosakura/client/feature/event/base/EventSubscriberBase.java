@@ -7,6 +7,7 @@ import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskParser;
 import forpleuvoir.hiirosakura.client.util.JsonUtil;
+import forpleuvoir.hiirosakura.client.util.StringUtil;
 
 import java.util.List;
 import java.util.Objects;
@@ -45,11 +46,15 @@ public class EventSubscriberBase {
     }
 
     public List<String> getWidgetHoverLines() {
+        TimeTask timeTask = getTimeTask();
         return Lists.newArrayList(
-                String.format("%s : §b%s", "name", name),
-                String.format("%s : %s", "event", eventType),
-                String.format("%s : %s", "enabled", enabled ? "§a" + true : "§c" + false),
-                String.format("§b%s : §6%s", "timeTask", timeTask)
+                String.format("%s : §b%s", "name", timeTask.data.name()),
+                String.format("%s : %s", "startTime", timeTask.data.startTime()),
+                String.format("%s : %s", "cycles", timeTask.data.cycles()),
+                String.format("%s : %s", "cyclesTime", timeTask.data.cyclesTime()),
+                String.format("§b%s : §6%s", "timeTask",
+                              StringUtil.tooLongOmitted(timeTask.getExecutorAsString(), 45, null, false)
+                )
         );
     }
 

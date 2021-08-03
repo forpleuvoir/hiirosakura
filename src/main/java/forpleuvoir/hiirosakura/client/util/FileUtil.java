@@ -1,6 +1,10 @@
 package forpleuvoir.hiirosakura.client.util;
 
+import net.minecraft.util.Util;
+
+import java.awt.*;
 import java.io.*;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -28,7 +32,8 @@ public class FileUtil {
             throw new FileNotFoundException("文件未找到:" + path + name);
         }
         StringBuilder result = new StringBuilder();
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+        BufferedReader bufferedReader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
         String s;
         while ((s = bufferedReader.readLine()) != null) {
             result.append(System.lineSeparator()).append(s);
@@ -49,7 +54,8 @@ public class FileUtil {
             throw new FileNotFoundException("文件未找到:" + file.getName());
         }
         StringBuilder result = new StringBuilder();
-        BufferedReader bf = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+        BufferedReader bf = new BufferedReader(
+                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
         String s;
         while ((s = bf.readLine()) != null) {
             result.append(System.lineSeparator()).append(s);
@@ -111,6 +117,18 @@ public class FileUtil {
             return file;
         } catch (Exception e) {
             return createFile(file);
+        }
+    }
+
+    /**
+     * 打开文件
+     * @param file 需要打开的文件
+     * @throws IOException {@link IOException} 不支持
+     */
+    public static void openFile(File file) throws Exception {
+        if (file.isFile() && file.exists() && file.canRead()) {
+            URI uri = file.toURI();
+            Util.getOperatingSystem().open(uri);
         }
     }
 }

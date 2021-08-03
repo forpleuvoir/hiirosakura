@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
  * <p>#create_time 2021/8/1 1:15
  */
 @Mixin(ClientPlayerInteractionManager.class)
-public class MixinClientPlayerInteractionManager {
+public abstract class MixinClientPlayerInteractionManager {
 
     @Redirect(method = "interactBlock",at=@At(value = "INVOKE",target = "Lnet/minecraft/client/network/ClientPlayerEntity;shouldCancelInteraction()Z"))
     public boolean interactBlock(ClientPlayerEntity clientPlayerEntity){

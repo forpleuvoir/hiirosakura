@@ -1,6 +1,8 @@
 package forpleuvoir.hiirosakura.client.gui.qcms;
 
-import fi.dy.masa.malilib.gui.*;
+import fi.dy.masa.malilib.gui.GuiBase;
+import fi.dy.masa.malilib.gui.GuiConfirmAction;
+import fi.dy.masa.malilib.gui.Message;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.interfaces.IConfirmationListener;
@@ -19,7 +21,6 @@ import net.minecraft.text.TranslatableText;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -88,10 +89,16 @@ public class QCMSScreen extends GuiBase {
 
     private void sendChatMessage(String message) {
         TimeTaskHandler.getInstance()
-                       .addTask(TimeTask.once(timeTask -> {
-                           timeTask.hs.sendMessage(message);
-                           this.onClose();
-                       }, 5, "#Close_QCMS_Screen"));
+                       .addTask(
+                               TimeTask.once(
+                                       task -> {
+                                           task.hs.sendMessage(message);
+                                           this.onClose();
+                                       },
+                                       5,
+                                       "#Close_QCMS_Screen"
+                               )
+                       );
     }
 
     protected void drawButtonHoverTexts(int mouseX, int mouseY, float partialTicks, MatrixStack matrixStack) {

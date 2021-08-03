@@ -2,6 +2,7 @@ package forpleuvoir.hiirosakura.client.util;
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import net.minecraft.text.TranslatableText;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * 字符串工具
@@ -33,11 +34,36 @@ public class StringUtil {
         return arr;
     }
 
-    public static boolean isEmpty(String regex) {
-        return regex == null || regex.isEmpty();
+    /**
+     * 过长的字符串将被省略超过长度的部分
+     *
+     * @param originalStr 源字符串
+     * @param length      最大长度
+     * @param suffix      后缀 如...
+     * @return 处理之后的字符串
+     */
+    public static String tooLongOmitted(String originalStr, int length, @Nullable String suffix, boolean keepLastChar) {
+        suffix = !isEmpty(suffix) ? suffix : "...";
+        if (keepLastChar) {
+            suffix = suffix + originalStr.substring(originalStr.length() - 1);
+        }
+        if (originalStr.length() > length) {
+            originalStr = originalStr.substring(0, length) + suffix;
+        }
+        return originalStr;
     }
 
-    public static TranslatableText translatableText(String key,Object... params){
-        return new TranslatableText(String.format("%s.%s", HiiroSakuraClient.MOD_ID,key),params);
+    /**
+     * 检查字符串是否为空
+     *
+     * @param str 需要检查的字符串
+     * @return 是否为空
+     */
+    public static boolean isEmpty(String str) {
+        return str == null || str.isEmpty();
+    }
+
+    public static TranslatableText translatableText(String key, Object... params) {
+        return new TranslatableText(String.format("%s.%s", HiiroSakuraClient.MOD_ID, key), params);
     }
 }

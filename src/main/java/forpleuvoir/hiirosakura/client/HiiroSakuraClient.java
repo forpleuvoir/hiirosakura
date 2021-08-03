@@ -2,6 +2,7 @@ package forpleuvoir.hiirosakura.client;
 
 import fi.dy.masa.malilib.event.InitializationHandler;
 import forpleuvoir.hiirosakura.client.event.InitHandler;
+import forpleuvoir.hiirosakura.client.feature.input.AnalogInput;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -34,6 +35,7 @@ public class HiiroSakuraClient implements ClientModInitializer {
     private final Queue<Consumer<MinecraftClient>> tasks = new ConcurrentLinkedQueue<>();
     public static final String MOD_ID = "hiirosakura";
     public static final String MOD_NAME = "Hiiro Sakura";
+    private final AnalogInput analogInput = AnalogInput.getInstance();
     private long tickCounter = 0;
 
 
@@ -55,7 +57,7 @@ public class HiiroSakuraClient implements ClientModInitializer {
         mc.inGameHud.addChatMessage(MessageType.GAME_INFO, message, Util.NIL_UUID);
     }
 
-    public void addChatMessage(Text message){
+    public void addChatMessage(Text message) {
         mc.inGameHud.addChatMessage(MessageType.SYSTEM, message, Util.NIL_UUID);
     }
 
@@ -65,6 +67,7 @@ public class HiiroSakuraClient implements ClientModInitializer {
      * @param client {@link MinecraftClient}
      */
     private void onEndTick(MinecraftClient client) {
+        analogInput.tick();
         tickers.forEach(minecraftClientConsumer -> minecraftClientConsumer.accept(this));
         this.runTask(client);
         tickCounter++;

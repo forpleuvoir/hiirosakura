@@ -13,6 +13,8 @@ import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.network.ServerAddress;
 
+import static forpleuvoir.hiirosakura.client.feature.input.AnalogInput.Key.*;
+
 /**
  * js脚本接口实现
  *
@@ -29,32 +31,47 @@ public class JavaScriptInterface implements IJavaScriptInterface {
 
     @Override
     public void forward(int tick) {
-        input.setPressingForward(tick);
+        input.set(FORWARD, tick);
     }
 
     @Override
     public void back(int tick) {
-        input.setPressingBack(tick);
+        input.set(BACK, tick);
     }
 
     @Override
     public void left(int tick) {
-        input.setPressingLeft(tick);
+        input.set(LEFT, tick);
     }
 
     @Override
     public void right(int tick) {
-        input.setPressingRight(tick);
+        input.set(RIGHT, tick);
     }
 
     @Override
     public void jump(int tick) {
-        input.setJumping(tick);
+        input.set(JUMP, tick);
     }
 
     @Override
     public void sneak(int tick) {
-        input.setSneaking(tick);
+        input.set(SNEAK, tick);
+    }
+
+    @Override
+    public void attack(int tick) {
+        input.set(ATTACK, tick);
+    }
+
+    @Override
+    public void use(int tick) {
+        input.set(USE, tick);
+    }
+
+    @Override
+    public void pickItem(int tick) {
+        input.set(PICK_ITEM, tick);
     }
 
     @Override

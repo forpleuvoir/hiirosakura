@@ -1,6 +1,14 @@
 package forpleuvoir.hiirosakura.client.feature.input;
 
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+
+import static forpleuvoir.hiirosakura.client.feature.input.AnalogInput.Key.values;
+
+
 /**
  * 模拟输入
  *
@@ -12,80 +20,71 @@ package forpleuvoir.hiirosakura.client.feature.input;
  */
 public class AnalogInput {
     private static final AnalogInput INSTANCE = new AnalogInput();
-    private int pressingForward = 0;
-    private int pressingBack = 0;
-    private int pressingLeft = 0;
-    private int pressingRight = 0;
-    private int jumping = 0;
-    private int sneaking = 0;
+
+    private final List<Node> data = new LinkedList<>();
+
+    public AnalogInput() {
+        for (Key key : values()) {
+            data.add(Node.key(key));
+        }
+    }
 
     public void tick() {
-        if (pressingForward > 0)
-            pressingForward--;
-        if (pressingBack > 0)
-            pressingBack--;
-        if (pressingLeft > 0)
-            pressingLeft--;
-        if (pressingRight > 0)
-            pressingRight--;
-        if (jumping > 0)
-            jumping--;
-        if (sneaking > 0)
-            sneaking--;
+        for (Node node : data) {
+            node.tick();
+        }
     }
 
-    public boolean getPressingForward() {
-        return pressingForward > 0;
+    public boolean isPress(Key key) {
+        AtomicBoolean isPress = new AtomicBoolean(false);
+        data.stream().filter(node -> node.key == key).findFirst().ifPresent(node -> isPress.set(node.isPress()));
+        return isPress.get();
     }
 
-    public boolean getPressingBack() {
-        return pressingBack > 0;
+    public void set(Key key, Integer value) {
+        data.stream().filter(node -> node.key == key).findFirst().ifPresent(node -> node.set(value));
     }
 
-    public boolean getPressingLeft() {
-        return pressingLeft > 0;
+    public void setOnReleasedCallBack(Key key, Consumer<Key> onReleasedCallBack) {
+        data.stream().filter(node -> node.key == key).findFirst().ifPresent(node -> node.onReleased = onReleasedCallBack);
     }
 
-    public boolean getPressingRight() {
-        return pressingRight > 0;
+    private static class Node {
+        public Key key;
+        public Integer value = 0;
+        public Consumer<Key> onReleased;
+
+        private static Node key(Key key) {
+            return new Node(key);
+        }
+
+        private Node(Key key) {
+            this.key = key;
+        }
+
+        private void set(Integer value) {
+            if (value > 0)
+                this.value = value;
+        }
+
+        private boolean isPress() {
+            return value > 0;
+        }
+
+        private void tick() {
+            if (value > 0) {
+                value--;
+                if (value == 0) {
+                    if (onReleased != null)
+                        onReleased.accept(key);
+                }
+            }
+
+        }
     }
 
-    public boolean getJumping() {
-        return jumping > 0;
-    }
-
-    public boolean getSneaking() {
-        return sneaking > 0;
-    }
-
-    public void setPressingForward(int pressingForward) {
-        if (pressingForward > 0)
-            this.pressingForward = pressingForward;
-    }
-
-    public void setPressingBack(int pressingBack) {
-        if (pressingBack > 0)
-            this.pressingBack = pressingBack;
-    }
-
-    public void setPressingLeft(int pressingLeft) {
-        if (pressingLeft > 0)
-            this.pressingLeft = pressingLeft;
-    }
-
-    public void setPressingRight(int pressingRight) {
-        if (pressingRight > 0)
-            this.pressingRight = pressingRight;
-    }
-
-    public void setJumping(int jumping) {
-        if (jumping > 0)
-            this.jumping = jumping;
-    }
-
-    public void setSneaking(int sneaking) {
-        if (sneaking > 0)
-            this.sneaking = sneaking;
+    public enum Key {
+        FORWARD, BACK, LEFT, RIGHT, JUMP, SNEAK, ATTACK, USE, PICK_ITEM
     }
 
     public static AnalogInput getInstance() {

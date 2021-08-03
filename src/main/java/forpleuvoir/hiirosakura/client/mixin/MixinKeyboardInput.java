@@ -1,5 +1,15 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
+
+import forpleuvoir.hiirosakura.client.feature.input.AnalogInput;
+import net.minecraft.client.input.KeyboardInput;
+import net.minecraft.client.option.KeyBinding;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
+
+import static forpleuvoir.hiirosakura.client.feature.input.AnalogInput.Key.*;
+
 /**
  * 键盘输入
  *
@@ -9,51 +19,37 @@ package forpleuvoir.hiirosakura.client.mixin;
  * <p>#class_name MixinKeyboardInput
  * <p>#create_time 2021-07-28 11:46
  */
-
-import forpleuvoir.hiirosakura.client.feature.input.AnalogInput;
-import net.minecraft.client.input.KeyboardInput;
-import net.minecraft.client.option.KeyBinding;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 @Mixin(KeyboardInput.class)
 public abstract class MixinKeyboardInput {
     private static final AnalogInput analogInput = AnalogInput.getInstance();
 
-    @Inject(method = "tick", at = @At("RETURN"))
-    public void tick(CallbackInfo callbackInfo) {
-        analogInput.tick();
-    }
-
-    @Redirect(method = "tick", at = @At(value = "INVOKE",target ="Lnet/minecraft/client/option/KeyBinding;isPressed()Z",ordinal = 0))
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 0))
     public boolean analogForward(KeyBinding keyBinding) {
-        return analogInput.getPressingForward() ? analogInput.getPressingForward() : keyBinding.isPressed();
+        return analogInput.isPress(FORWARD) ? analogInput.isPress(FORWARD) : keyBinding.isPressed();
     }
-    @Redirect(method = "tick", at = @At(value = "INVOKE",target ="Lnet/minecraft/client/option/KeyBinding;isPressed()Z",ordinal = 1))
+
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 1))
     public boolean analogBack(KeyBinding keyBinding) {
-        return analogInput.getPressingBack() ? analogInput.getPressingBack() : keyBinding.isPressed();
+        return analogInput.isPress(BACK) ? analogInput.isPress(BACK) : keyBinding.isPressed();
     }
 
-    @Redirect(method = "tick", at = @At(value = "INVOKE",target ="Lnet/minecraft/client/option/KeyBinding;isPressed()Z",ordinal = 2))
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 2))
     public boolean analogLeft(KeyBinding keyBinding) {
-        return analogInput.getPressingLeft() ? analogInput.getPressingLeft() : keyBinding.isPressed();
+        return analogInput.isPress(LEFT) ? analogInput.isPress(LEFT) : keyBinding.isPressed();
     }
 
-    @Redirect(method = "tick", at = @At(value = "INVOKE",target ="Lnet/minecraft/client/option/KeyBinding;isPressed()Z",ordinal = 3))
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 3))
     public boolean analogRight(KeyBinding keyBinding) {
-        return analogInput.getPressingRight() ? analogInput.getPressingRight() : keyBinding.isPressed();
+        return analogInput.isPress(RIGHT) ? analogInput.isPress(RIGHT) : keyBinding.isPressed();
     }
 
-    @Redirect(method = "tick", at = @At(value = "INVOKE",target ="Lnet/minecraft/client/option/KeyBinding;isPressed()Z",ordinal = 4))
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 4))
     public boolean analogJump(KeyBinding keyBinding) {
-        return analogInput.getJumping() ? analogInput.getJumping() : keyBinding.isPressed();
+        return analogInput.isPress(JUMP) ? analogInput.isPress(JUMP) : keyBinding.isPressed();
     }
 
-    @Redirect(method = "tick", at = @At(value = "INVOKE",target ="Lnet/minecraft/client/option/KeyBinding;isPressed()Z",ordinal = 5))
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 5))
     public boolean analogSneak(KeyBinding keyBinding) {
-        return analogInput.getSneaking() ? analogInput.getSneaking() : keyBinding.isPressed();
+        return analogInput.isPress(SNEAK) ? analogInput.isPress(SNEAK) : keyBinding.isPressed();
     }
 }

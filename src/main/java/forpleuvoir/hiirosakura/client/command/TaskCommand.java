@@ -28,16 +28,22 @@ public class TaskCommand {
 
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
         dispatcher.register(literal(COMMAND_PREFIX + TYPE)
-                                    .then(literal("add")
-                                                  .then(argument("timeTask", NbtPathArgumentType.nbtPath())
-                                                                .executes(TaskCommand::add)
-                                                  )
-                                    )
-                                    .then(literal("remove")
-                                                  .then(argument("name", StringArgumentType.string())
-                                                                .executes(TaskCommand::remove)
-                                                  )
-                                    )
+                .then(literal("add")
+                        .then(argument("timeTask", NbtPathArgumentType.nbtPath())
+                                .executes(TaskCommand::add)
+                        )
+                )
+                .then(literal("remove")
+                        .then(argument("name", StringArgumentType.string())
+                                .executes(TaskCommand::remove)
+                        )
+                )
+                .then(literal("clear")
+                        .executes(context -> {
+                            TimeTaskHandler.getInstance().clear();
+                            return 1;
+                        })
+                )
         );
     }
 

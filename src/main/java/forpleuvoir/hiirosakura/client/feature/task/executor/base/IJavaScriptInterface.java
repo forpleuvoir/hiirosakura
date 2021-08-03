@@ -48,6 +48,24 @@ public interface IJavaScriptInterface {
     void sneak(int tick);
 
     /**
+     * 模拟按住攻击键
+     * @param tick 持续时间
+     */
+    void attack(int tick);
+
+    /**
+     * 模拟按住使用键
+     * @param tick 持续时间
+     */
+    void use(int tick);
+
+    /**
+     * 模拟器按住鼠标中键
+     * @param tick 持续时间
+     */
+    void pickItem(int tick);
+
+    /**
      * 客户端玩家攻击一次
      */
     void doAttack();

@@ -416,7 +416,7 @@ public interface IClientPlayerInterface {
 |startTime|int|false|0|第一次执行等待时间|
 |cycles|int|false|1|循环次数|
 |cyclesTime|int|false|0|第一次执行之后 每次循环之间的时间间隔|
-|executor|String|true|-|执行器,javaScript脚本|
+|script|String|true|-|执行器,javaScript脚本|
 
 例:
 ```json5
@@ -425,7 +425,7 @@ public interface IClientPlayerInterface {
   cycles: 10,
   cyclesTime: 20,
   name: "定时任务",
-  executor: "$sendMessage('消息发送执行器');"
+  script: "$sendMessage('消息发送执行器');"
 }
 ```
 50tick之后发送消息`"消息发送执行器"` 循环十次 每次间隔20tick
@@ -458,7 +458,10 @@ javaScript脚本
 | ------------ | ------------ | ------------ | 
 | doAttack() | - |客户端玩家攻击一次|
 | doItemUse() | - |客户端玩家使用物品一次|
-| doItemPick() | - |模拟客户端玩家按下鼠标中间|
+| doItemPick() | - |模拟客户端玩家按一次鼠标中键|
+|attack(Int tick)|按住的持续时间(客户端tick)|模拟按下攻击按键|
+|use(Int tick)|按住的持续时间(客户端tick)|模拟按下使用按键|
+|pickItem(Int tick)|按住的持续时间(客户端tick)|模拟按下鼠标中键|
 |forward(Int tick)|按住的持续时间(客户端tick)|模拟按下方向前进按键|
 |back(Int tick)|按住的持续时间(客户端tick)|模拟按下方向后退按键|
 |left(Int tick)|按住的持续时间(客户端tick)|模拟按下方向左按键|

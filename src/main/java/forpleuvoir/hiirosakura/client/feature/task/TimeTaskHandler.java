@@ -40,6 +40,10 @@ public class TimeTaskHandler {
         removeList.add(name);
     }
 
+    public void clear(){
+        timeTaskHashMap.clear();
+    }
+
     private void handle(HiiroSakuraClient client) {
         removeHandler();
         Iterator<Map.Entry<String, TimeTask>> iterator = timeTaskHashMap.entrySet().iterator();

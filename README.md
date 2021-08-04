@@ -247,6 +247,8 @@ IClientPlayerInterface
 | getUUID() | - |String(UUID字符串)|获取玩家UUID|
 | getName() | - |String(玩家名)|获取玩家名|
 | getHealth() | - |float(生命值)|获取生命值|
+| getMaxHealth() | - |float(最大生命值)|获取最大生命值|
+| getHealthProgress() | - |double(生命值百分比)|获取当前生命值百分比|
 | getMainHandItemRegisterId() | - |String(注册id 例 minecraft:melon)|获取主手物品注册id|
 | getMainHandItemTranslationKey() | - |String(翻译Key)|获取主手物品翻译key|
 | getMainHandItemDisplayName() | - |String(显示名)|获取助手物品显示名|

@@ -33,6 +33,18 @@ public interface IClientPlayerInterface {
     float getHealth();
 
     /**
+     * 获取玩家最大生命值
+     * @return 最大生命值
+     */
+    float getMaxHealth();
+
+    /**
+     * 获取当前生命值百分比
+     * @return 生命值百分比
+     */
+    double getHealthProgress();
+
+    /**
      * 获取主手物品注册id
      * @return 注册id 例 minecraft:melon
      */

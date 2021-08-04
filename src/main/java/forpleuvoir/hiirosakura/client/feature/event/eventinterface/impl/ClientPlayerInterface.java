@@ -32,6 +32,21 @@ public class ClientPlayerInterface implements IClientPlayerInterface {
     }
 
     @Override
+    public float getHealth() {
+        return player.getHealth();
+    }
+
+    @Override
+    public float getMaxHealth() {
+        return player.getMaxHealth();
+    }
+
+    @Override
+    public double getHealthProgress() {
+        return getHealth() / getMaxHealth();
+    }
+
+    @Override
     public String getMainHandItemRegisterId() {
         return Registry.ITEM.getId(player.getMainHandStack().getItem()).toString();
     }
@@ -109,11 +124,6 @@ public class ClientPlayerInterface implements IClientPlayerInterface {
     @Override
     public double getPosZ() {
         return player.getPos().getZ();
-    }
-
-    @Override
-    public float getHealth() {
-        return player.getHealth();
     }
 
     @Override

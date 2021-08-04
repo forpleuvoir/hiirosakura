@@ -5,9 +5,8 @@ import forpleuvoir.hiirosakura.client.config.Configs;
 import forpleuvoir.hiirosakura.client.util.FileUtil;
 import forpleuvoir.hiirosakura.client.util.HSLogger;
 import forpleuvoir.hiirosakura.client.util.StringUtil;
-import org.apache.commons.io.FileUtils;
 
-import java.io.*;
+import java.io.File;
 
 /**
  * javascript头文件
@@ -26,11 +25,29 @@ public class JSHeadFile {
             var $TimeTaskData = Java.type('forpleuvoir.hiirosakura.client.feature.task.TimeTaskData');
             var $TimeTaskHandler = Java.type('forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler').getInstance();
             function $sendMessage(message){$hs.sendChatMessage(message);}
-            function $attack(){$hs.doAttack();}
-            function $use(){$hs.doItemUse();}
-            function $pick(){$hs.doItemPick();}
-            function $sneak(tick){$hs.sneak(tick)}
-            function $jump(tick){$hs.jump(tick)}
+            function $attack(){
+                if(arguments.length == 1){
+                    $hs.attack(arguments[0]);
+                }else{
+                    $hs.doAttack();
+                }
+            }
+            function $use(){
+                if(arguments.length == 1){
+                    $hs.use(arguments[0]);
+                }else{
+                    $hs.doItemUse();
+                }
+            }
+            function $pick(){
+                if(arguments.length == 1){
+                    $hs.pickItem(arguments[0]);
+                }else{
+                    $hs.doItemPick();
+                }
+            }
+            function $sneak(tick){$hs.sneak(tick);}
+            function $jump(tick){$hs.jump(tick);}
             function $move(dir,tick){
                 switch(dir){
                     case 'forward':$hs.forward(tick);break;
@@ -39,7 +56,13 @@ public class JSHeadFile {
                     case 'right':$hs.right(tick);break;
                 }
             }
-            function $joinServer(address,maxConnect){$hs.joinServer(address,maxConnect);}
+            function $joinServer(){
+                if(arguments.length == 1){
+                    $hs.joinServer(arguments[0]);
+                }else if(arguments.length == 2){
+                    $hs.joinServer(arguments[0],arguments[1]);
+                }
+            }
             function $addTask(executor,data){
                 $TimeTaskHandler.addTask(new $TimeTask(executor,data));
             }

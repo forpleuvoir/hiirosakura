@@ -138,8 +138,6 @@ public interface IClientPlayerInterface {
      */
     double getPosZ();
 
-
-
     /**
      * 获取X轴旋转
      *

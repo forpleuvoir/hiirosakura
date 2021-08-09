@@ -23,7 +23,7 @@ public class EventSubscriberBase {
 
     @SerializedName("name")
     public String name;
-    public transient String eventType;
+    public final transient String eventType;
     @SerializedName("enabled")
     public boolean enabled;
     /**

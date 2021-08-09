@@ -16,7 +16,7 @@ import forpleuvoir.hiirosakura.client.gui.GuiConfig;
 import net.minecraft.client.util.math.MatrixStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Comparator;
+import java.util.Objects;
 
 import static forpleuvoir.hiirosakura.client.gui.GuiConfig.ConfigGuiTab;
 
@@ -42,8 +42,8 @@ public class EventScreen extends GuiListBase<EventSubscriberBase, WidgetEventEnt
         this.setTitle(StringUtils.translate("hiirosakura.gui.title.event"));
         this.widgetDropDown = new WidgetDropDownList<>
                 (0, 0, 160, 17, 200, 10,
-                        lists,
-                        (type) -> "§6§l§n" + type
+                 lists,
+                 (type) -> "§6§l§n" + type
                 );
         this.widgetDropDown.setSelectedEntry(ALL);
         this.currentEntry = ALL;
@@ -101,7 +101,8 @@ public class EventScreen extends GuiListBase<EventSubscriberBase, WidgetEventEnt
         }
 
         this.setListPosition(this.getListX(), 68 + (rows - 1) * 22);
-        this.getListWidget().setSize(this.getBrowserWidth(), this.getBrowserHeight());
+        Objects.requireNonNull(Objects.requireNonNull(this.getListWidget()))
+               .setSize(this.getBrowserWidth(), this.getBrowserHeight());
         this.getListWidget().initGui();
 
         y += 20;
@@ -123,9 +124,7 @@ public class EventScreen extends GuiListBase<EventSubscriberBase, WidgetEventEnt
 
     protected int addButton(int x, int y) {
         ButtonGeneric button = new ButtonGeneric(x, y, -1, false, "hiirosakura.gui.button.subscribe");
-        this.addButton(button, (button1, mouseButton) -> {
-            GuiBase.openGui(new EventEditScreen(this));
-        });
+        this.addButton(button, (button1, mouseButton) -> GuiBase.openGui(new EventEditScreen(this)));
         return button.getWidth();
     }
 

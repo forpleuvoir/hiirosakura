@@ -2,8 +2,6 @@ package forpleuvoir.hiirosakura.client.feature.task.executor.base;
 
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
 
-import java.util.function.Consumer;
-
 /**
  * 执行器
  *

@@ -7,9 +7,6 @@ import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity;
 import forpleuvoir.hiirosakura.client.gui.GuiConfig;
 import forpleuvoir.hiirosakura.client.gui.qcms.QCMSScreen;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.MessageType;
-import net.minecraft.util.Util;
 
 import java.util.List;
 

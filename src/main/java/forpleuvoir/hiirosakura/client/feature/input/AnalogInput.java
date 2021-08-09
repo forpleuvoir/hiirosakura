@@ -50,7 +50,7 @@ public class AnalogInput {
     }
 
     private static class Node {
-        public Key key;
+        public final Key key;
         public Integer value = 0;
         public Consumer<Key> onReleased;
 

@@ -16,7 +16,7 @@ import static forpleuvoir.hiirosakura.client.config.Configs.Values.CHAT_MESSAGE_
  * <p>#create_time 2021/7/17 12:13
  */
 public class ChatMessageFilter {
-    public static ChatMessageFilter INSTANCE = new ChatMessageFilter();
+    public static final ChatMessageFilter INSTANCE = new ChatMessageFilter();
 
     public boolean needToFilter(Text message) {
         boolean matched = false;

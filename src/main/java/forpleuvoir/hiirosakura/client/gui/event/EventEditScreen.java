@@ -20,10 +20,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.TranslatableText;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -82,7 +78,7 @@ public class EventEditScreen extends GuiBase {
         initSaveButton(x);
         x = initEventListDropDown(x, y);
         initScriptEditor(x, y + 28);
-        x = initEditor(x, y);
+        initEditor(x, y);
     }
 
 

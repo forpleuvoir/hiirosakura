@@ -9,7 +9,6 @@ import net.minecraft.util.Formatting;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 物品栈工具

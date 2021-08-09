@@ -27,7 +27,7 @@ import java.util.Objects;
 public class ServerChatMessageRegex extends AbstractHiiroSakuraData {
     private transient static final HSLogger log = HSLogger.getLogger(ServerChatMessageRegex.class);
     private final Map<String, String> regex = new HashMap<>();
-    public static String VANILLA_REGEX = Configs.Values.CHAT_MESSAGE_DEFAULT_REGEX.getStringValue();
+    public static final String VANILLA_REGEX = Configs.Values.CHAT_MESSAGE_DEFAULT_REGEX.getStringValue();
 
 
     public ServerChatMessageRegex() {

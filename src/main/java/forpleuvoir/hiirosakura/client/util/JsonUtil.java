@@ -15,7 +15,7 @@ import com.google.gson.JsonParser;
  * <p>#create_time 2021/6/14 23:52
  */
 public class JsonUtil {
-    public static Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    public static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public static StringBuffer toStringBuffer(Object obj) {
         return new StringBuffer(gson.toJson(obj));

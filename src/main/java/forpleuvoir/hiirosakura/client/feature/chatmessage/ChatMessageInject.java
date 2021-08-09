@@ -17,7 +17,7 @@ import static forpleuvoir.hiirosakura.client.config.Configs.Values.*;
  * <p>#create_time 2021/6/24 22:16
  */
 public class ChatMessageInject {
-    public static ChatMessageInject INSTANCE = new ChatMessageInject();
+    public static final ChatMessageInject INSTANCE = new ChatMessageInject();
 
     public String handlerMessage(String message) {
         if (message.startsWith("/")) return message;

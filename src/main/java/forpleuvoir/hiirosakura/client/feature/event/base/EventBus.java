@@ -7,7 +7,6 @@ import forpleuvoir.hiirosakura.client.util.HSLogger;
 import forpleuvoir.hiirosakura.client.util.JsonUtil;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -50,15 +49,13 @@ public class EventBus {
         log.info("时间任务事件订阅({})", channel.getSimpleName(), name);
         if (timeTaskEventListeners.containsKey(channel)) {
             if (!timeTaskEventListeners.get(channel).containsKey(name)) {
-                timeTaskEventListeners.get(channel).put(name, event -> {
-                    TimeTaskHandler.getInstance().addTask(TimeTaskParser.parse(JsonUtil.parseToJsonObject(json), event));
-                });
+                timeTaskEventListeners.get(channel).put(name, event -> TimeTaskHandler.getInstance().addTask(
+                        TimeTaskParser.parse(JsonUtil.parseToJsonObject(json), event)));
             }
         } else {
             HashMap<String, Consumer<? extends Event>> hashMap = new HashMap<>();
-            hashMap.put(name, event -> {
-                TimeTaskHandler.getInstance().addTask(TimeTaskParser.parse(JsonUtil.parseToJsonObject(json), event));
-            });
+            hashMap.put(name, event -> TimeTaskHandler.getInstance().addTask(
+                    TimeTaskParser.parse(JsonUtil.parseToJsonObject(json), event)));
             timeTaskEventListeners.put(channel, hashMap);
         }
     }

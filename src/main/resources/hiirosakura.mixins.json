@@ -20,6 +20,7 @@
     "MixinMinecraftClientInterface",
     "MixinPlayerEntityRenderer",
     "MixinPlayerEvent",
+    "MixinTextFieldWidgetAccessor",
     "MixinTntEntityRenderer"
   ],
   "client": [

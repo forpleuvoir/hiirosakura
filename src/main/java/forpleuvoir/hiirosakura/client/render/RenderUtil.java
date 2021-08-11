@@ -66,4 +66,36 @@ public class RenderUtil {
         bufferBuilder.end();
         BufferRenderer.draw(bufferBuilder);
     }
+
+    public static void drawRect(int left, int top, int right, int bottom, int color) {
+        int temp;
+        if (left < right) {
+            temp = left;
+            left = right;
+            right = temp;
+        }
+
+        if (top < bottom) {
+            temp = top;
+            top = bottom;
+            bottom = temp;
+        }
+
+        float red = (float)(color >> 16 & 255) / 255.0F;
+        float green = (float)(color >> 8 & 255) / 255.0F;
+        float blue = (float)(color & 255) / 255.0F;
+        float alpha = (float)(color >> 24 & 255) / 255.0F;
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buffer = tessellator.getBuffer();
+        RenderSystem.disableTexture();
+        RenderSystem.clearColor(red, green, blue, alpha);
+        buffer.begin (VertexFormat.DrawMode.LINES, VertexFormats.POSITION );
+        buffer.vertex(left, bottom, 0.0D).next();
+        buffer.vertex(right, bottom, 0.0D).next();
+        buffer.vertex(right, top, 0.0D).next();
+        buffer.vertex(left, top, 0.0D).next();
+        tessellator.draw();
+        RenderSystem.enableTexture();
+        RenderSystem.disableBlend();
+    }
 }

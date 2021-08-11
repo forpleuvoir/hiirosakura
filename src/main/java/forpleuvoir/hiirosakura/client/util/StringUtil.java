@@ -1,8 +1,17 @@
 package forpleuvoir.hiirosakura.client.util;
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
+import forpleuvoir.hiirosakura.client.gui.event.JsTextField;
+import forpleuvoir.hiirosakura.client.gui.event.JsTextField.WrappedString;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.StringVisitable;
 import net.minecraft.text.TranslatableText;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 字符串工具
@@ -14,6 +23,13 @@ import org.jetbrains.annotations.Nullable;
  * <p>#create_time 2021/6/13 3:03
  */
 public class StringUtil {
+    public static final char[] FILTER_CHARS = new char[]{'\r', '\f'};
+    private static final MinecraftClient minecraft = MinecraftClient.getInstance();
+    private static final TextRenderer fontRenderer;
+
+    static {
+        fontRenderer = minecraft.textRenderer;
+    }
 
     /**
      * 将字符串分割为等长的字符串
@@ -66,4 +82,92 @@ public class StringUtil {
     public static TranslatableText translatableText(String key, Object... params) {
         return new TranslatableText(String.format("%s.%s", HiiroSakuraClient.MOD_ID, key), params);
     }
+
+    public static String stripInvalidChars(String s) {
+        StringBuilder stringBuilder = new StringBuilder();
+        char[] var2 = s.toCharArray();
+        for (char c : var2) {
+            if (isValidChar(c)) {
+                stringBuilder.append(c);
+            }
+        }
+
+        return stringBuilder.toString();
+    }
+
+    public static boolean isValidChar(char chr) {
+        return chr == '\n' || chr != 167 && chr >= ' ' && chr != 127;
+    }
+
+    public static List<StringVisitable> wrapToWidth(String str, int wrapWidth) {
+        List<StringVisitable> strings = new ArrayList<>();
+        StringBuilder temp = new StringBuilder();
+
+        for (int i = 0; i < str.length(); ++i) {
+            char c;
+            label19:
+            {
+                c = str.charAt(i);
+                if (c != '\n') {
+                    String var10001 = temp.toString();
+                    if (fontRenderer.getWidth(var10001 + c) < wrapWidth) {
+                        break label19;
+                    }
+                }
+
+                strings.add(new LiteralText(temp.toString()));
+                temp = new StringBuilder();
+            }
+
+            if (c != '\n') {
+                temp.append(c);
+            }
+        }
+
+        strings.add(new LiteralText(temp.toString()));
+        return strings;
+    }
+
+    public static List<WrappedString> wrapToWidthWithIndication(String str, int wrapWidth) {
+        List<WrappedString> strings = new ArrayList<>();
+        StringBuilder temp = new StringBuilder();
+        boolean wrapped = false;
+
+        for (int i = 0; i < str.length(); ++i) {
+            char c = str.charAt(i);
+            if (c == '\n') {
+                strings.add(new WrappedString(temp.toString(), wrapped));
+                temp = new StringBuilder();
+                wrapped = false;
+            } else {
+                String var10001 = temp.toString();
+                if (fontRenderer.getWidth(var10001 + c) >= wrapWidth) {
+                    strings.add(new WrappedString(temp.toString(), wrapped));
+                    temp = new StringBuilder();
+                    wrapped = true;
+                }
+            }
+
+            if (c != '\n') {
+                temp.append(c);
+            }
+        }
+
+        strings.add(new WrappedString(temp.toString(), wrapped));
+        return strings;
+    }
+
+    public static String insertStringAt(String insert, String insertTo, int pos) {
+        return insertTo.substring(0, pos) + insert + insertTo.substring(pos);
+    }
+
+    public static String filter(String s) {
+        String filtered = s.replace(String.valueOf('\t'), "    ");
+        for (char c : FILTER_CHARS) {
+            filtered = filtered.replace(String.valueOf(c), "");
+        }
+
+        return filtered;
+    }
+
 }

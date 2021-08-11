@@ -20,10 +20,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.TranslatableText;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -58,7 +54,7 @@ public class EventEditScreen extends GuiBase {
     private GuiTextFieldInteger startTimeInput;
     private GuiTextFieldInteger cyclesInput;
     private GuiTextFieldInteger cycleTimeInput;
-    private GuiTextFieldGeneric scriptInput;
+    private JsTextField scriptInput;
 
     public EventEditScreen(@Nullable EventSubscriberBase subscriber, Screen parentScreen) {
         this.subscriber = subscriber;
@@ -160,7 +156,6 @@ public class EventEditScreen extends GuiBase {
     }
 
 
-
     public int initEventListDropDown(int x, int y) {
         this.addLabel(x + 12, y, -1, 12, 0xFFFFFFFF, "§b" + StringUtils.translate(eventTypeText.getKey()));
         y += 4;
@@ -193,10 +188,17 @@ public class EventEditScreen extends GuiBase {
     public void initScriptEditor(int x, int y) {
         this.addLabel(x + 12, y, -1, 12, 0xFFFFFFFF, StringUtils.translate(scriptText.getKey()));
         y += 11;
-        scriptInput = new GuiTextFieldGeneric(x + 12, y, 261, this.height - y - 24, textRenderer);
+        scriptInput = new JsTextField(textRenderer, x + 12, y, 261, this.height - y - 24, 10, true);
         scriptInput.setText(subscriber != null ? subscriber.getScript() : "");
-        scriptInput.setMaxLength(65535);
         this.addTextField(scriptInput, null);
+    }
+
+    @Override
+    public boolean onMouseScrolled(int mouseX, int mouseY, double mouseWheelDelta) {
+        if (scriptInput.mouseScrolled(mouseX, mouseY, mouseWheelDelta)) {
+            return true;
+        }
+        return super.onMouseScrolled(mouseX, mouseY, mouseWheelDelta);
     }
 
     public int createStringEditorFiled(int x, int y, String translationKey, Consumer<GuiTextFieldGeneric> inputConsumer, @Nullable String value) {

@@ -1,7 +1,6 @@
 package forpleuvoir.hiirosakura.client.config;
 
 import com.google.common.collect.ImmutableList;
-import fi.dy.masa.malilib.config.options.ConfigBoolean;
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
 import forpleuvoir.hiirosakura.client.config.base.ToggleHotkey;
 

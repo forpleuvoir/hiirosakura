@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import java.util.function.Consumer;
 
 /**
  * js脚本执行器

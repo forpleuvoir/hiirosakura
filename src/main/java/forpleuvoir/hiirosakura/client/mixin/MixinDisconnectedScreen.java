@@ -26,6 +26,7 @@ public abstract class MixinDisconnectedScreen {
     @Inject(method = "<init>", at = @At("RETURN"))
     public void init(Screen parent, Text title, Text reason, CallbackInfo ci
     ) {
+        ServerInfoUtil.clear();
         EventBus.broadcast(
                 new OnDisconnectedEvent(ServerInfoUtil.getLastServerName(), ServerInfoUtil.getLastServerAddress(), title.getString(),
                         reason.getString()));

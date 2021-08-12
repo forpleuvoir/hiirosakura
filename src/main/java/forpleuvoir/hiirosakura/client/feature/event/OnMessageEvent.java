@@ -1,7 +1,6 @@
 package forpleuvoir.hiirosakura.client.feature.event;
 
 import forpleuvoir.hiirosakura.client.feature.event.base.Event;
-import net.minecraft.network.MessageType;
 
 
 /**

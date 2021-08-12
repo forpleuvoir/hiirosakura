@@ -30,7 +30,7 @@ import static forpleuvoir.hiirosakura.client.util.PlayerHeadUtil.getSkullOwner;
 public class Tooltip extends AbstractHiiroSakuraData {
 
     private transient static final HSLogger log = HSLogger.getLogger(Tooltip.class);
-    public Map<String, List<String>> data = new HashMap<>();
+    public final Map<String, List<String>> data = new HashMap<>();
 
     public Tooltip() {
         super("tooltip");

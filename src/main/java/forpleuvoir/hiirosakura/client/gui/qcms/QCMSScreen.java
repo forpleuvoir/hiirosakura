@@ -14,6 +14,7 @@ import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessageSend;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler;
 import forpleuvoir.hiirosakura.client.util.Colors;
+import forpleuvoir.hiirosakura.client.util.StringUtil;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
@@ -33,15 +34,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>#create_time 2021/6/18 21:12
  */
 public class QCMSScreen extends GuiBase {
-    private final TranslatableText title = new TranslatableText(
-            String.format("%s.gui.title.qcms", HiiroSakuraClient.MOD_ID));
     private final TranslatableText empty = new TranslatableText(
             String.format("%s.feature.qcms.data.empty", HiiroSakuraClient.MOD_ID));
     private final List<QCMSButton> buttons = new LinkedList<>();
 
     public QCMSScreen() {
         super();
-        this.setTitle(StringUtils.translate(title.getKey()));
+        this.setTitle(StringUtils.translate(StringUtil.translatableText("gui.title.qcms").getKey()));
     }
 
     @Override

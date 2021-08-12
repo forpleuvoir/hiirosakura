@@ -2,17 +2,16 @@ package forpleuvoir.hiirosakura.client.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author forpleuvoir
- * @belongsProject suikamod
- * @belongsPackage com.forpleuvoir.chatbubbles
- * @className ReflectionUtils
- * @createTime 2020/10/25 13:19
+ * #belongsProject suikamod
+ * #belongsPackage com.forpleuvoir.chatbubbles
+ * #className ReflectionUtils
+ * #createTime 2020/10/25 13:19
  */
 public class ReflectionUtil {
 
@@ -198,8 +197,10 @@ public class ReflectionUtil {
 
     public static Field getFieldByType(Object o, Class<?> objectClasstype, Class<?> fieldClasstype, int index) {
         Class<?> objectClass;
-        for (objectClass = o.getClass(); !objectClass.equals(objectClasstype) && objectClass
-                .getSuperclass() != null; objectClass = objectClass.getSuperclass()) {
+        objectClass = o.getClass();
+        while (!objectClass.equals(objectClasstype) && objectClass
+                .getSuperclass() != null) {
+            objectClass = objectClass.getSuperclass();
         }
 
         int counter = 0;

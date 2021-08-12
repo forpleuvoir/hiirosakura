@@ -93,7 +93,7 @@ public class EventEditScreen extends GuiBase {
         initSaveButton(x);
         x = initEventListDropDown(x, y);
         initScriptEditor(x, y + 28);
-        x = initEditor(x, y);
+        initEditor(x, y);
     }
 
 

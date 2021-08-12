@@ -2,7 +2,6 @@ package forpleuvoir.hiirosakura.client.util;
 
 import net.minecraft.util.Util;
 
-import java.awt.*;
 import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -11,11 +10,11 @@ import java.nio.charset.StandardCharsets;
  * 文件工具类
  *
  * @author forpleuvoir
- * @BelongsProject suikamod
- * @BelongsPackage com.forpleuvoir.suika.util
- * @ClassName FileUtil
- * @CreateTime 2020/10/21 9:47
- * @Description 文件工具类
+ * #BelongsProject suikamod
+ * #BelongsPackage com.forpleuvoir.suika.util
+ * #ClassName FileUtil
+ * #CreateTime 2020/10/21 9:47
+ * #Description 文件工具类
  */
 public class FileUtil {
     /**
@@ -47,7 +46,7 @@ public class FileUtil {
      *
      * @param file 文件
      * @return 内容
-     * @throws Exception {@link FileNotFoundException} 文件未找到
+     * @throws IOException {@link IOException} 文件未找到
      */
     public static String readFile(File file) throws IOException {
         if (!file.exists()) {
@@ -70,7 +69,7 @@ public class FileUtil {
      * @param path 文件路径
      * @param name 文件名
      * @return 成功创建的文件对象
-     * @throws Exception
+     * @throws IOException 文件创建失败
      */
     public static File createFile(String path, String name) throws IOException {
         File fileDir = new File(path);
@@ -89,7 +88,7 @@ public class FileUtil {
      *
      * @param file 文件路径
      * @return 成功创建的文件对象
-     * @throws Exception
+     * @throws IOException 文件创建失败
      */
     public static File createFile(File file) throws IOException {
         if (!file.getParentFile().exists()) {
@@ -107,7 +106,7 @@ public class FileUtil {
      * @param file    文件对象
      * @param content 写入的内容
      * @return 文件对象
-     * @throws Exception
+     * @throws Exception 文件写入失败
      */
     public static File writeFile(File file, String content) throws Exception {
         try {
@@ -123,10 +122,9 @@ public class FileUtil {
     /**
      * 打开文件
      * @param file 需要打开的文件
-     * @throws IOException {@link IOException} 不支持
      */
-    public static void openFile(File file) throws Exception {
-        if (file.isFile() && file.exists() && file.canRead()) {
+    public static void openFile(File file) {
+       if (file.isFile() && file.exists() && file.canRead()) {
             URI uri = file.toURI();
             Util.getOperatingSystem().open(uri);
         }

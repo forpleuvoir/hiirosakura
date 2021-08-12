@@ -17,7 +17,7 @@ public class TimeTask {
     public final TimeTaskData data;
     private Integer counter = 0;
     private Integer timeCounter = 0;
-    public HiiroSakuraClient hs = HiiroSakuraClient.getInstance();
+    public final HiiroSakuraClient hs = HiiroSakuraClient.getInstance();
 
     public static TimeTask once(IExecutor executor, String name) {
         return once(executor, 0, name);

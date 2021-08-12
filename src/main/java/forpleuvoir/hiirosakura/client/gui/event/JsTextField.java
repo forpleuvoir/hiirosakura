@@ -1,7 +1,5 @@
 package forpleuvoir.hiirosakura.client.gui.event;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import fi.dy.masa.malilib.gui.GuiTextFieldGeneric;
 import fi.dy.masa.malilib.render.RenderUtils;
 import forpleuvoir.hiirosakura.client.util.Colors;
@@ -14,21 +12,16 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.util.Language;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * @author forpleuvoir
@@ -47,14 +40,13 @@ public class JsTextField extends GuiTextFieldGeneric implements Drawable, Elemen
     private final int margin;
     private final int maxVisibleLines;
     private final int wrapWidth;
-    private final boolean canLoseFocus = true;
-    private final boolean isEnabled = true;
     private final boolean multiline;
     public int xPosition;
     public int yPosition;
     public int width;
     public int height;
     private String text;
+    private Consumer<String> textChangedListener;
     private int topVisibleLine;
     private int bottomVisibleLine;
     private int cursorCounter;
@@ -79,11 +71,16 @@ public class JsTextField extends GuiTextFieldGeneric implements Drawable, Elemen
         this.selectionPos = -1;
     }
 
+    public void setTextChangedListener(Consumer<String> textChangedListener) {
+        this.textChangedListener = textChangedListener;
+    }
+
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        RenderUtils.drawRect(this.xPosition, this.yPosition,  this.width,  this.height, Colors.DHWUIA.getColor(0x7A));
+        RenderUtils.drawRect(this.xPosition, this.yPosition, this.width, this.height, Colors.DHWUIA.getColor(0x4A));
         this.renderVisibleText(matrixStack);
         this.renderCursor(matrixStack);
         this.renderScrollBar();
+        this.drawSelectionBox(this.x, this.y, this.width, this.height);
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
@@ -125,11 +122,11 @@ public class JsTextField extends GuiTextFieldGeneric implements Drawable, Elemen
         }
     }
 
-    public boolean mouseScrolled(double par1, double par2, double par3) {
-        if (par1 < 0.0D) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double mouseWheelDelta) {
+        if (mouseWheelDelta < 0.0D) {
             this.incrementVisibleLines();
             return true;
-        } else if (par1 > 0.0D) {
+        } else if (mouseWheelDelta > 0.0D) {
             this.decrementVisibleLines();
             return true;
         } else {
@@ -287,7 +284,7 @@ public class JsTextField extends GuiTextFieldGeneric implements Drawable, Elemen
     }
 
     public StringVisitable getLine(int line) {
-        return line >= 0 && line < this.toLines().size() ? (StringVisitable) this.toLines().get(line) : this.getFinalLine();
+        return line >= 0 && line < this.toLines().size() ? this.toLines().get(line) : this.getFinalLine();
     }
 
     public StringVisitable getFinalLine() {
@@ -321,8 +318,14 @@ public class JsTextField extends GuiTextFieldGeneric implements Drawable, Elemen
         } else {
             this.text = newText.replaceAll("\n", "");
         }
-
+        this.onChanged();
         this.updateVisibleLines();
+    }
+
+    private void onChanged() {
+        if (this.textChangedListener != null) {
+            textChangedListener.accept(this.text);
+        }
     }
 
     public int getFinalLineIndex() {
@@ -498,7 +501,7 @@ public class JsTextField extends GuiTextFieldGeneric implements Drawable, Elemen
         int count = 0;
 
         for (int i = 0; i < maxLineIndex; ++i) {
-            WrappedString wrappedLine = (WrappedString) wrappedLines.get(i);
+            WrappedString wrappedLine = wrappedLines.get(i);
             count += wrappedLine.getText().length();
             if (!wrappedLine.isWrapped()) {
                 ++count;
@@ -516,7 +519,7 @@ public class JsTextField extends GuiTextFieldGeneric implements Drawable, Elemen
 
         for (int i = 0; i <= y; ++i) {
             if (i < wrappedLines.size()) {
-                WrappedString wrappedLine = (WrappedString) wrappedLines.get(i);
+                WrappedString wrappedLine = wrappedLines.get(i);
                 if (i < y) {
                     count += wrappedLine.getText().length();
                     if (!wrappedLine.isWrapped()) {
@@ -546,7 +549,7 @@ public class JsTextField extends GuiTextFieldGeneric implements Drawable, Elemen
         int count = 0;
 
         for (int i = 0; i < wrappedLines.size(); ++i) {
-            WrappedString wrappedLine = (WrappedString) wrappedLines.get(i);
+            WrappedString wrappedLine = wrappedLines.get(i);
             count += wrappedLine.getText().length();
             if (!wrappedLine.isWrapped()) {
                 ++count;
@@ -692,94 +695,15 @@ public class JsTextField extends GuiTextFieldGeneric implements Drawable, Elemen
     }
 
     private void drawSelectionBox(int startX, int startY, int endX, int endY) {
-        int temp;
-        if (startX < endX) {
-            temp = startX;
-            startX = endX;
-            endX = temp;
-        }
-
-        if (startY < endY) {
-            temp = startY;
-            startY = endY;
-            endY = temp;
-        }
-
-        if (endX > this.xPosition + this.width) {
-            endX = this.xPosition + this.width;
-        }
-
-        if (startX > this.xPosition + this.width) {
-            startX = this.xPosition + this.width;
-        }
-
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
-        RenderSystem.clearColor(0.0F, 0.0F, 255.0F, 255.0F);
-        RenderSystem.disableTexture();
-        RenderSystem.enableColorLogicOp();
-        RenderSystem.logicOp(GlStateManager.LogicOp.COPY);
-        buffer.begin(VertexFormat.DrawMode.LINE_STRIP, VertexFormats.POSITION);
-        buffer.vertex(startX, endY, 0.0D).next();
-        buffer.vertex(endX, endY, 0.0D).next();
-        buffer.vertex(endX, startY, 0.0D).next();
-        buffer.vertex(startX, startY, 0.0D).next();
-        tessellator.draw();
-        RenderSystem.disableColorLogicOp();
-        RenderSystem.enableTexture();
-    }
-
-    private void renderSelectionBox(int y, int renderY, OrderedText line) {
-        if (this.hasSelectionOnLine(y)) {
-            StringVisitable absoluteLine = this.getLine(y);
-            int count = 0;
-            List<WrappedString> wrappedLines = this.toLinesWithIndication();
-
-            int start;
-            for (start = 0; start < y; ++start) {
-                WrappedString wrappedLine = wrappedLines.get(start);
-                count += wrappedLine.getText().length();
-                if (!wrappedLine.isWrapped()) {
-                    ++count;
-                }
-            }
-
-            if (wrappedLines.get(y).isWrapped()) {
-                --count;
-            }
-
-            start = this.getSelectionStart() - count;
-            if (start < 0) {
-                start = 0;
-            }
-
-            int end = this.getSelectionEnd() - count;
-            if (end > absoluteLine.getString().length()) {
-                end = absoluteLine.getString().length();
-            }
-
-            if (start >= end) {
-                this.selectionPos = -1;
-            } else {
-                String selection = absoluteLine.getString().substring(start, end);
-                int startX = this.xPosition + this.margin + this.fontRenderer.getWidth(absoluteLine.getString().substring(0, start));
-                int endX = startX + this.fontRenderer.getWidth(selection);
-                Objects.requireNonNull(this.fontRenderer);
-                this.drawSelectionBox(startX, renderY, endX, renderY + 9);
-            }
-        }
-
+        if (isFocused())
+            RenderUtils.drawOutline(startX, startY, endX, endY, 0x7FE0E0E0);
     }
 
     private void renderVisibleText(MatrixStack matrixStack) {
         int renderY = this.yPosition + this.margin;
-        int y = this.topVisibleLine;
-
-        for (Iterator<StringVisitable> var4 = this.getVisibleLines().iterator(); var4.hasNext(); ++y) {
-            StringVisitable line = var4.next();
+        for (StringVisitable line : this.getVisibleLines()) {
             Language language = Language.getInstance();
             this.fontRenderer.drawWithShadow(matrixStack, language.reorder(line), (float) (this.xPosition + this.margin), (float) renderY, 14737632);
-            this.renderSelectionBox(y, renderY, language.reorder(line));
             Objects.requireNonNull(this.fontRenderer);
             renderY += 9;
         }
@@ -795,7 +719,7 @@ public class JsTextField extends GuiTextFieldGeneric implements Drawable, Elemen
             int var10001 = this.getRenderSafeCursorY();
             Objects.requireNonNull(this.fontRenderer);
             int renderCursorY = var10000 + var10001 * 9;
-            this.fontRenderer.drawWithShadow(matrixStack, Text.of("_"), (float) (renderCursorX + 1), (float) renderCursorY, -3092272);
+            this.fontRenderer.drawWithShadow(matrixStack, Text.of("§6_§r"), (float) (renderCursorX + 1), (float) renderCursorY, -3092272);
         }
 
     }
@@ -811,7 +735,7 @@ public class JsTextField extends GuiTextFieldGeneric implements Drawable, Elemen
                 scrollBarTop -= diff;
             }
 
-            RenderUtils.drawRect(this.xPosition + this.width - this.margin * 2 / 4, scrollBarTop,   this.margin / 4,   scrollBarHeight, -3092272);
+            RenderUtils.drawRect(this.xPosition + this.width - this.margin * 2 / 4, scrollBarTop, this.margin / 4, scrollBarHeight, -3092272);
         }
 
     }

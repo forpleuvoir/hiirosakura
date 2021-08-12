@@ -14,6 +14,7 @@ import forpleuvoir.hiirosakura.client.feature.event.OnGameJoinEvent;
 import forpleuvoir.hiirosakura.client.feature.event.base.EventSubscriberBase;
 import forpleuvoir.hiirosakura.client.feature.event.base.HiiroSakuraEvents;
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask;
+import forpleuvoir.hiirosakura.client.feature.task.TimeTaskData;
 import forpleuvoir.hiirosakura.client.util.JsonUtil;
 import forpleuvoir.hiirosakura.client.util.StringUtil;
 import net.minecraft.client.gui.screen.Screen;
@@ -45,7 +46,7 @@ public class EventEditScreen extends GuiBase {
     private final TranslatableText nameText = StringUtil.translatableText("gui.event.name");
     private final TranslatableText startTimeText = StringUtil.translatableText("gui.event.start_time");
     private final TranslatableText cyclesText = StringUtil.translatableText("gui.event.cycles");
-    private final TranslatableText cycleTimeText = StringUtil.translatableText("gui.event.cycles_time");
+    private final TranslatableText cyclesTimeText = StringUtil.translatableText("gui.event.cycles_time");
     private final TranslatableText scriptText = StringUtil.translatableText("gui.event.script");
 
     private WidgetDropDownList<String> eventListDropDown;
@@ -53,11 +54,25 @@ public class EventEditScreen extends GuiBase {
     private GuiTextFieldGeneric nameInput;
     private GuiTextFieldInteger startTimeInput;
     private GuiTextFieldInteger cyclesInput;
-    private GuiTextFieldInteger cycleTimeInput;
+    private GuiTextFieldInteger cyclesTimeInput;
     private JsTextField scriptInput;
+
+    private Integer startTime = 0;
+    private Integer cycles = 1;
+    private Integer cyclesTime = 0;
+    private String name = "";
+    private String script = "";
 
     public EventEditScreen(@Nullable EventSubscriberBase subscriber, Screen parentScreen) {
         this.subscriber = subscriber;
+        if (this.subscriber != null) {
+            TimeTaskData data = subscriber.getTimeTask().data;
+            this.startTime = data.startTime();
+            this.cycles = data.cycles();
+            this.cyclesTime = data.cyclesTime();
+            this.name = data.name();
+            this.script = subscriber.getScript();
+        }
         this.editMode = true;
         this.setParent(parentScreen);
         this.title = StringUtils.translate(String.format("%s.gui.title.event.edit", HiiroSakuraClient.MOD_ID));
@@ -100,8 +115,8 @@ public class EventEditScreen extends GuiBase {
             arg = startTimeText.getKey();
         } else if (StringUtil.isEmpty(cyclesInput.getText())) {
             arg = cyclesText.getKey();
-        } else if (StringUtil.isEmpty(cycleTimeInput.getText())) {
-            arg = cycleTimeText.getKey();
+        } else if (StringUtil.isEmpty(cyclesTimeInput.getText())) {
+            arg = cyclesTimeText.getKey();
         }
         if (!StringUtil.isEmpty(arg)) {
             this.addGuiMessage(Message.MessageType.WARNING, 2000, nullValeText.getKey(), arg);
@@ -118,7 +133,6 @@ public class EventEditScreen extends GuiBase {
 
         JsonObject timeTask = new JsonObject();
 
-        String name = nameInput.getText();
         boolean enabled = subscriber == null || subscriber.enabled;
 
         timeTask.addProperty("name", name);
@@ -126,15 +140,10 @@ public class EventEditScreen extends GuiBase {
 
         Map<String, Object> data = new HashMap<>();
 
-        int startTime = Integer.parseInt(startTimeInput.getText());
-        int cycles = Integer.parseInt(cyclesInput.getText());
-        int cyclesTime = Integer.parseInt(cycleTimeInput.getText());
-        String script = scriptInput.getText();
-
         data.put("startTime", startTime);
         data.put("cycles", cycles);
         data.put("cyclesTime", cyclesTime);
-        data.put("script", script);
+        data.put("script", this.script);
         data.put("name", name);
 
         timeTask.addProperty("timeTask", JsonUtil.toJsonStr(data));
@@ -178,10 +187,27 @@ public class EventEditScreen extends GuiBase {
         if (subscriber != null) {
             timeTask = subscriber.getTimeTask();
         }
-        x += this.createStringEditorFiled(x, y, nameText.getKey(), consumer -> nameInput = consumer, timeTask != null ? timeTask.getName() : null);
-        x += this.createIntEditorFiled(x, y, startTimeText.getKey(), consumer -> startTimeInput = consumer, timeTask != null ? timeTask.data.startTime() : 0, 0, Integer.MAX_VALUE);
-        x += this.createIntEditorFiled(x, y, cyclesText.getKey(), consumer -> cyclesInput = consumer, timeTask != null ? timeTask.data.cycles() : 1, 1, Integer.MAX_VALUE);
-        x += this.createIntEditorFiled(x, y, cycleTimeText.getKey(), consumer -> cycleTimeInput = consumer, timeTask != null ? timeTask.data.cyclesTime() : 0, 0, Integer.MAX_VALUE);
+
+        x += this.createStringEditorFiled(x, y, nameText.getKey(), consumer -> {
+            nameInput = consumer;
+            this.name = nameInput.getText();
+        }, (value -> this.name = value), timeTask != null ? timeTask.getName() : null);
+
+        x += this.createIntEditorFiled(x, y, startTimeText.getKey(), consumer -> {
+            startTimeInput = consumer;
+            this.startTime = Integer.parseInt(startTimeInput.getText());
+        }, (value -> this.startTime = value), timeTask != null ? timeTask.data.startTime() : 0, 0, Integer.MAX_VALUE);
+
+        x += this.createIntEditorFiled(x, y, cyclesText.getKey(), consumer -> {
+            cyclesInput = consumer;
+            this.cycles = Integer.parseInt(cyclesInput.getText());
+        }, (value -> this.cycles = value), timeTask != null ? timeTask.data.cycles() : 1, 1, Integer.MAX_VALUE);
+
+        x += this.createIntEditorFiled(x, y, cyclesTimeText.getKey(), consumer -> {
+            cyclesTimeInput = consumer;
+            this.cyclesTime = Integer.parseInt(cyclesTimeInput.getText());
+        }, (value -> this.cyclesTime = value), timeTask != null ? timeTask.data.cyclesTime() : 0, 0, Integer.MAX_VALUE);
+
         return x;
     }
 
@@ -189,29 +215,31 @@ public class EventEditScreen extends GuiBase {
         this.addLabel(x + 12, y, -1, 12, 0xFFFFFFFF, StringUtils.translate(scriptText.getKey()));
         y += 11;
         scriptInput = new JsTextField(textRenderer, x + 12, y, 261, this.height - y - 24, 10, true);
-        scriptInput.setText(subscriber != null ? subscriber.getScript() : "");
+        scriptInput.setText(this.script);
+        scriptInput.setTextChangedListener((text) -> this.script = text);
         this.addTextField(scriptInput, null);
     }
 
     @Override
     public boolean onMouseScrolled(int mouseX, int mouseY, double mouseWheelDelta) {
-        if (scriptInput.mouseScrolled(mouseX, mouseY, mouseWheelDelta)) {
+        if (scriptInput.isFocused() && scriptInput.mouseScrolled(mouseX, mouseY, mouseWheelDelta)) {
             return true;
         }
         return super.onMouseScrolled(mouseX, mouseY, mouseWheelDelta);
     }
 
-    public int createStringEditorFiled(int x, int y, String translationKey, Consumer<GuiTextFieldGeneric> inputConsumer, @Nullable String value) {
+    public int createStringEditorFiled(int x, int y, String translationKey, Consumer<GuiTextFieldGeneric> inputConsumer, Consumer<String> changedListener, @Nullable String value) {
         this.addLabel(x + 12, y, -1, 12, 0xFFFFFFFF, StringUtils.translate(translationKey));
         y += 11;
         GuiTextFieldGeneric inputFiled = new GuiTextFieldGeneric(x + 12, y, 80, 14, this.textRenderer);
         inputFiled.setText(value != null ? value : "");
         this.addTextField(inputFiled, null);
+        inputFiled.setChangedListener(changedListener);
         inputConsumer.accept(inputFiled);
         return inputFiled.getWidth() + 4;
     }
 
-    public int createIntEditorFiled(int x, int y, String translationKey, Consumer<GuiTextFieldInteger> inputConsumer, @Nullable Integer value, int min, int max) {
+    public int createIntEditorFiled(int x, int y, String translationKey, Consumer<GuiTextFieldInteger> inputConsumer, Consumer<Integer> changedListener, @Nullable Integer value, int min, int max) {
         this.addLabel(x + 12, y, -1, 12, 0xFFFFFFFF, StringUtils.translate(translationKey));
         y += 11;
         GuiTextFieldInteger inputFiled = new GuiTextFieldInteger(x + 12, y, 40, 14, this.textRenderer);
@@ -221,6 +249,7 @@ public class EventEditScreen extends GuiBase {
         String hover = StringUtils.translate("malilib.gui.button.hover.plus_minus_tip");
         ButtonGeneric button = new ButtonGeneric(x + 54, y - 1, MaLiLibIcons.BTN_PLUSMINUS_16, hover);
         this.addButton(button, new ButtonListenerIntegerModifier(inputFiled, min, max));
+        inputFiled.setChangedListener(text -> changedListener.accept(Integer.parseInt(text)));
         inputConsumer.accept(inputFiled);
         return button.getWidth() + inputFiled.getWidth() + 4;
     }

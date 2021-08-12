@@ -1,6 +1,8 @@
 package forpleuvoir.hiirosakura.client.util;
 
 
+import java.awt.*;
+
 /**
  * 颜色
  *
@@ -25,9 +27,16 @@ public enum Colors {
         return this.color;
     }
 
+    /**
+     * 这段代码属实烂
+     * @param alpha 透明度 0-255
+     * @return 颜色
+     */
     public int getColor(int alpha) {
         alpha = Math.max(0, alpha);
         alpha = Math.min(255, alpha);
-        return 0;
+        var c = new Color(this.color);
+        var color = new Color(c.getRed(), c.getBlue(), c.getGreen(), alpha);
+        return color.getRGB();
     }
 }

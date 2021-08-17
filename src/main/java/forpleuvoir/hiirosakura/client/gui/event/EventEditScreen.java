@@ -109,16 +109,16 @@ public class EventEditScreen extends GuiBase {
 
     public boolean checkSave() {
         var arg = "";
-        if (StringUtil.isEmpty(nameInput.getText())) {
+        if (StringUtil.isEmptyString(nameInput.getText())) {
             arg = nameText.getKey();
-        } else if (StringUtil.isEmpty(startTimeInput.getText())) {
+        } else if (StringUtil.isEmptyString(startTimeInput.getText())) {
             arg = startTimeText.getKey();
-        } else if (StringUtil.isEmpty(cyclesInput.getText())) {
+        } else if (StringUtil.isEmptyString(cyclesInput.getText())) {
             arg = cyclesText.getKey();
-        } else if (StringUtil.isEmpty(cyclesTimeInput.getText())) {
+        } else if (StringUtil.isEmptyString(cyclesTimeInput.getText())) {
             arg = cyclesTimeText.getKey();
         }
-        if (!StringUtil.isEmpty(arg)) {
+        if (!StringUtil.isEmptyString(arg)) {
             this.addGuiMessage(Message.MessageType.WARNING, 2000, nullValeText.getKey(), arg);
             return false;
         } else {

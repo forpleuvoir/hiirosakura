@@ -1,30 +1,30 @@
-package forpleuvoir.hiirosakura.client.feature.chatmessage;
+package forpleuvoir.hiirosakura.client.feature.chatmessage
 
-import net.minecraft.text.Text;
-
-import java.util.regex.Pattern;
-
-import static forpleuvoir.hiirosakura.client.config.Configs.Values.CHAT_MESSAGE_FILTER_REGEX;
+import forpleuvoir.hiirosakura.client.config.Configs.Values.CHAT_MESSAGE_FILTER_REGEX
+import net.minecraft.text.Text
+import java.util.regex.Pattern
 
 /**
  * 聊天消息过滤
  *
  * @author forpleuvoir
- * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.feature.chatmessage
- * <p>#class_name ChatMessageFilter
- * <p>#create_time 2021/7/17 12:13
+ *
+ * #project_name hiirosakura
+ *
+ * #package forpleuvoir.hiirosakura.client.feature.chatmessage
+ *
+ * #class_name ChatMessageFilter
+ *
+ * #create_time 2021/7/17 12:13
  */
-public class ChatMessageFilter {
-    public static final ChatMessageFilter INSTANCE = new ChatMessageFilter();
-
-    public boolean needToFilter(Text message) {
-        boolean matched = false;
-        for (String regex : CHAT_MESSAGE_FILTER_REGEX.getStrings()) {
-            if (Pattern.matches(regex, message.getString())) {
-                matched = true;
-            }
-        }
-        return matched;
-    }
+object ChatMessageFilter {
+	fun needToFilter(message: Text): Boolean {
+		var matched = false
+		for (regex in CHAT_MESSAGE_FILTER_REGEX.strings) {
+			if (Pattern.matches(regex, message.string)) {
+				matched = true
+			}
+		}
+		return matched
+	}
 }

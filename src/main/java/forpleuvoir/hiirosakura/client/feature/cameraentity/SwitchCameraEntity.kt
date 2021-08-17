@@ -1,110 +1,102 @@
-package forpleuvoir.hiirosakura.client.feature.cameraentity;
+package forpleuvoir.hiirosakura.client.feature.cameraentity
 
-import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.hit.EntityHitResult;
-
-import java.util.LinkedList;
-import java.util.List;
-
-import static net.minecraft.util.hit.HitResult.Type.ENTITY;
+import forpleuvoir.hiirosakura.client.HiiroSakuraClient.addTickHandler
+import net.minecraft.client.MinecraftClient
+import net.minecraft.client.network.AbstractClientPlayerEntity
+import net.minecraft.entity.Entity
+import net.minecraft.util.hit.EntityHitResult
+import net.minecraft.util.hit.HitResult
+import java.util.*
+import java.util.function.Consumer
 
 /**
  * 切换相机实体
  *
  * @author forpleuvoir
- * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.feature.cameraentity
- * <p>#class_name SwitchCameraEntity
- * <p>#create_time 2021/6/22 21:12
+ *
+ * #project_name hiirosakura
+ *
+ * #package forpleuvoir.hiirosakura.client.feature.cameraentity
+ *
+ * #class_name SwitchCameraEntity
+ *
+ * #create_time 2021/6/22 21:12
  */
-public class SwitchCameraEntity {
-    public static final SwitchCameraEntity INSTANCE = new SwitchCameraEntity(MinecraftClient.getInstance());
-    private Entity targetEntity;
-    private final MinecraftClient client;
+object SwitchCameraEntity {
+	private var targetEntity: Entity? = null
+	private val client = MinecraftClient.getInstance()
 
-    static {
-        HiiroSakuraClient.INSTANCE.addTickHandler(hiiroSakuraClient -> {
-            var mc = HiiroSakuraClient.mc;
-            if (mc.options.keySneak.wasPressed()) {
-                if (mc.getCameraEntity() == SwitchCameraEntity.INSTANCE.targetEntity)
-                    mc.setCameraEntity(mc.player);
-            }
-        });
-    }
+	init {
+		addTickHandler {
+			if (client.options.keySneak.wasPressed()) {
+				if (client.getCameraEntity() == targetEntity) client.setCameraEntity(
+					client.player
+				)
+			}
+		}
+	}
 
-    public boolean isSwitched() {
-        return client.getCameraEntity() == targetEntity;
-    }
+	val isSwitched: Boolean
+		get() = client.getCameraEntity() === targetEntity
+	private val players: List<AbstractClientPlayerEntity>?
+		get() = if (client.world != null) client.world!!.players else null
+	val playersSuggest: List<String>
+		get() {
+			val playerNames: MutableList<String> = LinkedList()
+			if (players != null) players!!.forEach(Consumer { player: AbstractClientPlayerEntity ->
+				playerNames.add(
+					player.entityName
+				)
+			})
+			return playerNames
+		}
 
-    public SwitchCameraEntity(MinecraftClient client) {
-        this.client = client;
-    }
+	fun switchOtherPlayer(playerName: String) {
+		players!!.stream().filter { player: AbstractClientPlayerEntity -> player.entityName == playerName }
+			.findFirst().ifPresent { entity: AbstractClientPlayerEntity? -> client.setCameraEntity(entity) }
+	}
 
-    public List<AbstractClientPlayerEntity> getPlayers() {
-        if (client.world != null)
-            return client.world.getPlayers();
-        return null;
-    }
+	fun switchToTarget(): Boolean {
+		if (targetEntity != null) {
+			if (targetEntity!!.isLiving) {
+				if (targetEntity!!.isAlive) {
+					client.setCameraEntity(targetEntity)
+				} else {
+					return false
+				}
+			} else {
+				client.setCameraEntity(targetEntity)
+			}
+			return true
+		}
+		return false
+	}
 
-    public List<String> getPlayersSuggest() {
-        List<String> playerNames = new LinkedList<>();
-        if (getPlayers() != null)
-            getPlayers().forEach(player -> playerNames.add(player.getEntityName()));
-        return playerNames;
-    }
+	fun switchEntity() {
+		if (client.getCameraEntity() != null) {
+			setTargetEntity()
+			if (targetEntity != null) client.setCameraEntity(targetEntity)
+		} else {
+			if (client.player != null) {
+				resetCamera()
+			}
+		}
+	}
 
-    public void switchOtherPlayer(String playerName) {
-        getPlayers().stream().filter(
-                player -> player.getEntityName().equals(playerName)
-        ).findFirst().ifPresent(client::setCameraEntity);
-    }
+	fun setTargetEntity(): Boolean {
+		if (client.crosshairTarget == null) return false
+		if (client.crosshairTarget!!.type == HitResult.Type.ENTITY) {
+			targetEntity = (client.crosshairTarget as EntityHitResult?)!!.entity
+			if (targetEntity === client.player) {
+				targetEntity = null
+				return false
+			}
+			return true
+		}
+		return false
+	}
 
-    public boolean switchToTarget() {
-        if (targetEntity != null) {
-            if (targetEntity.isLiving()) {
-                if (targetEntity.isAlive()) {
-                    client.setCameraEntity(targetEntity);
-                } else {
-                    return false;
-                }
-            } else {
-                client.setCameraEntity(targetEntity);
-            }
-            return true;
-        }
-        return false;
-    }
-
-    public void switchEntity() {
-        if (client.getCameraEntity() != null) {
-            setTargetEntity();
-            if (targetEntity != null)
-                client.setCameraEntity(targetEntity);
-        } else {
-            if (client.player != null) {
-                resetCamera();
-            }
-        }
-    }
-
-    public boolean setTargetEntity() {
-        if (client.crosshairTarget == null) return false;
-        if (client.crosshairTarget.getType().equals(ENTITY)) {
-            targetEntity = ((EntityHitResult) client.crosshairTarget).getEntity();
-            if (targetEntity == client.player) {
-                targetEntity = null;
-                return false;
-            }
-            return true;
-        }
-        return false;
-    }
-
-    public void resetCamera() {
-        client.setCameraEntity(client.player);
-    }
-
+	private fun resetCamera() {
+		client.setCameraEntity(client.player)
+	}
 }

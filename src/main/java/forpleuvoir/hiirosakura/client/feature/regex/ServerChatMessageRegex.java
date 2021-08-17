@@ -56,7 +56,7 @@ public class ServerChatMessageRegex extends AbstractHiiroSakuraData {
     public String getRegex() {
         String regex;
         regex = this.regex.get(getAddress());
-        if (StringUtil.isEmpty(regex)) {
+        if (StringUtil.isEmptyString(regex)) {
             regex = getDefRegex();
         }
         return regex;

@@ -53,7 +53,7 @@ public class EventSubscriberBase {
                 String.format("%s : %s", "cycles", timeTask.data.cycles()),
                 String.format("%s : %s", "cyclesTime", timeTask.data.cyclesTime()),
                 String.format("§b%s : §6%s", "script",
-                              StringUtil.tooLongOmitted(timeTask.getExecutorAsString().replaceAll("(\\n)","⏎"), 45, null, false)
+                              StringUtil.tooLongOmitted(timeTask.getExecutorAsString().replaceAll("(\\n)","⏎"), 45, "...", false)
                 )
         );
     }

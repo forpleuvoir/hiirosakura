@@ -3,6 +3,7 @@ package forpleuvoir.hiirosakura.client.gui;
 import fi.dy.masa.malilib.config.IConfigBase;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.GuiConfigsBase;
+import fi.dy.masa.malilib.gui.GuiTextFieldInteger;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
@@ -12,6 +13,7 @@ import forpleuvoir.hiirosakura.client.config.Configs;
 import forpleuvoir.hiirosakura.client.config.HotKeys;
 import forpleuvoir.hiirosakura.client.config.TogglesHotKeys;
 import forpleuvoir.hiirosakura.client.gui.event.EventScreen;
+import net.minecraft.client.gui.screen.Screen;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +28,11 @@ import java.util.Objects;
  */
 public class GuiConfig extends GuiConfigsBase {
     public static ConfigGuiTab tab = ConfigGuiTab.TOGGLES;
+
+    public GuiConfig(Screen parent){
+    	this();
+    	this.setParent(parent);
+    }
 
     public GuiConfig() {
         super(10, 50, HiiroSakuraClient.MOD_ID, null, "hiirosakura.gui.title.configs");
@@ -74,7 +81,7 @@ public class GuiConfig extends GuiConfigsBase {
         ConfigGuiTab tab = GuiConfig.tab;
         configs = switch (tab) {
             case TOGGLES -> Configs.Toggles.OPTIONS;
-            case TOGGLES_HOTKEYS -> TogglesHotKeys.HOTKEY_LIST;
+            case TOGGLES_HOTKEYS -> TogglesHotKeys.getHOTKEY_LIST();
             case VALUES -> Configs.Values.OPTIONS;
             case HOTKEYS -> HotKeys.HOTKEY_LIST;
             default -> Collections.emptyList();

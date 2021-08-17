@@ -1,6 +1,5 @@
 package forpleuvoir.hiirosakura.client
 
-import fi.dy.masa.malilib.event.InitializationHandler
 import forpleuvoir.hiirosakura.client.event.InitHandler
 import forpleuvoir.hiirosakura.client.feature.input.AnalogInput
 import net.fabricmc.api.ClientModInitializer
@@ -13,7 +12,6 @@ import net.minecraft.text.Text
 import net.minecraft.util.Util
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.function.Consumer
 
 /**
  * @author forpleuvoir
@@ -36,18 +34,23 @@ object HiiroSakuraClient : ClientModInitializer {
 	val mc: MinecraftClient = MinecraftClient.getInstance()
 
 	//客户端tick处理器
-	private val tickers: Queue<Consumer<HiiroSakuraClient>> = ConcurrentLinkedQueue()
+	private val tickers: Queue<(HiiroSakuraClient) -> Unit> = ConcurrentLinkedQueue()
 
 	//客户端任务队列
-	private val tasks: Queue<Consumer<MinecraftClient>> = ConcurrentLinkedQueue()
+	private val tasks: Queue<(HiiroSakuraClient) -> Unit> = ConcurrentLinkedQueue()
+
 	private val analogInput = AnalogInput.getInstance()
+
 	var tickCounter: Long = 0
 		private set
 
+	/**
+	 * Mod初始化
+	 */
 	override fun onInitializeClient() {
-		InitializationHandler.getInstance().registerInitializationHandler(InitHandler())
+		InitHandler.initialize()
 		//MinecraftClient.tick注册
-		ClientTickEvents.END_CLIENT_TICK.register(ClientTickEvents.EndTick { client: MinecraftClient -> onEndTick(client) })
+		ClientTickEvents.END_CLIENT_TICK.register(ClientTickEvents.EndTick { onEndTick() })
 	}
 
 	/**
@@ -55,40 +58,47 @@ object HiiroSakuraClient : ClientModInitializer {
 	 *
 	 * @param message 消息文本
 	 */
-	fun showMessage(message: Text?) {
+	fun showMessage(message: Text) {
 		mc.inGameHud.addChatMessage(MessageType.GAME_INFO, message, Util.NIL_UUID)
 	}
 
-	fun addChatMessage(message: Text?) {
+	/**
+	 * 添加系统消息
+	 * @param message Text 消息文本
+	 */
+	fun addChatMessage(message: Text) {
 		mc.inGameHud.addChatMessage(MessageType.SYSTEM, message, Util.NIL_UUID)
 	}
 
 	/**
+	 * 发送聊天消息
+	 * @param message String
+	 */
+	fun sendMessage(message: String) {
+		mc.player?.sendChatMessage(message)
+	}
+
+
+	/**
 	 * 客户端tick之后会调用
 	 *
-	 * @param client [MinecraftClient]
 	 */
-	private fun onEndTick(client: MinecraftClient) {
+	private fun onEndTick() {
 		analogInput.tick()
-		tickers.forEach(Consumer { minecraftClientConsumer: Consumer<HiiroSakuraClient> ->
-			minecraftClientConsumer.accept(
-				this
-			)
-		})
-		runTask(client)
+		tickers.forEach { it.invoke(this) }
+		runTask()
 		tickCounter++
 	}
 
 	/**
 	 * 执行所有未被执行的客户端任务
 	 *
-	 * @param client [MinecraftClient]
 	 */
-	private fun runTask(client: MinecraftClient) {
+	private fun runTask() {
 		val iterator = tasks.iterator()
 		while (iterator.hasNext()) {
 			val next = iterator.next()
-			next.accept(client)
+			next.invoke(this)
 			iterator.remove()
 		}
 	}
@@ -97,9 +107,9 @@ object HiiroSakuraClient : ClientModInitializer {
 	 * 添加客户端任务
 	 * 客户端每次tick结束后会执行，执行后的任务会被删除
 	 *
-	 * @param task [<]
+	 * @param task 任务
 	 */
-	fun addTask(task: Consumer<MinecraftClient>) {
+	fun addTask(task: (HiiroSakuraClient) -> Unit) {
 		tasks.add(task)
 	}
 
@@ -108,13 +118,11 @@ object HiiroSakuraClient : ClientModInitializer {
 	 *
 	 * 每次客户端tick结束都会执行一次
 	 *
-	 * @param handler [<]
+	 * @param handler 处理器
 	 */
-	fun addTickHandler(handler: Consumer<HiiroSakuraClient>) {
+	fun addTickHandler(handler: (HiiroSakuraClient) -> Unit) {
 		tickers.add(handler)
 	}
 
-	fun sendMessage(message: String?) {
-		Objects.requireNonNull(mc.player)?.sendChatMessage(message)
-	}
+
 }

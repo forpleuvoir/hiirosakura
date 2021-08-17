@@ -23,7 +23,10 @@
       }
     ],
     "modmenu": [
-      "forpleuvoir.hiirosakura.client.compat.modmenu.ModMenuImpl"
+      {
+        "adapter": "kotlin",
+        "value": "forpleuvoir.hiirosakura.client.compat.modmenu.ModMenuImpl"
+      }
     ]
   },
   "mixins": [

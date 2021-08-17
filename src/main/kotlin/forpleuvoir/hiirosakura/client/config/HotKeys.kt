@@ -1,62 +1,67 @@
-package forpleuvoir.hiirosakura.client.config;
+package forpleuvoir.hiirosakura.client.config
 
-import com.google.common.collect.ImmutableList;
-import fi.dy.masa.malilib.config.options.ConfigHotkey;
-import fi.dy.masa.malilib.gui.GuiBase;
-import forpleuvoir.hiirosakura.client.HiiroSakuraClient;
-import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity;
-import forpleuvoir.hiirosakura.client.gui.GuiConfig;
-import forpleuvoir.hiirosakura.client.gui.qcms.QCMSScreen;
-
-import java.util.List;
+import com.google.common.collect.ImmutableList
+import fi.dy.masa.malilib.config.options.ConfigHotkey
+import fi.dy.masa.malilib.gui.GuiBase
+import fi.dy.masa.malilib.hotkeys.IKeybind
+import fi.dy.masa.malilib.hotkeys.KeyAction
+import forpleuvoir.hiirosakura.client.HiiroSakuraClient
+import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity
+import forpleuvoir.hiirosakura.client.gui.GuiConfig
+import forpleuvoir.hiirosakura.client.gui.qcms.QCMSScreen
 
 /**
  * 热键配置
  *
  * @author forpleuvoir
- * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.config
- * <p>#class_name HotKeys
- * <p>#create_time 2021/6/15 23:28
+ *
+ * #project_name hiirosakura
+ *
+ * #package forpleuvoir.hiirosakura.client.config
+ *
+ * #class_name HotKeys
+ *
+ * #create_time 2021/6/15 23:28
  */
-public class HotKeys {
-    public static final ConfigHotkey OPEN_CONFIG_GUI = new ConfigHotkey(
-            translationKey("openConfig"), "H,S",
-            translationKey("openConfig.comment")
-    );
-    public static final ConfigHotkey OPEN_QCMS = new ConfigHotkey(
-            translationKey("openQcms"), "",
-            translationKey("openQcms.comment")
-    );
-    public static final ConfigHotkey SWITCH_CAMERA_ENTITY = new ConfigHotkey(
-            translationKey("switchCameraEntity"), "",
-            translationKey("switchCameraEntity.comment")
-    );
+object HotKeys {
+	private val OPEN_CONFIG_GUI = ConfigHotkey(
+		translationKey("openConfig"), "H,S",
+		translationKey("openConfig.comment")
+	)
+	private val OPEN_QCMS = ConfigHotkey(
+		translationKey("openQcms"), "",
+		translationKey("openQcms.comment")
+	)
+	private val SWITCH_CAMERA_ENTITY = ConfigHotkey(
+		translationKey("switchCameraEntity"), "",
+		translationKey("switchCameraEntity.comment")
+	)
 
-    public static final List<ConfigHotkey> HOTKEY_LIST = ImmutableList.of(
-            OPEN_CONFIG_GUI, OPEN_QCMS, SWITCH_CAMERA_ENTITY
-    );
+	@JvmField
+	val HOTKEY_LIST: List<ConfigHotkey> = ImmutableList.of(
+		OPEN_CONFIG_GUI, OPEN_QCMS, SWITCH_CAMERA_ENTITY
+	)
 
-    public static String translationKey(String key) {
-        return Configs.translationKey("hotkeys", key);
-    }
+	private fun translationKey(key: String?): String {
+		return Configs.translationKey("hotkeys", key)
+	}
 
-    public static void initCallback(HiiroSakuraClient hs) {
-        OPEN_CONFIG_GUI.getKeybind().setCallback((action, key) -> {
-            GuiBase.openGui(new GuiConfig());
-            return true;
-        });
-        OPEN_QCMS.getKeybind().setCallback((action, key) -> {
-            if (Configs.Toggles.ENABLE_QCMS_GUI.getBooleanValue()) {
-                GuiBase.openGui(new QCMSScreen());
-            } else {
-                hs.showMessage(HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.getAsText());
-            }
-            return true;
-        });
-        SWITCH_CAMERA_ENTITY.getKeybind().setCallback((action, key) -> {
-            SwitchCameraEntity.INSTANCE.switchEntity();
-            return true;
-        });
-    }
+	fun initCallback(hs: HiiroSakuraClient) {
+		OPEN_CONFIG_GUI.keybind.setCallback { _: KeyAction?, _: IKeybind? ->
+			GuiBase.openGui(GuiConfig())
+			true
+		}
+		OPEN_QCMS.keybind.setCallback { _: KeyAction?, _: IKeybind? ->
+			if (Configs.Toggles.ENABLE_QCMS_GUI.booleanValue) {
+				GuiBase.openGui(QCMSScreen())
+			} else {
+				hs.showMessage(HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.asText)
+			}
+			true
+		}
+		SWITCH_CAMERA_ENTITY.keybind.setCallback { _: KeyAction?, _: IKeybind? ->
+			SwitchCameraEntity.switchEntity()
+			true
+		}
+	}
 }

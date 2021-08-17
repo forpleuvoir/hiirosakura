@@ -113,6 +113,6 @@ public class JSHeadFile {
     }
 
     public static String getContent() {
-        return StringUtil.isEmpty(content) ? DEFAULT_SCRIPT : content;
+        return StringUtil.isEmptyString(content) ? DEFAULT_SCRIPT : content;
     }
 }

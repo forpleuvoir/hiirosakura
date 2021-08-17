@@ -45,7 +45,7 @@ public class EventCommand {
                 )
                 .then(literal("gui")
                     .executes(context -> {
-                        HiiroSakuraClient.getInstance().addTask(client -> {
+                        HiiroSakuraClient.INSTANCE.addTask(client -> {
                             GuiBase.openGui(new EventScreen());
                         });
                         return 1;

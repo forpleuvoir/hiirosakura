@@ -40,8 +40,8 @@ public class InitHandler implements IInitializationHandler {
         //初始化输入处理程序
         InputEventHandler.getKeybindManager().registerKeybindProvider(InputHandler.getInstance());
         //按键回调
-        HotKeys.initCallback(HiiroSakuraClient.getInstance());
-        TogglesHotKeys.initCallback(HiiroSakuraClient.getInstance());
+        HotKeys.initCallback(HiiroSakuraClient.INSTANCE);
+        TogglesHotKeys.initCallback(HiiroSakuraClient.INSTANCE);
         TimeTaskHandler.initialize();
         JSHeadFile.initialize();
     }

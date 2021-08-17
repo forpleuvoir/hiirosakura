@@ -26,7 +26,7 @@ import static forpleuvoir.hiirosakura.client.feature.input.AnalogInput.Key.*;
  */
 public class JavaScriptInterface implements IJavaScriptInterface {
     private static final MinecraftClient mc = MinecraftClient.getInstance();
-    private static final HiiroSakuraClient hs = HiiroSakuraClient.getInstance();
+    private static final HiiroSakuraClient hs = HiiroSakuraClient.INSTANCE;
     private static final AnalogInput input = AnalogInput.getInstance();
 
     @Override

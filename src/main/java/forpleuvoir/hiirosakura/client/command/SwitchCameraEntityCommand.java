@@ -21,7 +21,7 @@ import static net.minecraft.command.CommandSource.suggestMatching;
  * <p>#create_time 2021/6/24 20:56
  */
 public class SwitchCameraEntityCommand {
-    private final static HiiroSakuraClient hs = HiiroSakuraClient.getInstance();
+    private final static HiiroSakuraClient hs = HiiroSakuraClient.INSTANCE;
     public static final String TYPE = "sce";
 
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {

@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  * <p>#create_time 2021-07-23 13:25
  */
 public abstract class Event {
-    public final HiiroSakuraClient hs = HiiroSakuraClient.getInstance();
+    public final HiiroSakuraClient hs = HiiroSakuraClient.INSTANCE;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public void broadcastHandle(

@@ -159,7 +159,7 @@ class Configs : IConfigHandler {
 			ENABLE_PLAYER_TICK_EVENT
 		)
 
-		private fun translationKey(key: String?): String {
+		private fun translationKey(key: String): String {
 			return translationKey("toggles", key)
 		}
 	}

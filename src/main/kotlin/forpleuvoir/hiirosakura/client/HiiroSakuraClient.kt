@@ -50,6 +50,7 @@ object HiiroSakuraClient : ClientModInitializer {
 	override fun onInitializeClient() {
 		InitHandler.initialize()
 		//MinecraftClient.tick注册
+
 		ClientTickEvents.END_CLIENT_TICK.register(ClientTickEvents.EndTick { onEndTick() })
 	}
 

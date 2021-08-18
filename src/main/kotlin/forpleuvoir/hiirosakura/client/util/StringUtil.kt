@@ -76,8 +76,8 @@ object StringUtil {
 	fun String?.isEmptyString(): Boolean = this == null || this.isEmpty()
 
 	@JvmStatic
-	fun translatableText(key: String?, vararg params: Any?): TranslatableText {
-		return TranslatableText(String.format("%s.%s", HiiroSakuraClient.MOD_ID, key), *params)
+	fun translatableText(key: String, vararg params: Any?): TranslatableText {
+		return TranslatableText("${HiiroSakuraClient.MOD_ID}.${key}", *params)
 	}
 
 	@JvmStatic

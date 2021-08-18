@@ -67,14 +67,14 @@ class EventEditScreen : GuiBase {
 		}
 		editMode = true
 		parent = parentScreen
-		title = StringUtils.translate(String.format("%s.gui.title.event.edit", HiiroSakuraClient.MOD_ID))
+		title = StringUtils.translate("${HiiroSakuraClient.MOD_ID}.gui.title.event.edit")
 	}
 
 	constructor(parentScreen: Screen?) {
 		editMode = false
 		parent = EventScreen()
 		parent = parentScreen
-		title = StringUtils.translate(String.format("%s.gui.title.event.edit", HiiroSakuraClient.MOD_ID))
+		title = StringUtils.translate("${HiiroSakuraClient.MOD_ID}.gui.title.event.edit")
 	}
 
 	override fun initGui() {
@@ -106,7 +106,7 @@ class EventEditScreen : GuiBase {
 			arg = cyclesTimeText.key
 		}
 		return if (!arg.isEmptyString()) {
-			addGuiMessage(Message.MessageType.WARNING, 2000, nullValeText.key, arg)
+			addGuiMessage(Message.MessageType.WARNING, 2000, nullValeText.key, StringUtils.translate(arg))
 			false
 		} else {
 			true
@@ -144,7 +144,7 @@ class EventEditScreen : GuiBase {
 
 	private fun initEventListDropDown(x: Int, y: Int = 24): Int {
 		var funcY = y
-		this.addLabel(x + 12, funcY, -1, 12, -0x1, "§b" + StringUtils.translate(eventTypeText.key))
+		this.addLabel(x + 12, funcY, -1, 12, -0x1, "§b${StringUtils.translate(eventTypeText.key)}")
 		funcY += 4
 		eventListDropDown = WidgetDropDownList(
 			x, funcY, 128, 15, 200, 10,

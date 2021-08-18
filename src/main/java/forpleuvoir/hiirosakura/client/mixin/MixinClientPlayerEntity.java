@@ -2,6 +2,7 @@ package forpleuvoir.hiirosakura.client.mixin;
 
 import com.mojang.authlib.GameProfile;
 import forpleuvoir.hiirosakura.client.config.Configs;
+import forpleuvoir.hiirosakura.client.feature.chatmessage.ChatMessageInject;
 import forpleuvoir.hiirosakura.client.feature.event.OnDeathEvent;
 import forpleuvoir.hiirosakura.client.feature.event.OnPlayerTickEvent;
 import forpleuvoir.hiirosakura.client.feature.event.base.EventBus;
@@ -17,8 +18,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import static forpleuvoir.hiirosakura.client.feature.chatmessage.ChatMessageInject.INSTANCE;
 
 /**
  * ClientPlayerEntity注入
@@ -45,7 +44,7 @@ public abstract class MixinClientPlayerEntity extends PlayerEntity {
      */
     @ModifyVariable(method = "sendChatMessage", at = @At(value = "HEAD"), argsOnly = true)
     public String sendChatMessage(String message) {
-        return INSTANCE.handlerMessage(message);
+        return ChatMessageInject.handlerMessage(message);
     }
 
 

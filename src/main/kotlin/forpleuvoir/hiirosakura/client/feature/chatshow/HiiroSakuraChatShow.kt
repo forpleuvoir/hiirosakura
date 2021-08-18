@@ -31,6 +31,8 @@ object HiiroSakuraChatShow {
 	private val log = HSLogger.getLogger(HiiroSakuraChatShow::class.java)
 	private val chatShows: MutableMap<String, ChatShow> = ConcurrentHashMap()
 	private val removeList: Queue<String> = ConcurrentLinkedQueue()
+
+	@JvmStatic
 	fun addChatShow(text: Text?) {
 		val chatMessageRegex = HiiroSakuraDatas.SERVER_CHAT_MESSAGE_REGEX.chatMessageRegex(text)
 		val chatShow = getInstance(chatMessageRegex)
@@ -40,6 +42,7 @@ object HiiroSakuraChatShow {
 
 	}
 
+	@JvmStatic
 	fun render(
 		player: AbstractClientPlayerEntity, dispatcher: EntityRenderDispatcher,
 		matrixStack: MatrixStack

@@ -2,7 +2,6 @@ package forpleuvoir.hiirosakura.client.feature.input
 
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.function.Consumer
 
 /**
  * 模拟输入
@@ -19,12 +18,15 @@ import java.util.function.Consumer
  */
 object AnalogInput {
 	private val data: MutableList<Node> = LinkedList()
+
+	@JvmStatic
 	fun tick() {
 		for (node in data) {
 			node.tick()
 		}
 	}
 
+	@JvmStatic
 	fun isPress(key: Key): Boolean {
 		val isPress = AtomicBoolean(false)
 		data.stream().filter { it.key == key }.findFirst()
@@ -32,18 +34,20 @@ object AnalogInput {
 		return isPress.get()
 	}
 
+	@JvmStatic
 	operator fun set(key: Key, value: Int) {
 		data.stream().filter { it.key == key }.findFirst().ifPresent { it.set(value) }
 	}
 
-	fun setOnReleasedCallBack(key: Key, onReleasedCallBack: Consumer<Key>?) {
+	@JvmStatic
+	fun setOnReleasedCallBack(key: Key, onReleasedCallBack: (Key) -> Unit) {
 		data.stream().filter { it.key == key }.findFirst()
 			.ifPresent { it.onReleased = onReleasedCallBack }
 	}
 
 	private class Node private constructor(val key: Key) {
 		var value = 0
-		var onReleased: Consumer<Key>? = null
+		var onReleased: ((Key) -> Unit)? = null
 
 		fun set(value: Int) {
 			if (value > 0) this.value = value
@@ -56,7 +60,7 @@ object AnalogInput {
 			if (value > 0) {
 				value--
 				if (value == 0) {
-					if (onReleased != null) onReleased!!.accept(key)
+					onReleased?.invoke(key)
 				}
 			}
 		}

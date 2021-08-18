@@ -35,11 +35,12 @@ object SwitchCameraEntity {
 			}
 		}
 	}
-
+	@JvmStatic
 	val isSwitched: Boolean
 		get() = client.getCameraEntity() === targetEntity
 	private val players: List<AbstractClientPlayerEntity>?
 		get() = if (client.world != null) client.world!!.players else null
+	@JvmStatic
 	val playersSuggest: List<String>
 		get() {
 			val playerNames: MutableList<String> = LinkedList()
@@ -51,11 +52,12 @@ object SwitchCameraEntity {
 			return playerNames
 		}
 
+	@JvmStatic
 	fun switchOtherPlayer(playerName: String) {
 		players!!.stream().filter { player: AbstractClientPlayerEntity -> player.entityName == playerName }
 			.findFirst().ifPresent { entity: AbstractClientPlayerEntity? -> client.setCameraEntity(entity) }
 	}
-
+	@JvmStatic
 	fun switchToTarget(): Boolean {
 		if (targetEntity != null) {
 			if (targetEntity!!.isLiving) {
@@ -71,7 +73,7 @@ object SwitchCameraEntity {
 		}
 		return false
 	}
-
+	@JvmStatic
 	fun switchEntity() {
 		if (client.getCameraEntity() != null) {
 			setTargetEntity()
@@ -82,7 +84,7 @@ object SwitchCameraEntity {
 			}
 		}
 	}
-
+	@JvmStatic
 	fun setTargetEntity(): Boolean {
 		if (client.crosshairTarget == null) return false
 		if (client.crosshairTarget!!.type == HitResult.Type.ENTITY) {

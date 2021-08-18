@@ -22,7 +22,7 @@ class HSLogger(clazz: Class<*>) {
 	val log: Logger
 
 	init {
-		log = LoggerFactory.getLogger("${HiiroSakuraClient.MOD_NAME}[${clazz.simpleName}]")
+		log = LoggerFactory.getLogger("${HiiroSakuraClient.MOD_NAME.replace(" ", "")}[${clazz.simpleName}]")
 	}
 
 	fun info(str: String, vararg params: Any?) {

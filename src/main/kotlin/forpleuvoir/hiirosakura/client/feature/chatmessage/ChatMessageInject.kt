@@ -22,6 +22,7 @@ import java.util.regex.Pattern
  * #create_time 2021/6/24 22:16
  */
 object ChatMessageInject {
+	@JvmStatic
 	fun handlerMessage(message: String): String {
 		var msg = message
 		if (msg.startsWith("/")) return msg

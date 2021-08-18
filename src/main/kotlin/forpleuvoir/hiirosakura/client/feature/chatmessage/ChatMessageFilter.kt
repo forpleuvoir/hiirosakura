@@ -18,6 +18,7 @@ import java.util.regex.Pattern
  * #create_time 2021/7/17 12:13
  */
 object ChatMessageFilter {
+	@JvmStatic
 	fun needToFilter(message: Text): Boolean {
 		var matched = false
 		for (regex in CHAT_MESSAGE_FILTER_REGEX.strings) {

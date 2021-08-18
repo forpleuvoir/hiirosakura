@@ -36,12 +36,12 @@ public abstract class MixinChatHudListener {
         EventBus.broadcast(new OnMessageEvent(text.getString(), type.getId()));
 
         if (Configs.Toggles.CHAT_MESSAGE_FILTER.getBooleanValue()) {
-            if (ChatMessageFilter.INSTANCE.needToFilter(text)) {
+            if (ChatMessageFilter.needToFilter(text)) {
                 ci.cancel();
             }
         }
         if (Configs.Toggles.CHAT_SHOW.getBooleanValue())
-            HiiroSakuraChatShow.INSTANCE.addChatShow(text);
+            HiiroSakuraChatShow.addChatShow(text);
     }
 
 }

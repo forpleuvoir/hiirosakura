@@ -2,14 +2,11 @@ package forpleuvoir.hiirosakura.client.util
 
 import com.mojang.authlib.GameProfile
 import net.minecraft.block.entity.SkullBlockEntity
-import net.minecraft.entity.ItemEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtString
-import net.minecraft.server.world.ServerWorld
-import net.minecraft.util.math.Vec3d
 
 /**
  * @author forpleuvoir
@@ -31,10 +28,10 @@ object PlayerHeadUtil {
 	 * @return [ItemStack] [Items.PLAYER_HEAD]
 	 */
 	@JvmStatic
-	fun getPlayerHead(playerName: String?): ItemStack {
+	fun getPlayerHead(playerName: String): ItemStack {
 		val stack = ItemStack(Items.PLAYER_HEAD)
 		val tag = NbtCompound()
-		tag.put("SkullOwner", NbtString.of(playerName))
+		tag.put(OWNER, NbtString.of(playerName))
 		stack.nbt = tag
 		return stack
 	}
@@ -49,20 +46,13 @@ object PlayerHeadUtil {
 
 	fun getPlayerName(stack: ItemStack): String {
 		if (stack.hasNbt()) {
-			assert(stack.nbt != null)
-			if (stack.nbt!!.contains("SkullOwner", 8)) {
-				return stack.nbt!!.getString("SkullOwner")
+			stack.nbt?.let {
+				if (it.contains(OWNER, 8)) {
+					return it.getString(OWNER)
+				}
 			}
 		}
 		return ""
-	}
-
-	fun getItemEntity(world: ServerWorld?, player: PlayerEntity): ItemEntity {
-		return ItemEntity(world, player.x, player.y, player.z, getPlayerHead(player.entityName))
-	}
-
-	fun getItemEntity(world: ServerWorld?, pos: Vec3d, name: String?): ItemEntity {
-		return ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), getPlayerHead(name))
 	}
 
 	fun getSkullOwner(stack: ItemStack): String {
@@ -78,9 +68,7 @@ object PlayerHeadUtil {
 						string = compoundTag2.getString("Name")
 					}
 				}
-				if (string != null) {
-					return string
-				}
+				string?.let { return it }
 			} else {
 				return compoundTag.getString(OWNER)
 			}

@@ -2,9 +2,9 @@ package forpleuvoir.hiirosakura.client.feature.task.executor.base
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.feature.input.AnalogInput
-import forpleuvoir.hiirosakura.client.feature.task.TimeTask
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask.Companion.once
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler
+import forpleuvoir.hiirosakura.client.feature.task.executor.SimpleExecutor
 import forpleuvoir.hiirosakura.client.mixin.MixinMinecraftClientInterface
 import forpleuvoir.hiirosakura.client.util.ServerInfoUtil
 import net.minecraft.client.MinecraftClient
@@ -85,11 +85,9 @@ class JavaScriptInterface : IJavaScriptInterface {
 			mc.setScreen(multiplayerScreen)
 			TimeTaskHandler.INSTANCE!!.addTask(
 				once(
-					object : IExecutor {
-						override fun execute(task: TimeTask) {
-							mc.disconnect()
-							ConnectScreen.connect(multiplayerScreen, mc, ServerAddress.parse(address), null)
-						}
+					SimpleExecutor {
+						mc.disconnect()
+						ConnectScreen.connect(multiplayerScreen, mc, ServerAddress.parse(address), null)
 					},
 					15,
 					"#joinServer"

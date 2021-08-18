@@ -8,6 +8,7 @@ import forpleuvoir.hiirosakura.client.feature.event.OnDisconnectEvent;
 import forpleuvoir.hiirosakura.client.feature.event.base.EventBus;
 import forpleuvoir.hiirosakura.client.feature.input.AnalogInput;
 import forpleuvoir.hiirosakura.client.util.ServerInfoUtil;
+import kotlin.Unit;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.GameOptions;
@@ -38,75 +39,89 @@ import static forpleuvoir.hiirosakura.client.feature.input.AnalogInput.Key.*;
 @Mixin(MinecraftClient.class)
 public abstract class MixinMinecraftClient {
 
-    private static final AnalogInput analogInput = AnalogInput.INSTANCE;
+	@Shadow
+	@Final
+	private TutorialManager tutorialManager;
 
-    @Shadow
-    @Final
-    private TutorialManager tutorialManager;
-
-    @Shadow
-    @Nullable
-    public Screen currentScreen;
+	@Shadow
+	@Nullable
+	public Screen currentScreen;
 
 
-    @Shadow
-    @Final
-    public GameOptions options;
+	@Shadow
+	@Final
+	public GameOptions options;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
-    public void init(CallbackInfo ci) {
-        //关闭游戏自带教程
-        tutorialManager.setStep(TutorialStep.NONE);
-        analogInput.setOnReleasedCallBack(ATTACK, key ->
-                KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(this.options.keyAttack.getBoundKeyTranslationKey()), false));
-        analogInput.setOnReleasedCallBack(USE, key ->
-                KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(this.options.keyUse.getBoundKeyTranslationKey()), false));
-        analogInput.setOnReleasedCallBack(PICK_ITEM, key ->
-                KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(this.options.keyPickItem.getBoundKeyTranslationKey()), false));
-    }
+	@Inject(method = "<init>", at = @At("RETURN"))
+	public void init(CallbackInfo ci) {
+		//关闭游戏自带教程
+		tutorialManager.setStep(TutorialStep.NONE);
+		AnalogInput.setOnReleasedCallBack(ATTACK, key -> {
+			KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(
+					this.options.keyAttack.getBoundKeyTranslationKey()), false
+			);
+			return Unit.INSTANCE;
+		});
+		AnalogInput.setOnReleasedCallBack(USE, key -> {
+			KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(
+					this.options.keyUse.getBoundKeyTranslationKey()), false);
+			return Unit.INSTANCE;
+		});
+
+		AnalogInput.setOnReleasedCallBack(PICK_ITEM, key -> {
+			KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(
+					this.options.keyPickItem.getBoundKeyTranslationKey()), false);
+			return Unit.INSTANCE;
+		});
+
+	}
 
 
-    @Inject(method = "handleInputEvents", at = @At(value = "HEAD"))
-    public void handleInputEvents(CallbackInfo callbackInfo) {
-        if (this.currentScreen == null) {
-            if (analogInput.isPress(ATTACK))
-                KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(this.options.keyAttack.getBoundKeyTranslationKey()), true);
-            if (analogInput.isPress(USE))
-                KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(this.options.keyUse.getBoundKeyTranslationKey()), true);
-            if (analogInput.isPress(PICK_ITEM))
-                KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(this.options.keyPickItem.getBoundKeyTranslationKey()), true);
-        }
-    }
+	@Inject(method = "handleInputEvents", at = @At(value = "HEAD"))
+	public void handleInputEvents(CallbackInfo callbackInfo) {
+		if (this.currentScreen == null) {
+			if (AnalogInput.isPress(ATTACK))
+				KeyBinding.setKeyPressed(
+						InputUtil.fromTranslationKey(this.options.keyAttack.getBoundKeyTranslationKey()), true);
+			if (AnalogInput.isPress(USE))
+				KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(this.options.keyUse.getBoundKeyTranslationKey()),
+				                         true
+				);
+			if (AnalogInput.isPress(PICK_ITEM))
+				KeyBinding.setKeyPressed(
+						InputUtil.fromTranslationKey(this.options.keyPickItem.getBoundKeyTranslationKey()), true);
+		}
+	}
 
-    @Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
-    public void doAttack(CallbackInfo callbackInfo) {
-        EventBus.broadcast(new DoAttackEvent());
-        if (SwitchCameraEntity.INSTANCE.isSwitched()) {
-            callbackInfo.cancel();
-        }
-    }
+	@Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
+	public void doAttack(CallbackInfo callbackInfo) {
+		EventBus.broadcast(new DoAttackEvent());
+		if (SwitchCameraEntity.isSwitched()) {
+			callbackInfo.cancel();
+		}
+	}
 
-    @Inject(method = "doItemPick", at = @At("HEAD"), cancellable = true)
-    public void doItemPick(CallbackInfo callbackInfo) {
-        EventBus.broadcast(new DoItemPickEvent());
-        if (SwitchCameraEntity.INSTANCE.isSwitched()) {
-            callbackInfo.cancel();
-        }
-    }
+	@Inject(method = "doItemPick", at = @At("HEAD"), cancellable = true)
+	public void doItemPick(CallbackInfo callbackInfo) {
+		EventBus.broadcast(new DoItemPickEvent());
+		if (SwitchCameraEntity.isSwitched()) {
+			callbackInfo.cancel();
+		}
+	}
 
-    @Inject(method = "doItemUse", at = @At("HEAD"), cancellable = true)
-    public void doItemUse(CallbackInfo callbackInfo) {
-        EventBus.broadcast(new DoItemUseEvent());
-        if (SwitchCameraEntity.INSTANCE.isSwitched()) {
-            callbackInfo.cancel();
-        }
-    }
+	@Inject(method = "doItemUse", at = @At("HEAD"), cancellable = true)
+	public void doItemUse(CallbackInfo callbackInfo) {
+		EventBus.broadcast(new DoItemUseEvent());
+		if (SwitchCameraEntity.isSwitched()) {
+			callbackInfo.cancel();
+		}
+	}
 
-    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"), cancellable = true)
-    public void disconnect(Screen screen, CallbackInfo callbackInfo) {
-        EventBus.broadcast(new OnDisconnectEvent(ServerInfoUtil.getName(), ServerInfoUtil.getAddress()));
-        ServerInfoUtil.clear();
-    }
+	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"), cancellable = true)
+	public void disconnect(Screen screen, CallbackInfo callbackInfo) {
+		EventBus.broadcast(new OnDisconnectEvent(ServerInfoUtil.getName(), ServerInfoUtil.getAddress()));
+		ServerInfoUtil.clear();
+	}
 
 
 }

@@ -21,35 +21,34 @@ import static forpleuvoir.hiirosakura.client.feature.input.AnalogInput.Key.*;
  */
 @Mixin(KeyboardInput.class)
 public abstract class MixinKeyboardInput {
-    private static final AnalogInput analogInput = AnalogInput.INSTANCE;
 
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 0))
     public boolean analogForward(KeyBinding keyBinding) {
-        return analogInput.isPress(FORWARD) ? analogInput.isPress(FORWARD) : keyBinding.isPressed();
+        return AnalogInput.isPress(FORWARD) ? AnalogInput.isPress(FORWARD) : keyBinding.isPressed();
     }
 
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 1))
     public boolean analogBack(KeyBinding keyBinding) {
-        return analogInput.isPress(BACK) ? analogInput.isPress(BACK) : keyBinding.isPressed();
+        return AnalogInput.isPress(BACK) ? AnalogInput.isPress(BACK) : keyBinding.isPressed();
     }
 
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 2))
     public boolean analogLeft(KeyBinding keyBinding) {
-        return analogInput.isPress(LEFT) ? analogInput.isPress(LEFT) : keyBinding.isPressed();
+        return AnalogInput.isPress(LEFT) ? AnalogInput.isPress(LEFT) : keyBinding.isPressed();
     }
 
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 3))
     public boolean analogRight(KeyBinding keyBinding) {
-        return analogInput.isPress(RIGHT) ? analogInput.isPress(RIGHT) : keyBinding.isPressed();
+        return AnalogInput.isPress(RIGHT) ? AnalogInput.isPress(RIGHT) : keyBinding.isPressed();
     }
 
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 4))
     public boolean analogJump(KeyBinding keyBinding) {
-        return analogInput.isPress(JUMP) ? analogInput.isPress(JUMP) : keyBinding.isPressed();
+        return AnalogInput.isPress(JUMP) ? AnalogInput.isPress(JUMP) : keyBinding.isPressed();
     }
 
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 5))
     public boolean analogSneak(KeyBinding keyBinding) {
-        return analogInput.isPress(SNEAK) ? analogInput.isPress(SNEAK) : keyBinding.isPressed();
+        return AnalogInput.isPress(SNEAK) ? AnalogInput.isPress(SNEAK) : keyBinding.isPressed();
     }
 }

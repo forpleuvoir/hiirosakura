@@ -33,6 +33,7 @@ class JavaScriptExecutor(private val script: String, private val event: Event?) 
 			engine.put("\$task", task)
 			engine.put("\$log", log)
 			engine.put("\$hs", javaScriptInterface)
+			engine.put("\$tickCounter",task.hs.tickCounter)
 			event?.let { engine.put("\$event", it) }
 			engine.eval(script)
 		} catch (e: Exception) {

@@ -21,7 +21,7 @@ import static forpleuvoir.hiirosakura.client.feature.input.AnalogInput.Key.*;
  */
 @Mixin(KeyboardInput.class)
 public abstract class MixinKeyboardInput {
-    private static final AnalogInput analogInput = AnalogInput.getInstance();
+    private static final AnalogInput analogInput = AnalogInput.INSTANCE;
 
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 0))
     public boolean analogForward(KeyBinding keyBinding) {

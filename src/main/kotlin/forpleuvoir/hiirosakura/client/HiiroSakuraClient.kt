@@ -39,7 +39,7 @@ object HiiroSakuraClient : ClientModInitializer {
 	//客户端任务队列
 	private val tasks: Queue<(HiiroSakuraClient) -> Unit> = ConcurrentLinkedQueue()
 
-	private val analogInput = AnalogInput.getInstance()
+	private val analogInput = AnalogInput
 
 	var tickCounter: Long = 0
 		private set

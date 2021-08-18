@@ -43,7 +43,7 @@ object TaskCommand {
 					.then(ClientCommandManager.argument("name", StringArgumentType.string())
 						.suggests { _: CommandContext<FabricClientCommandSource>, builder: SuggestionsBuilder ->
 							CommandSource.suggestMatching(
-								TimeTaskHandler.getInstance().keys,
+								TimeTaskHandler.INSTANCE!!.keys,
 								builder
 							)
 						}
@@ -52,7 +52,7 @@ object TaskCommand {
 				)
 				.then(ClientCommandManager.literal("clear")
 					.executes { context: CommandContext<FabricClientCommandSource> ->
-						TimeTaskHandler.getInstance().clear()
+						TimeTaskHandler.INSTANCE!!.clear()
 						context.source
 							.sendFeedback(StringUtil.translatableText("command.task.clear"))
 						1
@@ -80,7 +80,7 @@ object TaskCommand {
 	fun add(context: CommandContext<FabricClientCommandSource>): Int {
 		val nbt = context.getArgument("timeTask", NbtPath::class.java) as NbtPath
 		val timeTask = TimeTaskParser.parse(JsonUtil.parseToJsonObject(nbt.toString()), null)
-		TimeTaskHandler.getInstance().addTask(timeTask)
+		TimeTaskHandler.INSTANCE!!.addTask(timeTask)
 		context.source
 			.sendFeedback(StringUtil.translatableText("command.task.add", "§a${timeTask.name}§r"))
 		return 1
@@ -89,7 +89,7 @@ object TaskCommand {
 	fun remove(context: CommandContext<FabricClientCommandSource>): Int {
 		val name = StringArgumentType.getString(context, "name")
 		context.source.sendFeedback(StringUtil.translatableText("command.task.remove", "§c$name§r"))
-		TimeTaskHandler.getInstance().removeTask(name)
+		TimeTaskHandler.INSTANCE!!.removeTask(name)
 		return 1
 	}
 }

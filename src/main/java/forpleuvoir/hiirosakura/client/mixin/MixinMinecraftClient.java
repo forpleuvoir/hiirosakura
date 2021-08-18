@@ -38,7 +38,7 @@ import static forpleuvoir.hiirosakura.client.feature.input.AnalogInput.Key.*;
 @Mixin(MinecraftClient.class)
 public abstract class MixinMinecraftClient {
 
-    private static final AnalogInput analogInput = AnalogInput.getInstance();
+    private static final AnalogInput analogInput = AnalogInput.INSTANCE;
 
     @Shadow
     @Final

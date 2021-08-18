@@ -38,7 +38,7 @@ object HotKeys {
 	)
 
 	@JvmField
-	val HOTKEY_LIST: List<ConfigHotkey> = ImmutableList.of(
+	val HOTKEY_LIST: ImmutableList<ConfigHotkey> = ImmutableList.of(
 		OPEN_CONFIG_GUI, OPEN_QCMS, SWITCH_CAMERA_ENTITY
 	)
 

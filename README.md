@@ -1,6 +1,6 @@
 # 关于
 
-<img src ="http://hiirosakura.forpleuvoir.com/icon.png?e=1627280071&token=Vp-SO-HDOpiEverdl1CWRPScr7kDaZdAsXobRmg4:4fsGO4OgRKG1p_ik-FeYFcKoBUI=" width="200">
+<img alt src ="http://hiirosakura.forpleuvoir.com/icon.png?e=1627280071&token=Vp-SO-HDOpiEverdl1CWRPScr7kDaZdAsXobRmg4:4fsGO4OgRKG1p_ik-FeYFcKoBUI=" width="200">
 
 配置界面快捷键默认`H+S`
 
@@ -161,7 +161,7 @@ public void getPickBlockStack(CallbackInfoReturnable<ItemStack> returnable){
 
 ## 聊天消息过滤
 
-开启后 会根据设置的正则表达式匹配服务器发来的消息 匹配成功则不显示该条消息
+开启后 会根据设置得正则表达式匹配服务器发来的消息 匹配成功则不显示该条消息
 
 ## 关闭计分板渲染
 

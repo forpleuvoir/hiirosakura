@@ -32,12 +32,12 @@ object InputHandler : IKeybindProvider {
 	override fun addHotkeys(manager: IKeybindManager) {
 		manager.addHotkeysForCategory(
 			HiiroSakuraClient.MOD_NAME,
-			String.format("%s.hotkeys", HiiroSakuraClient.MOD_ID),
+			"${HiiroSakuraClient.MOD_ID}.hotkeys",
 			HotKeys.HOTKEY_LIST
 		)
 		manager.addHotkeysForCategory(
 			HiiroSakuraClient.MOD_NAME,
-			String.format("%s.hotkeys.toggles", HiiroSakuraClient.MOD_ID),
+			"${HiiroSakuraClient.MOD_ID}.hotkeys.toggles",
 			TogglesHotKeys.HOTKEY_LIST
 		)
 	}

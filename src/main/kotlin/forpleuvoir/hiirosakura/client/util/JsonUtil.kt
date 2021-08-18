@@ -3,8 +3,6 @@ package forpleuvoir.hiirosakura.client.util
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
-import java.lang.StringBuffer
-import forpleuvoir.hiirosakura.client.util.JsonUtil
 import com.google.gson.JsonParser
 
 /**

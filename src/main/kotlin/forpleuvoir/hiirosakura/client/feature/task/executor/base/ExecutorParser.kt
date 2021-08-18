@@ -1,7 +1,6 @@
 package forpleuvoir.hiirosakura.client.feature.task.executor.base
 
 import forpleuvoir.hiirosakura.client.feature.event.base.Event
-import forpleuvoir.hiirosakura.client.feature.task.executor.base.IExecutor
 import forpleuvoir.hiirosakura.client.feature.task.executor.JavaScriptExecutor
 
 /**

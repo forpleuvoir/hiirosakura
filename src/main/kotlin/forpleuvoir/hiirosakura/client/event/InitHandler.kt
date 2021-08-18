@@ -9,7 +9,6 @@ import forpleuvoir.hiirosakura.client.config.Configs
 import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
 import forpleuvoir.hiirosakura.client.config.HotKeys
 import forpleuvoir.hiirosakura.client.config.TogglesHotKeys
-import forpleuvoir.hiirosakura.client.feature.chatshow.HiiroSakuraChatShow
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler
 import forpleuvoir.hiirosakura.client.feature.task.executor.JSHeadFile
 import forpleuvoir.hiirosakura.client.util.HSLogger

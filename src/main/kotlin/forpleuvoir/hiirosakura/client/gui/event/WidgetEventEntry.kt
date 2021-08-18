@@ -48,7 +48,7 @@ class WidgetEventEntry(
 		var posX = x + width - 2
 
 		posX -= addButton(posX, posY, Type.REMOVE)
-		posX -= createButtonOnOff(posX, posY, entry.enabled, Type.ENABLED)
+		posX -= createButtonOnOff(posX, posY, entry.enabled)
 		posX -= this.addButton(posX, posY, Type.EDIT)
 
 		buttonsStartX = posX
@@ -67,7 +67,7 @@ class WidgetEventEntry(
 		xRight: Int,
 		y: Int,
 		isCurrentlyOn: Boolean,
-		type: Type
+		type: Type = Type.ENABLED
 	): Int {
 		val button = ButtonOnOff(
 			xRight, y, -1, true,
@@ -111,7 +111,7 @@ class WidgetEventEntry(
 		}
 	}
 
-	inner class ButtonListener(val type: Type, val widget: WidgetEventEntry) : IButtonActionListener {
+	inner class ButtonListener(val type: Type, private val widget: WidgetEventEntry) : IButtonActionListener {
 		override fun actionPerformedWithButton(button: ButtonBase?, mouseButton: Int) {
 			when (type) {
 				Type.EDIT -> GuiBase.openGui(EventEditScreen(widget.entry, EventScreen()))

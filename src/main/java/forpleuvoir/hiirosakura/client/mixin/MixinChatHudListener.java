@@ -33,7 +33,7 @@ public abstract class MixinChatHudListener {
             cancellable = true
     )
     public void onChatMessage(MessageType type, Text text, UUID senderUuid, CallbackInfo ci) {
-        EventBus.broadcast(new OnMessageEvent(text.getString(), (int) type.getId()));
+        EventBus.broadcast(new OnMessageEvent(text.getString(), type.getId()));
 
         if (Configs.Toggles.CHAT_MESSAGE_FILTER.getBooleanValue()) {
             if (ChatMessageFilter.INSTANCE.needToFilter(text)) {

@@ -9,7 +9,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.COMMAND_PREFIX
 import forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.getTranslatableTextKey
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource
 import net.minecraft.command.argument.ItemStackArgumentType
@@ -82,7 +82,7 @@ object TooltipCommand {
 	@Throws(CommandSyntaxException::class)
 	private fun add(item: ItemStack, tip: String, context: CommandContext<FabricClientCommandSource>) {
 		if (item.item == Items.AIR) throw AIR.create()
-		HiiroSakuraDatas.TOOLTIP.add(item, tip)
+		HiiroSakuraData.TOOLTIP.add(item, tip)
 		val feedback = LiteralText("").append(item.toHoverableText())
 		feedback.append(TranslatableText(getTranslatableTextKey(TYPE, "add")))
 		feedback.append(LiteralText(tip))
@@ -118,7 +118,7 @@ object TooltipCommand {
 	@Throws(CommandSyntaxException::class)
 	private fun remove(item: ItemStack, index: Int, context: CommandContext<FabricClientCommandSource>) {
 		if (item.item == Items.AIR) throw REMOVE_FAILED.create(item.name)
-		val remove = HiiroSakuraDatas.TOOLTIP.remove(item, index)
+		val remove = HiiroSakuraData.TOOLTIP.remove(item, index)
 		if (!StringUtils.isEmpty(remove)) {
 			val feedback = LiteralText("").append(item.toHoverableText())
 			feedback.append(TranslatableText(getTranslatableTextKey(TYPE, "remove")))

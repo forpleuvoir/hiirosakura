@@ -1,6 +1,6 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -30,6 +30,6 @@ public abstract class MixinItem {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context,
                               CallbackInfo callbackInfo
     ) {
-        tooltip.addAll(HiiroSakuraDatas.TOOLTIP.getTooltip(stack));
+        tooltip.addAll(HiiroSakuraData.TOOLTIP.getTooltip(stack));
     }
 }

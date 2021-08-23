@@ -1,6 +1,6 @@
 package forpleuvoir.hiirosakura.client.feature.chatshow
 
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.feature.chatshow.ChatShow.Companion.getInstance
 import forpleuvoir.hiirosakura.client.util.HSLogger
 import net.minecraft.client.network.AbstractClientPlayerEntity
@@ -34,7 +34,7 @@ object HiiroSakuraChatShow {
 
 	@JvmStatic
 	fun addChatShow(text: Text?) {
-		val chatMessageRegex = HiiroSakuraDatas.SERVER_CHAT_MESSAGE_REGEX.chatMessageRegex(text)
+		val chatMessageRegex = HiiroSakuraData.SERVER_CHAT_MESSAGE_REGEX.chatMessageRegex(text)
 		val chatShow = getInstance(chatMessageRegex)
 		if (chatMessageRegex != null && chatShow != null) {
 			chatMessageRegex.playerName?.let { chatShows.put(it, chatShow) }

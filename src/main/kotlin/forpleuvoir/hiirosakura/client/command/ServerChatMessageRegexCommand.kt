@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.COMMAND_PREFIX
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource
 
@@ -38,12 +38,12 @@ object ServerChatMessageRegexCommand {
 
 	private fun set(context: CommandContext<FabricClientCommandSource>): Int {
 		val regex = StringArgumentType.getString(context, "regex")
-		HiiroSakuraDatas.SERVER_CHAT_MESSAGE_REGEX.put(regex)
+		HiiroSakuraData.SERVER_CHAT_MESSAGE_REGEX.put(regex)
 		return 1
 	}
 
 	private fun remove(): Int {
-		HiiroSakuraDatas.SERVER_CHAT_MESSAGE_REGEX.remove()
+		HiiroSakuraData.SERVER_CHAT_MESSAGE_REGEX.remove()
 		return 1
 	}
 }

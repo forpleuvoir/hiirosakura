@@ -10,7 +10,7 @@ import fi.dy.masa.malilib.gui.button.IButtonActionListener
 import fi.dy.masa.malilib.render.RenderUtils
 import fi.dy.masa.malilib.util.StringUtils
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessage
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.util.math.MatrixStack
@@ -160,7 +160,7 @@ class EditScreen : GuiDialogBase {
 	private fun apply(mouseButton: Int) {
 		if (mouseButton == 0) {
 			if (editModel) {
-				HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND
+				HiiroSakuraData.QUICK_CHAT_MESSAGE_SEND
 					.reset(remark!!, remarkTextField!!.text, messageTextField!!.text)
 				if (levelTextField!!.text != null) {
 					var level: Int? = null
@@ -168,14 +168,14 @@ class EditScreen : GuiDialogBase {
 						level = levelTextField!!.text.toInt()
 					} catch (ignored: Exception) {
 					}
-					HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SORT.resetLevel(remark, remarkTextField!!.text, level)
+					HiiroSakuraData.QUICK_CHAT_MESSAGE_SORT.resetLevel(remark, remarkTextField!!.text, level)
 				}
 			} else {
-				HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.add(remarkTextField!!.text, messageTextField!!.text)
+				HiiroSakuraData.QUICK_CHAT_MESSAGE_SEND.add(remarkTextField!!.text, messageTextField!!.text)
 				if (levelTextField!!.text != null) {
 					try {
 						val level = levelTextField!!.text.toInt()
-						HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SORT.setSort(remarkTextField!!.text, level)
+						HiiroSakuraData.QUICK_CHAT_MESSAGE_SORT.setSort(remarkTextField!!.text, level)
 					} catch (ignored: Exception) {
 					}
 				}

@@ -13,6 +13,7 @@ import forpleuvoir.hiirosakura.client.feature.event.base.HiiroSakuraEvents
 import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessageSend
 import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessageSort
 import forpleuvoir.hiirosakura.client.feature.regex.ServerChatMessageRegex
+import forpleuvoir.hiirosakura.client.feature.task.HiiroSakuraTimeTask
 import forpleuvoir.hiirosakura.client.feature.tooltip.Tooltip
 import java.io.File
 
@@ -29,14 +30,14 @@ import java.io.File
  *
  * #create_time 2021/6/16 22:18
  */
-class HiiroSakuraDatas : IConfigHandler {
+class HiiroSakuraData : IConfigHandler {
 	override fun load() {
 		val configFile = File(CONFIG_FILE_PATH, CONFIG_FILE_NAME)
 		if (configFile.isFile && configFile.canRead() && configFile.exists()) {
 			val element = JsonUtils.parseJsonFile(configFile)
 			if (element != null && element.isJsonObject) {
 				val root = element.asJsonObject
-				readData(root, "DATAS", DATAS)
+				readData(root, "DATAS", DATA)
 			}
 		}
 	}
@@ -45,27 +46,41 @@ class HiiroSakuraDatas : IConfigHandler {
 		val dir = CONFIG_FILE_PATH
 		if (dir.exists() && dir.isDirectory || dir.mkdirs()) {
 			val root = JsonObject()
-			writeData(root, "DATAS", DATAS)
+			writeData(root, "DATAS", DATA)
 			JsonUtils.writeJsonToFile(root, File(dir, CONFIG_FILE_NAME))
 		}
 	}
 
 	companion object {
-		val configHandler: IConfigHandler = HiiroSakuraDatas()
+		val configHandler: IConfigHandler = HiiroSakuraData()
 		val CONFIG_FILE_PATH = File(FileUtils.getConfigDirectory(), HiiroSakuraClient.MOD_ID)
 		private const val CONFIG_FILE_NAME = HiiroSakuraClient.MOD_ID + "_data.json"
+
 		@JvmField
 		val QUICK_CHAT_MESSAGE_SEND = QuickChatMessageSend()
+
 		@JvmField
 		val TOOLTIP = Tooltip()
+
 		@JvmField
 		val SERVER_CHAT_MESSAGE_REGEX = ServerChatMessageRegex()
+
 		@JvmField
 		val QUICK_CHAT_MESSAGE_SORT = QuickChatMessageSort()
+
 		@JvmField
 		val HIIRO_SAKURA_EVENTS = HiiroSakuraEvents()
-		val DATAS: List<AbstractHiiroSakuraData> = ImmutableList.of(
-			QUICK_CHAT_MESSAGE_SEND, TOOLTIP, SERVER_CHAT_MESSAGE_REGEX, QUICK_CHAT_MESSAGE_SORT, HIIRO_SAKURA_EVENTS
+
+		@JvmField
+		val HIIRO_SAKURA_TIME_TASK = HiiroSakuraTimeTask()
+
+		val DATA: List<AbstractHiiroSakuraData> = ImmutableList.of(
+			QUICK_CHAT_MESSAGE_SEND,
+			TOOLTIP,
+			SERVER_CHAT_MESSAGE_REGEX,
+			QUICK_CHAT_MESSAGE_SORT,
+			HIIRO_SAKURA_EVENTS,
+			HIIRO_SAKURA_TIME_TASK
 		)
 
 		fun initialize() {

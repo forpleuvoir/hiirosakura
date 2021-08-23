@@ -2,7 +2,7 @@ package forpleuvoir.hiirosakura.client.mixin;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import forpleuvoir.hiirosakura.client.config.Configs;
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData;
 import forpleuvoir.hiirosakura.client.util.ItemStackUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -71,7 +71,7 @@ public abstract class MixinInGameHud {
             mutableTexts.addAll(ItemStackUtil.getEnchantmentsWithLvl(currentStack, Formatting.DARK_AQUA));
         }
         if (Configs.Toggles.SHOW_TOOLTIP_ON_ITEM_TOGGLE.getBooleanValue()) {
-            mutableTexts.addAll(HiiroSakuraDatas.TOOLTIP.getTooltip(currentStack));
+            mutableTexts.addAll(HiiroSakuraData.TOOLTIP.getTooltip(currentStack));
         }
         //这一段我自己都看不明白了 总之这么写就对了
         int count = 0;

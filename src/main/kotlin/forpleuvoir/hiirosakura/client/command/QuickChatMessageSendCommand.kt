@@ -6,7 +6,7 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.COMMAND_PREFIX
 import forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.getTranslatableTextKey
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource
 import net.minecraft.command.CommandSource
@@ -44,7 +44,7 @@ object QuickChatMessageSendCommand {
 					.then(ClientCommandManager.argument("remark", StringArgumentType.string())
 						.suggests { _: CommandContext<FabricClientCommandSource>, b: SuggestionsBuilder ->
 							CommandSource.suggestMatching(
-								HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND
+								HiiroSakuraData.QUICK_CHAT_MESSAGE_SEND
 									.keySet, b
 							)
 						}
@@ -55,7 +55,7 @@ object QuickChatMessageSendCommand {
 					.then(ClientCommandManager.argument("remark", StringArgumentType.string())
 						.suggests { _: CommandContext<FabricClientCommandSource>, b: SuggestionsBuilder? ->
 							CommandSource.suggestMatching(
-								HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND
+								HiiroSakuraData.QUICK_CHAT_MESSAGE_SEND
 									.keySet, b
 							)
 						}
@@ -68,7 +68,7 @@ object QuickChatMessageSendCommand {
 					.then(ClientCommandManager.argument("remark", StringArgumentType.string())
 						.suggests { _: CommandContext<FabricClientCommandSource>, b: SuggestionsBuilder? ->
 							CommandSource.suggestMatching(
-								HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND
+								HiiroSakuraData.QUICK_CHAT_MESSAGE_SEND
 									.keySet, b
 							)
 						}
@@ -83,7 +83,7 @@ object QuickChatMessageSendCommand {
 	private fun add(context: CommandContext<FabricClientCommandSource>): Int {
 		val remark = StringArgumentType.getString(context, "remark")
 		val messageStr = StringArgumentType.getString(context, "messageStr")
-		if (!HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.add(remark, messageStr)) {
+		if (!HiiroSakuraData.QUICK_CHAT_MESSAGE_SEND.add(remark, messageStr)) {
 			context.source.sendFeedback(TranslatableText(getTranslatableTextKey(TYPE, "add.fail"), remark))
 			return 1
 		}
@@ -92,13 +92,13 @@ object QuickChatMessageSendCommand {
 	}
 
 	private fun show(context: CommandContext<FabricClientCommandSource>): Int {
-		context.source.sendFeedback(HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.asText)
+		context.source.sendFeedback(HiiroSakuraData.QUICK_CHAT_MESSAGE_SEND.asText)
 		return 1
 	}
 
 	private fun remove(context: CommandContext<FabricClientCommandSource>): Int {
 		val remark = StringArgumentType.getString(context, "remark")
-		HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.remove(remark)
+		HiiroSakuraData.QUICK_CHAT_MESSAGE_SEND.remove(remark)
 		context.source.sendFeedback(TranslatableText(getTranslatableTextKey(TYPE, "remove")))
 		return 1
 	}
@@ -106,7 +106,7 @@ object QuickChatMessageSendCommand {
 	private fun rename(context: CommandContext<FabricClientCommandSource>): Int {
 		val remark = StringArgumentType.getString(context, "remark")
 		val newRemark = StringArgumentType.getString(context, "newRemark")
-		HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.rename(remark, newRemark)
+		HiiroSakuraData.QUICK_CHAT_MESSAGE_SEND.rename(remark, newRemark)
 		context.source.sendFeedback(TranslatableText(getTranslatableTextKey(TYPE, "rename")))
 		return 1
 	}
@@ -114,7 +114,7 @@ object QuickChatMessageSendCommand {
 	private fun reset(context: CommandContext<FabricClientCommandSource>): Int {
 		val remark = StringArgumentType.getString(context, "remark")
 		val newValue = StringArgumentType.getString(context, "newValue")
-		HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.put(remark, newValue)
+		HiiroSakuraData.QUICK_CHAT_MESSAGE_SEND.put(remark, newValue)
 		context.source.sendFeedback(TranslatableText(getTranslatableTextKey(TYPE, "reset")))
 		return 1
 	}

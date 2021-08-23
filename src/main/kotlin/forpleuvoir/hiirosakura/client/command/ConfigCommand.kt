@@ -5,7 +5,7 @@ import com.mojang.brigadier.context.CommandContext
 import forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.COMMAND_PREFIX
 import forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.getTranslatableTextKey
 import forpleuvoir.hiirosakura.client.config.Configs
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource
 import net.minecraft.text.TranslatableText
@@ -60,13 +60,13 @@ object ConfigCommand {
 	}
 
 	private fun dataSave(context: CommandContext<FabricClientCommandSource>): Int {
-		HiiroSakuraDatas.configHandler.save()
+		HiiroSakuraData.configHandler.save()
 		context.source.sendFeedback(TranslatableText(getTranslatableTextKey(DATA, "save")))
 		return 1
 	}
 
 	private fun dataReload(context: CommandContext<FabricClientCommandSource>): Int {
-		HiiroSakuraDatas.configHandler.load()
+		HiiroSakuraData.configHandler.load()
 		context.source.sendFeedback(TranslatableText(getTranslatableTextKey(DATA, "reload")))
 		return 1
 	}

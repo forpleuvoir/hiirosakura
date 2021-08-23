@@ -1,4 +1,4 @@
-package forpleuvoir.hiirosakura.client.gui.event
+package forpleuvoir.hiirosakura.client.gui
 
 import fi.dy.masa.malilib.gui.GuiTextFieldGeneric
 import fi.dy.masa.malilib.render.RenderUtils

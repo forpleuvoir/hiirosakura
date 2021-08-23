@@ -2,7 +2,7 @@ package forpleuvoir.hiirosakura.client.feature.qcms
 
 import com.google.gson.JsonElement
 import com.google.gson.reflect.TypeToken
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData
 import forpleuvoir.hiirosakura.client.util.HSLogger.Companion.getLogger
 import forpleuvoir.hiirosakura.client.util.JsonUtil
@@ -70,8 +70,8 @@ class QuickChatMessageSend : AbstractHiiroSakuraData("quick_chat_message_send") 
 
 	private val textData: LinkedList<QuickChatMessage>
 		get() {
-			val sortedData = HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SORT.getSortedData()
-			HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SORT.unSortedData.forEach(Consumer {
+			val sortedData = HiiroSakuraData.QUICK_CHAT_MESSAGE_SORT.getSortedData()
+			HiiroSakuraData.QUICK_CHAT_MESSAGE_SORT.unSortedData.forEach(Consumer {
 				sortedData.addLast(it)
 			})
 			return sortedData
@@ -114,9 +114,9 @@ class QuickChatMessageSend : AbstractHiiroSakuraData("quick_chat_message_send") 
 			return text
 		}
 
-	override fun setValueFromJsonElement(element: JsonElement?) {
+	override fun setValueFromJsonElement(element: JsonElement) {
 		try {
-			if (element!!.isJsonObject) {
+			if (element.isJsonObject) {
 				val `object` = element.asJsonObject
 				val data = JsonUtil.gson.fromJson<Map<String, String?>>(
 					`object`,

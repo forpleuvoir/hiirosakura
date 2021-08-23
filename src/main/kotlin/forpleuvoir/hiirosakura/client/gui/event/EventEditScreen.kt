@@ -9,11 +9,12 @@ import fi.dy.masa.malilib.gui.button.IButtonActionListener
 import fi.dy.masa.malilib.gui.widgets.WidgetDropDownList
 import fi.dy.masa.malilib.util.StringUtils
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.feature.event.OnGameJoinEvent
 import forpleuvoir.hiirosakura.client.feature.event.base.EventSubscriberBase
 import forpleuvoir.hiirosakura.client.feature.event.base.HiiroSakuraEvents
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask
+import forpleuvoir.hiirosakura.client.gui.JsTextField
 import forpleuvoir.hiirosakura.client.util.JsonUtil
 import forpleuvoir.hiirosakura.client.util.StringUtil.isEmptyString
 import forpleuvoir.hiirosakura.client.util.StringUtil.translatableText
@@ -129,9 +130,9 @@ class EventEditScreen : GuiBase {
 		timeTask.addProperty("timeTask", JsonUtil.toJsonStr(data))
 		val subscriber = EventSubscriberBase(eventType!!, timeTask)
 		if (editMode) {
-			HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.update(this.subscriber!!, subscriber)
+			HiiroSakuraData.HIIRO_SAKURA_EVENTS.update(this.subscriber!!, subscriber)
 		} else {
-			HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.subscribe(subscriber)
+			HiiroSakuraData.HIIRO_SAKURA_EVENTS.subscribe(subscriber)
 		}
 		closeGui(true)
 	}

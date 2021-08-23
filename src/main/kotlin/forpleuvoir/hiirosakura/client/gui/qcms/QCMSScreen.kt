@@ -8,7 +8,7 @@ import fi.dy.masa.malilib.gui.button.IButtonActionListener
 import fi.dy.masa.malilib.interfaces.IConfirmationListener
 import fi.dy.masa.malilib.util.StringUtils
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessage
 import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessageSend.Companion.getKeyLength
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask.Companion.once
@@ -49,8 +49,8 @@ class QCMSScreen : GuiBase() {
 
 	override fun initGui() {
 		super.initGui()
-		val data = HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SORT.getSortedData(true)
-		HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SORT.unSortedData.forEach(Consumer { e: QuickChatMessage ->
+		val data = HiiroSakuraData.QUICK_CHAT_MESSAGE_SORT.getSortedData(true)
+		HiiroSakuraData.QUICK_CHAT_MESSAGE_SORT.unSortedData.forEach(Consumer { e: QuickChatMessage ->
 			data.addLast(
 				e
 			)
@@ -158,8 +158,8 @@ class QCMSScreen : GuiBase() {
 			titleKey,
 			object : IConfirmationListener {
 				override fun onActionConfirmed(): Boolean {
-					HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.remove(key)
-					HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SORT.remove(key)
+					HiiroSakuraData.QUICK_CHAT_MESSAGE_SEND.remove(key)
+					HiiroSakuraData.QUICK_CHAT_MESSAGE_SORT.remove(key)
 					return true
 				}
 

@@ -1,7 +1,7 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
 import forpleuvoir.hiirosakura.client.config.Configs;
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas;
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData;
 import forpleuvoir.hiirosakura.client.util.ItemStackUtil;
 import forpleuvoir.hiirosakura.client.util.TextRenderUtil;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -51,7 +51,7 @@ public abstract class MixinItemEntityRenderer extends EntityRenderer<ItemEntity>
 
         //渲染工具提示
         if (SHOW_TOOLTIP_ON_ITEM_ENTITY.getBooleanValue())
-            texts.addAll(HiiroSakuraDatas.TOOLTIP.getTooltip(itemEntity.getStack()));
+            texts.addAll(HiiroSakuraData.TOOLTIP.getTooltip(itemEntity.getStack()));
 
         //渲染名字
         LiteralText text = new LiteralText("");

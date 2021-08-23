@@ -19,7 +19,7 @@ import forpleuvoir.hiirosakura.client.feature.task.executor.base.ExecutorParser
  */
 object TimeTaskParser {
 	@JvmStatic
-	fun parse(obj: JsonObject, event: Event?): TimeTask {
+	fun parse(obj: JsonObject, event: Event? = null): TimeTask {
 		val startTime = if (obj["startTime"] != null) obj["startTime"].asInt else 0
 		val cycles = if (obj["cycles"] != null) obj["cycles"].asInt else 1
 		val cyclesTime = if (obj["cyclesTime"] != null) obj["cyclesTime"].asInt else 0

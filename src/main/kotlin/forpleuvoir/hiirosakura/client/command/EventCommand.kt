@@ -8,7 +8,7 @@ import forpleuvoir.hiirosakura.client.HiiroSakuraClient.addTask
 import forpleuvoir.hiirosakura.client.command.arguments.EventArgumentType.Companion.eventType
 import forpleuvoir.hiirosakura.client.command.arguments.EventArgumentType.Companion.getEventType
 import forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.COMMAND_PREFIX
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.gui.event.EventScreen
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource
@@ -58,7 +58,7 @@ object EventCommand {
 	private fun subscribe(context: CommandContext<FabricClientCommandSource>): Int {
 		val nbt = context.getArgument("timeTask", NbtPath::class.java) as NbtPath
 		val eventType = getEventType(context, "eventType")
-		HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.subscribe(eventType, nbt.toString())
+		HiiroSakuraData.HIIRO_SAKURA_EVENTS.subscribe(eventType, nbt.toString())
 		return 1
 	}
 
@@ -67,7 +67,7 @@ object EventCommand {
 			context, "eventType"
 		)
 		val name = StringArgumentType.getString(context, "name")
-		HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.unsubscribe(eventType, name)
+		HiiroSakuraData.HIIRO_SAKURA_EVENTS.unsubscribe(eventType, name)
 		return 1
 	}
 }

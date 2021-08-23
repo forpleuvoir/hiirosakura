@@ -128,9 +128,9 @@ class HiiroSakuraEvents : AbstractHiiroSakuraData("event") {
 		}
 	}
 
-	override fun setValueFromJsonElement(element: JsonElement?) {
+	override fun setValueFromJsonElement(element: JsonElement) {
 		try {
-			if (element!!.isJsonObject) {
+			if (element.isJsonObject) {
 				val obj = element.asJsonObject
 				val saveData = JsonUtil.gson
 					.fromJson<Map<String, JsonArray>>(

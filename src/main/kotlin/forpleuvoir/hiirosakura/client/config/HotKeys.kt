@@ -55,7 +55,7 @@ object HotKeys {
 			if (Configs.Toggles.ENABLE_QCMS_GUI.booleanValue) {
 				GuiBase.openGui(QCMSScreen())
 			} else {
-				hs.showMessage(HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.asText)
+				hs.showMessage(HiiroSakuraData.QUICK_CHAT_MESSAGE_SEND.asText)
 			}
 			true
 		}

@@ -3,16 +3,13 @@ package forpleuvoir.hiirosakura.client.feature.regex
 import com.google.gson.JsonElement
 import com.google.gson.reflect.TypeToken
 import forpleuvoir.hiirosakura.client.config.Configs
-import forpleuvoir.hiirosakura.client.util.HSLogger.Companion.getLogger
-import forpleuvoir.hiirosakura.client.util.StringUtil.isEmptyString
-import forpleuvoir.hiirosakura.client.feature.regex.ChatMessageRegex.Companion.getInstance
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData
+import forpleuvoir.hiirosakura.client.feature.regex.ChatMessageRegex.Companion.getInstance
+import forpleuvoir.hiirosakura.client.util.HSLogger.Companion.getLogger
 import forpleuvoir.hiirosakura.client.util.JsonUtil
+import forpleuvoir.hiirosakura.client.util.StringUtil.isEmptyString
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
-import java.lang.Exception
-import java.lang.NullPointerException
-import java.util.*
 
 /**
  * 聊天消息正则匹配
@@ -61,12 +58,12 @@ class ServerChatMessageRegex : AbstractHiiroSakuraData("serverChatMessageRegex")
 		return getInstance(text, getRegex())
 	}
 
-	override fun setValueFromJsonElement(element: JsonElement?) {
+	override fun setValueFromJsonElement(element: JsonElement) {
 		try {
-			if (element!!.isJsonObject) {
-				val `object` = element.asJsonObject
+			if (element.isJsonObject) {
+				val obj = element.asJsonObject
 				val data = JsonUtil.gson.fromJson<Map<String?, String>>(
-					`object`,
+					obj,
 					object : TypeToken<Map<String?, String?>?>() {}.type
 				)
 				regex.clear()

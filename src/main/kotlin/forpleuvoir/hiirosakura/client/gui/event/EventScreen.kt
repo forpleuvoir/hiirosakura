@@ -7,7 +7,7 @@ import fi.dy.masa.malilib.gui.button.ButtonGeneric
 import fi.dy.masa.malilib.gui.interfaces.ISelectionListener
 import fi.dy.masa.malilib.gui.widgets.WidgetDropDownList
 import fi.dy.masa.malilib.util.StringUtils
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.feature.event.base.EventSubscriberBase
 import forpleuvoir.hiirosakura.client.feature.event.base.HiiroSakuraEvents
 import forpleuvoir.hiirosakura.client.gui.GuiConfig
@@ -116,8 +116,8 @@ class EventScreen : GuiListBase<EventSubscriberBase, WidgetEventEntry, WidgetLis
 	}
 
 	override fun onSelectionChange(entry: EventSubscriberBase?) {
-		val old = HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.selected
-		HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.selected = if (old === entry) null else entry
+		val old = HiiroSakuraData.HIIRO_SAKURA_EVENTS.selected
+		HiiroSakuraData.HIIRO_SAKURA_EVENTS.selected = if (old === entry) null else entry
 	}
 
 	override fun isPauseScreen(): Boolean {

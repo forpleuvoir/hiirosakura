@@ -6,7 +6,7 @@ import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand
 import forpleuvoir.hiirosakura.client.common.IInitialized
 import forpleuvoir.hiirosakura.client.config.Configs
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.config.HotKeys
 import forpleuvoir.hiirosakura.client.config.TogglesHotKeys
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler
@@ -34,7 +34,7 @@ object InitHandler : IInitialized {
 		log.info("初始化...")
 		//配置初始化
 		ConfigManager.getInstance().registerConfigHandler(HiiroSakuraClient.MOD_ID, Configs.configHandler)
-		HiiroSakuraDatas.initialize()
+		HiiroSakuraData.initialize()
 		//客户端指令注册
 		HiiroSakuraClientCommand.registerClientCommands(ClientCommandManager.DISPATCHER)
 		//初始化输入处理程序

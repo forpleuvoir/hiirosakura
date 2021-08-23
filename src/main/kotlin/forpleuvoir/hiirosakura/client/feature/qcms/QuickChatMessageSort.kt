@@ -2,7 +2,7 @@ package forpleuvoir.hiirosakura.client.feature.qcms
 
 import com.google.gson.JsonElement
 import com.google.gson.reflect.TypeToken
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData
 import forpleuvoir.hiirosakura.client.util.HSLogger.Companion.getLogger
 import forpleuvoir.hiirosakura.client.util.JsonUtil
@@ -61,7 +61,7 @@ class QuickChatMessageSort : AbstractHiiroSakuraData("quick_chat_message_sort") 
 	 */
 	fun getSortedData(isReversed: Boolean = true): LinkedList<QuickChatMessage> {
 		val list = LinkedList<QuickChatMessage>()
-		val data = HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.getData()
+		val data = HiiroSakuraData.QUICK_CHAT_MESSAGE_SEND.getData()
 		if (data.isNotEmpty()) {
 			val values: Collection<Int?> = this.data.values
 			val sorted = values.stream().sorted()
@@ -89,7 +89,7 @@ class QuickChatMessageSort : AbstractHiiroSakuraData("quick_chat_message_sort") 
 	val unSortedData: LinkedList<QuickChatMessage>
 		get() {
 			val list = LinkedList<QuickChatMessage>()
-			val data = HiiroSakuraDatas.QUICK_CHAT_MESSAGE_SEND.getData()
+			val data = HiiroSakuraData.QUICK_CHAT_MESSAGE_SEND.getData()
 			val keySet: Set<String> = this.data.keys
 			val set = data.keys
 			set.stream().filter { !keySet.contains(it) }
@@ -97,12 +97,12 @@ class QuickChatMessageSort : AbstractHiiroSakuraData("quick_chat_message_sort") 
 			return list
 		}
 
-	override fun setValueFromJsonElement(element: JsonElement?) {
+	override fun setValueFromJsonElement(element: JsonElement) {
 		try {
-			if (element!!.isJsonObject) {
-				val `object` = element.asJsonObject
+			if (element.isJsonObject) {
+				val obj = element.asJsonObject
 				val data = JsonUtil.gson.fromJson<Map<String, Int?>>(
-					`object`,
+					obj,
 					object : TypeToken<Map<String?, Int?>?>() {}.type
 				)
 				this.data.clear()

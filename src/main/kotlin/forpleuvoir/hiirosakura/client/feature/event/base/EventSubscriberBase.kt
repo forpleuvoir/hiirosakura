@@ -3,7 +3,7 @@ package forpleuvoir.hiirosakura.client.feature.event.base
 import com.google.common.collect.Lists
 import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskParser.parse
 import forpleuvoir.hiirosakura.client.util.JsonUtil
@@ -78,7 +78,7 @@ class EventSubscriberBase {
 		}
 
 	fun toggleEnable() {
-		HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.toggleEnabled(this)
+		HiiroSakuraData.HIIRO_SAKURA_EVENTS.toggleEnabled(this)
 	}
 
 	fun toJsonObject(): JsonObject {

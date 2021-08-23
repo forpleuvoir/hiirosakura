@@ -1,9 +1,9 @@
 package forpleuvoir.hiirosakura.client.gui.event
 
 import fi.dy.masa.malilib.gui.interfaces.ISelectionListener
-import forpleuvoir.hiirosakura.client.feature.event.base.EventSubscriberBase
 import fi.dy.masa.malilib.gui.widgets.WidgetListBase
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
+import forpleuvoir.hiirosakura.client.feature.event.base.EventSubscriberBase
 
 /**
  * @author forpleuvoir
@@ -21,7 +21,7 @@ class WidgetListEvent(
 	selectionListener: ISelectionListener<EventSubscriberBase?>?
 ) : WidgetListBase<EventSubscriberBase, WidgetEventEntry>(x, y, width, height, selectionListener) {
 	override fun getAllEntries(): Collection<EventSubscriberBase> {
-		return if (eventType == EventScreen.ALL) HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.allEventSubscriberBase else HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.getAllEventSubscriberBase(
+		return if (eventType == EventScreen.ALL) HiiroSakuraData.HIIRO_SAKURA_EVENTS.allEventSubscriberBase else HiiroSakuraData.HIIRO_SAKURA_EVENTS.getAllEventSubscriberBase(
 			eventType
 		)
 	}

@@ -9,7 +9,7 @@ import fi.dy.masa.malilib.gui.button.IButtonActionListener
 import fi.dy.masa.malilib.gui.widgets.WidgetListEntryBase
 import fi.dy.masa.malilib.render.RenderUtils
 import fi.dy.masa.malilib.util.StringUtils
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.feature.event.base.EventSubscriberBase
 import forpleuvoir.hiirosakura.client.util.StringUtil.translatableText
 import net.minecraft.client.util.math.MatrixStack
@@ -85,7 +85,7 @@ class WidgetEventEntry(
 	override fun render(mouseX: Int, mouseY: Int, selected: Boolean, matrixStack: MatrixStack) {
 		RenderUtils.color(1f, 1f, 1f, 1f)
 		RenderSystem.enableDepthTest()
-		val isSelected = HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.isSelected(this.entry)
+		val isSelected = HiiroSakuraData.HIIRO_SAKURA_EVENTS.isSelected(this.entry)
 		if (isSelected || selected || isMouseOver(mouseX, mouseY)) {
 			RenderUtils.drawRect(x, y, width, height, 0x2AFFFFFF)
 		} else if (isOdd) {
@@ -116,7 +116,7 @@ class WidgetEventEntry(
 			when (type) {
 				Type.EDIT -> GuiBase.openGui(EventEditScreen(widget.entry, EventScreen()))
 				Type.REMOVE -> {
-					HiiroSakuraDatas.HIIRO_SAKURA_EVENTS.unsubscribe(widget.entry!!)
+					HiiroSakuraData.HIIRO_SAKURA_EVENTS.unsubscribe(widget.entry!!)
 					widget.parent.refreshEntries()
 				}
 				Type.ENABLED -> {

@@ -88,13 +88,13 @@ class Tooltip : AbstractHiiroSakuraData("tooltip") {
 		return list
 	}
 
-	override fun setValueFromJsonElement(element: JsonElement?) {
+	override fun setValueFromJsonElement(element: JsonElement) {
 		try {
-			if (element!!.isJsonObject) {
-				val `object` = element.asJsonObject
+			if (element.isJsonObject) {
+				val obj = element.asJsonObject
 				val data = JsonUtil.gson
 					.fromJson<Map<String, MutableList<String>>>(
-						`object`,
+						obj,
 						object : TypeToken<Map<String?, List<String?>?>?>() {}.type
 					)
 				this.data.clear()

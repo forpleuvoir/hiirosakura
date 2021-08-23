@@ -4,7 +4,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import fi.dy.masa.malilib.config.IConfigHandler
 import fi.dy.masa.malilib.util.JsonUtils
-import forpleuvoir.hiirosakura.client.config.HiiroSakuraDatas
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 
 /**
  * 数据抽象类
@@ -27,14 +27,14 @@ abstract class AbstractHiiroSakuraData(
 	 */
 	val name: String
 ) {
-	private val configHandler: IConfigHandler = HiiroSakuraDatas.configHandler
+	private val configHandler: IConfigHandler = HiiroSakuraData.configHandler
 
 	/**
 	 * 从JsonElement中获取数据
 	 *
 	 * @param element [JsonElement]
 	 */
-	abstract fun setValueFromJsonElement(element: JsonElement?)
+	abstract fun setValueFromJsonElement(element: JsonElement)
 
 	/**
 	 * 将数据转换为JsonElement类型
@@ -42,27 +42,28 @@ abstract class AbstractHiiroSakuraData(
 	 * @return [JsonElement]
 	 */
 	abstract val asJsonElement: JsonElement?
+
 	fun onValueChanged() {
 		configHandler.onConfigsChanged()
 	}
 
 	companion object {
 		@JvmStatic
-		fun writeData(root: JsonObject, category: String, datas: List<AbstractHiiroSakuraData>) {
+		fun writeData(root: JsonObject, category: String, data: List<AbstractHiiroSakuraData>) {
 			val obj = JsonUtils.getNestedObject(root, category, true)
 			if (obj != null) {
-				for (data in datas) {
-					obj.add(data.name, data.asJsonElement)
+				for (item in data) {
+					obj.add(item.name, item.asJsonElement)
 				}
 			}
 		}
 
 		@JvmStatic
-		fun readData(root: JsonObject, category: String, datas: List<AbstractHiiroSakuraData>) {
+		fun readData(root: JsonObject, category: String, data: List<AbstractHiiroSakuraData>) {
 			val obj = JsonUtils.getNestedObject(root, category, true)
 			if (obj != null) {
-				for (data in datas) {
-					data.setValueFromJsonElement(obj[data.name])
+				for (item in data) {
+					item.setValueFromJsonElement(obj[item.name])
 				}
 			}
 		}

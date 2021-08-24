@@ -1,7 +1,7 @@
 package forpleuvoir.hiirosakura.client.util
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
-import forpleuvoir.hiirosakura.client.gui.event.JsTextField.WrappedString
+import forpleuvoir.hiirosakura.client.gui.JsTextField
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.LiteralText
 import net.minecraft.text.StringVisitable
@@ -104,19 +104,19 @@ object StringUtil {
 	}
 
 	@JvmStatic
-	fun wrapToWidthWithIndication(str: String, wrapWidth: Int): List<WrappedString> {
-		val strings: MutableList<WrappedString> = ArrayList()
+	fun wrapToWidthWithIndication(str: String, wrapWidth: Int): List<JsTextField.WrappedString> {
+		val strings: MutableList<JsTextField.WrappedString> = ArrayList()
 		var temp = StringBuilder()
 		var wrapped = false
 		for (element in str) {
 			if (element == '\n') {
-				strings.add(WrappedString(temp.toString(), wrapped))
+				strings.add(JsTextField.WrappedString(temp.toString(), wrapped))
 				temp = StringBuilder()
 				wrapped = false
 			} else {
 				val var10001 = temp.toString()
 				if (minecraft.textRenderer.getWidth(var10001 + element) >= wrapWidth) {
-					strings.add(WrappedString(temp.toString(), wrapped))
+					strings.add(JsTextField.WrappedString(temp.toString(), wrapped))
 					temp = StringBuilder()
 					wrapped = true
 				}
@@ -125,7 +125,7 @@ object StringUtil {
 				temp.append(element)
 			}
 		}
-		strings.add(WrappedString(temp.toString(), wrapped))
+		strings.add(JsTextField.WrappedString(temp.toString(), wrapped))
 		return strings
 	}
 

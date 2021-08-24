@@ -17,7 +17,7 @@ import forpleuvoir.hiirosakura.client.feature.task.executor.JavaScriptExecutor
  * #create_time 2021-07-23 16:14
  */
 object ExecutorParser {
-	fun parse(script: String, event: Event?): IExecutor {
+	fun parse(script: String, event: Event? = null): IExecutor {
 		return JavaScriptExecutor(script, event)
 	}
 }

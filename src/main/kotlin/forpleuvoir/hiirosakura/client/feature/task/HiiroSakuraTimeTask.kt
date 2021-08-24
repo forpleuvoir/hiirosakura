@@ -1,13 +1,10 @@
 package forpleuvoir.hiirosakura.client.feature.task
 
+import com.google.gson.JsonArray
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.google.gson.reflect.TypeToken
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData
 import forpleuvoir.hiirosakura.client.util.HSLogger
-import forpleuvoir.hiirosakura.client.util.JsonUtil
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 
 
 /**
@@ -27,25 +24,40 @@ import java.util.concurrent.ConcurrentHashMap
 class HiiroSakuraTimeTask : AbstractHiiroSakuraData("timeTask") {
 	private val log = HSLogger.getLogger(javaClass)
 
-	private val data = ConcurrentHashMap<String, TimeTaskBase>()
+	private val data = LinkedList<TimeTaskBase>()
 
 	var selected: TimeTaskBase? = null
 
+	val allTimeTaskBase: Collection<TimeTaskBase>
+		get() {
+			return data
+		}
+
 
 	fun add(timeTaskBase: TimeTaskBase) {
-		data[timeTaskBase.name]
+		data.add(timeTaskBase)
 		this.onValueChanged()
 	}
 
 	fun remove(name: String) {
-		data.remove(name)
+		data.removeIf {
+			it.name == name
+		}
 		this.onValueChanged()
 	}
 
 	fun reset(originName: String, current: TimeTaskBase) {
-		if (data.containsKey(originName)) {
-			data.remove(originName)
+		data.find {
+			it.name == originName
+		}?.let {
+			remove(it.name)
 			add(current)
+		}
+	}
+
+	fun get(name: String): TimeTaskBase? {
+		return data.find {
+			it.name == name
 		}
 	}
 
@@ -57,16 +69,16 @@ class HiiroSakuraTimeTask : AbstractHiiroSakuraData("timeTask") {
 	fun sortList(): List<TimeTaskBase> {
 		val sortList = LinkedList<Int>()
 		val map = HashMap<String, Int>()
-		for (value in data.values) {
+		for (value in data) {
 			sortList.add(value.sort)
 			map[value.name] = value.sort
 		}
 		sortList.sort()
 		val list = LinkedList<TimeTaskBase>()
 		for (item in sortList) {
-			map.forEach { (v, k) ->
-				if (k == item) {
-					list.addLast(data[v])
+			map.forEach { (k, v) ->
+				if (v == item && !list.contains(get(k))) {
+					list.addLast(get(k))
 				}
 			}
 		}
@@ -75,16 +87,11 @@ class HiiroSakuraTimeTask : AbstractHiiroSakuraData("timeTask") {
 
 	override fun setValueFromJsonElement(element: JsonElement) {
 		try {
-			if (element.isJsonObject) {
-				val obj = element.asJsonObject
-				val saveData = JsonUtil.gson.fromJson<Map<String, JsonObject>>(
-					obj,
-					object : TypeToken<Map<String, JsonObject>>() {}.type
-				)
+			if (element.isJsonArray) {
+				val saveData = element.asJsonArray
 				data.clear()
 				for (item in saveData) {
-					val timeTask = TimeTaskParser.parse(item.value["task"].asJsonObject)
-					data[item.key] = TimeTaskBase(timeTask, item.value["sort"].asInt)
+					data.add(TimeTaskBase.fromJson(item.asJsonObject))
 				}
 			} else {
 				log.warn("{}无法从JsonElement{}中读取数据", name, element)
@@ -96,7 +103,13 @@ class HiiroSakuraTimeTask : AbstractHiiroSakuraData("timeTask") {
 	}
 
 	override val asJsonElement: JsonElement
-		get() = JsonUtil.gson.toJsonTree(data)
+		get() {
+			val arr = JsonArray()
+			data.forEach {
+				arr.add(it.toJson())
+			}
+			return arr
+		}
 
 
 }

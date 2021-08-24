@@ -1,0 +1,280 @@
+package forpleuvoir.hiirosakura.client.gui.task
+
+import fi.dy.masa.malilib.gui.*
+import fi.dy.masa.malilib.gui.button.ButtonBase
+import fi.dy.masa.malilib.gui.button.ButtonGeneric
+import fi.dy.masa.malilib.gui.button.IButtonActionListener
+import fi.dy.masa.malilib.util.StringUtils
+import forpleuvoir.hiirosakura.client.HiiroSakuraClient
+import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
+import forpleuvoir.hiirosakura.client.feature.task.TimeTask
+import forpleuvoir.hiirosakura.client.feature.task.TimeTaskBase
+import forpleuvoir.hiirosakura.client.feature.task.TimeTaskData
+import forpleuvoir.hiirosakura.client.feature.task.executor.base.ExecutorParser
+import forpleuvoir.hiirosakura.client.gui.JsTextField
+import forpleuvoir.hiirosakura.client.util.StringUtil
+import forpleuvoir.hiirosakura.client.util.StringUtil.isEmptyString
+import net.minecraft.client.gui.screen.Screen
+
+
+/**
+ * 定时任务编辑页面
+
+ * 项目名 hiirosakura
+
+ * 包名 forpleuvoir.hiirosakura.client.gui.task
+
+ * 文件名 TimeTaskEditScreen
+
+ * 创建时间 2021/8/25 0:19
+
+ * @author forpleuvoir
+
+ */
+class TimeTaskEditScreen(timeTask: TimeTaskBase? = null, parentScreen: Screen? = null) : GuiBase() {
+	private var timeTaskBase: TimeTaskBase? = timeTask
+	private val editMode: Boolean
+	private val nullValeText = StringUtil.translatableText("gui.event.null_value")
+	private val saveButtonText = StringUtil.translatableText("gui.button.apply")
+	private val sortText = StringUtil.translatableText("gui.task.sort")
+	private val nameText = StringUtil.translatableText("gui.event.name")
+	private val startTimeText = StringUtil.translatableText("gui.event.start_time")
+	private val cyclesText = StringUtil.translatableText("gui.event.cycles")
+	private val cyclesTimeText = StringUtil.translatableText("gui.event.cycles_time")
+	private val scriptText = StringUtil.translatableText("gui.event.script")
+	private var sortInput: GuiTextFieldInteger? = null
+	private var nameInput: GuiTextFieldGeneric? = null
+	private var startTimeInput: GuiTextFieldInteger? = null
+	private var cyclesInput: GuiTextFieldInteger? = null
+	private var cyclesTimeInput: GuiTextFieldInteger? = null
+	private var scriptInput: JsTextField? = null
+	private var sort = 0
+	private var startTime = 0
+	private var cycles = 1
+	private var cyclesTime = 0
+	private var name = ""
+	private var script = ""
+
+	init {
+		this.timeTaskBase?.let {
+			val data = it.timeTask.data
+			startTime = data.startTime
+			cycles = data.cycles
+			cyclesTime = data.cyclesTime
+			name = data.name
+			script = it.script
+		}
+		editMode = timeTask != null
+		this.parent = parentScreen
+		title = StringUtils.translate("${HiiroSakuraClient.MOD_ID}.gui.title.task.edit")
+	}
+
+	override fun initGui() {
+		super.initGui()
+		val x = 10
+		initSaveButton(x)
+		initScriptEditor(x)
+		initEditor(x)
+	}
+
+	override fun isPauseScreen(): Boolean {
+		return false
+	}
+
+	override fun onClose() {
+		openGui(parent)
+	}
+
+	private fun checkSave(): Boolean {
+		var arg = ""
+		if (nameInput!!.text.isEmptyString()) {
+			arg = nameText.key
+		} else if (startTimeInput!!.text.isEmptyString()) {
+			arg = startTimeText.key
+		} else if (cyclesInput!!.text.isEmptyString()) {
+			arg = cyclesText.key
+		} else if (cyclesTimeInput!!.text.isEmptyString()) {
+			arg = cyclesTimeText.key
+		}
+		return if (!arg.isEmptyString()) {
+			addGuiMessage(Message.MessageType.WARNING, 2000, nullValeText.key, StringUtils.translate(arg))
+			false
+		} else {
+			true
+		}
+	}
+
+	private fun save() {
+		if (!checkSave()) return
+		val timeTaskData = TimeTaskData(name, startTime, cycles, cyclesTime)
+		val timeTask = TimeTask(ExecutorParser.parse(script), timeTaskData)
+		val timeTaskBase = TimeTaskBase(timeTask, sort)
+		if (editMode) {
+			HiiroSakuraData.HIIRO_SAKURA_TIME_TASK.reset(this.timeTaskBase!!.name, timeTaskBase)
+		} else {
+			HiiroSakuraData.HIIRO_SAKURA_TIME_TASK.add(timeTaskBase)
+		}
+		closeGui(true)
+	}
+
+	private fun initSaveButton(x: Int) {
+		val saveButton = ButtonGeneric(x + 12, height - 24, 128, false, saveButtonText.key)
+		saveButton.setPosition(saveButton.x, height - 22 - saveButton.height)
+		addButton(saveButton) { _: ButtonBase?, _: Int -> save() }
+	}
+
+	private fun initEditor(x: Int, y: Int = 24): Int {
+		var funcX = x
+		var timeTask: TimeTask? = null
+		this.timeTaskBase?.let {
+			timeTask = it.timeTask
+		}
+		funcX += createIntEditorFiled(
+			funcX,
+			y,
+			sortText.key,
+			{
+				sortInput = it
+				sort = sortInput!!.text.toInt()
+			},
+			{
+				sort = it
+			}, timeTaskBase?.sort ?: 0, -99999
+		)
+		funcX += createStringEditorFiled(
+			funcX,
+			y,
+			nameText.key,
+			{
+				nameInput = it
+				name = nameInput!!.text
+			},
+			{ value: String -> name = value },
+			timeTask?.name ?: ""
+		)
+		funcX += createIntEditorFiled(
+			funcX,
+			y,
+			startTimeText.key,
+			{
+				startTimeInput = it
+				startTime = startTimeInput!!.text.toInt()
+			},
+			{ value: Int -> startTime = value },
+			timeTask?.data?.startTime ?: 0,
+			0,
+		)
+		funcX += createIntEditorFiled(
+			funcX,
+			y,
+			cyclesText.key,
+			{
+				cyclesInput = it
+				cycles = cyclesInput!!.text.toInt()
+			},
+			{ value: Int -> cycles = value },
+			timeTask?.data?.cycles ?: 1,
+			1,
+		)
+		funcX += createIntEditorFiled(
+			funcX,
+			y,
+			cyclesTimeText.key,
+			{
+				cyclesTimeInput = it
+				cyclesTime = cyclesTimeInput!!.text.toInt()
+			},
+			{ value: Int -> cyclesTime = value },
+			timeTask?.data?.cyclesTime ?: 0,
+			0,
+		)
+		return funcX
+	}
+
+	private fun initScriptEditor(x: Int, y: Int = 52) {
+		var funcY = y
+		this.addLabel(x + 12, funcY, -1, 12, -0x1, StringUtils.translate(scriptText.key))
+		funcY += 11
+		scriptInput = JsTextField(textRenderer, x + 12, funcY, 261, height - funcY - 24, 10, true)
+		scriptInput!!.text = script
+		scriptInput!!.setTextChangedListener { text: String -> script = text }
+		addTextField(scriptInput, null)
+	}
+
+	override fun onMouseScrolled(mouseX: Int, mouseY: Int, mouseWheelDelta: Double): Boolean {
+		return if (scriptInput!!.isFocused && scriptInput!!.mouseScrolled(
+				mouseX.toDouble(),
+				mouseY.toDouble(),
+				mouseWheelDelta
+			)
+		) {
+			true
+		} else super.onMouseScrolled(mouseX, mouseY, mouseWheelDelta)
+	}
+
+	private inline fun createStringEditorFiled(
+		x: Int,
+		y: Int,
+		translationKey: String,
+		inputConsumer: (GuiTextFieldGeneric) -> Unit,
+		noinline changedListener: (String) -> Unit,
+		value: String
+	): Int {
+		var funcY = y
+		this.addLabel(x + 12, funcY, -1, 12, -0x1, StringUtils.translate(translationKey))
+		funcY += 11
+		val inputFiled = GuiTextFieldGeneric(x + 12, funcY, 80, 14, textRenderer)
+		inputFiled.text = value
+		addTextField(inputFiled, null)
+		inputFiled.setChangedListener(changedListener)
+		inputConsumer.invoke(inputFiled)
+		return inputFiled.width + 4
+	}
+
+	private inline fun createIntEditorFiled(
+		x: Int,
+		y: Int,
+		translationKey: String,
+		inputConsumer: (GuiTextFieldInteger) -> Unit,
+		noinline changedListener: (Int) -> Unit,
+		value: Int,
+		min: Int,
+		max: Int = Int.MAX_VALUE
+	): Int {
+		var funcY = y
+		this.addLabel(x + 12, funcY, -1, 12, -0x1, StringUtils.translate(translationKey))
+		funcY += 11
+		val inputFiled = GuiTextFieldInteger(x + 12, funcY, 40, 14, textRenderer)
+		inputFiled.text = value.toString()
+		inputFiled.setEditable(false)
+		addTextField(inputFiled, null)
+		val hover = StringUtils.translate("malilib.gui.button.hover.plus_minus_tip")
+		val button = ButtonGeneric(x + 54, funcY - 1, MaLiLibIcons.BTN_PLUSMINUS_16, hover)
+		addButton(button, ButtonListenerIntegerModifier(inputFiled, min, max))
+		inputFiled.setChangedListener { changedListener.invoke(it.toInt()) }
+		inputConsumer.invoke(inputFiled)
+		return button.width + inputFiled.width + 4
+	}
+
+	open class ButtonListenerIntegerModifier(
+		private val consumer: GuiTextFieldInteger,
+		private val minValue: Int,
+		private val maxValue: Int
+	) : IButtonActionListener {
+		private val modifierShift = 10
+		private val modifierAlt = 5
+		override fun actionPerformedWithButton(button: ButtonBase, mouseButton: Int) {
+			var amount = if (mouseButton == 1) -1 else 1
+			if (isShiftDown()) {
+				amount *= modifierShift
+			}
+			if (isAltDown()) {
+				amount *= modifierAlt
+			}
+			var value = consumer.text.toInt() + amount
+			value = value.coerceAtLeast(minValue)
+			value = value.coerceAtMost(maxValue)
+			consumer.text = value.toString()
+		}
+	}
+}

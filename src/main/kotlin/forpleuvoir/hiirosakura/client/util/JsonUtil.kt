@@ -1,9 +1,6 @@
 package forpleuvoir.hiirosakura.client.util
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
+import com.google.gson.*
 
 /**
  * Json工具
@@ -43,4 +40,12 @@ object JsonUtil {
 	fun parseToJsonObject(json: String?): JsonObject {
 		return JsonParser().parse(json).asJsonObject
 	}
+
+	fun parseToJsonArray(json: String): JsonArray {
+		return JsonParser().parse(json).asJsonArray
+	}
+}
+
+fun Any.toJsonObject(): JsonObject {
+	return JsonUtil.gson.toJsonTree(this).asJsonObject
 }

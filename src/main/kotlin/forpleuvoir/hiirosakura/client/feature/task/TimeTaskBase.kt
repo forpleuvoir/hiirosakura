@@ -1,6 +1,7 @@
 package forpleuvoir.hiirosakura.client.feature.task
 
 import com.google.common.collect.Lists
+import com.google.gson.JsonObject
 import forpleuvoir.hiirosakura.client.util.StringUtil
 
 
@@ -63,5 +64,16 @@ class TimeTaskBase(var timeTask: TimeTask, var sort: Int) {
 		return result
 	}
 
+	fun toJson(): JsonObject {
+		val json = JsonObject()
+		json.add("timeTask", timeTask.toJsonObject())
+		json.addProperty("sort", this.sort)
+		return json
+	}
 
+	companion object {
+		fun fromJson(json: JsonObject): TimeTaskBase {
+			return TimeTaskBase(TimeTaskParser.parse(json["timeTask"].asJsonObject), json["sort"].asInt)
+		}
+	}
 }

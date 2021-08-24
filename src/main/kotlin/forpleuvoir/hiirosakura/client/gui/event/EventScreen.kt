@@ -11,6 +11,7 @@ import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.feature.event.base.EventSubscriberBase
 import forpleuvoir.hiirosakura.client.feature.event.base.HiiroSakuraEvents
 import forpleuvoir.hiirosakura.client.gui.GuiConfig
+import forpleuvoir.hiirosakura.client.gui.task.TaskScreen
 import net.minecraft.client.util.math.MatrixStack
 
 /**
@@ -104,7 +105,12 @@ class EventScreen : GuiListBase<EventSubscriberBase, WidgetEventEntry, WidgetLis
 		button.setEnabled(GuiConfig.tab != tab)
 		this.addButton(button) { _: ButtonBase, _: Int ->
 			GuiConfig.tab = tab
-			openGui(GuiConfig())
+			if (tab == GuiConfig.ConfigGuiTab.TASK) {
+				openGui(TaskScreen())
+			} else {
+				openGui(GuiConfig())
+			}
+
 		}
 		return button.width + 2
 	}

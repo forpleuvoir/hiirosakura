@@ -14,6 +14,7 @@ import forpleuvoir.hiirosakura.client.config.HotKeys
 import forpleuvoir.hiirosakura.client.config.TogglesHotKeys
 import forpleuvoir.hiirosakura.client.gui.GuiConfig.ConfigGuiTab.*
 import forpleuvoir.hiirosakura.client.gui.event.EventScreen
+import forpleuvoir.hiirosakura.client.gui.task.TaskScreen
 import net.minecraft.client.gui.screen.Screen
 import java.util.*
 
@@ -36,6 +37,9 @@ class GuiConfig() : GuiConfigsBase(10, 50, HiiroSakuraClient.MOD_ID, null, "hiir
 	override fun initGui() {
 		if (tab == EVENT) {
 			openGui(EventScreen())
+			return
+		} else if (tab == TASK) {
+			openGui(TaskScreen())
 			return
 		}
 		super.initGui()
@@ -60,9 +64,9 @@ class GuiConfig() : GuiConfigsBase(10, 50, HiiroSakuraClient.MOD_ID, null, "hiir
 	override fun getConfigWidth(): Int {
 		return when (tab) {
 			TOGGLES -> 80
-			VALUES -> 120
-			HOTKEYS, TOGGLES_HOTKEYS -> 200
-			EVENT -> super.getConfigWidth()
+			VALUES -> 80
+			HOTKEYS, TOGGLES_HOTKEYS -> 80
+			EVENT, TASK -> super.getConfigWidth()
 		}
 	}
 
@@ -72,7 +76,7 @@ class GuiConfig() : GuiConfigsBase(10, 50, HiiroSakuraClient.MOD_ID, null, "hiir
 			TOGGLES_HOTKEYS -> TogglesHotKeys.HOTKEY_LIST
 			VALUES -> Configs.Values.OPTIONS
 			HOTKEYS -> HotKeys.HOTKEY_LIST
-			EVENT -> ImmutableList.of()
+			EVENT, TASK -> ImmutableList.of()
 		}
 		return ConfigOptionWrapper.createFor(configs)
 	}
@@ -80,21 +84,29 @@ class GuiConfig() : GuiConfigsBase(10, 50, HiiroSakuraClient.MOD_ID, null, "hiir
 	private inner class ButtonListener(val tab: ConfigGuiTab, var parent: GuiConfig) : IButtonActionListener {
 		override fun actionPerformedWithButton(button: ButtonBase, mouseButton: Int) {
 			GuiConfig.tab = this.tab
-			if (tab == EVENT) {
-				openGui(EventScreen())
-			} else {
-				parent.reCreateListWidget()
-				Objects.requireNonNull<WidgetListConfigOptions>(parent.listWidget).resetScrollbarPosition()
-				parent.initGui()
+			when (tab) {
+				EVENT -> {
+					openGui(EventScreen())
+				}
+				TASK -> {
+					openGui(TaskScreen())
+				}
+				else -> {
+					parent.reCreateListWidget()
+					Objects.requireNonNull<WidgetListConfigOptions>(parent.listWidget).resetScrollbarPosition()
+					parent.initGui()
+				}
 			}
 		}
 	}
 
 	enum class ConfigGuiTab(translationKey: String) {
-		TOGGLES("button.config_gui.toggles"), TOGGLES_HOTKEYS("button.config_gui.toggles.hotkeys"), VALUES("button.config_gui.values"), HOTKEYS(
-			"button.config_gui.hotkeys"
-		),
-		EVENT("button.config_gui.event");
+		TOGGLES("button.config_gui.toggles"),
+		TOGGLES_HOTKEYS("button.config_gui.toggles.hotkeys"),
+		VALUES("button.config_gui.values"),
+		HOTKEYS("button.config_gui.hotkeys"),
+		EVENT("button.config_gui.event"),
+		TASK("button.config_gui.task");
 
 		private val translationKey: String
 		val displayName: String

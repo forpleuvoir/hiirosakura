@@ -63,7 +63,7 @@ abstract class AbstractHiiroSakuraData(
 			val obj = JsonUtils.getNestedObject(root, category, true)
 			if (obj != null) {
 				for (item in data) {
-					item.setValueFromJsonElement(obj[item.name])
+					obj[item.name]?.let { item.setValueFromJsonElement(it) }
 				}
 			}
 		}

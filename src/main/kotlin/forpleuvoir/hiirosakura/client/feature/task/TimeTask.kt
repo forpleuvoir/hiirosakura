@@ -1,5 +1,6 @@
 package forpleuvoir.hiirosakura.client.feature.task
 
+import com.google.gson.JsonObject
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.feature.task.executor.base.IExecutor
 
@@ -38,6 +39,16 @@ class TimeTask(private val executor: IExecutor, val data: TimeTaskData) {
 		} else {
 			timeCounter >= data.cyclesTime
 		}
+	}
+
+	fun toJsonObject(): JsonObject {
+		val json = JsonObject()
+		json.addProperty("name", name)
+		json.addProperty("startTime", data.startTime)
+		json.addProperty("cycles", data.cycles)
+		json.addProperty("cyclesTime", data.cyclesTime)
+		json.addProperty("script", executorAsString)
+		return json
 	}
 
 	val isOver: Boolean

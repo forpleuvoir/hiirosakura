@@ -19,7 +19,13 @@ import forpleuvoir.hiirosakura.client.util.StringUtil
  * @author forpleuvoir
 
  */
-class TimeTaskBase(var timeTask: TimeTask, var sort: Int) {
+class TimeTaskBase(
+	timeTask: TimeTask, var sort: Int
+) {
+	val timeTask: TimeTask = timeTask
+		get() {
+			return TimeTask.copy(field)
+		}
 	var name: String = timeTask.name
 	val script: String
 		get() {

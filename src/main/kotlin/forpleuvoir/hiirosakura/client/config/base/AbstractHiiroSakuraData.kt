@@ -3,7 +3,6 @@ package forpleuvoir.hiirosakura.client.config.base
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import fi.dy.masa.malilib.config.IConfigHandler
-import fi.dy.masa.malilib.util.JsonUtils
 import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 
 /**
@@ -49,22 +48,16 @@ abstract class AbstractHiiroSakuraData(
 
 	companion object {
 		@JvmStatic
-		fun writeData(root: JsonObject, category: String, data: List<AbstractHiiroSakuraData>) {
-			val obj = JsonUtils.getNestedObject(root, category, true)
-			if (obj != null) {
-				for (item in data) {
-					obj.add(item.name, item.asJsonElement)
-				}
+		fun writeData(root: JsonObject, data: List<AbstractHiiroSakuraData>) {
+			for (item in data) {
+				root.add(item.name, item.asJsonElement)
 			}
 		}
 
 		@JvmStatic
-		fun readData(root: JsonObject, category: String, data: List<AbstractHiiroSakuraData>) {
-			val obj = JsonUtils.getNestedObject(root, category, true)
-			if (obj != null) {
-				for (item in data) {
-					obj[item.name]?.let { item.setValueFromJsonElement(it) }
-				}
+		fun readData(root: JsonObject, data: List<AbstractHiiroSakuraData>) {
+			for (item in data) {
+				root[item.name]?.let { item.setValueFromJsonElement(it) }
 			}
 		}
 	}

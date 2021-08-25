@@ -4,6 +4,7 @@
   "hiirosakura.gui.title.configs": "Hiiro Sakura Settings",
   "hiirosakura.gui.title.event": "Hiiro Sakura Events",
   "hiirosakura.gui.title.event.edit": "Event Edit",
+  "hiirosakura.gui.title.qtte": "Hiiro Sakura QTTE",
   "hiirosakura.gui.title.task": "Hiiro Sakura Time Task",
   "hiirosakura.gui.title.task.edit": "Time Task Edit ",
   "hiirosakura.gui.button.config_gui.toggles": "Toggles",
@@ -40,6 +41,8 @@
   "hiirosakura.config.hotkeys.openConfig.comment": "Open config gui",
   "hiirosakura.config.hotkeys.openQcms": "openQcms",
   "hiirosakura.config.hotkeys.openQcms.comment": "Open Qcms",
+  "hiirosakura.config.hotkeys.openQtte": "openQtte",
+  "hiirosakura.config.hotkeys.openQtte.comment": "Open Qtte",
   "hiirosakura.config.hotkeys.switchCameraEntity": "switchCameraEntity",
   "hiirosakura.config.hotkeys.switchCameraEntity.comment": "Switch Camera Entity",
   "#config#toggles": "toggles",
@@ -170,5 +173,6 @@
   "hiirosakura.command.task.reload": "§aTask head file was reload",
   "hiirosakura.command.task.reload.fail": "§cTask head file load fail",
   "#feature": "feature",
-  "hiirosakura.feature.qcms.data.empty": "Have not qcms data"
+  "hiirosakura.feature.qcms.data.empty": "Have not qcms data",
+  "hiirosakura.feature.qtte.data.empty": "Have not qtte data"
 }

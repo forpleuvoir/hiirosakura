@@ -63,5 +63,9 @@ class TimeTask(private val executor: IExecutor, val data: TimeTaskData) {
 		fun once(executor: IExecutor, startTime: Int = 0, name: String): TimeTask {
 			return TimeTask(executor, TimeTaskData(name, startTime, 1, 0))
 		}
+		@JvmStatic
+		fun copy(timeTask: TimeTask): TimeTask {
+			return TimeTask(timeTask.executor, timeTask.data)
+		}
 	}
 }

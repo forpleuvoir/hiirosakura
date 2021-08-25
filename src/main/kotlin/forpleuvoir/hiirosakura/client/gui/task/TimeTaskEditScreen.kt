@@ -72,8 +72,8 @@ class TimeTaskEditScreen(timeTask: TimeTaskBase? = null, parentScreen: Screen? =
 	override fun initGui() {
 		super.initGui()
 		val x = 10
-		initSaveButton(x)
 		initScriptEditor(x)
+		initSaveButton(x + scriptInput!!.width+20)
 		initEditor(x)
 	}
 

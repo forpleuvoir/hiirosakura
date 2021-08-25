@@ -64,8 +64,8 @@ class GuiConfig() : GuiConfigsBase(10, 50, HiiroSakuraClient.MOD_ID, null, "hiir
 	override fun getConfigWidth(): Int {
 		return when (tab) {
 			TOGGLES -> 80
-			VALUES -> 80
-			HOTKEYS, TOGGLES_HOTKEYS -> 80
+			VALUES -> 120
+			HOTKEYS, TOGGLES_HOTKEYS -> 200
 			EVENT, TASK -> super.getConfigWidth()
 		}
 	}

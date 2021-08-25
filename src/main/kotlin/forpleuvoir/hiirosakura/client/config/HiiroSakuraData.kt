@@ -37,7 +37,7 @@ class HiiroSakuraData : IConfigHandler {
 			val element = JsonUtils.parseJsonFile(configFile)
 			if (element != null && element.isJsonObject) {
 				val root = element.asJsonObject
-				readData(root, "DATAS", DATA)
+				readData(root, DATA)
 			}
 		}
 	}
@@ -46,7 +46,7 @@ class HiiroSakuraData : IConfigHandler {
 		val dir = CONFIG_FILE_PATH
 		if (dir.exists() && dir.isDirectory || dir.mkdirs()) {
 			val root = JsonObject()
-			writeData(root, "DATAS", DATA)
+			writeData(root, DATA)
 			JsonUtils.writeJsonToFile(root, File(dir, CONFIG_FILE_NAME))
 		}
 	}

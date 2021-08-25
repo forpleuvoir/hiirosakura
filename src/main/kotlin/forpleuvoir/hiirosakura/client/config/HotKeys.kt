@@ -9,6 +9,7 @@ import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity
 import forpleuvoir.hiirosakura.client.gui.GuiConfig
 import forpleuvoir.hiirosakura.client.gui.qcms.QCMSScreen
+import forpleuvoir.hiirosakura.client.gui.qtte.QTTEScreen
 
 /**
  * 热键配置
@@ -32,6 +33,11 @@ object HotKeys {
 		translationKey("openQcms"), "",
 		translationKey("openQcms.comment")
 	)
+	private val OPEN_QTTE = ConfigHotkey(
+		translationKey("openQtte"), "",
+		translationKey("openQtte.comment")
+	)
+
 	private val SWITCH_CAMERA_ENTITY = ConfigHotkey(
 		translationKey("switchCameraEntity"), "",
 		translationKey("switchCameraEntity.comment")
@@ -39,7 +45,7 @@ object HotKeys {
 
 	@JvmField
 	val HOTKEY_LIST: ImmutableList<ConfigHotkey> = ImmutableList.of(
-		OPEN_CONFIG_GUI, OPEN_QCMS, SWITCH_CAMERA_ENTITY
+		OPEN_CONFIG_GUI, OPEN_QTTE, OPEN_QCMS, SWITCH_CAMERA_ENTITY
 	)
 
 	private fun translationKey(key: String?): String {
@@ -59,9 +65,14 @@ object HotKeys {
 			}
 			true
 		}
+		OPEN_QTTE.keybind.setCallback { _: KeyAction?, _: IKeybind? ->
+			GuiBase.openGui(QTTEScreen())
+			true
+		}
 		SWITCH_CAMERA_ENTITY.keybind.setCallback { _: KeyAction?, _: IKeybind? ->
 			SwitchCameraEntity.switchEntity()
 			true
 		}
+
 	}
 }

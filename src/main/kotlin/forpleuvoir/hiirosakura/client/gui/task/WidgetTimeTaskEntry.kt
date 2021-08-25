@@ -80,7 +80,7 @@ class WidgetTimeTaskEntry(
 		if (isSelected) {
 			RenderUtils.drawOutline(x, y, width, height, 0x7FE0E0E0)
 		}
-		val name = "§6" + this.entry?.sort + "§d >> §b" + this.entry?.name
+		val name = "§6" + this.entry?.sort + "§b >> §r" + this.entry?.name?.replace("&", "§")
 		drawString(x + 4, y + 7, -0x1, name, matrixStack)
 		RenderUtils.color(1f, 1f, 1f, 1f)
 		RenderSystem.disableBlend()

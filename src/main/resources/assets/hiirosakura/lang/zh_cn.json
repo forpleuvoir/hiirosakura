@@ -4,6 +4,7 @@
   "hiirosakura.gui.title.configs": "Hiiro Sakura 设置",
   "hiirosakura.gui.title.event": "Hiiro Sakura 事件",
   "hiirosakura.gui.title.event.edit": "事件编辑",
+  "hiirosakura.gui.title.qtte": "Hiiro Sakura 快捷任务执行",
   "hiirosakura.gui.title.task": "Hiiro Sakura 定时任务",
   "hiirosakura.gui.title.task.edit": "定时任务编辑",
   "hiirosakura.gui.button.config_gui.toggles": "开关",
@@ -40,6 +41,8 @@
   "hiirosakura.config.hotkeys.openConfig.comment": "打开Mod配置界面",
   "hiirosakura.config.hotkeys.openQcms": "显示QCMS",
   "hiirosakura.config.hotkeys.openQcms.comment": "显示QCMS",
+  "hiirosakura.config.hotkeys.openQtte": "显示QTTE",
+  "hiirosakura.config.hotkeys.openQtte.comment": "打开快捷任务执行界面",
   "hiirosakura.config.hotkeys.switchCameraEntity": "切换相机实体",
   "hiirosakura.config.hotkeys.switchCameraEntity.comment": "按下之后会将相机实体切换为目标实体，再次按下切回玩家",
   "#config#toggles": "toggles",
@@ -170,5 +173,6 @@
   "hiirosakura.command.task.reload": "§a任务脚本头文件已重新加载",
   "hiirosakura.command.task.reload.fail": "§c任务脚本头文件加载失败",
   "#feature": "feature",
-  "hiirosakura.feature.qcms.data.empty": "没有qcms数据"
+  "hiirosakura.feature.qcms.data.empty": "没有qcms数据",
+  "hiirosakura.feature.qtte.data.empty": "没有qtte数据"
 }

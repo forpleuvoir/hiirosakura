@@ -14,6 +14,8 @@ import forpleuvoir.hiirosakura.client.feature.event.OnGameJoinEvent
 import forpleuvoir.hiirosakura.client.feature.event.base.EventSubscriberBase
 import forpleuvoir.hiirosakura.client.feature.event.base.HiiroSakuraEvents
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask
+import forpleuvoir.hiirosakura.client.feature.task.TimeTaskBase
+import forpleuvoir.hiirosakura.client.gui.HiiroSakuraWidgetDropDownList
 import forpleuvoir.hiirosakura.client.gui.JsTextField
 import forpleuvoir.hiirosakura.client.util.JsonUtil
 import forpleuvoir.hiirosakura.client.util.StringUtil.isEmptyString
@@ -39,12 +41,14 @@ class EventEditScreen : GuiBase {
 	private val nullValeText = translatableText("gui.event.null_value")
 	private val saveButtonText = translatableText("gui.button.apply")
 	private val eventTypeText = translatableText("gui.event.type")
+	private val taskSelectionText = translatableText("gui.event.task_selection")
 	private val nameText = translatableText("gui.event.name")
 	private val startTimeText = translatableText("gui.event.start_time")
 	private val cyclesText = translatableText("gui.event.cycles")
 	private val cyclesTimeText = translatableText("gui.event.cycles_time")
 	private val scriptText = translatableText("gui.event.script")
 	private var eventListDropDown: WidgetDropDownList<String>? = null
+	private var taskListDropDown: HiiroSakuraWidgetDropDownList<TimeTaskBase>? = null
 	private var nameInput: GuiTextFieldGeneric? = null
 	private var startTimeInput: GuiTextFieldInteger? = null
 	private var cyclesInput: GuiTextFieldInteger? = null
@@ -82,6 +86,7 @@ class EventEditScreen : GuiBase {
 		super.initGui()
 		var x = 10
 		initSaveButton(x)
+		initTaskListDropDown(x, (this.height - 48) / 2)
 		x = initEventListDropDown(x)
 		initScriptEditor(x)
 		initEditor(x)
@@ -148,7 +153,7 @@ class EventEditScreen : GuiBase {
 		this.addLabel(x + 12, funcY, -1, 12, -0x1, "§b${StringUtils.translate(eventTypeText.key)}")
 		funcY += 4
 		eventListDropDown = WidgetDropDownList(
-			x, funcY, 128, 15, 200, 10,
+			x, funcY, 128, 15, (this.height - 48) / 2 - 48, 10,
 			ImmutableList.copyOf(
 				HiiroSakuraEvents.events.keys
 			)
@@ -161,6 +166,47 @@ class EventEditScreen : GuiBase {
 			eventListDropDown!!.setSelectedEntry(HiiroSakuraEvents.getEventType(OnGameJoinEvent::class.java))
 		}
 		return x + eventListDropDown!!.width + 4
+	}
+
+	private fun initTaskListDropDown(x: Int, y: Int = 24): Int {
+		var funcY = y
+		this.addLabel(x + 12, funcY, -1, 12, -0x1, "§6${StringUtils.translate(taskSelectionText.key)}")
+		funcY += 4
+		taskListDropDown = HiiroSakuraWidgetDropDownList(
+			x,
+			funcY,
+			128,
+			15,
+			(this.height - 48) / 2 - 24,
+			20,
+			ImmutableList.copyOf(HiiroSakuraData.HIIRO_SAKURA_TIME_TASK.sortList()),
+			stringRetriever = { "§l§n${it.name.replace("&", "§")}" })
+		taskListDropDown?.let { it ->
+			it.setPosition(x + 12, funcY + it.height / 2)
+			addWidget(it)
+			it.onChangeSelected = { timeTask: TimeTaskBase ->
+				copyOfTimeTaskBase(timeTask)
+			}
+			return x + taskListDropDown!!.width + 4
+		}
+		return x
+	}
+
+	private fun copyOfTimeTaskBase(timeTask: TimeTaskBase) {
+		this.name = timeTask.name
+		this.nameInput?.text = name
+
+		this.startTime = timeTask.timeTask.data.startTime
+		this.startTimeInput?.text = startTime.toString()
+
+		this.cycles = timeTask.timeTask.data.cycles
+		this.cyclesInput?.text = cycles.toString()
+
+		this.cyclesTime = timeTask.timeTask.data.cyclesTime
+		this.cyclesTimeInput?.text = cyclesTime.toString()
+
+		this.script = timeTask.script
+		this.scriptInput?.text = script
 	}
 
 	private fun initEditor(x: Int, y: Int = 24): Int {

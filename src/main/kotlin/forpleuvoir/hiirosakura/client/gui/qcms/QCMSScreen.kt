@@ -10,7 +10,6 @@ import fi.dy.masa.malilib.util.StringUtils
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessage
-import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessageSend.Companion.getKeyLength
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask.Companion.once
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler.Companion.INSTANCE
 import forpleuvoir.hiirosakura.client.feature.task.executor.SimpleExecutor
@@ -39,6 +38,7 @@ import java.util.function.Consumer
  * @author forpleuvoir
 
  */
+@Deprecated("准备删除")
 class QCMSScreen : GuiBase() {
 	private val empty = TranslatableText(String.format("%s.feature.qcms.data.empty", HiiroSakuraClient.MOD_ID))
 	private val buttons: LinkedList<QCMSButton> = LinkedList()
@@ -69,9 +69,10 @@ class QCMSScreen : GuiBase() {
 		val indexX = AtomicInteger(40)
 		val indexY = AtomicInteger(40)
 		data.forEach(Consumer { qcm: QuickChatMessage ->
-			val width = (getKeyLength(qcm.remark) * 12).coerceAtLeast(20)
+			val remark = qcm.remark.replace("&", "§")
+			val width = (this.mc.textRenderer.getWidth(remark) + 12).coerceAtLeast(20)
 			val x = indexX.get()
-			indexX.addAndGet(width)
+			indexX.addAndGet(width + 2)
 			val y = indexY.get()
 			if (this.width - indexX.get() <= 40 || indexX.get() + width > this.width - 20) {
 				indexY.addAndGet(20)
@@ -95,7 +96,7 @@ class QCMSScreen : GuiBase() {
 			}
 			val qcmsButton = QCMSButton(
 				x + padding, y + padding, width, 20,
-				qcm.remark.replace("&", "§"),
+				remark,
 				message, tooltip
 			)
 			addButton(qcmsButton,

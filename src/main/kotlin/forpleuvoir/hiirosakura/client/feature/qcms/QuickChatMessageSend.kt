@@ -24,7 +24,7 @@ import java.util.function.Consumer
  *
  * #create_time 2021/6/16 22:12
  */
-class QuickChatMessageSend : AbstractHiiroSakuraData("quick_chat_message_send") {
+class QuickChatMessageSend : AbstractHiiroSakuraData("quickChatMessageSend") {
 	private val data: MutableMap<String, String?> = HashMap()
 	fun add(remark: String, messageStr: String?): Boolean {
 		return if (data.containsKey(remark)) false else put(remark, messageStr)

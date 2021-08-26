@@ -21,7 +21,7 @@ import java.util.*
  *
  * #create_time 2021/7/16 23:36
  */
-class QuickChatMessageSort : AbstractHiiroSakuraData("quick_chat_message_sort") {
+class QuickChatMessageSort : AbstractHiiroSakuraData("quickChatMessageSort") {
 	private val data: MutableMap<String, Int?> = HashMap()
 	fun setSort(remark: String, level: Int) {
 		data[remark] = level

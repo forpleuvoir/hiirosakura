@@ -12,7 +12,6 @@ import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessage
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask.Companion.once
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler.Companion.INSTANCE
-import forpleuvoir.hiirosakura.client.feature.task.executor.SimpleExecutor
 import forpleuvoir.hiirosakura.client.util.Colors
 import forpleuvoir.hiirosakura.client.util.StringUtil.translatableText
 import net.minecraft.client.util.math.MatrixStack
@@ -106,15 +105,14 @@ class QCMSScreen : GuiBase() {
 	}
 
 	private fun sendChatMessage(message: String) {
+		HiiroSakuraClient.sendMessage(message)
 		INSTANCE!!.addTask(
 			once(
-				SimpleExecutor {
-					it.hs.sendMessage(message)
-					onClose()
-				},
 				5,
 				"#Close_QCMS_Screen"
-			)
+			) {
+				onClose()
+			}
 		)
 	}
 

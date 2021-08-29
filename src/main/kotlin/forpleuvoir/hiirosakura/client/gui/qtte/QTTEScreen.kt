@@ -10,7 +10,6 @@ import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskBase
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler
-import forpleuvoir.hiirosakura.client.feature.task.executor.SimpleExecutor
 import forpleuvoir.hiirosakura.client.gui.task.TimeTaskEditScreen
 import forpleuvoir.hiirosakura.client.util.StringUtil
 import net.minecraft.text.TranslatableText
@@ -51,7 +50,7 @@ class QTTEScreen : GuiBase() {
 			val name = it.name.replace("&", "§")
 			val width = (this.mc.textRenderer.getWidth(name) + 12).coerceAtLeast(20)
 			val x = indexX.get()
-			indexX.addAndGet(width+2)
+			indexX.addAndGet(width + 2)
 			val y = indexY.get()
 			if (this.width - indexX.get() <= 40 || indexX.get() + width > this.width - 20) {
 				indexY.addAndGet(20)
@@ -62,8 +61,8 @@ class QTTEScreen : GuiBase() {
 			this.addButton(button) { _: ButtonBase?, mouseButton: Int ->
 				if (mouseButton == 0) {
 					if (isShiftDown()) {
-						openGui(TimeTaskEditScreen(it,this))
-					}else{
+						openGui(TimeTaskEditScreen(it, this))
+					} else {
 						buttonClick(it)
 					}
 				}
@@ -76,15 +75,14 @@ class QTTEScreen : GuiBase() {
 	}
 
 	private fun buttonClick(timeTaskBase: TimeTaskBase) {
+		TimeTaskHandler.INSTANCE!!.addTask(timeTaskBase.timeTask)
 		TimeTaskHandler.INSTANCE!!.addTask(
 			TimeTask.once(
-				SimpleExecutor {
-					TimeTaskHandler.INSTANCE!!.addTask(timeTaskBase.timeTask)
-					onClose()
-				},
 				5,
 				"#Close_QTTE_Screen"
-			)
+			) {
+				onClose()
+			}
 		)
 	}
 

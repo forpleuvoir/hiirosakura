@@ -2,6 +2,7 @@ package forpleuvoir.hiirosakura.client.feature.task
 
 import com.google.gson.JsonObject
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
+import forpleuvoir.hiirosakura.client.feature.task.executor.SimpleExecutor
 import forpleuvoir.hiirosakura.client.feature.task.executor.base.IExecutor
 
 /**
@@ -63,6 +64,14 @@ class TimeTask(private val executor: IExecutor, val data: TimeTaskData) {
 		fun once(executor: IExecutor, startTime: Int = 0, name: String): TimeTask {
 			return TimeTask(executor, TimeTaskData(name, startTime, 1, 0))
 		}
+
+		@JvmStatic
+		fun once(startTime: Int = 0, name: String,executor: (TimeTask) -> Unit): TimeTask {
+			return once(SimpleExecutor {
+				executor.invoke(it)
+			}, startTime, name)
+		}
+
 		@JvmStatic
 		fun copy(timeTask: TimeTask): TimeTask {
 			return TimeTask(timeTask.executor, timeTask.data)

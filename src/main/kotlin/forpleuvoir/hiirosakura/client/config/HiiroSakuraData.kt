@@ -10,8 +10,6 @@ import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData.Companion.readData
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData.Companion.writeData
 import forpleuvoir.hiirosakura.client.feature.event.base.HiiroSakuraEvents
-import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessageSend
-import forpleuvoir.hiirosakura.client.feature.qcms.QuickChatMessageSort
 import forpleuvoir.hiirosakura.client.feature.regex.ServerChatMessageRegex
 import forpleuvoir.hiirosakura.client.feature.task.HiiroSakuraTimeTask
 import forpleuvoir.hiirosakura.client.feature.tooltip.Tooltip
@@ -56,8 +54,7 @@ class HiiroSakuraData : IConfigHandler {
 		val CONFIG_FILE_PATH = File(FileUtils.getConfigDirectory(), HiiroSakuraClient.MOD_ID)
 		private const val CONFIG_FILE_NAME = HiiroSakuraClient.MOD_ID + "_data.json"
 
-		@JvmField
-		val QUICK_CHAT_MESSAGE_SEND = QuickChatMessageSend()
+
 
 		@JvmField
 		val TOOLTIP = Tooltip()
@@ -66,19 +63,14 @@ class HiiroSakuraData : IConfigHandler {
 		val SERVER_CHAT_MESSAGE_REGEX = ServerChatMessageRegex()
 
 		@JvmField
-		val QUICK_CHAT_MESSAGE_SORT = QuickChatMessageSort()
-
-		@JvmField
 		val HIIRO_SAKURA_EVENTS = HiiroSakuraEvents()
 
 		@JvmField
 		val HIIRO_SAKURA_TIME_TASK = HiiroSakuraTimeTask()
 
 		val DATA: List<AbstractHiiroSakuraData> = ImmutableList.of(
-			QUICK_CHAT_MESSAGE_SEND,
 			TOOLTIP,
 			SERVER_CHAT_MESSAGE_REGEX,
-			QUICK_CHAT_MESSAGE_SORT,
 			HIIRO_SAKURA_EVENTS,
 			HIIRO_SAKURA_TIME_TASK
 		)

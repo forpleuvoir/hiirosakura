@@ -15,7 +15,7 @@ import java.awt.Color
  *
  * #create_time 2021/6/24 20:17
  */
-enum class Colors(val color: Int) {
+enum class Colors(private val color: Int) {
 	FORPLEUVOIR(-0x8100), DHWUIA(-0xe81a1b), YUYUKOSAMA(-0x14a852);
 
 	/**

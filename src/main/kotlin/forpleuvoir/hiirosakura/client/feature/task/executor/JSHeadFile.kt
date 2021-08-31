@@ -38,6 +38,16 @@ object JSHeadFile : IInitialized {
 		        ${'$'}hs.doAttack();
 		    }
 		}
+		function ${'$'}msg(msg){
+			${'$'}sendMessage(msg);
+		}
+		function ${'$'}cmd(cmd){
+			if(cmd.startWith("/")){
+				${'$'}msg(cmd);
+			}else{
+				${'$'}msg("/" + cmd);
+			}
+		}
 		function ${'$'}use(){
 		    if(arguments.length == 1){
 		        ${'$'}hs.use(arguments[0]);
@@ -118,6 +128,9 @@ object JSHeadFile : IInitialized {
 			false
 	}
 
+	fun getDefault():String{
+		return DEFAULT_SCRIPT
+	}
 
 	fun getContent(): String {
 		return if (content.isEmptyString()) DEFAULT_SCRIPT else content!!

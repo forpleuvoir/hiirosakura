@@ -36,7 +36,6 @@ object HiiroSakuraClientCommand {
 	fun registerClientCommands(commandDispatcher: CommandDispatcher<FabricClientCommandSource>) {
 		log.info("{}客户端指令注册...", HiiroSakuraClient.MOD_NAME)
 		GammaCommand.register(commandDispatcher)
-		QuickChatMessageSendCommand.register(commandDispatcher)
 		TooltipCommand.register(commandDispatcher)
 		ConfigCommand.register(commandDispatcher)
 		ServerChatMessageRegexCommand.register(commandDispatcher)

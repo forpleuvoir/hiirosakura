@@ -8,11 +8,9 @@
 
 基于 [Fabric](https://fabricmc.net/ "Fabric") 编写
 
-贴出代码基本都是 [Fabric](https://fabricmc.net/ "Fabric")
+贴出代码基本都是 [Fabric](https://fabricmc.net/ "Fabric")开发环境下的 如果代码不是很长的话 尽量贴一下
 
-开发环境下的 如果代码不是很长的话 尽量贴一下
-
-前置Mod[Malilib](https://github.com/maruohon/malilib "Malilib")
+前置Mod：[Malilib](https://github.com/maruohon/malilib "Malilib"),[fabric-language-kotlin](https://github.com/FabricMC/fabric-language-kotlin "fabric-language-kotlin")
 
 ------------
 
@@ -39,15 +37,6 @@ MinecraftClient.getInstance().options.gamma=value;
 
 `/hs:data save` 保存数据到文件
 `/hs:data reload` 从配置文件中读取数据
-
-## qcms
-
-快捷聊天消息发送
-`/hs:qcms add <remark> <messageStr>` 添加一条消息（备注，消息内容） 参数都是字符串
-`/hs:qcms remove <remark>` 删除一条备注为`<remark>`的消息
-`/hs:qcms rename <remark> <newRemark>` 重命名(备注)一条消息
-`/hs:qcms reset <remark> <newValue>` 重新设置一条消息的内容
-`/hs:qcms show` 显示已添加的快捷消息
 
 ## tooltip
 
@@ -149,15 +138,6 @@ public void getPickBlockStack(CallbackInfoReturnable<ItemStack> returnable){
 ## 自动复活
 
 开启后死亡会跳过死亡画面直接复活
-
-## 快捷聊天消息发送
-
-懒得写介绍了 默认快捷键 添加一条打开试一试 等级`（Integer）`为排序等级
-> 值越小排序越靠前
-> 为空时不参与排序 且会排在已排序的消息之后
-
-![](http://hiirosakura.forpleuvoir.com/%E5%BF%AB%E6%8D%B7%E8%81%8A%E5%A4%A9%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E6%B7%BB%E5%8A%A0.png?e=1627280071&token=Vp-SO-HDOpiEverdl1CWRPScr7kDaZdAsXobRmg4:cVVggdmo3YYG9WvNj9KS_aWV_ns=)
-![](http://hiirosakura.forpleuvoir.com/%E5%BF%AB%E6%8D%B7%E8%81%8A%E5%A4%A9%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81.png?e=1627280071&token=Vp-SO-HDOpiEverdl1CWRPScr7kDaZdAsXobRmg4:1w2-eIkIQPl5bLHUSaS25xiMsEo=)
 
 ## 聊天消息过滤
 

@@ -8,7 +8,6 @@ import fi.dy.masa.malilib.hotkeys.KeyAction
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity
 import forpleuvoir.hiirosakura.client.gui.GuiConfig
-import forpleuvoir.hiirosakura.client.gui.qcms.QCMSScreen
 import forpleuvoir.hiirosakura.client.gui.qtte.QTTEScreen
 
 /**
@@ -29,10 +28,6 @@ object HotKeys {
 		translationKey("openConfig"), "H,S",
 		translationKey("openConfig.comment")
 	)
-	private val OPEN_QCMS = ConfigHotkey(
-		translationKey("openQcms"), "",
-		translationKey("openQcms.comment")
-	)
 	private val OPEN_QTTE = ConfigHotkey(
 		translationKey("openQtte"), "",
 		translationKey("openQtte.comment")
@@ -45,7 +40,7 @@ object HotKeys {
 
 	@JvmField
 	val HOTKEY_LIST: ImmutableList<ConfigHotkey> = ImmutableList.of(
-		OPEN_CONFIG_GUI, OPEN_QTTE, OPEN_QCMS, SWITCH_CAMERA_ENTITY
+		OPEN_CONFIG_GUI, OPEN_QTTE, SWITCH_CAMERA_ENTITY
 	)
 
 	private fun translationKey(key: String?): String {
@@ -57,14 +52,6 @@ object HotKeys {
 			GuiBase.openGui(GuiConfig())
 			true
 		}
-		OPEN_QCMS.keybind.setCallback { _: KeyAction?, _: IKeybind? ->
-			if (Configs.Toggles.ENABLE_QCMS_GUI.booleanValue) {
-				GuiBase.openGui(QCMSScreen())
-			} else {
-				hs.showMessage(HiiroSakuraData.QUICK_CHAT_MESSAGE_SEND.asText)
-			}
-			true
-		}
 		OPEN_QTTE.keybind.setCallback { _: KeyAction?, _: IKeybind? ->
 			GuiBase.openGui(QTTEScreen())
 			true
@@ -73,6 +60,5 @@ object HotKeys {
 			SwitchCameraEntity.switchEntity()
 			true
 		}
-
 	}
 }

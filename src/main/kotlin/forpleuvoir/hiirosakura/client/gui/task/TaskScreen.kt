@@ -63,7 +63,7 @@ class TaskScreen : GuiListBase<TimeTaskBase, WidgetTimeTaskEntry, WidgetListTime
 	}
 
 	private fun addButton(x: Int, y: Int): Int {
-		val button = ButtonGeneric(x, y, -1, false, "hiirosakura.gui.button.add")
+		val button = ButtonGeneric(x, y, -1, false, StringUtils.translate("hiirosakura.gui.button.add"))
 		this.addButton(button) { _: ButtonBase?, _: Int ->
 			openGui(TimeTaskEditScreen(parentScreen = this))
 		}
@@ -86,7 +86,7 @@ class TaskScreen : GuiListBase<TimeTaskBase, WidgetTimeTaskEntry, WidgetListTime
 	}
 
 	override fun createListWidget(listX: Int, listY: Int): WidgetListTimeTask {
-		return WidgetListTimeTask(listX, listY, this.browserWidth, this.browserHeight, this)
+		return WidgetListTimeTask(listX, listY, this.browserWidth, this.browserHeight, this,this)
 	}
 
 	override fun getBrowserWidth(): Int {

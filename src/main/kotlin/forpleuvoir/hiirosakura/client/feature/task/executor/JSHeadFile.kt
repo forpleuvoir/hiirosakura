@@ -42,7 +42,7 @@ object JSHeadFile : IInitialized {
 			${'$'}sendMessage(msg);
 		}
 		function ${'$'}cmd(cmd){
-			if(cmd.startWith("/")){
+			if(cmd.startsWith("/")){
 				${'$'}msg(cmd);
 			}else{
 				${'$'}msg("/" + cmd);
@@ -79,11 +79,17 @@ object JSHeadFile : IInitialized {
 		        ${'$'}hs.joinServer(arguments[0],arguments[1]);
 		    }
 		}
+		function ${'$'}newTimeTask(executor,data){
+			return new ${'$'}TimeTask(data,executor)
+		}
 		function ${'$'}addTask(executor,data){
-		    ${'$'}TimeTaskHandler.addTask(new ${'$'}TimeTask(executor,data));
+		    ${'$'}TimeTaskHandler.addTask(${'$'}newTimeTask(executor,data));
 		}
 		function ${'$'}getTaskData(name,startTime,cycles,cyclesTime){
 		    return new ${'$'}TimeTaskData(name,startTime,cycles,cyclesTime);
+		}
+		function ${'$'}onceTask(executor,name,startTime){
+			${'$'}TimeTaskHandler.addTask(${'$'}newTimeTask(executor,${'$'}getTaskData(name,startTime,1,0)));
 		}
 		
 	""".trimIndent()

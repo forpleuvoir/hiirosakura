@@ -26,10 +26,9 @@ class JavaScriptExecutor(private val script: String, private val event: Event?) 
 	@Transient
 	private val engine = ScriptEngineManager().getEngineByName("nashorn")
 	private val javaScriptInterface: IJavaScriptInterface = JavaScriptInterface()
-	private val include: String = JSHeadFile.getContent()
 	override fun execute(task: TimeTask) {
 		try {
-			engine.eval(include)
+			engine.eval(JSHeadFile.getContent())
 			engine.put("\$task", task)
 			engine.put("\$log", log)
 			engine.put("\$hs", javaScriptInterface)
@@ -50,4 +49,8 @@ class JavaScriptExecutor(private val script: String, private val event: Event?) 
 		private val log = getLogger(JavaScriptExecutor::class.java)
 	}
 
+}
+
+interface JSFunction{
+	fun invoke()
 }

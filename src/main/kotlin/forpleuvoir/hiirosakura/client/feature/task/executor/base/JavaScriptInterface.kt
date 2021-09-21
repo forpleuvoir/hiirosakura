@@ -2,6 +2,7 @@ package forpleuvoir.hiirosakura.client.feature.task.executor.base
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.feature.input.AnalogInput
+import forpleuvoir.hiirosakura.client.feature.input.AnalogInput.Key.*
 import forpleuvoir.hiirosakura.client.feature.task.TimeTask.Companion.once
 import forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler
 import forpleuvoir.hiirosakura.client.feature.task.executor.SimpleExecutor
@@ -28,39 +29,39 @@ import net.minecraft.client.network.ServerAddress
  */
 class JavaScriptInterface : IJavaScriptInterface {
 	override fun forward(tick: Int) {
-		input[AnalogInput.Key.FORWARD] = tick
+		input[FORWARD] = tick
 	}
 
 	override fun back(tick: Int) {
-		input[AnalogInput.Key.BACK] = tick
+		input[BACK] = tick
 	}
 
 	override fun left(tick: Int) {
-		input[AnalogInput.Key.LEFT] = tick
+		input[LEFT] = tick
 	}
 
 	override fun right(tick: Int) {
-		input[AnalogInput.Key.RIGHT] = tick
+		input[RIGHT] = tick
 	}
 
 	override fun jump(tick: Int) {
-		input[AnalogInput.Key.JUMP] = tick
+		input[JUMP] = tick
 	}
 
 	override fun sneak(tick: Int) {
-		input[AnalogInput.Key.SNEAK] = tick
+		input[SNEAK] = tick
 	}
 
 	override fun attack(tick: Int) {
-		input[AnalogInput.Key.ATTACK] = tick
+		input[ATTACK] = tick
 	}
 
 	override fun use(tick: Int) {
-		input[AnalogInput.Key.USE] = tick
+		input[USE] = tick
 	}
 
 	override fun pickItem(tick: Int) {
-		input[AnalogInput.Key.PICK_ITEM] = tick
+		input[PICK_ITEM] = tick
 	}
 
 	override fun doAttack() {

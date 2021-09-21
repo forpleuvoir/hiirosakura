@@ -31,59 +31,72 @@ import java.util.concurrent.atomic.AtomicInteger
 
  */
 class QTTEScreen : GuiBase() {
-	private val empty = TranslatableText(String.format("%s.feature.qtte.data.empty", HiiroSakuraClient.MOD_ID))
+    private val empty = TranslatableText(String.format("%s.feature.qtte.data.empty", HiiroSakuraClient.MOD_ID))
 
-	init {
-		setTitle(StringUtils.translate(StringUtil.translatableText("gui.title.qtte").key))
-	}
+    init {
+        setTitle(StringUtils.translate(StringUtil.translatableText("gui.title.qtte").key))
+    }
 
-	override fun initGui() {
-		super.initGui()
-		val data = HiiroSakuraData.HIIRO_SAKURA_TIME_TASK.sortList()
-		if (data.isEmpty()) {
-			addGuiMessage(Message.MessageType.WARNING, 2000, empty.key)
-			return
-		}
-		val indexX = AtomicInteger(40)
-		val indexY = AtomicInteger(40)
-		data.forEach {
-			val name = it.name.replace("&", "§")
-			val width = (this.mc.textRenderer.getWidth(name) + 12).coerceAtLeast(20)
-			val x = indexX.get()
-			indexX.addAndGet(width + 2)
-			val y = indexY.get()
-			if (this.width - indexX.get() <= 40 || indexX.get() + width > this.width - 20) {
-				indexY.addAndGet(20)
-				indexX.set(40)
-			}
-			val button = ButtonGeneric(x, y, width, 20, name)
-			button.hoverStrings = it.widgetHoverLines
-			this.addButton(button) { _: ButtonBase?, mouseButton: Int ->
-				if (mouseButton == 0) {
-					if (isShiftDown()) {
-						openGui(TimeTaskEditScreen(it, this))
-					} else {
-						buttonClick(it)
-					}
-				}
-			}
-		}
-	}
+    override fun initGui() {
+        super.initGui()
+        val data = HiiroSakuraData.HIIRO_SAKURA_TIME_TASK.sortList()
 
-	override fun isPauseScreen(): Boolean {
-		return false
-	}
+        this.addButton(addedButton(width / 2, height - 40)) { _: ButtonBase?, mouseButton: Int ->
+            if (mouseButton == 0) {
+                openGui(TimeTaskEditScreen(parentScreen = this))
+            }
+        }
 
-	private fun buttonClick(timeTaskBase: TimeTaskBase) {
-		TimeTaskHandler.INSTANCE!!.addTask(timeTaskBase.timeTask)
-		TimeTaskHandler.INSTANCE!!.addTask(
-			TimeTask.once(
-				5,
-				"#Close_QTTE_Screen"
-			) {
-				onClose()
-			}
-		)
-	}
+        if (data.isEmpty()) {
+            addGuiMessage(Message.MessageType.WARNING, 2000, empty.key)
+            return
+        }
+        val indexX = AtomicInteger(40)
+        val indexY = AtomicInteger(40)
+        data.forEach {
+            val name = it.name.replace("&", "§")
+            val width = (this.mc.textRenderer.getWidth(name) + 12).coerceAtLeast(20)
+            val x = indexX.get()
+            indexX.addAndGet(width + 2)
+            val y = indexY.get()
+            if (this.width - indexX.get() <= 40 || indexX.get() + width > this.width - 20) {
+                indexY.addAndGet(20)
+                indexX.set(40)
+            }
+            val button = ButtonGeneric(x, y, width, 20, name)
+            button.hoverStrings = it.widgetHoverLines
+            this.addButton(button) { _: ButtonBase?, mouseButton: Int ->
+                if (mouseButton == 0) {
+                    if (isShiftDown()) {
+                        openGui(TimeTaskEditScreen(it, this))
+                    } else {
+                        buttonClick(it)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun addedButton(x: Int, y: Int, height: Int = 20): ButtonGeneric {
+        val name = StringUtils.translate(StringUtil.translatableText("gui.button.add").key)
+        val width = textRenderer.getWidth(name) + 10
+        return ButtonGeneric(x, y, width, height, name)
+    }
+
+    override fun isPauseScreen(): Boolean {
+        return false
+    }
+
+    private fun buttonClick(timeTaskBase: TimeTaskBase) {
+        TimeTaskHandler.INSTANCE!!.addTask(timeTaskBase.timeTask)
+        TimeTaskHandler.INSTANCE!!.addTask(
+            TimeTask.once(
+                5,
+                "#Close_QTTE_Screen"
+            ) {
+                onClose()
+            }
+        )
+    }
 
 }

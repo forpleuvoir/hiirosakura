@@ -14,6 +14,7 @@
   "hiirosakura.gui.button.config_gui.event": "Event",
   "hiirosakura.gui.button.config_gui.task": "Time Task",
   "hiirosakura.gui.button.add": "Add",
+  "hiirosakura.gui.button.run": "Run",
   "hiirosakura.gui.button.subscribe": "Subscribe Event",
   "hiirosakura.gui.button.apply": "Apply",
   "hiirosakura.gui.button.cancel": "Cancel",

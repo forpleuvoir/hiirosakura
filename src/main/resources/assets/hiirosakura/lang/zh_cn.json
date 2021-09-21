@@ -14,6 +14,7 @@
   "hiirosakura.gui.button.config_gui.event": "事件",
   "hiirosakura.gui.button.config_gui.task": "定时任务",
   "hiirosakura.gui.button.add": "添加",
+  "hiirosakura.gui.button.run": "运行",
   "hiirosakura.gui.button.subscribe": "订阅事件",
   "hiirosakura.gui.button.apply": "应用",
   "hiirosakura.gui.button.cancel": "取消",

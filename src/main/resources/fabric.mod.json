@@ -37,7 +37,7 @@
     "fabric": "*",
     "minecraft": "1.17.x",
     "java": ">=16",
-    "malilib": ">=0.10.0-dev.22+beta.1",
+    "malilib": ">=0.10.0-dev.24",
     "fabric-language-kotlin": ">=1.6.3+kotlin.1.5.21"
   },
   "suggests": {

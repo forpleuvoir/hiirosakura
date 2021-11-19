@@ -19,7 +19,6 @@
     "MixinMinecraftClient",
     "MixinMinecraftClientInterface",
     "MixinPlayerEntityRenderer",
-    "MixinPlayerEvent",
     "MixinTntEntityRenderer"
   ],
   "client": [

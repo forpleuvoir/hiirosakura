@@ -42,6 +42,7 @@ object HiiroSakuraClientCommand {
 		SwitchCameraEntityCommand.register(commandDispatcher)
 		TaskCommand.register(commandDispatcher)
 		EventCommand.register(commandDispatcher)
+		NbtCommand.register(commandDispatcher)
 	}
 
 	@JvmStatic

@@ -1,13 +1,13 @@
 package forpleuvoir.hiirosakura.client.util
 
-import net.minecraft.text.MutableText
-import net.minecraft.text.LiteralText
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
+import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.render.entity.EntityRenderDispatcher
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.entity.Entity
+import net.minecraft.text.LiteralText
+import net.minecraft.text.MutableText
 import net.minecraft.text.Style
 import net.minecraft.text.Text
 import java.awt.Color
@@ -25,7 +25,7 @@ import java.awt.Color
  */
 object TextRenderUtil {
 	@JvmStatic
-	fun ageColorText(text: String?, age: Float, maxAge: Float, r2g: Boolean): MutableText {
+	fun ageColorText(text: String?, age: Float, maxAge: Float, r2g: Boolean = false): MutableText {
 		return LiteralText(text).styled { style: Style -> style.withColor(ageColor(age, maxAge, r2g)) }
 	}
 

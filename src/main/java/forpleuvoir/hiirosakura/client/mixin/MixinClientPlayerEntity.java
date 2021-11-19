@@ -56,14 +56,6 @@ public abstract class MixinClientPlayerEntity extends PlayerEntity {
     @Inject(method = "showsDeathScreen", at = @At("HEAD"), cancellable = true)
     public void showsDeathScreen(CallbackInfoReturnable<Boolean> cir) {
         boolean showsDeathScreen = !Configs.Toggles.AUTO_REBIRTH.getBooleanValue();
-        DamageSource source = getRecentDamageSource();
-        Entity attacker = source != null ? source.getAttacker() : null;
-        String attackerName = attacker != null ? attacker.getDisplayName().toString() : null;
-        EventBus.broadcast(
-                new OnDeathEvent(showsDeathScreen,
-                                 source != null ? source.name : null,
-                                 attackerName
-                ));
         cir.setReturnValue(showsDeathScreen);
     }
 

@@ -35,7 +35,7 @@ public abstract class MixinExperienceOrbEntityRenderer extends EntityRenderer<Ex
         super(ctx);
     }
 
-    @Inject(method = "render", at = @At("RETURN"))
+    @Inject(method = "render*", at = @At("RETURN"))
     public void render(ExperienceOrbEntity experienceOrbEntity, float f, float g, MatrixStack matrixStack,
                        VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo callbackInfo
     ) {

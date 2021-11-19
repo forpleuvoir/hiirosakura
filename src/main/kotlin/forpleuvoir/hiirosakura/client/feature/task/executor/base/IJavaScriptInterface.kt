@@ -101,4 +101,18 @@ interface IJavaScriptInterface {
 	 * @param message 消息文本
 	 */
 	fun sendChatMessage(message: String)
+
+	/**
+	 * 丢弃物品
+	 * @param slot Int 丢弃的物品编号
+	 * @param all Boolean 是否全部丢弃
+	 */
+	fun dropItem(slot:Int,all:Boolean)
+
+	/**
+	 * 丢弃物品
+	 * @param name String 物品的注册ID
+	 * @param all Boolean 是否全部丢弃
+	 */
+	fun dropItem(name:String,all:Boolean)
 }

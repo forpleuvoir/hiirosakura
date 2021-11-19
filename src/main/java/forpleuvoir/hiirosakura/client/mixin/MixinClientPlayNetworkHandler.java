@@ -1,13 +1,19 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
+import forpleuvoir.hiirosakura.client.feature.event.OnDeathEvent;
 import forpleuvoir.hiirosakura.client.feature.event.OnGameJoinEvent;
 import forpleuvoir.hiirosakura.client.feature.event.OnServerJoinEvent;
 import forpleuvoir.hiirosakura.client.feature.event.base.EventBus;
 import forpleuvoir.hiirosakura.client.util.ServerInfoUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ServerInfo;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.damage.DamageSource;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -23,6 +29,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinClientPlayNetworkHandler {
 
 
+    @Shadow
+    @Final
+    private MinecraftClient client;
+
     @Inject(method = "onGameJoin", at = @At("RETURN"))
     public void onGameJoin(CallbackInfo callbackInfo) {
         ServerInfo serverInfo = MinecraftClient.getInstance().getCurrentServerEntry();
@@ -37,6 +47,20 @@ public abstract class MixinClientPlayNetworkHandler {
         EventBus.broadcast(new OnGameJoinEvent(name, address));
     }
 
+    @Inject(method = "onDeathMessage", at = @At("RETURN"))
+    public void onDeathMessage(CallbackInfo callbackInfo) {
+        ClientPlayerEntity player = this.client.player;
+        if (player != null) {
+            DamageSource source = player.getRecentDamageSource();
+            Entity attacker = source != null ? source.getAttacker() : null;
+            String attackerName = attacker != null ? attacker.getDisplayName().toString() : null;
+            EventBus.broadcast(
+                    new OnDeathEvent(player.showsDeathScreen(),
+                            source != null ? source.name : null,
+                            attackerName
+                    ));
+        }
+    }
 
 
 }

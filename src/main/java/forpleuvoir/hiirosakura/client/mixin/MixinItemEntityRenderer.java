@@ -36,7 +36,7 @@ public abstract class MixinItemEntityRenderer extends EntityRenderer<ItemEntity>
         super(ctx);
     }
 
-    @Inject(method = "render", at = @At("RETURN"))
+    @Inject(method = "render*", at = @At("RETURN"))
     public void render(ItemEntity itemEntity, float f, float g, MatrixStack matrixStack,
                        VertexConsumerProvider vertexConsumerProvider, int light, CallbackInfo callbackInfo
     ) {

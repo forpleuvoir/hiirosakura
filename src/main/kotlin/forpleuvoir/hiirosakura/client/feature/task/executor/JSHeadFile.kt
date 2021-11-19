@@ -24,9 +24,9 @@ import java.io.File
 
  */
 object JSHeadFile : IInitialized {
-	@Transient
-	private val log = getLogger(JSHeadFile::class.java)
-	private val DEFAULT_SCRIPT: String = """
+    @Transient
+    private val log = getLogger(JSHeadFile::class.java)
+    private val DEFAULT_SCRIPT: String = """
 		var ${'$'}TimeTask = Java.type('forpleuvoir.hiirosakura.client.feature.task.TimeTask');
 		var ${'$'}TimeTaskData = Java.type('forpleuvoir.hiirosakura.client.feature.task.TimeTaskData');
 		var ${'$'}TimeTaskHandler = Java.type('forpleuvoir.hiirosakura.client.feature.task.TimeTaskHandler').INSTANCE;
@@ -93,53 +93,60 @@ object JSHeadFile : IInitialized {
 		}
 		
 	""".trimIndent()
-	private val PATH = Configs.CONFIG_FILE_PATH
-	private val HEAD_FILE = File(PATH, HiiroSakuraClient.MOD_ID + "_head.js")
-	private var content: String? = null
+    private val PATH = Configs.CONFIG_FILE_PATH
+    private val HEAD_FILE = File(PATH, HiiroSakuraClient.MOD_ID + "_head.js")
+    private var content: String? = null
 
-	override fun initialize() {
-		if (!read()) {
-			createFile()
-		}
-	}
+    override fun initialize() {
+        if (!read()) {
+            createFile()
+        }
+    }
 
-	private fun createFile() {
-		try {
-			FileUtil.createFile(HEAD_FILE)
-			FileUtil.writeFile(HEAD_FILE, DEFAULT_SCRIPT)
-		} catch (e: Exception) {
-			log.error(e.message!!, e)
-		}
-	}
+    private fun createFile() {
+        try {
+            FileUtil.createFile(HEAD_FILE)
+            FileUtil.writeFile(HEAD_FILE, DEFAULT_SCRIPT)
+        } catch (e: Exception) {
+            log.error(e.message!!, e)
+        }
+    }
 
-	fun openFile() {
-		try {
-			FileUtil.openFile(HEAD_FILE)
-		} catch (e: Exception) {
-			log.error(e.message!!, e)
-		}
-	}
+    fun openFile() {
+        try {
+            FileUtil.openFile(HEAD_FILE)
+        } catch (e: Exception) {
+            log.error(e.message!!, e)
+        }
+    }
 
 
-	fun read(): Boolean {
-		return if (HEAD_FILE.isFile && HEAD_FILE.canRead() && HEAD_FILE.exists()) {
-			try {
-				content = FileUtil.readFile(HEAD_FILE)
-				return true
-			} catch (e: Exception) {
-				log.error(e.message!!, e)
-				false
-			}
-		} else
-			false
-	}
+    fun read(): Boolean {
+        return if (HEAD_FILE.isFile && HEAD_FILE.canRead() && HEAD_FILE.exists()) {
+            try {
+                content = FileUtil.readFile(HEAD_FILE)
+                return true
+            } catch (e: Exception) {
+                log.error(e.message!!, e)
+                false
+            }
+        } else {
+            createFile()
+            false
+        }
+    }
 
-	fun getDefault():String{
-		return DEFAULT_SCRIPT
-	}
+    fun default() {
+        content = DEFAULT_SCRIPT
+        createFile()
+    }
 
-	fun getContent(): String {
-		return if (content.isEmptyString()) DEFAULT_SCRIPT else content!!
-	}
+    fun getDefault(): String {
+        return DEFAULT_SCRIPT
+    }
+
+    fun getContent(): String {
+        return if (content.isEmptyString()) DEFAULT_SCRIPT else content!!
+    }
 
 }

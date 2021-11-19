@@ -27,7 +27,7 @@ public abstract class MixinPlayerEntityRenderer extends EntityRenderer<AbstractC
         super(ctx);
     }
 
-    @Inject(method = "render", at = @At("HEAD"))
+    @Inject(method = "render*", at = @At("HEAD"))
     public void render(AbstractClientPlayerEntity abstractClientPlayerEntity, float f, float g, MatrixStack matrixStack,
                        VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo callbackInfo
     ) {

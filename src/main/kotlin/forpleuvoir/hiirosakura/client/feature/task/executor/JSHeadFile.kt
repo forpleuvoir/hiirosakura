@@ -88,8 +88,15 @@ object JSHeadFile : IInitialized {
 		function ${'$'}getTaskData(name,startTime,cycles,cyclesTime){
 		    return new ${'$'}TimeTaskData(name,startTime,cycles,cyclesTime);
 		}
-		function ${'$'}onceTask(executor,name,startTime){
-			${'$'}TimeTaskHandler.addTask(${'$'}newTimeTask(executor,${'$'}getTaskData(name,startTime,1,0)));
+		function ${'$'}onceTask(executor,startTime,name){
+			if(arguments.length == 3){
+				${'$'}TimeTaskHandler.addTask(${'$'}newTimeTask(executor,${'$'}getTaskData(name,startTime,1,0)));
+			}else {
+				${'$'}TimeTaskHandler.addTask(${'$'}TimeTask.once(executor,startTime));
+			}
+		}
+		function ${'$'}recall(time) {
+			${'$'}TimeTaskHandler.addTask(${'$'}TimeTask.copy(${'$'}task),time);
 		}
 		
 	""".trimIndent()

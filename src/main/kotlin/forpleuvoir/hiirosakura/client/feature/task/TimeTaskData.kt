@@ -1,5 +1,7 @@
 package forpleuvoir.hiirosakura.client.feature.task
 
+import java.util.*
+
 /**
  * 定时任务 参数
  *
@@ -13,4 +15,9 @@ package forpleuvoir.hiirosakura.client.feature.task
  *
  * #create_time 2021-07-23 16:25
  */
-class TimeTaskData(val name: String, val startTime: Int = 0, val cycles: Int = 1,val cyclesTime: Int = 0)
+class TimeTaskData(
+    val name: String = UUID.randomUUID().toString(),
+    val startTime: Int = 0,
+    val cycles: Int = 1,
+    val cyclesTime: Int = 0
+)

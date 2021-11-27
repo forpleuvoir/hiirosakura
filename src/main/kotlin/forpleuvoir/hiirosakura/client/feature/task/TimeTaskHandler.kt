@@ -1,6 +1,7 @@
 package forpleuvoir.hiirosakura.client.feature.task
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.ConcurrentMap
@@ -20,61 +21,67 @@ import java.util.concurrent.ConcurrentMap
  */
 class TimeTaskHandler {
 
-	private val timeTaskHashMap: ConcurrentMap<String, TimeTask> = ConcurrentHashMap()
-	private val removeList = ConcurrentLinkedQueue<String>()
-	val keys: Set<String>
-		get() {
-			val strings: MutableSet<String> = HashSet()
-			timeTaskHashMap.keys.forEach { strings.add("\"$it\"") }
-			return strings
-		}
+    private val timeTaskHashMap: ConcurrentMap<String, TimeTask> = ConcurrentHashMap()
+    private val removeList = ConcurrentLinkedQueue<String>()
+    val keys: Set<String>
+        get() {
+            val strings: MutableSet<String> = HashSet()
+            timeTaskHashMap.keys.forEach { strings.add("\"$it\"") }
+            return strings
+        }
 
-	fun addTask(name: String, task: TimeTask) {
-		timeTaskHashMap[name] = task
-	}
+    fun addTask(name: String, task: TimeTask) {
+        timeTaskHashMap[name] = task
+    }
 
-	fun addTask(task: TimeTask) {
-		timeTaskHashMap[task.name] = task
-	}
+    fun addTask(task: TimeTask) {
+        timeTaskHashMap[task.name] = task
+    }
 
-	fun removeTask(name: String) {
-		removeList.add(name)
-	}
+    fun addTask(task: TimeTask, time: Int) {
+        addTask(TimeTask.once(time, UUID.randomUUID().toString()) {
+            addTask(task)
+        })
+    }
 
-	fun clear() {
-		timeTaskHashMap.clear()
-	}
+    fun removeTask(name: String) {
+        removeList.add(name)
+    }
 
-	private fun handle() {
-		removeHandler()
-		val iterator: MutableIterator<Map.Entry<String, TimeTask>> = timeTaskHashMap.entries.iterator()
-		while (iterator.hasNext()) {
-			val value = iterator.next().value
-			if (value.isOver) {
-				iterator.remove()
-			} else {
-				value.executes()
-			}
-		}
-	}
+    fun clear() {
+        timeTaskHashMap.clear()
+    }
 
-	private fun removeHandler() {
-		removeList.forEach { timeTaskHashMap.remove(it) }
-		removeList.clear()
-	}
+    private fun handle() {
+        removeHandler()
+        val iterator: MutableIterator<Map.Entry<String, TimeTask>> = timeTaskHashMap.entries.iterator()
+        while (iterator.hasNext()) {
+            val value = iterator.next().value
+            if (value.isOver) {
+                iterator.remove()
+            } else {
+                value.executes()
+            }
+        }
+    }
 
-	companion object {
-		private val hs = HiiroSakuraClient
+    private fun removeHandler() {
+        removeList.forEach { timeTaskHashMap.remove(it) }
+        removeList.clear()
+    }
 
-		@JvmStatic
-		var INSTANCE: TimeTaskHandler? = null
-			private set
+    companion object {
+        private val hs = HiiroSakuraClient
 
-		fun initialize() {
-			INSTANCE = TimeTaskHandler()
-			hs.addTickHandler {
-				INSTANCE!!.handle()
-			}
-		}
-	}
+        @JvmStatic
+        var INSTANCE: TimeTaskHandler? = null
+            private set
+
+        fun initialize() {
+            INSTANCE = TimeTaskHandler()
+            hs.addTickHandler {
+                INSTANCE!!.handle()
+            }
+        }
+    }
 }

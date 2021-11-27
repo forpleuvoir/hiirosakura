@@ -6,6 +6,7 @@ import forpleuvoir.hiirosakura.client.feature.task.executor.JavaScriptExecutor
 import forpleuvoir.hiirosakura.client.feature.task.executor.SimpleExecutor
 import forpleuvoir.hiirosakura.client.feature.task.executor.base.IExecutor
 import org.openjdk.nashorn.internal.runtime.ScriptFunction
+import java.util.*
 
 /**
  * 定时任务
@@ -26,7 +27,7 @@ class TimeTask(private val executor: IExecutor, val data: TimeTaskData) {
     private var timeCounter = 0
 
     constructor(data: TimeTaskData, scriptFunction: ScriptFunction) : this(
-        JavaScriptExecutor(scriptFunction.documentation+"\n${scriptFunction.name}();", null),
+        JavaScriptExecutor(scriptFunction.documentation + "\n${scriptFunction.name}();", null),
         data
     )
 
@@ -68,6 +69,22 @@ class TimeTask(private val executor: IExecutor, val data: TimeTaskData) {
         get() = executor.asString
 
     companion object {
+
+        @JvmStatic
+        fun once(scriptFunction: ScriptFunction, startTime: Int = 0): TimeTask {
+            return TimeTask(TimeTaskData(UUID.randomUUID().toString(), startTime, 1, 0), scriptFunction)
+        }
+
+        @JvmStatic
+        fun once(scriptFunction: ScriptFunction, name: String, startTime: Int = 0): TimeTask {
+            return TimeTask(TimeTaskData(name, startTime, 1, 0), scriptFunction)
+        }
+
+        @JvmStatic
+        fun once(executor: IExecutor, startTime: Int = 0): TimeTask {
+            return TimeTask(executor, TimeTaskData(UUID.randomUUID().toString(), startTime, 1, 0))
+        }
+
         @JvmStatic
         fun once(executor: IExecutor, startTime: Int = 0, name: String): TimeTask {
             return TimeTask(executor, TimeTaskData(name, startTime, 1, 0))
@@ -81,8 +98,20 @@ class TimeTask(private val executor: IExecutor, val data: TimeTaskData) {
         }
 
         @JvmStatic
+        fun once(executor: (TimeTask) -> Unit, startTime: Int = 0): TimeTask {
+            return once(SimpleExecutor {
+                executor.invoke(it)
+            }, startTime)
+        }
+
+        @JvmStatic
         fun copy(timeTask: TimeTask): TimeTask {
             return TimeTask(timeTask.executor, timeTask.data)
+        }
+
+        @JvmStatic
+        fun copy(timeTask: TimeTask, data: TimeTaskData): TimeTask {
+            return TimeTask(timeTask.executor, data)
         }
     }
 }

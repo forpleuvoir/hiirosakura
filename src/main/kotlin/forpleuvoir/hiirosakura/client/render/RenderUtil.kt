@@ -41,7 +41,7 @@ object RenderUtil {
 		regionHeight: Int, u: Float, v: Float, textureWidth: Int, textureHeight: Int
 	) {
 		drawTexturedQuad(
-			matrices.peek().model, x0, y0, x1, y1, z, (u + 0.0f) / textureWidth.toFloat(),
+			matrices.peek().positionMatrix, x0, y0, x1, y1, z, (u + 0.0f) / textureWidth.toFloat(),
 			(u + regionWidth.toFloat()) / textureWidth.toFloat(), (v + 0.0f) / textureHeight.toFloat(),
 			(v + regionHeight.toFloat()) / textureHeight.toFloat()
 		)

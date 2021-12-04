@@ -93,7 +93,7 @@ object TextRenderUtil {
 		matrixStack.translate(0.0, height, 0.0)
 		matrixStack.multiply(dispatcher.rotation)
 		matrixStack.scale(-0.025f, -0.025f, 0.025f)
-		val matrix4f = matrixStack.peek().model
+		val matrix4f = matrixStack.peek().positionMatrix
 		val g = MinecraftClient.getInstance().options.getTextBackgroundOpacity(0.25f)
 		val backgroundColor = (g * 255.0f).toInt() shl 24
 		val x = (-textRenderer.getWidth(text) / 2).toFloat()

@@ -27,15 +27,11 @@ import java.util.function.Consumer
 /**
  * @author forpleuvoir
  *
- *
  * #project_name hiirosakura
- *
  *
  * #package forpleuvoir.hiirosakura.client.gui.event
  *
- *
  * #class_name JsTextField
- *
  *
  * #create_time 2021-08-11 17:47
  */

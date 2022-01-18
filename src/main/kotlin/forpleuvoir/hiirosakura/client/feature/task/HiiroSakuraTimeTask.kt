@@ -29,9 +29,7 @@ class HiiroSakuraTimeTask : AbstractHiiroSakuraData("timeTask") {
 	var selected: TimeTaskBase? = null
 
 	val allTimeTaskBase: Collection<TimeTaskBase>
-		get() {
-			return data
-		}
+		get() = data
 
 
 	fun add(timeTaskBase: TimeTaskBase) {

@@ -16,7 +16,9 @@ import com.google.gson.*
  * #create_time 2021/6/14 23:52
  */
 object JsonUtil {
+
 	val gson: Gson = GsonBuilder().setPrettyPrinting().create()
+
 	fun toStringBuffer(obj: Any?): StringBuffer {
 		return StringBuffer(gson.toJson(obj))
 	}
@@ -38,11 +40,11 @@ object JsonUtil {
 	 * @return JsonObject对象
 	 */
 	fun parseToJsonObject(json: String?): JsonObject {
-		return JsonParser().parse(json).asJsonObject
+		return JsonParser.parseString(json).asJsonObject
 	}
 
 	fun parseToJsonArray(json: String): JsonArray {
-		return JsonParser().parse(json).asJsonArray
+		return JsonParser.parseString(json).asJsonArray
 	}
 }
 

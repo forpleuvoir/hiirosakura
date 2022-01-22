@@ -9,19 +9,19 @@ import java.util.regex.Pattern
  *
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.feature.chatmessage
+ * 包名 forpleuvoir.hiirosakura.client.feature.chatmessage
  *
- * #class_name ChatMessageFilter
+ * 文件名 ChatMessageFilter
  *
- * #create_time 2021/7/17 12:13
+ * 创建时间 2021/7/17 12:13
  */
 object ChatMessageFilter {
 	@JvmStatic
 	fun needToFilter(message: Text): Boolean {
 		var matched = false
-		for (regex in CHAT_MESSAGE_FILTER_REGEX.strings) {
+		for (regex in CHAT_MESSAGE_FILTER_REGEX.getValue()) {
 			if (Pattern.matches(regex, message.string)) {
 				matched = true
 			}

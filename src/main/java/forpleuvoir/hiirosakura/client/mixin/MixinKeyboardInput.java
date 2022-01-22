@@ -14,10 +14,10 @@ import static forpleuvoir.hiirosakura.client.feature.input.AnalogInput.Key.*;
  * 键盘输入
  *
  * @author forpleuvoir
- * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.mixin
- * <p>#class_name MixinKeyboardInput
- * <p>#create_time 2021-07-28 11:46
+ * <p>项目名 hiirosakura
+ * <p>包名 forpleuvoir.hiirosakura.client.mixin
+ * <p>文件名 MixinKeyboardInput
+ * <p>创建时间 2021-07-28 11:46
  */
 @Mixin(KeyboardInput.class)
 public abstract class MixinKeyboardInput {

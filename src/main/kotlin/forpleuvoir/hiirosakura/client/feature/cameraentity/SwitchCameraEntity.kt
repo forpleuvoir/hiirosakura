@@ -1,6 +1,7 @@
 package forpleuvoir.hiirosakura.client.feature.cameraentity
 
-import forpleuvoir.hiirosakura.client.HiiroSakuraClient.addTickHandler
+import forpleuvoir.ibuki_gourd.event.EventBus
+import forpleuvoir.ibuki_gourd.event.events.ClientEndTickEvent
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.network.AbstractClientPlayerEntity
 import net.minecraft.entity.Entity
@@ -14,20 +15,20 @@ import java.util.function.Consumer
  *
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.feature.cameraentity
+ * 包名 forpleuvoir.hiirosakura.client.feature.cameraentity
  *
- * #class_name SwitchCameraEntity
+ * 文件名 SwitchCameraEntity
  *
- * #create_time 2021/6/22 21:12
+ * 创建时间 2021/6/22 21:12
  */
 object SwitchCameraEntity {
 	private var targetEntity: Entity? = null
 	private val client = MinecraftClient.getInstance()
 
 	init {
-		addTickHandler {
+		EventBus.subscribe<ClientEndTickEvent> {
 			if (client.options.keySneak.wasPressed()) {
 				if (client.getCameraEntity() == targetEntity) client.setCameraEntity(
 					client.player
@@ -35,11 +36,13 @@ object SwitchCameraEntity {
 			}
 		}
 	}
+
 	@JvmStatic
 	val isSwitched: Boolean
 		get() = client.getCameraEntity() === targetEntity
 	private val players: List<AbstractClientPlayerEntity>?
 		get() = if (client.world != null) client.world!!.players else null
+
 	@JvmStatic
 	val playersSuggest: List<String>
 		get() {
@@ -57,6 +60,7 @@ object SwitchCameraEntity {
 		players!!.stream().filter { player: AbstractClientPlayerEntity -> player.entityName == playerName }
 			.findFirst().ifPresent { entity: AbstractClientPlayerEntity? -> client.setCameraEntity(entity) }
 	}
+
 	@JvmStatic
 	fun switchToTarget(): Boolean {
 		if (targetEntity != null) {
@@ -73,6 +77,7 @@ object SwitchCameraEntity {
 		}
 		return false
 	}
+
 	@JvmStatic
 	fun switchEntity() {
 		if (client.getCameraEntity() != null) {
@@ -84,6 +89,7 @@ object SwitchCameraEntity {
 			}
 		}
 	}
+
 	@JvmStatic
 	fun setTargetEntity(): Boolean {
 		if (client.crosshairTarget == null) return false

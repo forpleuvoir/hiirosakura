@@ -24,10 +24,10 @@ import java.util.LinkedList;
  * GameHud注入
  *
  * @author forpleuvoir
- * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.mixin
- * <p>#class_name MixinInGameHud
- * <p>#create_time 2021/6/13 15:10
+ * <p>项目名 hiirosakura
+ * <p>包名 forpleuvoir.hiirosakura.client.mixin
+ * <p>文件名 MixinInGameHud
+ * <p>创建时间 2021/6/13 15:10
  */
 @Mixin(InGameHud.class)
 public abstract class MixinInGameHud {
@@ -52,8 +52,7 @@ public abstract class MixinInGameHud {
 
     @Inject(method = "renderHeldItemTooltip", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/option/GameOptions;getTextBackgroundColor(I)I",
-            ordinal = 0, shift = At.Shift.AFTER),
-            cancellable = true
+            ordinal = 0, shift = At.Shift.AFTER)
     )
     public void renderHeldItemTooltip(MatrixStack matrices, CallbackInfo ci) {
         int k = this.scaledHeight - 59;
@@ -66,11 +65,11 @@ public abstract class MixinInGameHud {
             l = 255;
         }
         LinkedList<Text> mutableTexts = new LinkedList<>();
-        if (Configs.Toggles.SHOW_ENCHANTMENT.getBooleanValue()) {
+        if (Configs.Toggles.SHOW_ENCHANTMENT.getValue()) {
             //添加附魔文本
             mutableTexts.addAll(ItemStackUtil.getEnchantmentsWithLvl(currentStack, Formatting.DARK_AQUA));
         }
-        if (Configs.Toggles.SHOW_TOOLTIP_ON_ITEM_TOGGLE.getBooleanValue()) {
+        if (Configs.Toggles.SHOW_TOOLTIP_ON_ITEM_TOGGLE.getValue()) {
             mutableTexts.addAll(HiiroSakuraData.TOOLTIP.getTooltip(currentStack));
         }
         //这一段我自己都看不明白了 总之这么写就对了
@@ -92,7 +91,7 @@ public abstract class MixinInGameHud {
 
     @Inject(method = "renderScoreboardSidebar", at = @At("HEAD"), cancellable = true)
     public void renderScoreboardSidebar(CallbackInfo callbackInfo) {
-        if (Configs.Toggles.DISABLE_SCOREBOARD_SIDEBAR_RENDER.getBooleanValue()) {
+        if (Configs.Toggles.DISABLE_SCOREBOARD_SIDEBAR_RENDER.getValue()) {
             callbackInfo.cancel();
         }
     }

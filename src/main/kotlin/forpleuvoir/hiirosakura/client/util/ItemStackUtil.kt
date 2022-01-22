@@ -16,13 +16,13 @@ import java.util.*
  *
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.util
+ * 包名 forpleuvoir.hiirosakura.client.util
  *
- * #class_name ItemStackUtil
+ * 文件名 ItemStackUtil
  *
- * #create_time 2021/6/13 16:12
+ * 创建时间 2021/6/13 16:12
  */
 object ItemStackUtil {
     /**

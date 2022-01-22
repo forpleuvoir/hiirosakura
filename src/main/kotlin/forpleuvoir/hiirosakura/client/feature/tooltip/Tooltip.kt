@@ -8,6 +8,7 @@ import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData
 import forpleuvoir.hiirosakura.client.util.HSLogger.Companion.getLogger
 import forpleuvoir.hiirosakura.client.util.JsonUtil
 import forpleuvoir.hiirosakura.client.util.PlayerHeadUtil
+import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.text.LiteralText
@@ -19,16 +20,16 @@ import java.util.*
  *
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.feature.tooltip
+ * 包名 forpleuvoir.hiirosakura.client.feature.tooltip
  *
- * #class_name Tooltip
+ * 文件名 Tooltip
  *
- * #create_time 2021/6/17 0:55
+ * 创建时间 2021/6/17 0:55
  */
 class Tooltip : AbstractHiiroSakuraData("tooltip") {
-	val data: MutableMap<String, MutableList<String>> = HashMap()
+	private val data: MutableMap<String, MutableList<String>> = HashMap()
 	private fun add(key: String, vararg tooltip: String) {
 		if (tooltip.isEmpty()) return
 		val tooltips: MutableList<String> = Lists.newArrayList()
@@ -78,7 +79,7 @@ class Tooltip : AbstractHiiroSakuraData("tooltip") {
 
 	fun getTooltip(stack: ItemStack): List<Text> {
 		val list = ArrayList<Text>()
-		if (Configs.Toggles.SHOW_TOOLTIP.booleanValue) {
+		if (Configs.Toggles.SHOW_TOOLTIP.getValue()) {
 			val key = getKey(stack)
 			if (data.containsKey(key)) {
 				val tips: List<String> = data[key]!!
@@ -88,10 +89,10 @@ class Tooltip : AbstractHiiroSakuraData("tooltip") {
 		return list
 	}
 
-	override fun setValueFromJsonElement(element: JsonElement) {
+	override fun setValueFromJsonElement(jsonElement: JsonElement) {
 		try {
-			if (element.isJsonObject) {
-				val obj = element.asJsonObject
+			if (jsonElement.isJsonObject) {
+				val obj = jsonElement.asJsonObject
 				val data = JsonUtil.gson
 					.fromJson<Map<String, MutableList<String>>>(
 						obj,
@@ -100,11 +101,16 @@ class Tooltip : AbstractHiiroSakuraData("tooltip") {
 				this.data.clear()
 				this.data.putAll(data)
 			} else {
-				log.warn("{}无法从JsonElement{}中读取数据", name, element)
+				log.warn(IbukiGourdLang.SetFromJsonFailed.tString(name, jsonElement))
 			}
 		} catch (e: Exception) {
-			log.warn("{}无法从JsonElement{}中读取数据", name, element, e)
+			log.warn(IbukiGourdLang.SetFromJsonFailed.tString(name, jsonElement))
+			log.error(e)
 		}
+	}
+
+	override fun initialize() {
+
 	}
 
 	override val asJsonElement: JsonElement

@@ -18,18 +18,16 @@ import java.util.List;
  * 物品注入
  *
  * @author forpleuvoir
- * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.mixin
- * <p>#class_name MixinItem
- * <p>#create_time 2021/6/17 21:50
+ * <p>项目名 hiirosakura
+ * <p>包名 forpleuvoir.hiirosakura.client.mixin
+ * <p>文件名 MixinItem
+ * <p>创建时间 2021/6/17 21:50
  */
 @Mixin(Item.class)
 public abstract class MixinItem {
 
-    @Inject(method = "appendTooltip", at = @At("HEAD"))
-    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context,
-                              CallbackInfo callbackInfo
-    ) {
-        tooltip.addAll(HiiroSakuraData.TOOLTIP.getTooltip(stack));
-    }
+	@Inject(method = "appendTooltip", at = @At("HEAD"))
+	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context, CallbackInfo callbackInfo) {
+		tooltip.addAll(HiiroSakuraData.TOOLTIP.getTooltip(stack));
+	}
 }

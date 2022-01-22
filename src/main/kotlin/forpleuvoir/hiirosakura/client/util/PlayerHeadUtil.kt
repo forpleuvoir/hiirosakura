@@ -11,13 +11,13 @@ import net.minecraft.nbt.NbtString
 /**
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.util
+ * 包名 forpleuvoir.hiirosakura.client.util
  *
- * #class_name PlayerHeadUtil
+ * 文件名 PlayerHeadUtil
  *
- * #create_time 2021/6/11 21:20
+ * 创建时间 2021/6/11 21:20
  */
 object PlayerHeadUtil {
 	private const val OWNER = "SkullOwner"

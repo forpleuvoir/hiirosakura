@@ -15,13 +15,13 @@ import net.minecraft.text.TranslatableText
  *
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.command
+ * 包名 forpleuvoir.hiirosakura.client.command
  *
- * #class_name ConfigCommand
+ * 文件名 ConfigCommand
  *
- * #create_time 2021/6/17 22:35
+ * 创建时间 2021/6/17 22:35
  */
 object ConfigCommand {
 	private const val CONFIG = "config"
@@ -48,25 +48,25 @@ object ConfigCommand {
 	}
 
 	private fun configSave(context: CommandContext<FabricClientCommandSource>): Int {
-		Configs.configHandler.save()
+		Configs.save()
 		context.source.sendFeedback(TranslatableText(getTranslatableTextKey(CONFIG, "save")))
 		return 1
 	}
 
 	private fun configReload(context: CommandContext<FabricClientCommandSource>): Int {
-		Configs.configHandler.load()
+		Configs.load()
 		context.source.sendFeedback(TranslatableText(getTranslatableTextKey(CONFIG, "reload")))
 		return 1
 	}
 
 	private fun dataSave(context: CommandContext<FabricClientCommandSource>): Int {
-		HiiroSakuraData.configHandler.save()
+		HiiroSakuraData.save()
 		context.source.sendFeedback(TranslatableText(getTranslatableTextKey(DATA, "save")))
 		return 1
 	}
 
 	private fun dataReload(context: CommandContext<FabricClientCommandSource>): Int {
-		HiiroSakuraData.configHandler.load()
+		HiiroSakuraData.load()
 		context.source.sendFeedback(TranslatableText(getTranslatableTextKey(DATA, "reload")))
 		return 1
 	}

@@ -8,10 +8,10 @@ import org.spongepowered.asm.mixin.gen.Invoker;
  * 客户端注入接口
  *
  * @author forpleuvoir
- * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.mixin
- * <p>#class_name MixinMinecraftClientInterface
- * <p>#create_time 2021-07-26 16:21
+ * <p>项目名 hiirosakura
+ * <p>包名 forpleuvoir.hiirosakura.client.mixin
+ * <p>文件名 MixinMinecraftClientInterface
+ * <p>创建时间 2021-07-26 16:21
  */
 @Mixin(MinecraftClient.class)
 public interface MixinMinecraftClientInterface {

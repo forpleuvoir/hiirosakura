@@ -2,37 +2,39 @@ package forpleuvoir.hiirosakura.client.config
 
 import com.google.common.collect.ImmutableList
 import com.google.gson.JsonObject
-import fi.dy.masa.malilib.config.IConfigHandler
-import fi.dy.masa.malilib.util.FileUtils
-import fi.dy.masa.malilib.util.JsonUtils
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData.Companion.readData
 import forpleuvoir.hiirosakura.client.config.base.AbstractHiiroSakuraData.Companion.writeData
-import forpleuvoir.hiirosakura.client.feature.event.base.HiiroSakuraEvents
-import forpleuvoir.hiirosakura.client.feature.regex.ServerChatMessageRegex
-import forpleuvoir.hiirosakura.client.feature.task.HiiroSakuraTimeTask
+import forpleuvoir.hiirosakura.client.feature.event.gui.HiiroSakuraEvent
+import forpleuvoir.hiirosakura.client.feature.timertask.gui.HiiroSakuraTimerTask
 import forpleuvoir.hiirosakura.client.feature.tooltip.Tooltip
+import forpleuvoir.ibuki_gourd.common.IModInitialize
+import forpleuvoir.ibuki_gourd.config.ConfigUtil
+import forpleuvoir.ibuki_gourd.config.IConfigHandler
+import forpleuvoir.ibuki_gourd.config.options.ConfigBase
 import java.io.File
 
 /**
  * 数据类
  *
- * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.config
+ * 包名 forpleuvoir.hiirosakura.client.config
  *
- * #class_name HiiroSakuraDatas
+ * 文件名 HiiroSakuraDatas
  *
- * #create_time 2021/6/16 22:18
+ * 创建时间 2021/6/16 22:18
+ *
+ *  @author forpleuvoir
  */
-class HiiroSakuraData : IConfigHandler {
+object HiiroSakuraData : IConfigHandler, IModInitialize {
+
 	override fun load() {
-		val configFile = File(CONFIG_FILE_PATH, CONFIG_FILE_NAME)
+		val configFile = File(CONFIG_FILE_PATH.toFile(), CONFIG_FILE_NAME)
 		if (configFile.isFile && configFile.canRead() && configFile.exists()) {
-			val element = JsonUtils.parseJsonFile(configFile)
+			val element = ConfigUtil.paresJsonFile(configFile)
 			if (element != null && element.isJsonObject) {
 				val root = element.asJsonObject
 				readData(root, DATA)
@@ -41,42 +43,37 @@ class HiiroSakuraData : IConfigHandler {
 	}
 
 	override fun save() {
-		val dir = CONFIG_FILE_PATH
+		val dir = CONFIG_FILE_PATH.toFile()
 		if (dir.exists() && dir.isDirectory || dir.mkdirs()) {
 			val root = JsonObject()
 			writeData(root, DATA)
-			JsonUtils.writeJsonToFile(root, File(dir, CONFIG_FILE_NAME))
+			ConfigUtil.writeJsonToFile(root, File(CONFIG_FILE_PATH.toFile(), CONFIG_FILE_NAME))
 		}
 	}
 
-	companion object {
-		val configHandler: IConfigHandler = HiiroSakuraData()
-		val CONFIG_FILE_PATH = File(FileUtils.getConfigDirectory(), HiiroSakuraClient.MOD_ID)
-		private const val CONFIG_FILE_NAME = HiiroSakuraClient.MOD_ID + "_data.json"
-
-
-
-		@JvmField
-		val TOOLTIP = Tooltip()
-
-		@JvmField
-		val SERVER_CHAT_MESSAGE_REGEX = ServerChatMessageRegex()
-
-		@JvmField
-		val HIIRO_SAKURA_EVENTS = HiiroSakuraEvents()
-
-		@JvmField
-		val HIIRO_SAKURA_TIME_TASK = HiiroSakuraTimeTask()
-
-		val DATA: List<AbstractHiiroSakuraData> = ImmutableList.of(
-			TOOLTIP,
-			SERVER_CHAT_MESSAGE_REGEX,
-			HIIRO_SAKURA_EVENTS,
-			HIIRO_SAKURA_TIME_TASK
-		)
-
-		fun initialize() {
-			configHandler.load()
-		}
+	override fun allConfig(): List<ConfigBase> {
+		return emptyList()
 	}
+
+	private val CONFIG_FILE_PATH = ConfigUtil.configFileDir(HiiroSakuraClient)
+	private val CONFIG_FILE_NAME get() = HiiroSakuraClient.modId + "_data.json"
+
+
+	@JvmField
+	val TOOLTIP = Tooltip()
+
+	@JvmField
+	val TIMER_TASK = HiiroSakuraTimerTask()
+
+	@JvmField
+	val EVENT = HiiroSakuraEvent()
+
+	private val DATA: List<AbstractHiiroSakuraData> = ImmutableList.of(
+		TOOLTIP, TIMER_TASK, EVENT
+	)
+
+	override fun initialize() {
+		DATA.forEach { it.initialize() }
+	}
+
 }

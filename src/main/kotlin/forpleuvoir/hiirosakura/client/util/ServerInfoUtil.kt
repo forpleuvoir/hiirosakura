@@ -6,13 +6,13 @@ package forpleuvoir.hiirosakura.client.util
  *
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.util
+ * 包名 forpleuvoir.hiirosakura.client.util
  *
- * #class_name ServerInfoUtil
+ * 文件名 ServerInfoUtil
  *
- * #create_time 2021-07-26 15:41
+ * 创建时间 2021-07-26 15:41
  */
 object ServerInfoUtil {
 	@JvmStatic

@@ -21,6 +21,7 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    mavenLocal()
 }
 
 dependencies {
@@ -36,14 +37,10 @@ dependencies {
 
     modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
 
-    // https://mvnrepository.com/artifact/org.openjdk.nashorn/nashorn-core
-    modImplementation "org.openjdk.nashorn:nashorn-core:${project.nashorn_version}"
-    include "org.openjdk.nashorn:nashorn-core:${project.nashorn_version}"
+    modImplementation "forpleuvoir:ibuki_gourd:${project.ibuki_gourd_version}"
+    include "forpleuvoir:ibuki_gourd:${project.ibuki_gourd_version}"
 
 
-    modImplementation "curse.maven:malilib-303119:${project.malilib_version}"
-    // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
-    // You may need to force-disable transitiveness on them.
 }
 
 processResources {

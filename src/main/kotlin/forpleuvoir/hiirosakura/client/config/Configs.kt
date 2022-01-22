@@ -2,307 +2,225 @@ package forpleuvoir.hiirosakura.client.config
 
 import com.google.common.collect.ImmutableList
 import com.google.gson.JsonObject
-import fi.dy.masa.malilib.config.ConfigUtils
-import fi.dy.masa.malilib.config.IConfigBase
-import fi.dy.masa.malilib.config.IConfigHandler
-import fi.dy.masa.malilib.config.options.*
-import fi.dy.masa.malilib.util.FileUtils
-import fi.dy.masa.malilib.util.JsonUtils
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
-import forpleuvoir.hiirosakura.client.config.base.ListMode
-import java.io.File
+import forpleuvoir.ibuki_gourd.config.ConfigUtil
+import forpleuvoir.ibuki_gourd.config.IConfigHandler
+import forpleuvoir.ibuki_gourd.config.options.*
+import forpleuvoir.ibuki_gourd.mod.config.WhiteListMode
+import forpleuvoir.ibuki_gourd.utils.color.Color4i
 
 /**
  * Mod配置
  *
+ *
+ * 项目名 hiirosakura
+ *
+ * 包名 forpleuvoir.hiirosakura.client.config
+ *
+ * 文件名 Configs
+ *
+ * 创建时间 2021/6/15 20:04
+ *
  * @author forpleuvoir
  *
- * #project_name hiirosakura
- *
- * #package forpleuvoir.hiirosakura.client.config
- *
- * #class_name Configs
- *
- * #create_time 2021/6/15 20:04
  */
-class Configs : IConfigHandler {
-    /**
-     * 各种开关
-     */
-    object Toggles {
-        @JvmField
-        val CHAT_SHOW = ConfigBoolean(
-            translationKey("chatShow"), false,
-            translationKey("chatShow.comment")
-        )
+object Configs : IConfigHandler {
+	/**
+	 * 各种开关
+	 */
+	object Toggles {
+		@JvmField
+		val CHAT_BUBBLE = ConfigBoolean(name = translationKey("chatBubble"), defaultValue = false)
 
-        @JvmField
-        val SHOW_ENCHANTMENT = ConfigBoolean(
-            translationKey("showEnchantment"), false,
-            translationKey("showEnchantment.comment")
-        )
+		@JvmField
+		val SHOW_ENCHANTMENT = ConfigBoolean(name = translationKey("showEnchantment"), defaultValue = false)
 
-        @JvmField
-        val SHOW_TNT_FUSE = ConfigBoolean(
-            translationKey("showTNTFuse"), false,
-            translationKey("showTNTFuse.comment")
-        )
+		@JvmField
+		val SHOW_TNT_FUSE = ConfigBoolean(name = translationKey("showTNTFuse"), defaultValue = false)
 
-        @JvmField
-        val SHOW_ITEM_ENTITY_NAME = ConfigBoolean(
-            translationKey("showItemEntityName"), false,
-            translationKey("showItemEntityName.comment")
-        )
+		@JvmField
+		val SHOW_ITEM_ENTITY_NAME = ConfigBoolean(name = translationKey("showItemEntityName"), defaultValue = false)
 
-        @JvmField
-        val SHOW_ITEM_ENTITY_ENCHANTMENT = ConfigBoolean(
-            translationKey("showItemEntityEnchantment"), false,
-            translationKey("showItemEntityEnchantment.comment")
-        )
+		@JvmField
+		val SHOW_ITEM_ENTITY_ENCHANTMENT = ConfigBoolean(name = translationKey("showItemEntityEnchantment"), defaultValue = false)
 
-        @JvmField
-        val SHOW_ITEM_ENTITY_COUNT = ConfigBoolean(
-            translationKey("showItemEntityCount"), false,
-            translationKey("showItemEntityCount.comment")
-        )
+		@JvmField
+		val SHOW_ITEM_ENTITY_COUNT = ConfigBoolean(name = translationKey("showItemEntityCount"), defaultValue = false)
 
-        @JvmField
-        val SHOW_ENTITY_AGE = ConfigBoolean(
-            translationKey("showEntityAge"), false,
-            translationKey("showEntityAge.comment")
-        )
+		@JvmField
+		val SHOW_ENTITY_AGE = ConfigBoolean(name = translationKey("showEntityAge"), defaultValue = false)
 
-        @JvmField
-        val AUTO_REBIRTH = ConfigBoolean(
-            translationKey("autoRebirth"), false,
-            translationKey("autoRebirth.comment")
-        )
+		@JvmField
+		val AUTO_REBIRTH = ConfigBoolean(name = translationKey("autoRebirth"), defaultValue = false)
 
-        @JvmField
-        val SHOW_TOOLTIP = ConfigBoolean(
-            translationKey("showTooltip"), false,
-            translationKey("showTooltip.comment")
-        )
+		@JvmField
+		val SHOW_TOOLTIP = ConfigBoolean(name = translationKey("showTooltip"), defaultValue = false)
 
-        @JvmField
-        val SHOW_TOOLTIP_ON_ITEM_TOGGLE = ConfigBoolean(
-            translationKey("showTooltipOnItemToggle"), false,
-            translationKey("showTooltipOnItemToggle.comment")
-        )
+		@JvmField
+		val SHOW_TOOLTIP_ON_ITEM_TOGGLE = ConfigBoolean(name = translationKey("showTooltipOnItemToggle"), defaultValue = false)
 
-        @JvmField
-        val SHOW_TOOLTIP_ON_ITEM_ENTITY = ConfigBoolean(
-            translationKey("showTooltipOnItemEntity"), false,
-            translationKey("showTooltipOnItemEntity.comment")
-        )
+		@JvmField
+		val SHOW_TOOLTIP_ON_ITEM_ENTITY = ConfigBoolean(name = translationKey("showTooltipOnItemEntity"), defaultValue = false)
 
-        @JvmField
-        val ENABLE_QCMS_GUI = ConfigBoolean(
-            translationKey("enableQcmsGui"), false,
-            translationKey("enableQcmsGui.comment")
-        )
+		@JvmField
+		val CHAT_MESSAGE_INJECT = ConfigBoolean(name = translationKey("chatMessageInject"), defaultValue = false)
 
-        @JvmField
-        val CHAT_MESSAGE_INJECT = ConfigBoolean(
-            translationKey("chatMessageInject"), false,
-            translationKey("chatMessageInject.comment")
-        )
+		@JvmField
+		val ENABLE_CHAT_MESSAGE_INJECT_REGEX = ConfigBoolean(name = translationKey("enableChatMessageInjectRegex"), defaultValue = false)
 
-        @JvmField
-        val ENABLE_CHAT_MESSAGE_INJECT_REGEX = ConfigBoolean(
-            translationKey("enableChatMessageInjectRegex"), false,
-            translationKey("enableChatMessageInjectRegex.comment")
-        )
+		@JvmField
+		val REVERSE_CHAT_MESSAGE_INJECT_REGEX = ConfigBoolean(name = translationKey("reverseChatMessageInjectRegex"), defaultValue = false)
 
-        @JvmField
-        val REVERSE_CHAT_MESSAGE_INJECT_REGEX = ConfigBoolean(
-            translationKey("reverseChatMessageInjectRegex"), false,
-            translationKey("reverseChatMessageInjectRegex.comment")
-        )
+		@JvmField
+		val DISABLE_SCOREBOARD_SIDEBAR_RENDER = ConfigBoolean(name = translationKey("disableScoreboardSidebarRender"), defaultValue = false)
 
-        @JvmField
-        val DISABLE_SCOREBOARD_SIDEBAR_RENDER = ConfigBoolean(
-            translationKey("disableScoreboardSidebarRender"), false,
-            translationKey("disableScoreboardSidebarRender.comment")
-        )
+		@JvmField
+		val CHAT_MESSAGE_FILTER = ConfigBoolean(name = translationKey("chatMessageFilter"), defaultValue = false)
 
-        @JvmField
-        val CHAT_MESSAGE_FILTER = ConfigBoolean(
-            translationKey("chatMessageFilter"), false,
-            translationKey("chatMessageFilter.comment")
-        )
+		@JvmField
+		val EXPERIENCE_ORB_ENTITY_VALUE_RENDER = ConfigBoolean(name = translationKey("experienceOrbEntityValueRender"), defaultValue = false)
 
-        @JvmField
-        val EXPERIENCE_ORB_ENTITY_VALUE_RENDER = ConfigBoolean(
-            translationKey("experienceOrbEntityValueRender"), false,
-            translationKey("experienceOrbEntityValueRender.comment")
-        )
+		@JvmField
+		val ENABLE_BLOCK_BRAKE_PROTECTION = ConfigBoolean(name = translationKey("enableBlockBrakeProtection"), defaultValue = false)
 
-        @JvmField
-        val ENABLE_PLAYER_TICK_EVENT = ConfigBoolean(
-            translationKey("enablePlayerTickEvent"), false,
-            translationKey("enablePlayerTickEvent.comment")
-        )
+		@JvmField
+		val CONFIGS: ImmutableList<ConfigBase> = ImmutableList.of(
+			CHAT_BUBBLE, SHOW_ENCHANTMENT, SHOW_TNT_FUSE, SHOW_ITEM_ENTITY_NAME,
+			SHOW_ITEM_ENTITY_ENCHANTMENT, SHOW_ITEM_ENTITY_COUNT, SHOW_ENTITY_AGE, AUTO_REBIRTH, SHOW_TOOLTIP,
+			SHOW_TOOLTIP_ON_ITEM_TOGGLE, SHOW_TOOLTIP_ON_ITEM_ENTITY, CHAT_MESSAGE_INJECT,
+			ENABLE_CHAT_MESSAGE_INJECT_REGEX, REVERSE_CHAT_MESSAGE_INJECT_REGEX, DISABLE_SCOREBOARD_SIDEBAR_RENDER,
+			CHAT_MESSAGE_FILTER, EXPERIENCE_ORB_ENTITY_VALUE_RENDER, ENABLE_BLOCK_BRAKE_PROTECTION
+		)
 
-        @JvmField
-        val ENABLE_BLOCK_BRAKE_PROTECTION = ConfigBoolean(
-            translationKey("enableBlockBrakeProtection"), false,
-            translationKey("enableBlockBrakeProtection.comment")
-        )
+		private fun translationKey(key: String): String {
+			return translationKey("toggles", key)
+		}
+	}
 
-        @JvmField
-        val OPTIONS: ImmutableList<IConfigBase> = ImmutableList.of(
-            CHAT_SHOW, SHOW_ENCHANTMENT, SHOW_TNT_FUSE, SHOW_ITEM_ENTITY_NAME,
-            SHOW_ITEM_ENTITY_ENCHANTMENT, SHOW_ITEM_ENTITY_COUNT, SHOW_ENTITY_AGE, AUTO_REBIRTH, SHOW_TOOLTIP,
-            SHOW_TOOLTIP_ON_ITEM_TOGGLE, SHOW_TOOLTIP_ON_ITEM_ENTITY, ENABLE_QCMS_GUI, CHAT_MESSAGE_INJECT,
-            ENABLE_CHAT_MESSAGE_INJECT_REGEX, REVERSE_CHAT_MESSAGE_INJECT_REGEX, DISABLE_SCOREBOARD_SIDEBAR_RENDER,
-            CHAT_MESSAGE_FILTER, EXPERIENCE_ORB_ENTITY_VALUE_RENDER,
-            ENABLE_PLAYER_TICK_EVENT, ENABLE_BLOCK_BRAKE_PROTECTION
-        )
+	object Values {
+		@JvmField
+		val ITEM_ENTITY_TEXT_RENDER_DISTANCE =
+			ConfigDouble(name = translationKey("itemEntityTextRenderDistance"), defaultValue = 50.0, minValue = 0.0, maxValue = 999.0)
 
-        private fun translationKey(key: String): String {
-            return translationKey("toggles", key)
-        }
-    }
+		@JvmField
+		val CHAT_BUBBLE_HEIGHT = ConfigDouble(name = translationKey("chatBubbleHeight"), defaultValue = 1.0, minValue = 0.0, maxValue = 10.0)
 
-    object Values {
-        @JvmField
-        val ITEM_ENTITY_TEXT_RENDER_DISTANCE = ConfigDouble(
-            translationKey("itemEntityTextRenderDistance"), 50.0, 0.0, 999.0,
-            translationKey("itemEntityTextRenderDistance.comment")
-        )
+		@JvmField
+		val CHAT_BUBBLE_TEXTURE_COLOR = ConfigColor(name = translationKey("chatBubbleTextureColor"), defaultValue = Color4i(255, 70, 70))
 
-        @JvmField
-        val CHAT_SHOW_HEIGHT = ConfigDouble(
-            translationKey("chatShowHeight"), 1.0, 0.0, 10.0,
-            translationKey("chatShowHeight.comment")
-        )
+		@JvmField
+		val CHAT_BUBBLE_TEXT_COLOR = ConfigColor(name = translationKey("chatBubbleTextColor"), defaultValue = Color4i.BLACK)
 
-        @JvmField
-        val CHAT_SHOW_TEXT_COLOR = ConfigColor(
-            translationKey("chatShowTextColor"), "#AFFFFFFF",
-            translationKey("chatShowTextColor.comment")
-        )
+		@JvmField
+		val CHAT_BUBBLE_TEXT_MAX_WIDTH =
+			ConfigInt(name = translationKey("chatBubbleTextMaxWidth"), defaultValue = 96, minValue = 9, maxValue = 480)
 
-        @JvmField
-        val CHAT_SHOW_TEXT_MAX_WIDTH = ConfigInteger(
-            translationKey("chatShowTextMaxWidth"), 96, 9, 480,
-            translationKey("chatShowTextMaxWidth.comment")
-        )
+		@JvmField
+		val CHAT_BUBBLE_TIME = ConfigInt(name = translationKey("chatBubbleTime"), defaultValue = 200, minValue = 0, maxValue = 9999)
 
-        @JvmField
-        val CHAT_SHOW_TIME = ConfigInteger(
-            translationKey("chatShowTime"), 200, 0, 9999,
-            translationKey("chatShowTime.comment")
-        )
+		@JvmField
+		val CHAT_BUBBLE_SCALE = ConfigDouble(name = translationKey("chatBubbleScale"), defaultValue = 1.0, minValue = 0.1, maxValue = 10.0)
 
-        @JvmField
-        val CHAT_SHOW_SCALE = ConfigDouble(
-            translationKey("chatShowScale"), 1.0, 0.1, 10.0,
-            translationKey("chatShowScale.comment")
-        )
+		@JvmField
+		val CHAT_BUBBLE_REGEX = ConfigMap(
+			name = translationKey("chatBubbleRegex"), defaultValue = mapOf(
+				"dx.bakamc.cn" to "(?<name>(?<=]\\[).*(?=])).*:\\s(?<message>.*)",
+				"yd.bakamc.cn" to "(?<name>(?<=]\\[).*(?=])).*:\\s(?<message>.*)",
+				"lt.bakamc.cn" to "(?<name>(?<=]\\[).*(?=])).*:\\s(?<message>.*)",
+				"sc.bakamc.cn" to "(?<name>(?<=]\\[).*(?=])).*:\\s(?<message>.*)",
+				"us.bakamc.cn" to "(?<name>(?<=]\\[).*(?=])).*:\\s(?<message>.*)",
+				"gz.bakamc.cn" to "(?<name>(?<=]\\[).*(?=])).*:\\s(?<message>.*)",
+				"sgp.bakamc.cn" to "(?<name>(?<=]\\[).*(?=])).*:\\s(?<message>.*)"
+			)
+		)
 
-        @JvmField
-        val CHAT_MESSAGE_DEFAULT_REGEX = ConfigString(
-            translationKey("chatMessageDefaultRegex"), "(<(?<name>(.*))>)\\s(?<message>.*)",
-            translationKey("chatMessageDefaultRegex.comment")
-        )
+		@JvmField
+		val CHAT_BUBBLE_CONFIG_GROUP = ConfigGroup(
+			name = translationKey("chatBubbleConfigGroup"), defaultValue = listOf(
+				CHAT_BUBBLE_HEIGHT,
+				CHAT_BUBBLE_TEXTURE_COLOR,
+				CHAT_BUBBLE_TEXT_COLOR,
+				CHAT_BUBBLE_TEXT_MAX_WIDTH,
+				CHAT_BUBBLE_TIME,
+				CHAT_BUBBLE_SCALE,
+				CHAT_BUBBLE_REGEX
+			)
+		)
 
-        @JvmField
-        val CHAT_MESSAGE_INJECT_PREFIX = ConfigString(
-            translationKey("chatMessageInjectPrefix"), "",
-            translationKey("chatMessageInjectPrefix.comment")
-        )
+		@JvmField
+		val CHAT_MESSAGE_INJECT_EXP = ConfigString(name = translationKey("chatMessageInjectExp"), defaultValue = "#{message}")
 
-        @JvmField
-        val CHAT_MESSAGE_INJECT_SUFFIX = ConfigString(
-            translationKey("chatMessageInjectSuffix"), "",
-            translationKey("chatMessageInjectSuffix.comment")
-        )
+		@JvmField
+		val CHAT_MESSAGE_INJECT_FILTER =
+			ConfigStringList(name = translationKey("chatMessageInjectFilter"), defaultValue = ImmutableList.of("^\\/"))
 
-        @JvmField
-        val CHAT_MESSAGE_INJECT_REGEX = ConfigStringList(
-            translationKey("chatMessageInjectRegex"), ImmutableList.of("^\\/"),
-            translationKey("chatMessageInjectRegex.comment")
-        )
+		@JvmField
+		val CHAT_MESSAGE_INJECT_GROUP = ConfigGroup(
+			name = translationKey("chatMessageInjectGroup"), defaultValue = listOf(
+				CHAT_MESSAGE_INJECT_EXP,
+				CHAT_MESSAGE_INJECT_FILTER
+			)
+		)
 
-        @JvmField
-        val CHAT_MESSAGE_FILTER_REGEX = ConfigStringList(
-            translationKey("chatMessageFilterRegex"), ImmutableList.of(""),
-            translationKey("chatMessageFilterRegex.comment")
-        )
+		@JvmField
+		val CHAT_MESSAGE_FILTER_REGEX = ConfigStringList(name = translationKey("chatMessageFilterRegex"), defaultValue = ImmutableList.of(""))
 
-        @JvmField
-        val BLOCK_BRAKE_PROTECTION_MODE = ConfigOptionList(
-            translationKey("blockBrakeProtectionMode"), ListMode.NONE,
-            translationKey("blockBrakeProtectionMode.comment")
-        )
+		@JvmField
+		val BLOCK_BRAKE_PROTECTION_MODE = ConfigOptions(name = translationKey("blockBrakeProtectionMode"), defaultValue = WhiteListMode.None)
 
-        @JvmField
-        val BLOCK_BRAKE_PROTECTION_LIST = ConfigStringList(
-            translationKey("blockBrakeProtectionList"), ImmutableList.of(""),
-            translationKey("blockBrakeProtectionList.comment")
-        )
+		@JvmField
+		val BLOCK_BRAKE_PROTECTION_LIST =
+			ConfigStringList(name = translationKey("blockBrakeProtectionList"), defaultValue = ImmutableList.of(""))
 
 
-        @JvmField
-        val OPTIONS: ImmutableList<IConfigBase> = ImmutableList.of(
-            ITEM_ENTITY_TEXT_RENDER_DISTANCE,
-            CHAT_SHOW_HEIGHT,
-            CHAT_SHOW_TEXT_COLOR,
-            CHAT_SHOW_TEXT_MAX_WIDTH,
-            CHAT_SHOW_TIME,
-            CHAT_SHOW_SCALE,
-            CHAT_MESSAGE_DEFAULT_REGEX,
-            CHAT_MESSAGE_INJECT_PREFIX,
-            CHAT_MESSAGE_INJECT_SUFFIX,
-            CHAT_MESSAGE_INJECT_REGEX,
-            CHAT_MESSAGE_FILTER_REGEX,
-            BLOCK_BRAKE_PROTECTION_MODE,
-            BLOCK_BRAKE_PROTECTION_LIST
-        )
+		@JvmField
+		val CONFIGS: ImmutableList<ConfigBase> = ImmutableList.of(
+			ITEM_ENTITY_TEXT_RENDER_DISTANCE,
+			CHAT_BUBBLE_CONFIG_GROUP,
+			CHAT_MESSAGE_INJECT_GROUP,
+			CHAT_MESSAGE_FILTER_REGEX,
+			BLOCK_BRAKE_PROTECTION_MODE,
+			BLOCK_BRAKE_PROTECTION_LIST
+		)
 
-        private fun translationKey(key: String?): String {
-            return translationKey("values", key)
-        }
-    }
+		private fun translationKey(key: String): String {
+			return translationKey("values", key)
+		}
+	}
 
-    override fun load() {
-        val configFile = File(CONFIG_FILE_PATH, CONFIG_FILE_NAME)
-        if (configFile.isFile && configFile.canRead() && configFile.exists()) {
-            val element = JsonUtils.parseJsonFile(configFile)
-            if (element != null && element.isJsonObject) {
-                val root = element.asJsonObject
-                ConfigUtils.readConfigBase(root, "Toggles", Toggles.OPTIONS)
-                ConfigUtils.readConfigBase(root, "Values", Values.OPTIONS)
-                ConfigUtils.readConfigBase(root, "Hotkeys", HotKeys.HOTKEY_LIST)
-                ConfigUtils.readConfigBase(root, "TogglesHotKeys", TogglesHotKeys.HOTKEY_LIST)
-            }
-        }
-    }
+	override fun allConfig(): List<ConfigBase> {
+		return ArrayList<ConfigBase>().apply {
+			addAll(Toggles.CONFIGS)
+			addAll(TogglesHotKeys.HOTKEY_LIST)
+			addAll(Values.CONFIGS)
+			addAll(HotKeys.HOTKEY_LIST)
+		}
+	}
 
-    override fun save() {
-        val dir = CONFIG_FILE_PATH
-        if (dir.exists() && dir.isDirectory || dir.mkdirs()) {
-            val root = JsonObject()
-            ConfigUtils.writeConfigBase(root, "Toggles", Toggles.OPTIONS)
-            ConfigUtils.writeConfigBase(root, "Values", Values.OPTIONS)
-            ConfigUtils.writeConfigBase(root, "Hotkeys", HotKeys.HOTKEY_LIST)
-            ConfigUtils.writeConfigBase(root, "TogglesHotKeys", TogglesHotKeys.HOTKEY_LIST)
-            JsonUtils.writeJsonToFile(root, File(dir, CONFIG_FILE_NAME))
-        }
-    }
+	override fun load() {
+		val configFile = ConfigUtil.configFile(HiiroSakuraClient)
+		ConfigUtil.paresJsonFile(configFile)?.let {
+			if (it is JsonObject) {
+				ConfigUtil.readConfigBase(it, "Toggles", Toggles.CONFIGS)
+				ConfigUtil.readConfigBase(it, "TogglesHotKeys", TogglesHotKeys.HOTKEY_LIST)
+				ConfigUtil.readConfigBase(it, "Values", Values.CONFIGS)
+				ConfigUtil.readConfigBase(it, "Hotkeys", HotKeys.HOTKEY_LIST)
+			}
+		}
+	}
 
-    companion object {
-        val configHandler: IConfigHandler = Configs()
+	override fun save() {
+		val configFile = ConfigUtil.configFile(HiiroSakuraClient)
+		val json = JsonObject()
+		ConfigUtil.writeConfigBase(json, "Toggles", Toggles.CONFIGS)
+		ConfigUtil.writeConfigBase(json, "TogglesHotKeys", TogglesHotKeys.HOTKEY_LIST)
+		ConfigUtil.writeConfigBase(json, "Values", Values.CONFIGS)
+		ConfigUtil.writeConfigBase(json, "Hotkeys", HotKeys.HOTKEY_LIST)
+		ConfigUtil.writeJsonToFile(json, configFile)
+	}
 
-        @JvmField
-        val CONFIG_FILE_PATH = File(FileUtils.getConfigDirectory(), HiiroSakuraClient.MOD_ID)
-        private const val CONFIG_FILE_NAME = HiiroSakuraClient.MOD_ID + "_config.json"
-
-        @JvmStatic
-        fun translationKey(type: String?, key: String?): String {
-            return String.format("%s.config.%s.%s", HiiroSakuraClient.MOD_ID, type, key)
-        }
-    }
+	@JvmStatic
+	fun translationKey(type: String, key: String): String {
+		return String.format("%s.config.%s.%s", HiiroSakuraClient.modId, type, key)
+	}
 }

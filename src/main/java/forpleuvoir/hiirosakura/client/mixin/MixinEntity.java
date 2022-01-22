@@ -15,10 +15,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * 实体注入
  *
  * @author forpleuvoir
- * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.mixin
- * <p>#class_name MixinOtherClientPlayerEntity
- * <p>#create_time 2021/6/11 22:16
+ * <p>项目名 hiirosakura
+ * <p>包名 forpleuvoir.hiirosakura.client.mixin
+ * <p>文件名 MixinOtherClientPlayerEntity
+ * <p>创建时间 2021/6/11 22:16
  */
 @Mixin(Entity.class)
 public abstract class MixinEntity {

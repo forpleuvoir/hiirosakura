@@ -7,13 +7,13 @@ import com.google.gson.*
  *
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.util
+ * 包名 forpleuvoir.hiirosakura.client.util
  *
- * #class_name JsonUtil
+ * 文件名 JsonUtil
  *
- * #create_time 2021/6/14 23:52
+ * 创建时间 2021/6/14 23:52
  */
 object JsonUtil {
 
@@ -46,8 +46,25 @@ object JsonUtil {
 	fun parseToJsonArray(json: String): JsonArray {
 		return JsonParser.parseString(json).asJsonArray
 	}
+
+	fun JsonObject.ifNullOr(key: String, or: String): String {
+		return if (this[key] != null) this[key].asString else or
+	}
+
+	fun JsonObject.ifNullOr(key: String, or: Number): Number {
+		return if (this[key] != null) this[key].asNumber else or
+	}
+
+	fun JsonObject.ifNullOr(key: String, or: JsonElement): JsonElement {
+		return if (this[key] != null) this[key] else or
+	}
+
+	fun Any.toJsonObject(): JsonObject {
+		return gson.toJsonTree(this).asJsonObject
+	}
+
+	fun Collection<*>.toJsonArray(): JsonArray {
+		return gson.toJsonTree(this).asJsonArray
+	}
 }
 
-fun Any.toJsonObject(): JsonObject {
-	return JsonUtil.gson.toJsonTree(this).asJsonObject
-}

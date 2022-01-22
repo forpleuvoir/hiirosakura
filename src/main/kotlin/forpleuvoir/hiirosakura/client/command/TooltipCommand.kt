@@ -24,13 +24,13 @@ import org.apache.commons.lang3.StringUtils
  *
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.command
+ * 包名 forpleuvoir.hiirosakura.client.command
  *
- * #class_name TooltipCommand
+ * 文件名 TooltipCommand
  *
- * #create_time 2021/6/17 21:58
+ * 创建时间 2021/6/17 21:58
  */
 object TooltipCommand {
 	private const val TYPE = "tooltip"

@@ -11,16 +11,16 @@ import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource
  *
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.command.base
+ * 包名 forpleuvoir.hiirosakura.client.command.base
  *
- * #class_name HiiroSakuraClientCommand
+ * 文件名 HiiroSakuraClientCommand
  *
- * #create_time 2021/6/10 22:16
+ * 创建时间 2021/6/10 22:16
  */
 object HiiroSakuraClientCommand {
-	@Transient
+
 	private val log = HSLogger.getLogger(HiiroSakuraClientCommand::class.java)
 
 	/**
@@ -34,19 +34,17 @@ object HiiroSakuraClientCommand {
 	 * @param commandDispatcher [CommandDispatcher]
 	 */
 	fun registerClientCommands(commandDispatcher: CommandDispatcher<FabricClientCommandSource>) {
-		log.info("{}客户端指令注册...", HiiroSakuraClient.MOD_NAME)
+		log.info("客户端指令注册...")
 		GammaCommand.register(commandDispatcher)
 		TooltipCommand.register(commandDispatcher)
 		ConfigCommand.register(commandDispatcher)
-		ServerChatMessageRegexCommand.register(commandDispatcher)
 		SwitchCameraEntityCommand.register(commandDispatcher)
 		TaskCommand.register(commandDispatcher)
-		EventCommand.register(commandDispatcher)
 		NbtCommand.register(commandDispatcher)
 	}
 
 	@JvmStatic
 	fun getTranslatableTextKey(type: String, key: String): String {
-		return String.format("%s.command.%s.%s", HiiroSakuraClient.MOD_ID, type, key)
+		return String.format("%s.command.%s.%s", HiiroSakuraClient.modId, type, key)
 	}
 }

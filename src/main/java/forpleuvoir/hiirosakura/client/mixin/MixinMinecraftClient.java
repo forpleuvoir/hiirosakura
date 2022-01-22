@@ -1,16 +1,16 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
 import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity;
-import forpleuvoir.hiirosakura.client.feature.event.DoAttackEvent;
-import forpleuvoir.hiirosakura.client.feature.event.DoItemPickEvent;
-import forpleuvoir.hiirosakura.client.feature.event.DoItemUseEvent;
-import forpleuvoir.hiirosakura.client.feature.event.OnDisconnectEvent;
-import forpleuvoir.hiirosakura.client.feature.event.base.EventBus;
+import forpleuvoir.hiirosakura.client.feature.event.events.AttackEvent;
+import forpleuvoir.hiirosakura.client.feature.event.events.GameExitEvent;
+import forpleuvoir.hiirosakura.client.feature.event.events.ItemPickEvent;
+import forpleuvoir.hiirosakura.client.feature.event.events.ItemUseEvent;
 import forpleuvoir.hiirosakura.client.feature.input.AnalogInput;
 import forpleuvoir.hiirosakura.client.util.ServerInfoUtil;
 import kotlin.Unit;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.tutorial.TutorialManager;
@@ -31,10 +31,10 @@ import static forpleuvoir.hiirosakura.client.feature.input.AnalogInput.Key.*;
  * <p>{@link #init(CallbackInfo)} 关闭游戏再带教程
  *
  * @author forpleuvoir
- * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.mixin
- * <p>#class_name MixinMinecraftClient
- * <p>#create_time 2021/6/11 21:02
+ * <p>项目名 hiirosakura
+ * <p>包名 forpleuvoir.hiirosakura.client.mixin
+ * <p>文件名 MixinMinecraftClient
+ * <p>创建时间 2021/6/11 21:02
  */
 @Mixin(MinecraftClient.class)
 public abstract class MixinMinecraftClient {
@@ -51,6 +51,10 @@ public abstract class MixinMinecraftClient {
 	@Shadow
 	@Final
 	public GameOptions options;
+
+	@Shadow
+	@Nullable
+	public ClientPlayerEntity player;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	public void init(CallbackInfo ci) {
@@ -85,7 +89,7 @@ public abstract class MixinMinecraftClient {
 						InputUtil.fromTranslationKey(this.options.keyAttack.getBoundKeyTranslationKey()), true);
 			if (AnalogInput.isPress(USE))
 				KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(this.options.keyUse.getBoundKeyTranslationKey()),
-				                         true
+						true
 				);
 			if (AnalogInput.isPress(PICK_ITEM))
 				KeyBinding.setKeyPressed(
@@ -95,7 +99,7 @@ public abstract class MixinMinecraftClient {
 
 	@Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
 	public void doAttack(CallbackInfo callbackInfo) {
-		EventBus.broadcast(new DoAttackEvent());
+		new AttackEvent().broadcast();
 		if (SwitchCameraEntity.isSwitched()) {
 			callbackInfo.cancel();
 		}
@@ -103,7 +107,7 @@ public abstract class MixinMinecraftClient {
 
 	@Inject(method = "doItemPick", at = @At("HEAD"), cancellable = true)
 	public void doItemPick(CallbackInfo callbackInfo) {
-		EventBus.broadcast(new DoItemPickEvent());
+		new ItemPickEvent().broadcast();
 		if (SwitchCameraEntity.isSwitched()) {
 			callbackInfo.cancel();
 		}
@@ -111,15 +115,15 @@ public abstract class MixinMinecraftClient {
 
 	@Inject(method = "doItemUse", at = @At("HEAD"), cancellable = true)
 	public void doItemUse(CallbackInfo callbackInfo) {
-		EventBus.broadcast(new DoItemUseEvent());
+		new ItemUseEvent(player != null ? player.getMainHandStack().getName().getString() : "null").broadcast();
 		if (SwitchCameraEntity.isSwitched()) {
 			callbackInfo.cancel();
 		}
 	}
 
-	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))
 	public void disconnect(Screen screen, CallbackInfo callbackInfo) {
-		EventBus.broadcast(new OnDisconnectEvent(ServerInfoUtil.getName(), ServerInfoUtil.getAddress()));
+		new GameExitEvent(ServerInfoUtil.getName(), ServerInfoUtil.getAddress()).broadcast();
 		ServerInfoUtil.clear();
 	}
 

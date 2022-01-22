@@ -15,13 +15,13 @@ import net.minecraft.command.CommandSource
 /**
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.command
+ * 包名 forpleuvoir.hiirosakura.client.command
  *
- * #class_name SwitchCameraEntityCommand
+ * 文件名 SwitchCameraEntityCommand
  *
- * #create_time 2021/6/24 20:56
+ * 创建时间 2021/6/24 20:56
  */
 object SwitchCameraEntityCommand {
 	private val hs = HiiroSakuraClient

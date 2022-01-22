@@ -1,40 +1,37 @@
 package forpleuvoir.hiirosakura.client.config
 
 import com.google.common.collect.ImmutableList
-import fi.dy.masa.malilib.config.options.ConfigBoolean
-import forpleuvoir.hiirosakura.client.HiiroSakuraClient
-import forpleuvoir.hiirosakura.client.config.base.ToggleHotkey
+import forpleuvoir.ibuki_gourd.config.options.ConfigBoolean
+import forpleuvoir.ibuki_gourd.config.options.ConfigBooleanHotkey
+import forpleuvoir.ibuki_gourd.keyboard.KeyBind
 import java.util.*
 
 /**
  * 开关热键
  *
- * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.config
+ * 包名 forpleuvoir.hiirosakura.client.config
  *
- * #class_name TogglesHotKeys
+ * 文件名 TogglesHotKeys
  *
- * #create_time 2021-07-27 16:17
+ * 创建时间 2021-07-27 16:17
+ *
+ *  @author forpleuvoir
+ *
  */
 object TogglesHotKeys {
 	@JvmStatic
-	val HOTKEY_LIST: ImmutableList<ToggleHotkey>
+	val HOTKEY_LIST: ImmutableList<ConfigBooleanHotkey>
 
 	init {
-		val list = LinkedList<ToggleHotkey>()
-		Configs.Toggles.OPTIONS.forEach {
-			list.add(ToggleHotkey(it as ConfigBoolean))
+		val list = LinkedList<ConfigBooleanHotkey>()
+		Configs.Toggles.CONFIGS.forEach {
+			list.add(ConfigBooleanHotkey(defaultValue = KeyBind(), it as ConfigBoolean))
 		}
 		HOTKEY_LIST = ImmutableList.copyOf(list)
 	}
 
-	fun initCallback(hs: HiiroSakuraClient?) {
-		for (hotkey in HOTKEY_LIST) {
-			hotkey.initCallback(hs!!)
-		}
-	}
 
 }

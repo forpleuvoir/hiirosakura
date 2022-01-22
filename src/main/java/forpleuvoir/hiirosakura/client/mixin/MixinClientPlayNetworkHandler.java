@@ -1,16 +1,18 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
-import forpleuvoir.hiirosakura.client.feature.event.OnDeathEvent;
-import forpleuvoir.hiirosakura.client.feature.event.OnGameJoinEvent;
-import forpleuvoir.hiirosakura.client.feature.event.OnServerJoinEvent;
-import forpleuvoir.hiirosakura.client.feature.event.base.EventBus;
+import forpleuvoir.hiirosakura.client.feature.event.events.GameJoinEvent;
+import forpleuvoir.hiirosakura.client.feature.event.events.PlayerDeathEvent;
+import forpleuvoir.hiirosakura.client.feature.event.events.PlayerRespawnEvent;
+import forpleuvoir.hiirosakura.client.feature.event.events.ServerJoinEvent;
 import forpleuvoir.hiirosakura.client.util.ServerInfoUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ServerInfo;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.network.packet.s2c.play.DeathMessageS2CPacket;
+import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,47 +22,55 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * @author forpleuvoir
- * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.mixin
- * <p>#class_name MixinClientPlayNetworkHandler
- * <p>#create_time 2021-07-23 13:39
+ * <p>项目名 hiirosakura
+ * <p>包名 forpleuvoir.hiirosakura.client.mixin
+ * <p>文件名 MixinClientPlayNetworkHandler
+ * <p>创建时间 2021-07-23 13:39
  */
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler {
 
 
-    @Shadow
-    @Final
-    private MinecraftClient client;
+	@Shadow
+	@Final
+	private MinecraftClient client;
 
-    @Inject(method = "onGameJoin", at = @At("RETURN"))
-    public void onGameJoin(CallbackInfo callbackInfo) {
-        ServerInfo serverInfo = MinecraftClient.getInstance().getCurrentServerEntry();
-        var name = serverInfo != null ? serverInfo.name : null;
-        var address = serverInfo != null ? serverInfo.address : null;
-        if (name != null)
-            if (!name.equals(ServerInfoUtil.getName())) {
-                ServerInfoUtil.setValue(name, address);
-                EventBus.broadcast(new OnServerJoinEvent(name, address));
-            }
-        ServerInfoUtil.setValue(name, address);
-        EventBus.broadcast(new OnGameJoinEvent(name, address));
-    }
+	@Shadow
+	private ClientWorld world;
 
-    @Inject(method = "onDeathMessage", at = @At("RETURN"))
-    public void onDeathMessage(CallbackInfo callbackInfo) {
-        ClientPlayerEntity player = this.client.player;
-        if (player != null) {
-            DamageSource source = player.getRecentDamageSource();
-            Entity attacker = source != null ? source.getAttacker() : null;
-            String attackerName = attacker != null ? attacker.getDisplayName().toString() : null;
-            EventBus.broadcast(
-                    new OnDeathEvent(player.showsDeathScreen(),
-                            source != null ? source.name : null,
-                            attackerName
-                    ));
-        }
-    }
+	@Inject(method = "onGameJoin", at = @At("RETURN"))
+	public void onGameJoin(GameJoinS2CPacket packet, CallbackInfo callbackInfo) {
+		ServerInfo serverInfo = MinecraftClient.getInstance().getCurrentServerEntry();
+		var name = serverInfo != null ? serverInfo.name : null;
+		var address = serverInfo != null ? serverInfo.address : null;
+		if (name != null)
+			if (!name.equals(ServerInfoUtil.getName())) {
+				ServerInfoUtil.setValue(name, address);
+				new ServerJoinEvent(name, address).broadcast();
+			}
+		ServerInfoUtil.setValue(name, address);
+		new GameJoinEvent(name, address).broadcast();
+	}
+
+	@Inject(method = "onPlayerRespawn", at = @At("RETURN"))
+	public void onPlayerRespawn(PlayerRespawnS2CPacket packet, CallbackInfo callbackInfo) {
+		new PlayerRespawnEvent().broadcast();
+	}
+
+	@Inject(method = "onDeathMessage", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/DeathMessageS2CPacket;getEntityId()I", shift = At.Shift.AFTER))
+	public void onDeathMessage(DeathMessageS2CPacket packet, CallbackInfo callbackInfo) {
+		Entity entity = this.world.getEntityById(packet.getEntityId());
+		if (entity == this.client.player) {
+			Entity killer = this.world.getEntityById(packet.getKillerId());
+			String message = packet.getMessage().getString().replaceAll("(§).", "");
+			String name = "";
+			if (killer != null) {
+				name = killer.getDisplayName().getString();
+			}
+			new PlayerDeathEvent(name, message).broadcast();
+
+		}
+	}
 
 
 }

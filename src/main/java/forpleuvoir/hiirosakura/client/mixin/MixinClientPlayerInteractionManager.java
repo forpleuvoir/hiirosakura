@@ -1,11 +1,9 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
-import fi.dy.masa.malilib.config.IConfigOptionListEntry;
 import forpleuvoir.hiirosakura.client.config.Configs;
-import forpleuvoir.hiirosakura.client.config.base.ListMode;
+import forpleuvoir.ibuki_gourd.mod.config.WhiteListMode;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
@@ -42,43 +40,43 @@ import java.util.List;
 public abstract class MixinClientPlayerInteractionManager {
 
 
-    @Shadow
-    @Final
-    private MinecraftClient client;
+	@Shadow
+	@Final
+	private MinecraftClient client;
 
-    @Shadow
-    public abstract ActionResult interactBlock(ClientPlayerEntity player, ClientWorld world, Hand hand, BlockHitResult hitResult);
+	@Shadow
+	public abstract ActionResult interactBlock(ClientPlayerEntity player, ClientWorld world, Hand hand, BlockHitResult hitResult);
 
-    @Shadow
-    public abstract ActionResult interactEntity(PlayerEntity player, Entity entity, Hand hand);
+	@Shadow
+	public abstract ActionResult interactEntity(PlayerEntity player, Entity entity, Hand hand);
 
-    @Inject(method = "updateBlockBreakingProgress", at = @At("HEAD"), cancellable = true)
-    public void updateBlockBreakingProgress(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> returnable) {
-        handleBlackListBlock(pos, returnable);
-    }
+	@Inject(method = "updateBlockBreakingProgress", at = @At("HEAD"), cancellable = true)
+	public void updateBlockBreakingProgress(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> returnable) {
+		handleBlackListBlock(pos, returnable);
+	}
 
-    @Inject(method = "attackBlock", at = @At("HEAD"), cancellable = true)
-    public void attackBlock(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> returnable) {
-        handleBlackListBlock(pos, returnable);
-    }
+	private void handleBlackListBlock(BlockPos pos, CallbackInfoReturnable<Boolean> returnable) {
+		if (Configs.Toggles.ENABLE_BLOCK_BRAKE_PROTECTION.getValue())
+			if (this.client.world != null) {
+				BlockState blockState = this.client.world.getBlockState(pos);
+				Block block = blockState.getBlock();
+				WhiteListMode mode = (WhiteListMode) Configs.Values.BLOCK_BRAKE_PROTECTION_MODE.getValue();
+				List<String> list = Configs.Values.BLOCK_BRAKE_PROTECTION_LIST.getValue();
+				boolean inList = list.contains(Registry.BLOCK.getId(block).toString());
+				boolean isProtectionBlock = switch (mode) {
+					case None -> false;
+					case WhiteList -> inList;
+					case BlackList -> !inList;
+				};
+				if (isProtectionBlock) {
+					returnable.setReturnValue(false);
+					returnable.cancel();
+				}
+			}
+	}
 
-    private void handleBlackListBlock(BlockPos pos, CallbackInfoReturnable<Boolean> returnable) {
-        if (Configs.Toggles.ENABLE_BLOCK_BRAKE_PROTECTION.getBooleanValue())
-            if (this.client.world != null) {
-                BlockState blockState = this.client.world.getBlockState(pos);
-                Block block = blockState.getBlock();
-                ListMode mode = (ListMode) Configs.Values.BLOCK_BRAKE_PROTECTION_MODE.getOptionListValue();
-                List<String> list = Configs.Values.BLOCK_BRAKE_PROTECTION_LIST.getStrings();
-                boolean inList = list.contains(Registry.BLOCK.getId(block).toString());
-                boolean isProtectionBlock = switch (mode) {
-                    case NONE -> false;
-                    case WHITE_LIST -> inList;
-                    case BLACK_LIST -> !inList;
-                };
-                if (isProtectionBlock) {
-                    returnable.setReturnValue(false);
-                    returnable.cancel();
-                }
-            }
-    }
+	@Inject(method = "attackBlock", at = @At("HEAD"), cancellable = true)
+	public void attackBlock(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> returnable) {
+		handleBlackListBlock(pos, returnable);
+	}
 }

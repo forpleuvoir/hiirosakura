@@ -23,10 +23,10 @@ import java.util.ArrayList;
  * 经验球实体渲染器
  *
  * @author forpleuvoir
- * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.mixin
- * <p>#class_name MixinExperienceOrbEntityRenderer
- * <p>#create_time 2021/7/30 17:38
+ * <p>项目名 hiirosakura
+ * <p>包名 forpleuvoir.hiirosakura.client.mixin
+ * <p>文件名 MixinExperienceOrbEntityRenderer
+ * <p>创建时间 2021/7/30 17:38
  */
 @Mixin(ExperienceOrbEntityRenderer.class)
 public abstract class MixinExperienceOrbEntityRenderer extends EntityRenderer<ExperienceOrbEntity> {
@@ -42,7 +42,7 @@ public abstract class MixinExperienceOrbEntityRenderer extends EntityRenderer<Ex
         var texts = new ArrayList<Text>();
 
         //渲染经验值
-        if (Configs.Toggles.EXPERIENCE_ORB_ENTITY_VALUE_RENDER.getBooleanValue()) {
+        if (Configs.Toggles.EXPERIENCE_ORB_ENTITY_VALUE_RENDER.getValue()) {
 
             float age = ((float) experienceOrbEntity.age + g) / 2.0F;
             int experienceAmount = experienceOrbEntity.getExperienceAmount();
@@ -52,16 +52,16 @@ public abstract class MixinExperienceOrbEntityRenderer extends EntityRenderer<Ex
             int rgb = new Color(red, 255, blue).getRGB();
 
             texts.add(new LiteralText(String.valueOf(experienceAmount))
-                              .styled(style -> style.withColor(rgb))
+                    .styled(style -> style.withColor(rgb))
             );
         }
 
         //渲染剩余销毁时间
-        if (Configs.Toggles.SHOW_ENTITY_AGE.getBooleanValue()) {
+        if (Configs.Toggles.SHOW_ENTITY_AGE.getValue()) {
             int maxAge = 6000;
             int age = maxAge - ((MixinExperienceOrbEntityInterface) experienceOrbEntity).getAge();
-            texts.add(TextRenderUtil.ageColorText(String.valueOf(age / 20), age, maxAge,false)
-                                    .append("s")
+            texts.add(TextRenderUtil.ageColorText(String.valueOf(age / 20), age, maxAge, false)
+                    .append("s")
             );
 
         }

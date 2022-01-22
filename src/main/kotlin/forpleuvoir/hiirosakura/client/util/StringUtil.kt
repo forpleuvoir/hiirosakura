@@ -1,7 +1,6 @@
 package forpleuvoir.hiirosakura.client.util
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
-import forpleuvoir.hiirosakura.client.gui.JsTextField
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.LiteralText
 import net.minecraft.text.StringVisitable
@@ -13,13 +12,13 @@ import net.minecraft.text.TranslatableText
  *
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.util
+ * 包名 forpleuvoir.hiirosakura.client.util
  *
- * #class_name StringUtil
+ * 文件名 StringUtil
  *
- * #create_time 2021/6/13 3:03
+ * 创建时间 2021/6/13 3:03
  */
 object StringUtil {
 	private val FILTER_CHARS = charArrayOf('\r', '\u000c')
@@ -56,6 +55,7 @@ object StringUtil {
 	 */
 	@JvmStatic
 	fun tooLongOmitted(originalStr: String, length: Int, suffix: String = "...", keepLastChar: Boolean = true): String {
+		if (originalStr.length < length) return originalStr
 		var original = originalStr
 		var s = suffix
 		if (keepLastChar) {
@@ -77,7 +77,7 @@ object StringUtil {
 
 	@JvmStatic
 	fun translatableText(key: String, vararg params: Any?): TranslatableText {
-		return TranslatableText("${HiiroSakuraClient.MOD_ID}.${key}", *params)
+		return TranslatableText("${HiiroSakuraClient.modId}.${key}", *params)
 	}
 
 	@JvmStatic
@@ -103,31 +103,6 @@ object StringUtil {
 		return strings
 	}
 
-	@JvmStatic
-	fun wrapToWidthWithIndication(str: String, wrapWidth: Int): List<JsTextField.WrappedString> {
-		val strings: MutableList<JsTextField.WrappedString> = ArrayList()
-		var temp = StringBuilder()
-		var wrapped = false
-		for (element in str) {
-			if (element == '\n') {
-				strings.add(JsTextField.WrappedString(temp.toString(), wrapped))
-				temp = StringBuilder()
-				wrapped = false
-			} else {
-				val var10001 = temp.toString()
-				if (minecraft.textRenderer.getWidth(var10001 + element) >= wrapWidth) {
-					strings.add(JsTextField.WrappedString(temp.toString(), wrapped))
-					temp = StringBuilder()
-					wrapped = true
-				}
-			}
-			if (element != '\n') {
-				temp.append(element)
-			}
-		}
-		strings.add(JsTextField.WrappedString(temp.toString(), wrapped))
-		return strings
-	}
 
 	@JvmStatic
 	fun insertStringAt(insert: String, insertTo: String, pos: Int): String {

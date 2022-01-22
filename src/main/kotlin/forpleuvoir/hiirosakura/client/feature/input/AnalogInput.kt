@@ -8,13 +8,13 @@ import java.util.concurrent.atomic.AtomicBoolean
  *
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.feature.input
+ * 包名 forpleuvoir.hiirosakura.client.feature.input
  *
- * #class_name AnalogInput
+ * 文件名 AnalogInput
  *
- * #create_time 2021-07-28 11:50
+ * 创建时间 2021-07-28 11:50
  */
 object AnalogInput {
 	private val data: MutableList<Node> = LinkedList()

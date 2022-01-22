@@ -15,13 +15,13 @@ import java.awt.Color
 /**
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.util
+ * 包名 forpleuvoir.hiirosakura.client.util
  *
- * #class_name TextRenderUtil
+ * 文件名 TextRenderUtil
  *
- * #create_time 2021/6/13 12:43
+ * 创建时间 2021/6/13 12:43
  */
 object TextRenderUtil {
 	@JvmStatic

@@ -1,34 +1,45 @@
 package forpleuvoir.hiirosakura.client.feature.regex
 
+import forpleuvoir.hiirosakura.client.config.Configs
+import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
-import java.lang.Exception
 import java.util.regex.Pattern
 
 /**
  * 聊天消息正则匹配
  *
- * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.feature.regex
+ * 包名 forpleuvoir.hiirosakura.client.feature.regex
  *
- * #class_name ChatMessageRegex
+ * 文件名 ChatMessageRegex
  *
- * #create_time 2021/6/23 23:36
+ * 创建时间 2021/6/23 23:36
+ *
+ *  @author forpleuvoir
+ *
  */
 class ChatMessageRegex private constructor(text: Text, regex: String) {
 	var playerName: String? = null
 	var message: String? = null
+
 	private fun preString(text: Text): String {
-		return text.string.replace("(§.)".toRegex(), "")
+		return text.string.replace(Regex("(§.)"), "")
 	}
 
 	companion object {
+		private const val defaultRegex: String = "(<(?<name>(.*))>)\\s(?<message>.*)"
+		private val currentServerAddress: String? get() = MinecraftClient.getInstance().currentServerEntry?.address
 
 		@JvmStatic
-		fun getInstance(text: Text?, regex: String?): ChatMessageRegex? {
-			return if (text != null && regex != null) ChatMessageRegex(text, regex) else null
+		fun getInstance(text: Text): ChatMessageRegex {
+			currentServerAddress?.let { address ->
+				Configs.Values.CHAT_BUBBLE_REGEX[address]?.let {
+					return ChatMessageRegex(text, it)
+				}
+			}
+			return ChatMessageRegex(text, defaultRegex)
 		}
 
 		private const val NAME = "name"

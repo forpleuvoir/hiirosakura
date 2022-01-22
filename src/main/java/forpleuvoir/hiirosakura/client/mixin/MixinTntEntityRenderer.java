@@ -17,10 +17,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * TNT实体渲染器注入
  *
  * @author forpleuvoir
- * <p>#project_name hiirosakura
- * <p>#package forpleuvoir.hiirosakura.client.mixin
- * <p>#class_name MixinTntEntityRenderer
- * <p>#create_time 2021/6/13 14:08
+ * <p>项目名 hiirosakura
+ * <p>包名 forpleuvoir.hiirosakura.client.mixin
+ * <p>文件名 MixinTntEntityRenderer
+ * <p>创建时间 2021/6/13 14:08
  */
 @Mixin(TntEntityRenderer.class)
 public abstract class MixinTntEntityRenderer extends EntityRenderer<TntEntity> {
@@ -34,7 +34,7 @@ public abstract class MixinTntEntityRenderer extends EntityRenderer<TntEntity> {
                        VertexConsumerProvider vertexConsumerProvider, int light,
                        CallbackInfo callbackInfo
     ) {
-        if (!Configs.Toggles.SHOW_TNT_FUSE.getBooleanValue()) return;
+        if (!Configs.Toggles.SHOW_TNT_FUSE.getValue()) return;
         int maxAge = 80;
         int age = tntEntity.getFuse();
         TextRenderUtil.renderEntityText(tntEntity,

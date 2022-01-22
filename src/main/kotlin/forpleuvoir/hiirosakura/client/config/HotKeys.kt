@@ -1,64 +1,50 @@
 package forpleuvoir.hiirosakura.client.config
 
 import com.google.common.collect.ImmutableList
-import fi.dy.masa.malilib.config.options.ConfigHotkey
-import fi.dy.masa.malilib.gui.GuiBase
-import fi.dy.masa.malilib.hotkeys.IKeybind
-import fi.dy.masa.malilib.hotkeys.KeyAction
-import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity
-import forpleuvoir.hiirosakura.client.gui.GuiConfig
-import forpleuvoir.hiirosakura.client.gui.qtte.QTTEScreen
+import forpleuvoir.hiirosakura.client.feature.timertask.gui.qtte.QtteScreen
+import forpleuvoir.hiirosakura.client.gui.HiiroSakuraScreen
+import forpleuvoir.ibuki_gourd.config.options.ConfigHotkey
+import forpleuvoir.ibuki_gourd.gui.screen.ScreenBase
+import forpleuvoir.ibuki_gourd.keyboard.KeyBind
+import net.minecraft.client.util.InputUtil
 
 /**
  * 热键配置
  *
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.config
+ * 包名 forpleuvoir.hiirosakura.client.config
  *
- * #class_name HotKeys
+ * 文件名 HotKeys
  *
- * #create_time 2021/6/15 23:28
+ * 创建时间 2021/6/15 23:28
  */
 object HotKeys {
-	private val OPEN_CONFIG_GUI = ConfigHotkey(
-		translationKey("openConfig"), "H,S",
-		translationKey("openConfig.comment")
-	)
-	private val OPEN_QTTE = ConfigHotkey(
-		translationKey("openQtte"), "",
-		translationKey("openQtte.comment")
-	)
+	private val OPEN_CONFIG_GUI =
+		ConfigHotkey(name = translationKey("openConfig"), defaultValue = KeyBind(InputUtil.GLFW_KEY_H, InputUtil.GLFW_KEY_S) {
+			HiiroSakuraScreen.openScreen(ScreenBase.current)
+		})
 
-	private val SWITCH_CAMERA_ENTITY = ConfigHotkey(
-		translationKey("switchCameraEntity"), "",
-		translationKey("switchCameraEntity.comment")
-	)
+	private val OPEN_QTTE =
+		ConfigHotkey(name = translationKey("openQtte"), defaultValue = KeyBind() {
+			ScreenBase.openScreen(QtteScreen(ScreenBase.current))
+		})
+
+	private val SWITCH_CAMERA_ENTITY =
+		ConfigHotkey(name = translationKey("switchCameraEntity"), defaultValue = KeyBind() {
+			SwitchCameraEntity.switchEntity()
+		})
 
 	@JvmField
 	val HOTKEY_LIST: ImmutableList<ConfigHotkey> = ImmutableList.of(
 		OPEN_CONFIG_GUI, OPEN_QTTE, SWITCH_CAMERA_ENTITY
 	)
 
-	private fun translationKey(key: String?): String {
+	private fun translationKey(key: String): String {
 		return Configs.translationKey("hotkeys", key)
 	}
 
-	fun initCallback(hs: HiiroSakuraClient) {
-		OPEN_CONFIG_GUI.keybind.setCallback { _: KeyAction?, _: IKeybind? ->
-			GuiBase.openGui(GuiConfig())
-			true
-		}
-		OPEN_QTTE.keybind.setCallback { _: KeyAction?, _: IKeybind? ->
-			GuiBase.openGui(QTTEScreen())
-			true
-		}
-		SWITCH_CAMERA_ENTITY.keybind.setCallback { _: KeyAction?, _: IKeybind? ->
-			SwitchCameraEntity.switchEntity()
-			true
-		}
-	}
 }

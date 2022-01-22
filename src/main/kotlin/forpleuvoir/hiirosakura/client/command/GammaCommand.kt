@@ -13,13 +13,13 @@ import net.minecraft.text.TranslatableText
  *
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.command
+ * 包名 forpleuvoir.hiirosakura.client.command
  *
- * #class_name GammaCommand
+ * 文件名 GammaCommand
  *
- * #create_time 2021/6/10 22:39
+ * 创建时间 2021/6/10 22:39
  */
 object GammaCommand {
 	//注册指令

@@ -9,13 +9,13 @@ import net.minecraft.util.math.Matrix4f
 /**
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.util
+ * 包名 forpleuvoir.hiirosakura.client.util
  *
- * #class_name RenderUtil
+ * 文件名 RenderUtil
  *
- * #create_time 2021/6/22 0:10
+ * 创建时间 2021/6/22 0:10
  */
 object RenderUtil {
 	fun drawTexture(

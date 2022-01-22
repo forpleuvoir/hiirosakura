@@ -1,11 +1,10 @@
 package forpleuvoir.hiirosakura.client.feature.chatmessage
 
-import forpleuvoir.hiirosakura.client.config.Configs
+import forpleuvoir.hiirosakura.client.config.Configs.Toggles.CHAT_MESSAGE_INJECT
 import forpleuvoir.hiirosakura.client.config.Configs.Toggles.ENABLE_CHAT_MESSAGE_INJECT_REGEX
 import forpleuvoir.hiirosakura.client.config.Configs.Toggles.REVERSE_CHAT_MESSAGE_INJECT_REGEX
-import forpleuvoir.hiirosakura.client.config.Configs.Values.CHAT_MESSAGE_INJECT_PREFIX
-import forpleuvoir.hiirosakura.client.config.Configs.Values.CHAT_MESSAGE_INJECT_REGEX
-import forpleuvoir.hiirosakura.client.config.Configs.Values.CHAT_MESSAGE_INJECT_SUFFIX
+import forpleuvoir.hiirosakura.client.config.Configs.Values.CHAT_MESSAGE_INJECT_EXP
+import forpleuvoir.hiirosakura.client.config.Configs.Values.CHAT_MESSAGE_INJECT_FILTER
 import java.util.regex.Pattern
 
 /**
@@ -13,15 +12,17 @@ import java.util.regex.Pattern
  *
  * @author forpleuvoir
  *
- * #project_name hiirosakura
+ * 项目名 hiirosakura
  *
- * #package forpleuvoir.hiirosakura.client.feature.chatmessage
+ * 包名 forpleuvoir.hiirosakura.client.feature.chatmessage
  *
- * #class_name ChatMessageInject
+ * 文件名 ChatMessageInject
  *
- * #create_time 2021/6/24 22:16
+ * 创建时间 2021/6/24 22:16
  */
 object ChatMessageInject {
+	private const val originMsg = "#{message}"
+
 	@JvmStatic
 	fun handlerMessage(message: String): String {
 		var msg = message
@@ -33,24 +34,23 @@ object ChatMessageInject {
 
 	private fun needInject(message: String): Boolean {
 		var returnValue = true
-		if (ENABLE_CHAT_MESSAGE_INJECT_REGEX.booleanValue) {
+		if (ENABLE_CHAT_MESSAGE_INJECT_REGEX.getValue()) {
 			var matched = false
-			for (regex in CHAT_MESSAGE_INJECT_REGEX.strings) {
+			for (regex in CHAT_MESSAGE_INJECT_FILTER.getValue()) {
 				if (Pattern.matches(regex, message)) {
 					matched = true
 				}
 			}
-			if (REVERSE_CHAT_MESSAGE_INJECT_REGEX.booleanValue) matched = !matched
+			if (REVERSE_CHAT_MESSAGE_INJECT_REGEX.getValue()) matched = !matched
 			returnValue = !matched
 		}
 		return returnValue
 	}
 
 	private fun setFix(message: String): String {
-		return if (Configs.Toggles.CHAT_MESSAGE_INJECT.booleanValue) String.format(
-			"%s%s%s", CHAT_MESSAGE_INJECT_PREFIX.stringValue, message,
-			CHAT_MESSAGE_INJECT_SUFFIX.stringValue
-		) else message
+		return if (CHAT_MESSAGE_INJECT.getValue()) {
+			CHAT_MESSAGE_INJECT_EXP.getValue().replace(originMsg, message)
+		} else message
 	}
 
 }

@@ -16,5 +16,8 @@ import forpleuvoir.ibuki_gourd.event.Event
  * @author forpleuvoir
 
  */
+
+var isDeath: Boolean = false
+
 class PlayerDeathEvent(@JvmField val killerName: String?, @JvmField val message: String?) : Event {
 }

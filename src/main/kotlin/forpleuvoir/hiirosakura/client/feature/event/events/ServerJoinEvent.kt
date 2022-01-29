@@ -17,4 +17,5 @@ import forpleuvoir.ibuki_gourd.event.Event
 
  */
 class ServerJoinEvent(@JvmField val serverName: String?, @JvmField val serverAddress: String?) : Event {
+
 }

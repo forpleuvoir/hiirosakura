@@ -1,9 +1,6 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
-import forpleuvoir.hiirosakura.client.feature.event.events.GameJoinEvent;
-import forpleuvoir.hiirosakura.client.feature.event.events.PlayerDeathEvent;
-import forpleuvoir.hiirosakura.client.feature.event.events.PlayerRespawnEvent;
-import forpleuvoir.hiirosakura.client.feature.event.events.ServerJoinEvent;
+import forpleuvoir.hiirosakura.client.feature.event.events.*;
 import forpleuvoir.hiirosakura.client.util.ServerInfoUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -54,7 +51,10 @@ public abstract class MixinClientPlayNetworkHandler {
 
 	@Inject(method = "onPlayerRespawn", at = @At("RETURN"))
 	public void onPlayerRespawn(PlayerRespawnS2CPacket packet, CallbackInfo callbackInfo) {
-		new PlayerRespawnEvent().broadcast();
+		if (PlayerDeathEventKt.isDeath()) {
+			PlayerDeathEventKt.setDeath(false);
+			new PlayerRespawnEvent().broadcast();
+		}
 	}
 
 	@Inject(method = "onDeathMessage", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/DeathMessageS2CPacket;getEntityId()I", shift = At.Shift.AFTER))
@@ -67,8 +67,8 @@ public abstract class MixinClientPlayNetworkHandler {
 			if (killer != null) {
 				name = killer.getDisplayName().getString();
 			}
+			PlayerDeathEventKt.setDeath(true);
 			new PlayerDeathEvent(name, message).broadcast();
-
 		}
 	}
 

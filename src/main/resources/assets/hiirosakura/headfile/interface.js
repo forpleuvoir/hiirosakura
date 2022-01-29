@@ -7,7 +7,7 @@ function sendChatMessage(message) {
 }
 
 function msg(message) {
-    sendChatMessage(message)
+    sendChatMessage(message);
 }
 
 function cmd(cmd) {

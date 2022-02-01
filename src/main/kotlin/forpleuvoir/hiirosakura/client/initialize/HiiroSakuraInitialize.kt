@@ -4,6 +4,7 @@ import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand
 import forpleuvoir.hiirosakura.client.config.Configs
 import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
+import forpleuvoir.hiirosakura.client.feature.chatbubble.HiiroSakuraChatBubble
 import forpleuvoir.hiirosakura.client.feature.common.javascript.HeadFile
 import forpleuvoir.hiirosakura.client.feature.event.EventRegister
 import forpleuvoir.hiirosakura.client.feature.input.AnalogInput
@@ -46,6 +47,7 @@ object HiiroSakuraInitialize : IModInitialize {
 			AnalogInput.tick()
 		}
 		HeadFile.initialize()
+		HiiroSakuraChatBubble.initialize()
 		//客户端指令注册
 		HiiroSakuraClientCommand.registerClientCommands(ClientCommandManager.DISPATCHER)
 		log.info("${HiiroSakuraClient.modName} Initialized...")

@@ -36,7 +36,7 @@ public abstract class MixinChatHudListener {
 		}
 
 		if (Configs.Toggles.CHAT_BUBBLE.getValue())
-			HiiroSakuraChatBubble.addChatShow(text);
+			HiiroSakuraChatBubble.addChatBubble(text);
 	}
 
 }

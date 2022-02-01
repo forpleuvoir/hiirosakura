@@ -117,6 +117,8 @@
   "hiirosakura.config.values.chatBubbleTime.remark": "Chat bubble render  time",
   "hiirosakura.config.values.chatBubbleScale": "chatBubbleScale",
   "hiirosakura.config.values.chatBubbleScale.remark": "Chat bubble scale",
+  "hiirosakura.config.values.chatBubbleBackgroundZOffset": "chatBubbleBackgroundZOffset",
+  "hiirosakura.config.values.chatBubbleBackgroundZOffset.remark": "Chat bubble background z offset",
   "hiirosakura.config.values.chatBubbleRegex": "chatBubbleMatch",
   "hiirosakura.config.values.chatBubbleRegex.remark": "Chat bubble match server ip: regular expression (regex) expression needs to match group name message",
   "hiirosakura.config.values.chatBubbleConfigGroup": "ChatBubbleSetting",

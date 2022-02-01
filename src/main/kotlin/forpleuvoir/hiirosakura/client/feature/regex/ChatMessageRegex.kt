@@ -1,6 +1,6 @@
 package forpleuvoir.hiirosakura.client.feature.regex
 
-import forpleuvoir.hiirosakura.client.config.Configs
+import forpleuvoir.hiirosakura.client.config.Configs.Values.CHAT_BUBBLE_REGEX
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
 import java.util.regex.Pattern
@@ -35,8 +35,12 @@ class ChatMessageRegex private constructor(text: Text, regex: String) {
 		@JvmStatic
 		fun getInstance(text: Text): ChatMessageRegex {
 			currentServerAddress?.let { address ->
-				Configs.Values.CHAT_BUBBLE_REGEX[address]?.let {
-					return ChatMessageRegex(text, it)
+				CHAT_BUBBLE_REGEX.getValue().keys.forEach {
+					val regex = Regex(it)
+					regex.containsMatchIn(address)
+					CHAT_BUBBLE_REGEX[it]?.let { messageRegex ->
+						return ChatMessageRegex(text, messageRegex)
+					}
 				}
 			}
 			return ChatMessageRegex(text, defaultRegex)

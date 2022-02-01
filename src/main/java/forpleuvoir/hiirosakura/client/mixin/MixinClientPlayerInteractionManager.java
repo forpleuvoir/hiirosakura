@@ -5,14 +5,7 @@ import forpleuvoir.ibuki_gourd.mod.config.WhiteListMode;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
@@ -43,12 +36,6 @@ public abstract class MixinClientPlayerInteractionManager {
 	@Shadow
 	@Final
 	private MinecraftClient client;
-
-	@Shadow
-	public abstract ActionResult interactBlock(ClientPlayerEntity player, ClientWorld world, Hand hand, BlockHitResult hitResult);
-
-	@Shadow
-	public abstract ActionResult interactEntity(PlayerEntity player, Entity entity, Hand hand);
 
 	@Inject(method = "updateBlockBreakingProgress", at = @At("HEAD"), cancellable = true)
 	public void updateBlockBreakingProgress(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> returnable) {

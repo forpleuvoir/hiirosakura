@@ -2,16 +2,19 @@ package forpleuvoir.hiirosakura.client.feature.chatbubble
 
 import com.mojang.blaze3d.systems.RenderSystem
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
+import forpleuvoir.hiirosakura.client.HiiroSakuraClient.mc
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient.tickCounter
-import forpleuvoir.hiirosakura.client.config.Configs
+import forpleuvoir.hiirosakura.client.config.Configs.Values
 import forpleuvoir.hiirosakura.client.config.Configs.Values.CHAT_BUBBLE_TEXTURE_COLOR
 import forpleuvoir.hiirosakura.client.feature.regex.ChatMessageRegex
-import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
-import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.network.AbstractClientPlayerEntity
-import net.minecraft.client.render.GameRenderer
+import net.minecraft.client.render.BufferRenderer
+import net.minecraft.client.render.Shader
+import net.minecraft.client.render.Tessellator
+import net.minecraft.client.render.VertexFormat.DrawMode.QUADS
+import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.render.entity.EntityRenderDispatcher
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.LiteralText
@@ -33,10 +36,12 @@ import java.util.*
  * 创建时间 2021/6/12 21:47
  */
 class ChatBubble(private val text: String, private val playerName: String) {
+
+
 	/**
 	 * 显示时间
 	 */
-	private val timer: Long = tickCounter + Configs.Values.CHAT_BUBBLE_TIME.getValue()
+	private val timer: Long = tickCounter + Values.CHAT_BUBBLE_TIME.getValue()
 	private val list: List<Text>
 	private val textRenderer: TextRenderer = MinecraftClient.getInstance().textRenderer
 	var shouldRemove: Boolean = false
@@ -59,8 +64,8 @@ class ChatBubble(private val text: String, private val playerName: String) {
 		val lineSpacing = 4
 		val height = getHeight(count)
 		matrixStack.push()
-		matrixStack.translate(0.0, player.height + Configs.Values.CHAT_BUBBLE_HEIGHT.getValue(), 0.0)
-		val scale = -0.025f * Configs.Values.CHAT_BUBBLE_SCALE.getValue().toFloat()
+		matrixStack.translate(0.0, player.height + Values.CHAT_BUBBLE_HEIGHT.getValue(), 0.0)
+		val scale = -0.025f * Values.CHAT_BUBBLE_SCALE.getValue().toFloat()
 		matrixStack.scale(scale, scale, scale)
 		matrixStack.multiply(dispatcher.rotation)
 		renderBackground(matrixStack, width + 5, height + lineSpacing)
@@ -70,30 +75,54 @@ class ChatBubble(private val text: String, private val playerName: String) {
 				text,
 				-(width / 2).toFloat(),
 				(-height + getHeight(count, index = index)).toFloat(),
-				Configs.Values.CHAT_BUBBLE_TEXT_COLOR.getValue().rgba
+				Values.CHAT_BUBBLE_TEXT_COLOR.getValue().rgba
 			)
 		}
 		matrixStack.pop()
 	}
 
 	private fun renderBackground(matrixStack: MatrixStack, width: Int, height: Int) {
-		RenderSystem.setShader(GameRenderer::getPositionTexShader)
 		RenderSystem.enableDepthTest()
 		RenderSystem.setShaderTexture(0, BUBBLE_TEXTURE)
-		val color = Color4f().fromInt(CHAT_BUBBLE_TEXTURE_COLOR.getValue().rgba)
-		RenderSystem.setShaderColor(color.red, color.green, color.blue, color.alpha)
-		matrixStack.translate(0.0, 0.0, -1.0)
-		DrawableHelper.drawTexture(matrixStack, -(width / 2) - 4, -height - 4, 4, 4, 0f, 0f, 4, 4, 32, 32)
-		DrawableHelper.drawTexture(matrixStack, -(width / 2), -height - 4, width, 4, 4f, 0f, 24, 4, 32, 32)
-		DrawableHelper.drawTexture(matrixStack, width / 2, -height - 4, 4, 4, 28f, 0f, 4, 4, 32, 32)
-		DrawableHelper.drawTexture(matrixStack, -(width / 2) - 4, -height, 4, height, 0f, 4f, 4, 24, 32, 32)
-		DrawableHelper.drawTexture(matrixStack, -(width / 2), -height, width, height, 4f, 4f, 24, 24, 32, 32)
-		DrawableHelper.drawTexture(matrixStack, width / 2, -height, 4, height, 28f, 4f, 4, 24, 32, 32)
-		DrawableHelper.drawTexture(matrixStack, -(width / 2) - 4, 0, 4, 4, 0f, 28f, 4, 4, 32, 32)
-		DrawableHelper.drawTexture(matrixStack, -(width / 2), 0, width, 4, 4f, 28f, 24, 4, 32, 32)
-		DrawableHelper.drawTexture(matrixStack, width / 2, 0, 4, 4, 28f, 28f, 4, 4, 32, 32)
-		matrixStack.translate(0.0, 0.0, 1.0)
+		matrixStack.translate(0.0, 0.0, -Values.CHAT_BUBBLE_BACKGROUND_Z_OFFSET.getValue())
+		drawTexture(matrixStack, -(width / 2) - 4, -height - 4, 4, 4, 0f, 0f, 4, 4)
+		drawTexture(matrixStack, -(width / 2), -height - 4, width, 4, 4f, 0f, 24, 4)
+		drawTexture(matrixStack, width / 2, -height - 4, 4, 4, 28f, 0f, 4, 4)
+		drawTexture(matrixStack, -(width / 2) - 4, -height, 4, height, 0f, 4f, 4, 24)
+		drawTexture(matrixStack, -(width / 2), -height, width, height, 4f, 4f, 24, 24)
+		drawTexture(matrixStack, width / 2, -height, 4, height, 28f, 4f, 4, 24)
+		drawTexture(matrixStack, -(width / 2) - 4, 0, 4, 4, 0f, 28f, 4, 4)
+		drawTexture(matrixStack, -(width / 2), 0, width, 4, 4f, 28f, 24, 4)
+		drawTexture(matrixStack, width / 2, 0, 4, 4, 28f, 28f, 4, 4)
+		matrixStack.translate(0.0, 0.0, Values.CHAT_BUBBLE_BACKGROUND_Z_OFFSET.getValue())
 		RenderSystem.disableDepthTest()
+	}
+
+	private fun drawTexture(
+		matrixStack: MatrixStack,
+		x: Int,
+		y: Int,
+		width: Int,
+		height: Int,
+		u: Float,
+		v: Float,
+		regionWidth: Int,
+		regionHeight: Int,
+	) {
+		val matrix = matrixStack.peek().positionMatrix
+		RenderSystem.setShader { HiiroSakuraChatBubble.shader ?: shader }
+		val color = CHAT_BUBBLE_TEXTURE_COLOR.getValue().rgba
+		val bufferBuilder = Tessellator.getInstance().buffer
+		bufferBuilder.begin(QUADS, VertexFormats.POSITION_TEXTURE_COLOR)
+		bufferBuilder.vertex(matrix, x.toFloat(), y + height.toFloat(), 0.0f).texture(u / 32f, (v + regionHeight) / 32f).color(color).next()
+		bufferBuilder.vertex(matrix, x + width.toFloat(), y + height.toFloat(), 0.0f).texture((u + regionWidth) / 32f, (v + regionHeight) / 32f)
+			.color(color)
+			.next()
+		bufferBuilder.vertex(matrix, x + width.toFloat(), y.toFloat(), 0.0f).texture((u + regionWidth) / 32f, v / 32f).color(color).next()
+		bufferBuilder.vertex(matrix, x.toFloat(), y.toFloat(), 0.0f).texture(u / 32f, v / 32f).color(color).next()
+		bufferBuilder.end()
+		BufferRenderer.draw(bufferBuilder)
+
 	}
 
 	/**
@@ -151,10 +180,11 @@ class ChatBubble(private val text: String, private val playerName: String) {
 	}
 
 	companion object {
-		val BUBBLE_TEXTURE = Identifier(
+		private val BUBBLE_TEXTURE = Identifier(
 			HiiroSakuraClient.modId,
 			"texture/gui/feature/chatshow/bubble.png"
 		)
+		private val shader: Shader = Shader(mc.resourcePackProvider.pack, "position_tex_color", VertexFormats.POSITION_TEXTURE_COLOR)
 
 		@JvmStatic
 		fun getInstance(chatMessageRegex: ChatMessageRegex): ChatBubble? {
@@ -167,6 +197,6 @@ class ChatBubble(private val text: String, private val playerName: String) {
 	}
 
 	init {
-		list = textHandler(Configs.Values.CHAT_BUBBLE_TEXT_MAX_WIDTH.getValue())
+		list = textHandler(Values.CHAT_BUBBLE_TEXT_MAX_WIDTH.getValue())
 	}
 }

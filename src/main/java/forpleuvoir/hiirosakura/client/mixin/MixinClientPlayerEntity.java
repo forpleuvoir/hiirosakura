@@ -3,6 +3,7 @@ package forpleuvoir.hiirosakura.client.mixin;
 import com.mojang.authlib.GameProfile;
 import forpleuvoir.hiirosakura.client.config.Configs;
 import forpleuvoir.hiirosakura.client.feature.chatmessage.ChatMessageInject;
+import forpleuvoir.hiirosakura.client.feature.event.events.PlayerDeathEventKt;
 import forpleuvoir.hiirosakura.client.feature.event.events.PlayerTickEvent;
 import forpleuvoir.hiirosakura.client.feature.event.events.api.ClientPlayerApi;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -56,6 +57,7 @@ public abstract class MixinClientPlayerEntity extends PlayerEntity {
 
 	@Inject(method = "tick", at = @At("RETURN"))
 	public void tick(CallbackInfo callbackInfo) {
+		PlayerDeathEventKt.setDeath(isDead());
 		new PlayerTickEvent(ClientPlayerApi.getInstance((ClientPlayerEntity) (Object) this)).broadcast();
 	}
 

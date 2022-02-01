@@ -84,13 +84,22 @@ public abstract class MixinMinecraftClient {
 	@Inject(method = "handleInputEvents", at = @At(value = "HEAD"))
 	public void handleInputEvents(CallbackInfo callbackInfo) {
 		if (this.currentScreen == null) {
+			if (this.options.keyAttack.isPressed()) {
+				AnalogInput.set(ATTACK, 0);
+			}
 			if (AnalogInput.isPress(ATTACK))
 				KeyBinding.setKeyPressed(
 						InputUtil.fromTranslationKey(this.options.keyAttack.getBoundKeyTranslationKey()), true);
+			if (this.options.keyUse.isPressed()) {
+				AnalogInput.set(USE, 0);
+			}
 			if (AnalogInput.isPress(USE))
 				KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(this.options.keyUse.getBoundKeyTranslationKey()),
 						true
 				);
+			if (this.options.keyPickItem.isPressed()) {
+				AnalogInput.set(PICK_ITEM, 0);
+			}
 			if (AnalogInput.isPress(PICK_ITEM))
 				KeyBinding.setKeyPressed(
 						InputUtil.fromTranslationKey(this.options.keyPickItem.getBoundKeyTranslationKey()), true);

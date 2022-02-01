@@ -122,15 +122,13 @@ object Configs : IConfigHandler {
 		val CHAT_BUBBLE_SCALE = ConfigDouble(name = translationKey("chatBubbleScale"), defaultValue = 1.0, minValue = 0.1, maxValue = 10.0)
 
 		@JvmField
+		val CHAT_BUBBLE_BACKGROUND_Z_OFFSET =
+			ConfigDouble(name = translationKey("chatBubbleBackgroundZOffset"), defaultValue = 1.5, minValue = -10.0, maxValue = 10.0)
+
+		@JvmField
 		val CHAT_BUBBLE_REGEX = ConfigMap(
 			name = translationKey("chatBubbleRegex"), defaultValue = mapOf(
-				"dx.bakamc.cn" to "(?<name>(?<=]\\[).*(?=])).*:\\s(?<message>.*)",
-				"yd.bakamc.cn" to "(?<name>(?<=]\\[).*(?=])).*:\\s(?<message>.*)",
-				"lt.bakamc.cn" to "(?<name>(?<=]\\[).*(?=])).*:\\s(?<message>.*)",
-				"sc.bakamc.cn" to "(?<name>(?<=]\\[).*(?=])).*:\\s(?<message>.*)",
-				"us.bakamc.cn" to "(?<name>(?<=]\\[).*(?=])).*:\\s(?<message>.*)",
-				"gz.bakamc.cn" to "(?<name>(?<=]\\[).*(?=])).*:\\s(?<message>.*)",
-				"sgp.bakamc.cn" to "(?<name>(?<=]\\[).*(?=])).*:\\s(?<message>.*)"
+				".*\\.bakamc\\.cn" to "(?<name>(?<=]\\[).*(?=])).*:\\s(?<message>.*)",
 			)
 		)
 
@@ -143,6 +141,7 @@ object Configs : IConfigHandler {
 				CHAT_BUBBLE_TEXT_MAX_WIDTH,
 				CHAT_BUBBLE_TIME,
 				CHAT_BUBBLE_SCALE,
+				CHAT_BUBBLE_BACKGROUND_Z_OFFSET,
 				CHAT_BUBBLE_REGEX
 			)
 		)

@@ -2,9 +2,6 @@ package forpleuvoir.hiirosakura.client.util
 
 import net.minecraft.util.Util
 import java.io.*
-import java.lang.Exception
-import kotlin.Throws
-import java.lang.StringBuilder
 import java.nio.charset.StandardCharsets
 
 /**

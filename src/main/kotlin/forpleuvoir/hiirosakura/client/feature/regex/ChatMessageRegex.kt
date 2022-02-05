@@ -37,9 +37,10 @@ class ChatMessageRegex private constructor(text: Text, regex: String) {
 			currentServerAddress?.let { address ->
 				CHAT_BUBBLE_REGEX.getValue().keys.forEach {
 					val regex = Regex(it)
-					regex.containsMatchIn(address)
-					CHAT_BUBBLE_REGEX[it]?.let { messageRegex ->
-						return ChatMessageRegex(text, messageRegex)
+					if (regex.containsMatchIn(address)) {
+						CHAT_BUBBLE_REGEX[it]?.let { messageRegex ->
+							return ChatMessageRegex(text, messageRegex)
+						}
 					}
 				}
 			}

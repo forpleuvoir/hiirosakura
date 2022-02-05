@@ -42,8 +42,7 @@ class WidgetListEntryTimerTask(
 	y: Int,
 	width: Int,
 	height: Int
-) :
-	WidgetListEntry<WidgetListEntryTimerTask>(parent, x, y, width, height) {
+) : WidgetListEntry<WidgetListEntryTimerTask>(parent, x, y, width, height) {
 
 	private val nameLabel: LabelText = LabelText(timerTaskWrappedWithKeyBind.timerTask.name.fText, 0, 0).apply {
 		this.align = LabelText.Align.CENTER_LEFT

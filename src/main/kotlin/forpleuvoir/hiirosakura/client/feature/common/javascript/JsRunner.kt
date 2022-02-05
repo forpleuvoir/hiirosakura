@@ -3,6 +3,7 @@ package forpleuvoir.hiirosakura.client.feature.common.javascript
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
+import forpleuvoir.hiirosakura.client.config.Configs.Values.JS_COMMON_LIB
 import forpleuvoir.hiirosakura.client.feature.common.Runnable
 import forpleuvoir.hiirosakura.client.util.HSLogger
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
@@ -23,58 +24,65 @@ import javax.script.ScriptEngineManager
  * @author forpleuvoir
 
  */
-open class JsRunner(protected var script: String, protected open val params: MutableMap<String, Any> = HashMap()) : Runnable {
+open class JsRunner(protected var script: String, protected open val params: MutableMap<String, Any> = HashMap()) :
+    Runnable {
 
-	private val log = HSLogger.getLogger(this.javaClass)
-	private val engine = ScriptEngineManager().getEngineByName("nashorn")
+    private val log = HSLogger.getLogger(this.javaClass)
+    private val engine = ScriptEngineManager().getEngineByName("nashorn")
 
-	private constructor() : this("")
 
-	override fun run(params: Map<String, Any>) {
-		try {
-			HeadFile.eval(engine)
-			params.forEach(engine::put)
-			this.params.forEach(engine::put)
-			engine.put("_this", this)
-			engine.eval(script)
-		} catch (e: Exception) {
-			HiiroSakuraClient.addChatMessage("§c${e.message}".text)
-			log.error(e)
-		}
-	}
+    private constructor() : this("")
 
-	operator fun set(key: String, value: Any) {
-		params[key] = value
-	}
+    override fun run(params: Map<String, Any>) {
+        try {
+            HeadFile.eval(engine)
+            params.forEach(engine::put)
+            this.params.forEach(engine::put)
+            engine.eval(commonLib)
+            engine.put("_this", this)
+            engine.eval(script)
+        } catch (e: Exception) {
+            HiiroSakuraClient.addChatMessage("§c${e.message}".text)
+            log.error(e)
+        }
+    }
 
-	fun putAll(params: Map<String, Any>) {
-		this.params.putAll(params)
-	}
+    operator fun set(key: String, value: Any) {
+        params[key] = value
+    }
 
-	override val asJsonElement: JsonElement
-		get() = JsonPrimitive(script)
+    fun putAll(params: Map<String, Any>) {
+        this.params.putAll(params)
+    }
 
-	override val asString: String
-		get() = script
+    override val asJsonElement: JsonElement
+        get() = JsonPrimitive(script)
 
-	override fun setValueFromJsonElement(jsonElement: JsonElement) {
-		try {
-			if (jsonElement.isJsonPrimitive) {
-				this.script = jsonElement.asString
-			} else {
-				log.warn(IbukiGourdLang.SetFromJsonFailed.tString("JsRunner", jsonElement))
-			}
-		} catch (e: Exception) {
-			log.warn(IbukiGourdLang.SetFromJsonFailed.tString("JsRunner", jsonElement))
-			log.error(e)
-		}
-	}
+    override val asString: String
+        get() = script
 
-	companion object {
-		@JvmStatic
-		fun fromJson(json: JsonElement): JsRunner {
-			return JsRunner().apply { setValueFromJsonElement(json) }
-		}
-	}
+    override fun setValueFromJsonElement(jsonElement: JsonElement) {
+        try {
+            if (jsonElement.isJsonPrimitive) {
+                this.script = jsonElement.asString
+            } else {
+                log.warn(IbukiGourdLang.SetFromJsonFailed.tString("JsRunner", jsonElement))
+            }
+        } catch (e: Exception) {
+            log.warn(IbukiGourdLang.SetFromJsonFailed.tString("JsRunner", jsonElement))
+            log.error(e)
+        }
+    }
+
+    companion object {
+
+        val commonLib
+            get() = JS_COMMON_LIB.getValue()
+
+        @JvmStatic
+        fun fromJson(json: JsonElement): JsRunner {
+            return JsRunner().apply { setValueFromJsonElement(json) }
+        }
+    }
 
 }

@@ -3,6 +3,7 @@ package forpleuvoir.hiirosakura.client.config
 import com.google.common.collect.ImmutableList
 import com.google.gson.JsonObject
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
+import forpleuvoir.hiirosakura.client.config.base.ConfigMultilineText
 import forpleuvoir.ibuki_gourd.config.ConfigUtil
 import forpleuvoir.ibuki_gourd.config.IConfigHandler
 import forpleuvoir.ibuki_gourd.config.options.*
@@ -117,7 +118,12 @@ object Configs : IConfigHandler {
 
         @JvmField
         val CHAT_BUBBLE_HEIGHT =
-            ConfigDouble(name = translationKey("chatBubbleHeight"), defaultValue = 1.0, minValue = 0.0, maxValue = 10.0)
+            ConfigDouble(
+                name = translationKey("chatBubbleHeight"),
+                defaultValue = 0.75,
+                minValue = 0.0,
+                maxValue = 10.0
+            )
 
         @JvmField
         val CHAT_BUBBLE_TEXTURE_COLOR =
@@ -207,6 +213,9 @@ object Configs : IConfigHandler {
         val BLOCK_BRAKE_PROTECTION_LIST =
             ConfigStringList(name = translationKey("blockBrakeProtectionList"), defaultValue = ImmutableList.of(""))
 
+        @JvmField
+        val JS_COMMON_LIB = ConfigMultilineText(name = translationKey("jsCommonLib"), defaultValue = "")
+
 
         @JvmField
         val CONFIGS: ImmutableList<ConfigBase> = ImmutableList.of(
@@ -215,7 +224,8 @@ object Configs : IConfigHandler {
             CHAT_MESSAGE_INJECT_GROUP,
             CHAT_MESSAGE_FILTER_REGEX,
             BLOCK_BRAKE_PROTECTION_MODE,
-            BLOCK_BRAKE_PROTECTION_LIST
+            BLOCK_BRAKE_PROTECTION_LIST,
+            JS_COMMON_LIB
         )
 
         private fun translationKey(key: String): String {

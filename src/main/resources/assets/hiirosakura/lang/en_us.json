@@ -139,6 +139,8 @@
   "hiirosakura.config.values.blockBrakeProtectionMode.remark": "Block Brake Protection Mode",
   "hiirosakura.config.values.blockBrakeProtectionList": "blockBrakeProtectionList",
   "hiirosakura.config.values.blockBrakeProtectionList.remark": "Block Brake Protection List",
+  "hiirosakura.config.values.jsCommonLib": "jsCommonLib",
+  "hiirosakura.config.values.jsCommonLib.remark": "JavaScript common lib,All javascript will use this content as a header file before execution",
   "#command": "command",
   "hiirosakura.command.tooltip.add": "add tooltip : ",
   "hiirosakura.command.tooltip.remove": "tooltip is removed : ",
@@ -163,6 +165,7 @@
   "hiirosakura.event.description.GameExitEvent": "GameExitEvent",
   "hiirosakura.event.description.DisconnectEvent": "DisconnectEvent",
   "hiirosakura.event.description.MessageEvent": "MessageEvent",
+  "hiirosakura.event.description.MessageSendEvent": "MessageSendEvent(you can modify event.message to replace the chatMessageInject)",
   "hiirosakura.event.description.PlayerTickEvent": "PlayerTickEvent",
   "hiirosakura.event.description.PlayerDeathEvent": "PlayerDeathEvent",
   "hiirosakura.event.description.PlayerRespawnEvent": "PlayerRespawnEvent"

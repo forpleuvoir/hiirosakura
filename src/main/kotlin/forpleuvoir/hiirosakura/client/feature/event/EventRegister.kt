@@ -32,7 +32,8 @@ object EventRegister : IModInitialize {
 		register(GameExitEvent::class.java)
 		register(DisconnectEvent::class.java)
 		register(MessageEvent::class.java)
-		register(PlayerTickEvent::class.java)
+        register(MessageSendEvent::class.java)
+        register(PlayerTickEvent::class.java)
 		register(PlayerDeathEvent::class.java)
 		register(PlayerRespawnEvent::class.java)
 

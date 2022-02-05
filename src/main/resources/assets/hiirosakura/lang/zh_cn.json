@@ -139,6 +139,8 @@
   "hiirosakura.config.values.blockBrakeProtectionMode.remark": "方块破坏保护模式",
   "hiirosakura.config.values.blockBrakeProtectionList": "方块破坏保护列表",
   "hiirosakura.config.values.blockBrakeProtectionList.remark": "方块破坏保护列表",
+  "hiirosakura.config.values.jsCommonLib": "JavaScript通用库",
+  "hiirosakura.config.values.jsCommonLib.remark": "JavaScript通用库 所有js脚本执行前都会将此内容作为头文件",
   "#command": "command",
   "hiirosakura.command.tooltip.add": "添加物品提示 : ",
   "hiirosakura.command.tooltip.remove": "物品提示已删除 : ",
@@ -163,6 +165,7 @@
   "hiirosakura.event.description.GameExitEvent": "退出游戏事件",
   "hiirosakura.event.description.DisconnectEvent": "掉线事件",
   "hiirosakura.event.description.MessageEvent": "客户端收到消息事件",
+  "hiirosakura.event.description.MessageSendEvent": "客户端发送消息事件(可以修改event.message来代替消息注入功能)",
   "hiirosakura.event.description.PlayerTickEvent": "玩家tick事件",
   "hiirosakura.event.description.PlayerDeathEvent": "玩家死亡事件",
   "hiirosakura.event.description.PlayerRespawnEvent": "玩家重生事件"

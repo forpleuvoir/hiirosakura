@@ -21,30 +21,35 @@ import forpleuvoir.ibuki_gourd.keyboard.KeyboardUtil
  */
 class TimerTaskWrappedWithKeyBind : TimerTaskWrapped() {
 
-	fun handlerKey() {
-		KeyboardUtil.wasPressed(this.keyBind)
-	}
+    fun handlerKey() {
+        if (!isPressed) {
+            KeyboardUtil.wasPressed(this.keyBind)
+        }
+        isPressed = KeyboardUtil.wasPressed(*this.keyBind.keys.toIntArray())
+    }
 
-	val keyBind: KeyBind = KeyBind().apply {
-		callback = {
-			run()
-		}
-	}
+    var isPressed: Boolean = false
 
-	override val asJsonElement: JsonElement
-		get() = super.asJsonElement.apply {
-			this.asJsonObject.add("keyBind", keyBind.asJsonElement)
-		}
+    val keyBind: KeyBind = KeyBind().apply {
+        callback = {
+            run()
+        }
+    }
 
-	override fun setValueFromJsonElement(jsonElement: JsonElement) {
-		if (jsonElement.isJsonObject) {
-			jsonElement.asJsonObject.let {
-				timerTask = JsExecutor.fromJson(it["timerTask"].asJsonObject)!!
-				keyBind.setValueFromJsonElement(it["keyBind"])
-				runAt = RunAt.valueOf(it["runAt"].asString)
-			}
-		}
-	}
+    override val asJsonElement: JsonElement
+        get() = super.asJsonElement.apply {
+            this.asJsonObject.add("keyBind", keyBind.asJsonElement)
+        }
+
+    override fun setValueFromJsonElement(jsonElement: JsonElement) {
+        if (jsonElement.isJsonObject) {
+            jsonElement.asJsonObject.let {
+                timerTask = JsExecutor.fromJson(it["timerTask"].asJsonObject)!!
+                keyBind.setValueFromJsonElement(it["keyBind"])
+                runAt = RunAt.valueOf(it["runAt"].asString)
+            }
+        }
+    }
 
 
 }

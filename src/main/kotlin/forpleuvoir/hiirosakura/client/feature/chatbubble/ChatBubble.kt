@@ -43,7 +43,7 @@ class ChatBubble(private val text: String, private val playerName: String) {
      * 显示时间
      */
     private val timer: Long = tickCounter + Values.CHAT_BUBBLE_TIME.getValue()
-    private val list: List<Text>
+    private val lines: List<Text>
     private val textRenderer: TextRenderer = MinecraftClient.getInstance().textRenderer
     var shouldRemove: Boolean = false
 
@@ -61,7 +61,7 @@ class ChatBubble(private val text: String, private val playerName: String) {
         }
         if (player.entityName != playerName) return
         val width = maxWidth
-        val count = list.size
+        val count = lines.size
         val lineSpacing = 4
         val height = getHeight(count)
         matrixStack.push()
@@ -79,7 +79,7 @@ class ChatBubble(private val text: String, private val playerName: String) {
         RenderSystem.defaultBlendFunc()
         RenderSystem.setShaderTexture(0, BUBBLE_TEXTURE)
         renderBackground(matrixStack, width + 5, height + lineSpacing)
-        for ((index, text) in list.withIndex()) {
+        for ((index, text) in lines.withIndex()) {
             textRenderer.draw(
                 matrixStack,
                 text,
@@ -153,7 +153,7 @@ class ChatBubble(private val text: String, private val playerName: String) {
      *
      * @return 处理之后的文本 [List]
      */
-    private fun textHandler(maxWidth: Int): List<Text> {
+    private fun handleText(maxWidth: Int): List<Text> {
         val list: MutableList<Text> = LinkedList()
         val sb = StringBuilder()
         for (c in text.toCharArray()) {
@@ -170,7 +170,7 @@ class ChatBubble(private val text: String, private val playerName: String) {
     private val maxWidth: Int
         get() {
             var max = 0
-            for (text in list) {
+            for (text in lines) {
                 if (max < textRenderer.getWidth(text)) {
                     max = textRenderer.getWidth(text)
                 }
@@ -227,6 +227,6 @@ class ChatBubble(private val text: String, private val playerName: String) {
     }
 
     init {
-        list = textHandler(Values.CHAT_BUBBLE_TEXT_MAX_WIDTH.getValue())
+        lines = handleText(Values.CHAT_BUBBLE_TEXT_MAX_WIDTH.getValue())
     }
 }

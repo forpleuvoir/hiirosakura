@@ -43,6 +43,7 @@ public abstract class MixinClientPlayerEntity extends PlayerEntity {
     public String sendChatMessage(String message) {
         var messageEvent = new MessageSendEvent(message);
         messageEvent.broadcast();
+        if (messageEvent.isCanceled()) return "";
         return ChatMessageInject.handlerMessage(messageEvent.message);
     }
 

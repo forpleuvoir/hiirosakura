@@ -1,5 +1,7 @@
 package forpleuvoir.hiirosakura.client.gui
 
+import forpleuvoir.hiirosakura.client.HiiroSakuraClient
+import forpleuvoir.ibuki_gourd.common.ModInfo
 import forpleuvoir.ibuki_gourd.gui.screen.IScreenTabEntry
 import net.minecraft.text.Text
 
@@ -18,16 +20,18 @@ import net.minecraft.text.Text
 
  */
 abstract class HiiroSakuraTabEntry(override val key: String) : IScreenTabEntry {
-	override val all: List<IScreenTabEntry>
-		get() = HiiroSakuraScreen.allTabsEntry
-	override val baseTitle: Text
-		get() = HiiroSakuraScreen.baseTitle
-	override val current: IScreenTabEntry
-		get() = HiiroSakuraScreen.currentEntry
-	override val remark: String
-		get() = key
+    override val all: List<IScreenTabEntry>
+        get() = HiiroSakuraScreen.allTabsEntry
+    override val baseTitle: Text
+        get() = HiiroSakuraScreen.baseTitle
+    override val current: IScreenTabEntry
+        get() = HiiroSakuraScreen.currentEntry
+    override val remark: String
+        get() = key
+    override val currentMod: ModInfo
+        get() = HiiroSakuraClient
 
-	override fun changeCurrent(current: IScreenTabEntry) {
-		HiiroSakuraScreen.currentEntry = current
-	}
+    override fun changeCurrent(current: IScreenTabEntry) {
+        HiiroSakuraScreen.currentEntry = current
+    }
 }

@@ -2,7 +2,6 @@ package forpleuvoir.hiirosakura.client.initialize
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand
-import forpleuvoir.hiirosakura.client.config.Configs
 import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
 import forpleuvoir.hiirosakura.client.feature.chatbubble.HiiroSakuraChatBubble
 import forpleuvoir.hiirosakura.client.feature.common.javascript.HeadFile
@@ -10,7 +9,6 @@ import forpleuvoir.hiirosakura.client.feature.event.EventRegister
 import forpleuvoir.hiirosakura.client.feature.input.AnalogInput
 import forpleuvoir.hiirosakura.client.util.HSLogger
 import forpleuvoir.ibuki_gourd.common.IModInitialize
-import forpleuvoir.ibuki_gourd.config.ConfigManager
 import forpleuvoir.ibuki_gourd.event.EventBus
 import forpleuvoir.ibuki_gourd.event.events.ClientEndTickEvent
 import forpleuvoir.ibuki_gourd.event.events.GameInitializedEvent
@@ -35,7 +33,6 @@ object HiiroSakuraInitialize : IModInitialize {
 	override fun initialize() {
 		log.info("${HiiroSakuraClient.modName} initializing...")
 		//配置初始化
-		ConfigManager.register(HiiroSakuraClient, Configs)
 		//EventRegister
 		EventRegister.initialize()
 		EventBus.subscribe<GameInitializedEvent> {

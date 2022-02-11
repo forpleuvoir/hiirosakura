@@ -1,11 +1,9 @@
 package forpleuvoir.hiirosakura.client.util
 
-import net.minecraft.item.EnchantedBookItem
+import forpleuvoir.ibuki_gourd.common.tText
+import forpleuvoir.ibuki_gourd.utils.text
+import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
-import net.minecraft.nbt.NbtCompound
-import net.minecraft.nbt.NbtElement
-import net.minecraft.nbt.NbtList
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Formatting
@@ -36,25 +34,13 @@ object ItemStackUtil {
     @JvmStatic
     fun getEnchantmentsWithLvl(stack: ItemStack, vararg formatting: Formatting?): List<Text> {
         val texts = LinkedList<Text>()
-        var enchantments: NbtList = stack.enchantments
-        if (stack.isOf(Items.ENCHANTED_BOOK)) {
-            enchantments = EnchantedBookItem.getEnchantmentNbt(stack)
-        }
-        if (enchantments.isEmpty()) {
-            return texts
-        }
-        enchantments.forEach { nbtElement: NbtElement? ->
-            if (nbtElement is NbtCompound) {
-                val lvl: Int = nbtElement.getInt("lvl")
-                val originKey: Array<String> = nbtElement.getString("id").split(":").toTypedArray()
-                val key = String.format("enchantment.%s.%s", originKey[0], originKey[1])
-                val text = TranslatableText(key).append(" ")
-                if (lvl != 1) {
-                    text.append(TranslatableText("enchantment.level.$lvl"))
-                }
-                text.formatted(*formatting)
-                texts.addLast(text)
-            }
+        EnchantmentHelper.get(stack).forEach { (enchantment, lvl) ->
+            val text = enchantment.translationKey.tText()
+            if (lvl <= 10)
+                text.append(TranslatableText("enchantment.level.$lvl"))
+            else text.append("$lvl".text)
+            text.formatted(*formatting)
+            texts.add(text)
         }
         return texts
     }

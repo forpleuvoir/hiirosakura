@@ -26,8 +26,9 @@ import java.util.List;
 @Mixin(Item.class)
 public abstract class MixinItem {
 
-	@Inject(method = "appendTooltip", at = @At("HEAD"))
-	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context, CallbackInfo callbackInfo) {
-		tooltip.addAll(HiiroSakuraData.TOOLTIP.getTooltip(stack));
-	}
+    @Inject(method = "appendTooltip", at = @At("HEAD"))
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context, CallbackInfo callbackInfo) {
+        tooltip.addAll(HiiroSakuraData.TOOLTIP.getTooltip(stack));
+    }
+
 }

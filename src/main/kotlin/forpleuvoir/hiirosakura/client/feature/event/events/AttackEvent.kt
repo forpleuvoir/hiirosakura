@@ -1,6 +1,6 @@
 package forpleuvoir.hiirosakura.client.feature.event.events
 
-import forpleuvoir.ibuki_gourd.event.Event
+import forpleuvoir.ibuki_gourd.event.CancelableEvent
 
 /**
  * 玩家攻击事件
@@ -16,5 +16,5 @@ import forpleuvoir.ibuki_gourd.event.Event
  * @author forpleuvoir
 
  */
-class AttackEvent : Event {
+class AttackEvent : CancelableEvent() {
 }

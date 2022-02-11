@@ -1,6 +1,6 @@
 package forpleuvoir.hiirosakura.client.feature.event.events
 
-import forpleuvoir.ibuki_gourd.event.Event
+import forpleuvoir.ibuki_gourd.event.CancelableEvent
 
 /**
  * 收到消息事件
@@ -16,5 +16,6 @@ import forpleuvoir.ibuki_gourd.event.Event
  * @author forpleuvoir
 
  */
-class MessageEvent(@JvmField val messageType: String, @JvmField val message: String, @JvmField val senderUUID: String) : Event {
+class MessageEvent(@JvmField val messageType: String, @JvmField val message: String, @JvmField val senderUUID: String) :
+    CancelableEvent() {
 }

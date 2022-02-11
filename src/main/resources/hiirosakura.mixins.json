@@ -8,6 +8,7 @@
     "MixinClientPlayerEntity",
     "MixinClientPlayerInteractionManager",
     "MixinClientPlayNetworkHandler",
+    "MixinClientWorld",
     "MixinDisconnectedScreen",
     "MixinEntity",
     "MixinExperienceOrbEntityInterface",
@@ -15,10 +16,12 @@
     "MixinInGameHud",
     "MixinItem",
     "MixinItemEntityRenderer",
+    "MixinItemStack",
     "MixinKeyboardInput",
     "MixinMinecraftClient",
     "MixinMinecraftClientInterface",
     "MixinPlayerEntityRenderer",
+    "MixinState",
     "MixinTntEntityRenderer"
   ],
   "client": [

@@ -7,6 +7,7 @@ import forpleuvoir.hiirosakura.client.feature.event.events.ItemPickEvent;
 import forpleuvoir.hiirosakura.client.feature.event.events.ItemUseEvent;
 import forpleuvoir.hiirosakura.client.feature.input.AnalogInput;
 import forpleuvoir.hiirosakura.client.util.ServerInfoUtil;
+import forpleuvoir.ibuki_gourd.mod.config.WhiteListMode;
 import kotlin.Unit;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -16,6 +17,9 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.tutorial.TutorialManager;
 import net.minecraft.client.tutorial.TutorialStep;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,6 +28,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
+
+import static forpleuvoir.hiirosakura.client.config.Configs.Toggles.ENABLE_ITEM_USE_PROTECTION;
+import static forpleuvoir.hiirosakura.client.config.Configs.Values.ITEM_USE_PROTECTION_LIST;
+import static forpleuvoir.hiirosakura.client.config.Configs.Values.ITEM_USE_PROTECTION_MODE;
 import static forpleuvoir.hiirosakura.client.feature.input.AnalogInput.Key.*;
 
 /**
@@ -108,7 +117,9 @@ public abstract class MixinMinecraftClient {
 
 	@Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
 	public void doAttack(CallbackInfo callbackInfo) {
-		new AttackEvent().broadcast();
+		var event = new AttackEvent();
+		event.broadcast();
+		if (event.isCanceled()) callbackInfo.cancel();
 		if (SwitchCameraEntity.isSwitched()) {
 			callbackInfo.cancel();
 		}
@@ -116,7 +127,9 @@ public abstract class MixinMinecraftClient {
 
 	@Inject(method = "doItemPick", at = @At("HEAD"), cancellable = true)
 	public void doItemPick(CallbackInfo callbackInfo) {
-		new ItemPickEvent().broadcast();
+		var event = new ItemPickEvent();
+		event.broadcast();
+		if (event.isCanceled()) callbackInfo.cancel();
 		if (SwitchCameraEntity.isSwitched()) {
 			callbackInfo.cancel();
 		}
@@ -124,7 +137,30 @@ public abstract class MixinMinecraftClient {
 
 	@Inject(method = "doItemUse", at = @At("HEAD"), cancellable = true)
 	public void doItemUse(CallbackInfo callbackInfo) {
-		new ItemUseEvent(player != null ? player.getMainHandStack().getName().getString() : "null").broadcast();
+		var event = new ItemUseEvent(player != null ? player.getMainHandStack().getName().getString() : "null");
+		event.broadcast();
+		if (event.isCanceled()) callbackInfo.cancel();
+		ItemStack stack = player.getMainHandStack();
+
+		if (ENABLE_ITEM_USE_PROTECTION.getValue()) {
+			String id = Registry.ITEM.getId(stack.getItem()).toString();
+			NbtCompound nbt = stack.getNbt();
+			if (nbt != null) {
+				id = id + nbt;
+			}
+			WhiteListMode mode = (WhiteListMode) ITEM_USE_PROTECTION_MODE.getValue();
+			List<String> list = ITEM_USE_PROTECTION_LIST.getValue();
+			boolean inList = list.contains(id);
+			boolean isProtected = switch (mode) {
+				case None -> false;
+				case WhiteList -> inList;
+				case BlackList -> !inList;
+			};
+			if (isProtected) {
+				callbackInfo.cancel();
+			}
+		}
+
 		if (SwitchCameraEntity.isSwitched()) {
 			callbackInfo.cancel();
 		}

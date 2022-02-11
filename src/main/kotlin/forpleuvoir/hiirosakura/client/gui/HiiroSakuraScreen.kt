@@ -3,7 +3,6 @@ package forpleuvoir.hiirosakura.client.gui
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.config.Configs
 import forpleuvoir.hiirosakura.client.config.HotKeys
-import forpleuvoir.hiirosakura.client.config.TogglesHotKeys
 import forpleuvoir.hiirosakura.client.config.gui.HiiroSakuraConfigGroup
 import forpleuvoir.hiirosakura.client.feature.event.gui.EventScreenTab
 import forpleuvoir.hiirosakura.client.feature.timertask.gui.TimerTaskScreenTab
@@ -29,45 +28,43 @@ import net.minecraft.text.Text
  */
 object HiiroSakuraScreen {
 
-	val baseTitle: Text = Text.of(HiiroSakuraClient.modName)
+    val baseTitle: Text = Text.of(HiiroSakuraClient.modName)
 
-	private val toggles = HiiroSakuraConfigGroup("hiirosakura.config.toggles", baseTitle, Configs.Toggles.CONFIGS)
-	private val togglesHotkeys =
-		HiiroSakuraConfigGroup("hiirosakura.config.toggles.hotkeys", baseTitle, TogglesHotKeys.HOTKEY_LIST)
-	private val values = HiiroSakuraConfigGroup("hiirosakura.config.values", baseTitle, Configs.Values.CONFIGS)
-	private val hotkeys = HiiroSakuraConfigGroup("hiirosakura.config.hotkeys", baseTitle, HotKeys.HOTKEY_LIST)
+    private val toggles = HiiroSakuraConfigGroup("hiirosakura.config.toggles", baseTitle, Configs.Toggles.CONFIGS, 180)
+    private val values = HiiroSakuraConfigGroup("hiirosakura.config.values", baseTitle, Configs.Values.CONFIGS)
+    private val hotkeys = HiiroSakuraConfigGroup("hiirosakura.config.hotkeys", baseTitle, HotKeys.HOTKEY_LIST)
 
-	private val timerTask: IScreenTabEntry = object : HiiroSakuraTabEntry("${HiiroSakuraClient.modId}.screen.timertask") {
-		override val screen: ScreenTab
-			get() = TimerTaskScreenTab(this)
-	}
+    private val timerTask: IScreenTabEntry =
+        object : HiiroSakuraTabEntry("${HiiroSakuraClient.modId}.screen.timertask") {
+            override val screen: ScreenTab
+                get() = TimerTaskScreenTab(this)
+        }
 
-	private val event: IScreenTabEntry = object : HiiroSakuraTabEntry("${HiiroSakuraClient.modId}.screen.event") {
-		override val screen: ScreenTab
-			get() = EventScreenTab(this)
-	}
+    private val event: IScreenTabEntry = object : HiiroSakuraTabEntry("${HiiroSakuraClient.modId}.screen.event") {
+        override val screen: ScreenTab
+            get() = EventScreenTab(this)
+    }
 
-	val allTabsEntry: List<IScreenTabEntry> = listOf(
-		toggles,
-		togglesHotkeys,
-		values,
-		hotkeys,
-		timerTask,
-		event
-	)
+    val allTabsEntry: List<IScreenTabEntry> = listOf(
+        toggles,
+        values,
+        hotkeys,
+        timerTask,
+        event
+    )
 
-	var currentEntry: IScreenTabEntry = toggles
+    var currentEntry: IScreenTabEntry = toggles
 
-	fun current(): ScreenTab {
-		return currentEntry.screen
-	}
+    fun current(): ScreenTab {
+        return currentEntry.screen
+    }
 
-	fun openScreen() {
-		ScreenBase.openScreen(current())
-	}
+    fun openScreen() {
+        ScreenBase.openScreen(current())
+    }
 
-	fun openScreen(parent: Screen?) {
-		ScreenBase.openScreen(current().apply { this.parent = parent })
-	}
+    fun openScreen(parent: Screen?) {
+        ScreenBase.openScreen(current().apply { this.parent = parent })
+    }
 
 }

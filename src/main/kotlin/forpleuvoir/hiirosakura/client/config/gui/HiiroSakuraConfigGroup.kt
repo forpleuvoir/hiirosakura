@@ -1,7 +1,9 @@
 package forpleuvoir.hiirosakura.client.config.gui
 
+import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.gui.HiiroSakuraScreen
-import forpleuvoir.ibuki_gourd.config.gui.IConfigGroup
+import forpleuvoir.ibuki_gourd.common.ModInfo
+import forpleuvoir.ibuki_gourd.config.gui.IConfigList
 import forpleuvoir.ibuki_gourd.config.gui.ScreenTabConfig
 import forpleuvoir.ibuki_gourd.config.options.ConfigBase
 import forpleuvoir.ibuki_gourd.gui.screen.IScreenTabEntry
@@ -23,20 +25,23 @@ import net.minecraft.text.Text
 
  */
 class HiiroSakuraConfigGroup(
-	override val key: String,
-	override val baseTitle: Text,
-	override val configs: List<ConfigBase>
-) : IConfigGroup {
-	override val remark: String
-		get() = key
-	override val all: List<IScreenTabEntry>
-		get() = HiiroSakuraScreen.allTabsEntry
-	override val current: IScreenTabEntry
-		get() = HiiroSakuraScreen.currentEntry
-	override val screen: ScreenTab
-		get() = ScreenTabConfig(24, this)
+    override val key: String,
+    override val baseTitle: Text,
+    override val configs: List<ConfigBase>,
+    override val wrapperWidth: Int = 140
+) : IConfigList {
+    override val remark: String
+        get() = key
+    override val all: List<IScreenTabEntry>
+        get() = HiiroSakuraScreen.allTabsEntry
+    override val current: IScreenTabEntry
+        get() = HiiroSakuraScreen.currentEntry
+    override val currentMod: ModInfo
+        get() = HiiroSakuraClient
+    override val screen: ScreenTab
+        get() = ScreenTabConfig(24, this)
 
-	override fun changeCurrent(current: IScreenTabEntry) {
-		HiiroSakuraScreen.currentEntry = current
-	}
+    override fun changeCurrent(current: IScreenTabEntry) {
+        HiiroSakuraScreen.currentEntry = current
+    }
 }

@@ -27,6 +27,18 @@
         "adapter": "kotlin",
         "value": "forpleuvoir.hiirosakura.client.compat.modmenu.ModMenuImpl"
       }
+    ],
+    "ibScreen": [
+      {
+        "adapter": "kotlin",
+        "value": "forpleuvoir.hiirosakura.client.compat.ibuki_gourd.ScreenImpl"
+      }
+    ],
+    "ibConfig": [
+      {
+        "adapter": "kotlin",
+        "value": "forpleuvoir.hiirosakura.client.compat.ibuki_gourd.ConfigImpl"
+      }
     ]
   },
   "mixins": [

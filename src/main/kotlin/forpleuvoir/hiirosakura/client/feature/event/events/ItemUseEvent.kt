@@ -1,6 +1,6 @@
 package forpleuvoir.hiirosakura.client.feature.event.events
 
-import forpleuvoir.ibuki_gourd.event.Event
+import forpleuvoir.ibuki_gourd.event.CancelableEvent
 
 /**
  * 物品使用事件 (鼠标右键)
@@ -16,5 +16,5 @@ import forpleuvoir.ibuki_gourd.event.Event
  * @author forpleuvoir
 
  */
-class ItemUseEvent(@JvmField val itemName: String) : Event {
+class ItemUseEvent(@JvmField val itemName: String) : CancelableEvent() {
 }

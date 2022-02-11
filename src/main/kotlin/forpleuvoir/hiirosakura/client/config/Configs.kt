@@ -5,6 +5,7 @@ import com.google.gson.JsonObject
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.config.base.ConfigMultilineText
 import forpleuvoir.ibuki_gourd.config.ConfigUtil
+import forpleuvoir.ibuki_gourd.config.IConfigBase
 import forpleuvoir.ibuki_gourd.config.IConfigHandler
 import forpleuvoir.ibuki_gourd.config.options.*
 import forpleuvoir.ibuki_gourd.mod.config.WhiteListMode
@@ -31,74 +32,101 @@ object Configs : IConfigHandler {
      */
     object Toggles {
         @JvmField
-        val CHAT_BUBBLE = ConfigBoolean(name = translationKey("chatBubble"), defaultValue = false)
+        val CHAT_BUBBLE = ConfigBooleanWithKeyBind(name = translationKey("chatBubble"), defaultValue = false)
 
         @JvmField
-        val SHOW_ENCHANTMENT = ConfigBoolean(name = translationKey("showEnchantment"), defaultValue = false)
+        val SHOW_ENCHANTMENT = ConfigBooleanWithKeyBind(name = translationKey("showEnchantment"), defaultValue = false)
 
         @JvmField
-        val SHOW_TNT_FUSE = ConfigBoolean(name = translationKey("showTNTFuse"), defaultValue = false)
+        val SHOW_TNT_FUSE = ConfigBooleanWithKeyBind(name = translationKey("showTNTFuse"), defaultValue = false)
 
         @JvmField
-        val SHOW_ITEM_ENTITY_NAME = ConfigBoolean(name = translationKey("showItemEntityName"), defaultValue = false)
+        val SHOW_ITEM_ENTITY_NAME =
+            ConfigBooleanWithKeyBind(name = translationKey("showItemEntityName"), defaultValue = false)
 
         @JvmField
         val SHOW_ITEM_ENTITY_ENCHANTMENT =
-            ConfigBoolean(name = translationKey("showItemEntityEnchantment"), defaultValue = false)
+            ConfigBooleanWithKeyBind(name = translationKey("showItemEntityEnchantment"), defaultValue = false)
 
         @JvmField
-        val SHOW_ITEM_ENTITY_COUNT = ConfigBoolean(name = translationKey("showItemEntityCount"), defaultValue = false)
+        val SHOW_ITEM_ENTITY_COUNT =
+            ConfigBooleanWithKeyBind(name = translationKey("showItemEntityCount"), defaultValue = false)
 
         @JvmField
-        val SHOW_ENTITY_AGE = ConfigBoolean(name = translationKey("showEntityAge"), defaultValue = false)
+        val SHOW_ENTITY_AGE = ConfigBooleanWithKeyBind(name = translationKey("showEntityAge"), defaultValue = false)
 
         @JvmField
-        val AUTO_REBIRTH = ConfigBoolean(name = translationKey("autoRebirth"), defaultValue = false)
+        val AUTO_REBIRTH = ConfigBooleanWithKeyBind(name = translationKey("autoRebirth"), defaultValue = false)
 
         @JvmField
-        val SHOW_TOOLTIP = ConfigBoolean(name = translationKey("showTooltip"), defaultValue = false)
+        val SHOW_TOOLTIP = ConfigBooleanWithKeyBind(name = translationKey("showTooltip"), defaultValue = false)
 
         @JvmField
         val SHOW_TOOLTIP_ON_ITEM_TOGGLE =
-            ConfigBoolean(name = translationKey("showTooltipOnItemToggle"), defaultValue = false)
+            ConfigBooleanWithKeyBind(name = translationKey("showTooltipOnItemToggle"), defaultValue = false)
 
         @JvmField
         val SHOW_TOOLTIP_ON_ITEM_ENTITY =
-            ConfigBoolean(name = translationKey("showTooltipOnItemEntity"), defaultValue = false)
+            ConfigBooleanWithKeyBind(name = translationKey("showTooltipOnItemEntity"), defaultValue = false)
 
         @JvmField
-        val CHAT_MESSAGE_INJECT = ConfigBoolean(name = translationKey("chatMessageInject"), defaultValue = false)
+        val CHAT_MESSAGE_INJECT =
+            ConfigBooleanWithKeyBind(name = translationKey("chatMessageInject"), defaultValue = false)
 
         @JvmField
         val ENABLE_CHAT_MESSAGE_INJECT_REGEX =
-            ConfigBoolean(name = translationKey("enableChatMessageInjectRegex"), defaultValue = false)
+            ConfigBooleanWithKeyBind(name = translationKey("enableChatMessageInjectRegex"), defaultValue = false)
 
         @JvmField
         val REVERSE_CHAT_MESSAGE_INJECT_REGEX =
-            ConfigBoolean(name = translationKey("reverseChatMessageInjectRegex"), defaultValue = false)
+            ConfigBooleanWithKeyBind(name = translationKey("reverseChatMessageInjectRegex"), defaultValue = false)
 
         @JvmField
         val DISABLE_SCOREBOARD_SIDEBAR_RENDER =
-            ConfigBoolean(name = translationKey("disableScoreboardSidebarRender"), defaultValue = false)
+            ConfigBooleanWithKeyBind(name = translationKey("disableScoreboardSidebarRender"), defaultValue = false)
 
         @JvmField
-        val CHAT_MESSAGE_FILTER = ConfigBoolean(name = translationKey("chatMessageFilter"), defaultValue = false)
+        val CHAT_MESSAGE_FILTER =
+            ConfigBooleanWithKeyBind(name = translationKey("chatMessageFilter"), defaultValue = false)
 
         @JvmField
         val EXPERIENCE_ORB_ENTITY_VALUE_RENDER =
-            ConfigBoolean(name = translationKey("experienceOrbEntityValueRender"), defaultValue = false)
+            ConfigBooleanWithKeyBind(name = translationKey("experienceOrbEntityValueRender"), defaultValue = false)
 
         @JvmField
         val ENABLE_BLOCK_BRAKE_PROTECTION =
-            ConfigBoolean(name = translationKey("enableBlockBrakeProtection"), defaultValue = false)
+            ConfigBooleanWithKeyBind(name = translationKey("enableBlockBrakeProtection"), defaultValue = false)
+
+        @JvmField
+        val ENABLE_ITEM_USE_PROTECTION =
+            ConfigBooleanWithKeyBind(name = translationKey("enableItemUseProtection"), defaultValue = false)
+
+        @JvmField
+        val ALWAYS_SHOW_BLOCK_MARKER =
+            ConfigBooleanWithKeyBind(name = translationKey("alwaysShowBlockMarker"), defaultValue = false)
 
         @JvmField
         val CONFIGS: ImmutableList<ConfigBase> = ImmutableList.of(
-            CHAT_BUBBLE, SHOW_ENCHANTMENT, SHOW_TNT_FUSE, SHOW_ITEM_ENTITY_NAME,
-            SHOW_ITEM_ENTITY_ENCHANTMENT, SHOW_ITEM_ENTITY_COUNT, SHOW_ENTITY_AGE, AUTO_REBIRTH, SHOW_TOOLTIP,
-            SHOW_TOOLTIP_ON_ITEM_TOGGLE, SHOW_TOOLTIP_ON_ITEM_ENTITY, CHAT_MESSAGE_INJECT,
-            ENABLE_CHAT_MESSAGE_INJECT_REGEX, REVERSE_CHAT_MESSAGE_INJECT_REGEX, DISABLE_SCOREBOARD_SIDEBAR_RENDER,
-            CHAT_MESSAGE_FILTER, EXPERIENCE_ORB_ENTITY_VALUE_RENDER, ENABLE_BLOCK_BRAKE_PROTECTION
+            CHAT_BUBBLE,
+            SHOW_ENCHANTMENT,
+            SHOW_TNT_FUSE,
+            SHOW_ITEM_ENTITY_NAME,
+            SHOW_ITEM_ENTITY_ENCHANTMENT,
+            SHOW_ITEM_ENTITY_COUNT,
+            SHOW_ENTITY_AGE,
+            AUTO_REBIRTH,
+            SHOW_TOOLTIP,
+            SHOW_TOOLTIP_ON_ITEM_TOGGLE,
+            SHOW_TOOLTIP_ON_ITEM_ENTITY,
+            CHAT_MESSAGE_INJECT,
+            ENABLE_CHAT_MESSAGE_INJECT_REGEX,
+            REVERSE_CHAT_MESSAGE_INJECT_REGEX,
+            DISABLE_SCOREBOARD_SIDEBAR_RENDER,
+            CHAT_MESSAGE_FILTER,
+            EXPERIENCE_ORB_ENTITY_VALUE_RENDER,
+            ENABLE_BLOCK_BRAKE_PROTECTION,
+            ENABLE_ITEM_USE_PROTECTION,
+            ALWAYS_SHOW_BLOCK_MARKER
         )
 
         private fun translationKey(key: String): String {
@@ -203,7 +231,7 @@ object Configs : IConfigHandler {
 
         @JvmField
         val CHAT_MESSAGE_FILTER_REGEX =
-            ConfigStringList(name = translationKey("chatMessageFilterRegex"), defaultValue = ImmutableList.of(""))
+            ConfigStringList(name = translationKey("chatMessageFilterRegex"), defaultValue = ImmutableList.of())
 
         @JvmField
         val BLOCK_BRAKE_PROTECTION_MODE =
@@ -211,7 +239,15 @@ object Configs : IConfigHandler {
 
         @JvmField
         val BLOCK_BRAKE_PROTECTION_LIST =
-            ConfigStringList(name = translationKey("blockBrakeProtectionList"), defaultValue = ImmutableList.of(""))
+            ConfigStringList(name = translationKey("blockBrakeProtectionList"), defaultValue = ImmutableList.of())
+
+        @JvmField
+        val ITEM_USE_PROTECTION_MODE =
+            ConfigOptions(name = translationKey("itemUseProtectionMode"), defaultValue = WhiteListMode.None)
+
+        @JvmField
+        val ITEM_USE_PROTECTION_LIST =
+            ConfigStringList(name = translationKey("itemUseProtectionList"), defaultValue = ImmutableList.of())
 
         @JvmField
         val JS_COMMON_LIB = ConfigMultilineText(name = translationKey("jsCommonLib"), defaultValue = "")
@@ -225,6 +261,8 @@ object Configs : IConfigHandler {
             CHAT_MESSAGE_FILTER_REGEX,
             BLOCK_BRAKE_PROTECTION_MODE,
             BLOCK_BRAKE_PROTECTION_LIST,
+            ITEM_USE_PROTECTION_MODE,
+            ITEM_USE_PROTECTION_LIST,
             JS_COMMON_LIB
         )
 
@@ -233,10 +271,9 @@ object Configs : IConfigHandler {
         }
     }
 
-    override fun allConfig(): List<ConfigBase> {
+    override fun allConfig(): List<IConfigBase> {
         return ArrayList<ConfigBase>().apply {
             addAll(Toggles.CONFIGS)
-            addAll(TogglesHotKeys.HOTKEY_LIST)
             addAll(Values.CONFIGS)
             addAll(HotKeys.HOTKEY_LIST)
         }
@@ -247,7 +284,6 @@ object Configs : IConfigHandler {
         ConfigUtil.paresJsonFile(configFile)?.let {
             if (it is JsonObject) {
                 ConfigUtil.readConfigBase(it, "Toggles", Toggles.CONFIGS)
-                ConfigUtil.readConfigBase(it, "TogglesHotKeys", TogglesHotKeys.HOTKEY_LIST)
                 ConfigUtil.readConfigBase(it, "Values", Values.CONFIGS)
                 ConfigUtil.readConfigBase(it, "Hotkeys", HotKeys.HOTKEY_LIST)
             }
@@ -258,7 +294,6 @@ object Configs : IConfigHandler {
         val configFile = ConfigUtil.configFile(HiiroSakuraClient)
         val json = JsonObject()
         ConfigUtil.writeConfigBase(json, "Toggles", Toggles.CONFIGS)
-        ConfigUtil.writeConfigBase(json, "TogglesHotKeys", TogglesHotKeys.HOTKEY_LIST)
         ConfigUtil.writeConfigBase(json, "Values", Values.CONFIGS)
         ConfigUtil.writeConfigBase(json, "Hotkeys", HotKeys.HOTKEY_LIST)
         ConfigUtil.writeJsonToFile(json, configFile)

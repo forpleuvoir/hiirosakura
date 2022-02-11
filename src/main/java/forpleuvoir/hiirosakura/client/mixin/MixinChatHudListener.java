@@ -28,15 +28,17 @@ public abstract class MixinChatHudListener {
 
 	@Inject(method = "onChatMessage", at = @At("HEAD"), cancellable = true)
 	public void onChatMessage(MessageType type, Text text, UUID senderUuid, CallbackInfo ci) {
-		new MessageEvent(type.toString(), text.getString(), senderUuid.toString()).broadcast();
-		if (Configs.Toggles.CHAT_MESSAGE_FILTER.getValue()) {
-			if (ChatMessageFilter.needToFilter(text)) {
-				ci.cancel();
-			}
-		}
+        var event = new MessageEvent(type.toString(), text.getString(), senderUuid.toString());
+        event.broadcast();
+        if (event.isCanceled()) ci.cancel();
+        if (Configs.Toggles.CHAT_MESSAGE_FILTER.getValue()) {
+            if (ChatMessageFilter.needToFilter(text)) {
+                ci.cancel();
+            }
+        }
 
-		if (Configs.Toggles.CHAT_BUBBLE.getValue())
-			HiiroSakuraChatBubble.addChatBubble(text);
-	}
+        if (Configs.Toggles.CHAT_BUBBLE.getValue())
+            HiiroSakuraChatBubble.addChatBubble(text);
+    }
 
 }

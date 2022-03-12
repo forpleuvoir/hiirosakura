@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface MixinMinecraftClientInterface {
 
     @Invoker("doAttack")
-    void callDoAttack();
+    boolean callDoAttack();
 
     @Invoker("doItemUse")
     void callDoItemUse();

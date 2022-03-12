@@ -78,7 +78,7 @@ class WidgetListEntryTimerTask(
 	}
 
 	private val executeButton: Button = Button(0, 0, IbukiGourdLang.Execute.tText()) {
-		parentWidget.parent.onClose()
+		parentWidget.parent.close()
 		timerTaskWrappedWithKeyBind.run()
 	}
 

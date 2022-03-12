@@ -25,6 +25,7 @@ import static forpleuvoir.hiirosakura.client.config.Configs.Toggles.ALWAYS_SHOW_
 @Mixin(ClientWorld.class)
 public abstract class MixinClientWorld {
 
+
     @Inject(method = "getBlockParticle", at = @At("HEAD"), cancellable = true)
     public void getBlockParticle(CallbackInfoReturnable<Block> cir) {
         if (ALWAYS_SHOW_BLOCK_MARKER.getValue()) {

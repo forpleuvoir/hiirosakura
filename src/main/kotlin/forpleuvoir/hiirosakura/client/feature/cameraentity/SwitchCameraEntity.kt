@@ -29,7 +29,7 @@ object SwitchCameraEntity {
 
 	init {
 		EventBus.subscribe<ClientEndTickEvent> {
-			if (client.options.keySneak.wasPressed()) {
+			if (client.options.sneakKey.wasPressed()) {
 				if (client.getCameraEntity() == targetEntity) client.setCameraEntity(
 					client.player
 				)

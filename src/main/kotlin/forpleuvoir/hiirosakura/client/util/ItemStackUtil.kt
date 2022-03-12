@@ -36,9 +36,9 @@ object ItemStackUtil {
         val texts = LinkedList<Text>()
         EnchantmentHelper.get(stack).forEach { (enchantment, lvl) ->
             val text = enchantment.translationKey.tText()
-            if (lvl <= 10)
+            if (lvl <= 10 && lvl != 1)
                 text.append(TranslatableText("enchantment.level.$lvl"))
-            else text.append("$lvl".text)
+            else if (lvl > 10) text.append("$lvl".text)
             text.formatted(*formatting)
             texts.add(text)
         }

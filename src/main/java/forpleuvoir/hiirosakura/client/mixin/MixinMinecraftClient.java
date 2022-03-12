@@ -27,6 +27,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
@@ -48,129 +49,129 @@ import static forpleuvoir.hiirosakura.client.feature.input.AnalogInput.Key.*;
 @Mixin(MinecraftClient.class)
 public abstract class MixinMinecraftClient {
 
-	@Shadow
-	@Final
-	private TutorialManager tutorialManager;
+    @Shadow
+    @Nullable
+    public Screen currentScreen;
+    @Shadow
+    @Final
+    public GameOptions options;
+    @Shadow
+    @Nullable
+    public ClientPlayerEntity player;
+    @Shadow
+    @Final
+    private TutorialManager tutorialManager;
 
-	@Shadow
-	@Nullable
-	public Screen currentScreen;
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void init(CallbackInfo ci) {
+        //关闭游戏自带教程
+        tutorialManager.setStep(TutorialStep.NONE);
+        AnalogInput.setOnReleasedCallBack(ATTACK, key -> {
+            KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(
+                    this.options.attackKey.getBoundKeyTranslationKey()), false
+            );
+            return Unit.INSTANCE;
+        });
+        AnalogInput.setOnReleasedCallBack(USE, key -> {
+            KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(
+                    this.options.useKey.getBoundKeyTranslationKey()), false);
+            return Unit.INSTANCE;
+        });
 
+        AnalogInput.setOnReleasedCallBack(PICK_ITEM, key -> {
+            KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(
+                    this.options.pickItemKey.getBoundKeyTranslationKey()), false);
+            return Unit.INSTANCE;
+        });
 
-	@Shadow
-	@Final
-	public GameOptions options;
-
-	@Shadow
-	@Nullable
-	public ClientPlayerEntity player;
-
-	@Inject(method = "<init>", at = @At("RETURN"))
-	public void init(CallbackInfo ci) {
-		//关闭游戏自带教程
-		tutorialManager.setStep(TutorialStep.NONE);
-		AnalogInput.setOnReleasedCallBack(ATTACK, key -> {
-			KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(
-					this.options.keyAttack.getBoundKeyTranslationKey()), false
-			);
-			return Unit.INSTANCE;
-		});
-		AnalogInput.setOnReleasedCallBack(USE, key -> {
-			KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(
-					this.options.keyUse.getBoundKeyTranslationKey()), false);
-			return Unit.INSTANCE;
-		});
-
-		AnalogInput.setOnReleasedCallBack(PICK_ITEM, key -> {
-			KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(
-					this.options.keyPickItem.getBoundKeyTranslationKey()), false);
-			return Unit.INSTANCE;
-		});
-
-	}
+    }
 
 
-	@Inject(method = "handleInputEvents", at = @At(value = "HEAD"))
-	public void handleInputEvents(CallbackInfo callbackInfo) {
-		if (this.currentScreen == null) {
-			if (this.options.keyAttack.isPressed()) {
-				AnalogInput.set(ATTACK, 0);
-			}
-			if (AnalogInput.isPress(ATTACK))
-				KeyBinding.setKeyPressed(
-						InputUtil.fromTranslationKey(this.options.keyAttack.getBoundKeyTranslationKey()), true);
-			if (this.options.keyUse.isPressed()) {
-				AnalogInput.set(USE, 0);
-			}
-			if (AnalogInput.isPress(USE))
-				KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(this.options.keyUse.getBoundKeyTranslationKey()),
-						true
-				);
-			if (this.options.keyPickItem.isPressed()) {
-				AnalogInput.set(PICK_ITEM, 0);
-			}
-			if (AnalogInput.isPress(PICK_ITEM))
-				KeyBinding.setKeyPressed(
-						InputUtil.fromTranslationKey(this.options.keyPickItem.getBoundKeyTranslationKey()), true);
-		}
-	}
+    @Inject(method = "handleInputEvents", at = @At(value = "HEAD"))
+    public void handleInputEvents(CallbackInfo callbackInfo) {
+        if (this.currentScreen == null) {
+            if (this.options.attackKey.isPressed()) {
+                AnalogInput.set(ATTACK, 0);
+            }
+            if (AnalogInput.isPress(ATTACK))
+                KeyBinding.setKeyPressed(
+                        InputUtil.fromTranslationKey(this.options.attackKey.getBoundKeyTranslationKey()), true);
+            if (this.options.useKey.isPressed()) {
+                AnalogInput.set(USE, 0);
+            }
+            if (AnalogInput.isPress(USE))
+                KeyBinding.setKeyPressed(InputUtil.fromTranslationKey(this.options.useKey.getBoundKeyTranslationKey()),
+                        true
+                );
+            if (this.options.pickItemKey.isPressed()) {
+                AnalogInput.set(PICK_ITEM, 0);
+            }
+            if (AnalogInput.isPress(PICK_ITEM))
+                KeyBinding.setKeyPressed(
+                        InputUtil.fromTranslationKey(this.options.pickItemKey.getBoundKeyTranslationKey()), true);
+        }
+    }
 
-	@Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
-	public void doAttack(CallbackInfo callbackInfo) {
-		var event = new AttackEvent();
-		event.broadcast();
-		if (event.isCanceled()) callbackInfo.cancel();
-		if (SwitchCameraEntity.isSwitched()) {
-			callbackInfo.cancel();
-		}
-	}
+    @Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
+    public void doAttack(CallbackInfoReturnable<Boolean> cir) {
+        var event = new AttackEvent();
+        event.broadcast();
+        if (event.isCanceled()) {
+            cir.setReturnValue(false);
+            cir.cancel();
+        }
+        if (SwitchCameraEntity.isSwitched()) {
+            cir.setReturnValue(false);
+            cir.cancel();
+        }
+    }
 
-	@Inject(method = "doItemPick", at = @At("HEAD"), cancellable = true)
-	public void doItemPick(CallbackInfo callbackInfo) {
-		var event = new ItemPickEvent();
-		event.broadcast();
-		if (event.isCanceled()) callbackInfo.cancel();
-		if (SwitchCameraEntity.isSwitched()) {
-			callbackInfo.cancel();
-		}
-	}
+    @Inject(method = "doItemPick", at = @At("HEAD"), cancellable = true)
+    public void doItemPick(CallbackInfo callbackInfo) {
+        var event = new ItemPickEvent();
+        event.broadcast();
+        if (event.isCanceled()) callbackInfo.cancel();
+        if (SwitchCameraEntity.isSwitched()) {
+            callbackInfo.cancel();
+        }
+    }
 
-	@Inject(method = "doItemUse", at = @At("HEAD"), cancellable = true)
-	public void doItemUse(CallbackInfo callbackInfo) {
-		var event = new ItemUseEvent(player != null ? player.getMainHandStack().getName().getString() : "null");
-		event.broadcast();
-		if (event.isCanceled()) callbackInfo.cancel();
-		ItemStack stack = player.getMainHandStack();
+    @Inject(method = "doItemUse", at = @At("HEAD"), cancellable = true)
+    public void doItemUse(CallbackInfo callbackInfo) {
+        var event = new ItemUseEvent(player != null ? player.getMainHandStack().getName().getString() : "null");
+        event.broadcast();
+        if (event.isCanceled()) callbackInfo.cancel();
+        ItemStack stack = player.getMainHandStack();
 
-		if (ENABLE_ITEM_USE_PROTECTION.getValue()) {
-			String id = Registry.ITEM.getId(stack.getItem()).toString();
-			NbtCompound nbt = stack.getNbt();
-			if (nbt != null) {
-				id = id + nbt;
-			}
-			WhiteListMode mode = (WhiteListMode) ITEM_USE_PROTECTION_MODE.getValue();
-			List<String> list = ITEM_USE_PROTECTION_LIST.getValue();
-			boolean inList = list.contains(id);
-			boolean isProtected = switch (mode) {
-				case None -> false;
-				case WhiteList -> inList;
-				case BlackList -> !inList;
-			};
-			if (isProtected) {
-				callbackInfo.cancel();
-			}
-		}
+        if (ENABLE_ITEM_USE_PROTECTION.getValue()) {
+            String id = Registry.ITEM.getId(stack.getItem()).toString();
+            NbtCompound nbt = stack.getNbt();
+            if (nbt != null) {
+                id = id + nbt;
+            }
+            WhiteListMode mode = (WhiteListMode) ITEM_USE_PROTECTION_MODE.getValue();
+            List<String> list = ITEM_USE_PROTECTION_LIST.getValue();
+            boolean inList = list.contains(Registry.ITEM.getId(stack.getItem()).toString()) || list.contains(id);
+            boolean isProtected = switch (mode) {
+                case None -> false;
+                case WhiteList -> inList;
+                case BlackList -> !inList;
+            };
+            if (isProtected) {
+                callbackInfo.cancel();
+            }
+        }
 
-		if (SwitchCameraEntity.isSwitched()) {
-			callbackInfo.cancel();
-		}
-	}
+        if (SwitchCameraEntity.isSwitched()) {
+            callbackInfo.cancel();
+        }
+    }
 
-	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))
-	public void disconnect(Screen screen, CallbackInfo callbackInfo) {
-		new GameExitEvent(ServerInfoUtil.getName(), ServerInfoUtil.getAddress()).broadcast();
-		ServerInfoUtil.clear();
-	}
+    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))
+    public void disconnect(Screen screen, CallbackInfo callbackInfo) {
+        new GameExitEvent(ServerInfoUtil.getName(), ServerInfoUtil.getAddress()).broadcast();
+        ServerInfoUtil.clear();
+    }
 
 
 }

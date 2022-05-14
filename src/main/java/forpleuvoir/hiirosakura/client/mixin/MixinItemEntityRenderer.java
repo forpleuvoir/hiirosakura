@@ -40,42 +40,43 @@ public abstract class MixinItemEntityRenderer extends EntityRenderer<ItemEntity>
     public void render(ItemEntity itemEntity, float f, float g, MatrixStack matrixStack,
                        VertexConsumerProvider vertexConsumerProvider, int light, CallbackInfo callbackInfo
     ) {
-	    if (this.dispatcher.getSquaredDistanceToCamera(itemEntity) > Configs.Values.ITEM_ENTITY_TEXT_RENDER_DISTANCE
-			    .getValue()) {
-		    return;
-	    }
-	    var texts = new LinkedList<Text>();
-	    //渲染附魔
-	    if (SHOW_ITEM_ENTITY_ENCHANTMENT.getValue())
-		    texts.addAll(ItemStackUtil.getEnchantmentsWithLvl(itemEntity.getStack()));
+		if (this.dispatcher.getSquaredDistanceToCamera(itemEntity) > Configs.Values.ITEM_ENTITY_TEXT_RENDER_DISTANCE
+				.getValue()) {
+			return;
+		}
+		var texts = new LinkedList<Text>();
+		//渲染附魔
+		if (SHOW_ITEM_ENTITY_ENCHANTMENT.getValue())
+			texts.addAll(ItemStackUtil.getEnchantmentsWithLvl(itemEntity.getStack()));
 
-	    //渲染工具提示
-	    if (SHOW_TOOLTIP_ON_ITEM_ENTITY.getValue())
-		    texts.addAll(HiiroSakuraData.TOOLTIP.getTooltip(itemEntity.getStack()));
+		//渲染工具提示
+		if (SHOW_TOOLTIP_ON_ITEM_ENTITY.getValue())
+			texts.addAll(HiiroSakuraData.TOOLTIP.getTooltip(itemEntity.getStack()));
 
-	    //渲染名字
-	    LiteralText text = new LiteralText("");
-	    if (SHOW_ITEM_ENTITY_NAME.getValue())
-		    text.append(itemEntity.getStack().getName());
+		//渲染名字
+		LiteralText text = new LiteralText("");
+		if (SHOW_ITEM_ENTITY_NAME.getValue())
+			text.append(itemEntity.getStack().getName()).formatted(itemEntity.getStack().getRarity().formatting);
+		
 
-	    //渲染数量
-	    if (itemEntity.getStack().getCount() > 1 && SHOW_ITEM_ENTITY_COUNT.getValue())
-		    text.append(String.format(" %d ", itemEntity.getStack().getCount()));
-	    if (!text.getString().equals(""))
-		    texts.add(text);
+		//渲染数量
+		if (itemEntity.getStack().getCount() > 1 && SHOW_ITEM_ENTITY_COUNT.getValue())
+			text.append(String.format(" %d ", itemEntity.getStack().getCount()));
+		if (!text.getString().equals(""))
+			texts.add(text);
 
-	    //渲染剩余生命
-	    if (SHOW_ENTITY_AGE.getValue()) {
-		    int maxAge = 6000;
-		    int age = maxAge - itemEntity.getItemAge();
-		    texts.add(TextRenderUtil.ageColorText(String.valueOf(age / 20), age, maxAge, false)
-				    .append("§rs")
-		    );
-	    }
+		//渲染剩余生命
+		if (SHOW_ENTITY_AGE.getValue()) {
+			int maxAge = 6000;
+			int age = maxAge - itemEntity.getItemAge();
+			texts.add(TextRenderUtil.ageColorText(String.valueOf(age / 20), age, maxAge, false)
+					.append("§rs")
+			);
+		}
 
-	    if (!texts.isEmpty())
-		    TextRenderUtil.renderEntityMultiText(itemEntity, texts, this.dispatcher, getTextRenderer(), matrixStack,
-				    vertexConsumerProvider, light
-		    );
+		if (!texts.isEmpty())
+			TextRenderUtil.renderEntityMultiText(itemEntity, texts, this.dispatcher, getTextRenderer(), matrixStack,
+					vertexConsumerProvider, light
+			);
     }
 }

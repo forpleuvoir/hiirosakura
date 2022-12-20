@@ -26,33 +26,39 @@ import javax.script.ScriptEngine
 
  */
 object HeadFile : IModInitialize {
-	private val log = HSLogger.getLogger(this.javaClass)
+    private val log = HSLogger.getLogger(this.javaClass)
 
-	override fun initialize() {
-		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(object : SimpleSynchronousResourceReloadListener {
-			override fun reload(manager: ResourceManager) {
-				headFiles.clear()
-				for (id in manager.findResources("headfile") { it.endsWith(".js") }) {
-					try {
-						val reader = manager.getResource(id).inputStream.reader()
-						headFiles.add(CharStreams.toString(reader))
-					} catch (e: Exception) {
-						log.error("Error occurred while loading resource js $id", e)
-					}
-				}
-			}
+    override fun initialize() {
+        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES)
+            .registerReloadListener(object : SimpleSynchronousResourceReloadListener {
+                override fun reload(manager: ResourceManager) {
+                    headFiles.clear()
+                    for (id in manager.findResources("headfile") {
+                        it.path.endsWith(".js")
+                        true
+                    }) {
+                        try {
+                            manager.getResource(id.key).ifPresent {
+                                headFiles.add(CharStreams.toString(it.inputStream.reader()))
+                            }
 
-			override fun getFabricId(): Identifier {
-				return Identifier(HiiroSakuraClient.modId, "headfile")
-			}
-		})
-	}
+                        } catch (e: Exception) {
+                            log.error("Error occurred while loading resource js $id", e)
+                        }
+                    }
+                }
 
-	private val headFiles = ArrayList<String>()
+                override fun getFabricId(): Identifier {
+                    return Identifier(HiiroSakuraClient.modId, "headfile")
+                }
+            })
+    }
 
-	fun eval(engine: ScriptEngine) {
-		headFiles.forEach(engine::eval)
-	}
+    private val headFiles = ArrayList<String>()
+
+    fun eval(engine: ScriptEngine) {
+        headFiles.forEach(engine::eval)
+    }
 
 
 }

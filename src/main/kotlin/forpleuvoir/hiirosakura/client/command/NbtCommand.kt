@@ -5,13 +5,14 @@ import com.mojang.brigadier.context.CommandContext
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient.mc
 import forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand
 import forpleuvoir.hiirosakura.client.util.asString
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.literal
-import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource
+import forpleuvoir.ibuki_gourd.common.mText
+import forpleuvoir.ibuki_gourd.common.tText
+import forpleuvoir.ibuki_gourd.utils.mText
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
-import net.minecraft.text.LiteralText
-import net.minecraft.text.TranslatableText
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.registry.Registry
@@ -58,12 +59,12 @@ object NbtCommand {
                 mc.world?.let { clientWorld ->
                     val blockState = clientWorld.getBlockState(blockPos)
                     val str = blockState.asString()
-                    context.source.sendFeedback(LiteralText(str).styled { style ->
+                    context.source.sendFeedback(str.mText.styled { style ->
                         style.withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, str))
                             .withHoverEvent(
                                 HoverEvent(
                                     HoverEvent.Action.SHOW_TEXT,
-                                    TranslatableText("chat.copy.click")
+                                    "chat.copy.click".tText().mText
                                 )
                             )
                     })
@@ -77,9 +78,9 @@ object NbtCommand {
         val player = context.source.player
         val stack = player.mainHandStack
         val id = Registry.ITEM.getId(stack.item).toString() + if (stack.nbt == null) "" else stack.nbt!!.asString()
-        context.source.sendFeedback(LiteralText(id).styled { style ->
+        context.source.sendFeedback(id.mText.styled { style ->
             style.withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, id))
-                .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, TranslatableText("chat.copy.click")))
+                .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, "chat.copy.click".tText().mText))
         })
 
         return 1
@@ -88,9 +89,9 @@ object NbtCommand {
     private fun get(context: CommandContext<FabricClientCommandSource>): Int {
         val player = context.source.player
         player.mainHandStack.nbt?.let { nbt ->
-            context.source.sendFeedback(LiteralText(nbt.asString()).styled { style ->
+            context.source.sendFeedback(nbt.asString().mText.styled { style ->
                 style.withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, nbt.asString()))
-                    .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, TranslatableText("chat.copy.click")))
+                    .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, "chat.copy.click".tText().mText))
             })
         }
         return 1
@@ -107,9 +108,9 @@ object NbtCommand {
                     }
                 }
             }
-            context.source.sendFeedback(LiteralText(nbt.asString()).styled { style ->
+            context.source.sendFeedback(nbt.asString().mText.styled { style ->
                 style.withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, nbt.asString()))
-                    .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, TranslatableText("chat.copy.click")))
+                    .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, "chat.copy.click".tText().mText))
             })
         }
         return 1

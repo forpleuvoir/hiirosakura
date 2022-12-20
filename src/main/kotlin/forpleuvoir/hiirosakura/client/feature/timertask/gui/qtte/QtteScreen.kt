@@ -5,6 +5,7 @@ import forpleuvoir.hiirosakura.client.HiiroSakuraClient.mc
 import forpleuvoir.hiirosakura.client.config.HiiroSakuraData.TIMER_TASK
 import forpleuvoir.hiirosakura.client.feature.timertask.gui.TimerTaskEditor
 import forpleuvoir.hiirosakura.client.util.StringUtil
+import forpleuvoir.ibuki_gourd.common.mText
 import forpleuvoir.ibuki_gourd.common.tText
 import forpleuvoir.ibuki_gourd.gui.button.Button
 import forpleuvoir.ibuki_gourd.gui.dialog.DialogBase
@@ -29,10 +30,10 @@ import java.util.concurrent.atomic.AtomicInteger
 
  */
 class QtteScreen(parent: Screen? = null) : DialogBase<QtteScreen>(
-	360.coerceAtMost((mc.window.scaledWidth * 0.8).toInt()),
-	320.coerceAtMost((mc.window.scaledHeight * 0.8).toInt()),
-	"${HiiroSakuraClient.modId}.screen.timertask".tText(),
-	parent
+    360.coerceAtMost((mc.window.scaledWidth * 0.8).toInt()),
+    320.coerceAtMost((mc.window.scaledHeight * 0.8).toInt()),
+    "${HiiroSakuraClient.modId}.screen.timertask".tText().mText,
+    parent
 ) {
 	override fun init() {
 		super.init()
@@ -63,8 +64,8 @@ class QtteScreen(parent: Screen? = null) : DialogBase<QtteScreen>(
 							)
 						)
 					} else {
-						task.run()
-						this@QtteScreen.onClose()
+                        task.run()
+                        this@QtteScreen.close()
 					}
 				}
 				setHoverText(

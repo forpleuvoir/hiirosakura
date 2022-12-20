@@ -16,6 +16,6 @@ import forpleuvoir.ibuki_gourd.event.CancelableEvent
  * @author forpleuvoir
 
  */
-class MessageEvent(@JvmField val messageType: String, @JvmField val message: String, @JvmField val senderUUID: String) :
+class MessageEvent(@JvmField val message: String) :
     CancelableEvent() {
 }

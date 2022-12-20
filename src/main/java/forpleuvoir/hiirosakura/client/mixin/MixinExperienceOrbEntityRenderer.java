@@ -8,7 +8,8 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.ExperienceOrbEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.ExperienceOrbEntity;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.LiteralTextContent;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
@@ -51,7 +52,7 @@ public abstract class MixinExperienceOrbEntityRenderer extends EntityRenderer<Ex
             int blue = (int) ((MathHelper.sin(age + 4.1887903F) + 1.0F) * 0.1F * 255.0F);
             int rgb = new Color(red, 255, blue).getRGB();
 
-            texts.add(new LiteralText(String.valueOf(experienceAmount))
+            texts.add(MutableText.of(new LiteralTextContent(String.valueOf(experienceAmount)))
                     .styled(style -> style.withColor(rgb))
             );
         }
@@ -68,8 +69,8 @@ public abstract class MixinExperienceOrbEntityRenderer extends EntityRenderer<Ex
         if (!texts.isEmpty())
             TextRenderUtil
                     .renderEntityMultiText(experienceOrbEntity, texts,
-                                           this.dispatcher, getTextRenderer(), matrixStack,
-                                           vertexConsumerProvider, i
+                            this.dispatcher, getTextRenderer(), matrixStack,
+                            vertexConsumerProvider, i
                     );
     }
 

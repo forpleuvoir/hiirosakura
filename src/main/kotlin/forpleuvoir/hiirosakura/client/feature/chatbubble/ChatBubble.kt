@@ -10,6 +10,7 @@ import forpleuvoir.hiirosakura.client.config.Configs.Values.CHAT_BUBBLE_TEXTURE_
 import forpleuvoir.hiirosakura.client.config.Configs.Values.CHAT_BUBBLE_VANILLA_SHADER
 import forpleuvoir.hiirosakura.client.feature.regex.ChatMessageRegex
 import forpleuvoir.ibuki_gourd.utils.color.Color4f
+import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.network.AbstractClientPlayerEntity
@@ -17,7 +18,6 @@ import net.minecraft.client.render.*
 import net.minecraft.client.render.VertexFormat.DrawMode.QUADS
 import net.minecraft.client.render.entity.EntityRenderDispatcher
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.Vec3f
@@ -143,8 +143,7 @@ class ChatBubble(private val text: String, private val playerName: String) {
         bufferBuilder.vertex(matrix, x + width.toFloat(), y.toFloat(), 0.0f).texture((u + regionWidth) / 32f, v / 32f)
             .color(color).next()
         bufferBuilder.vertex(matrix, x.toFloat(), y.toFloat(), 0.0f).texture(u / 32f, v / 32f).color(color).next()
-        bufferBuilder.end()
-        BufferRenderer.draw(bufferBuilder)
+        BufferRenderer.drawWithShader(bufferBuilder.end())
     }
 
     /**
@@ -158,12 +157,12 @@ class ChatBubble(private val text: String, private val playerName: String) {
         val sb = StringBuilder()
         for (c in text.toCharArray()) {
             if (textRenderer.getWidth(sb.toString()) > maxWidth) {
-                list.add(LiteralText(sb.toString()))
+                list.add(sb.toString().text)
                 sb.clear()
             }
             sb.append(c)
         }
-        list.add(LiteralText(sb.toString()))
+        list.add(sb.toString().text)
         return list
     }
 
@@ -207,7 +206,7 @@ class ChatBubble(private val text: String, private val playerName: String) {
             "texture/gui/feature/chatshow/bubble.png"
         )
         private val shader: Shader =
-            Shader(mc.resourcePackProvider.pack, "position_tex_color", VertexFormats.POSITION_TEXTURE_COLOR)
+            Shader(mc.resourceManager, "position_tex_color", VertexFormats.POSITION_TEXTURE_COLOR)
 
         @JvmStatic
         fun getInstance(chatMessageRegex: ChatMessageRegex): ChatBubble? {

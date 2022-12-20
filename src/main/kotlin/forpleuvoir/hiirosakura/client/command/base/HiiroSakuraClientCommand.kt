@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.command.*
 import forpleuvoir.hiirosakura.client.util.HSLogger
-import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 
 /**
  * 客户端指令处理
@@ -36,7 +36,6 @@ object HiiroSakuraClientCommand {
 	fun registerClientCommands(commandDispatcher: CommandDispatcher<FabricClientCommandSource>) {
 		log.info("客户端指令注册...")
 		GammaCommand.register(commandDispatcher)
-		TooltipCommand.register(commandDispatcher)
 		ConfigCommand.register(commandDispatcher)
 		SwitchCameraEntityCommand.register(commandDispatcher)
 		TaskCommand.register(commandDispatcher)

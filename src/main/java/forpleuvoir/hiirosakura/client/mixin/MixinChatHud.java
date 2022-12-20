@@ -4,15 +4,14 @@ import forpleuvoir.hiirosakura.client.config.Configs;
 import forpleuvoir.hiirosakura.client.feature.chatbubble.HiiroSakuraChatBubble;
 import forpleuvoir.hiirosakura.client.feature.chatmessage.ChatMessageFilter;
 import forpleuvoir.hiirosakura.client.feature.event.events.MessageEvent;
-import net.minecraft.client.gui.hud.ChatHudListener;
-import net.minecraft.network.MessageType;
-import net.minecraft.text.Text;
+import net.minecraft.client.network.message.MessageHandler;
+import net.minecraft.network.message.MessageType;
+import net.minecraft.network.message.SignedMessage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.UUID;
 
 /**
  * 聊天栏监听注入
@@ -23,12 +22,13 @@ import java.util.UUID;
  * <p>文件名 MixinChatHudListener
  * <p>创建时间 2021/6/13 0:11
  */
-@Mixin(ChatHudListener.class)
-public abstract class MixinChatHudListener {
+@Mixin(MessageHandler.class)
+public abstract class MixinChatHud {
 
-	@Inject(method = "onChatMessage", at = @At("HEAD"), cancellable = true)
-	public void onChatMessage(MessageType type, Text text, UUID senderUuid, CallbackInfo ci) {
-        var event = new MessageEvent(type.toString(), text.getString(), senderUuid.toString());
+    @Inject(method = "onChatMessage", at = @At("HEAD"), cancellable = true)
+    public void onChatMessage(SignedMessage message, MessageType.Parameters params, CallbackInfo ci) {
+        var text = params.applyChatDecoration(message.getContent());
+        var event = new MessageEvent(text.getString());
         event.broadcast();
         if (event.isCanceled()) ci.cancel();
         if (Configs.Toggles.CHAT_MESSAGE_FILTER.getValue()) {

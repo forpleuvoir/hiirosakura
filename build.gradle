@@ -1,7 +1,7 @@
 plugins {
-    id 'fabric-loom' version '0.10-SNAPSHOT'
+    id 'fabric-loom' version '0.12-SNAPSHOT'
     id 'maven-publish'
-    id 'org.jetbrains.kotlin.jvm' version '1.6.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.7.22'
 }
 def time = new Date().format("yyyyMMdd")
 sourceCompatibility = JavaVersion.VERSION_16

@@ -9,9 +9,9 @@ import forpleuvoir.hiirosakura.client.feature.timertask.Timer
 import forpleuvoir.hiirosakura.client.feature.timertask.executor.jsexcutor.JsExecutor
 import forpleuvoir.hiirosakura.client.util.JsonUtil
 import forpleuvoir.hiirosakura.client.util.StringUtil
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.argument
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.literal
-import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import net.minecraft.command.CommandSource
 import net.minecraft.command.argument.NbtPathArgumentType
 import net.minecraft.command.argument.NbtPathArgumentType.NbtPath

@@ -8,8 +8,8 @@ import forpleuvoir.hiirosakura.client.HiiroSakuraClient
 import forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.COMMAND_PREFIX
 import forpleuvoir.hiirosakura.client.feature.cameraentity.SwitchCameraEntity
 import forpleuvoir.hiirosakura.client.util.StringUtil
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager
-import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import net.minecraft.command.CommandSource
 
 /**

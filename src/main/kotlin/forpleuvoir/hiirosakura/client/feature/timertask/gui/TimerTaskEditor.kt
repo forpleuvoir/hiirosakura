@@ -5,7 +5,9 @@ import forpleuvoir.hiirosakura.client.config.HiiroSakuraData.TIMER_TASK
 import forpleuvoir.hiirosakura.client.feature.timertask.TimerTask
 import forpleuvoir.hiirosakura.client.feature.timertask.executor.jsexcutor.JsExecutor
 import forpleuvoir.hiirosakura.client.feature.timertask.gui.TimerTaskWrapped.RunAt
+import forpleuvoir.ibuki_gourd.common.mText
 import forpleuvoir.ibuki_gourd.common.tText
+import forpleuvoir.ibuki_gourd.common.text
 import forpleuvoir.ibuki_gourd.gui.button.ButtonOption
 import forpleuvoir.ibuki_gourd.gui.dialog.DialogConfirm
 import forpleuvoir.ibuki_gourd.gui.widget.LabelText
@@ -35,21 +37,21 @@ import java.util.function.Function
 
  */
 class TimerTaskEditor(
-	dialogWidth: Int,
-	dialogHeight: Int,
-	parent: Screen?,
-	private val old: TimerTaskWrappedWithKeyBind? = null
-) : DialogConfirm(dialogWidth, dialogHeight, "${HiiroSakuraClient.modId}.screen.timertask.edit".tText(), parent) {
+    dialogWidth: Int,
+    dialogHeight: Int,
+    parent: Screen?,
+    private val old: TimerTaskWrappedWithKeyBind? = null
+) : DialogConfirm(dialogWidth, dialogHeight, "${HiiroSakuraClient.modId}.screen.timertask.edit".tText().text, parent) {
 
-	private val editMode: Boolean = old != null
+    private val editMode: Boolean = old != null
 
-	init {
-		confirmCallback = Function { save() }
-	}
+    init {
+        confirmCallback = Function { save() }
+    }
 
-	private lateinit var nameText: LabelText
-	private lateinit var nameInput: WidgetText
-	private var nameValue: String = if (editMode) old!!.timerTask.name else "timer_task"
+    private lateinit var nameText: LabelText
+    private lateinit var nameInput: WidgetText
+    private var nameValue: String = if (editMode) old!!.timerTask.name else "timer_task"
 
 	private lateinit var delayText: LabelText
 	private lateinit var delayInput: WidgetIntInput
@@ -81,70 +83,86 @@ class TimerTaskEditor(
 	}
 
 	private fun initName() {
-		nameText = LabelText("${HiiroSakuraClient.modId}.screen.timertask.name".tText(), left + 2, top).apply {
-			align = LabelText.Align.CENTER_LEFT
-		}
-		nameInput = WidgetText(nameText.x, top + nameText.height, 60, 16).apply {
-			text = nameValue
-			setChangedListener {
-				nameValue = it
-			}
-		}
+        nameText = LabelText("${HiiroSakuraClient.modId}.screen.timertask.name".tText().text, left + 2, top).apply {
+            align = LabelText.Align.CENTER_LEFT
+        }
+        nameInput = WidgetText(nameText.x, top + nameText.height, 60, 16).apply {
+            text = nameValue
+            setChangedListener {
+                nameValue = it
+            }
+        }
 		addDrawableChild(nameText)
 		addDrawableChild(nameInput)
 	}
 
 	private fun initDelay() {
-		delayText = LabelText("${HiiroSakuraClient.modId}.screen.timertask.delay".tText(), nameInput.x + nameInput.width + 5, top).apply {
-			align = LabelText.Align.CENTER_LEFT
-		}
-		delayInput = WidgetIntInput(delayText.x, top + delayText.height, 60, 16, delayValue, 0).apply {
-			setOnValueChangedCallback {
-				delayValue = it
-			}
-		}
+        delayText = LabelText(
+            "${HiiroSakuraClient.modId}.screen.timertask.delay".tText().text,
+            nameInput.x + nameInput.width + 5,
+            top
+        ).apply {
+            align = LabelText.Align.CENTER_LEFT
+        }
+        delayInput = WidgetIntInput(delayText.x, top + delayText.height, 60, 16, delayValue, 0).apply {
+            setOnValueChangedCallback {
+                delayValue = it
+            }
+        }
 		addDrawableChild(delayText)
 		addDrawableChild(delayInput)
 	}
 
 	private fun initPeriod() {
-		periodText = LabelText("${HiiroSakuraClient.modId}.screen.timertask.period".tText(), delayInput.x + delayInput.width + 5, top).apply {
-			align = LabelText.Align.CENTER_LEFT
-		}
-		periodInput = WidgetIntInput(periodText.x, top + periodText.height, 60, 16, periodValue, minValue = 1).apply {
-			setOnValueChangedCallback {
-				periodValue = it
-			}
-		}
+        periodText = LabelText(
+            "${HiiroSakuraClient.modId}.screen.timertask.period".tText().text,
+            delayInput.x + delayInput.width + 5,
+            top
+        ).apply {
+            align = LabelText.Align.CENTER_LEFT
+        }
+        periodInput = WidgetIntInput(periodText.x, top + periodText.height, 60, 16, periodValue, minValue = 1).apply {
+            setOnValueChangedCallback {
+                periodValue = it
+            }
+        }
 		addDrawableChild(periodText)
 		addDrawableChild(periodInput)
 	}
 
 	private fun initTimes() {
-		timesText = LabelText("${HiiroSakuraClient.modId}.screen.timertask.times".tText(), periodInput.x + periodInput.width + 5, top).apply {
-			align = LabelText.Align.CENTER_LEFT
-		}
-		timesInput = WidgetIntInput(timesText.x, top + timesText.height, 60, 16, timesValue, minValue = 1).apply {
-			setOnValueChangedCallback {
-				timesValue = it
-			}
-		}
+        timesText = LabelText(
+            "${HiiroSakuraClient.modId}.screen.timertask.times".tText().text,
+            periodInput.x + periodInput.width + 5,
+            top
+        ).apply {
+            align = LabelText.Align.CENTER_LEFT
+        }
+        timesInput = WidgetIntInput(timesText.x, top + timesText.height, 60, 16, timesValue, minValue = 1).apply {
+            setOnValueChangedCallback {
+                timesValue = it
+            }
+        }
 		addDrawableChild(timesText)
 		addDrawableChild(timesInput)
 	}
 
 	private fun initRunAt() {
-		runAtText = LabelText("${HiiroSakuraClient.modId}.screen.timertask.runAt".tText(), timesInput.x + timesInput.width + 5, top).apply {
-			align = LabelText.Align.CENTER_LEFT
-		}
-		runAtButton = ButtonOption(
-			listOf(RunAt.StartTick.name, RunAt.EndTick.name),
-			current = runAtValue.name,
-			runAtText.x,
-			runAtText.y + runAtText.height - 2,
-			60,
-			20
-		) {
+        runAtText = LabelText(
+            "${HiiroSakuraClient.modId}.screen.timertask.runAt".tText().text,
+            timesInput.x + timesInput.width + 5,
+            top
+        ).apply {
+            align = LabelText.Align.CENTER_LEFT
+        }
+        runAtButton = ButtonOption(
+            listOf(RunAt.StartTick.name, RunAt.EndTick.name),
+            current = runAtValue.name,
+            runAtText.x,
+            runAtText.y + runAtText.height - 2,
+            60,
+            20
+        ) {
 			runAtValue = RunAt.valueOf(it)
 		}
 		addDrawableChild(runAtText)
@@ -206,11 +224,11 @@ class TimerTaskEditor(
 		}
 		if (!success)
 			SystemToast.show(
-				mc.toastManager,
-				SystemToast.Type.PACK_COPY_FAILURE,
-				"${HiiroSakuraClient.modId}.screen.null_value".tText(arg),
-				null
-			)
+                mc.toastManager,
+                SystemToast.Type.PACK_COPY_FAILURE,
+                "${HiiroSakuraClient.modId}.screen.null_value".tText(arg).mText,
+                null
+            )
 		return success
 	}
 }

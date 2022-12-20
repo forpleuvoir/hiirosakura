@@ -1,12 +1,12 @@
 package forpleuvoir.hiirosakura.client.util
 
+import forpleuvoir.ibuki_gourd.utils.mText
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.render.entity.EntityRenderDispatcher
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.Entity
-import net.minecraft.text.LiteralText
 import net.minecraft.text.MutableText
 import net.minecraft.text.Style
 import net.minecraft.text.Text
@@ -24,10 +24,10 @@ import java.awt.Color
  * 创建时间 2021/6/13 12:43
  */
 object TextRenderUtil {
-	@JvmStatic
-	fun ageColorText(text: String?, age: Float, maxAge: Float, r2g: Boolean = false): MutableText {
-		return LiteralText(text).styled { style: Style -> style.withColor(ageColor(age, maxAge, r2g)) }
-	}
+    @JvmStatic
+    fun ageColorText(text: String, age: Float, maxAge: Float, r2g: Boolean = false): MutableText {
+        return text.mText.styled { style: Style -> style.withColor(ageColor(age, maxAge, r2g)) }
+    }
 
 	private fun ageColor(age: Float, maxAge: Float, r2g: Boolean): Int {
 		if (age < 0) return Color(255, 0, 0).rgb

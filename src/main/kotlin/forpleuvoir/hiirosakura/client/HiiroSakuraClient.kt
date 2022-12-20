@@ -2,13 +2,12 @@ package forpleuvoir.hiirosakura.client
 
 import forpleuvoir.hiirosakura.client.initialize.HiiroSakuraInitialize
 import forpleuvoir.ibuki_gourd.common.ModInfo
+import forpleuvoir.ibuki_gourd.utils.Message
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.client.MinecraftClient
-import net.minecraft.network.MessageType
 import net.minecraft.text.Text
-import net.minecraft.util.Util
 
 /**
  *
@@ -25,52 +24,52 @@ import net.minecraft.util.Util
 @Environment(EnvType.CLIENT)
 object HiiroSakuraClient : ClientModInitializer, ModInfo {
 
-	override val modId: String
-		get() = "hiirosakura"
-	override val modName: String
-		get() = "Hiiro Sakura"
+    override val modId: String
+        get() = "hiirosakura"
+    override val modName: String
+        get() = "Hiiro Sakura"
 
 
-	@JvmField
-	val mc: MinecraftClient = MinecraftClient.getInstance()
+    @JvmField
+    val mc: MinecraftClient = MinecraftClient.getInstance()
 
-	var tickCounter: Long = 0
-		private set
+    var tickCounter: Long = 0
+        private set
 
-	/**
-	 * Mod初始化
-	 */
-	override fun onInitializeClient() {
-		HiiroSakuraInitialize.initialize()
-	}
+    /**
+     * Mod初始化
+     */
+    override fun onInitializeClient() {
+        HiiroSakuraInitialize.initialize()
+    }
 
-	fun endTick() {
-		tickCounter++
-	}
+    fun endTick() {
+        tickCounter++
+    }
 
-	/**
-	 * 添加游戏信息
-	 *
-	 * @param message 消息文本
-	 */
-	fun showMessage(message: Text) {
-		mc.inGameHud.addChatMessage(MessageType.GAME_INFO, message, Util.NIL_UUID)
-	}
+    /**
+     * 添加游戏信息
+     *
+     * @param message 消息文本
+     */
+    fun showMessage(message: Text) {
+        Message.showInfo(message)
+    }
 
-	/**
-	 * 添加系统消息
-	 * @param message Text 消息文本
-	 */
-	fun addChatMessage(message: Text) {
-		mc.inGameHud.addChatMessage(MessageType.SYSTEM, message, Util.NIL_UUID)
-	}
+    /**
+     * 添加系统消息
+     * @param message Text 消息文本
+     */
+    fun addChatMessage(message: Text) {
+        Message.showChatMessage(message)
+    }
 
-	/**
-	 * 发送聊天消息
-	 * @param message String
-	 */
-	fun sendMessage(message: String) {
-		mc.player?.sendChatMessage(message)
-	}
+    /**
+     * 发送聊天消息
+     * @param message String
+     */
+    fun sendMessage(message: String) {
+        mc.player?.sendChatMessage(message, null)
+    }
 
 }

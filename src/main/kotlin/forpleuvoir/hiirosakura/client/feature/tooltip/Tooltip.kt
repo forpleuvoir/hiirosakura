@@ -9,9 +9,9 @@ import forpleuvoir.hiirosakura.client.util.HSLogger.Companion.getLogger
 import forpleuvoir.hiirosakura.client.util.JsonUtil
 import forpleuvoir.hiirosakura.client.util.PlayerHeadUtil
 import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
+import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
-import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
 import java.util.*
 
@@ -83,7 +83,7 @@ class Tooltip : AbstractHiiroSakuraData("tooltip") {
 			val key = getKey(stack)
 			if (data.containsKey(key)) {
 				val tips: List<String> = data[key]!!
-				tips.forEach { list.add(LiteralText(it)) }
+                tips.forEach { list.add(it.text) }
 			}
 		}
 		return list

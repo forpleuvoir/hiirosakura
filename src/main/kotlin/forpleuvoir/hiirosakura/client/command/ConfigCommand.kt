@@ -6,9 +6,10 @@ import forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.COMM
 import forpleuvoir.hiirosakura.client.command.base.HiiroSakuraClientCommand.getTranslatableTextKey
 import forpleuvoir.hiirosakura.client.config.Configs
 import forpleuvoir.hiirosakura.client.config.HiiroSakuraData
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager
-import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource
-import net.minecraft.text.TranslatableText
+import forpleuvoir.ibuki_gourd.common.tText
+import forpleuvoir.ibuki_gourd.common.text
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 
 /**
  * 配置相关指令
@@ -48,26 +49,26 @@ object ConfigCommand {
 	}
 
 	private fun configSave(context: CommandContext<FabricClientCommandSource>): Int {
-		Configs.save()
-		context.source.sendFeedback(TranslatableText(getTranslatableTextKey(CONFIG, "save")))
+        Configs.save()
+        context.source.sendFeedback(getTranslatableTextKey(CONFIG, "save").tText().text)
 		return 1
 	}
 
 	private fun configReload(context: CommandContext<FabricClientCommandSource>): Int {
-		Configs.load()
-		context.source.sendFeedback(TranslatableText(getTranslatableTextKey(CONFIG, "reload")))
+        Configs.load()
+        context.source.sendFeedback(getTranslatableTextKey(CONFIG, "reload").tText().text)
 		return 1
 	}
 
 	private fun dataSave(context: CommandContext<FabricClientCommandSource>): Int {
-		HiiroSakuraData.save()
-		context.source.sendFeedback(TranslatableText(getTranslatableTextKey(DATA, "save")))
+        HiiroSakuraData.save()
+        context.source.sendFeedback(getTranslatableTextKey(DATA, "save").tText().text)
 		return 1
 	}
 
 	private fun dataReload(context: CommandContext<FabricClientCommandSource>): Int {
-		HiiroSakuraData.load()
-		context.source.sendFeedback(TranslatableText(getTranslatableTextKey(DATA, "reload")))
+        HiiroSakuraData.load()
+        context.source.sendFeedback(getTranslatableTextKey(DATA, "reload").tText().text)
 		return 1
 	}
 }

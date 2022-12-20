@@ -4,7 +4,7 @@
   "package": "forpleuvoir.hiirosakura.client.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "MixinChatHudListener",
+    "MixinChatHud",
     "MixinClientPlayerEntity",
     "MixinClientPlayerInteractionManager",
     "MixinClientPlayNetworkHandler",

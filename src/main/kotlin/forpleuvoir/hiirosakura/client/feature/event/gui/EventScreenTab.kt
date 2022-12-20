@@ -1,6 +1,7 @@
 package forpleuvoir.hiirosakura.client.feature.event.gui
 
 import forpleuvoir.hiirosakura.client.HiiroSakuraClient
+import forpleuvoir.ibuki_gourd.common.mText
 import forpleuvoir.ibuki_gourd.common.tText
 import forpleuvoir.ibuki_gourd.event.events.Events
 import forpleuvoir.ibuki_gourd.gui.button.Button
@@ -52,7 +53,7 @@ class EventScreenTab(tabEntry: IScreenTabEntry) : ScreenTab(tabEntry) {
 		addButton = Button(
 			15,
 			top + margin + 20,
-			"${HiiroSakuraClient.modId}.screen.event.subscribe".tText()
+            "${HiiroSakuraClient.modId}.screen.event.subscribe".tText().mText
 		) {
 			openScreen(
 				EventSubscriberEditor(400.coerceAtMost(this.width), 320.coerceAtMost(this.height), this)

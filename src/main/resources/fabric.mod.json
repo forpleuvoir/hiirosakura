@@ -45,11 +45,11 @@
     "hiirosakura.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.12.0",
+    "fabricloader": ">=0.14.0",
     "fabric": "*",
-    "minecraft": "1.18.x",
+    "minecraft": "1.19.x",
     "java": ">=17",
-    "fabric-language-kotlin": ">=1.7.0+kotlin.1.6.0"
+    "fabric-language-kotlin": ">=1.8.0+kotlin.1.7.0"
   },
   "suggests": {
     "another-mod": "modmenu"

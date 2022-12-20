@@ -9,8 +9,10 @@ import forpleuvoir.hiirosakura.client.feature.event.events.PlayerTickEvent;
 import forpleuvoir.hiirosakura.client.feature.event.events.api.ClientPlayerApi;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -30,8 +32,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ClientPlayerEntity.class)
 public abstract class MixinClientPlayerEntity extends PlayerEntity {
 
-    public MixinClientPlayerEntity(World world, BlockPos pos, float yaw, GameProfile profile) {
-        super(world, pos, yaw, profile);
+
+    public MixinClientPlayerEntity(World world, BlockPos pos, float yaw, GameProfile gameProfile, @Nullable PlayerPublicKey publicKey) {
+        super(world, pos, yaw, gameProfile, publicKey);
     }
 
     /**
@@ -39,7 +42,7 @@ public abstract class MixinClientPlayerEntity extends PlayerEntity {
      *
      * @param message 客户端准备发送的消息 {@link String}
      */
-    @ModifyVariable(method = "sendChatMessage", at = @At(value = "HEAD"), argsOnly = true)
+    @ModifyVariable(method = "sendChatMessage*", at = @At(value = "HEAD"), argsOnly = true)
     public String sendChatMessage(String message) {
         var messageEvent = new MessageSendEvent(message);
         messageEvent.broadcast();

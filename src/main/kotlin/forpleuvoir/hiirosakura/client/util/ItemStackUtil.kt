@@ -1,11 +1,12 @@
 package forpleuvoir.hiirosakura.client.util
 
+import forpleuvoir.ibuki_gourd.common.mText
 import forpleuvoir.ibuki_gourd.common.tText
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.TranslatableTextContent
 import net.minecraft.util.Formatting
 import java.util.*
 
@@ -35,9 +36,9 @@ object ItemStackUtil {
     fun getEnchantmentsWithLvl(stack: ItemStack, vararg formatting: Formatting?): List<Text> {
         val texts = LinkedList<Text>()
         EnchantmentHelper.get(stack).forEach { (enchantment, lvl) ->
-            val text = enchantment.translationKey.tText()
+            val text = enchantment.translationKey.tText().mText
             if (lvl <= 10 && lvl != 1)
-                text.append(TranslatableText("enchantment.level.$lvl"))
+                text.append(TranslatableTextContent("enchantment.level.$lvl").mText)
             else if (lvl > 10) text.append("$lvl".text)
             text.formatted(*formatting)
             texts.add(text)

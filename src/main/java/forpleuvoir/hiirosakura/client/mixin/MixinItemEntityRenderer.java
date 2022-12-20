@@ -10,7 +10,7 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.ItemEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -54,7 +54,7 @@ public abstract class MixinItemEntityRenderer extends EntityRenderer<ItemEntity>
 			texts.addAll(HiiroSakuraData.TOOLTIP.getTooltip(itemEntity.getStack()));
 
 		//渲染名字
-		LiteralText text = new LiteralText("");
+        MutableText text = Text.empty();
 		if (SHOW_ITEM_ENTITY_NAME.getValue())
 			text.append(itemEntity.getStack().getName()).formatted(itemEntity.getStack().getRarity().formatting);
 		

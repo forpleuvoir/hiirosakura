@@ -24,52 +24,58 @@ import net.minecraft.text.Text
 @Environment(EnvType.CLIENT)
 object HiiroSakuraClient : ClientModInitializer, ModInfo {
 
-    override val modId: String
-        get() = "hiirosakura"
-    override val modName: String
-        get() = "Hiiro Sakura"
+	override val modId: String
+		get() = "hiirosakura"
+	override val modName: String
+		get() = "Hiiro Sakura"
 
 
-    @JvmField
-    val mc: MinecraftClient = MinecraftClient.getInstance()
+	@JvmField
+	val mc: MinecraftClient = MinecraftClient.getInstance()
 
-    var tickCounter: Long = 0
-        private set
+	var tickCounter: Long = 0
+		private set
 
-    /**
-     * Mod初始化
-     */
-    override fun onInitializeClient() {
-        HiiroSakuraInitialize.initialize()
-    }
+	/**
+	 * Mod初始化
+	 */
+	override fun onInitializeClient() {
+		HiiroSakuraInitialize.initialize()
+	}
 
-    fun endTick() {
-        tickCounter++
-    }
+	fun endTick() {
+		tickCounter++
+	}
 
-    /**
-     * 添加游戏信息
-     *
-     * @param message 消息文本
-     */
-    fun showMessage(message: Text) {
-        Message.showInfo(message)
-    }
+	/**
+	 * 添加游戏信息
+	 *
+	 * @param message 消息文本
+	 */
+	fun showMessage(message: Text) {
+		Message.showInfo(message)
+	}
 
-    /**
-     * 添加系统消息
-     * @param message Text 消息文本
-     */
-    fun addChatMessage(message: Text) {
-        Message.showChatMessage(message)
-    }
+	/**
+	 * 添加系统消息
+	 * @param message Text 消息文本
+	 */
+	fun addChatMessage(message: Text) {
+		Message.showChatMessage(message)
+	}
 
-    /**
-     * 发送聊天消息
-     * @param message String
-     */
-    fun sendMessage(message: String) {
-        mc.player?.sendChatMessage(message, null)
-    }
+	/**
+	 * 发送聊天消息
+	 * @param message String
+	 */
+	fun sendMessage(message: String) {
+		mc.player?.let {
+			if (message.startsWith("/"))
+				it.sendCommand(message.substring(1))
+			else
+				it.sendChatMessage(message, null)
+		}
+
+	}
 
 }

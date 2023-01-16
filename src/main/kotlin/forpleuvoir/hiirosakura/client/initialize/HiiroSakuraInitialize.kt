@@ -13,6 +13,8 @@ import forpleuvoir.ibuki_gourd.event.EventBus
 import forpleuvoir.ibuki_gourd.event.events.ClientEndTickEvent
 import forpleuvoir.ibuki_gourd.event.events.GameInitializedEvent
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
+import net.fabricmc.fabric.api.event.Event
 
 /**
  * 初始化处理程序
@@ -46,8 +48,11 @@ object HiiroSakuraInitialize : IModInitialize {
 		HeadFile.initialize()
 		HiiroSakuraChatBubble.initialize()
 		//客户端指令注册
-        ClientCommandManager.getActiveDispatcher()?.let { HiiroSakuraClientCommand.registerClientCommands(it) }
+		ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
+			HiiroSakuraClientCommand.registerClientCommands(dispatcher)
+		}
 		log.info("${HiiroSakuraClient.modName} Initialized...")
 	}
 
 }
+

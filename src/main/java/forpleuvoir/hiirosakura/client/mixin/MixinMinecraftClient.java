@@ -19,7 +19,7 @@ import net.minecraft.client.tutorial.TutorialStep;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registries;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -144,14 +144,14 @@ public abstract class MixinMinecraftClient {
         ItemStack stack = player.getMainHandStack();
 
         if (ENABLE_ITEM_USE_PROTECTION.getValue()) {
-            String id = Registry.ITEM.getId(stack.getItem()).toString();
+            String id = Registries.ITEM.getId(stack.getItem()).toString();
             NbtCompound nbt = stack.getNbt();
             if (nbt != null) {
                 id = id + nbt;
             }
             WhiteListMode mode = (WhiteListMode) ITEM_USE_PROTECTION_MODE.getValue();
             List<String> list = ITEM_USE_PROTECTION_LIST.getValue();
-            boolean inList = list.contains(Registry.ITEM.getId(stack.getItem()).toString()) || list.contains(id);
+            boolean inList = list.contains(Registries.ITEM.getId(stack.getItem()).toString()) || list.contains(id);
             boolean isProtected = switch (mode) {
                 case None -> false;
                 case WhiteList -> inList;

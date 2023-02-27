@@ -1,5 +1,6 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
+import forpleuvoir.hiirosakura.client.feature.chatmessage.ChatMessageInject;
 import forpleuvoir.hiirosakura.client.feature.event.events.*;
 import forpleuvoir.hiirosakura.client.util.ServerInfoUtil;
 import net.minecraft.client.MinecraftClient;
@@ -15,6 +16,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
@@ -47,6 +49,19 @@ public abstract class MixinClientPlayNetworkHandler {
 			}
 		ServerInfoUtil.setValue(name, address);
 		new GameJoinEvent(name, address).broadcast();
+	}
+
+	/**
+	 * 客户端玩家发送聊天消息时
+	 *
+	 * @param message 客户端准备发送的消息 {@link String}
+	 */
+	@ModifyVariable(method = "sendChatMessage", at = @At(value = "HEAD"), argsOnly = true)
+	public String sendChatMessage(String message) {
+		var messageEvent = new MessageSendEvent(message);
+		messageEvent.broadcast();
+		if (messageEvent.isCanceled()) return "";
+		return ChatMessageInject.handlerMessage(messageEvent.message);
 	}
 
 	@Inject(method = "onPlayerRespawn", at = @At("RETURN"))

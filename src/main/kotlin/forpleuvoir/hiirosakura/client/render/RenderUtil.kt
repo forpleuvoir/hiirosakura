@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.render.*
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.Identifier
-import net.minecraft.util.math.Matrix4f
+import org.joml.Matrix4f
 
 /**
  * @author forpleuvoir
@@ -51,14 +51,14 @@ object RenderUtil {
 		matrices: Matrix4f, x0: Int, x1: Int, y0: Int, y1: Int, z: Int, u0: Float, u1: Float,
 		v0: Float, v1: Float
 	) {
-		RenderSystem.setShader { GameRenderer.getPositionTexShader() }
+		RenderSystem.setShader { GameRenderer.getPositionTexProgram() }
 		val bufferBuilder = Tessellator.getInstance().buffer
 		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE)
 		bufferBuilder.vertex(matrices, x0.toFloat(), y1.toFloat(), z.toFloat()).texture(u0, v1).next()
 		bufferBuilder.vertex(matrices, x1.toFloat(), y1.toFloat(), z.toFloat()).texture(u1, v1).next()
 		bufferBuilder.vertex(matrices, x1.toFloat(), y0.toFloat(), z.toFloat()).texture(u1, v0).next()
 		bufferBuilder.vertex(matrices, x0.toFloat(), y0.toFloat(), z.toFloat()).texture(u0, v0).next()
-        BufferRenderer.drawWithShader(bufferBuilder.end())
+		BufferRenderer.drawWithGlobalProgram(bufferBuilder.end())
 	}
 
 }

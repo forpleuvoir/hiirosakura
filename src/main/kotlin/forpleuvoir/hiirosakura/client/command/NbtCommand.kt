@@ -11,11 +11,11 @@ import forpleuvoir.ibuki_gourd.utils.mText
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import net.minecraft.entity.EquipmentSlot
+import net.minecraft.registry.Registries
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.HitResult
-import net.minecraft.util.registry.Registry
 
 
 /**
@@ -77,7 +77,7 @@ object NbtCommand {
     private fun withId(context: CommandContext<FabricClientCommandSource>): Int {
         val player = context.source.player
         val stack = player.mainHandStack
-        val id = Registry.ITEM.getId(stack.item).toString() + if (stack.nbt == null) "" else stack.nbt!!.asString()
+        val id = Registries.ITEM.getId(stack.item).toString() + if (stack.nbt == null) "" else stack.nbt!!.asString()
         context.source.sendFeedback(id.mText.styled { style ->
             style.withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, id))
                 .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, "chat.copy.click".tText().mText))

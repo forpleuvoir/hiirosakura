@@ -13,14 +13,19 @@ import forpleuvoir.ibuki_gourd.utils.color.Color4f
 import forpleuvoir.ibuki_gourd.utils.text
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
+import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.network.AbstractClientPlayerEntity
-import net.minecraft.client.render.*
+import net.minecraft.client.render.BufferRenderer
+import net.minecraft.client.render.GameRenderer
+import net.minecraft.client.render.Tessellator
 import net.minecraft.client.render.VertexFormat.DrawMode.QUADS
+import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.render.entity.EntityRenderDispatcher
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
-import net.minecraft.util.math.Vec3f
+import net.minecraft.util.math.RotationAxis
+import org.joml.Vector3f
 import java.util.*
 
 /**
@@ -69,7 +74,11 @@ class ChatBubble(private val text: String, private val playerName: String) {
         val scale = -0.025f * Values.CHAT_BUBBLE_SCALE.getValue().toFloat()
         matrixStack.scale(scale, scale, scale)
         if (CHAT_BUBBLE_ONLY_Y_ROTATION.getValue()) {
-            matrixStack.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(dispatcher.rotation.toEulerXyzDegrees().y))
+            matrixStack.multiply(
+                RotationAxis.POSITIVE_Y.rotation(
+                    dispatcher.rotation.getEulerAnglesYXZ(Vector3f()).y()
+                )
+            )
         } else {
             matrixStack.multiply(dispatcher.rotation)
         }
@@ -125,7 +134,7 @@ class ChatBubble(private val text: String, private val playerName: String) {
         val color = CHAT_BUBBLE_TEXTURE_COLOR.getValue().rgba
         val bufferBuilder = Tessellator.getInstance().buffer
         if (CHAT_BUBBLE_VANILLA_SHADER.getValue()) {
-            RenderSystem.setShader { GameRenderer.getPositionTexShader() }
+            RenderSystem.setShader { GameRenderer.getPositionTexProgram() }
             val color4f = Color4f().fromInt(color)
             RenderSystem.setShaderColor(color4f.red, color4f.green, color4f.blue, color4f.alpha)
             bufferBuilder.begin(QUADS, VertexFormats.POSITION_TEXTURE)
@@ -143,7 +152,7 @@ class ChatBubble(private val text: String, private val playerName: String) {
         bufferBuilder.vertex(matrix, x + width.toFloat(), y.toFloat(), 0.0f).texture((u + regionWidth) / 32f, v / 32f)
             .color(color).next()
         bufferBuilder.vertex(matrix, x.toFloat(), y.toFloat(), 0.0f).texture(u / 32f, v / 32f).color(color).next()
-        BufferRenderer.drawWithShader(bufferBuilder.end())
+        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end())
     }
 
     /**
@@ -205,8 +214,8 @@ class ChatBubble(private val text: String, private val playerName: String) {
             HiiroSakuraClient.modId,
             "texture/gui/feature/chatshow/bubble.png"
         )
-        private val shader: Shader =
-            Shader(mc.resourceManager, "position_tex_color", VertexFormats.POSITION_TEXTURE_COLOR)
+        private val shader: ShaderProgram =
+            ShaderProgram(mc.resourceManager, "position_tex_color", VertexFormats.POSITION_TEXTURE_COLOR)
 
         @JvmStatic
         fun getInstance(chatMessageRegex: ChatMessageRegex): ChatBubble? {

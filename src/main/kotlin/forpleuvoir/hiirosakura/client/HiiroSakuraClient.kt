@@ -69,13 +69,7 @@ object HiiroSakuraClient : ClientModInitializer, ModInfo {
 	 * @param message String
 	 */
 	fun sendMessage(message: String) {
-		mc.player?.let {
-			if (message.startsWith("/"))
-				it.sendCommand(message.substring(1))
-			else
-				it.sendChatMessage(message, null)
-		}
-
+		Message.sendChatMessage(message)
 	}
 
 }

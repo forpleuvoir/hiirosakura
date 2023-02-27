@@ -1,5 +1,6 @@
 package forpleuvoir.hiirosakura.client.mixin;
 
+import com.mojang.authlib.GameProfile;
 import forpleuvoir.hiirosakura.client.config.Configs;
 import forpleuvoir.hiirosakura.client.feature.chatbubble.HiiroSakuraChatBubble;
 import forpleuvoir.hiirosakura.client.feature.chatmessage.ChatMessageFilter;
@@ -26,7 +27,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinChatHud {
 
     @Inject(method = "onChatMessage", at = @At("HEAD"), cancellable = true)
-    public void onChatMessage(SignedMessage message, MessageType.Parameters params, CallbackInfo ci) {
+    public void onChatMessage(SignedMessage message, GameProfile sender, MessageType.Parameters params, CallbackInfo ci) {
         var text = params.applyChatDecoration(message.getContent());
         var event = new MessageEvent(text.getString());
         event.broadcast();

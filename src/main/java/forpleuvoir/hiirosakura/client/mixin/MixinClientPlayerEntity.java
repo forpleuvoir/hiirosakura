@@ -2,21 +2,16 @@ package forpleuvoir.hiirosakura.client.mixin;
 
 import com.mojang.authlib.GameProfile;
 import forpleuvoir.hiirosakura.client.config.Configs;
-import forpleuvoir.hiirosakura.client.feature.chatmessage.ChatMessageInject;
-import forpleuvoir.hiirosakura.client.feature.event.events.MessageSendEvent;
 import forpleuvoir.hiirosakura.client.feature.event.events.PlayerDeathEventKt;
 import forpleuvoir.hiirosakura.client.feature.event.events.PlayerTickEvent;
 import forpleuvoir.hiirosakura.client.feature.event.events.api.ClientPlayerApi;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -33,22 +28,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MixinClientPlayerEntity extends PlayerEntity {
 
 
-    public MixinClientPlayerEntity(World world, BlockPos pos, float yaw, GameProfile gameProfile, @Nullable PlayerPublicKey publicKey) {
-        super(world, pos, yaw, gameProfile, publicKey);
+    public MixinClientPlayerEntity(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
+        super(world, pos, yaw, gameProfile);
     }
 
-    /**
-     * 客户端玩家发送聊天消息时
-     *
-     * @param message 客户端准备发送的消息 {@link String}
-     */
-    @ModifyVariable(method = "sendChatMessage*", at = @At(value = "HEAD"), argsOnly = true)
-    public String sendChatMessage(String message) {
-        var messageEvent = new MessageSendEvent(message);
-        messageEvent.broadcast();
-        if (messageEvent.isCanceled()) return "";
-        return ChatMessageInject.handlerMessage(messageEvent.message);
-    }
+//    /**
+//     * 客户端玩家发送聊天消息时
+//     *
+//     * @param message 客户端准备发送的消息 {@link String}
+//     */
+//    @ModifyVariable(method = "sendChatMessage*", at = @At(value = "HEAD"), argsOnly = true)
+//    public String sendChatMessage(String message) {
+//        var messageEvent = new MessageSendEvent(message);
+//        messageEvent.broadcast();
+//        if (messageEvent.isCanceled()) return "";
+//        return ChatMessageInject.handlerMessage(messageEvent.message);
+//    }
 
 
     /**

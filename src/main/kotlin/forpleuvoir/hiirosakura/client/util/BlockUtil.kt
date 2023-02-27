@@ -2,7 +2,7 @@ package forpleuvoir.hiirosakura.client.util
 
 import forpleuvoir.hiirosakura.client.mixin.MixinState
 import net.minecraft.block.BlockState
-import net.minecraft.util.registry.Registry
+import net.minecraft.registry.Registries
 import java.util.stream.Collectors
 
 /**
@@ -21,7 +21,7 @@ import java.util.stream.Collectors
  */
 fun BlockState.asString(): String {
     val stringBuilder = StringBuilder()
-    stringBuilder.append(Registry.BLOCK.getId(this.block))
+    stringBuilder.append(Registries.BLOCK.getId(this.block))
     stringBuilder.append(getPropertiesString())
     return stringBuilder.toString()
 }
@@ -65,7 +65,7 @@ fun isContains(blockState: BlockState, list: List<String>): Boolean {
 fun isContains(blockState: BlockState, str: String): Boolean {
     try {
         val properties =
-            str.replace("{", "").replace("}", "").replace(Registry.BLOCK.getId(blockState.block).toString(), "")
+            str.replace("{", "").replace("}", "").replace(Registries.BLOCK.getId(blockState.block).toString(), "")
         val map = blockState.getPropertiesMap()
         properties.split(",").forEach {
             val split = it.split("=")

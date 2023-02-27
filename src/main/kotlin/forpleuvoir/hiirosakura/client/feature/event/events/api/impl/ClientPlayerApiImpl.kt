@@ -2,7 +2,7 @@ package forpleuvoir.hiirosakura.client.feature.event.events.api.impl
 
 import forpleuvoir.hiirosakura.client.feature.event.events.api.ClientPlayerApi
 import net.minecraft.client.network.ClientPlayerEntity
-import net.minecraft.util.registry.Registry
+import net.minecraft.registry.Registries
 
 /**
  *
@@ -30,7 +30,7 @@ class ClientPlayerApiImpl(private val player: ClientPlayerEntity) : ClientPlayer
 	override val healthProgress: Double
 		get() = (health / maxHealth).toDouble()
 	override val mainHandItemRegisterId: String
-		get() = Registry.ITEM.getId(player.mainHandStack.item).toString()
+        get() = Registries.ITEM.getId(player.mainHandStack.item).toString()
 	override val mainHandItemTranslationKey: String
 		get() = player.mainHandStack.item.translationKey
 	override val mainHandItemDisplayName: String

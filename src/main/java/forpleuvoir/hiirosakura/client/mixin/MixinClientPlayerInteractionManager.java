@@ -6,9 +6,9 @@ import forpleuvoir.ibuki_gourd.mod.config.WhiteListMode;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -47,7 +47,7 @@ public abstract class MixinClientPlayerInteractionManager {
         if (Configs.Toggles.ENABLE_BLOCK_BRAKE_PROTECTION.getValue())
             if (this.client.world != null) {
                 BlockState blockState = this.client.world.getBlockState(pos);
-                var block = Registry.BLOCK.getId(blockState.getBlock()).toString();
+                var block = Registries.BLOCK.getId(blockState.getBlock()).toString();
                 WhiteListMode mode = (WhiteListMode) Configs.Values.BLOCK_BRAKE_PROTECTION_MODE.getValue();
                 List<String> list = Configs.Values.BLOCK_BRAKE_PROTECTION_LIST.getValue();
                 boolean inList = list.contains(block) || BlockUtilKt.isContains(blockState, list);

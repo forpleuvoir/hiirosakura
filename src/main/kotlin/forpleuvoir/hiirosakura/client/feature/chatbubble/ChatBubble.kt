@@ -15,11 +15,8 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.network.AbstractClientPlayerEntity
-import net.minecraft.client.render.BufferRenderer
-import net.minecraft.client.render.GameRenderer
-import net.minecraft.client.render.Tessellator
+import net.minecraft.client.render.*
 import net.minecraft.client.render.VertexFormat.DrawMode.QUADS
-import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.render.entity.EntityRenderDispatcher
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.text.Text
@@ -59,7 +56,12 @@ class ChatBubble(private val text: String, private val playerName: String) {
      * @param dispatcher  [EntityRenderDispatcher]
      * @param matrixStack [MatrixStack]
      */
-    fun render(player: AbstractClientPlayerEntity, dispatcher: EntityRenderDispatcher, matrixStack: MatrixStack) {
+    fun render(
+        player: AbstractClientPlayerEntity,
+        dispatcher: EntityRenderDispatcher,
+        matrixStack: MatrixStack,
+        vertexConsumerProvider: VertexConsumerProvider
+    ) {
         if (timer <= tickCounter) {
             shouldRemove = true
             return
@@ -90,11 +92,16 @@ class ChatBubble(private val text: String, private val playerName: String) {
         renderBackground(matrixStack, width + 5, height + lineSpacing)
         for ((index, text) in lines.withIndex()) {
             textRenderer.draw(
-                matrixStack,
                 text,
                 -(width / 2).toFloat(),
                 (-height + getHeight(count, index = index)).toFloat(),
-                Values.CHAT_BUBBLE_TEXT_COLOR.getValue().rgba
+                Values.CHAT_BUBBLE_TEXT_COLOR.getValue().rgba,
+                false,
+                matrixStack.peek().positionMatrix,
+                vertexConsumerProvider,
+                TextRenderer.TextLayerType.NORMAL,
+                0,
+                0xF000F0
             )
         }
         RenderSystem.disableBlend()

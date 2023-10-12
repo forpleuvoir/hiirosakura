@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(DisconnectedScreen.class)
 public abstract class MixinDisconnectedScreen {
 
-	@Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>*", at = @At("RETURN"))
 	public void init(Screen parent, Text title, Text reason, CallbackInfo ci) {
 		ServerInfoUtil.clear();
 		new DisconnectEvent(

@@ -6,8 +6,8 @@ import forpleuvoir.hiirosakura.client.config.HiiroSakuraData;
 import forpleuvoir.hiirosakura.client.util.ItemStackUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -54,7 +54,7 @@ public abstract class MixinInGameHud {
             target = "Lnet/minecraft/client/option/GameOptions;getTextBackgroundColor(I)I",
             ordinal = 0, shift = At.Shift.AFTER)
     )
-    public void renderHeldItemTooltip(MatrixStack matrices, CallbackInfo ci) {
+    public void renderHeldItemTooltip(DrawContext context, CallbackInfo ci) {
         int k = this.scaledHeight - 59;
         assert this.client.interactionManager != null;
         if (!this.client.interactionManager.hasStatusBars()) {
@@ -80,10 +80,7 @@ public abstract class MixinInGameHud {
         for (Text e : mutableTexts) {
             int a = this.getTextRenderer().getWidth(e);
             int b = (this.scaledWidth - a) / 2;
-            this.getTextRenderer()
-                    .drawWithShadow(matrices, e, (float) b, (float) newK + (count * padding),
-                            16777215 + (l << 24)
-                    );
+            context.drawTextWithShadow(this.getTextRenderer(), e, b, newK + (count * padding), 16777215 + (l << 24));
             count++;
         }
         RenderSystem.disableBlend();

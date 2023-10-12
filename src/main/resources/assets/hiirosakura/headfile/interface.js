@@ -11,11 +11,7 @@ function msg(message) {
 }
 
 function cmd(cmd) {
-    if (cmd.startsWith("/")) {
-        msg(cmd);
-    } else {
-        msg("/" + cmd);
-    }
+    _jsi.sendCommand(cmd);
 }
 
 function attack() {

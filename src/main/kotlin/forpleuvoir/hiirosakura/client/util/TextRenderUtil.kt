@@ -98,7 +98,7 @@ object TextRenderUtil {
 		val backgroundColor = (g * 255.0f).toInt() shl 24
 		val x = (-textRenderer.getWidth(text) / 2).toFloat()
 		textRenderer.draw(
-			text, x, 0f, -1, false, matrix4f, vertexConsumerProvider, false,
+            text, x, 0f, -1, false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.NORMAL,
 			backgroundColor, light
 		)
 		matrixStack.pop()

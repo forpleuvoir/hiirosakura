@@ -79,7 +79,7 @@ object StringUtil {
 
     @JvmStatic
     fun translatableText(key: String, vararg params: Any?): MutableText {
-        return TranslatableTextContent("${HiiroSakuraClient.modId}.${key}", *params).mText
+        return TranslatableTextContent("${HiiroSakuraClient.modId}.${key}", null, params).mText
     }
 
     @JvmStatic

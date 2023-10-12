@@ -76,7 +76,7 @@ public abstract class MixinClientPlayNetworkHandler {
 	public void onDeathMessage(DeathMessageS2CPacket packet, CallbackInfo callbackInfo) {
 		Entity entity = this.world.getEntityById(packet.getEntityId());
 		if (entity == this.client.player) {
-			Entity killer = this.world.getEntityById(packet.getKillerId());
+            Entity killer = this.world.getEntityById(packet.getEntityId());
 			String message = packet.getMessage().getString().replaceAll("(§).", "");
 			String name = "";
 			if (killer != null) {

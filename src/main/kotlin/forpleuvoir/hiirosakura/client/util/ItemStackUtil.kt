@@ -38,7 +38,7 @@ object ItemStackUtil {
         EnchantmentHelper.get(stack).forEach { (enchantment, lvl) ->
             val text = enchantment.translationKey.tText().mText
             if (lvl <= 10 && lvl != 1)
-                text.append(TranslatableTextContent("enchantment.level.$lvl").mText)
+                text.append(TranslatableTextContent("enchantment.level.$lvl", null, emptyArray()).mText)
             else if (lvl > 10) text.append("$lvl".text)
             text.formatted(*formatting)
             texts.add(text)

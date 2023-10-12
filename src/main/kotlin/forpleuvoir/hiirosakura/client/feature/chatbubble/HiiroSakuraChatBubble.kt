@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener
 import net.minecraft.client.gl.ShaderProgram
 import net.minecraft.client.network.AbstractClientPlayerEntity
+import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.render.entity.EntityRenderDispatcher
 import net.minecraft.client.util.math.MatrixStack
@@ -47,14 +48,19 @@ object HiiroSakuraChatBubble : IModInitialize {
     }
 
     @JvmStatic
-    fun render(player: AbstractClientPlayerEntity, dispatcher: EntityRenderDispatcher, matrixStack: MatrixStack) {
+    fun render(
+        player: AbstractClientPlayerEntity,
+        dispatcher: EntityRenderDispatcher,
+        matrixStack: MatrixStack,
+        vertexConsumerProvider: VertexConsumerProvider
+    ) {
         if (chatBubbles.containsKey(player.entityName)) {
             chatBubbles[player.entityName]?.apply {
                 if (shouldRemove) {
                     chatBubbles.remove(player.entityName)
                     return
                 }
-                render(player, dispatcher, matrixStack)
+                render(player, dispatcher, matrixStack, vertexConsumerProvider)
             }
         }
     }

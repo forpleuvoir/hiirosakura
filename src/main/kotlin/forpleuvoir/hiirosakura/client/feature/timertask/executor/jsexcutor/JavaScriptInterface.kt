@@ -112,6 +112,12 @@ interface JavaScriptInterface {
 	 */
 	fun sendChatMessage(message: String)
 
+    /**
+     * 发送指令
+     * @param command String
+     */
+    fun sendCommand(command: String)
+
 	/**
 	 * 丢弃物品
 	 * @param slot Int 丢弃的物品编号

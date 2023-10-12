@@ -21,75 +21,79 @@ import net.minecraft.client.MinecraftClient
 
  */
 class JavaScriptInterfaceImpl : JavaScriptInterface {
-	override fun forward(tick: Int) {
-		input[FORWARD] = tick
-	}
+    override fun forward(tick: Int) {
+        input[FORWARD] = tick
+    }
 
-	override fun back(tick: Int) {
-		input[BACK] = tick
-	}
+    override fun back(tick: Int) {
+        input[BACK] = tick
+    }
 
-	override fun left(tick: Int) {
-		input[LEFT] = tick
-	}
+    override fun left(tick: Int) {
+        input[LEFT] = tick
+    }
 
-	override fun right(tick: Int) {
-		input[RIGHT] = tick
-	}
+    override fun right(tick: Int) {
+        input[RIGHT] = tick
+    }
 
-	override fun jump(tick: Int) {
-		input[JUMP] = tick
-	}
+    override fun jump(tick: Int) {
+        input[JUMP] = tick
+    }
 
-	override fun sneak(tick: Int) {
-		input[SNEAK] = tick
-	}
+    override fun sneak(tick: Int) {
+        input[SNEAK] = tick
+    }
 
-	override fun attack(tick: Int) {
-		input[ATTACK] = tick
-	}
+    override fun attack(tick: Int) {
+        input[ATTACK] = tick
+    }
 
-	override fun use(tick: Int) {
-		input[USE] = tick
-	}
+    override fun use(tick: Int) {
+        input[USE] = tick
+    }
 
-	override fun pickItem(tick: Int) {
-		input[PICK_ITEM] = tick
-	}
+    override fun pickItem(tick: Int) {
+        input[PICK_ITEM] = tick
+    }
 
-	override fun doAttack() {
-		(mc as MixinMinecraftClientInterface).callDoAttack()
-	}
+    override fun doAttack() {
+        (mc as MixinMinecraftClientInterface).callDoAttack()
+    }
 
-	override fun doItemUse() {
-		(mc as MixinMinecraftClientInterface).callDoItemUse()
-	}
+    override fun doItemUse() {
+        (mc as MixinMinecraftClientInterface).callDoItemUse()
+    }
 
-	override fun doItemPick() {
-		(mc as MixinMinecraftClientInterface).callDoItemPick()
-	}
+    override fun doItemPick() {
+        (mc as MixinMinecraftClientInterface).callDoItemPick()
+    }
 
-	override fun joinServer(address: String) {
-		TODO("Not yet implemented")
-	}
+    override fun joinServer(address: String) {
+        TODO("Not yet implemented")
+    }
 
-	override fun joinServer(address: String, maxConnect: Int) {
-		TODO("Not yet implemented")
-	}
+    override fun joinServer(address: String, maxConnect: Int) {
+        TODO("Not yet implemented")
+    }
 
-	override fun sendChatMessage(message: String) {
-		hs.sendMessage(message)
-	}
+    override fun sendChatMessage(message: String) {
+        hs.sendMessage(message)
+    }
 
-	override fun dropItem(slot: Int, all: Boolean) {
-	}
+    override fun sendCommand(command: String) {
+        mc.player?.networkHandler?.sendCommand(if (command.startsWith("/")) command.substring(1) else command)
+    }
 
-	override fun dropItem(name: String, all: Boolean) {
-	}
+    override fun dropItem(slot: Int, all: Boolean) {
+    }
 
-	companion object {
-		private val mc = MinecraftClient.getInstance()
-		private val hs = HiiroSakuraClient
-		private val input = AnalogInput
-	}
+    override fun dropItem(name: String, all: Boolean) {
+    }
+
+    companion object {
+        private val mc = MinecraftClient.getInstance()
+        private val hs = HiiroSakuraClient
+        private val input = AnalogInput
+    }
 }

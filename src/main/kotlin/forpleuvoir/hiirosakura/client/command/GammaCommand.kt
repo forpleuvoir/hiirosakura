@@ -43,7 +43,13 @@ object GammaCommand {
     fun set(context: CommandContext<FabricClientCommandSource>): Int {
         val value = DoubleArgumentType.getDouble(context, "value")
         context.source.client.options.gamma.value = value
-        context.source.sendFeedback(TranslatableTextContent("hiirosakura.command.feedback.gamma", value).mText)
+        context.source.sendFeedback(
+            TranslatableTextContent(
+                "hiirosakura.command.feedback.gamma",
+                null,
+                arrayOf(value)
+            ).mText
+        )
         return 1
     }
 }

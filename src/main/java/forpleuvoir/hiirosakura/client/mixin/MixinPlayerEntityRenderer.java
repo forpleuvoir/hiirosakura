@@ -24,21 +24,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(PlayerEntityRenderer.class)
 public abstract class MixinPlayerEntityRenderer extends EntityRenderer<AbstractClientPlayerEntity> {
-	protected MixinPlayerEntityRenderer(EntityRendererFactory.Context ctx) {
-		super(ctx);
-	}
+    protected MixinPlayerEntityRenderer(EntityRendererFactory.Context ctx) {
+        super(ctx);
+    }
 
-	@Inject(method = "render*", at = @At("HEAD"))
-	public void render(
-			AbstractClientPlayerEntity abstractClientPlayerEntity,
-			float f,
-			float g,
-			MatrixStack matrixStack,
-			VertexConsumerProvider vertexConsumerProvider,
-			int i,
-			CallbackInfo callbackInfo
-	) {
-		if (Configs.Toggles.CHAT_BUBBLE.getValue())
-			HiiroSakuraChatBubble.render(abstractClientPlayerEntity, this.dispatcher, matrixStack);
-	}
+    @Inject(method = "render*", at = @At("HEAD"))
+    public void render(
+            AbstractClientPlayerEntity abstractClientPlayerEntity,
+            float f,
+            float g,
+            MatrixStack matrixStack,
+            VertexConsumerProvider vertexConsumerProvider,
+            int i,
+            CallbackInfo callbackInfo
+    ) {
+        if (Configs.Toggles.CHAT_BUBBLE.getValue())
+            HiiroSakuraChatBubble.render(abstractClientPlayerEntity, this.dispatcher, matrixStack, vertexConsumerProvider);
+    }
 }

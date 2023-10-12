@@ -15,7 +15,7 @@ import forpleuvoir.ibuki_gourd.mod.utils.IbukiGourdLang
 import forpleuvoir.ibuki_gourd.utils.clamp
 import forpleuvoir.ibuki_gourd.utils.fText
 import forpleuvoir.ibuki_gourd.utils.text
-import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.util.Formatting
 
 /**
@@ -149,7 +149,7 @@ class WidgetListEntryEventSubscriber(
 		}
 	}
 
-	override fun renderEntry(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
+    override fun renderEntry(drawContext: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
 		if (ScreenBase.isCurrent(parent)) {
 			downButton.active = isMouseOver(mouseX.toDouble(), mouseY.toDouble())
 			downButton.visible = isMouseOver(mouseX.toDouble(), mouseY.toDouble())

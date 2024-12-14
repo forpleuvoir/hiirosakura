@@ -197,10 +197,10 @@ class TimerTaskEditor(
 	}
 
 	override fun tick() {
-		if (this::executorEditor.isInitialized)
-			executorEditor.tick()
-		if (this::nameInput.isInitialized)
-			nameInput.tick()
+//		if (this::executorEditor.isInitialized)
+//			executorEditor.tick()
+//		if (this::nameInput.isInitialized)
+//			nameInput.tick()
 	}
 
 	private fun save(): Boolean {

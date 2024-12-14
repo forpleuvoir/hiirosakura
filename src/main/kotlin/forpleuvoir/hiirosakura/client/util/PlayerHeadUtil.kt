@@ -1,7 +1,6 @@
 package forpleuvoir.hiirosakura.client.util
 
 import com.mojang.authlib.GameProfile
-import net.minecraft.block.entity.SkullBlockEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
@@ -37,7 +36,7 @@ object PlayerHeadUtil {
 	}
 
 	fun getPlayerHead(player: PlayerEntity): ItemStack {
-		return getPlayerHead(player.entityName)
+        return getPlayerHead(player.name.string)
 	}
 
 	fun equals(stack: ItemStack, headStack: ItemStack): Boolean {
@@ -77,6 +76,6 @@ object PlayerHeadUtil {
 	}
 
 	fun loadProperties(gameProfile: GameProfile?, callback: (GameProfile) -> Unit) {
-		SkullBlockEntity.loadProperties(gameProfile, callback)
+//		SkullBlockEntity.loadProperties(gameProfile, callback)
 	}
 }

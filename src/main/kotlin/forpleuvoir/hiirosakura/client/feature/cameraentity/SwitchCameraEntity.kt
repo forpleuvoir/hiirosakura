@@ -49,7 +49,7 @@ object SwitchCameraEntity {
 			val playerNames: MutableList<String> = LinkedList()
 			if (players != null) players!!.forEach(Consumer { player: AbstractClientPlayerEntity ->
 				playerNames.add(
-					player.entityName
+                    player.name.string
 				)
 			})
 			return playerNames
@@ -57,7 +57,7 @@ object SwitchCameraEntity {
 
 	@JvmStatic
 	fun switchOtherPlayer(playerName: String) {
-		players!!.stream().filter { player: AbstractClientPlayerEntity -> player.entityName == playerName }
+        players!!.stream().filter { player: AbstractClientPlayerEntity -> player.name.string == playerName }
 			.findFirst().ifPresent { entity: AbstractClientPlayerEntity? -> client.setCameraEntity(entity) }
 	}
 

@@ -22,7 +22,7 @@ class ClientPlayerApiImpl(private val player: ClientPlayerEntity) : ClientPlayer
 	override val uuid: String
 		get() = player.uuidAsString
 	override val name: String
-		get() = player.entityName
+        get() = player.name.string
 	override val health: Float
 		get() = player.health
 	override val maxHealth: Float

@@ -74,11 +74,11 @@ class ConfigMultilineText(name: String, defaultValue: String) :
                         }
 
                         override fun tick() {
-                            for (child in children()) {
-                                if (child is MultilineTextField) {
-                                    child.tick()
-                                }
-                            }
+//                            for (child in children()) {
+//                                if (child is MultilineTextField) {
+//                                    child.tick()
+//                                }
+//                            }
                         }
                     }
                 )

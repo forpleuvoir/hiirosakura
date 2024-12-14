@@ -66,7 +66,7 @@ class ChatBubble(private val text: String, private val playerName: String) {
             shouldRemove = true
             return
         }
-        if (player.entityName != playerName) return
+        if (player.name.string != playerName) return
         val width = maxWidth
         val count = lines.size
         val lineSpacing = 4
@@ -107,6 +107,7 @@ class ChatBubble(private val text: String, private val playerName: String) {
         RenderSystem.disableBlend()
         RenderSystem.disablePolygonOffset()
         RenderSystem.disableDepthTest()
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         matrixStack.pop()
     }
 
@@ -137,6 +138,7 @@ class ChatBubble(private val text: String, private val playerName: String) {
         regionWidth: Int,
         regionHeight: Int,
     ) {
+        val oldShaderColor = RenderSystem.getShaderColor()
         val matrix = matrixStack.peek().positionMatrix
         val color = CHAT_BUBBLE_TEXTURE_COLOR.getValue().rgba
         val bufferBuilder = Tessellator.getInstance().buffer
@@ -160,6 +162,7 @@ class ChatBubble(private val text: String, private val playerName: String) {
             .color(color).next()
         bufferBuilder.vertex(matrix, x.toFloat(), y.toFloat(), 0.0f).texture(u / 32f, v / 32f).color(color).next()
         BufferRenderer.drawWithGlobalProgram(bufferBuilder.end())
+        RenderSystem.setShaderColor(oldShaderColor[0], oldShaderColor[1], oldShaderColor[2], oldShaderColor[3])
     }
 
     /**

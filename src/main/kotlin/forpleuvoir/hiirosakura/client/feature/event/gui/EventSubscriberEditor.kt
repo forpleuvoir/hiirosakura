@@ -498,18 +498,18 @@ class EventSubscriberEditor(
         return success
     }
 
-    override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double): Boolean {
+    override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double, verticalAmount: Double): Boolean {
         if (this::eventTypeDropList.isInitialized && eventTypeDropList.expand) {
             if (eventTypeDropList.isMouseOver(mouseX, mouseY)) {
-                if (eventTypeDropList.mouseScrolled(mouseX, mouseY, amount)) return true
+                if (eventTypeDropList.mouseScrolled(mouseX, mouseY, amount, verticalAmount)) return true
             }
         }
         if (this::fromTimerTaskDropList.isInitialized && fromTimerTaskDropList.expand) {
             if (fromTimerTaskDropList.isMouseOver(mouseX, mouseY)) {
-                if (fromTimerTaskDropList.mouseScrolled(mouseX, mouseY, amount)) return true
+                if (fromTimerTaskDropList.mouseScrolled(mouseX, mouseY, amount, verticalAmount)) return true
             }
         }
-        return super.mouseScrolled(mouseX, mouseY, amount)
+        return super.mouseScrolled(mouseX, mouseY, amount, verticalAmount)
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
@@ -538,10 +538,10 @@ class EventSubscriberEditor(
     }
 
     override fun tick() {
-        if (this::executorEditor.isInitialized)
-            executorEditor.tick()
-        if (this::nameInput.isInitialized)
-            nameInput.tick()
+//        if (this::executorEditor.isInitialized)
+//            executorEditor.tick()
+//        if (this::nameInput.isInitialized)
+//            nameInput.tick()
     }
 
 }

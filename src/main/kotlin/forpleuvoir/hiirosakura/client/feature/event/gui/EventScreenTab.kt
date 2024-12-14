@@ -129,13 +129,13 @@ class EventScreenTab(tabEntry: IScreenTabEntry) : ScreenTab(tabEntry) {
 	}
 
 
-	override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double): Boolean {
+    override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double, verticalAmount: Double): Boolean {
 		if (this::dropList.isInitialized && dropList.expand) {
 			if (dropList.isMouseOver(mouseX, mouseY)) {
-				if (dropList.mouseScrolled(mouseX, mouseY, amount)) return true
+                if (dropList.mouseScrolled(mouseX, mouseY, amount, verticalAmount)) return true
 			}
 		}
-		return super.mouseScrolled(mouseX, mouseY, amount)
+        return super.mouseScrolled(mouseX, mouseY, amount, verticalAmount)
 	}
 
 	override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {

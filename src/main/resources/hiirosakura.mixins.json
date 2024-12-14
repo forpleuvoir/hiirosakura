@@ -4,7 +4,6 @@
   "package": "forpleuvoir.hiirosakura.client.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "MixinChatHud",
     "MixinClientPlayerEntity",
     "MixinClientPlayerInteractionManager",
     "MixinClientPlayNetworkHandler",
@@ -25,6 +24,7 @@
     "MixinTntEntityRenderer"
   ],
   "client": [
+    "MixinChatHud"
   ],
   "injectors": {
     "defaultRequire": 1

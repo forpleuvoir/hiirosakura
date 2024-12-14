@@ -4,9 +4,11 @@ import forpleuvoir.hiirosakura.client.util.PlayerHeadUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -27,14 +29,13 @@ public abstract class MixinEntity {
     @Final
     private EntityType<?> type;
 
-    @Shadow
-    public abstract String getEntityName();
+    @Shadow public abstract Text getName();
 
     //修改玩家实体的getPickBlockStack返回值，使鼠标中键可以获取到玩家头颅
     @Inject(method = "getPickBlockStack", at = @At("RETURN"), cancellable = true)
     public void getPickBlockStack(CallbackInfoReturnable<ItemStack> returnable) {
         if (this.type.equals(EntityType.PLAYER)) {
-            returnable.setReturnValue(PlayerHeadUtil.getPlayerHead(getEntityName()));
+            returnable.setReturnValue(PlayerHeadUtil.getPlayerHead(getName().getString()));
         }
     }
 

@@ -54,10 +54,10 @@ object HiiroSakuraChatBubble : IModInitialize {
         matrixStack: MatrixStack,
         vertexConsumerProvider: VertexConsumerProvider
     ) {
-        if (chatBubbles.containsKey(player.entityName)) {
-            chatBubbles[player.entityName]?.apply {
+        if (chatBubbles.containsKey(player.name.string)) {
+            chatBubbles[player.name.string]?.apply {
                 if (shouldRemove) {
-                    chatBubbles.remove(player.entityName)
+                    chatBubbles.remove(player.name.string)
                     return
                 }
                 render(player, dispatcher, matrixStack, vertexConsumerProvider)

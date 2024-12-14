@@ -1,11 +1,11 @@
 plugins {
-    id 'fabric-loom' version '0.12-SNAPSHOT'
+    id 'fabric-loom' version '1.6-SNAPSHOT'
     id 'maven-publish'
-    id 'org.jetbrains.kotlin.jvm' version '1.7.22'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.23'
 }
 def time = new Date().format("yyyyMMdd")
-sourceCompatibility = JavaVersion.VERSION_16
-targetCompatibility = JavaVersion.VERSION_16
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
 
 archivesBaseName = project.archives_base_name + "-fabric"
 version = "v"+project.mod_version + "-" + time + "-kotlin-minecraft." + project.minecraft_version
@@ -40,6 +40,8 @@ dependencies {
     modImplementation "forpleuvoir:ibuki_gourd:${project.ibuki_gourd_version}"
     include "forpleuvoir:ibuki_gourd:${project.ibuki_gourd_version}"
 
+    //javascript nashorn
+    implementation "org.openjdk.nashorn:nashorn-core:15.4"
 
 }
 
@@ -59,7 +61,7 @@ tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
 
     // Minecraft 1.17 (21w19a) upwards uses Java 16.
-    it.options.release = 17
+    it.options.release = 21
 }
 
 java {
@@ -74,7 +76,7 @@ jar {
         rename { "${it}_${project.archivesBaseName}" }
     }
 }
-compileKotlin.kotlinOptions.jvmTarget = "17"
+compileKotlin.kotlinOptions.jvmTarget = "21"
 // configure the maven publication
 publishing {
     publications {

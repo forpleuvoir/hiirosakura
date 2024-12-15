@@ -8,50 +8,62 @@
     "forpleuvoir"
   ],
   "contact": {
-    "homepage": "https://github.com/forpleuvoir/hiirosakura",
-    "sources": "https://github.com/forpleuvoir/hiirosakura",
-    "issues": "https://github.com/forpleuvoir/hiirosakura/issues"
+    "email": "695801070@qq.com",
+    "homepage": "https://github.com/forpleuvoir/ibuki_gourd",
+    "sources": "https://github.com/forpleuvoir/ibuki_gourd",
+    "issues": "https://github.com/forpleuvoir/ibuki_gourd/issues"
   },
-  "license": "LGPLv3",
+  "license": "GPLv3",
   "icon": "assets/hiirosakura/icon.png",
-  "environment": "client",
+  "accessWidener": "hiirosakura.accesswidener",
+  "environment": "*",
   "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "moe.forpleuvoir.hiirosakura.HiiroSakura"
+      }
+    ],
     "client": [
       {
         "adapter": "kotlin",
-        "value": "forpleuvoir.hiirosakura.client.HiiroSakuraClient"
+        "value": "moe.forpleuvoir.hiirosakura.HiiroSakuraClient"
       }
     ],
     "modmenu": [
       {
         "adapter": "kotlin",
-        "value": "forpleuvoir.hiirosakura.client.compat.modmenu.ModMenuImpl"
-      }
-    ],
-    "ibScreen": [
-      {
-        "adapter": "kotlin",
-        "value": "forpleuvoir.hiirosakura.client.compat.ibuki_gourd.ScreenImpl"
-      }
-    ],
-    "ibConfig": [
-      {
-        "adapter": "kotlin",
-        "value": "forpleuvoir.hiirosakura.client.compat.ibuki_gourd.ConfigImpl"
+        "value": "moe.forpleuvoir.hiirosakura.compat.modmenu.ModMenuImpl"
       }
     ]
   },
   "mixins": [
-    "hiirosakura.mixins.json"
+    "hiirosakura.mixins.json",
+    {
+      "config": "hiirosakura.client.mixins.json",
+      "environment": "client"
+    }
   ],
   "depends": {
-    "fabricloader": ">=0.14.0",
+    "fabricloader": ">=0.15.0",
     "fabric": "*",
-    "minecraft": "1.20.x",
+    "minecraft": ">=1.21.4",
     "java": ">=21",
-    "fabric-language-kotlin": ">=1.8.0+kotlin.1.7.0"
+    "fabric-language-kotlin": ">=1.11.0+kotlin.2.0.0"
   },
   "suggests": {
     "another-mod": "modmenu"
+  },
+  "custom": {
+    "ibukigourd": {
+      "package": [
+        "moe.forpleuvoir.hiirosakura"
+      ]
+    },
+    "modmenu": {
+      "badges": [
+        "client"
+      ]
+    }
   }
 }

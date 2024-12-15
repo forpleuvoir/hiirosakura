@@ -1,0 +1,31 @@
+[versions]
+#Fabric check these on https://fabricmc.net/versions.html
+minecraftVersion = "1.21.4"
+yarnMappingsVersion = "1.21.4+build.2"
+fabricLoaderVersion = "0.16.9"
+fabricApiVersion = "0.112.0+1.21.4"
+fabricLoomVersion = "1.9-SNAPSHOT"
+#mods
+modMenuVersion = "13.0.0-beta.1"
+fabricKotlinVersion = "1.12.3+kotlin.2.0.21"
+ibukigourdVersion = "0.7.1d-dev"
+#other
+nebulaVersion = "0.2.13g"
+kotlinVersion = "2.0.0"
+
+[libraries]
+#Fabric
+minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraftVersion" }
+yarnMappings = { group = "net.fabricmc", name = "yarn", version.ref = "yarnMappingsVersion" }
+fabricLoader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabricLoaderVersion" }
+fabricApi = { group = "net.fabricmc.fabric-api", name = "fabric-api", version.ref = "fabricApiVersion" }
+#mods
+modMenu = { group = "com.terraformersmc", name = "modmenu", version.ref = "modMenuVersion" }
+fabricKotlin = { group = "net.fabricmc", name = "fabric-language-kotlin", version.ref = "fabricKotlinVersion" }
+ibukigourd = { group = "moe.forpleuvoir", name = "ibukigourd", version.ref = "ibukigourdVersion" }
+#ohter
+nebula = { group = "moe.forpleuvoir", name = "nebula", version.ref = "nebulaVersion" }
+
+[plugins]
+kotlinJVM = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
+fabricLoom = { id = "fabric-loom", version.ref = "fabricLoomVersion" }

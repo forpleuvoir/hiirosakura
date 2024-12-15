@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "moe.forpleuvoir.hiirosakura.mixin.client",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "InGameHudMixin",
+    "ItemEntityRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

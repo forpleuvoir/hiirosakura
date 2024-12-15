@@ -1,0 +1,4 @@
+accessWidener v2 named
+
+#ItemStack
+accessible method net/minecraft/item/ItemStack appendAttributeModifiersTooltip (Ljava/util/function/Consumer;Lnet/minecraft/entity/player/PlayerEntity;)V

@@ -3,8 +3,9 @@
   "package": "moe.forpleuvoir.hiirosakura.mixin.client",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "InGameHudMixin",
-    "ItemEntityRendererMixin"
+    "render.InGameHudMixin",
+    "render.ItemEntityRendererMixin",
+    "render.TntEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

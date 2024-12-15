@@ -51,5 +51,11 @@
   "hiirosakura.config.render_info_addon.item_entity.item_id": "物品id",
   "hiirosakura.config.render_info_addon.item_entity.item_id.comment": "物品id",
   "hiirosakura.config.render_info_addon.item_entity.components": "组件",
-  "hiirosakura.config.render_info_addon.item_entity.components.comment": "组件"
+  "hiirosakura.config.render_info_addon.item_entity.components.comment": "组件",
+  "hiirosakura.config.render_info_addon.tnt": "Tnt渲染",
+  "hiirosakura.config.render_info_addon.tnt.comment": "Tnt渲染相关设置",
+  "hiirosakura.config.render_info_addon.tnt.tnt_fuse": "剩余爆炸时间渲染方式",
+  "hiirosakura.config.render_info_addon.tnt.tnt_fuse.comment": "Box:进条形式,Text:文本形式,None:不渲染",
+  "hiirosakura.config.render_info_addon.tnt.only_y_rotation": "仅Y轴旋转",
+  "hiirosakura.config.render_info_addon.tnt.only_y_rotation.comment": "开启后渲染的额外信息将只会随Y轴旋转"
 }

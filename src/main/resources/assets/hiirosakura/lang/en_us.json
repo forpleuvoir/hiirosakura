@@ -51,5 +51,11 @@
   "hiirosakura.config.render_info_addon.item_entity.item_id": "Item ID",
   "hiirosakura.config.render_info_addon.item_entity.item_id.comment": "ID of the item",
   "hiirosakura.config.render_info_addon.item_entity.components": "Components",
-  "hiirosakura.config.render_info_addon.item_entity.components.comment": "Components"
+  "hiirosakura.config.render_info_addon.item_entity.components.comment": "Components",
+  "hiirosakura.config.render_info_addon.tnt": "TNT Rendering",
+  "hiirosakura.config.render_info_addon.tnt.comment": "Settings related to TNT rendering",
+  "hiirosakura.config.render_info_addon.tnt.tnt_fuse": "Remaining Explosion Time Rendering Style",
+  "hiirosakura.config.render_info_addon.tnt.tnt_fuse.comment": "Box: Progress bar style, Text: Text style, None: No rendering",
+  "hiirosakura.config.render_info_addon.tnt.only_y_rotation": "Only Y-Axis Rotation",
+  "hiirosakura.config.render_info_addon.tnt.only_y_rotation.comment": "When enabled, the additional rendered information will only rotate along the Y-axis"
 }

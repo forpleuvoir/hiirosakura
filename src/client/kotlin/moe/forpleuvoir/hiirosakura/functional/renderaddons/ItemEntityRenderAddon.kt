@@ -12,6 +12,7 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.render.entity.EntityRenderDispatcher
+import net.minecraft.client.render.entity.state.ItemEntityRenderState
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.entity.Entity
@@ -36,13 +37,14 @@ object ItemEntityRenderAddon {
         itemEntity: ItemEntity,
         textRenderer: TextRenderer,
         dispatcher: EntityRenderDispatcher,
+        state: ItemEntityRenderState,
         matrixStack: MatrixStack,
         vertexConsumerProvider: VertexConsumerProvider.Immediate,
         light: Int
     ) {
         if (RenderInfoAddon.ItemEntity.distance <= 0) return
         if (dispatcher.getSquaredDistanceToCamera(itemEntity) > RenderInfoAddon.ItemEntity.distance) return
-        val texts = getRenderText(itemEntity)
+        val texts = getRenderText(itemEntity,state)
         if (texts.isNotEmpty()) {
             renderEntityMultiText(
                 itemEntity, texts, dispatcher, textRenderer, matrixStack, vertexConsumerProvider, light
@@ -50,7 +52,7 @@ object ItemEntityRenderAddon {
         }
     }
 
-    fun getRenderText(itemEntity: ItemEntity): List<Text> {
+    fun getRenderText(itemEntity: ItemEntity, state: ItemEntityRenderState): List<Text> {
         val context = TooltipContext.DEFAULT
         val config = RenderInfoAddon.ItemEntity
         val stack = itemEntity.stack
@@ -189,7 +191,7 @@ object ItemEntityRenderAddon {
             matrixStack.multiply(dispatcher.rotation)
         matrixStack.scale(0.025f, -0.025f, 0.025f)
         val matrix4f = matrixStack.peek().positionMatrix
-        val alpha = MinecraftClient.getInstance().options.getTextBackgroundOpacity(0.25f)
+        val alpha = mc.options.getTextBackgroundOpacity(0.25f)
         val backgroundColor = (alpha * 255.0f).toInt() shl 24
         val x = (-textRenderer.getWidth(text) / 2).toFloat()
         textRenderer.draw(

@@ -1,4 +1,4 @@
-package moe.forpleuvoir.hiirosakura.mixin.client;
+package moe.forpleuvoir.hiirosakura.mixin.client.render;
 
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.ItemEntityRenderAddon;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -35,12 +35,12 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
     )
     public void hiirosakura$render(ItemEntityRenderState itemEntityRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
         ItemEntity currentItemEntity = ItemEntityRenderAddon.getCurrentItemEntity();
-
         if (vertexConsumerProvider instanceof VertexConsumerProvider.Immediate && currentItemEntity != null) {
             ItemEntityRenderAddon.renderItemEntityInfo(
                     currentItemEntity,
                     getTextRenderer(),
                     this.dispatcher,
+                    itemEntityRenderState,
                     matrixStack,
                     (VertexConsumerProvider.Immediate) vertexConsumerProvider,
                     i

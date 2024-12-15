@@ -1,7 +1,6 @@
-package moe.forpleuvoir.hiirosakura.mixin.client;
+package moe.forpleuvoir.hiirosakura.mixin.client.render;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import moe.forpleuvoir.hiirosakura.functional.renderaddons.TooltipRenderAddon;
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -12,6 +11,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import static moe.forpleuvoir.hiirosakura.functional.renderaddons.RenderEnchantmentWhenSwitchKt.renderEnchantmentWhenSwitch;
 
 @Mixin(InGameHud.class)
 public abstract class InGameHudMixin {
@@ -32,7 +33,7 @@ public abstract class InGameHudMixin {
             )
     )
     public void hiirosakura$renderHeldItemTooltip(DrawContext context, CallbackInfo ci, @Local(name = "l") int alpha, @Local(name = "k") int y) {
-        TooltipRenderAddon.renderEnchantmentWhenSwitch(y, currentStack, getTextRenderer(), IGDrawContext.Companion.toIGDrawContext(context), alpha);
+        renderEnchantmentWhenSwitch(y, currentStack, getTextRenderer(), IGDrawContext.Companion.toIGDrawContext(context), alpha);
     }
 
 }

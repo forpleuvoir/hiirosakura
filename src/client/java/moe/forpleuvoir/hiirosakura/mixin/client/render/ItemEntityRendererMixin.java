@@ -1,6 +1,6 @@
 package moe.forpleuvoir.hiirosakura.mixin.client.render;
 
-import moe.forpleuvoir.hiirosakura.functional.renderaddons.ItemEntityRenderAddon;
+import moe.forpleuvoir.hiirosakura.functional.renderaddons.EntityRenderAddon;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -22,7 +22,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
 
     @Inject(method = "updateRenderState(Lnet/minecraft/entity/ItemEntity;Lnet/minecraft/client/render/entity/state/ItemEntityRenderState;F)V", at = @At("RETURN"))
     public void hiirosakura$updateRenderState(ItemEntity itemEntity, ItemEntityRenderState itemEntityRenderState, float f, CallbackInfo ci) {
-        ItemEntityRenderAddon.setCurrentItemEntity(itemEntity);
+        EntityRenderAddon.setCurrentItemEntity(itemEntity);
     }
 
     @Inject(
@@ -34,9 +34,9 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
             )
     )
     public void hiirosakura$render(ItemEntityRenderState itemEntityRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
-        ItemEntity currentItemEntity = ItemEntityRenderAddon.getCurrentItemEntity();
+        ItemEntity currentItemEntity = EntityRenderAddon.getCurrentItemEntity();
         if (vertexConsumerProvider instanceof VertexConsumerProvider.Immediate && currentItemEntity != null) {
-            ItemEntityRenderAddon.renderItemEntityInfo(
+            EntityRenderAddon.renderItemEntityInfo(
                     currentItemEntity,
                     getTextRenderer(),
                     this.dispatcher,
@@ -46,6 +46,6 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
                     i
             );
         }
-        ItemEntityRenderAddon.setCurrentItemEntity(null);
+        EntityRenderAddon.setCurrentItemEntity(null);
     }
 }

@@ -1,21 +1,22 @@
 package moe.forpleuvoir.hiirosakura.functional.renderaddons
 
 import moe.forpleuvoir.hiirosakura.config.RenderInfoAddon
-import moe.forpleuvoir.hiirosakura.config.RenderInfoAddon.ItemEntity.onlyYRotation
+import moe.forpleuvoir.hiirosakura.config.RenderInfoAddon.DropEntity.onlyYRotation
 import moe.forpleuvoir.hiirosakura.util.tooltipType
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.McText
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.util.mc
-import net.minecraft.client.MinecraftClient
+import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.render.entity.EntityRenderDispatcher
+import net.minecraft.client.render.entity.state.ExperienceOrbEntityRenderState
 import net.minecraft.client.render.entity.state.ItemEntityRenderState
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.component.DataComponentTypes
-import net.minecraft.entity.Entity
+import net.minecraft.entity.ExperienceOrbEntity
 import net.minecraft.entity.ItemEntity
 import net.minecraft.item.BlockPredicatesChecker
 import net.minecraft.item.FilledMapItem
@@ -27,7 +28,9 @@ import net.minecraft.util.math.RotationAxis
 import org.joml.Vector3f
 import java.util.function.Consumer
 
-object ItemEntityRenderAddon {
+object EntityRenderAddon {
+
+    private val config = RenderInfoAddon.DropEntity
 
     @JvmStatic
     var currentItemEntity: ItemEntity? = null
@@ -42,19 +45,19 @@ object ItemEntityRenderAddon {
         vertexConsumerProvider: VertexConsumerProvider.Immediate,
         light: Int
     ) {
-        if (RenderInfoAddon.ItemEntity.distance <= 0) return
-        if (dispatcher.getSquaredDistanceToCamera(itemEntity) > RenderInfoAddon.ItemEntity.distance) return
-        val texts = getRenderText(itemEntity,state)
+        if (RenderInfoAddon.DropEntity.distance <= 0) return
+        if (dispatcher.getSquaredDistanceToCamera(itemEntity) > RenderInfoAddon.DropEntity.distance) return
+        val texts = getItemEntityRenderText(itemEntity, state)
         if (texts.isNotEmpty()) {
             renderEntityMultiText(
-                itemEntity, texts, dispatcher, textRenderer, matrixStack, vertexConsumerProvider, light
+                itemEntity.height, texts, dispatcher, textRenderer, matrixStack, vertexConsumerProvider, light
             )
         }
     }
 
-    fun getRenderText(itemEntity: ItemEntity, state: ItemEntityRenderState): List<Text> {
+    private fun getItemEntityRenderText(itemEntity: ItemEntity, state: ItemEntityRenderState): List<Text> {
         val context = TooltipContext.DEFAULT
-        val config = RenderInfoAddon.ItemEntity
+
         val stack = itemEntity.stack
         val type = mc.tooltipType
         return buildList {
@@ -160,10 +163,29 @@ object ItemEntityRenderAddon {
         }
     }
 
+    @JvmStatic
+    var currentExperienceOrbEntity: ExperienceOrbEntity? = null
+
+    @JvmStatic
+    fun renderExperienceOrbValue(
+        color: Int,
+        entity: ExperienceOrbEntity,
+        textRenderer: TextRenderer,
+        dispatcher: EntityRenderDispatcher,
+        state: ExperienceOrbEntityRenderState,
+        matrixStack: MatrixStack,
+        vertexConsumerProvider: VertexConsumerProvider.Immediate,
+        light: Int
+    ) {
+        if (!config.experienceOrbValue.value) return
+        val text = Literal(entity.experienceAmount.toString()).withColor(Color(color))
+        renderEntityText(entity.height, -0.3, text, dispatcher, textRenderer, matrixStack, vertexConsumerProvider, light)
+    }
+
     /**
      * 在实体上方渲染文本
      *
-     * @param entity                 目标实体
+     * @param height                 目标实体高度
      * @param textHeight             高度
      * @param text                   需要渲染的文本
      * @param dispatcher             [EntityRenderDispatcher]
@@ -173,7 +195,7 @@ object ItemEntityRenderAddon {
      * @param light                  亮度
      */
     private fun renderEntityText(
-        entity: Entity,
+        height: Float,
         textHeight: Double,
         text: Text,
         dispatcher: EntityRenderDispatcher,
@@ -182,7 +204,7 @@ object ItemEntityRenderAddon {
         vertexConsumerProvider: VertexConsumerProvider,
         light: Int
     ) {
-        val height = entity.height + 0.5f + textHeight
+        val height = height + 0.5f + textHeight
         matrixStack.push()
         matrixStack.translate(0.0, height, 0.0)
         if (onlyYRotation.value)
@@ -204,7 +226,7 @@ object ItemEntityRenderAddon {
     /**
      * 在实体上方渲染多行文本
      *
-     * @param entity                 目标实体
+     * @param height                 目标实体高度
      * @param text                   需要渲染的文本列表
      * @param dispatcher             [EntityRenderDispatcher]
      * @param textRenderer           [TextRenderer]
@@ -213,7 +235,7 @@ object ItemEntityRenderAddon {
      * @param light                  亮度
      */
     fun renderEntityMultiText(
-        entity: Entity,
+        height: Float,
         text: List<Text>,
         dispatcher: EntityRenderDispatcher,
         textRenderer: TextRenderer,
@@ -222,11 +244,11 @@ object ItemEntityRenderAddon {
         light: Int
     ) {
         val textRows = text.size
-        var height = (textRows * 0.25f).toDouble()
+        var textHeight = (textRows * 0.25f).toDouble()
         for (item in text) {
-            height -= 0.25
+            textHeight -= 0.25
             renderEntityText(
-                entity, height, item, dispatcher, textRenderer,
+                height, textHeight, item, dispatcher, textRenderer,
                 matrixStack, vertexConsumerProvider, light
             )
         }

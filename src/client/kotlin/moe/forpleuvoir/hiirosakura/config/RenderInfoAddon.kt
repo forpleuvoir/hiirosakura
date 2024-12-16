@@ -2,8 +2,6 @@ package moe.forpleuvoir.hiirosakura.config
 
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
-import moe.forpleuvoir.ibukigourd.input.KeyBind
-import moe.forpleuvoir.nebula.config.item.impl.boolean
 import moe.forpleuvoir.nebula.config.item.impl.double
 import moe.forpleuvoir.nebula.config.item.impl.enum
 
@@ -11,13 +9,15 @@ object RenderInfoAddon : ModConfigContainer("render_info_addon") {
 
     val showEnchantmentWhenSwitch by keyBindBoolean("show_enchantment_when_switch", value = false)
 
-    private val _itemEntity = addConfig(ItemEntity)
+    private val _itemEntity = addConfig(DropEntity)
 
-    object ItemEntity : ModConfigContainer("item_entity") {
+    object DropEntity : ModConfigContainer("drop_entity") {
 
         val distance by double("distance", 50.0, 0.0, 999.0)
 
         val onlyYRotation by keyBindBoolean("only_y_rotation", value = true)
+
+        val experienceOrbValue by keyBindBoolean("experience_orb_value", value = false)
 
         val name by keyBindBoolean("name", value = false)
 

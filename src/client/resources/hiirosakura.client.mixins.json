@@ -3,6 +3,7 @@
   "package": "moe.forpleuvoir.hiirosakura.mixin.client",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "render.ExperienceOrbEntityRendererMixin",
     "render.InGameHudMixin",
     "render.ItemEntityRendererMixin",
     "render.TntEntityRendererMixin"

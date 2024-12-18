@@ -1,7 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.renderaddons
 
-import moe.forpleuvoir.hiirosakura.config.RenderInfoAddon
-import moe.forpleuvoir.hiirosakura.config.RenderInfoAddon.Tnt.RenderType
+import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
+import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.positionMatrix
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderText
@@ -10,12 +10,25 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
+import moe.forpleuvoir.nebula.config.item.impl.enum
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.font.TextRenderer.TextLayerType
 import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.render.entity.state.TntEntityRenderState
 import net.minecraft.client.util.math.MatrixStack
 import org.joml.Quaternionf
+
+object TntRenderConfig : ModConfigContainer("tnt") {
+
+    enum class RenderType {
+        Text, Box, None
+    }
+
+    val renderType by enum("tnt_fuse", RenderType.None)
+
+    val onlyYRotation by keyBindBoolean("only_y_rotation", value = false)
+
+}
 
 private const val maxFuse = 80f
 
@@ -26,21 +39,21 @@ internal fun renderTntFuse(
     vertexConsumerProvider: VertexConsumerProvider.Immediate,
     light: Int
 ) {
-    if (RenderInfoAddon.Tnt.renderType == RenderType.None) return
+    if (TntRenderConfig.renderType == TntRenderConfig.RenderType.None) return
     val fuse = state.fuse
     val progress = (fuse / maxFuse).coerceIn(0f, 1f)
     val color = HSVColor(0f).lerp(HSVColor(120f), progress)
-    val camera = mc.gameRenderer.camera
 
+    val camera = mc.gameRenderer.camera
     val cameraYaw = camera.yaw
     val cameraPitch = camera.pitch
 
-    if (RenderInfoAddon.Tnt.renderType == RenderType.Box) {
+    if (TntRenderConfig.renderType == TntRenderConfig.RenderType.Box) {
         matrixStack.push()
         matrixStack.translate(0f, 1.25f, 0f)
         // 对齐方向
         matrixStack.multiply(Quaternionf().rotateY(-cameraYaw * (Math.PI.toFloat() / 180F)))// 水平旋转
-        if (RenderInfoAddon.Tnt.onlyYRotation.value)
+        if (!TntRenderConfig.onlyYRotation.value)
             matrixStack.multiply(Quaternionf().rotateX(cameraPitch * (Math.PI.toFloat() / 180F))) // 垂直旋转
         matrixStack.scale(-1f, -1f, 1f)
         val width = 0.8f
@@ -54,10 +67,10 @@ internal fun renderTntFuse(
             pushBox(box.copy(width = width * progress), color)
         }
         matrixStack.pop()
-    } else if (RenderInfoAddon.Tnt.renderType == RenderType.Text) {
+    } else if (TntRenderConfig.renderType == TntRenderConfig.RenderType.Text) {
         matrixStack.push()
         matrixStack.multiply(Quaternionf().rotateY(-cameraYaw * (Math.PI.toFloat() / 180F)))// 水平旋转
-        if (RenderInfoAddon.Tnt.onlyYRotation.value)
+        if (!TntRenderConfig.onlyYRotation.value)
             matrixStack.multiply(Quaternionf().rotateX(cameraPitch * (Math.PI.toFloat() / 180F))) // 垂直旋转
         matrixStack.scale(-0.025f, -0.025f, 0.025f)
         val text = "%.2f".format(fuse)

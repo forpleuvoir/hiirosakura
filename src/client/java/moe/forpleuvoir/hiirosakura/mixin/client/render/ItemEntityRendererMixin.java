@@ -1,6 +1,6 @@
 package moe.forpleuvoir.hiirosakura.mixin.client.render;
 
-import moe.forpleuvoir.hiirosakura.functional.renderaddons.EntityRenderAddon;
+import moe.forpleuvoir.hiirosakura.functional.renderaddons.DropEntityRenderAddon;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -22,7 +22,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
 
     @Inject(method = "updateRenderState(Lnet/minecraft/entity/ItemEntity;Lnet/minecraft/client/render/entity/state/ItemEntityRenderState;F)V", at = @At("RETURN"))
     public void hiirosakura$updateRenderState(ItemEntity itemEntity, ItemEntityRenderState itemEntityRenderState, float f, CallbackInfo ci) {
-        EntityRenderAddon.setCurrentItemEntity(itemEntity);
+        DropEntityRenderAddon.setCurrentItemEntity(itemEntity);
     }
 
     @Inject(
@@ -34,18 +34,17 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
             )
     )
     public void hiirosakura$render(ItemEntityRenderState itemEntityRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
-        ItemEntity currentItemEntity = EntityRenderAddon.getCurrentItemEntity();
+        ItemEntity currentItemEntity = DropEntityRenderAddon.getCurrentItemEntity();
         if (vertexConsumerProvider instanceof VertexConsumerProvider.Immediate && currentItemEntity != null) {
-            EntityRenderAddon.renderItemEntityInfo(
+            DropEntityRenderAddon.renderItemEntityInfo(
                     currentItemEntity,
                     getTextRenderer(),
                     this.dispatcher,
-                    itemEntityRenderState,
                     matrixStack,
                     (VertexConsumerProvider.Immediate) vertexConsumerProvider,
                     i
             );
         }
-        EntityRenderAddon.setCurrentItemEntity(null);
+        DropEntityRenderAddon.setCurrentItemEntity(null);
     }
 }

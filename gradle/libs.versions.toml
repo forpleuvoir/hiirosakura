@@ -8,9 +8,9 @@ fabricLoomVersion = "1.9-SNAPSHOT"
 #mods
 modMenuVersion = "13.0.0-beta.1"
 fabricKotlinVersion = "1.12.3+kotlin.2.0.21"
-ibukigourdVersion = "0.7.1e-dev"
+ibukigourdVersion = "0.7.2b-dev"
 #other
-nebulaVersion = "0.2.13g"
+nebulaVersion = "0.2.14b"
 kotlinVersion = "2.0.0"
 
 [libraries]

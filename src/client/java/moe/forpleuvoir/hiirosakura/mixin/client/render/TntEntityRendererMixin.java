@@ -22,7 +22,7 @@ public abstract class TntEntityRendererMixin extends EntityRenderer<TntEntity, T
     }
 
     @Inject(method = "render(Lnet/minecraft/client/render/entity/state/TntEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("RETURN"))
-    public void render(TntEntityRenderState tntEntityRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
+    public void hiirosakura$render(TntEntityRenderState tntEntityRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
         if (vertexConsumerProvider instanceof VertexConsumerProvider.Immediate)
             renderTntFuse(tntEntityRenderState,getTextRenderer(),  matrixStack, (VertexConsumerProvider.Immediate) vertexConsumerProvider, i);
     }

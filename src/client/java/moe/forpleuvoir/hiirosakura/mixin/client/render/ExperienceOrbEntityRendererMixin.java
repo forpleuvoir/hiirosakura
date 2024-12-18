@@ -1,7 +1,7 @@
 package moe.forpleuvoir.hiirosakura.mixin.client.render;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import moe.forpleuvoir.hiirosakura.functional.renderaddons.EntityRenderAddon;
+import moe.forpleuvoir.hiirosakura.functional.renderaddons.DropEntityRenderAddon;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -25,7 +25,7 @@ public abstract class ExperienceOrbEntityRendererMixin extends EntityRenderer<Ex
 
     @Inject(method = "updateRenderState(Lnet/minecraft/entity/ExperienceOrbEntity;Lnet/minecraft/client/render/entity/state/ExperienceOrbEntityRenderState;F)V", at = @At("RETURN"))
     public void hiirosakura$updateRenderState(ExperienceOrbEntity experienceOrbEntity, ExperienceOrbEntityRenderState experienceOrbEntityRenderState, float f, CallbackInfo ci) {
-        EntityRenderAddon.setCurrentExperienceOrbEntity(experienceOrbEntity);
+        DropEntityRenderAddon.setCurrentExperienceOrbEntity(experienceOrbEntity);
     }
 
     @Inject(
@@ -41,8 +41,8 @@ public abstract class ExperienceOrbEntityRendererMixin extends EntityRenderer<Ex
             @Local(name = "q") int red,
             @Local(name = "s") int blue
     ) {
-        if (vertexConsumerProvider instanceof VertexConsumerProvider.Immediate && EntityRenderAddon.getCurrentExperienceOrbEntity() != null) {
-            EntityRenderAddon.renderExperienceOrbValue(new Color(red, 255, blue).getRGB(), EntityRenderAddon.getCurrentExperienceOrbEntity(), getTextRenderer(), dispatcher, experienceOrbEntityRenderState, matrixStack, (VertexConsumerProvider.Immediate) vertexConsumerProvider, i);
+        if (vertexConsumerProvider instanceof VertexConsumerProvider.Immediate && DropEntityRenderAddon.getCurrentExperienceOrbEntity() != null) {
+            DropEntityRenderAddon.renderExperienceOrbValue(new Color(red, 255, blue).getRGB(), DropEntityRenderAddon.getCurrentExperienceOrbEntity(), getTextRenderer(), dispatcher, matrixStack, (VertexConsumerProvider.Immediate) vertexConsumerProvider, i);
         }
     }
 

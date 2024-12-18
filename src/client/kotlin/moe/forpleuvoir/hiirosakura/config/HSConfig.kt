@@ -1,6 +1,8 @@
 package moe.forpleuvoir.hiirosakura.config
 
 import moe.forpleuvoir.hiirosakura.HiiroSakura
+import moe.forpleuvoir.hiirosakura.functional.chataddons.ChatConfig
+import moe.forpleuvoir.hiirosakura.functional.renderaddons.RenderInfoAddon
 import moe.forpleuvoir.hiirosakura.gui.HiiroSakuraScreen
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager
 import moe.forpleuvoir.ibukigourd.config.ModConfig
@@ -9,14 +11,29 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.config.item.impl.boolean
+import moe.forpleuvoir.nebula.config.item.impl.enum
+import net.minecraft.client.tutorial.TutorialStep
 
 @ModConfig(name = "config")
 object HSConfig : ClientModConfigManager(HiiroSakura.metadata, "config") {
 
-    val openScreen by keyBind("open_screen", KeyBind(Keyboard.H,Keyboard.S){
+    private val _openScreen by keyBind("open_screen", KeyBind(Keyboard.H, Keyboard.S) {
         HiiroSakuraScreen().open(mc.currentScreen)
     })
 
-    val renderInfoAddon = addConfig(RenderInfoAddon)
+    val tutorialStep: TutorialStep by enum("tutorial_step", TutorialStep.NONE).apply {
+        subscribe {
+            mc.tutorialManager.setStep(it.getValue())
+        }
+    }
+
+    val pickPlayerHeadOnCreative by boolean("pick_player_head_on_creative", false)
+
+    init {
+        addConfig(RenderInfoAddon)
+        addConfig(GamePlay)
+        addConfig(ChatConfig)
+    }
 
 }

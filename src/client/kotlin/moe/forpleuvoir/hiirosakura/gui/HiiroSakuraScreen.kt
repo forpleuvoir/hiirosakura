@@ -3,7 +3,6 @@ package moe.forpleuvoir.hiirosakura.gui
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.config.HSConfig
 import moe.forpleuvoir.hiirosakura.util.identifier
-import moe.forpleuvoir.ibukigourd.IbukiGourd
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
@@ -37,7 +36,7 @@ fun HiiroSakuraScreen() = TabScreen(
         ) {
             Icon(icon, modifier = Modifier.size(16f, 16f))
             TextLabel(Literal(HiiroSakura.MOD_NAME).withColor(HSVColor(358f, 0.65f, 0.74f))) {
-                setting { shadow = true }
+                setting {  }
             }
         }
     },

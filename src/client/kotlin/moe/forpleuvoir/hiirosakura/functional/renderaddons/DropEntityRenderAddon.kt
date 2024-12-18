@@ -1,19 +1,18 @@
 package moe.forpleuvoir.hiirosakura.functional.renderaddons
 
-import moe.forpleuvoir.hiirosakura.config.RenderInfoAddon
-import moe.forpleuvoir.hiirosakura.config.RenderInfoAddon.DropEntity.onlyYRotation
 import moe.forpleuvoir.hiirosakura.util.tooltipType
+import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
+import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.McText
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.nebula.config.item.impl.double
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.render.entity.EntityRenderDispatcher
-import net.minecraft.client.render.entity.state.ExperienceOrbEntityRenderState
-import net.minecraft.client.render.entity.state.ItemEntityRenderState
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.entity.ExperienceOrbEntity
@@ -28,9 +27,55 @@ import net.minecraft.util.math.RotationAxis
 import org.joml.Vector3f
 import java.util.function.Consumer
 
-object EntityRenderAddon {
+object DropEntityRenderAddon {
 
-    private val config = RenderInfoAddon.DropEntity
+    object Config : ModConfigContainer("drop_entity") {
+
+        val distance by double("distance", 50.0, 0.0, 999.0)
+
+        val onlyYRotation by keyBindBoolean("only_y_rotation", value = true)
+
+        val experienceOrbValue by keyBindBoolean("experience_orb_value", value = false)
+
+        val name by keyBindBoolean("name", value = false)
+
+        val count by keyBindBoolean("count", value = false)
+
+        val mapId by keyBindBoolean("map_id", value = false)
+
+        val additionalTooltip by keyBindBoolean("additional_tooltip", value = false)
+
+        val jukeboxPlayable by keyBindBoolean("jukebox_playable", value = false)
+
+        val trim by keyBindBoolean("trim", value = false)
+
+        val storedEnchantments by keyBindBoolean("stored_enchantments", value = false)
+
+        val enchantments by keyBindBoolean("enchantments", value = false)
+
+        val dyedColor by keyBindBoolean("dyed_color", value = false)
+
+        val lore by keyBindBoolean("lore", value = false)
+
+        val attributeModifiers by keyBindBoolean("attribute_modifiers", value = false)
+
+        val unbreakable by keyBindBoolean("unbreakable", value = false)
+
+        val ominousBottleAmplifier by keyBindBoolean("ominous_bottle_amplifier", value = false)
+
+        val suspiciousStewEffect by keyBindBoolean("suspicious_stew_effect", value = false)
+
+        val canBreak by keyBindBoolean("can_break", value = false)
+
+        val canPlaceOn by keyBindBoolean("can_place_on", value = false)
+
+        val durability by keyBindBoolean("durability", value = false)
+
+        val itemId by keyBindBoolean("item_id", value = false)
+
+        val components by keyBindBoolean("components", value = false)
+
+    }
 
     @JvmStatic
     var currentItemEntity: ItemEntity? = null
@@ -40,14 +85,13 @@ object EntityRenderAddon {
         itemEntity: ItemEntity,
         textRenderer: TextRenderer,
         dispatcher: EntityRenderDispatcher,
-        state: ItemEntityRenderState,
         matrixStack: MatrixStack,
         vertexConsumerProvider: VertexConsumerProvider.Immediate,
         light: Int
     ) {
-        if (RenderInfoAddon.DropEntity.distance <= 0) return
-        if (dispatcher.getSquaredDistanceToCamera(itemEntity) > RenderInfoAddon.DropEntity.distance) return
-        val texts = getItemEntityRenderText(itemEntity, state)
+        if (Config.distance <= 0) return
+        if (dispatcher.getSquaredDistanceToCamera(itemEntity) > Config.distance) return
+        val texts = getItemEntityRenderText(itemEntity)
         if (texts.isNotEmpty()) {
             renderEntityMultiText(
                 itemEntity.height, texts, dispatcher, textRenderer, matrixStack, vertexConsumerProvider, light
@@ -55,7 +99,7 @@ object EntityRenderAddon {
         }
     }
 
-    private fun getItemEntityRenderText(itemEntity: ItemEntity, state: ItemEntityRenderState): List<Text> {
+    private fun getItemEntityRenderText(itemEntity: ItemEntity): List<Text> {
         val context = TooltipContext.DEFAULT
 
         val stack = itemEntity.stack
@@ -64,16 +108,16 @@ object EntityRenderAddon {
             // 名称和数量
             val nameAndCount = Text.empty()
             //名称
-            if (config.name.value) {
+            if (Config.name.value) {
                 stack.formattedName?.let { nameAndCount.append(it) }
             }
             //数量
-            if (config.count.value && stack.count > 1) {
+            if (Config.count.value && stack.count > 1) {
                 nameAndCount.append(" x${stack.count}")
             }
             if (nameAndCount.plainText.isNotEmpty()) this.add(nameAndCount.copyToText())
             //地图编号
-            if (config.mapId.value && !type.isAdvanced && !stack.contains(DataComponentTypes.CUSTOM_NAME)) {
+            if (Config.mapId.value && !type.isAdvanced && !stack.contains(DataComponentTypes.CUSTOM_NAME)) {
                 val mapIdComponent = stack.get(DataComponentTypes.MAP_ID)
                 if (mapIdComponent != null) {
                     this.add(FilledMapItem.getIdText(mapIdComponent).copyToText())
@@ -81,81 +125,81 @@ object EntityRenderAddon {
             }
             val consumer: Consumer<McText> = Consumer { this.add(it.copyToText()) }
             //其他工具提示
-            if (config.additionalTooltip.value && !stack.contains(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP)) {
+            if (Config.additionalTooltip.value && !stack.contains(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP)) {
                 val l = mutableListOf<McText>()
                 stack.item.appendTooltip(stack, context, l, type)
                 this.addAll(l.map { it.copyToText() })
             }
             //可播放的唱片
-            if (config.jukeboxPlayable.value) {
+            if (Config.jukeboxPlayable.value) {
                 stack.get(DataComponentTypes.JUKEBOX_PLAYABLE)?.appendTooltip(context, consumer, type)
             }
             //盔甲装饰
-            if (config.trim.value) {
+            if (Config.trim.value) {
                 stack.get(DataComponentTypes.TRIM)?.appendTooltip(context, consumer, type)
             }
             //储存的附魔
-            if (config.storedEnchantments.value) {
+            if (Config.storedEnchantments.value) {
                 stack.get(DataComponentTypes.STORED_ENCHANTMENTS)?.appendTooltip(context, consumer, type)
             }
             //附魔
-            if (config.enchantments.value) {
+            if (Config.enchantments.value) {
                 stack.get(DataComponentTypes.ENCHANTMENTS)?.appendTooltip(context, consumer, type)
             }
             //染色颜色
-            if (config.dyedColor.value) {
+            if (Config.dyedColor.value) {
                 stack.get(DataComponentTypes.DYED_COLOR)?.appendTooltip(context, consumer, type)
             }
-            if (config.lore.value) {
+            if (Config.lore.value) {
                 stack.get(DataComponentTypes.LORE)?.appendTooltip(context, consumer, type)
             }
             //属性修饰符
-            if (config.attributeModifiers.value) {
+            if (Config.attributeModifiers.value) {
                 stack.appendAttributeModifiersTooltip(consumer, mc.player)
             }
             //不可破坏
-            if (config.unbreakable.value) {
+            if (Config.unbreakable.value) {
                 stack.get(DataComponentTypes.UNBREAKABLE)?.appendTooltip(context, consumer, type)
             }
             //不祥之兆
-            if (config.ominousBottleAmplifier.value) {
+            if (Config.ominousBottleAmplifier.value) {
                 stack.get(DataComponentTypes.OMINOUS_BOTTLE_AMPLIFIER)?.appendTooltip(context, consumer, type)
             }
             //可疑的炖菜
-            if (config.suspiciousStewEffect.value) {
+            if (Config.suspiciousStewEffect.value) {
                 stack.get(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS)?.appendTooltip(context, consumer, type)
             }
             //可破坏
-            if (config.canBreak.value) {
+            if (Config.canBreak.value) {
                 stack.get(DataComponentTypes.CAN_BREAK)?.let { blockPredicatesChecker ->
                     if (blockPredicatesChecker.showInTooltip()) {
-                        consumer.accept(ScreenTexts.EMPTY);
-                        consumer.accept(BlockPredicatesChecker.CAN_BREAK_TEXT);
-                        blockPredicatesChecker.addTooltips(consumer);
+                        consumer.accept(ScreenTexts.EMPTY)
+                        consumer.accept(BlockPredicatesChecker.CAN_BREAK_TEXT)
+                        blockPredicatesChecker.addTooltips(consumer)
                     }
                 }
             }
             //可放置于
-            if (config.canPlaceOn.value) {
+            if (Config.canPlaceOn.value) {
                 stack.get(DataComponentTypes.CAN_PLACE_ON)?.let { blockPredicatesChecker ->
                     if (blockPredicatesChecker.showInTooltip()) {
-                        consumer.accept(ScreenTexts.EMPTY);
-                        consumer.accept(BlockPredicatesChecker.CAN_PLACE_TEXT);
-                        blockPredicatesChecker.addTooltips(consumer);
+                        consumer.accept(ScreenTexts.EMPTY)
+                        consumer.accept(BlockPredicatesChecker.CAN_PLACE_TEXT)
+                        blockPredicatesChecker.addTooltips(consumer)
                     }
                 }
             }
             if (type.isAdvanced) {
                 //耐久度
-                if (config.durability.value && stack.isDamaged) {
+                if (Config.durability.value && stack.isDamaged) {
                     add(Text.translatable("item.durability", fallback = null, (stack.maxDamage - stack.damage), stack.maxDamage))
                 }
                 //物品id
-                if (config.itemId.value) {
+                if (Config.itemId.value) {
                     add(Literal(Registries.ITEM.getId(stack.item).toString()).formatted(Formatting.DARK_GRAY))
                 }
                 //组件
-                if (config.components.value) {
+                if (Config.components.value) {
                     val i = stack.components.size()
                     if (i > 0) add(Text.translatable("item.components", fallback = null, i).formatted(Formatting.DARK_GRAY))
                 }
@@ -172,12 +216,11 @@ object EntityRenderAddon {
         entity: ExperienceOrbEntity,
         textRenderer: TextRenderer,
         dispatcher: EntityRenderDispatcher,
-        state: ExperienceOrbEntityRenderState,
         matrixStack: MatrixStack,
         vertexConsumerProvider: VertexConsumerProvider.Immediate,
         light: Int
     ) {
-        if (!config.experienceOrbValue.value) return
+        if (!Config.experienceOrbValue.value) return
         val text = Literal(entity.experienceAmount.toString()).withColor(Color(color))
         renderEntityText(entity.height, -0.3, text, dispatcher, textRenderer, matrixStack, vertexConsumerProvider, light)
     }
@@ -207,7 +250,7 @@ object EntityRenderAddon {
         val height = height + 0.5f + textHeight
         matrixStack.push()
         matrixStack.translate(0.0, height, 0.0)
-        if (onlyYRotation.value)
+        if (Config.onlyYRotation.value)
             matrixStack.multiply(RotationAxis.POSITIVE_Y.rotation(dispatcher.rotation.getEulerAnglesYXZ(Vector3f()).y()))
         else
             matrixStack.multiply(dispatcher.rotation)

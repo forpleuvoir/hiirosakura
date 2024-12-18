@@ -1,0 +1,31 @@
+package moe.forpleuvoir.hiirosakura.functional.chataddons
+
+import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
+import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
+import moe.forpleuvoir.ibukigourd.text.McText
+import moe.forpleuvoir.nebula.config.item.impl.stringList
+
+object ChatFilterHandler {
+
+    object Config : ModConfigContainer("chat_filter") {
+
+        val enabled by keyBindBoolean("enable", false)
+
+        val filterMapping by stringList("filter_mapping", emptyList())
+
+    }
+
+    @JvmStatic
+    fun handle(message: McText): Boolean {
+        if (!Config.enabled.value) return true
+        val string = message.string
+        Config.filterMapping.map { it.toRegex() }.forEach { regex ->
+            if (string.matches(regex)) {
+                return true
+            }
+        }
+        return false
+    }
+
+
+}

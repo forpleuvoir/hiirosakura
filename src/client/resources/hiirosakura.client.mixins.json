@@ -3,9 +3,16 @@
   "package": "moe.forpleuvoir.hiirosakura.mixin.client",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "ChatHudMixin",
+    "ClientPlayerEntityMixin",
+    "ClientPlayNetworkHandlerMixin",
+    "DisconnectedScreenMixin",
+    "MinecraftClientMixin",
+    "render.ClientWorldMixin",
     "render.ExperienceOrbEntityRendererMixin",
     "render.InGameHudMixin",
     "render.ItemEntityRendererMixin",
+    "render.PlayerEntityRendererMixin",
     "render.TntEntityRendererMixin"
   ],
   "injectors": {

@@ -45,12 +45,12 @@
     }
   ],
   "depends": {
-    "fabricloader": ">=0.15.0",
-    "fabric": "*",
+    "fabricloader": ">=0.16.0",
+    "fabric": ">=0.112.0",
     "minecraft": ">=1.21.4",
     "java": ">=21",
     "fabric-language-kotlin": ">=1.11.0+kotlin.2.0.0",
-    "ibukigourd": ">=0.7.2c"
+    "ibukigourd": ">=0.7.2d-dev.ac87196"
   },
   "suggests": {
     "another-mod": "modmenu"

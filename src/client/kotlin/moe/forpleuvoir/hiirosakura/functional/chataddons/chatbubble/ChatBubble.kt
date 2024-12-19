@@ -5,6 +5,7 @@ import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.positionMatrix
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
@@ -16,9 +17,14 @@ import moe.forpleuvoir.ibukigourd.render.*
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.text.wrapToLines
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.common.color.Colors
+import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.render.VertexConsumerProvider
+import net.minecraft.client.render.entity.EntityRenderDispatcher
 import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.util.math.RotationAxis
 import org.joml.Quaternionf
+import org.joml.Vector3f
 import java.util.regex.Pattern
 import kotlin.time.TimeSource
 import kotlin.time.TimeSource.Monotonic.ValueTimeMark
@@ -98,38 +104,47 @@ class ChatBubble(
     val shouldRemove: Boolean get() = timeMark.elapsedNow() > ChatBubbleHandler.Config.duration
 
     fun render(matrices: MatrixStack, vertexConsumers: VertexConsumerProvider.Immediate, light: Int) {
-        val camera = mc.gameRenderer.camera
-        val cameraYaw = camera.yaw
-        val cameraPitch = camera.pitch
-
-        enableDepthTest()
-        enablePolygonOffset()
-
         matrices.push()
 
         val offset = ChatBubbleHandler.Config.offset
-        matrices.translate(-offset.x(), -offset.y() - 1.2f, 0f)
+        matrices.translate(offset.x(), offset.y() + 1.15f, 0f)
 
-//        // 对齐方向
-//        matrices.multiply(Quaternionf().rotateY(cameraYaw * (Math.PI.toFloat() / 225f)))// 水平旋转
-//        if (!ChatBubbleHandler.Config.onlyYRotation.value)
-//            matrices.multiply(Quaternionf().rotateX(-cameraPitch * (Math.PI.toFloat() / 180F))) // 垂直旋转
+        val camera = mc.gameRenderer.camera
+        val cameraYawRad = -camera.yaw * (Math.PI.toFloat() / 180F) // 将摄像机 Yaw 转换为弧度
+        val cameraPitchRad = camera.pitch * (Math.PI.toFloat() / 180F) // 将摄像机 Pitch 转换为弧度
+        // 根据配置旋转方向
+        if (ChatBubbleHandler.Config.onlyYRotation.value) {
+            // 仅水平旋转
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotation(cameraYawRad))
+        } else {
+            // 同时进行水平 + 垂直旋转
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotation(cameraYawRad)) // 水平方向
+            matrices.multiply(RotationAxis.POSITIVE_X.rotation(cameraPitchRad)) // 垂直方向
+        }
 
         val scale = ChatBubbleHandler.Config.scale
-        val s = 0.025f
+        val s = -0.025f
 
-        matrices.scale(scale.x() * s, scale.y() * s, 0.025f)
+        matrices.scale(scale.x() * s, scale.y() * s, 1f)
+        enableDepthTest()
 
-        polygonOffset(3f, 3f)
+        enablePolygonOffset()
+        polygonOffset(0f, 1f)
+        matrices.translate(0f, 0f, -ChatBubbleHandler.Config.backgroundZOffset)
         batchRenderTextureColored(matrices) {
-            matrices.translate(0f, 0f, -ChatBubbleHandler.Config.backgroundZOffset)
             pushWidgetTexture(textureBox, BUBBLE, ChatBubbleHandler.Config.textureColor)
-            matrices.translate(0f, 0f, -0.00001f)
-            polygonOffset(2f, 2f)
-            pushWidgetTexture(arrowBox, ARROW, ChatBubbleHandler.Config.textureColor)
-            matrices.translate(0f, 0f, 0.00001f)
-            matrices.translate(0f, 0f, ChatBubbleHandler.Config.backgroundZOffset)
         }
+        disablePolygonOffset()
+
+        enablePolygonOffset()
+        polygonOffset(0, 0f)
+        batchRenderTextureColored(matrices) {
+            pushWidgetTexture(arrowBox, ARROW, ChatBubbleHandler.Config.textureColor)
+        }
+        matrices.translate(0f, 0f, ChatBubbleHandler.Config.backgroundZOffset)
+        disablePolygonOffset()
+
+        polygonOffset(0, 3f)
         textRenderer.batchRenderText(vertexConsumers, matrices.positionMatrix) {
             pushStringLines(lines, textBox, Alignment.Left, Arrangement.spacedBy(LINE_SPACING), defaultColor = ChatBubbleHandler.Config.textColor)
         }

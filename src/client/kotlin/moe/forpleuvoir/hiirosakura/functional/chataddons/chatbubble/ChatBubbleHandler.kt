@@ -11,6 +11,7 @@ import moe.forpleuvoir.nebula.config.item.impl.duration
 import moe.forpleuvoir.nebula.config.item.impl.float
 import moe.forpleuvoir.nebula.config.item.impl.int
 import net.minecraft.client.render.VertexConsumerProvider
+import net.minecraft.client.render.entity.EntityRenderDispatcher
 import net.minecraft.client.util.math.MatrixStack
 import org.joml.Vector2f
 import java.util.concurrent.ConcurrentHashMap

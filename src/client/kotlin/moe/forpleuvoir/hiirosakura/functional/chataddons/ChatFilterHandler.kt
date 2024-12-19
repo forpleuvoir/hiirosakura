@@ -17,7 +17,7 @@ object ChatFilterHandler {
 
     @JvmStatic
     fun handle(message: McText): Boolean {
-        if (!Config.enabled.value) return true
+        if (!Config.enabled.value) return false
         val string = message.string
         Config.filterMapping.map { it.toRegex() }.forEach { regex ->
             if (string.matches(regex)) {

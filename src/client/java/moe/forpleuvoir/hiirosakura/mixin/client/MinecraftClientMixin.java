@@ -29,7 +29,7 @@ public class MinecraftClientMixin {
     }
 
     @Inject(method = "doItemPick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;pickItemFromEntity(Lnet/minecraft/entity/Entity;Z)V"))
-    public void hiirosakura$doItemPickPlayerHead(CallbackInfo ci, @Local(name = "entityHitResult") EntityHitResult result) {
+    public void hiirosakura$doItemPickPlayerHead(CallbackInfo ci, @Local(ordinal = 0) EntityHitResult result) {
         PickPlayerHead.pickPlayerHead(result.getEntity());
     }
 

@@ -34,7 +34,7 @@ public abstract class InGameHudMixin {
                     shift = At.Shift.AFTER
             )
     )
-    public void hiirosakura$renderHeldItemTooltip(DrawContext context, CallbackInfo ci, @Local(name = "l") int alpha, @Local(name = "k") int y) {
+    public void hiirosakura$renderHeldItemTooltip(DrawContext context, CallbackInfo ci, @Local(ordinal = 3) int alpha, @Local(ordinal = 2) int y) {
         renderEnchantmentWhenSwitch(y, currentStack, getTextRenderer(), IGDrawContext.Companion.toIGDrawContext(context), alpha);
     }
 

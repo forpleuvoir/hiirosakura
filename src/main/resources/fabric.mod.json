@@ -50,7 +50,7 @@
     "minecraft": ">=1.21.4",
     "java": ">=21",
     "fabric-language-kotlin": ">=1.11.0+kotlin.2.0.0",
-    "ibukigourd": ">=0.7.2d-dev.ac87196"
+    "ibukigourd": ">=0.7.2d-dev.bd1bb44"
   },
   "suggests": {
     "another-mod": "modmenu"

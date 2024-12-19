@@ -38,8 +38,8 @@ public abstract class ExperienceOrbEntityRendererMixin extends EntityRenderer<Ex
             VertexConsumerProvider vertexConsumerProvider,
             int i,
             CallbackInfo ci,
-            @Local(name = "q") int red,
-            @Local(name = "s") int blue
+            @Local(ordinal = 1) int red,
+            @Local(ordinal = 3) int blue
     ) {
         if (vertexConsumerProvider instanceof VertexConsumerProvider.Immediate && DropEntityRenderAddon.getCurrentExperienceOrbEntity() != null) {
             DropEntityRenderAddon.renderExperienceOrbValue(new Color(red, 255, blue).getRGB(), DropEntityRenderAddon.getCurrentExperienceOrbEntity(), getTextRenderer(), dispatcher, matrixStack, (VertexConsumerProvider.Immediate) vertexConsumerProvider, i);

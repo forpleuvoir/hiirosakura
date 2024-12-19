@@ -33,6 +33,8 @@ object DropEntityRenderAddon {
 
         val distance by double("distance", 50.0, 0.0, 999.0)
 
+        val enable by keyBindBoolean("enable", value = false)
+
         val onlyYRotation by keyBindBoolean("only_y_rotation", value = true)
 
         val experienceOrbValue by keyBindBoolean("experience_orb_value", value = false)
@@ -89,7 +91,7 @@ object DropEntityRenderAddon {
         vertexConsumerProvider: VertexConsumerProvider.Immediate,
         light: Int
     ) {
-        if (Config.distance <= 0) return
+        if (!Config.enable.value || Config.distance <= 0) return
         if (dispatcher.getSquaredDistanceToCamera(itemEntity) > Config.distance) return
         val texts = getItemEntityRenderText(itemEntity)
         if (texts.isNotEmpty()) {
@@ -220,7 +222,7 @@ object DropEntityRenderAddon {
         vertexConsumerProvider: VertexConsumerProvider.Immediate,
         light: Int
     ) {
-        if (!Config.experienceOrbValue.value) return
+        if (!Config.enable.value || !Config.experienceOrbValue.value || Config.distance <= 0) return
         val text = Literal(entity.experienceAmount.toString()).withColor(Color(color))
         renderEntityText(entity.height, -0.3, text, dispatcher, textRenderer, matrixStack, vertexConsumerProvider, light)
     }

@@ -7,10 +7,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.text.maxWidth
-import moe.forpleuvoir.ibukigourd.text.style.withColor
-import moe.forpleuvoir.ibukigourd.text.wrapToTextLines
+import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors

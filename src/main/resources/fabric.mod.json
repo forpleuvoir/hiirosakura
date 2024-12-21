@@ -16,7 +16,7 @@
   "license": "GPLv3",
   "icon": "assets/hiirosakura/icon.png",
   "accessWidener": "hiirosakura.accesswidener",
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
     "main": [
       {
@@ -50,7 +50,7 @@
     "minecraft": ">=1.21.4",
     "java": ">=21",
     "fabric-language-kotlin": ">=1.11.0+kotlin.2.0.0",
-    "ibukigourd": ">=0.7.2d-dev.bd1bb44"
+    "ibukigourd": ">=0.7.3a-dev"
   },
   "suggests": {
     "another-mod": "modmenu"
@@ -59,11 +59,6 @@
     "ibukigourd": {
       "package": [
         "moe.forpleuvoir.hiirosakura"
-      ]
-    },
-    "modmenu": {
-      "badges": [
-        "client"
       ]
     }
   }

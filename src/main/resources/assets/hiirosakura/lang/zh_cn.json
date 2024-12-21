@@ -88,7 +88,7 @@
   "hiirosakura.config.chat.chat_filter.comment": "聊天消息过滤",
   "hiirosakura.config.chat.chat_filter.enable": "启用",
   "hiirosakura.config.chat.chat_filter.enable.comment": "是否启用聊天消息过滤",
-  "hiirosakura.config.chat.chat_filter.filter_mapping": "过滤器隐射",
+  "hiirosakura.config.chat.chat_filter.filter_mapping": "过滤器映射",
   "hiirosakura.config.chat.chat_filter.filter_mapping.comment": "过滤器映射,使用正则表达式匹配,匹配成功则将消息丢掉",
   "hiirosakura.config.chat.chat_bubble": "聊天气泡",
   "hiirosakura.config.chat.chat_bubble.comment": "聊天气泡相关设置",

@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.mixin.client.render;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.RenderInfoAddon;
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext;
@@ -36,6 +37,14 @@ public abstract class InGameHudMixin {
     )
     public void hiirosakura$renderHeldItemTooltip(DrawContext context, CallbackInfo ci, @Local(ordinal = 3) int alpha, @Local(ordinal = 2) int y) {
         renderEnchantmentWhenSwitch(y, currentStack, getTextRenderer(), IGDrawContext.Companion.toIGDrawContext(context), alpha);
+    }
+
+    @ModifyExpressionValue(method = "tick()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z",ordinal = 1))
+    public boolean hiirosakura$tick(boolean original, @Local(ordinal = 0) ItemStack stack) {
+        if (RenderInfoAddon.INSTANCE.getShowEnchantmentWhenSwitch().getValue()) {
+            return original || stack != currentStack;
+        }
+        return original;
     }
 
     @Inject(method = "renderScoreboardSidebar(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/render/RenderTickCounter;)V", at = @At("HEAD"), cancellable = true)

@@ -12,6 +12,7 @@ ibukigourdVersion = "0.7.3a-dev"
 #other
 nebulaVersion = "0.2.14b"
 kotlinVersion = "2.0.0"
+nashornVersion = "15.4"
 
 [libraries]
 #Fabric
@@ -25,6 +26,7 @@ fabricKotlin = { group = "net.fabricmc", name = "fabric-language-kotlin", versio
 ibukigourd = { group = "moe.forpleuvoir", name = "ibukigourd", version.ref = "ibukigourdVersion" }
 #ohter
 nebula = { group = "moe.forpleuvoir", name = "nebula", version.ref = "nebulaVersion" }
+nashorn = { group = "org.openjdk.nashorn", name = "nashorn-core", version.ref = "nashornVersion" }
 
 [plugins]
 kotlinJVM = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }

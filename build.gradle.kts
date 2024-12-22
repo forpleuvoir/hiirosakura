@@ -20,6 +20,12 @@ repositories {
     maven { url = uri("https://maven.terraformersmc.com/") }
 //	maven { url = uri("https://maven.forpleuvoir.moe/releases") }
     maven { url = uri("https://maven.forpleuvoir.moe/snapshots") }
+    maven {
+        url = uri("https://maven.latvian.dev/releases")
+        content {
+            includeGroup("dev.latvian.mods")
+        }
+    }
 }
 
 val time: String get() = SimpleDateFormat("yyyyMMdd").format(Date())
@@ -54,6 +60,8 @@ dependencies {
     implementation(libs.nebula)
 
     //其他第三方库依赖
+    implementation(libs.nashorn)
+    include(libs.nashorn)
 
     //test
     testImplementation(kotlin("test"))

@@ -13,7 +13,7 @@
     "sources": "https://github.com/forpleuvoir/ibuki_gourd",
     "issues": "https://github.com/forpleuvoir/ibuki_gourd/issues"
   },
-  "license": "GPLv3",
+  "license": "MIT",
   "icon": "assets/hiirosakura/icon.png",
   "accessWidener": "hiirosakura.accesswidener",
   "environment": "client",
@@ -50,7 +50,7 @@
     "minecraft": ">=1.21.4",
     "java": ">=21",
     "fabric-language-kotlin": ">=1.11.0+kotlin.2.0.0",
-    "ibukigourd": ">=0.7.3a-dev"
+    "ibukigourd": ">=0.7.3"
   },
   "suggests": {
     "another-mod": "modmenu"

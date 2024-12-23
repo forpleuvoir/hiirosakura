@@ -14,5 +14,6 @@ fun ItemStack.getEnchantmentTextWithLvl(
 ): List<Text> {
     return buildList {
         get(DataComponentTypes.ENCHANTMENTS)?.appendTooltip(context, Consumer{ add(it.copyToText()) }, type)
+        get(DataComponentTypes.STORED_ENCHANTMENTS)?.appendTooltip(context, Consumer{ add(it.copyToText()) }, type)
     }
 }

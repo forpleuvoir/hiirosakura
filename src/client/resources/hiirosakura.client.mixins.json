@@ -12,6 +12,7 @@
     "render.ExperienceOrbEntityRendererMixin",
     "render.InGameHudMixin",
     "render.ItemEntityRendererMixin",
+    "render.LightmapTextureManagerMixin",
     "render.PlayerEntityRendererMixin",
     "render.TntEntityRendererMixin"
   ],

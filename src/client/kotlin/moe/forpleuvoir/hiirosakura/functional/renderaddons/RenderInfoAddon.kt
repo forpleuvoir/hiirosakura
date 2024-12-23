@@ -2,6 +2,8 @@ package moe.forpleuvoir.hiirosakura.functional.renderaddons
 
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
+import moe.forpleuvoir.nebula.config.item.impl.double
+import moe.forpleuvoir.nebula.config.item.impl.float
 
 object RenderInfoAddon : ModConfigContainer("render_info_addon") {
 
@@ -16,6 +18,16 @@ object RenderInfoAddon : ModConfigContainer("render_info_addon") {
     init {
         addConfig(DropEntityRenderAddon.Config)
         addConfig(TntRenderConfig)
+        addConfig(GammaOverride)
     }
+
+}
+
+
+object GammaOverride : ModConfigContainer("gamma_override") {
+
+    val enable by keyBindBoolean("enable", value = false)
+
+    val gamma by float("gamma", 1.0f, 0.0f, 30f)
 
 }

@@ -1,6 +1,5 @@
 package moe.forpleuivoir.hiirosakura.test
 
-import moe.forpleuvoir.nebula.common.color.Colors
 import org.junit.Test
 import javax.script.ScriptEngineManager
 import kotlin.time.measureTime

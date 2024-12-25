@@ -2,3 +2,8 @@ accessWidener v2 named
 
 #ItemStack
 accessible method net/minecraft/item/ItemStack appendAttributeModifiersTooltip (Ljava/util/function/Consumer;Lnet/minecraft/entity/player/PlayerEntity;)V
+
+#Mouse
+accessible method net/minecraft/client/Mouse onMouseButton (JIII)V
+accessible method net/minecraft/client/Mouse onMouseScroll (JDD)V
+accessible field net/minecraft/client/option/KeyBinding boundKey Lnet/minecraft/client/util/InputUtil$Key;

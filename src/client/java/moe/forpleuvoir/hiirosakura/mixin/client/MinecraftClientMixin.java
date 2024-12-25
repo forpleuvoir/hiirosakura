@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import moe.forpleuvoir.hiirosakura.config.HSConfig;
 import moe.forpleuvoir.hiirosakura.functional.misc.PickPlayerHead;
 import moe.forpleuvoir.hiirosakura.functional.misc.ServerMarker;
+import moe.forpleuvoir.hiirosakura.functional.script.CommonApi;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
 import net.minecraft.client.gui.screen.Screen;

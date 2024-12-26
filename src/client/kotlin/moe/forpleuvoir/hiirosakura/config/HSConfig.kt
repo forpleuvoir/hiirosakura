@@ -2,6 +2,7 @@ package moe.forpleuvoir.hiirosakura.config
 
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.chataddons.ChatConfig
+import moe.forpleuvoir.hiirosakura.functional.gameplay.GamePlay
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.RenderInfoAddon
 import moe.forpleuvoir.hiirosakura.gui.HiiroSakuraScreen
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigManager

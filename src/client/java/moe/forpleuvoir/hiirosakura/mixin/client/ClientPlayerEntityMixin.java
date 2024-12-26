@@ -1,7 +1,7 @@
 package moe.forpleuvoir.hiirosakura.mixin.client;
 
 
-import moe.forpleuvoir.hiirosakura.config.GamePlay;
+import moe.forpleuvoir.hiirosakura.functional.gameplay.GamePlay;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

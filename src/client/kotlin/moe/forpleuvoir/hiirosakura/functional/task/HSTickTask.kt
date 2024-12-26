@@ -1,0 +1,160 @@
+package moe.forpleuvoir.hiirosakura.functional.task
+
+import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
+import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask.ExecuteOn.*
+import moe.forpleuvoir.hiirosakura.functional.task.executor.CommandExecutor
+import moe.forpleuvoir.hiirosakura.functional.task.executor.MessageExecutor
+import moe.forpleuvoir.ibukigourd.input.KeyBind
+import moe.forpleuvoir.ibukigourd.input.KeyCode
+import moe.forpleuvoir.ibukigourd.task.TaskExecutor
+import moe.forpleuvoir.ibukigourd.task.TickTask
+import moe.forpleuvoir.ibukigourd.task.scheduleEndTick
+import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
+import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.serialization.Deserializer
+import moe.forpleuvoir.nebula.serialization.Serializable
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+import moe.forpleuvoir.nebula.serialization.extensions.checkType
+import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import net.minecraft.client.MinecraftClient
+
+open class HSTickTask(
+    var name: String,
+    var setting: TickTask.Setting,
+    var executeOn: ExecuteOn,
+    var executorType: ExecutorType,
+    var executor: TaskExecutor<MinecraftClient>
+) : Serializable {
+
+    enum class ExecutorType {
+        Command {
+            override fun deserialization(serializeElement: SerializeElement): CommandExecutor =
+                serializeElement.checkType<SerializePrimitive, CommandExecutor> { CommandExecutor(it.asString) }.getOrThrow()
+
+            override fun fromString(content: String): TaskExecutor<MinecraftClient> = CommandExecutor(content)
+        },
+        Message {
+            override fun deserialization(serializeElement: SerializeElement): MessageExecutor =
+                serializeElement.checkType<SerializePrimitive, MessageExecutor> { MessageExecutor(it.asString) }.getOrThrow()
+
+            override fun fromString(content: String): TaskExecutor<MinecraftClient> = MessageExecutor(content)
+        },
+        Script {
+            override fun deserialization(serializeElement: SerializeElement): ScriptExecutor =
+                serializeElement.checkType<SerializePrimitive, ScriptExecutor> { ScriptExecutor(it.asString) }.getOrThrow()
+
+            override fun fromString(content: String): TaskExecutor<MinecraftClient> = ScriptExecutor(content)
+        };
+
+        abstract fun deserialization(serializeElement: SerializeElement): TaskExecutor<MinecraftClient>
+
+        abstract fun fromString(content: String): TaskExecutor<MinecraftClient>
+    }
+
+    enum class ExecuteOn {
+        StartTick, EndTick
+    }
+
+    companion object : Deserializer<HSTickTask> {
+
+        val empty get() = HSTickTask("", TickTask.Setting(0, 1, 1), StartTick, ExecutorType.Script, ScriptExecutor(""))
+
+        override fun deserialization(serializeElement: SerializeElement): HSTickTask {
+            return serializeElement.checkType<HSTickTask> {
+                check<SerializeObject> {
+                    val type = ExecutorType.valueOf(it["executor_type"]!!.asString)
+                    HSTickTask(
+                        name = it["name"]!!.asString,
+                        setting = TickTask.Setting.deserialization(it["setting"]!!),
+                        executeOn = ExecuteOn.valueOf(it["execute_on"]!!.asString),
+                        executorType = type,
+                        executor = type.deserialization(it["executor"]!!)
+                    )
+                }
+            }.getOrThrow()
+        }
+
+    }
+
+    override fun serialization(): SerializeElement = serializeObject {
+        "name" to name
+        "setting" to setting.serialization()
+        "execute_on" to executeOn
+        "executor_type" to executorType.name
+        "executor" to executor.serialization()
+    }
+
+    fun fromTask(task: HSTickTask) {
+        this.name = task.name
+        this.setting = task.setting
+        this.executeOn = task.executeOn
+        this.executorType = task.executorType
+        this.executor = task.executor
+    }
+
+    fun asTickTask() = TickTask(setting, executor)
+
+    fun execute() = when (executeOn) {
+        StartTick -> mc.scheduleStartTick(asTickTask())
+        EndTick   -> mc.scheduleEndTick(asTickTask())
+    }
+
+    open fun setting(delay: Int = setting.delay, period: Int = setting.period, times: Int = setting.times) =
+        HSTickTask(name, TickTask.Setting(delay, period, times), executeOn, executorType, executor)
+
+}
+
+class KeyBindTickTask(
+    name: String,
+    setting: TickTask.Setting,
+    executeOn: ExecuteOn,
+    executorType: ExecutorType,
+    executor: TaskExecutor<MinecraftClient>,
+    val keyBind: KeyBind,
+) : HSTickTask(name, setting, executeOn, executorType, executor) {
+
+    companion object : Deserializer<KeyBindTickTask> {
+
+        fun HSTickTask.withKeyBind(vararg keyCode: KeyCode) =
+            KeyBindTickTask(name, setting, executeOn, executorType, executor, KeyBind(*keyCode))
+
+        override fun deserialization(serializeElement: SerializeElement): KeyBindTickTask {
+            return serializeElement.checkType<SerializeObject, KeyBindTickTask> {
+                val type = ExecutorType.valueOf(it["executor_type"]!!.asString)
+                KeyBindTickTask(
+                    name = it["name"]!!.asString,
+                    setting = TickTask.Setting.deserialization(it["setting"]!!),
+                    executeOn = ExecuteOn.valueOf(it["execute_on"]!!.asString),
+                    executorType = type,
+                    executor = type.deserialization(it["executor"]!!),
+                    keyBind = KeyBind().apply { deserialization(it["key_bind"]!!) }
+                )
+            }.getOrThrow()
+        }
+
+    }
+
+    init {
+        keyBind.action = {
+            when (executeOn) {
+                StartTick -> mc.scheduleStartTick(asTickTask())
+                EndTick   -> mc.scheduleEndTick(asTickTask())
+            }
+        }
+    }
+
+
+    override fun setting(delay: Int, period: Int, times: Int): KeyBindTickTask =
+        KeyBindTickTask(name, TickTask.Setting(delay, period, times), executeOn, executorType, executor, keyBind)
+
+    override fun serialization(): SerializeElement = serializeObject {
+        "name" to name
+        "setting" to setting.serialization()
+        "execute_on" to executeOn
+        "executor_type" to executorType.name
+        "key_bind" to keyBind.serialization()
+        "executor" to executor.serialization()
+    }
+}

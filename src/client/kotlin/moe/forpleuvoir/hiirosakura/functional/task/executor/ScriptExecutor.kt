@@ -1,6 +1,7 @@
-package moe.forpleuvoir.hiirosakura.functional.script
+package moe.forpleuvoir.hiirosakura.functional.task.executor
 
 import moe.forpleuvoir.hiirosakura.HiiroSakura
+import moe.forpleuvoir.hiirosakura.functional.script.CommonApiLoader
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.task.TaskExecutor
 import moe.forpleuvoir.ibukigourd.task.TickTask
@@ -14,7 +15,6 @@ import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import net.minecraft.client.MinecraftClient
 import javax.script.ScriptEngineManager
-
 
 class ScriptExecutor(
     private val script: String,
@@ -40,7 +40,6 @@ class ScriptExecutor(
     private val engine = scriptEngine
 
     init {
-        CommonApiLoader.eval(engine)
         params.forEach(engine::put)
         engine.put("_this", this)
     }
@@ -55,6 +54,7 @@ class ScriptExecutor(
 
     override fun execute(task: TickTask<MinecraftClient>, client: MinecraftClient) {
         runCatching {
+            CommonApiLoader.eval(engine)
             engine.put("_client", client)
             engine.put("_task", task)
             engine.eval(script)

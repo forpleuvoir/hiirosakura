@@ -1,7 +1,10 @@
 package moe.forpleuvoir.hiirosakura.gui
 
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
+import moe.forpleuvoir.hiirosakura.common.HiiroSakuraDataManager
 import moe.forpleuvoir.hiirosakura.config.HSConfig
+import moe.forpleuvoir.hiirosakura.functional.task.TaskManagerGui
 import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -35,22 +38,33 @@ fun HiiroSakuraScreen() = TabScreen(
             horizontalArrangement = Arrangement.spacedBy(5f, Alignment.Left)
         ) {
             Icon(icon, modifier = Modifier.size(16f, 16f))
-            TextLabel(Literal(HiiroSakura.MOD_NAME).withColor(HSVColor(358f, 0.65f, 0.74f))) {
-                setting {  }
+            TextLabel(Literal(HiiroSakura.MOD_NAME).style {
+                color(HSVColor(358f, 0.65f, 0.74f))
+                bold()
+            }) {
+                setting { }
             }
         }
     },
     modifier = Modifier.onClose {
         HSConfig.asyncSave()
+        HiiroSakuraDataManager.asyncSave()
     },
     tabColor = stateOf(Color(0xffffccf0)),
     inactiveColor = stateOf(Color(0xffb3f2ff))
 ) {
     Config()
+    TaskManager()
 }
 
 private fun TabScope.Config() = Tab(
     HSConfig.translateText.plainText
 ) {
     ConfigManagerWrapper(HSConfig)
+}
+
+private fun TabScope.TaskManager() = Tab(
+    HSLang.taskManager.plainText
+) {
+    TaskManagerGui()
 }

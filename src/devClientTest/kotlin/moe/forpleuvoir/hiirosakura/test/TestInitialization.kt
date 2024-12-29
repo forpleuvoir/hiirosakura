@@ -1,33 +1,29 @@
 package moe.forpleuvoir.hiirosakura.test
 
 import moe.forpleuvoir.hiirosakura.HiiroSakura
-import moe.forpleuvoir.hiirosakura.gui.extensions.pushQuad
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemIcon
+import moe.forpleuvoir.hiirosakura.gui.widget.ItemSelector
 import moe.forpleuvoir.hiirosakura.gui.widget.RouletteSelector
-import moe.forpleuvoir.hiirosakura.gui.widget.calculateQuadrilaterals
 import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager
 import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderAlignmentText
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
-import moe.forpleuvoir.ibukigourd.gui.widget.Widget
+import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
-import org.joml.Vector2f
 
 @EventSubscriber
 object TestInitialization {
@@ -61,27 +57,13 @@ fun testScreen() = BoxScreen {
 }
 
 fun test2() = BoxScreen {
-    val colorA = HSVColor(0f, 1f, 1f)
-    val colorB = HSVColor(360f, 1f, 1f)
-    val rInner = 60f
-    val rOuter = 120f
-    val outline = 2f
-    val gap = 4f
-    val count = 8
-    Widget(Modifier.render { context, x, y, delta ->
-        val position = screen()!!.transform.worldCenter
-        context.batchRenderBox {
-            calculateQuadrilaterals(position.x(), position.y(), rInner, rOuter, count, gap).forEachIndexed { index, quad ->
-//                val color = colorA.lerp(colorB, ((index + 1f) / count).coerceIn(0f..1f))
-                if (quad.contains(Vector2f(x, y))) {
-                    pushQuad(quad, Color("#45b1fc"))
-                } else {
-                    pushQuad(quad, Colors.BLACK.alpha(0.5f))
-                }
-            }
-        }
-    })
-
+    ItemSelector(
+        mutableStateOf(Items.MELON),
+        modifier = Modifier.width(120f),
+        searchBarModifier = { Modifier.width(120f) },
+        listModifier = { Modifier.width(120f) },
+        optionsDirection = listOf(Direction.Bottom, Direction.Top)
+    )
 }
 
 fun test3() = BoxScreen {
@@ -89,39 +71,39 @@ fun test3() = BoxScreen {
         ItemStack(Items.LAPIS_LAZULI),
         ItemStack(Items.QUARTZ),
         ItemStack(Items.AMETHYST_SHARD),
-        ItemStack(Items.RAW_IRON),
-        ItemStack(Items.IRON_INGOT),
-        ItemStack(Items.RAW_COPPER),
-        ItemStack(Items.COPPER_INGOT),
-        ItemStack(Items.RAW_GOLD),
-        ItemStack(Items.GOLD_INGOT),
-        ItemStack(Items.NETHERITE_INGOT),
-        ItemStack(Items.NETHERITE_SCRAP),
-        ItemStack(Items.WOODEN_SWORD),
-        ItemStack(Items.WOODEN_SHOVEL),
-        ItemStack(Items.WOODEN_PICKAXE),
-        ItemStack(Items.WOODEN_AXE),
-        ItemStack(Items.WOODEN_HOE),
-        ItemStack(Items.STONE_SWORD),
-        ItemStack(Items.STONE_SHOVEL),
-        ItemStack(Items.STONE_PICKAXE),
-        ItemStack(Items.STONE_AXE),
-        ItemStack(Items.STONE_HOE),
-        ItemStack(Items.GOLDEN_SWORD),
-        ItemStack(Items.GOLDEN_SHOVEL),
-        ItemStack(Items.GOLDEN_PICKAXE),
-        ItemStack(Items.GOLDEN_AXE),
-        ItemStack(Items.GOLDEN_HOE),
-        ItemStack(Items.IRON_SWORD),
-        ItemStack(Items.IRON_SHOVEL),
-        ItemStack(Items.IRON_PICKAXE),
+//        ItemStack(Items.RAW_IRON),
+//        ItemStack(Items.IRON_INGOT),
+//        ItemStack(Items.RAW_COPPER),
+//        ItemStack(Items.COPPER_INGOT),
+//        ItemStack(Items.RAW_GOLD),
+//        ItemStack(Items.GOLD_INGOT),
+//        ItemStack(Items.NETHERITE_INGOT),
+//        ItemStack(Items.NETHERITE_SCRAP),
+//        ItemStack(Items.WOODEN_SWORD),
+//        ItemStack(Items.WOODEN_SHOVEL),
+//        ItemStack(Items.WOODEN_PICKAXE),
+//        ItemStack(Items.WOODEN_AXE),
+//        ItemStack(Items.WOODEN_HOE),
+//        ItemStack(Items.STONE_SWORD),
+//        ItemStack(Items.STONE_SHOVEL),
+//        ItemStack(Items.STONE_PICKAXE),
+//        ItemStack(Items.STONE_AXE),
+//        ItemStack(Items.STONE_HOE),
+//        ItemStack(Items.GOLDEN_SWORD),
+//        ItemStack(Items.GOLDEN_SHOVEL),
+//        ItemStack(Items.GOLDEN_PICKAXE),
+//        ItemStack(Items.GOLDEN_AXE),
+//        ItemStack(Items.GOLDEN_HOE),
+//        ItemStack(Items.IRON_SWORD),
+//        ItemStack(Items.IRON_SHOVEL),
+//        ItemStack(Items.IRON_PICKAXE),
     )
     val scale = 1.5f
     val (width, height) = 16f * scale to 16f * scale
     RouletteSelector(
         items,
         maxOptions = 8,
-        onSelected = {
+        onLeftPressSelected = {
             Toast.showToast(text = "已选择${it?.name?.string}")
         },
         selectedRenderer = { item, context, position, mouseX, mouseY, delta ->

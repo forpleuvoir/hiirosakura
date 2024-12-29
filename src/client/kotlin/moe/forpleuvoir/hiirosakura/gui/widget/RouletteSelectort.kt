@@ -11,8 +11,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.widget.Widget
-import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.input.Mouse.*
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -32,11 +33,12 @@ fun <T> WidgetContainerScope.RouletteSelector(
     selectedColor: State<ARGBColor> = stateOf(Colors.YELLOW),
     unselectedColor: State<ARGBColor> = stateOf(Colors.BLACK.alpha(0.5f)),
     modifier: Modifier = Modifier,
-    onSelected: (option: T?) -> Unit = {},
+    onLeftPressSelected: (option: T?) -> Unit = {},
+    onRightPressSelected: (option: T?) -> Unit = {},
+    onMiddlePressSelected: (option: T?) -> Unit = {},
     selectedRenderer: (option: T?, context: IGDrawContext, position: Vector2fc, mouseX: Float, mouseY: Float, delta: Float) -> Unit,
     optionRenderer: (option: T, context: IGDrawContext, selected: Boolean, position: Vector2fc, mouseX: Float, mouseY: Float, delta: Float) -> Unit,
-) {
-
+): IGWidgetImpl {
     fun getPage(
         all: List<T>,
         pageSize: Int,
@@ -64,9 +66,8 @@ fun <T> WidgetContainerScope.RouletteSelector(
 
     var currentPageIndex = 0
 
-    val angleStep = (2 * Math.PI).toFloat() / currentOptions
 
-    Widget(modifier.attachLeft {
+    return Widget(modifier.attachLeft {
         size(outerRadius * 2, outerRadius * 2)
             .placeCompletion {
                 quads.clear()
@@ -80,8 +81,21 @@ fun <T> WidgetContainerScope.RouletteSelector(
                 onMouseScrolling(event)
             }
             .mousePress { event ->
-                event.tryUse(transform.isMouseOvered(event.position) && event.button == Mouse.LEFT)
-                    .onSuccess { onSelected(getPage(options, currentOptions, currentPageIndex).getOrNull(selectedIndex)) }
+                event.tryUse(Vector2f(event.x, event.y).distance(center) in innerRadius..outerRadius)
+                    .onSuccess {
+                        val selected = getPage(options, currentOptions, currentPageIndex).getOrNull(selectedIndex)
+                        when (event.button) {
+                            LEFT     -> onLeftPressSelected(selected)
+                            RIGHT    -> onRightPressSelected(selected)
+                            MIDDLE   -> onMiddlePressSelected(selected)
+                            BUTTON_4 -> Unit
+                            BUTTON_5 -> Unit
+                            BUTTON_6 -> Unit
+                            BUTTON_7 -> Unit
+                            BUTTON_8 -> Unit
+                        }
+                    }
+
                 onMousePress(event)
             }
             .renderBackground { context, x, y, delta ->
@@ -102,32 +116,41 @@ fun <T> WidgetContainerScope.RouletteSelector(
                 }
             }
             .render { context, x, y, delta ->
-                selectedRenderer(getPage(options, currentOptions, currentPageIndex).getOrNull(selectedIndex), context, center, x, y, delta)
-                var startAngle = angleStep -(Math.PI / 2).toFloat() - if (currentOptions % 2 == 0) 0f else angleStep * 0.25f
-                getPage(options, currentOptions, currentPageIndex)
-                    .forEachIndexed { index, entry ->
-                        optionRenderer(
-                            entry,
-                            context,
-                            index == selectedIndex,
-                            calculatePointPosition(center.x(), center.y(), startAngle, optionRadius),
-                            x,
-                            y,
-                            delta
-                        )
-                        startAngle += angleStep
-                    }
+                val page = getPage(options, currentOptions, currentPageIndex)
+                selectedRenderer(page.getOrNull(selectedIndex), context, center, x, y, delta)
 
-                val box = Box(center.x() - 20f, center.y() + 15f, Size(40f, 2f))
-                val width = (40f - maxPage + 1) / (maxPage + 1)
-                val xs = Arrangement.spacedBy(1f).arrange(box.width, buildList {
-                    repeat(maxPage + 1) {
-                        add(width)
-                    }
-                })
-                context.batchRenderBox {
-                    xs.forEachIndexed { index, x ->
-                        pushBox(box.copy(x = box.left + xs[index], width = width), if (index == currentPageIndex) Colors.WHITE else Colors.WHITE.alpha(.35f))
+                val angleStep = (2 * Math.PI).toFloat() / maxOptions
+
+                var startAngle = angleStep - (Math.PI / 2).toFloat() - if (maxOptions % 2 == 0) 0f else angleStep * 0.25f
+
+                page.forEachIndexed { index, entry ->
+                    optionRenderer(
+                        entry,
+                        context,
+                        index == selectedIndex,
+                        calculatePointPosition(center.x(), center.y(), startAngle, optionRadius),
+                        x,
+                        y,
+                        delta
+                    )
+                    startAngle += angleStep
+                }
+
+                if (maxPage > 0) {
+                    val box = Box(center.x() - 20f, center.y() + 15f, Size(40f, 2f))
+                    val width = (40f - maxPage + 1) / (maxPage + 1)
+                    val xs = Arrangement.spacedBy(1f).arrange(box.width, buildList {
+                        repeat(maxPage + 1) {
+                            add(width)
+                        }
+                    })
+                    context.batchRenderBox {
+                        xs.forEachIndexed { index, x ->
+                            pushBox(
+                                box.copy(x = box.left + xs[index], width = width),
+                                if (index == currentPageIndex) Colors.WHITE else Colors.WHITE.alpha(.35f)
+                            )
+                        }
                     }
                 }
             }

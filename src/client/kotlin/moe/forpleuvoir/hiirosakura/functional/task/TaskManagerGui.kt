@@ -1,9 +1,10 @@
 package moe.forpleuvoir.hiirosakura.functional.task
 
-import com.ibm.icu.impl.coll.Collation
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask.ExecutorType
 import moe.forpleuvoir.hiirosakura.functional.task.KeyBindTickTask.Companion.withKeyBind
+import moe.forpleuvoir.hiirosakura.gui.widget.ItemIcon
+import moe.forpleuvoir.hiirosakura.gui.widget.ItemSelector
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
@@ -19,6 +20,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigsWrapper
+import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
@@ -41,6 +43,8 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 import moe.forpleuvoir.nebula.common.util.primitive.pick
+import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
 import kotlin.time.Duration.Companion.seconds
 
 fun WidgetContainerScope.TaskManagerGui(
@@ -71,7 +75,7 @@ fun WidgetContainerScope.TaskManagerGui(
         Button {
             TextLabel(IGLang.add)
             click {
-                TaskEditor(HSTickTask.empty) {
+                TaskEditor(KeyBindTickTask.empty) {
                     TaskManager.add(it.withKeyBind())
                     filterList.clear()
                     filterList.addAll(TaskManager.taskList)
@@ -144,6 +148,8 @@ fun WidgetContainerScope.TaskManagerGui(
                     filterList.clear()
                     filterList.addAll(TaskManager.taskList)
                 })
+                //Icon
+                ItemIcon(task.icon)
                 //text
                 Column(
                     modifier = Modifier.weight(1),
@@ -211,6 +217,12 @@ fun TaskEditor(
     val times = mutableStateOf(task.setting.times)
     val executeOn = mutableStateOf(task.executeOn)
     val executorType = mutableStateOf(task.executorType)
+    val icon = mutableStateOf(
+        if (task is KeyBindTickTask) {
+            task.icon
+        } else Items.MELON
+    )
+
     var executor = task.executor.asString
 
     var nameEditorTransform: (() -> Transform)? = null
@@ -250,6 +262,15 @@ fun TaskEditor(
             Column(
                 horizontalArrangement = Arrangement.spacedBy(5f)
             ) {
+                if (task is KeyBindTickTask) {
+                    //icon
+                    ItemSelector(
+                        icon,
+                        modifier = Modifier.weight(1).hoverText(HSLang.taskIcon),
+                        searchBarModifier = { Modifier.width(120f) },
+                        listModifier = { Modifier.width(120f) },
+                    )
+                }
                 //executeOn
                 EnumSelector(executeOn, modifier = Modifier.weight(1).hoverText(HSLang.taskExecuteOn))
                 //executorType
@@ -278,17 +299,32 @@ fun TaskEditor(
                         return@click
                     }
                     newTaskConsumer(
-                        HSTickTask(
-                            name = name,
-                            setting = TickTask.Setting(
-                                delay = delay.getValue(),
-                                period = period.getValue(),
-                                times = times.getValue()
-                            ),
-                            executeOn = executeOn.getValue(),
-                            executorType = executorType.getValue(),
-                            executor = executorType.getValue().fromString(executor)
-                        )
+                        if (task is KeyBindTickTask) {
+                            KeyBindTickTask(
+                                name = name,
+                                setting = TickTask.Setting(
+                                    delay = delay.getValue(),
+                                    period = period.getValue(),
+                                    times = times.getValue()
+                                ),
+                                executeOn = executeOn.getValue(),
+                                executorType = executorType.getValue(),
+                                icon = icon.getValue(),
+                                keyBind = task.keyBind,
+                                executor = executorType.getValue().fromString(executor)
+                            )
+                        } else
+                            HSTickTask(
+                                name = name,
+                                setting = TickTask.Setting(
+                                    delay = delay.getValue(),
+                                    period = period.getValue(),
+                                    times = times.getValue()
+                                ),
+                                executeOn = executeOn.getValue(),
+                                executorType = executorType.getValue(),
+                                executor = executorType.getValue().fromString(executor)
+                            )
                     )
                     mc.currentScreen?.close()
                 }

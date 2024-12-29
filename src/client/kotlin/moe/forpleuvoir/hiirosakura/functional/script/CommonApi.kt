@@ -8,6 +8,9 @@ import moe.forpleuvoir.ibukigourd.util.sendMessage
 interface CommonApi {
 
     companion object {
+
+        private val globalData = mutableMapOf<String, Any>()
+
         @JvmStatic
         val INSTANCE = object : CommonApi {}
     }
@@ -66,6 +69,14 @@ interface CommonApi {
 
     fun sprint(duration: Long = 1) {
         InputSimulator.sprint(duration)
+    }
+
+    fun getGlobalData(key: String): Any? {
+        return globalData[key]
+    }
+
+    fun setGlobalData(key: String, value: Any) {
+        globalData[key] = value
     }
 
 }

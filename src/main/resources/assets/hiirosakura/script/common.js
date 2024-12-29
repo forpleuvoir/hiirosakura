@@ -121,3 +121,11 @@ function sprint() {
         _api.sprint(arguments[0])
     }
 }
+
+function getGlobalData(key) {
+    return _api.getGlobalData(key)
+}
+
+function setGlobalData(key, data) {
+    _api.setGlobalData(key, data)
+}

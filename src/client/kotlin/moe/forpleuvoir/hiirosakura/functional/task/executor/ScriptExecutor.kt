@@ -2,6 +2,7 @@ package moe.forpleuvoir.hiirosakura.functional.task.executor
 
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.script.CommonApiLoader
+import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.task.TaskExecutor
 import moe.forpleuvoir.ibukigourd.task.TickTask
@@ -55,6 +56,7 @@ class ScriptExecutor(
     override fun execute(task: TickTask<MinecraftClient>, client: MinecraftClient) {
         runCatching {
             CommonApiLoader.eval(engine)
+            engine.eval(TaskManager.Config.scriptCommonLib)
             engine.put("_client", client)
             engine.put("_task", task)
             engine.eval(script)

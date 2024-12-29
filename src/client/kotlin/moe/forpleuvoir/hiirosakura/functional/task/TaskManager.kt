@@ -1,7 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.task
 
 import moe.forpleuvoir.hiirosakura.common.HiiroSakuraData
+import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.input.InputHandler
+import moe.forpleuvoir.nebula.config.item.impl.string
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
@@ -9,6 +11,12 @@ import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
 import java.util.*
 
 object TaskManager : HiiroSakuraData {
+
+    object Config : ModConfigContainer("task_manager") {
+
+        val scriptCommonLib by string("script_common_lib", "")
+
+    }
 
     override val key: String
         get() = "task_manager"
@@ -57,7 +65,7 @@ object TaskManager : HiiroSakuraData {
         serializeElement.checkType {
             check<SerializeArray> { array ->
                 array.forEach {
-                    add( KeyBindTickTask.deserialization(it))
+                    add(KeyBindTickTask.deserialization(it))
                 }
             }
         }.getOrThrow()

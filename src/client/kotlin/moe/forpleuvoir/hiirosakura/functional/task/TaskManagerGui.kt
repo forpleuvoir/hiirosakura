@@ -5,6 +5,7 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask.ExecutorType
 import moe.forpleuvoir.hiirosakura.functional.task.KeyBindTickTask.Companion.withKeyBind
 import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -17,6 +18,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
+import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigsWrapper
+import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
@@ -78,7 +81,21 @@ fun WidgetContainerScope.TaskManagerGui(
         Button {
             Icon(IconTextures.SETTING)
             click {
-                //TODO Open Setting
+                SimpleDialog(
+                    title = stateOf(TaskManager.Config.translateText)
+                ) {
+                    ConfigsWrapper(
+                        TaskManager.Config.configs(),
+                        modifier = Modifier
+                            .maxWidth(400f)
+                            .maxHeight(260f)
+                            .disableRenderBackground()
+                            .padding(0),
+                        listModifier = {
+                            Modifier.weight(1)
+                        }
+                    )
+                }.open()
             }
         }
     }

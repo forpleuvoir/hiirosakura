@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.task
 
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.functional.task.KeyBindTickTask.Companion.withKeyBind
 import moe.forpleuvoir.hiirosakura.functional.task.QTTEConfig.gapDistance
 import moe.forpleuvoir.hiirosakura.functional.task.QTTEConfig.iconScale
 import moe.forpleuvoir.hiirosakura.functional.task.QTTEConfig.innerRadius
@@ -14,6 +15,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderAlignmen
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.mousePress
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderParent
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
@@ -74,6 +76,17 @@ fun QuickTickTaskExecuteScreen(modifier: Modifier = Modifier) = BoxScreen(
             it?.let {
                 mc.currentScreen?.close()
                 it.execute()
+            } ?: run {
+                TaskEditor(KeyBindTickTask.empty, screenModifier = Modifier.renderParent(false)) { task ->
+                    TaskManager.add(task.withKeyBind())
+                }.open()
+            }
+        },
+        onRightPressSelected = {
+            it?.let { task ->
+                TaskEditor(task, screenModifier = Modifier.renderParent(false)) {
+                    task.fromTask(it)
+                }.open()
             }
         },
         selectedRenderer = { item, context, position, mouseX, mouseY, delta ->

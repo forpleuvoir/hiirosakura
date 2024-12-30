@@ -160,6 +160,7 @@
   "hiirosakura.data.task_manager.quick_tick_task_execute.single_page_max_count.comment": "Defines the maximum number of tasks displayed per page to prevent overcrowding",
   "hiirosakura.task.execute": "Execute Task",
   "hiirosakura.task.manager": "Task Manager",
+  "hiirosakura.task.editor": "Task Edit",
   "hiirosakura.task.name": "Task Name",
   "hiirosakura.task.delay": "Task Delay",
   "hiirosakura.task.period": "Task Period",

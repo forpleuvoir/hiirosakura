@@ -34,6 +34,16 @@ object TaskManager : HiiroSakuraData {
         InputHandler.register(task.keyBind)
     }
 
+    operator fun set(index: Int, task: KeyBindTickTask) {
+        tasks[index] = task
+    }
+
+    fun replace(origin: KeyBindTickTask, new: KeyBindTickTask) {
+        tasks.indexOf(origin).let {
+            tasks[it] = new
+        }
+    }
+
     fun remove(task: KeyBindTickTask) {
         tasks.remove(task)
         InputHandler.unregister(task.keyBind)

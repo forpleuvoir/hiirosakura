@@ -160,6 +160,7 @@
   "hiirosakura.data.task_manager.quick_tick_task_execute.single_page_max_count.comment": "定义每页最多可显示的任务数量，避免页面过于拥挤",
   "hiirosakura.task.execute": "执行任务",
   "hiirosakura.task.manager": "任务管理器",
+  "hiirosakura.task.editor": "任务编辑",
   "hiirosakura.task.name": "任务名称",
   "hiirosakura.task.delay": "任务延迟",
   "hiirosakura.task.period": "任务周期",

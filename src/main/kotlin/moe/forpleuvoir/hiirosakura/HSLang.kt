@@ -15,6 +15,8 @@ object HSLang {
 
     val taskManager get() = lang("task.manager")
 
+    val taskEditor get() = lang("task.editor")
+
     val taskName get() = lang("task.name")
 
     val taskDelay get() = lang("task.delay")

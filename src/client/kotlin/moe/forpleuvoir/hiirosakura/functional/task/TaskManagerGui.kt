@@ -209,6 +209,7 @@ fun WidgetContainerScope.TaskManagerGui(
 fun TaskEditor(
     task: HSTickTask,
     modifier: Modifier = Modifier,
+    screenModifier: Modifier = Modifier,
     newTaskConsumer: (HSTickTask) -> Unit
 ): IGScreenImpl {
     var name = task.name
@@ -229,9 +230,10 @@ fun TaskEditor(
 
     return Dialog(
         Modifier.maxHeight(280f).width(360f).then(modifier),
+        screenModifier = screenModifier
     ) {
         //title
-        TextLabel(HSLang.taskManager)
+        TextLabel(HSLang.taskEditor)
 
         Row(
             modifier = Modifier.weight(1),

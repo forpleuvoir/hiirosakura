@@ -81,18 +81,14 @@ fun <T> WidgetContainerScope.RouletteSelector(
                 onMouseScrolling(event)
             }
             .mousePress { event ->
-                event.tryUse(Vector2f(event.x, event.y).distance(center) in innerRadius..outerRadius)
+                event.tryUse(Vector2f(event.x, event.y).distance(center) in innerRadius..outerRadius && event.button in listOf(LEFT, RIGHT, MIDDLE))
                     .onSuccess {
                         val selected = getPage(options, currentOptions, currentPageIndex).getOrNull(selectedIndex)
                         when (event.button) {
-                            LEFT     -> onLeftPressSelected(selected)
-                            RIGHT    -> onRightPressSelected(selected)
-                            MIDDLE   -> onMiddlePressSelected(selected)
-                            BUTTON_4 -> Unit
-                            BUTTON_5 -> Unit
-                            BUTTON_6 -> Unit
-                            BUTTON_7 -> Unit
-                            BUTTON_8 -> Unit
+                            LEFT   -> onLeftPressSelected(selected)
+                            RIGHT  -> onRightPressSelected(selected)
+                            MIDDLE -> onMiddlePressSelected(selected)
+                            else   -> Unit
                         }
                     }
 
@@ -137,8 +133,8 @@ fun <T> WidgetContainerScope.RouletteSelector(
                 }
 
                 if (maxPage > 0) {
-                    val box = Box(center.x() - 20f, center.y() + 15f, Size(40f, 2f))
-                    val width = (40f - maxPage + 1) / (maxPage + 1)
+                    val box = Box(center.x() - 30f, center.y() + 15f, Size(60f, 2f))
+                    val width = (box.width - maxPage + 1) / (maxPage + 1)
                     val xs = Arrangement.spacedBy(1f).arrange(box.width, buildList {
                         repeat(maxPage + 1) {
                             add(width)

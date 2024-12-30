@@ -27,6 +27,7 @@ fun WidgetContainerScope.ItemSelector(
     selectedColor: ARGBColor = defaultSelectedColor,
     selectedWrapper: DropDownMenuScope.(Item) -> IGWidget = {
         Column(
+            modifier= Modifier.weight(1),
             horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
         ) {
             ItemIcon(it, .6f)
@@ -35,6 +36,7 @@ fun WidgetContainerScope.ItemSelector(
     },
     optionWrapper: ButtonScope.(Item) -> IGWidget = {
         Column(
+            modifier= Modifier.weight(1),
             horizontalArrangement = Arrangement.spacedBy(2f)
         ) {
             ItemIcon(it, .6f)

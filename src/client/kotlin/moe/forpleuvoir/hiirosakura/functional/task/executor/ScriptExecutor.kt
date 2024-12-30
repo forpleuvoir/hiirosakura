@@ -1,13 +1,16 @@
 package moe.forpleuvoir.hiirosakura.functional.task.executor
 
 import moe.forpleuvoir.hiirosakura.HiiroSakura
+import moe.forpleuvoir.hiirosakura.functional.executor.Executor
 import moe.forpleuvoir.hiirosakura.functional.script.CommonApiLoader
+import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSPlayerEntity
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.task.TaskExecutor
 import moe.forpleuvoir.ibukigourd.task.TickTask
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.ModLogger
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
@@ -16,11 +19,14 @@ import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import net.minecraft.client.MinecraftClient
 import javax.script.ScriptEngineManager
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 class ScriptExecutor(
     private val script: String,
     params: MutableMap<String, Any> = hashMapOf()
-) : TaskExecutor<MinecraftClient>, Serializable {
+) : TaskExecutor<MinecraftClient>, Executor {
 
     companion object : Deserializer<ScriptExecutor> {
 
@@ -53,13 +59,28 @@ class ScriptExecutor(
         params.forEach(engine::put)
     }
 
-    override fun execute(task: TickTask<MinecraftClient>, client: MinecraftClient) {
-        runCatching {
-            CommonApiLoader.eval(engine)
-            engine.eval(TaskManager.Config.scriptCommonLib)
-            engine.put("_client", client)
+    override fun execute(task: TickTask<MinecraftClient>, context: MinecraftClient) {
+        catch {
+            engine.put("_client", context)
             engine.put("_task", task)
+        }
+        execute()
+    }
+
+    override fun execute() {
+        catch {
+            CommonApiLoader.eval(engine)
+            mc.player?.let {
+                engine.put("player", HSPlayerEntity(it))
+            }
+            engine.eval(TaskManager.Config.scriptCommonLib)
             engine.eval(script)
+        }
+    }
+
+    private inline fun catch(block: () -> Unit) {
+        runCatching {
+            block()
         }.onFailure {
             Toast.showToast(
                 duration = Toast.LONG_DURATION,

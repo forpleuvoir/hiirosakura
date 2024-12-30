@@ -2,7 +2,6 @@ package moe.forpleuvoir.hiirosakura.test
 
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemIcon
-import moe.forpleuvoir.hiirosakura.gui.widget.ItemSelector
 import moe.forpleuvoir.hiirosakura.gui.widget.RouletteSelector
 import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager
 import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
@@ -14,11 +13,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
-import moe.forpleuvoir.ibukigourd.gui.util.Direction
+import moe.forpleuvoir.ibukigourd.gui.widget.EventSelector
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
@@ -57,13 +55,7 @@ fun testScreen() = BoxScreen {
 }
 
 fun test2() = BoxScreen {
-    ItemSelector(
-        mutableStateOf(Items.MELON),
-        modifier = Modifier.width(120f),
-        searchBarModifier = { Modifier.width(120f) },
-        listModifier = { Modifier.width(120f) },
-        optionsDirection = listOf(Direction.Bottom, Direction.Top)
-    )
+    EventSelector(IbukiGourdEventManager.eventSet(), modifier = Modifier.width(120f))
 }
 
 fun test3() = BoxScreen {
@@ -71,32 +63,32 @@ fun test3() = BoxScreen {
         ItemStack(Items.LAPIS_LAZULI),
         ItemStack(Items.QUARTZ),
         ItemStack(Items.AMETHYST_SHARD),
-//        ItemStack(Items.RAW_IRON),
-//        ItemStack(Items.IRON_INGOT),
-//        ItemStack(Items.RAW_COPPER),
-//        ItemStack(Items.COPPER_INGOT),
-//        ItemStack(Items.RAW_GOLD),
-//        ItemStack(Items.GOLD_INGOT),
-//        ItemStack(Items.NETHERITE_INGOT),
-//        ItemStack(Items.NETHERITE_SCRAP),
-//        ItemStack(Items.WOODEN_SWORD),
-//        ItemStack(Items.WOODEN_SHOVEL),
-//        ItemStack(Items.WOODEN_PICKAXE),
-//        ItemStack(Items.WOODEN_AXE),
-//        ItemStack(Items.WOODEN_HOE),
-//        ItemStack(Items.STONE_SWORD),
-//        ItemStack(Items.STONE_SHOVEL),
-//        ItemStack(Items.STONE_PICKAXE),
-//        ItemStack(Items.STONE_AXE),
-//        ItemStack(Items.STONE_HOE),
-//        ItemStack(Items.GOLDEN_SWORD),
-//        ItemStack(Items.GOLDEN_SHOVEL),
-//        ItemStack(Items.GOLDEN_PICKAXE),
-//        ItemStack(Items.GOLDEN_AXE),
-//        ItemStack(Items.GOLDEN_HOE),
-//        ItemStack(Items.IRON_SWORD),
-//        ItemStack(Items.IRON_SHOVEL),
-//        ItemStack(Items.IRON_PICKAXE),
+        ItemStack(Items.RAW_IRON),
+        ItemStack(Items.IRON_INGOT),
+        ItemStack(Items.RAW_COPPER),
+        ItemStack(Items.COPPER_INGOT),
+        ItemStack(Items.RAW_GOLD),
+        ItemStack(Items.GOLD_INGOT),
+        ItemStack(Items.NETHERITE_INGOT),
+        ItemStack(Items.NETHERITE_SCRAP),
+        ItemStack(Items.WOODEN_SWORD),
+        ItemStack(Items.WOODEN_SHOVEL),
+        ItemStack(Items.WOODEN_PICKAXE),
+        ItemStack(Items.WOODEN_AXE),
+        ItemStack(Items.WOODEN_HOE),
+        ItemStack(Items.STONE_SWORD),
+        ItemStack(Items.STONE_SHOVEL),
+        ItemStack(Items.STONE_PICKAXE),
+        ItemStack(Items.STONE_AXE),
+        ItemStack(Items.STONE_HOE),
+        ItemStack(Items.GOLDEN_SWORD),
+        ItemStack(Items.GOLDEN_SHOVEL),
+        ItemStack(Items.GOLDEN_PICKAXE),
+        ItemStack(Items.GOLDEN_AXE),
+        ItemStack(Items.GOLDEN_HOE),
+        ItemStack(Items.IRON_SWORD),
+        ItemStack(Items.IRON_SHOVEL),
+        ItemStack(Items.IRON_PICKAXE),
     )
     val scale = 1.5f
     val (width, height) = 16f * scale to 16f * scale

@@ -3,35 +3,35 @@ package moe.forpleuvoir.hiirosakura.functional.misc
 object ServerMarker {
 
     @JvmStatic
-    var name: String? = null
+    var name: String = ""
         private set
 
     @JvmStatic
-    var address: String? = null
+    var address: String = ""
         private set
 
     @JvmStatic
-    var lastServerName: String? = null
+    var lastServerName: String = ""
         private set
 
     @JvmStatic
-    var lastServerAddress: String? = null
+    var lastServerAddress: String = ""
         private set
     var disConnectCounter = 0
         private set
 
     @JvmStatic
     fun clear() {
-        name = null
-        address = null
+        name = ""
+        address = ""
     }
 
     @JvmStatic
     fun setValue(name: String?, address: String?) {
-        this.name = name
-        this.address = address
-        lastServerName = name
-        lastServerAddress = address
+        this.name = name ?: ""
+        this.address = address ?: ""
+        lastServerName = name ?: ""
+        lastServerAddress = address ?: ""
         disConnectCounter = 0
     }
 

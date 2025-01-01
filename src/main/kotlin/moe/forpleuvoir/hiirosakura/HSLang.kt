@@ -7,6 +7,8 @@ object HSLang {
 
     fun lang(key: String, vararg args: Any): Text = Translatable("${HiiroSakura.MOD_ID}.$key", args = args)
 
+    fun cantBeEmpty(text: Text): Text = lang("cant_be_empty", text)
+
     //------------ TaskManager ------------\\
 
     val taskUnSelected get() = lang("task.un_selected")
@@ -33,6 +35,12 @@ object HSLang {
 
     val taskExecutor get() = lang("task.executor")
 
-    val taskNameEmpty get() = lang("task.name_empty")
+    //------------ HSEventManager ------------\\
+
+    val eventSubscriberManager get() = lang("event.subscriber.manager")
+
+    val eventSubscriberEditor get() = lang("event.subscriber.editor")
+
+    val eventSubscriberName get() = lang("event.subscriber.name")
 
 }

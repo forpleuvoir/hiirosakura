@@ -1,0 +1,337 @@
+package moe.forpleuvoir.hiirosakura.functional.event
+
+import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber.ExecutorType
+import moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber.ExecutorType.*
+import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask
+import moe.forpleuvoir.hiirosakura.functional.task.MoveButton
+import moe.forpleuvoir.hiirosakura.functional.task.executor.CommandExecutor
+import moe.forpleuvoir.hiirosakura.functional.task.executor.MessageExecutor
+import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
+import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.gui.base.Transform
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
+import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.execute
+import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
+import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
+import moe.forpleuvoir.ibukigourd.gui.widget.*
+import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
+import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.translateComment
+import moe.forpleuvoir.ibukigourd.text.translateText
+import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.state.MutableState
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.ibukigourd.util.state.stateOf
+import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.common.color.HSVColor
+import moe.forpleuvoir.nebula.common.util.collection.notifiableList
+import moe.forpleuvoir.nebula.event.Event
+import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
+import kotlin.time.Duration.Companion.seconds
+import moe.forpleuvoir.ibukigourd.task.TickTask.Setting as TickTaskSetting
+
+fun WidgetContainerScope.HSEventManagerGui(
+    modifier: Modifier = Modifier
+) = Row(
+    modifier,
+    verticalArrangement = Arrangement.spacedBy(5f)
+) {
+    val filterList = notifiableList(HSEventManager.subscriberList)
+    var name = ""
+    var selectedEvent: MutableState<KClass<out Event>> = mutableStateOf(Event::class)
+
+    fun onChanged() {
+        filterList.disableNotify {
+            filterList.clear()
+            filterList.addAll(
+                HSEventManager.subscriberList.filter {
+                    it.name.contains(name) && it.eventType.isSubclassOf(selectedEvent.getValue())
+                }
+            )
+        }
+        filterList.onChange(filterList)
+    }
+
+    selectedEvent.subscribe {
+        onChanged()
+    }
+
+    Column(
+        horizontalArrangement = Arrangement.spacedBy(5f),
+    ) {
+        EventSelector(
+            listOf(Event::class) + HSEventManager.subscribableEvents,
+            selectedEvent,
+            modifier = Modifier.width(120f).height(20f)
+        )
+        SearchBar(
+            textConsumer = { str ->
+                name = str
+                onChanged()
+            },
+            hintText = stateOf(IGLang.search.plainText),
+            modifier = Modifier.weight(1),
+            textEditorModifier = { Modifier.weight(1) }
+        )
+        Button {
+            TextLabel(IGLang.add)
+            click {
+                EventSubscriberEditor(HSEventSubscriber.empty) {
+                    HSEventManager.add(it)
+                    onChanged()
+                }.open()
+            }
+        }
+    }
+
+    //------------ Content ------------\\
+    RowListWrapped(
+        modifier = Modifier.fill().weight(1),
+        listModifier = { Modifier.weight(1).fill() },
+    ) {
+        if (filterList.isEmpty()) TextLabel(IGLang.hasNothing)
+        filterList.forEachIndexed { index, eventSubscriber ->
+            var alpha = 0f
+            val maxAlpha = 0.25f
+            // alpha per tick
+            val aupt = maxAlpha * 0.15f
+            val adpt = maxAlpha * 0.25f
+            val color = Colors.CYAN.alpha(alpha)
+
+            fun updateAlpha(wasMouseOver: Boolean, delta: Float) {
+                alpha = if (wasMouseOver)
+                    (alpha + aupt * delta).coerceIn(0f, maxAlpha)
+                else (alpha - adpt * delta).coerceIn(0f, maxAlpha)
+            }
+            Column(
+                modifier = Modifier.fill()
+                    .padding(horizontal = 2f, vertical = 4f)
+                    .render { context, x, y, delta ->
+                        updateAlpha(wasMouseOver, delta)
+                        context.batchRenderBox {
+                            pushRoundBox(transform, color.alpha(alpha), 2)
+                        }
+                    },
+                horizontalArrangement = Arrangement.spacedBy(5f, Alignment.Left)
+            ) {
+                val eventIndex = HSEventManager.subscriberList.indexOf(eventSubscriber)
+                MoveButton(eventIndex, HSEventManager.subscriberList.lastIndex, {
+                    HSEventManager.moveUp(eventIndex)
+                    onChanged()
+                }, {
+                    HSEventManager.moveDown(eventIndex)
+                    onChanged()
+                })
+                //text
+                Column(
+                    modifier = Modifier.weight(1),
+                    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
+                ) {
+                    TextLabel(eventSubscriber.eventType.translateText.withColor(Colors.DARK_YELLOW), Modifier.hoverText(eventSubscriber.eventType.translateComment))
+                    TextLabel(Literal("=>").withColor(Colors.LIME))
+                    TextLabel(eventSubscriber.name)
+                }
+                //edit
+                FlatButton(
+                    hoveredColor = Colors.LIME.alpha(0.25f),
+                    modifier = Modifier.hoverText(IGLang.edit).size(14f, 14f)
+                ) {
+                    click {
+                        EventSubscriberEditor(eventSubscriber) {
+                            eventSubscriber.fromEventSubscriber(it)
+                            onChanged()
+                        }.open()
+                    }
+                    Icon(IconTextures.EDIT, modifier = Modifier.size(12f, 12f))
+                }
+                //delete
+                FlatButton(
+                    hoveredColor = Colors.RED.alpha(0.25f),
+                    modifier = Modifier.hoverText(IGLang.remove).size(14f, 14f)
+                ) {
+                    click {
+                        HSEventManager.remove(eventSubscriber)
+                        onChanged()
+                    }
+                    Icon(IconTextures.DELETE, HSVColor(0f, .1f, .25f), modifier = Modifier.size(12f, 12f))
+                }
+            }
+        }
+    }.apply {
+        filterList.subscribe {
+            execute {
+                this.recompose()
+            }
+        }
+    }
+}
+
+fun EventSubscriberEditor(
+    eventSubscriber: HSEventSubscriber,
+    modifier: Modifier = Modifier,
+    screenModifier: Modifier = Modifier,
+    newEventSubscriberConsumer: (HSEventSubscriber) -> Unit
+): IGScreenImpl {
+    var name = eventSubscriber.name
+    val eventType = mutableStateOf(eventSubscriber.eventType)
+    val executorType = mutableStateOf(eventSubscriber.executorType)
+
+    val task = eventSubscriber.executor as? HSTickTask ?: HSTickTask.empty
+
+    var executor = when (eventSubscriber.executorType) {
+        Command  -> (eventSubscriber.executor as CommandExecutor).asString
+        Message  -> (eventSubscriber.executor as MessageExecutor).asString
+        Script   -> (eventSubscriber.executor as ScriptExecutor).asString
+        TickTask -> task.executor.asString
+    }
+
+    val taskDelay = mutableStateOf(task.setting.delay)
+    val taskPeriod = mutableStateOf(task.setting.period)
+    val taskTimes = mutableStateOf(task.setting.times)
+    val taskExecuteOn = mutableStateOf(task.executeOn)
+    val taskExecutorType = mutableStateOf(task.executorType)
+
+    val isTaskEditor = mutableStateOf(eventSubscriber.executorType == ExecutorType.TickTask)
+    executorType.subscribe {
+        isTaskEditor.setValue(it == ExecutorType.TickTask)
+    }
+
+    var nameEditorTransform: (() -> Transform)? = null
+    return Dialog(
+        Modifier.maxHeight(280f).width(380f).then(modifier),
+        Modifier.onClose {
+            TipHandler.popTip("#HSEVENT_MANAGER")
+        }.then(screenModifier)
+    ) {
+        //title
+        TextLabel(HSLang.taskEditor)
+
+        Row(
+            modifier = Modifier.weight(1),
+            verticalArrangement = Arrangement.spacedBy(3f)
+        ) {
+            Column(
+                horizontalArrangement = Arrangement.spacedBy(5f)
+            ) {
+                //name
+                TextEditor(
+                    modifier = Modifier
+                        .weight(2)
+                        .hoverText(HSLang.taskName)
+                ) {
+                    text = name
+                    textConsumer {
+                        name = it
+                    }
+                    nameEditorTransform = { this.owner().transform }
+                }
+                //eventType
+                EventSelector(HSEventManager.subscribableEvents, eventType, modifier = Modifier.weight(3))
+                //executorType
+                EnumSelector(executorType, ExecutorType.entries, modifier = Modifier.weight(2))
+            }
+            SwitchableProxy(
+                {
+                    Column(
+                        horizontalArrangement = Arrangement.spacedBy(5f)
+                    ) {
+                        //delay
+                        IntEditor(taskDelay, 0..999, modifier = Modifier.weight(1).hoverText(HSLang.taskDelay), editorModifier = { Modifier.weight(1) })
+                        //period
+                        IntEditor(taskPeriod, 1..999, modifier = Modifier.weight(1).hoverText(HSLang.taskPeriod), editorModifier = { Modifier.weight(1) })
+                        //times
+                        IntEditor(taskTimes, 1..999, modifier = Modifier.weight(1).hoverText(HSLang.taskTimes), editorModifier = { Modifier.weight(1) })
+                        //executeOn
+                        EnumSelector(taskExecuteOn, modifier = Modifier.weight(2).hoverText(HSLang.taskExecuteOn))
+                        //executorType
+                        EnumSelector(
+                            taskExecutorType,
+                            options = HSTickTask.ExecutorType.entries,
+                            modifier = Modifier.weight(2).hoverText(HSLang.taskExecutorType)
+                        )
+                    }
+                },
+                { Widget(Modifier.margin(top = -3).size(0f, 0f)) },
+                isTaskEditor
+            )
+            //executor
+            TextAreaWrapped(
+                modifier = Modifier.weight(1)
+            ) {
+                text = executor
+                textConsumer {
+                    executor = it
+                }
+            }
+
+        }
+
+        Column(
+            Modifier.fill(),
+            horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Right)
+        ) {
+            Button {
+                TextLabel(IGLang.confirm)
+                click {
+                    if (name.isEmpty()) {
+                        TipHandler.pushTip(
+                            "#HSEVENT_MANAGER",
+                            4.seconds,
+                            nameEditorTransform!!,
+                            Tip { TextLabel(HSLang.cantBeEmpty(HSLang.eventSubscriberName).withColor(Colors.RED)) })
+                        return@click
+                    }
+                    val _executor = when (executorType.getValue()) {
+                        Command  -> CommandExecutor(executor)
+                        Message  -> MessageExecutor(executor)
+                        Script   -> ScriptExecutor(executor)
+                        TickTask -> HSTickTask(
+                            name = name,
+                            setting = TickTaskSetting(
+                                delay = taskDelay.getValue(),
+                                period = taskPeriod.getValue(),
+                                times = taskTimes.getValue()
+                            ),
+                            executeOn = taskExecuteOn.getValue(),
+                            executorType = taskExecutorType.getValue(),
+                            executor = taskExecutorType.getValue().fromString(executor)
+                        )
+                    }
+                    newEventSubscriberConsumer(
+                        HSEventSubscriber(
+                            name = name,
+                            eventType = eventType.getValue(),
+                            executorType = executorType.getValue(),
+                            executor = _executor
+                        )
+                    )
+                    mc.currentScreen?.close()
+                }
+            }
+            Button {
+                TextLabel(IGLang.cancel)
+                click { mc.currentScreen?.close() }
+            }
+        }
+
+    }
+}

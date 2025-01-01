@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import moe.forpleuvoir.hiirosakura.HiiroSakura
+import moe.forpleuvoir.hiirosakura.functional.event.HSEventManager
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
@@ -12,6 +13,7 @@ import moe.forpleuvoir.nebula.common.util.ioLaunch
 import moe.forpleuvoir.nebula.config.util.ConfigUtil
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import moe.forpleuvoir.nebula.serialization.gson.jsonStringToObject
 import moe.forpleuvoir.nebula.serialization.gson.toJsonString
@@ -23,7 +25,8 @@ object HiiroSakuraDataManager {
     private val log = logger()
 
     private val datas = listOf(
-        TaskManager
+        TaskManager,
+        HSEventManager
     )
 
     private val dataPath = File(loader.configDir.toFile(), "${HiiroSakura.MOD_ID}/data").toPath()
@@ -61,9 +64,7 @@ object HiiroSakuraDataManager {
                 //todo 换成Reader
                 val file = configFile("${data.key}.json", dataPath)
                 val json = readFileToString(file)
-                json.jsonStringToObject().apply {
-                    data.deserialization(this[data.key]!!)
-                }
+                data.deserialization(json.jsonStringToObject())
             }
         }.onFailure {
             saveData(data)
@@ -82,9 +83,7 @@ object HiiroSakuraDataManager {
             ConfigUtil.run {
                 //todo 换成Reader
                 val file = configFile("${data.key}.json", dataPath)
-                val str = serializeObject {
-                    data.key to data.serialization()
-                }.toJsonString()
+                val str = (data.serialization() as SerializeObject).toJsonString()
                 writeToFile(str, file)
             }
         }.onFailure {

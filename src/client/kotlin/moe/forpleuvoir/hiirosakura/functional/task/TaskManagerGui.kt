@@ -54,19 +54,28 @@ fun WidgetContainerScope.TaskManagerGui(
     verticalArrangement = Arrangement.spacedBy(5f)
 ) {
     val filterList = notifiableList(TaskManager.taskList)
+    var name = ""
+
+    fun onChanged() {
+        filterList.disableNotify {
+            filterList.clear()
+            filterList.addAll(
+                TaskManager.taskList.filter {
+                    it.name.contains(name)
+                }
+            )
+        }
+        filterList.onChange(filterList)
+    }
+
     //------------  Header ------------\\
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f),
     ) {
         SearchBar(
             textConsumer = { str ->
-                filterList.enableNotify = true
-                filterList.clear()
-                filterList.addAll(
-                    TaskManager.taskList.filter {
-                        it.name.contains(str)
-                    }
-                )
+                name = str
+                onChanged()
             },
             hintText = stateOf(IGLang.search.plainText),
             modifier = Modifier.weight(1),
@@ -77,8 +86,7 @@ fun WidgetContainerScope.TaskManagerGui(
             click {
                 TaskEditor(KeyBindTickTask.empty) {
                     TaskManager.add(it.withKeyBind())
-                    filterList.clear()
-                    filterList.addAll(TaskManager.taskList)
+                    onChanged()
                 }.open()
             }
         }
@@ -141,12 +149,10 @@ fun WidgetContainerScope.TaskManagerGui(
                 val taskIndex = TaskManager.taskList.indexOf(task)
                 MoveButton(taskIndex, TaskManager.taskList.lastIndex, {
                     TaskManager.moveUp(taskIndex)
-                    filterList.clear()
-                    filterList.addAll(TaskManager.taskList)
+                    onChanged()
                 }, {
                     TaskManager.moveDown(taskIndex)
-                    filterList.clear()
-                    filterList.addAll(TaskManager.taskList)
+                    onChanged()
                 })
                 //Icon
                 ItemIcon(task.icon)
@@ -155,7 +161,7 @@ fun WidgetContainerScope.TaskManagerGui(
                     modifier = Modifier.weight(1),
                     horizontalArrangement = Arrangement.Left
                 ) {
-                    TextLabel(task.name, modifier = Modifier.weight(1))
+                    TextLabel(task.name)
                 }
                 //run
                 FlatButton(
@@ -176,7 +182,7 @@ fun WidgetContainerScope.TaskManagerGui(
                     click {
                         TaskEditor(task) {
                             task.fromTask(it)
-                            filterList.onChange(filterList)
+                            onChanged()
                         }.open()
                     }
                     Icon(IconTextures.EDIT, modifier = Modifier.size(12f, 12f))
@@ -189,8 +195,7 @@ fun WidgetContainerScope.TaskManagerGui(
                 ) {
                     click {
                         TaskManager.remove(task)
-                        filterList.clear()
-                        filterList.addAll(TaskManager.taskList)
+                        onChanged()
                     }
                     Icon(IconTextures.DELETE, HSVColor(0f, .1f, .25f), modifier = Modifier.size(12f, 12f))
                 }
@@ -230,7 +235,9 @@ fun TaskEditor(
 
     return Dialog(
         Modifier.maxHeight(280f).width(360f).then(modifier),
-        screenModifier = screenModifier
+        screenModifier = Modifier.onClose {
+            TipHandler.popTip("#TASK_MANAGER")
+        }.then(screenModifier)
     ) {
         //title
         TextLabel(HSLang.taskEditor)
@@ -297,7 +304,12 @@ fun TaskEditor(
                 TextLabel(IGLang.confirm)
                 click {
                     if (name.isEmpty()) {
-                        TipHandler.pushTip("#TASK_MANAGER", 4.seconds, nameEditorTransform!!, Tip { TextLabel(HSLang.taskNameEmpty.withColor(Colors.RED)) })
+                        TipHandler.pushTip(
+                            "#TASK_MANAGER",
+                            4.seconds,
+                            nameEditorTransform!!,
+                            Tip { TextLabel(HSLang.cantBeEmpty(HSLang.taskName).withColor(Colors.RED)) }
+                        )
                         return@click
                     }
                     newTaskConsumer(

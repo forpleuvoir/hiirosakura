@@ -27,6 +27,10 @@ interface CommonApi {
         }
     }
 
+    fun sendNotification(title: String, content: String) {
+        moe.forpleuvoir.hiirosakura.util.sendNotification(title, content)
+    }
+
     fun toast(content: String) {
         Toast.showToast(text = content)
     }

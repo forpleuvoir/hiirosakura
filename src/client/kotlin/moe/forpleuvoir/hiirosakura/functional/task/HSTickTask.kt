@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.task
 
+import moe.forpleuvoir.hiirosakura.functional.executor.Executor
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask.ExecuteOn.EndTick
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask.ExecuteOn.StartTick
 import moe.forpleuvoir.hiirosakura.functional.task.executor.CommandExecutor
@@ -32,7 +33,7 @@ open class HSTickTask(
     var executeOn: ExecuteOn,
     var executorType: ExecutorType,
     var executor: TaskExecutor<MinecraftClient>
-) : Serializable {
+) : Executor {
 
     enum class ExecutorType {
         Command {
@@ -102,7 +103,7 @@ open class HSTickTask(
 
     fun asTickTask() = TickTask(setting, executor)
 
-    fun execute() = when (executeOn) {
+    override fun execute() = when (executeOn) {
         StartTick -> mc.scheduleStartTick(asTickTask())
         EndTick   -> mc.scheduleEndTick(asTickTask())
     }

@@ -17,6 +17,22 @@ function cmd(cmd) {
     sendCommand(cmd)
 }
 
+function sendNotification() {
+    if (arguments.length === 1) {
+        _api.sendNotification("Notification", arguments[0])
+    } else if (arguments.length === 2) {
+        _api.sendNotification(arguments[0], arguments[1])
+    }
+}
+
+function notice() {
+    if (arguments.length === 1) {
+        _api.sendNotification("Notification", arguments[0])
+    } else if (arguments.length === 2) {
+        _api.sendNotification(arguments[0], arguments[1])
+    }
+}
+
 function toast(content) {
     _api.toast(content);
 }

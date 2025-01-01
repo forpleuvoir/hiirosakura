@@ -1,6 +1,11 @@
 package moe.forpleuivoir.hiirosakura.test
 
+import kotlinx.coroutines.delay
 import moe.forpleuvoir.hiirosakura.gui.widget.calculateQuadrilaterals
+import moe.forpleuvoir.nebula.common.util.defaultLaunch
+import java.awt.SystemTray
+import java.awt.Toolkit
+import java.awt.TrayIcon
 import kotlin.test.Test
 
 class OtherTest{
@@ -23,5 +28,31 @@ class OtherTest{
 
     }
 
+    @Test
+    fun test2(){
+        sendNotification("标题","内容")
+    }
+
+    fun sendNotification(title: String, message: String) {
+        if (!SystemTray.isSupported()) {
+            println("系统不支持通知功能")
+            return
+        }
+
+        val tray = SystemTray.getSystemTray()
+        val image = Toolkit.getDefaultToolkit().createImage("assets/icon.png") // 图标，也可以是 null
+
+        val trayIcon = TrayIcon(image, "HiiroSakura")
+        trayIcon.isImageAutoSize = true
+        trayIcon.toolTip = "HiiroSakura"
+        tray.add(trayIcon)
+
+        trayIcon.displayMessage(title, message, TrayIcon.MessageType.INFO)
+
+        defaultLaunch {
+            delay(3000)
+            tray.remove(trayIcon)
+        }
+    }
 
 }

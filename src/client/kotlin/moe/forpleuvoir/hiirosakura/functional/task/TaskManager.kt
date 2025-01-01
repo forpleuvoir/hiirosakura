@@ -4,15 +4,15 @@ import moe.forpleuvoir.hiirosakura.common.HiiroSakuraData
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.nebula.config.item.impl.string
-import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
+import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import java.util.*
 
 object TaskManager : HiiroSakuraData {
 
-    object Config : ModConfigContainer("task_manager") {
+    object Config : ModConfigContainer("hiirosakura.data.task_manager") {
 
         val scriptCommonLib by string("script_common_lib", "")
 
@@ -20,6 +20,10 @@ object TaskManager : HiiroSakuraData {
             addConfig(QTTEConfig)
         }
 
+    }
+
+    init {
+        Config.init()
     }
 
     override val key: String
@@ -72,13 +76,17 @@ object TaskManager : HiiroSakuraData {
         }
     }
 
-    override fun serialization(): SerializeElement = serializeArray(tasks)
+    override fun serialization(): SerializeObject = serializeObject {
+        "config" to Config.serialization()
+        "tasks" to tasks
+    }
 
     override fun deserialization(serializeElement: SerializeElement) {
-        clear()
         serializeElement.checkType {
-            check<SerializeArray> { array ->
-                array.forEach {
+            check<SerializeObject> { obj ->
+                clear()
+                Config.deserialization(obj["config"]!!)
+                obj["tasks"]!!.asArray.forEach {
                     add(KeyBindTickTask.deserialization(it))
                 }
             }

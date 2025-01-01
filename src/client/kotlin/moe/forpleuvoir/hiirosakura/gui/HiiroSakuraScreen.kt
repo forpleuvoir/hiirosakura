@@ -4,7 +4,7 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.common.HiiroSakuraDataManager
 import moe.forpleuvoir.hiirosakura.config.HSConfig
-import moe.forpleuvoir.hiirosakura.config.HSDataConfig
+import moe.forpleuvoir.hiirosakura.functional.event.HSEventManagerGui
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManagerGui
 import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.ibukigourd.config.translateText
@@ -49,7 +49,6 @@ fun HiiroSakuraScreen() = TabScreen(
     },
     modifier = Modifier.onClose {
         HSConfig.asyncSave()
-        HSDataConfig.asyncSave()
         HiiroSakuraDataManager.asyncSave()
     },
     tabColor = stateOf(Color(0xffffccf0)),
@@ -57,6 +56,7 @@ fun HiiroSakuraScreen() = TabScreen(
 ) {
     Config()
     TaskManager()
+    HSEventManager()
 }
 
 private fun TabScope.Config() = Tab(
@@ -69,4 +69,10 @@ private fun TabScope.TaskManager() = Tab(
     HSLang.taskManager.plainText
 ) {
     TaskManagerGui()
+}
+
+private fun TabScope.HSEventManager() = Tab(
+    HSLang.taskManager.plainText
+) {
+    HSEventManagerGui()
 }

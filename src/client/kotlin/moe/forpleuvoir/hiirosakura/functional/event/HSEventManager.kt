@@ -1,13 +1,23 @@
 package moe.forpleuvoir.hiirosakura.functional.event
 
 import moe.forpleuvoir.hiirosakura.common.HiiroSakuraData
-import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager
-import moe.forpleuvoir.ibukigourd.event.events.server.ServerCommandRegisterEvent
-import moe.forpleuvoir.ibukigourd.event.events.server.ServerLifecycleEvent.ServerStartedEvent
-import moe.forpleuvoir.ibukigourd.event.events.server.ServerLifecycleEvent.ServerStartingEvent
-import moe.forpleuvoir.ibukigourd.event.events.server.ServerLifecycleEvent.ServerStoppedEvent
-import moe.forpleuvoir.ibukigourd.event.events.server.ServerLifecycleEvent.ServerStoppingEvent
-import moe.forpleuvoir.ibukigourd.event.events.server.ServerSavingEvent
+import moe.forpleuvoir.hiirosakura.functional.event.events.BlockBreakingEvent
+import moe.forpleuvoir.hiirosakura.functional.event.events.CommandSendEvent
+import moe.forpleuvoir.hiirosakura.functional.event.events.DisconnectEvent
+import moe.forpleuvoir.hiirosakura.functional.event.events.GameExitEvent
+import moe.forpleuvoir.hiirosakura.functional.event.events.GameJoinEvent
+import moe.forpleuvoir.hiirosakura.functional.event.events.MessageReceiveEvent
+import moe.forpleuvoir.hiirosakura.functional.event.events.MessageSendEvent
+import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerAttackEvent
+import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerDeathEvent
+import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerPickEvent
+import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerRespawnEvent
+import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerUseEvent
+import moe.forpleuvoir.hiirosakura.functional.event.events.ServerJoinEvent
+import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
+import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent
+import moe.forpleuvoir.ibukigourd.event.events.client.input.KeyboardEvent
+import moe.forpleuvoir.ibukigourd.event.events.client.input.MouseEvent
 import moe.forpleuvoir.nebula.event.Event
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
@@ -16,7 +26,6 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import java.util.*
-import kotlin.reflect.KClass
 
 @EventSubscriber
 object HSEventManager : HiiroSakuraData {
@@ -25,20 +34,33 @@ object HSEventManager : HiiroSakuraData {
 
     private val subscribers = mutableListOf<HSEventSubscriber>()
 
-    private val unsubscribableEvents = setOf(
-        ServerCommandRegisterEvent::class,
-        ServerStartedEvent::class,
-        ServerStartingEvent::class,
-        ServerStoppedEvent::class,
-        ServerStoppingEvent::class,
-        ServerSavingEvent::class
+    val subscribableEvents = listOf(
+        ServerJoinEvent::class,
+        GameJoinEvent::class,
+        GameExitEvent::class,
+        DisconnectEvent::class,
+        CommandSendEvent::class,
+        MessageSendEvent::class,
+        MessageReceiveEvent::class,
+        BlockBreakingEvent::class,
+        PlayerAttackEvent::class,
+        PlayerPickEvent::class,
+        PlayerUseEvent::class,
+        PlayerDeathEvent::class,
+        PlayerRespawnEvent::class,
+        KeyboardEvent.KeyPressEvent::class,
+        KeyboardEvent.KeyReleaseEvent::class,
+        MouseEvent.MousePressEvent::class,
+        MouseEvent.MouseReleaseEvent::class,
+        MouseEvent.MouseScrollEvent::class,
+        MouseEvent.MouseMoveEvent::class,
+        MouseEvent.MouseDraggingEvent::class,
+        ClientLifecycleEvent.ClientStartedEvent::class,
+        ClientLifecycleEvent.ClientStartingEvent::class,
+        ClientLifecycleEvent.ClientStopEvent::class,
+        ClientTickEvent.ClientTickEndEvent::class,
+        ClientTickEvent.ClientTickStartEvent::class
     )
-
-    val subscribableEvents by lazy {
-        IbukiGourdEventManager.eventSet().filter {
-            it !in unsubscribableEvents
-        }.toSet()
-    }
 
     val subscriberList: List<HSEventSubscriber> get() = subscribers.toList()
 

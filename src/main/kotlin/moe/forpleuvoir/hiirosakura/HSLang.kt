@@ -9,6 +9,22 @@ object HSLang {
 
     fun cantBeEmpty(text: Text): Text = lang("cant_be_empty", text)
 
+    val loadFromDisk = lang("load_from_disk")
+
+    fun clickToCopy(text: Text): Text = lang("click_to_copy", text)
+
+    val enable = lang("enable")
+
+    val copySuccess = lang("copy_success")
+
+    //------------ CustomData ------------\\
+
+    val customData get() = lang("custom_data")
+
+    val customDataType get() = lang("custom_data.type")
+
+    val customDataKey get() = lang("custom_data.key")
+
     //------------ TaskManager ------------\\
 
     val taskUnSelected get() = lang("task.un_selected")

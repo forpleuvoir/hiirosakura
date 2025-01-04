@@ -20,6 +20,7 @@ import kotlin.reflect.KClass
 
 class HSEventSubscriber(
     var name: String,
+    var enabled: Boolean,
     var eventType: KClass<out Event>,
     var executorType: ExecutorType,
     var executor: Executor
@@ -72,6 +73,7 @@ class HSEventSubscriber(
 
     fun fromEventSubscriber(eventSubscriber: HSEventSubscriber) {
         this.name = eventSubscriber.name
+        this.enabled = eventSubscriber.enabled
         this.eventType = eventSubscriber.eventType
         this.executorType = eventSubscriber.executorType
         this.executor = eventSubscriber.executor
@@ -79,13 +81,14 @@ class HSEventSubscriber(
 
     companion object : Deserializer<HSEventSubscriber> {
 
-        val empty get() = HSEventSubscriber("", IbukiGourdEventManager.eventSet().first(), ExecutorType.Script, ScriptExecutor(""))
+        val empty get() = HSEventSubscriber("", true, IbukiGourdEventManager.eventSet().first(), ExecutorType.Script, ScriptExecutor(""))
 
         override fun deserialization(serializeElement: SerializeElement): HSEventSubscriber =
             serializeElement.checkType<SerializeObject, HSEventSubscriber> {
                 val type = ExecutorType.valueOf(it["executor_type"]!!.asString)
                 HSEventSubscriber(
                     name = it["name"]!!.asString,
+                    enabled = it["enabled"]!!.asBoolean,
                     eventType = IbukiGourdEventManager.byName(it["event_type"]!!.asString)!!,
                     executorType = ExecutorType.valueOf(it["executor_type"]!!.asString),
                     executor = type.deserialization(it["executor"]!!)
@@ -96,6 +99,7 @@ class HSEventSubscriber(
 
     override fun serialization(): SerializeElement = serializeObject {
         "name" to name
+        "enabled" to enabled
         "event_type" to eventType.eventName
         "executor_type" to executorType.name
         "executor" to executor.serialization()

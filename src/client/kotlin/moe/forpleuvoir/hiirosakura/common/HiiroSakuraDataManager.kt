@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import moe.forpleuvoir.hiirosakura.HiiroSakura
+import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventManager
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.hiirosakura.util.logger
@@ -26,7 +27,8 @@ object HiiroSakuraDataManager {
 
     private val datas = listOf(
         TaskManager,
-        HSEventManager
+        HSEventManager,
+        CustomData
     )
 
     private val dataPath = File(loader.configDir.toFile(), "${HiiroSakura.MOD_ID}/data").toPath()

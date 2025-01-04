@@ -1,5 +1,8 @@
 {
   "hiirosakura.cant_be_empty": "%s can't be empty",
+  "hiirosakura.click_to_copy": "Click %s to copy",
+  "hiirosakura.copy_success": "Copy Success",
+  "hiirosakura.enable": "Enable",
   "#Config": "Configuration",
   "hiirosakura.config": "Hiiro Sakura Settings",
   "hiirosakura.config.comment": "Uncategorized settings",
@@ -195,6 +198,8 @@
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.GameExitEvent.comment": "Triggered when a player exits the game.",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.GameJoinEvent": "Game Join Event",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.GameJoinEvent.comment": "Triggered when a player joins the game.",
+  "event.moe.forpleuvoir.hiirosakura.functional.event.events.BlockBreakingEvent": "Player Block Breaking Event",
+  "event.moe.forpleuvoir.hiirosakura.functional.event.events.BlockBreakingEvent.comment": "Triggered when the client player is breaking a block",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.PlayerAttackEvent": "Player Attack Event",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.PlayerAttackEvent.comment": "Triggered when a player attacks an entity or another player.",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.PlayerDeathEvent": "Player Death Event",
@@ -206,5 +211,9 @@
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.PlayerUseEvent": "Player Use Item Event",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.PlayerUseEvent.comment": "Triggered when a player uses an item or interacts with a block.",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.ServerJoinEvent": "Server Join Event",
-  "event.moe.forpleuvoir.hiirosakura.functional.event.events.ServerJoinEvent.comment": "Triggered when a player successfully connects to the server."
+  "event.moe.forpleuvoir.hiirosakura.functional.event.events.ServerJoinEvent.comment": "Triggered when a player successfully connects to the server.",
+  "#hs.custom_data": "Custom Data",
+  "hiirosakura.custom_data": "Custom Data",
+  "hiirosakura.custom_data.key": "Key",
+  "hiirosakura.custom_data.type": "Data Type"
 }

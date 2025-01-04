@@ -145,3 +145,11 @@ function getGlobalData(key) {
 function setGlobalData(key, data) {
     _api.setGlobalData(key, data)
 }
+
+function setCustomData(key, value) {
+    _api.setCustomData(key, value)
+}
+
+function getCustomData(key) {
+    return _api.getCustomData(key)
+}

@@ -4,8 +4,10 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.common.HiiroSakuraDataManager
 import moe.forpleuvoir.hiirosakura.config.HSConfig
+import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventManagerGui
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManagerGui
+import moe.forpleuvoir.hiirosakura.gui.widget.TreeNodeEditor
 import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -55,6 +57,7 @@ fun HiiroSakuraScreen() = TabScreen(
     inactiveColor = stateOf(Color(0xffb3f2ff))
 ) {
     Config()
+    CustomData()
     TaskManager()
     HSEventManager()
 }
@@ -75,4 +78,10 @@ private fun TabScope.HSEventManager() = Tab(
     HSLang.taskManager.plainText
 ) {
     HSEventManagerGui()
+}
+
+private fun TabScope.CustomData() = Tab(
+    HSLang.customData.plainText
+) {
+    TreeNodeEditor(CustomData.data, Modifier.fill(), listModifier = { Modifier.weight(1).fill() })
 }

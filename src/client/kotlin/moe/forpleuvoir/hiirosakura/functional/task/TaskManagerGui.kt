@@ -8,7 +8,6 @@ import moe.forpleuvoir.hiirosakura.gui.widget.ItemSelector
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -20,8 +19,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigsWrapper
-import moe.forpleuvoir.ibukigourd.gui.util.Direction
-import moe.forpleuvoir.ibukigourd.gui.util.disableRenderBackground
+import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
+import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
@@ -120,29 +119,10 @@ fun WidgetContainerScope.TaskManagerGui(
     ) {
         if (filterList.isEmpty()) TextLabel(IGLang.hasNothing)
         filterList.forEachIndexed { index, task ->
-
-            var alpha = 0f
-            val maxAlpha = 0.25f
-            // alpha per tick
-            val aupt = maxAlpha * 0.15f
-            val adpt = maxAlpha * 0.25f
-            val color = Colors.CYAN.alpha(alpha)
-
-            fun updateAlpha(wasMouseOver: Boolean, delta: Float) {
-                alpha = if (wasMouseOver)
-                    (alpha + aupt * delta).coerceIn(0f, maxAlpha)
-                else (alpha - adpt * delta).coerceIn(0f, maxAlpha)
-            }
-
             Column(
                 modifier = Modifier.fill()
                     .padding(horizontal = 2f)
-                    .render { context, x, y, delta ->
-                        updateAlpha(wasMouseOver, delta)
-                        context.batchRenderBox {
-                            pushRoundBox(transform, color.alpha(alpha), 2)
-                        }
-                    },
+                    .bgHoverHighlightBox(),
                 horizontalArrangement = Arrangement.spacedBy(5f, Alignment.Left)
             ) {
                 //move

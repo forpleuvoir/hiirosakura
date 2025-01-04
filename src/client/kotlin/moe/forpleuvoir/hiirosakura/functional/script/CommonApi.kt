@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.script
 
+import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
 import moe.forpleuvoir.hiirosakura.input.InputSimulator
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -81,6 +82,14 @@ interface CommonApi {
 
     fun setGlobalData(key: String, value: Any) {
         globalData[key] = value
+    }
+
+    fun setCustomData(key: String, value: Any) {
+        CustomData.data[key] = value
+    }
+
+    fun getCustomData(key: String): Any? {
+        return CustomData.data[key]
     }
 
 }

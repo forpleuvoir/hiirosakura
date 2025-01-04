@@ -3,6 +3,7 @@
 package moe.forpleuvoir.hiirosakura.functional.script.deobfuscation
 
 import moe.forpleuvoir.hiirosakura.util.math.toVector
+import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
@@ -88,5 +89,7 @@ class HSPlayerEntity(override val entity: PlayerEntity) : HSLivingEntity(entity)
     fun getTotalExperience() = entity.totalExperience
 
     fun getExperienceProgress() = entity.experienceProgress
+
+    fun getHitResult() = mc.crosshairTarget?.let { HSHitResult.fromHitResult(it) }
 
 }

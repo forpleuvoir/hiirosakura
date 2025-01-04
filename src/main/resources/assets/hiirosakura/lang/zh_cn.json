@@ -1,5 +1,8 @@
 {
   "hiirosakura.cant_be_empty": "%s 不能为空",
+  "hiirosakura.click_to_copy": "点击 %s 复制",
+  "hiirosakura.copy_success": "复制成功",
+  "hiirosakura.enable": "启用",
   "#Config": "配置",
   "hiirosakura.config": "Hiiro Sakura 设置",
   "hiirosakura.config.comment": "未分类的设置",
@@ -195,6 +198,8 @@
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.GameExitEvent.comment": "当玩家退出游戏时触发。",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.GameJoinEvent": "游戏加入事件",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.GameJoinEvent.comment": "当玩家进入游戏时触发。",
+  "event.moe.forpleuvoir.hiirosakura.functional.event.events.BlockBreakingEvent": "玩家破坏方块事件",
+  "event.moe.forpleuvoir.hiirosakura.functional.event.events.BlockBreakingEvent.comment": "当客户端玩家正在破坏方块时触发",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.PlayerAttackEvent": "玩家攻击事件",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.PlayerAttackEvent.comment": "当玩家攻击实体或其他玩家时触发。",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.PlayerDeathEvent": "玩家死亡事件",
@@ -206,5 +211,9 @@
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.PlayerUseEvent": "玩家使用物品事件",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.PlayerUseEvent.comment": "当玩家使用某种物品或与方块进行交互时触发。",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.ServerJoinEvent": "服务器加入事件",
-  "event.moe.forpleuvoir.hiirosakura.functional.event.events.ServerJoinEvent.comment": "当玩家成功连接到服务器时触发。"
+  "event.moe.forpleuvoir.hiirosakura.functional.event.events.ServerJoinEvent.comment": "当玩家成功连接到服务器时触发。",
+  "#hs.custom_data": "自定义数据",
+  "hiirosakura.custom_data": "自定义数据",
+  "hiirosakura.custom_data.key": "键值",
+  "hiirosakura.custom_data.type": "数据类型"
 }

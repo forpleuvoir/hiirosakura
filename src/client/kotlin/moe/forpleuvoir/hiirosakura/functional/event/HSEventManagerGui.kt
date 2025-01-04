@@ -8,9 +8,10 @@ import moe.forpleuvoir.hiirosakura.functional.task.MoveButton
 import moe.forpleuvoir.hiirosakura.functional.task.executor.CommandExecutor
 import moe.forpleuvoir.hiirosakura.functional.task.executor.MessageExecutor
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
+import moe.forpleuvoir.hiirosakura.gui.widget.EditButton
+import moe.forpleuvoir.hiirosakura.gui.widget.RemoveButton
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -21,9 +22,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
+import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
+import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
@@ -110,27 +113,10 @@ fun WidgetContainerScope.HSEventManagerGui(
     ) {
         if (filterList.isEmpty()) TextLabel(IGLang.hasNothing)
         filterList.forEachIndexed { index, eventSubscriber ->
-            var alpha = 0f
-            val maxAlpha = 0.25f
-            // alpha per tick
-            val aupt = maxAlpha * 0.15f
-            val adpt = maxAlpha * 0.25f
-            val color = Colors.CYAN.alpha(alpha)
-
-            fun updateAlpha(wasMouseOver: Boolean, delta: Float) {
-                alpha = if (wasMouseOver)
-                    (alpha + aupt * delta).coerceIn(0f, maxAlpha)
-                else (alpha - adpt * delta).coerceIn(0f, maxAlpha)
-            }
             Column(
                 modifier = Modifier.fill()
                     .padding(horizontal = 2f, vertical = 4f)
-                    .render { context, x, y, delta ->
-                        updateAlpha(wasMouseOver, delta)
-                        context.batchRenderBox {
-                            pushRoundBox(transform, color.alpha(alpha), 2)
-                        }
-                    },
+                    .bgHoverHighlightBox(),
                 horizontalArrangement = Arrangement.spacedBy(5f, Alignment.Left)
             ) {
                 val eventIndex = HSEventManager.subscriberList.indexOf(eventSubscriber)
@@ -146,33 +132,26 @@ fun WidgetContainerScope.HSEventManagerGui(
                     modifier = Modifier.weight(1),
                     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
                 ) {
-                    TextLabel(eventSubscriber.eventType.translateText.withColor(Colors.DARK_YELLOW), Modifier.hoverText(eventSubscriber.eventType.translateComment))
+                    TextLabel(
+                        eventSubscriber.eventType.translateText.withColor(Colors.DARK_YELLOW),
+                        Modifier.hoverText(eventSubscriber.eventType.translateComment)
+                    )
                     TextLabel(Literal("=>").withColor(Colors.LIME))
                     TextLabel(eventSubscriber.name)
                 }
+                //enabled
+                SwitchButton(mutableStateOf(eventSubscriber::enabled),modifier= Modifier.hoverText(HSLang.enable))
                 //edit
-                FlatButton(
-                    hoveredColor = Colors.LIME.alpha(0.25f),
-                    modifier = Modifier.hoverText(IGLang.edit).size(14f, 14f)
-                ) {
-                    click {
-                        EventSubscriberEditor(eventSubscriber) {
-                            eventSubscriber.fromEventSubscriber(it)
-                            onChanged()
-                        }.open()
-                    }
-                    Icon(IconTextures.EDIT, modifier = Modifier.size(12f, 12f))
+                EditButton {
+                    EventSubscriberEditor(eventSubscriber) {
+                        eventSubscriber.fromEventSubscriber(it)
+                        onChanged()
+                    }.open()
                 }
                 //delete
-                FlatButton(
-                    hoveredColor = Colors.RED.alpha(0.25f),
-                    modifier = Modifier.hoverText(IGLang.remove).size(14f, 14f)
-                ) {
-                    click {
-                        HSEventManager.remove(eventSubscriber)
-                        onChanged()
-                    }
-                    Icon(IconTextures.DELETE, HSVColor(0f, .1f, .25f), modifier = Modifier.size(12f, 12f))
+                RemoveButton {
+                    HSEventManager.remove(eventSubscriber)
+                    onChanged()
                 }
             }
         }
@@ -319,6 +298,7 @@ fun EventSubscriberEditor(
                     newEventSubscriberConsumer(
                         HSEventSubscriber(
                             name = name,
+                            enabled = eventSubscriber.enabled,
                             eventType = eventType.getValue(),
                             executorType = executorType.getValue(),
                             executor = _executor

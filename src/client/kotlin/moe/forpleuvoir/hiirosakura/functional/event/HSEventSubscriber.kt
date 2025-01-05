@@ -5,6 +5,7 @@ import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.executor.CommandExecutor
 import moe.forpleuvoir.hiirosakura.functional.task.executor.MessageExecutor
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
+import moe.forpleuvoir.hiirosakura.gui.HiiroSakuraScreen
 import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager
 import moe.forpleuvoir.nebula.event.Event
 import moe.forpleuvoir.nebula.event.EventSubscriber
@@ -81,7 +82,7 @@ class HSEventSubscriber(
 
     companion object : Deserializer<HSEventSubscriber> {
 
-        val empty get() = HSEventSubscriber("", true, IbukiGourdEventManager.eventSet().first(), ExecutorType.Script, ScriptExecutor(""))
+        val empty get() = HSEventSubscriber("", true, HSEventManager.subscribableEvents.first(), ExecutorType.Script, ScriptExecutor(""))
 
         override fun deserialization(serializeElement: SerializeElement): HSEventSubscriber =
             serializeElement.checkType<SerializeObject, HSEventSubscriber> {
@@ -89,7 +90,7 @@ class HSEventSubscriber(
                 HSEventSubscriber(
                     name = it["name"]!!.asString,
                     enabled = it["enabled"]!!.asBoolean,
-                    eventType = IbukiGourdEventManager.byName(it["event_type"]!!.asString)!!,
+                    eventType = HSEventManager.subscribableEvents.first { event -> event.eventName == it["event_type"]!!.asString },
                     executorType = ExecutorType.valueOf(it["executor_type"]!!.asString),
                     executor = type.deserialization(it["executor"]!!)
                 )

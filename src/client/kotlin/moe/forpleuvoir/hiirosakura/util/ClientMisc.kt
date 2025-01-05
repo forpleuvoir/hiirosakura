@@ -7,8 +7,10 @@ import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.nebula.common.util.defaultLaunch
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.item.tooltip.TooltipType
 import net.minecraft.util.Identifier
+import org.joml.Vector3f
 import java.awt.SystemTray
 import java.awt.Toolkit
 import java.awt.TrayIcon
@@ -19,6 +21,14 @@ private val log = logger("ClientMisc")
 val MinecraftClient.tooltipType: TooltipType
     get() = this.options.advancedItemTooltips.pick(TooltipType.ADVANCED, TooltipType.BASIC)
 
+
+fun MatrixStack.resetMatricesKeepTranslation(): MatrixStack {
+    val translation = this.peek().positionMatrix.getTranslation(Vector3f())
+    val newMatrices = MatrixStack()
+    newMatrices.loadIdentity()
+    newMatrices.translate(translation.x(), translation.y(), translation.z())
+    return newMatrices
+}
 
 internal fun identifier(path: String): Identifier = identifier(HiiroSakura.MOD_ID, path)
 

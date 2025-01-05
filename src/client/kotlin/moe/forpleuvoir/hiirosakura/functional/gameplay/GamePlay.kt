@@ -7,4 +7,9 @@ object GamePlay : ModConfigContainer("gameplay") {
 
     val autoRebirth by keyBindBoolean("auto_rebirth", false)
 
+
+    init {
+        addConfig(CameraSwitcher.Config)
+    }
+
 }

@@ -25,10 +25,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
-import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
-import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
-import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
@@ -44,7 +41,6 @@ import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 import moe.forpleuvoir.nebula.event.Event
 import kotlin.reflect.KClass
@@ -133,14 +129,14 @@ fun WidgetContainerScope.HSEventManagerGui(
                     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
                 ) {
                     TextLabel(
-                        eventSubscriber.eventType.translateText.withColor(Colors.DARK_YELLOW),
+                        eventSubscriber.eventType.translateText.withColor(Colors.DARK_GOLD),
                         Modifier.hoverText(eventSubscriber.eventType.translateComment)
                     )
                     TextLabel(Literal("=>").withColor(Colors.LIME))
                     TextLabel(eventSubscriber.name)
                 }
                 //enabled
-                SwitchButton(mutableStateOf(eventSubscriber::enabled),modifier= Modifier.hoverText(HSLang.enable))
+                SwitchButton(mutableStateOf(eventSubscriber::enabled), modifier = Modifier.hoverText(HSLang.enable))
                 //edit
                 EditButton {
                     EventSubscriberEditor(eventSubscriber) {
@@ -173,6 +169,7 @@ fun EventSubscriberEditor(
     var name = eventSubscriber.name
     val eventType = mutableStateOf(eventSubscriber.eventType)
     val executorType = mutableStateOf(eventSubscriber.executorType)
+    val enabled = mutableStateOf(eventSubscriber.enabled)
 
     val task = eventSubscriber.executor as? HSTickTask ?: HSTickTask.empty
 
@@ -189,9 +186,9 @@ fun EventSubscriberEditor(
     val taskExecuteOn = mutableStateOf(task.executeOn)
     val taskExecutorType = mutableStateOf(task.executorType)
 
-    val isTaskEditor = mutableStateOf(eventSubscriber.executorType == ExecutorType.TickTask)
+    val isTaskEditor = mutableStateOf(eventSubscriber.executorType == TickTask)
     executorType.subscribe {
-        isTaskEditor.setValue(it == ExecutorType.TickTask)
+        isTaskEditor.setValue(it == TickTask)
     }
 
     var nameEditorTransform: (() -> Transform)? = null
@@ -202,7 +199,7 @@ fun EventSubscriberEditor(
         }.then(screenModifier)
     ) {
         //title
-        TextLabel(HSLang.taskEditor)
+        TextLabel(HSLang.eventSubscriberEditor)
 
         Row(
             modifier = Modifier.weight(1),
@@ -215,7 +212,7 @@ fun EventSubscriberEditor(
                 TextEditor(
                     modifier = Modifier
                         .weight(2)
-                        .hoverText(HSLang.taskName)
+                        .hoverText(HSLang.eventSubscriberName)
                 ) {
                     text = name
                     textConsumer {
@@ -223,6 +220,8 @@ fun EventSubscriberEditor(
                     }
                     nameEditorTransform = { this.owner().transform }
                 }
+                //enabled
+                SwitchButton(enabled, Modifier.hoverText(HSLang.enable))
                 //eventType
                 EventSelector(HSEventManager.subscribableEvents, eventType, modifier = Modifier.weight(3))
                 //executorType
@@ -298,7 +297,7 @@ fun EventSubscriberEditor(
                     newEventSubscriberConsumer(
                         HSEventSubscriber(
                             name = name,
-                            enabled = eventSubscriber.enabled,
+                            enabled = enabled.getValue(),
                             eventType = eventType.getValue(),
                             executorType = executorType.getValue(),
                             executor = _executor

@@ -2,6 +2,7 @@ package moe.forpleuvoir.hiirosakura.functional.renderaddons
 
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.create
 import moe.forpleuvoir.nebula.config.item.impl.double
 import moe.forpleuvoir.nebula.config.item.impl.float
 
@@ -18,6 +19,7 @@ object RenderInfoAddon : ModConfigContainer("render_info_addon") {
     init {
         addConfig(DropEntityRenderAddon.Config)
         addConfig(TntRenderConfig)
+        addConfig(CreeperFeatureRenderer.Config)
         addConfig(GammaOverride)
     }
 

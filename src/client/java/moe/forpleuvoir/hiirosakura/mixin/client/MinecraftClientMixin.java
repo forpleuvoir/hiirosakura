@@ -3,6 +3,7 @@ package moe.forpleuvoir.hiirosakura.mixin.client;
 import com.llamalad7.mixinextras.sugar.Local;
 import moe.forpleuvoir.hiirosakura.config.HSConfig;
 import moe.forpleuvoir.hiirosakura.functional.event.events.*;
+import moe.forpleuvoir.hiirosakura.functional.gameplay.CameraSwitcher;
 import moe.forpleuvoir.hiirosakura.functional.misc.PickPlayerHead;
 import moe.forpleuvoir.hiirosakura.functional.misc.ServerMarker;
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSBlockHitResult;
@@ -25,8 +26,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.ArrayList;
 
 @Mixin(MinecraftClient.class)
 public class MinecraftClientMixin {
@@ -58,7 +57,7 @@ public class MinecraftClientMixin {
         assert crosshairTarget != null;
         var event = new PlayerAttackEvent(HSHitResult.fromHitResult(crosshairTarget));
         EventBus.Companion.broadcast(event);
-        if (event.getCanceled()) {
+        if (event.getCanceled() || CameraSwitcher.getShouldBlockActions()) {
             cir.setReturnValue(false);
             cir.cancel();
         }
@@ -69,7 +68,7 @@ public class MinecraftClientMixin {
         assert crosshairTarget != null;
         var event = new PlayerPickEvent(HSHitResult.fromHitResult(crosshairTarget));
         EventBus.Companion.broadcast(event);
-        if (event.getCanceled()) callbackInfo.cancel();
+        if (event.getCanceled() || CameraSwitcher.getShouldBlockActions()) callbackInfo.cancel();
     }
 
     @Inject(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isItemEnabled(Lnet/minecraft/resource/featuretoggle/FeatureSet;)Z"), cancellable = true)
@@ -77,7 +76,7 @@ public class MinecraftClientMixin {
         assert crosshairTarget != null;
         var event = new PlayerUseEvent(HSHitResult.fromHitResult(crosshairTarget), new HSItemStack(stack));
         EventBus.Companion.broadcast(event);
-        if (event.getCanceled()) callbackInfo.cancel();
+        if (event.getCanceled() || CameraSwitcher.getShouldBlockActions()) callbackInfo.cancel();
     }
 
 
@@ -90,6 +89,6 @@ public class MinecraftClientMixin {
     public void hiirosakura$handleBlockBreaking(boolean breaking, CallbackInfo ci, @Local(ordinal = 0) BlockHitResult hitResult) {
         var event = new BlockBreakingEvent(new HSBlockHitResult(hitResult));
         EventBus.Companion.broadcast(event);
-        if (event.getCanceled()) ci.cancel();
+        if (event.getCanceled() || CameraSwitcher.getShouldBlockActions()) ci.cancel();
     }
 }

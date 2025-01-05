@@ -9,6 +9,7 @@
     "DisconnectedScreenMixin",
     "MinecraftClientMixin",
     "render.ClientWorldMixin",
+    "render.CreeperEntityRendererMixin",
     "render.ExperienceOrbEntityRendererMixin",
     "render.InGameHudMixin",
     "render.ItemEntityRendererMixin",

@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.mixin.client.render;
 
+import moe.forpleuvoir.hiirosakura.compat.iris.VertexConsumerProviderChecker;
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.DropEntityRenderAddon;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -26,24 +27,26 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
     }
 
     @Inject(
-            method = "render(Lnet/minecraft/client/render/entity/state/ItemEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/util/math/MatrixStack;pop()V",
-                    shift = At.Shift.AFTER
-            )
+        method = "render(Lnet/minecraft/client/render/entity/state/ItemEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/util/math/MatrixStack;pop()V",
+            shift = At.Shift.AFTER
+        )
     )
     public void hiirosakura$render(ItemEntityRenderState itemEntityRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
         ItemEntity currentItemEntity = DropEntityRenderAddon.getCurrentItemEntity();
-        if (vertexConsumerProvider instanceof VertexConsumerProvider.Immediate && currentItemEntity != null) {
-            DropEntityRenderAddon.renderItemEntityInfo(
+        if (currentItemEntity != null) {
+            VertexConsumerProviderChecker.isImmediate(vertexConsumerProvider, (immediate) -> {
+                DropEntityRenderAddon.renderItemEntityInfo(
                     currentItemEntity,
                     getTextRenderer(),
                     this.dispatcher,
                     matrixStack,
-                    (VertexConsumerProvider.Immediate) vertexConsumerProvider,
+                    immediate,
                     i
-            );
+                );
+            });
         }
         DropEntityRenderAddon.setCurrentItemEntity(null);
     }

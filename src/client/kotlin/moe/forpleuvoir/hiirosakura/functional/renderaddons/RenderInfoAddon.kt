@@ -1,9 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.renderaddons
 
+import moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.CreeperFeatureRenderer
+import moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.TntRenderConfig
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.create
-import moe.forpleuvoir.nebula.config.item.impl.double
 import moe.forpleuvoir.nebula.config.item.impl.float
 
 object RenderInfoAddon : ModConfigContainer("render_info_addon") {

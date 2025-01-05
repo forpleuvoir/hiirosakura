@@ -32,11 +32,11 @@ class ChatBubble(
 
         private val textRenderer get() = mc.textRenderer
 
-        private val TEXTURE = identifier("texture/gui/chat/bubble.png")
+        private val TEXTURE = TextureInfo(16, 16, identifier("texture/gui/chat/bubble.png"))
 
-        private val BUBBLE = WidgetTexture(Corner(4), 0, 0, 16, 10, TextureInfo(16, 16, TEXTURE))
+        private val BUBBLE = WidgetTexture(Corner(4), 0, 0, 16, 10, TEXTURE)
 
-        private val ARROW = WidgetTexture(Corner(top = -1), 5, 11, 12, 14, TextureInfo(16, 16, TEXTURE))
+        private val ARROW = WidgetTexture(Corner(top = -1), 5, 11, 12, 14, TEXTURE)
 
         private const val LINE_SPACING = 4f
 

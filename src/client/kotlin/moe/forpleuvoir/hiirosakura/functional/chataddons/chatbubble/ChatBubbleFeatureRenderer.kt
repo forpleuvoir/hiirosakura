@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble
 
+import moe.forpleuvoir.hiirosakura.compat.iris.VertexConsumerProviderChecker
 import moe.forpleuvoir.hiirosakura.util.resetMatricesKeepTranslation
 import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.render.entity.feature.FeatureRenderer
@@ -21,9 +22,9 @@ class ChatBubbleFeatureRenderer(
         limbDistance: Float
     ) {
         if (!ChatBubbleHandler.Config.enabled.value) return
-        if (vertexConsumers is VertexConsumerProvider.Immediate) {
+        VertexConsumerProviderChecker.isImmediate(vertexConsumers) {
             //需要清除原矩阵栈的旋转数据
-            ChatBubbleHandler.render(state.name, matrices.resetMatricesKeepTranslation(), vertexConsumers, light)
+            ChatBubbleHandler.render(state.name, matrices.resetMatricesKeepTranslation(), it, light)
         }
     }
 

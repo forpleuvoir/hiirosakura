@@ -26,6 +26,17 @@ repositories {
             includeGroup("dev.latvian.mods")
         }
     }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = uri("https://api.modrinth.com/maven")
+            }
+        }
+        filter {
+            includeGroup("maven.modrinth")
+        }
+    }
 }
 
 val time: String get() = SimpleDateFormat("yyyyMMdd").format(Date())
@@ -55,6 +66,13 @@ dependencies {
     //其他mod依赖
     modImplementation(libs.modMenu)
     modImplementation(libs.ibukigourd)
+    //兼容测试
+    modImplementation("maven.modrinth", "sodium", "mc1.21.4-0.6.3-fabric")
+    modImplementation("maven.modrinth", "iris", "1.8.5+1.21.4-fabric")
+    implementation("org.anarres:jcpp:1.4.14")
+    implementation("org.antlr:antlr4-runtime:4.13.1")
+    implementation("io.github.douira:glsl-transformer:2.0.1")
+
 
     //nebula
     implementation(libs.nebula)

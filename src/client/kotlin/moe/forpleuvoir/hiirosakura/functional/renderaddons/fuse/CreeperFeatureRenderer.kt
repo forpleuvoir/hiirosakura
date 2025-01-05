@@ -1,6 +1,6 @@
-package moe.forpleuvoir.hiirosakura.functional.renderaddons
+package moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse
 
-import moe.forpleuvoir.hiirosakura.functional.renderaddons.TntRenderConfig.RenderType
+import moe.forpleuvoir.hiirosakura.compat.iris.VertexConsumerProviderChecker
 import moe.forpleuvoir.hiirosakura.util.resetMatricesKeepTranslation
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
@@ -29,7 +29,7 @@ class CreeperFeatureRenderer(
 
     object Config : ModConfigContainer("creeper") {
 
-        val renderType by enum("fuse", RenderType.None)
+        val renderType by enum("fuse", FuseRenderType.None)
 
         val onlyYRotation by keyBindBoolean("only_y_rotation", value = false)
 
@@ -49,13 +49,13 @@ class CreeperFeatureRenderer(
         limbAngle: Float,
         limbDistance: Float
     ) {
-        if (Config.renderType == RenderType.None || state.fuseTime <= 0) return
-        if (vertexConsumers is VertexConsumerProvider.Immediate) {
+        if (Config.renderType == FuseRenderType.None || state.fuseTime <= 0) return
+        VertexConsumerProviderChecker.isImmediate(vertexConsumers) {
             renderCreeperFuse(
                 state,
                 mc.textRenderer,
                 matrices.resetMatricesKeepTranslation(),
-                vertexConsumers,
+                it,
                 light
             )
         }
@@ -68,7 +68,7 @@ class CreeperFeatureRenderer(
         vertexConsumerProvider: VertexConsumerProvider.Immediate,
         light: Int
     ) {
-        if (Config.renderType == RenderType.None) return
+        if (Config.renderType == FuseRenderType.None) return
         val fuse = state.fuseTime.coerceIn(0f..1f)
         val progress = (1f - (fuse / MAX_FUSE)).coerceIn(0f, 1f)
         val color = HSVColor(0f).lerp(HSVColor(120f), progress)
@@ -77,26 +77,20 @@ class CreeperFeatureRenderer(
         val cameraYaw = camera.yaw
         val cameraPitch = camera.pitch
 
-        if (Config.renderType == RenderType.Box) {
+        if (Config.renderType == FuseRenderType.Box) {
             matrixStack.push()
             matrixStack.translate(0f, .5f, 0f)
             // 对齐方向
             matrixStack.multiply(Quaternionf().rotateY(-cameraYaw * (Math.PI.toFloat() / 180F)))// 水平旋转
             if (!Config.onlyYRotation.value)
                 matrixStack.multiply(Quaternionf().rotateX(cameraPitch * (Math.PI.toFloat() / 180F))) // 垂直旋转
-            matrixStack.scale(-1f, -1f, 1f)
-            val width = 0.8f
-            val height = 0.1f
+            matrixStack.scale(-0.025f, -0.025f, 0.025f)
+            val width = 40f
+            val height = 8f
             val box = Box(x = -width / 2, y = 0f, Size(width, height))
-            batchRenderBox(
-                vertexConsumerProvider,
-                matrixStack,
-            ) {
-                pushBoxOutline(box, Colors.WHITE, borderSize = 0.01f, inner = false)
-                pushBox(box.copy(width = width * progress), color)
-            }
+            FuseRenderType.renderBox(matrixStack, progress, box, Colors.WHITE, color)
             matrixStack.pop()
-        } else if (Config.renderType == RenderType.Text) {
+        } else if (Config.renderType == FuseRenderType.Text) {
             matrixStack.push()
             matrixStack.multiply(Quaternionf().rotateY(-cameraYaw * (Math.PI.toFloat() / 180F)))// 水平旋转
             if (!Config.onlyYRotation.value)

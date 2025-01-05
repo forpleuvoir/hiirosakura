@@ -26,7 +26,10 @@ import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.state.stateOf
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.config.item.impl.color
 import moe.forpleuvoir.nebula.config.item.impl.float
 import moe.forpleuvoir.nebula.config.item.impl.int
 
@@ -36,6 +39,10 @@ object QTTEConfig : ModConfigContainer("quick_tick_task_execute") {
     val keyBind by keyBind("key_bind", KeyBind {
         QuickTickTaskExecuteScreen().open()
     })
+
+    val rouletteColor by color("roulette_color", Colors.BLACK.alpha(0.5f))
+
+    val rouletteSelectedColor by color("roulette_selected_color", Color("#FFD4FF00"))
 
     val iconScale by float("icon_scale", 1f, 0.2f, 2f)
 
@@ -67,6 +74,8 @@ fun QuickTickTaskExecuteScreen(modifier: Modifier = Modifier) = BoxScreen(
     val (width, height) = 16f * scale to 16f * scale
     RouletteSelector(
         TaskManager.taskList,
+        unselectedColor =stateOf(QTTEConfig.rouletteColor),
+        selectedColor = stateOf(QTTEConfig.rouletteSelectedColor),
         innerRadius = innerRadius,
         outerRadius = outerRadius,
         optionRadius = optionRadius,

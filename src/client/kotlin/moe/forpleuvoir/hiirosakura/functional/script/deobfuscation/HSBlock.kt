@@ -5,8 +5,8 @@ import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.registry.Registries
+import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
-import org.joml.Vector3i
 import org.joml.Vector3ic
 
 /**
@@ -40,6 +40,30 @@ class HSBlockState(private val blockState: BlockState) {
      * @return 表示方块对象的 HSBlock 实例。
      */
     fun getBlock() = HSBlock(blockState.block)
+
+    /**
+     * 获取当前方块状态的属性映射。
+     *
+     * 此方法将方块状态的属性键值对转换为字符串形式的映射。
+     * 每个属性的键为属性的名称，而对应的值为属性值的字符串表示形式。
+     *
+     * @return 表示方块状态属性的键值对映射。
+     */
+    fun getProperty() = buildMap<String, String> {
+        blockState.entries.forEach {
+            put(it.key.name, Util.getValueAsString(it.key, it.value))
+        }
+    }
+
+    /**
+     * 根据指定的键获取当前方块状态的属性值。
+     *
+     * 此方法从方块状态的属性映射中查找指定键对应的属性值。
+     *
+     * @param key 指定的属性键，表示需要获取值的属性名称。
+     * @return 对应属性键的属性值，如果未找到对应的值，返回 null。
+     */
+    fun getProperty(key: String) = getProperty()[key]
 
     /**
      * 获取方块的亮度等级（表示方块发出的光强度）。

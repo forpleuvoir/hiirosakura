@@ -10,6 +10,7 @@ object GamePlay : ModConfigContainer("gameplay") {
 
     init {
         addConfig(CameraSwitcher.Config)
+        addConfig(SoundEffectFilter.Config)
     }
 
 }

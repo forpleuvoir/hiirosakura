@@ -1,19 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.event
 
 import moe.forpleuvoir.hiirosakura.common.HiiroSakuraData
-import moe.forpleuvoir.hiirosakura.functional.event.events.BlockBreakingEvent
-import moe.forpleuvoir.hiirosakura.functional.event.events.CommandSendEvent
-import moe.forpleuvoir.hiirosakura.functional.event.events.DisconnectEvent
-import moe.forpleuvoir.hiirosakura.functional.event.events.GameExitEvent
-import moe.forpleuvoir.hiirosakura.functional.event.events.GameJoinEvent
-import moe.forpleuvoir.hiirosakura.functional.event.events.MessageReceiveEvent
-import moe.forpleuvoir.hiirosakura.functional.event.events.MessageSendEvent
-import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerAttackEvent
-import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerDeathEvent
-import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerPickEvent
-import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerRespawnEvent
-import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerUseEvent
-import moe.forpleuvoir.hiirosakura.functional.event.events.ServerJoinEvent
+import moe.forpleuvoir.hiirosakura.functional.event.events.*
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent
 import moe.forpleuvoir.ibukigourd.event.events.client.input.KeyboardEvent
@@ -39,6 +27,7 @@ object HSEventManager : HiiroSakuraData {
         GameJoinEvent::class,
         GameExitEvent::class,
         DisconnectEvent::class,
+        SoundPlayEvent::class,
         CommandSendEvent::class,
         MessageSendEvent::class,
         MessageReceiveEvent::class,

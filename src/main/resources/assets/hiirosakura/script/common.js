@@ -1,5 +1,33 @@
 var _api = Java.type("moe.forpleuvoir.hiirosakura.functional.script.CommonApi").getINSTANCE();
 var _inputSimulator = Java.type("moe.forpleuvoir.hiirosakura.input.InputSimulator").INSTANCE;
+var Color = Java.type("moe.forpleuvoir.nebula.common.color.Color");
+var HSVColor = Java.type("moe.forpleuvoir.nebula.common.color.HSVColor");
+
+function color() {
+    if (arguments.length === 1) {
+        return new Color(arguments[0])
+    }
+    if (arguments.length === 3) {
+        return new Color(arguments[0], arguments[1], arguments[2], 1.0, false)
+    }
+    if (arguments.length === 4) {
+        return new Color(arguments[0], arguments[1], arguments[2], arguments[3], false)
+    }
+    return new Color(0, 0, 0, 1.0, false)
+}
+
+function hsv(hue, saturation, value, alpha) {
+    if (arguments.length === 1) {
+        return new HSVColor(arguments[0], false)
+    }
+    if (arguments.length === 3) {
+        return new HSVColor(arguments[0], arguments[1], arguments[2], 1.0, false)
+    }
+    if (arguments.length === 4) {
+        return new HSVColor(arguments[0], arguments[1], arguments[2], arguments[3], false)
+    }
+    return new HSVColor(0, 0, 0, 1.0, false)
+}
 
 function sendMessage(msg) {
     _api.sendMessage(msg);
@@ -152,4 +180,8 @@ function setCustomData(key, value) {
 
 function getCustomData(key) {
     return _api.getCustomData(key)
+}
+
+function delayLaunch(duration, action) {
+    _api.delayLaunch(duration, action)
 }

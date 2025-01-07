@@ -31,7 +31,7 @@ object DropEntityRenderAddon {
 
     object Config : ModConfigContainer("drop_entity") {
 
-        val distance by double("distance", 50.0, 0.0, 999.0)
+        val distance by double("distance", 233.0, 0.0, 2333.0)
 
         val enable by keyBindBoolean("enable", value = false)
 

@@ -1,10 +1,12 @@
 package moe.forpleuvoir.hiirosakura.functional.script
 
+import kotlinx.coroutines.delay
 import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
 import moe.forpleuvoir.hiirosakura.input.InputSimulator
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.sendMessage
+import moe.forpleuvoir.nebula.common.util.defaultLaunch
 
 interface CommonApi {
 
@@ -90,6 +92,13 @@ interface CommonApi {
 
     fun getCustomData(key: String): Any? {
         return CustomData.data[key]
+    }
+
+    fun delayLaunch(duration: Long,action: Runnable) {
+        defaultLaunch {
+            delay(duration)
+            action.run()
+        }
     }
 
 }

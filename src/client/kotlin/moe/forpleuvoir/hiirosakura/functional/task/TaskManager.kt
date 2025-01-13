@@ -76,6 +76,13 @@ object TaskManager : HiiroSakuraData {
         }
     }
 
+    fun reBindKey() {
+        tasks.forEach {
+            InputHandler.unregister(it.keyBind)
+            InputHandler.register(it.keyBind)
+        }
+    }
+
     override fun serialization(): SerializeObject = serializeObject {
         "config" to Config.serialization()
         "tasks" to tasks

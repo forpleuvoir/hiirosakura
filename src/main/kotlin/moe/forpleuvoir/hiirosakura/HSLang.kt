@@ -17,6 +17,8 @@ object HSLang {
 
     val copySuccess = lang("copy_success")
 
+    val success = lang("success")
+
     //------------ CustomData ------------\\
 
     val customData get() = lang("custom_data")
@@ -28,6 +30,10 @@ object HSLang {
     //------------ TaskManager ------------\\
 
     val taskUnSelected get() = lang("task.un_selected")
+
+    val taskReBindKey get() = lang("task.re_bind_key")
+
+    val taskReBindKeyComment get() = lang("task.re_bind_key.comment")
 
     val taskExecute get() = lang("task.execute")
 

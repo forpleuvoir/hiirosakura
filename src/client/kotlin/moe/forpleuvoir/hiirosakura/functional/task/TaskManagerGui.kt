@@ -18,6 +18,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
+import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigsWrapper
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
@@ -87,6 +88,18 @@ fun WidgetContainerScope.TaskManagerGui(
                     TaskManager.add(it.withKeyBind())
                     onChanged()
                 }.open()
+            }
+        }
+        Button {
+            TextLabel(HSLang.taskReBindKey, Modifier.hoverText(HSLang.taskReBindKeyComment))
+            click {
+                runCatching {
+                    TaskManager.reBindKey()
+                }.onSuccess {
+                    Toast.showToast(HSLang.success)
+                }.onFailure {
+                    Toast.showToast(it.message ?: "")
+                }
             }
         }
         Button {

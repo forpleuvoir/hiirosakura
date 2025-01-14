@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.renderaddons
 
+import moe.forpleuvoir.hiirosakura.functional.renderaddons.RenderInfoAddon.showEnchantmentOffset
 import moe.forpleuvoir.hiirosakura.util.getEnchantmentTextWithLvl
 import moe.forpleuvoir.hiirosakura.util.tooltipType
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
@@ -43,24 +44,27 @@ internal fun renderEnchantmentWhenSwitch(y: Int, itemStack: ItemStack, textRende
         width = maxWidth,
         height = maxHeight
     )
-    context.batchRenderText(textRenderer) {
-        val verticalOffsets = Arrangement.spacedBy(spacing.toFloat()).arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
-        val horizontalOffsets = texts.map { Alignment.CenterHorizontally.align(box.width, textRenderer.getWidth(it).toFloat()) }
-        horizontalOffsets.zip(verticalOffsets) { x, y ->
-            Vector2f(box.x + x, box.y + y)
-        }.forEachIndexed { index, offset ->
-            val text = texts[index]
-            pushText(
-                text,
-                offset.x,
-                offset.y,
-                true,
-                TextLayerType.NORMAL,
-               Color(text.style.color?.rgb ?: 0xAAAAAA).alpha(alpha),
-                Colors.BLACK.alpha(0),
-                LightmapTextureManager.MAX_LIGHT_COORDINATE,
-                textRenderer.isRightToLeft
-            )
+    context.useMatrixStack {
+        it.translate(showEnchantmentOffset.x(), showEnchantmentOffset.y(), 0f)
+        batchRenderText(textRenderer) {
+            val verticalOffsets = Arrangement.spacedBy(spacing.toFloat()).arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
+            val horizontalOffsets = texts.map { Alignment.CenterHorizontally.align(box.width, textRenderer.getWidth(it).toFloat()) }
+            horizontalOffsets.zip(verticalOffsets) { x, y ->
+                Vector2f(box.x + x, box.y + y)
+            }.forEachIndexed { index, offset ->
+                val text = texts[index]
+                pushText(
+                    text,
+                    offset.x,
+                    offset.y,
+                    true,
+                    TextLayerType.NORMAL,
+                    Color(text.style.color?.rgb ?: 0xAAAAAA).alpha(alpha),
+                    Colors.BLACK.alpha(0),
+                    LightmapTextureManager.MAX_LIGHT_COORDINATE,
+                    textRenderer.isRightToLeft
+                )
+            }
         }
     }
 

@@ -85,10 +85,4 @@ public class MinecraftClientMixin {
         PickPlayerHead.pickPlayerHead(result.getEntity());
     }
 
-    @Inject(method = "handleBlockBreaking", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/hit/BlockHitResult;getBlockPos()Lnet/minecraft/util/math/BlockPos;"), cancellable = true)
-    public void hiirosakura$handleBlockBreaking(boolean breaking, CallbackInfo ci, @Local(ordinal = 0) BlockHitResult hitResult) {
-        var event = new BlockBreakingEvent(new HSBlockHitResult(hitResult));
-        EventBus.Companion.broadcast(event);
-        if (event.getCanceled() || CameraSwitcher.getShouldBlockActions()) ci.cancel();
-    }
 }

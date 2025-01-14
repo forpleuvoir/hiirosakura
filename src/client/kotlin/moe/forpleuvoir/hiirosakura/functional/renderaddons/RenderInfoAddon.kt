@@ -4,11 +4,15 @@ import moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.CreeperFeatureRe
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.TntRenderConfig
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
+import moe.forpleuvoir.ibukigourd.config.item.vector2f
+import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.nebula.config.item.impl.float
 
 object RenderInfoAddon : ModConfigContainer("render_info_addon") {
 
     val showEnchantmentWhenSwitch by keyBindBoolean("show_enchantment_when_switch", value = false)
+
+    val showEnchantmentOffset by vector2f("show_enchantment_offset", Vector2f(0f, 0f), Vector2f(-200f, -200f), Vector2f(200f, 200f))
 
     val alwaysRenderBarrier by keyBindBoolean("always_render_barrier", value = false)
 

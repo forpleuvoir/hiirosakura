@@ -31,7 +31,7 @@ object HSEventManager : HiiroSakuraData {
         CommandSendEvent::class,
         MessageSendEvent::class,
         MessageReceiveEvent::class,
-        BlockBreakingEvent::class,
+        BreakBlockEvent::class,
         PlayerAttackEvent::class,
         PlayerPickEvent::class,
         PlayerUseEvent::class,

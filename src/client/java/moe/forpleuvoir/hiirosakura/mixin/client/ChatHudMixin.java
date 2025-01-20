@@ -1,7 +1,7 @@
 package moe.forpleuvoir.hiirosakura.mixin.client;
 
-import moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble.ChatBubbleHandler;
 import moe.forpleuvoir.hiirosakura.functional.chataddons.ChatFilterHandler;
+import moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble.ChatBubbleHandler;
 import moe.forpleuvoir.hiirosakura.functional.event.events.MessageReceiveEvent;
 import moe.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.client.gui.hud.ChatHud;

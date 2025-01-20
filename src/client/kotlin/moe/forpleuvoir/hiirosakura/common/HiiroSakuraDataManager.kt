@@ -15,7 +15,6 @@ import moe.forpleuvoir.nebula.config.util.ConfigUtil
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import moe.forpleuvoir.nebula.serialization.gson.jsonStringToObject
 import moe.forpleuvoir.nebula.serialization.gson.toJsonString
 import java.io.File

@@ -2,22 +2,28 @@ package moe.forpleuvoir.hiirosakura.mixin.client;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import moe.forpleuvoir.hiirosakura.config.HSConfig;
-import moe.forpleuvoir.hiirosakura.functional.event.events.*;
+import moe.forpleuvoir.hiirosakura.functional.event.events.GameExitEvent;
+import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerAttackEvent;
+import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerPickEvent;
+import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerUseEvent;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.CameraSwitcher;
+import moe.forpleuvoir.hiirosakura.functional.gameplay.GamePlay;
 import moe.forpleuvoir.hiirosakura.functional.misc.PickPlayerHead;
 import moe.forpleuvoir.hiirosakura.functional.misc.ServerMarker;
-import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSBlockHitResult;
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSHitResult;
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSItemStack;
 import moe.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.tutorial.TutorialManager;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TickDurationMonitor;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.profiler.Profiler;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MinecraftClient.class)
-public class MinecraftClientMixin {
+public abstract class MinecraftClientMixin {
 
     @Shadow
     @Final
@@ -37,6 +43,13 @@ public class MinecraftClientMixin {
     @Shadow
     @Nullable
     public HitResult crosshairTarget;
+
+    @Shadow
+    @Nullable
+    public ClientPlayerEntity player;
+
+    @Shadow
+    protected abstract Profiler startMonitor(boolean active, @Nullable TickDurationMonitor monitor);
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void hiirosakura$init(RunArgs args, CallbackInfo ci) {
@@ -72,11 +85,15 @@ public class MinecraftClientMixin {
     }
 
     @Inject(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isItemEnabled(Lnet/minecraft/resource/featuretoggle/FeatureSet;)Z"), cancellable = true)
-    public void hiirosakura$doItemUse(CallbackInfo callbackInfo, @Local(ordinal = 0) ItemStack stack) {
+    public void hiirosakura$doItemUse(CallbackInfo callbackInfo, @Local(ordinal = 0) Hand hand, @Local(ordinal = 0) ItemStack stack) {
         assert crosshairTarget != null;
         var event = new PlayerUseEvent(HSHitResult.fromHitResult(crosshairTarget), new HSItemStack(stack));
         EventBus.Companion.broadcast(event);
-        if (event.getCanceled() || CameraSwitcher.getShouldBlockActions()) callbackInfo.cancel();
+        assert player != null;
+        var cancelFireworkRocket = GamePlay.fireworkRocketInteractionWhenGliding(player, hand, stack);
+
+        if (event.getCanceled() || CameraSwitcher.getShouldBlockActions() || cancelFireworkRocket)
+            callbackInfo.cancel();
     }
 
 
@@ -84,5 +101,6 @@ public class MinecraftClientMixin {
     public void hiirosakura$doItemPickPlayerHead(CallbackInfo ci, @Local(ordinal = 0) EntityHitResult result) {
         PickPlayerHead.pickPlayerHead(result.getEntity());
     }
+
 
 }

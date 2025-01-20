@@ -1,11 +1,9 @@
 package moe.forpleuvoir.hiirosakura.mixin.client;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import moe.forpleuvoir.hiirosakura.functional.event.events.BreakBlockEvent;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.CameraSwitcher;
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSBlockState;
 import moe.forpleuvoir.nebula.event.EventBus;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.util.math.BlockPos;

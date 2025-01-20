@@ -4,7 +4,6 @@ import moe.forpleuvoir.hiirosakura.compat.iris.VertexConsumerProviderChecker
 import moe.forpleuvoir.hiirosakura.util.resetMatricesKeepTranslation
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.positionMatrix
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderText
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size

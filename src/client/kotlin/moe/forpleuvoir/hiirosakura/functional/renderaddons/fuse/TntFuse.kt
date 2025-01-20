@@ -1,15 +1,11 @@
 package moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse
 
-import moe.forpleuvoir.hiirosakura.compat.iris.VertexConsumerProviderChecker
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.positionMatrix
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderText
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor

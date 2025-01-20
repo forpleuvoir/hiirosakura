@@ -16,7 +16,7 @@ import net.minecraft.util.hit.HitResult
  * @property result 内部封装的 Minecraft 命中结果 (HitResult) 对象。
  * @constructor 接受一个类型为 `HitResult` 的参数，用于初始化命中结果。
  */
-open class HSHitResult(protected open val result: HitResult) {
+open class HSHitResult(internal open val result: HitResult) {
 
     companion object {
         /**

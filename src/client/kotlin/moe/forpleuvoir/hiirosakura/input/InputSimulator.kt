@@ -7,10 +7,10 @@ import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
-import net.minecraft.client.Keyboard as McKeyBoard
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.Mouse as McMouse
 import org.lwjgl.glfw.GLFW
+import net.minecraft.client.Keyboard as McKeyBoard
+import net.minecraft.client.Mouse as McMouse
 
 @EventSubscriber
 object InputSimulator {

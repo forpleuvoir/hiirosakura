@@ -14,7 +14,6 @@ import org.joml.Vector3f
 import java.awt.SystemTray
 import java.awt.Toolkit
 import java.awt.TrayIcon
-import java.io.IOException
 
 private val log = logger("ClientMisc")
 

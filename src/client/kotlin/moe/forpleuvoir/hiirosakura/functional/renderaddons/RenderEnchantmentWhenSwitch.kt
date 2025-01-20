@@ -1,6 +1,5 @@
 package moe.forpleuvoir.hiirosakura.functional.renderaddons
 
-import moe.forpleuvoir.hiirosakura.functional.renderaddons.RenderInfoAddon.showEnchantmentOffset
 import moe.forpleuvoir.hiirosakura.util.getEnchantmentTextWithLvl
 import moe.forpleuvoir.hiirosakura.util.tooltipType
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
@@ -32,7 +31,7 @@ import net.minecraft.item.ItemStack
  * @param alpha 附魔文字的透明度，用于调整文本渲染的视觉效果。
  */
 internal fun renderEnchantmentWhenSwitch(y: Int, itemStack: ItemStack, textRenderer: TextRenderer, context: IGDrawContext, alpha: Int) {
-    if (!RenderInfoAddon.showEnchantmentWhenSwitch.value) return
+    if (!ShowEnchantmentWhenSwitch.enable.value) return
     val texts = itemStack.getEnchantmentTextWithLvl(TooltipContext.DEFAULT, mc.tooltipType)
     if (texts.isEmpty()) return
     val spacing = 1
@@ -45,7 +44,7 @@ internal fun renderEnchantmentWhenSwitch(y: Int, itemStack: ItemStack, textRende
         height = maxHeight
     )
     context.useMatrixStack {
-        it.translate(showEnchantmentOffset.x(), showEnchantmentOffset.y(), 0f)
+        it.translate(ShowEnchantmentWhenSwitch.offset.x(), ShowEnchantmentWhenSwitch.offset.y(), 0f)
         batchRenderText(textRenderer) {
             val verticalOffsets = Arrangement.spacedBy(spacing.toFloat()).arrange(box.width, List(texts.size) { textRenderer.fontHeight.toFloat() })
             val horizontalOffsets = texts.map { Alignment.CenterHorizontally.align(box.width, textRenderer.getWidth(it).toFloat()) }

@@ -5,8 +5,8 @@ package moe.forpleuvoir.hiirosakura.functional.script.deobfuscation
 import moe.forpleuvoir.hiirosakura.util.tooltipType
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.component.DataComponentTypes
+import net.minecraft.item.*
 import net.minecraft.item.Item.TooltipContext
-import net.minecraft.item.ItemStack
 import net.minecraft.registry.Registries
 
 /**
@@ -14,7 +14,7 @@ import net.minecraft.registry.Registries
  *
  * @property stack 被封装的物品堆栈对象。
  */
-class HSItemStack(private val stack: ItemStack) {
+class HSItemStack(internal val stack: ItemStack) {
 
     companion object {
         @JvmStatic
@@ -27,6 +27,16 @@ class HSItemStack(private val stack: ItemStack) {
      * @return 一个整数，表示堆栈中物品的数量。
      */
     fun getCount(): Int = stack.count
+
+    fun getMaxCount(): Int = stack.maxCount
+
+    fun isStackable() = stack.isStackable
+
+    fun hasComponent(componentType: String): Boolean = stack.components.find { component ->
+        Registries.DATA_COMPONENT_TYPE.getId(component.type)?.let {
+            it.toString() == componentType
+        } == true
+    }?.let { true } == true
 
     /**
      * 获取当前物品的唯一标识符，并将其转换为字符串形式。
@@ -51,6 +61,26 @@ class HSItemStack(private val stack: ItemStack) {
      * @return 当前物品名称的字符串形式。
      */
     fun getItemName(): String = stack.itemName.string
+
+    fun isMiningTool() = stack.item is MiningToolItem
+
+    fun isPickaxe() = stack.item is PickaxeItem
+
+    fun isShovel() = stack.item is ShovelItem
+
+    fun isHoe() = stack.item is HoeItem
+
+    fun isAxe() = stack.item is AxeItem
+
+    fun isSword() = stack.item is SwordItem
+
+    fun isShield() = stack.item is ShieldItem
+
+    fun isArmor() = stack.item is ArmorItem
+
+    fun isBlock() = stack.item is BlockItem
+
+    fun isDamageable() = stack.isDamageable
 
     /**
      * 获取物品耐久值（损坏值）。

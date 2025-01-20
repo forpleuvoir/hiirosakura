@@ -1,10 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.script.deobfuscation
 
+import moe.forpleuvoir.hiirosakura.util.id
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Color
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.registry.Registries
+import net.minecraft.block.*
 import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
 import org.joml.Vector3ic
@@ -14,7 +13,7 @@ import org.joml.Vector3ic
  *
  * @property block 被封装的 Minecraft 方块对象。
  */
-class HSBlock(private val block: Block) {
+class HSBlock(internal val block: Block) {
 
     /**
      * 获取方块类型的字符串表示形式。
@@ -23,7 +22,13 @@ class HSBlock(private val block: Block) {
      *
      * @return 当前方块类型的字符串表示形式。
      */
-    fun getType() = Registries.BLOCK.getId(block).toString()
+    fun getType() = block.id.toString()
+
+    fun isWaterloggable() = block is Waterloggable
+
+    fun isCrop() = block is CropBlock
+
+    fun isFluid() = block is FluidBlock
 
 }
 
@@ -32,7 +37,7 @@ class HSBlock(private val block: Block) {
  *
  * @property blockState 被封装的方块状态对象。
  */
-class HSBlockState(private val blockState: BlockState) {
+class HSBlockState(internal val blockState: BlockState) {
 
     /**
      * 获取封装在 HSBlock 实例中的方块对象。
@@ -40,6 +45,11 @@ class HSBlockState(private val blockState: BlockState) {
      * @return 表示方块对象的 HSBlock 实例。
      */
     fun getBlock() = HSBlock(blockState.block)
+
+    /**
+     * @see HSBlock.getType
+     */
+    fun getType() = getBlock().getType()
 
     /**
      * 获取当前方块状态的属性映射。

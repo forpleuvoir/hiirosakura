@@ -3,7 +3,7 @@ package moe.forpleuvoir.hiirosakura.functional.script.deobfuscation
 import net.minecraft.client.sound.SoundInstance
 import org.joml.Vector3d
 
-class HSSoundInstance(private val soundInstance: SoundInstance) {
+class HSSoundInstance(internal val soundInstance: SoundInstance) {
 
     fun getId() = soundInstance.id.toString()
 

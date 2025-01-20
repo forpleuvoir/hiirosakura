@@ -15,7 +15,7 @@ import net.minecraft.registry.Registries
  *
  * @property entity 被封装的 Minecraft 实体对象。
  */
-open class HSEntity(protected open val entity: Entity) {
+open class HSEntity(internal open val entity: Entity) {
 
     companion object {
         @JvmStatic

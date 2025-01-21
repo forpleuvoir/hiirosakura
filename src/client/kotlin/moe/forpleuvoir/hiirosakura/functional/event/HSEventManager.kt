@@ -2,6 +2,7 @@ package moe.forpleuvoir.hiirosakura.functional.event
 
 import moe.forpleuvoir.hiirosakura.common.HiiroSakuraData
 import moe.forpleuvoir.hiirosakura.functional.event.events.*
+import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent
 import moe.forpleuvoir.ibukigourd.event.events.client.input.KeyboardEvent
@@ -17,6 +18,8 @@ import java.util.*
 
 @EventSubscriber
 object HSEventManager : HiiroSakuraData {
+
+    private val log = logger()
 
     override val key: String get() = "event_manager"
 
@@ -101,7 +104,11 @@ object HSEventManager : HiiroSakuraData {
         serializeElement.checkType<SerializeObject, Unit> {
             subscribers.clear()
             it["subscribers"]!!.asArray.forEach { subscriber ->
-                subscribers.add(HSEventSubscriber.deserialization(subscriber))
+                runCatching {
+                    subscribers.add(HSEventSubscriber.deserialization(subscriber))
+                }.onFailure {
+                    log.warn(it)
+                }
             }
         }.getOrThrow()
     }

@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.task
 
 import moe.forpleuvoir.hiirosakura.common.HiiroSakuraData
+import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.nebula.config.item.impl.string
@@ -11,6 +12,8 @@ import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import java.util.*
 
 object TaskManager : HiiroSakuraData {
+
+    private val log = logger()
 
     object Config : ModConfigContainer("hiirosakura.data.task_manager") {
 
@@ -92,9 +95,17 @@ object TaskManager : HiiroSakuraData {
         serializeElement.checkType {
             check<SerializeObject> { obj ->
                 clear()
-                Config.deserialization(obj["config"]!!)
+                runCatching {
+                    Config.deserialization(obj["config"]!!)
+                }.onFailure {
+                    log.warn(it)
+                }
                 obj["tasks"]!!.asArray.forEach {
-                    add(KeyBindTickTask.deserialization(it))
+                    runCatching {
+                        add(KeyBindTickTask.deserialization(it))
+                    }.onFailure {
+                        log.warn(it)
+                    }
                 }
             }
         }.getOrThrow()

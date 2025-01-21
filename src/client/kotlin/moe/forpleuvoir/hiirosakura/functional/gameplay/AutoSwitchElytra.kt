@@ -33,6 +33,13 @@ object AutoSwitchElytra {
             )
         )
 
+        val switchableGlider by stringList(
+            "switchable_glider",
+            listOf(
+                "minecraft:elytra",
+            )
+        )
+
     }
 
     @JvmStatic
@@ -42,14 +49,16 @@ object AutoSwitchElytra {
 
         val offHand = player.offHandStack
         if (
-            offHand.get(DataComponentTypes.GLIDER) == Unit.INSTANCE
+            offHand.item.id.toString() in Config.switchableGlider
+            && offHand.get(DataComponentTypes.GLIDER) == Unit.INSTANCE
             && offHand.get(DataComponentTypes.EQUIPPABLE)?.slot == Config.slot
         ) {
             interaction.interactItem(player, Hand.OFF_HAND)
         }
 
         val index = player.swapSlotWithHotbar {
-            it.get(DataComponentTypes.GLIDER) == Unit.INSTANCE
+            it.item.id.toString() in Config.switchableGlider
+                    && it.get(DataComponentTypes.GLIDER) == Unit.INSTANCE
                     && it.get(DataComponentTypes.EQUIPPABLE)?.slot == Config.slot
         }
         if (index < 0) return

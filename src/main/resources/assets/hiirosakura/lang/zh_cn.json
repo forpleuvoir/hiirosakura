@@ -113,6 +113,8 @@
   "hiirosakura.config.gameplay.auto_switch_elytra.slot.comment": "可切换的装备槽",
   "hiirosakura.config.gameplay.auto_switch_elytra.switchable_equip": "可切换的装备",
   "hiirosakura.config.gameplay.auto_switch_elytra.switchable_equip.comment": "可用于切换的装备id",
+  "hiirosakura.config.gameplay.auto_switch_elytra.switchable_glider": "可切换的滑翔器",
+  "hiirosakura.config.gameplay.auto_switch_elytra.switchable_glider.comment": "可用于切换的滑翔器id,带有'minecraft:glider'组件的物品,原版默认只有鞘翅",
   "hiirosakura.config.gameplay.auto_replant": "自动补种",
   "hiirosakura.config.gameplay.auto_replant.comment": "自动补种方块,设计时主要用于农作物(可能会有别的用途).\n原理为破坏指定方块时在该方块下面方块的上表面右键交互一次.\n交互时会切换到物品栏中指定的物品,交互完成后切换回去",
   "hiirosakura.config.gameplay.auto_replant.enable": "启用",

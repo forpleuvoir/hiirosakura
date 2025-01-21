@@ -113,6 +113,8 @@
   "hiirosakura.config.gameplay.auto_switch_elytra.slot.comment": "Switchable equipment slots",
   "hiirosakura.config.gameplay.auto_switch_elytra.switchable_equip": "Switchable Equipment",
   "hiirosakura.config.gameplay.auto_switch_elytra.switchable_equip.comment": "IDs of equipment that can be used for switching",
+  "hiirosakura.config.gameplay.auto_switch_elytra.switchable_glider": "Switchable Glider",
+  "hiirosakura.config.gameplay.auto_switch_elytra.switchable_glider.comment": "IDs of items that can be switched to as a glider, items with the 'minecraft:glider' component. By default, only Elytra is available in the vanilla game.",
   "hiirosakura.config.gameplay.auto_replant": "Auto Replant",
   "hiirosakura.config.gameplay.auto_replant.comment": "Automatically replants blocks, primarily designed for crops (might have other uses).\nThe mechanism works by simulating a right-click interaction on the top surface of the block below the broken block.\nDuring interaction, it will switch to the specified item in the inventory and switch back after the interaction is complete.",
   "hiirosakura.config.gameplay.auto_replant.enable": "Enable",

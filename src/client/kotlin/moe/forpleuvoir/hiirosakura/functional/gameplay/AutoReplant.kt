@@ -25,7 +25,11 @@ object AutoReplant {
 
         val mapping by stringMap(
             "mapping", mapOf(
-                "minecraft:wheat" to "minecraft:wheat_seeds"
+                "minecraft:wheat" to "minecraft:wheat_seeds",
+                "minecraft:carrots" to "minecraft:carrot",
+                "minecraft:potatoes" to "minecraft:potato",
+                "minecraft:beetroots" to "minecraft:beetroot_seeds",
+                "minecraft:nether_wart" to "minecraft:nether_wart",
             )
         )
 

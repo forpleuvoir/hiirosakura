@@ -75,6 +75,10 @@ class HSBlockState(internal val blockState: BlockState) {
      */
     fun getProperty(key: String) = getProperty()[key]
 
+    fun getTags(): List<String> = blockState.streamTags().map { it.id.toString() }.toList()
+
+    fun hasTags(tag: String): Boolean = tag in getTags()
+
     /**
      * 获取方块的亮度等级（表示方块发出的光强度）。
      *

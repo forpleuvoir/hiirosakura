@@ -48,6 +48,10 @@ class HSItemStack(internal val stack: ItemStack) {
      */
     fun getItem() = Registries.ITEM.getId(stack.item).toString()
 
+    fun getTags(): List<String> = stack.streamTags().map { it.toString() }.toList()
+
+    fun hasTag(tag: String) = tag in getTags()
+
     /**
      * 获取物品的名称。
      *

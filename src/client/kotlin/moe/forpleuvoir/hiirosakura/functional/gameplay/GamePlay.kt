@@ -9,7 +9,6 @@ import net.minecraft.item.Items
 import net.minecraft.util.ActionResult.Success
 import net.minecraft.util.ActionResult.SwingSource
 import net.minecraft.util.Hand
-import net.minecraft.util.hit.HitResult
 
 object GamePlay : ModConfigContainer("gameplay") {
 
@@ -42,6 +41,5 @@ object GamePlay : ModConfigContainer("gameplay") {
         addConfig(CameraSwitcher.Config)
         addConfig(SoundEffectFilter.Config)
     }
-
 
 }

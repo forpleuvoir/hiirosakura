@@ -3,11 +3,14 @@
 package moe.forpleuvoir.hiirosakura.functional.script.deobfuscation
 
 import moe.forpleuvoir.hiirosakura.util.math.toVector
+import moe.forpleuvoir.hiirosakura.util.swapSlotWithHotbar
 import moe.forpleuvoir.ibukigourd.util.mc
+import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.registry.Registries
+import java.util.function.Predicate
 
 /**
  * HSEntity 类是对 Minecraft 实体对象的封装，为实体对象提供一系列访问方法和属性。
@@ -346,5 +349,14 @@ class HSPlayerEntity(override val entity: PlayerEntity) : HSLivingEntity(entity)
      * @return 如果命中目标，则返回对应的 `HSHitResult` 实例；否则返回 `null`。
      */
     fun getHitResult() = mc.crosshairTarget?.let { HSHitResult.fromHitResult(it) }
+
+    fun swapItem(predicate: Predicate<HSItemStack>) {
+        if (entity.isMainPlayer) {
+            entity as ClientPlayerEntity
+            entity.swapSlotWithHotbar {
+                predicate.test(HSItemStack(it))
+            }
+        }
+    }
 
 }

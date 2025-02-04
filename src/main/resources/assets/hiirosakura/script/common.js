@@ -185,3 +185,19 @@ function getCustomData(key) {
 function delayLaunch(duration, action) {
     _api.delayLaunch(duration, action)
 }
+
+function scheduleStartTick() {
+    if (arguments.length === 1) {
+        _api.scheduleStartTick(0, arguments[0])
+    } else if (arguments.length === 2) {
+        _api.scheduleStartTick(arguments[0], arguments[1])
+    }
+}
+
+function scheduleEndTick() {
+    if (arguments.length === 1) {
+        _api.scheduleEndTick(0, arguments[0])
+    } else if (arguments.length === 2) {
+        _api.scheduleEndTick(arguments[0], arguments[1])
+    }
+}

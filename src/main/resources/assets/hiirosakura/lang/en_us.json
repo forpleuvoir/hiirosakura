@@ -264,5 +264,22 @@
   "#hs.custom_data": "Custom Data",
   "hiirosakura.custom_data": "Custom Data",
   "hiirosakura.custom_data.key": "Key",
-  "hiirosakura.custom_data.type": "Data Type"
+  "hiirosakura.custom_data.type": "Data Type",
+  "#hs.matcher": "Matcher",
+  "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry$MatchMode.Include": "Include",
+  "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry$MatchMode.Include.comment": "Include Matching",
+  "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry$MatchMode.Exclude": "Exclude",
+  "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry$MatchMode.Exclude.comment": "Exclude Matching",
+  "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher$MatchMode.AnyMatch": "AnyMatch",
+  "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher$MatchMode.AnyMatch.comment": "Pass if any one option matches",
+  "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher$MatchMode.NoneMatch": "NoneMatch",
+  "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher$MatchMode.NoneMatch.comment": "Pass if none of the options match",
+  "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher$MatchMode.AllMatch": "AllMatch",
+  "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher$MatchMode.AllMatch.comment": "Pass if all options match",
+  "hiirosakura.item_stack_matcher_entry.item": "Matching Item",
+  "hiirosakura.item_stack_matcher_entry.script": "Matching Script",
+  "hiirosakura.item_stack_matcher_entry.count": "Matching Count",
+  "hiirosakura.item_stack_matcher_entry.rarity": "Matching Rarity",
+  "hiirosakura.item_stack_matcher_entry.tag": "Matching Tag",
+  "hiirosakura.item_stack_matcher_entry.data_component_type": "Matching Component"
 }

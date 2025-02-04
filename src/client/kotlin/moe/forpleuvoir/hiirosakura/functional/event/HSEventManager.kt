@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent
 import moe.forpleuvoir.ibukigourd.event.events.client.input.KeyboardEvent
 import moe.forpleuvoir.ibukigourd.event.events.client.input.MouseEvent
 import moe.forpleuvoir.nebula.event.Event
+import moe.forpleuvoir.nebula.event.EventPriority
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -56,7 +57,7 @@ object HSEventManager : HiiroSakuraData {
 
     val subscriberList: List<HSEventSubscriber> get() = subscribers.toList()
 
-    @Subscriber(greedy = true)
+    @Subscriber(greedy = true, priority = EventPriority.HIGHEST)
     fun onEvent(event: Event) {
         subscribers.filter { it.eventType.isInstance(event) && it.enabled }
             .forEach { it.onEvent(event) }

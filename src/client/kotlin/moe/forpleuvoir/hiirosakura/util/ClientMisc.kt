@@ -14,6 +14,7 @@ import org.joml.Vector3f
 import java.awt.SystemTray
 import java.awt.Toolkit
 import java.awt.TrayIcon
+import kotlin.reflect.KClass
 
 private val log = logger("ClientMisc")
 
@@ -35,6 +36,7 @@ internal fun Any.logger(): ModLogger = ModLogger(this::class, HiiroSakura.MOD_NA
 
 internal fun logger(name: String): ModLogger = ModLogger(name, HiiroSakura.MOD_NAME)
 
+internal fun logger(clazz: KClass<*>): ModLogger = ModLogger(clazz, HiiroSakura.MOD_NAME)
 
 fun sendNotification(title: String, message: String) {
     if (!sendAWTNotification(title, message)) {

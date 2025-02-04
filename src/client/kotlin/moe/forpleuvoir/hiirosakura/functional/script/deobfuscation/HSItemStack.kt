@@ -2,12 +2,14 @@
 
 package moe.forpleuvoir.hiirosakura.functional.script.deobfuscation
 
+import moe.forpleuvoir.hiirosakura.util.hasTag
 import moe.forpleuvoir.hiirosakura.util.tooltipType
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.item.*
 import net.minecraft.item.Item.TooltipContext
 import net.minecraft.registry.Registries
+import net.minecraft.util.Identifier
 
 /**
  * HSItemStack 类用于封装 Minecraft 中的物品堆栈(ItemStack)对象，并提供相关的属性和辅助方法以获取堆栈信息。
@@ -32,11 +34,7 @@ class HSItemStack(internal val stack: ItemStack) {
 
     fun isStackable() = stack.isStackable
 
-    fun hasComponent(componentType: String): Boolean = stack.components.find { component ->
-        Registries.DATA_COMPONENT_TYPE.getId(component.type)?.let {
-            it.toString() == componentType
-        } == true
-    }?.let { true } == true
+    fun hasComponent(componentType: String): Boolean = stack.contains(Registries.DATA_COMPONENT_TYPE.get(Identifier.of(componentType)))
 
     /**
      * 获取当前物品的唯一标识符，并将其转换为字符串形式。
@@ -48,9 +46,9 @@ class HSItemStack(internal val stack: ItemStack) {
      */
     fun getItem() = Registries.ITEM.getId(stack.item).toString()
 
-    fun getTags(): List<String> = stack.streamTags().map { it.toString() }.toList()
+    fun getTags(): List<String> = stack.streamTags().map { it.id.toString() }.toList()
 
-    fun hasTag(tag: String) = tag in getTags()
+    fun hasTag(tag: String) = stack.streamTags().anyMatch { it.id.toString() == tag }
 
     /**
      * 获取物品的名称。

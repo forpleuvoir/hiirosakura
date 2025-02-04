@@ -1,7 +1,10 @@
 package moe.forpleuvoir.hiirosakura.test
 
 import moe.forpleuvoir.hiirosakura.HiiroSakura
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemIcon
+import moe.forpleuvoir.hiirosakura.gui.widget.ItemStackMatcherBuilder
 import moe.forpleuvoir.hiirosakura.gui.widget.RouletteSelector
 import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager
 import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
@@ -14,6 +17,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.EventSelector
+import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -44,6 +49,9 @@ object TestInitialization {
             }
             register(Keyboard.KP_3) {
                 test3().open()
+            }
+            register(Keyboard.KP_4) {
+                test4().open()
             }
         }
 
@@ -110,3 +118,6 @@ fun test3() = BoxScreen {
     }
 
 }
+
+fun test4() = ItemStackMatcherBuilder(ItemStackMatcher(MultiMatcher.MatchMode.AllMatch))
+

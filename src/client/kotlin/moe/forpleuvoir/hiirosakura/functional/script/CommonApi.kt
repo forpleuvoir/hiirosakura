@@ -4,10 +4,13 @@ import kotlinx.coroutines.delay
 import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
 import moe.forpleuvoir.hiirosakura.input.InputSimulator
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
+import moe.forpleuvoir.ibukigourd.task.scheduleEndTick
+import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.sendMessage
 import moe.forpleuvoir.nebula.common.util.defaultLaunch
 
+@Suppress("unused")
 interface CommonApi {
 
     companion object {
@@ -94,11 +97,19 @@ interface CommonApi {
         return CustomData.data[key]
     }
 
-    fun delayLaunch(duration: Long,action: Runnable) {
+    fun delayLaunch(duration: Long, action: Runnable) {
         defaultLaunch {
             delay(duration)
             action.run()
         }
+    }
+
+    fun scheduleStartTick(delay: Int, runner: Runnable) {
+        mc.scheduleStartTick { _, _ -> runner.run() }
+    }
+
+    fun scheduleEndTick(delay: Int, runner: Runnable) {
+        mc.scheduleEndTick { _, _ -> runner.run() }
     }
 
 }

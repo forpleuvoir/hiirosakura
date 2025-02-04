@@ -65,4 +65,12 @@ object HSLang {
 
     val eventSubscriberName get() = lang("event.subscriber.name")
 
+    //------------ Matcher.ItemStack ------------\\
+
+    val itemStackMatcherEntryItem get() = lang("item_stack_matcher_entry.item")
+    val itemStackMatcherEntryScript get()= lang("item_stack_matcher_entry.script")
+    val itemStackMatcherEntryCount get()= lang("item_stack_matcher_entry.count")
+    val itemStackMatcherEntryRarity get()= lang("item_stack_matcher_entry.rarity")
+    val itemStackMatcherEntryTag get()= lang("item_stack_matcher_entry.tag")
+    val itemStackMatcherEntryDataComponentType get()= lang("item_stack_matcher_entry.data_component_type")
 }

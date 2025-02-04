@@ -21,7 +21,7 @@ import javax.script.ScriptEngineManager
 
 class ScriptExecutor(
     private val script: String,
-    params: MutableMap<String, Any> = hashMapOf()
+    params: Map<String, Any> = mapOf()
 ) : TaskExecutor<MinecraftClient>, Executor {
 
     companion object : Deserializer<ScriptExecutor> {

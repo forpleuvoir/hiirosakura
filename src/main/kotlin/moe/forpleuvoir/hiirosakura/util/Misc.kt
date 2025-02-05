@@ -3,8 +3,23 @@ package moe.forpleuvoir.hiirosakura.util
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.ibukigourd.util.ModLogger
 import moe.forpleuvoir.ibukigourd.util.identifier
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import net.minecraft.util.Identifier
 
 internal fun Any.logger(): ModLogger = ModLogger(this::class, HiiroSakura.MOD_NAME)
 
 internal fun identifier(path: String): Identifier = identifier(HiiroSakura.MOD_ID, path)
+
+
+fun <T : Comparable<T>> ClosedRange<T>.serialization(): SerializeElement {
+    return SerializePrimitive("${this.start}..${this.endInclusive}")
+}
+
+fun <T : Comparable<T>> deserialization(serializeElement: SerializeElement, supplier: (String) -> T): ClosedRange<T> {
+    serializeElement as SerializePrimitive
+    serializeElement.asString.let {
+        val pair = it.split("..")
+        return supplier(pair[0])..supplier(pair[1])
+    }
+}

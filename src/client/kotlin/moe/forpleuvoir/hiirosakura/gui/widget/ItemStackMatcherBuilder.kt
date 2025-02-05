@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.gui.widget
 
+import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcher
 import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryCount
 import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryDataComponentType
 import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryItem
@@ -17,9 +18,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.height
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverText
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.onClose
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.create
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
@@ -73,82 +76,89 @@ private val map: Map<Text, (Modifier, Modifier, (ItemStackMatchEntry) -> Unit) -
 
 fun ItemStackMatcherBuilder(
     matcher: ItemStackMatcher,
+    matcherConsumer: (ItemStackMatcher) -> Unit,
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier
-) = Dialog(
-    screenModifier = screenModifier,
-    modifier = Modifier.width(420f).then(modifier),
-) {
-    var onChanged = {}
-    val selectedMode: MutableState<MultiMatcher.MatchMode?> = mutableStateOf(matcher.mode)
-    TextLabel(Literal("物品匹配器"))
-    Row(
-        verticalArrangement = Arrangement.spacedBy(2f),
+): IGScreenImpl {
+    val matcher = matcher.clone()
+    return Dialog(
+        screenModifier = Modifier
+            .onClose {
+                matcherConsumer(matcher)
+            }.then(screenModifier),
+        modifier = Modifier.width(420f).then(modifier),
     ) {
-        Column(
-            Modifier.fill(),
-            horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Left)
+        var onChanged = {}
+        val selectedMode: MutableState<MultiMatcher.MatchMode?> = mutableStateOf(matcher.mode)
+        TextLabel(itemStackMatcher)
+        Row(
+            verticalArrangement = Arrangement.spacedBy(2f),
         ) {
-            RadioButtons(
-                MultiMatcher.MatchMode.entries,
-                selectedMode,
-                { matcher.mode = it },
-                {
-                    TextLabel(it.translateText)
-                },
-                {
-                    Modifier.hoverText(it.translateComment)
-                }
-            )
-        }
-        Column(
-            horizontalArrangement = Arrangement.spacedBy(4f)
-        ) {
-            RowListWrapped(
-                modifier = Modifier.height(180f).weight(1),
-                listModifier = { Modifier.weight(1).fill() },
+            Column(
+                Modifier.fill(),
+                horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Left)
             ) {
-                if (matcher.entries.isEmpty()) {
-                    TextLabel(IGLang.hasNothing)
-                }
-                matcher.entries.forEachIndexed { index, entry ->
-                    EntryWrapper(
-                        entry,
-                        {
-                            matcher.setEntry(index, it)
-                            onChanged()
-                        },
-                        {
-                            matcher.removeEntry(index)
-                            onChanged()
-                        },
-                        Modifier.fill()
-                    )
-                }
-            }.apply {
-                onChanged = { screen()?.execute { this.recompose() } }
+                RadioButtons(
+                    MultiMatcher.MatchMode.entries,
+                    selectedMode,
+                    { matcher.mode = it },
+                    {
+                        TextLabel(it.translateText)
+                    },
+                    {
+                        Modifier.hoverText(it.translateComment)
+                    }
+                )
             }
-
-            Row(
-                modifier = Modifier.height(180f),
-                verticalArrangement = Arrangement.spacedBy(2f),
+            Column(
+                horizontalArrangement = Arrangement.spacedBy(4f)
             ) {
-                map.forEach { (key, builder) ->
-                    Button(Modifier, Arrangement.spacedBy(6f, Alignment.CenterHorizontally)) {
-                        TextLabel(key, modifier = Modifier.width(map.keys.maxWidth(textRenderer).toFloat()))
-                        Icon(IconTextures.PLUS, HSVColor(120f, 1f, .65f), modifier = Modifier.size(8f, 8f))
-                        click {
-                            builder.invoke(Modifier, Modifier) {
-                                matcher.addEntry(it)
+                RowListWrapped(
+                    modifier = Modifier.height(180f).weight(1),
+                    listModifier = { Modifier.weight(1).fill() },
+                ) {
+                    if (matcher.entries.isEmpty()) {
+                        TextLabel(IGLang.hasNothing)
+                    }
+                    matcher.entries.forEachIndexed { index, entry ->
+                        EntryWrapper(
+                            entry,
+                            {
+                                matcher.setEntry(index, it)
                                 onChanged()
-                            }.open()
+                            },
+                            {
+                                matcher.removeEntry(index)
+                                onChanged()
+                            },
+                            Modifier.fill()
+                        )
+                    }
+                }.apply {
+                    onChanged = { screen()?.execute { this.recompose() } }
+                }
+
+                Row(
+                    modifier = Modifier.height(180f),
+                    verticalArrangement = Arrangement.spacedBy(2f),
+                ) {
+                    map.forEach { (key, builder) ->
+                        Button(Modifier, Arrangement.spacedBy(6f, Alignment.CenterHorizontally)) {
+                            TextLabel(key, modifier = Modifier.width(map.keys.maxWidth(textRenderer).toFloat()))
+                            Icon(IconTextures.PLUS, HSVColor(120f, 1f, .65f), modifier = Modifier.size(8f, 8f))
+                            click {
+                                builder.invoke(Modifier, Modifier) {
+                                    matcher.addEntry(it)
+                                    onChanged()
+                                }.open()
+                            }
                         }
                     }
                 }
+
             }
 
         }
-
     }
 }
 
@@ -284,18 +294,26 @@ private fun ScriptMatchEntryBuilder(
 private fun CountMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    count: ItemStackMatchEntry.Count = ItemStackMatchEntry.Count(mc.player?.mainHandStack?.count ?: 1, MatchEntry.MatchMode.Include),
+    count: ItemStackMatchEntry.Count = ItemStackMatchEntry.Count(
+        (mc.player?.mainHandStack?.count ?: 1)..(mc.player?.mainHandStack?.count ?: 64),
+        MatchEntry.MatchMode.Include
+    ),
     countConsumer: (ItemStackMatchEntry.Count) -> Unit
 ): IGScreenImpl {
-    val count = mutableStateOf(count.count)
+    val start = mutableStateOf(count.count.first)
+    val end = mutableStateOf(count.count.endInclusive)
     return MatchEntryDialog(
         title = itemStackMatcherEntryCount,
         modifier = modifier,
         screenModifier = screenModifier,
-        entrySupplier = { mode -> ItemStackMatchEntry.Count(count.getValue(), mode) },
+        entrySupplier = { mode -> ItemStackMatchEntry.Count(start.getValue()..end.getValue(), mode) },
         entryConsumer = countConsumer
     ) {
-        IntEditor(count, 1..Int.MAX_VALUE, modifier = Modifier.width(120f), editorModifier = { Modifier.weight(1) })
+        Column {
+            IntEditor(start, 1..Int.MAX_VALUE, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
+            TextLabel("<= .. <=")
+            IntEditor(end, 1..Int.MAX_VALUE, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
+        }
     }
 }
 

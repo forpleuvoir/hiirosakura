@@ -119,5 +119,5 @@ fun test3() = BoxScreen {
 
 }
 
-fun test4() = ItemStackMatcherBuilder(ItemStackMatcher(MultiMatcher.MatchMode.AllMatch))
+fun test4() = ItemStackMatcherBuilder(ItemStackMatcher(MultiMatcher.MatchMode.AllMatch), {})
 

@@ -16,21 +16,29 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
+import moe.forpleuvoir.nebula.serialization.extensions.deserialization
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.component.ComponentType
 import net.minecraft.item.ItemStack
 import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
+import java.util.Collections
 import net.minecraft.item.Item as McItem
 import net.minecraft.util.Rarity as McRarity
 
-class ItemStackMatcher(override var mode: MultiMatcher.MatchMode, vararg entries: ItemStackMatchEntry) : MultiMatcher<ItemStack>, Deserializable {
+class ItemStackMatcher(override var mode: MultiMatcher.MatchMode, entries: List<ItemStackMatchEntry>) : MultiMatcher<ItemStack>, Deserializable, Cloneable {
+
+    constructor(mode: MultiMatcher.MatchMode, vararg entries: ItemStackMatchEntry) : this(mode, entries.toList())
 
     companion object {
         private val log by lazy { logger(ItemStackMatcher::class) }
     }
 
-    override val entries: List<ItemStackMatchEntry> = mutableListOf(*entries)
+    override val entries: List<ItemStackMatchEntry> = entries.toMutableList()
+
+    public override fun clone(): ItemStackMatcher {
+        return ItemStackMatcher(mode, ArrayList(entries))
+    }
 
     fun addEntry(entry: ItemStackMatchEntry) {
         (this.entries as MutableList).add(entry)
@@ -149,25 +157,25 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     }
 
-    class Count(val count: Int, mode: MatchEntry.MatchMode) : ItemStackMatchEntry(mode, "count") {
+    class Count(val count: IntRange, mode: MatchEntry.MatchMode) : ItemStackMatchEntry(mode, "count") {
 
         companion object : Deserializer<Count> {
             override fun deserialization(serializeElement: SerializeElement): Count {
                 return serializeElement.checkType<SerializeObject, Count> {
                     Count(
-                        count = it["count"]!!.asInt,
+                        count = IntRange.deserialization(it["count"]!!),
                         mode = getMode(it)
                     )
                 }.getOrThrow()
             }
         }
 
-        override fun match(obj: ItemStack): Boolean = obj.count == count
+        override fun match(obj: ItemStack): Boolean = obj.count in count
 
         override fun serialization(): SerializeElement = serializeObject {
             "type" to type
             "mode" to mode
-            "count" to count
+            "count" to count.serialization()
         }
 
     }

@@ -276,6 +276,7 @@
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher$MatchMode.NoneMatch.comment": "Pass if none of the options match",
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher$MatchMode.AllMatch": "AllMatch",
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher$MatchMode.AllMatch.comment": "Pass if all options match",
+  "hiirosakura.item_stack_matcher_entry" : "ItemStack Matcher",
   "hiirosakura.item_stack_matcher_entry.item": "Matching Item",
   "hiirosakura.item_stack_matcher_entry.script": "Matching Script",
   "hiirosakura.item_stack_matcher_entry.count": "Matching Count",

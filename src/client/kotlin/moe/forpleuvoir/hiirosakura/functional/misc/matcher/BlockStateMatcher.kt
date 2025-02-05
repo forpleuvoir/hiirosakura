@@ -29,13 +29,34 @@ fun BlockInfo(blockState: BlockState, blockPos: BlockPos? = null): BlockInfo =
 
 class BlockStateMatcher(
     override var mode: MultiMatcher.MatchMode,
-    vararg entries: BlockStateMatchEntry
-) : MultiMatcher<BlockInfo>, Deserializable {
+    entries: List<BlockStateMatchEntry>
+) : MultiMatcher<BlockInfo>, Deserializable, Cloneable {
 
-    override val entries: List<BlockStateMatchEntry> = mutableListOf(*entries)
+    constructor(
+        mode: MultiMatcher.MatchMode,
+        vararg entries: BlockStateMatchEntry
+    ) : this(mode, entries.toList())
+
+    override val entries: List<BlockStateMatchEntry> = entries.toMutableList()
+
+    public override fun clone(): BlockStateMatcher {
+        return BlockStateMatcher(mode, ArrayList(entries))
+    }
 
     fun addEntry(entry: BlockStateMatchEntry) {
         (this.entries as MutableList).add(entry)
+    }
+
+    fun setEntry(index: Int, entry: BlockStateMatchEntry) {
+        (this.entries as MutableList)[index] = entry
+    }
+
+    fun removeEntry(index: Int) {
+        (this.entries as MutableList).removeAt(index)
+    }
+
+    fun removeEntry(entry: BlockStateMatchEntry) {
+        (this.entries as MutableList).remove(entry)
     }
 
     private fun clear() {
@@ -58,14 +79,14 @@ class BlockStateMatcher(
 }
 
 
-sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode) : MatchEntry<BlockInfo> {
+sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode, val type: String) : MatchEntry<BlockInfo> {
 
     companion object : Deserializer<BlockStateMatchEntry> {
 
         val desMapping = mutableMapOf<String, (SerializeElement) -> BlockStateMatchEntry>(
             "block" to Block.Companion::deserialization,
             "script" to Script.Companion::deserialization,
-            "pos_range" to PosRange.Companion::deserialization,
+            "pos" to Pos.Companion::deserialization,
             "tag" to Tag.Companion::deserialization,
             "property" to Property.Companion::deserialization,
         )
@@ -81,7 +102,7 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode) : Mat
 
     }
 
-    class Block(val block: McBlock, mode: MatchEntry.MatchMode) : BlockStateMatchEntry(mode) {
+    class Block(val block: McBlock, mode: MatchEntry.MatchMode) : BlockStateMatchEntry(mode,"block") {
 
         companion object : Deserializer<Block> {
             override fun deserialization(serializeElement: SerializeElement): Block {
@@ -97,13 +118,13 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode) : Mat
         override fun match(obj: BlockInfo): Boolean = obj.first == this.block
 
         override fun serialization(): SerializeElement = serializeObject {
-            "type" to "item"
+            "type" to type
             "mode" to mode
             "block" to block.serialization
         }
     }
 
-    class Script(val script: String, mode: MatchEntry.MatchMode) : BlockStateMatchEntry(mode) {
+    class Script(val script: String, mode: MatchEntry.MatchMode) : BlockStateMatchEntry(mode,"script") {
 
         companion object : Deserializer<Script> {
             override fun deserialization(serializeElement: SerializeElement): Script {
@@ -130,19 +151,19 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode) : Mat
         }
 
         override fun serialization(): SerializeElement = serializeObject {
-            "type" to "script"
+            "type" to type
             "mode" to mode
             "script" to script
         }
 
     }
 
-    class PosRange(val start: Vector3ic, val end: Vector3ic, mode: MatchEntry.MatchMode) : BlockStateMatchEntry(mode) {
+    class Pos(val start: Vector3ic, val end: Vector3ic, mode: MatchEntry.MatchMode) : BlockStateMatchEntry(mode,"pos") {
 
-        companion object : Deserializer<PosRange> {
-            override fun deserialization(serializeElement: SerializeElement): PosRange {
-                return serializeElement.checkType<SerializeObject, PosRange> {
-                    PosRange(
+        companion object : Deserializer<Pos> {
+            override fun deserialization(serializeElement: SerializeElement): Pos {
+                return serializeElement.checkType<SerializeObject, Pos> {
+                    Pos(
                         start = Vector3icDeserializer.deserialization(it["start"]!!),
                         end = Vector3icDeserializer.deserialization(it["end"]!!),
                         mode = getMode(it)
@@ -158,7 +179,7 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode) : Mat
         } == true
 
         override fun serialization(): SerializeElement = serializeObject {
-            "type" to "item"
+            "type" to type
             "mode" to mode
             "start" to start.serialization()
             "end" to end.serialization()
@@ -166,7 +187,7 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode) : Mat
 
     }
 
-    class Tag(val tag: String, mode: MatchEntry.MatchMode) : BlockStateMatchEntry(mode) {
+    class Tag(val tag: String, mode: MatchEntry.MatchMode) : BlockStateMatchEntry(mode,"tag") {
 
         companion object : Deserializer<Tag> {
             override fun deserialization(serializeElement: SerializeElement): Tag {
@@ -182,14 +203,14 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode) : Mat
         override fun match(obj: BlockInfo): Boolean = obj.first.hasTag(tag)
 
         override fun serialization(): SerializeElement = serializeObject {
-            "type" to "tag"
+            "type" to type
             "mode" to mode
             "tag" to tag
         }
 
     }
 
-    class Property(val property: Pair<String, String>, mode: MatchEntry.MatchMode) : BlockStateMatchEntry(mode) {
+    class Property(val property: Pair<String, String>, mode: MatchEntry.MatchMode) : BlockStateMatchEntry(mode,"property") {
 
         companion object : Deserializer<Property> {
             override fun deserialization(serializeElement: SerializeElement): Property {
@@ -210,7 +231,7 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode) : Mat
         }
 
         override fun serialization(): SerializeElement = serializeObject {
-            "type" to "tag"
+            "type" to type
             "mode" to mode
             "property" to "${property.first} = ${property.second}"
         }

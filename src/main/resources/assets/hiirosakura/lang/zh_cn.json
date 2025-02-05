@@ -276,6 +276,7 @@
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher$MatchMode.NoneMatch.comment": "所有选项都不匹配则通过",
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher$MatchMode.AllMatch": "全部匹配",
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher$MatchMode.AllMatch.comment": "所有选项都匹配则通过",
+  "hiirosakura.item_stack_matcher_entry" : "物品匹配器",
   "hiirosakura.item_stack_matcher_entry.item" : "匹配物品",
   "hiirosakura.item_stack_matcher_entry.script" :"匹配脚本",
   "hiirosakura.item_stack_matcher_entry.count" : "匹配数量",

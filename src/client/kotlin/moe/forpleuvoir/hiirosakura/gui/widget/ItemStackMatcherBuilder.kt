@@ -22,7 +22,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.onClose
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.create
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
@@ -54,23 +53,23 @@ import net.minecraft.item.Items
 import net.minecraft.util.Rarity
 
 private val map: Map<Text, (Modifier, Modifier, (ItemStackMatchEntry) -> Unit) -> IGScreenImpl> = mapOf(
-    itemStackMatcherEntryItem to { modifier: Modifier, screenModifier: Modifier, itemConsumer: (ItemStackMatchEntry.Item) -> Unit ->
-        ItemMatchEntryBuilder(modifier, screenModifier, itemConsumer = itemConsumer)
+    itemStackMatcherEntryItem to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (ItemStackMatchEntry.Item) -> Unit ->
+        ItemMatchEntryBuilder(modifier, screenModifier, entryConsumer = entryConsumer)
     },
-    itemStackMatcherEntryScript to { modifier: Modifier, screenModifier: Modifier, scriptConsumer: (ItemStackMatchEntry.Script) -> Unit ->
-        ScriptMatchEntryBuilder(modifier, screenModifier, scriptConsumer = scriptConsumer)
+    itemStackMatcherEntryScript to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (ItemStackMatchEntry.Script) -> Unit ->
+        ScriptMatchEntryBuilder(modifier, screenModifier, entryConsumer = entryConsumer)
     },
-    itemStackMatcherEntryCount to { modifier: Modifier, screenModifier: Modifier, countConsumer: (ItemStackMatchEntry.Count) -> Unit ->
-        CountMatchEntryBuilder(modifier, screenModifier, countConsumer = countConsumer)
+    itemStackMatcherEntryCount to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (ItemStackMatchEntry.Count) -> Unit ->
+        CountMatchEntryBuilder(modifier, screenModifier, entryConsumer = entryConsumer)
     },
-    itemStackMatcherEntryRarity to { modifier: Modifier, screenModifier: Modifier, rarityConsumer: (ItemStackMatchEntry.Rarity) -> Unit ->
-        RarityMatchEntryBuilder(modifier, screenModifier, rarityConsumer = rarityConsumer)
+    itemStackMatcherEntryRarity to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (ItemStackMatchEntry.Rarity) -> Unit ->
+        RarityMatchEntryBuilder(modifier, screenModifier, entryConsumer = entryConsumer)
     },
-    itemStackMatcherEntryTag to { modifier: Modifier, screenModifier: Modifier, tagConsumer: (ItemStackMatchEntry.Tag) -> Unit ->
-        TagMatchEntryBuilder(modifier, screenModifier, tagConsumer = tagConsumer)
+    itemStackMatcherEntryTag to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (ItemStackMatchEntry.Tag) -> Unit ->
+        TagMatchEntryBuilder(modifier, screenModifier, entryConsumer = entryConsumer)
     },
-    itemStackMatcherEntryDataComponentType to { modifier: Modifier, screenModifier: Modifier, componentTypeConsumer: (ItemStackMatchEntry.DataComponentType) -> Unit ->
-        ComponentTypeMatchEntryBuilder(modifier, screenModifier, componentTypeConsumer = componentTypeConsumer)
+    itemStackMatcherEntryDataComponentType to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (ItemStackMatchEntry.DataComponentType) -> Unit ->
+        ComponentTypeMatchEntryBuilder(modifier, screenModifier, entryConsumer = entryConsumer)
     }
 )
 
@@ -192,18 +191,18 @@ private fun WidgetContainerScope.EntryWrapper(
     TextLabel(entry.mode.translateText)
     EditButton {
         when (entry) {
-            is ItemStackMatchEntry.Item              -> ItemMatchEntryBuilder(item = entry, itemConsumer = entryConsumer)
-            is ItemStackMatchEntry.Script            -> ScriptMatchEntryBuilder(script = entry, scriptConsumer = entryConsumer)
-            is ItemStackMatchEntry.Count             -> CountMatchEntryBuilder(count = entry, countConsumer = entryConsumer)
-            is ItemStackMatchEntry.Rarity            -> RarityMatchEntryBuilder(rarity = entry, rarityConsumer = entryConsumer)
-            is ItemStackMatchEntry.Tag               -> TagMatchEntryBuilder(tag = entry, tagConsumer = entryConsumer)
-            is ItemStackMatchEntry.DataComponentType -> ComponentTypeMatchEntryBuilder(componentType = entry, componentTypeConsumer = entryConsumer)
+            is ItemStackMatchEntry.Item              -> ItemMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
+            is ItemStackMatchEntry.Script            -> ScriptMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
+            is ItemStackMatchEntry.Count             -> CountMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
+            is ItemStackMatchEntry.Rarity            -> RarityMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
+            is ItemStackMatchEntry.Tag               -> TagMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
+            is ItemStackMatchEntry.DataComponentType -> ComponentTypeMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
         }.open()
     }
     RemoveButton { removeAction() }
 }
 
-private fun <T : ItemStackMatchEntry> MatchEntryDialog(
+internal fun <T : MatchEntry<*>> MatchEntryDialog(
     title: Text,
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
@@ -248,16 +247,16 @@ private fun <T : ItemStackMatchEntry> MatchEntryDialog(
 private fun ItemMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    item: ItemStackMatchEntry.Item = ItemStackMatchEntry.Item(mc.player?.mainHandStack?.item ?: Items.MELON, MatchEntry.MatchMode.Include),
-    itemConsumer: (ItemStackMatchEntry.Item) -> Unit
+    entry: ItemStackMatchEntry.Item = ItemStackMatchEntry.Item(mc.player?.mainHandStack?.item ?: Items.MELON, MatchEntry.MatchMode.Include),
+    entryConsumer: (ItemStackMatchEntry.Item) -> Unit
 ): IGScreenImpl {
-    val item = mutableStateOf(item.item)
+    val item = mutableStateOf(entry.item)
     return MatchEntryDialog(
         title = itemStackMatcherEntryItem,
         modifier = modifier,
         screenModifier = screenModifier,
         entrySupplier = { mode -> ItemStackMatchEntry.Item(item.getValue(), mode) },
-        entryConsumer = itemConsumer
+        entryConsumer = entryConsumer
     ) {
         ItemSelector(
             item,
@@ -271,16 +270,16 @@ private fun ItemMatchEntryBuilder(
 private fun ScriptMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    script: ItemStackMatchEntry.Script = ItemStackMatchEntry.Script("", MatchEntry.MatchMode.Include),
-    scriptConsumer: (ItemStackMatchEntry.Script) -> Unit
+    entry: ItemStackMatchEntry.Script = ItemStackMatchEntry.Script("", MatchEntry.MatchMode.Include),
+    entryConsumer: (ItemStackMatchEntry.Script) -> Unit
 ): IGScreenImpl {
-    var script = script.script
+    var script = entry.script
     return MatchEntryDialog(
         title = itemStackMatcherEntryScript,
         modifier = modifier,
         screenModifier = screenModifier,
         entrySupplier = { mode -> ItemStackMatchEntry.Script(script, mode) },
-        entryConsumer = scriptConsumer
+        entryConsumer = entryConsumer
     ) {
         TextAreaWrapped(
             modifier = Modifier.size(360f, 240f)
@@ -294,20 +293,20 @@ private fun ScriptMatchEntryBuilder(
 private fun CountMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    count: ItemStackMatchEntry.Count = ItemStackMatchEntry.Count(
+    entry: ItemStackMatchEntry.Count = ItemStackMatchEntry.Count(
         (mc.player?.mainHandStack?.count ?: 1)..(mc.player?.mainHandStack?.count ?: 64),
         MatchEntry.MatchMode.Include
     ),
-    countConsumer: (ItemStackMatchEntry.Count) -> Unit
+    entryConsumer: (ItemStackMatchEntry.Count) -> Unit
 ): IGScreenImpl {
-    val start = mutableStateOf(count.count.first)
-    val end = mutableStateOf(count.count.endInclusive)
+    val start = mutableStateOf(entry.count.first)
+    val end = mutableStateOf(entry.count.endInclusive)
     return MatchEntryDialog(
         title = itemStackMatcherEntryCount,
         modifier = modifier,
         screenModifier = screenModifier,
         entrySupplier = { mode -> ItemStackMatchEntry.Count(start.getValue()..end.getValue(), mode) },
-        entryConsumer = countConsumer
+        entryConsumer = entryConsumer
     ) {
         Column {
             IntEditor(start, 1..Int.MAX_VALUE, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
@@ -320,16 +319,16 @@ private fun CountMatchEntryBuilder(
 private fun RarityMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    rarity: ItemStackMatchEntry.Rarity = ItemStackMatchEntry.Rarity(mc.player?.mainHandStack?.rarity ?: Rarity.COMMON, MatchEntry.MatchMode.Include),
-    rarityConsumer: (ItemStackMatchEntry.Rarity) -> Unit
+    entry: ItemStackMatchEntry.Rarity = ItemStackMatchEntry.Rarity(mc.player?.mainHandStack?.rarity ?: Rarity.COMMON, MatchEntry.MatchMode.Include),
+    entryConsumer: (ItemStackMatchEntry.Rarity) -> Unit
 ): IGScreenImpl {
-    val rarity = mutableStateOf(rarity.rarity)
+    val rarity = mutableStateOf(entry.rarity)
     return MatchEntryDialog(
         title = itemStackMatcherEntryRarity,
         modifier = modifier,
         screenModifier = screenModifier,
         entrySupplier = { mode -> ItemStackMatchEntry.Rarity(rarity.getValue(), mode) },
-        entryConsumer = rarityConsumer
+        entryConsumer = entryConsumer
     ) {
         Selector(
             options = Rarity.entries,
@@ -360,16 +359,16 @@ private fun RarityMatchEntryBuilder(
 private fun TagMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    tag: ItemStackMatchEntry.Tag = ItemStackMatchEntry.Tag("", MatchEntry.MatchMode.Include),
-    tagConsumer: (ItemStackMatchEntry.Tag) -> Unit
+    entry: ItemStackMatchEntry.Tag = ItemStackMatchEntry.Tag("", MatchEntry.MatchMode.Include),
+    entryConsumer: (ItemStackMatchEntry.Tag) -> Unit
 ): IGScreenImpl {
-    var tag = tag.tag
+    var tag = entry.tag
     return MatchEntryDialog(
         title = itemStackMatcherEntryTag,
         modifier = modifier,
         screenModifier = screenModifier,
         entrySupplier = { mode -> ItemStackMatchEntry.Tag(tag, mode) },
-        entryConsumer = tagConsumer
+        entryConsumer = entryConsumer
     ) {
         TextEditor(modifier = Modifier.width(120f)) {
             text = tag
@@ -381,16 +380,16 @@ private fun TagMatchEntryBuilder(
 private fun ComponentTypeMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    componentType: ItemStackMatchEntry.DataComponentType = ItemStackMatchEntry.DataComponentType(DataComponentTypes.FOOD, MatchEntry.MatchMode.Include),
-    componentTypeConsumer: (ItemStackMatchEntry.DataComponentType) -> Unit
+    entry: ItemStackMatchEntry.DataComponentType = ItemStackMatchEntry.DataComponentType(DataComponentTypes.FOOD, MatchEntry.MatchMode.Include),
+    entryConsumer: (ItemStackMatchEntry.DataComponentType) -> Unit
 ): IGScreenImpl {
-    val componentType: MutableState<ComponentType<*>> = mutableStateOf(componentType.componentType)
+    val componentType: MutableState<ComponentType<*>> = mutableStateOf(entry.componentType)
     return MatchEntryDialog(
         title = itemStackMatcherEntryDataComponentType,
         modifier = modifier,
         screenModifier = screenModifier,
         entrySupplier = { mode -> ItemStackMatchEntry.DataComponentType(componentType.getValue(), mode) },
-        entryConsumer = componentTypeConsumer
+        entryConsumer = entryConsumer
     ) {
         DataComponentTypeSelector(
             componentType,
@@ -399,6 +398,5 @@ private fun ComponentTypeMatchEntryBuilder(
             listModifier = { Modifier.width(200f) },
         )
     }
-
 }
 

@@ -60,6 +60,8 @@ class ItemStackMatcher(override var mode: MultiMatcher.MatchMode, entries: List<
         (this.entries as MutableList).clear()
     }
 
+
+
     override fun deserialization(serializeElement: SerializeElement) {
         clear()
         serializeElement.checkType<SerializeObject, Unit> { obj ->
@@ -70,6 +72,24 @@ class ItemStackMatcher(override var mode: MultiMatcher.MatchMode, entries: List<
                 }
             }
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ItemStackMatcher
+
+        if (mode != other.mode) return false
+        if (entries != other.entries) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = mode.hashCode()
+        result = 31 * result + entries.hashCode()
+        return result
     }
 
 }

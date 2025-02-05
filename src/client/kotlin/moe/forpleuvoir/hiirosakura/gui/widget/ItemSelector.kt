@@ -84,12 +84,6 @@ fun WidgetContainerScope.DataComponentTypeSelector(
         TextLabel(
             it.id.toString(),
             modifier = Modifier.weight(1)
-//                .width(
-//                    componentTypes
-//                        .map { type -> type.id.toString() }
-//                        .maxWidth(textRenderer).toFloat()
-//                        .coerceAtLeast(30f)
-//                )
         )
     },
     modifier: Modifier = Modifier,

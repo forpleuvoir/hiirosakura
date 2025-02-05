@@ -69,9 +69,18 @@ object HSLang {
 
     val itemStackMatcher get() = lang("item_stack_matcher")
     val itemStackMatcherEntryItem get() = lang("item_stack_matcher_entry.item")
-    val itemStackMatcherEntryScript get()= lang("item_stack_matcher_entry.script")
-    val itemStackMatcherEntryCount get()= lang("item_stack_matcher_entry.count")
-    val itemStackMatcherEntryRarity get()= lang("item_stack_matcher_entry.rarity")
-    val itemStackMatcherEntryTag get()= lang("item_stack_matcher_entry.tag")
-    val itemStackMatcherEntryDataComponentType get()= lang("item_stack_matcher_entry.data_component_type")
+    val itemStackMatcherEntryScript get() = lang("item_stack_matcher_entry.script")
+    val itemStackMatcherEntryCount get() = lang("item_stack_matcher_entry.count")
+    val itemStackMatcherEntryRarity get() = lang("item_stack_matcher_entry.rarity")
+    val itemStackMatcherEntryTag get() = lang("item_stack_matcher_entry.tag")
+    val itemStackMatcherEntryDataComponentType get() = lang("item_stack_matcher_entry.data_component_type")
+
+    //------------ Matcher.BlockInfo ------------\\
+
+    val blockInfoMatcher get() = lang("block_info_matcher")
+    val blockInfoMatcherEntryBlock get() = lang("block_info_matcher_entry.block")
+    val blockInfoMatcherEntryScript get() = lang("block_info_matcher_entry.script")
+    val blockInfoMatcherEntryPos get() = lang("block_info_matcher_entry.pos")
+    val blockInfoMatcherEntryTag get() = lang("block_info_matcher_entry.tag")
+    val blockInfoMatcherEntryProperty get() = lang("block_info_matcher_entry.property")
 }

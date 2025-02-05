@@ -1,13 +1,14 @@
 package moe.forpleuvoir.hiirosakura.functional.misc.matcher
 
+import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSBlockState
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
 import moe.forpleuvoir.hiirosakura.util.block
 import moe.forpleuvoir.hiirosakura.util.hasTag
 import moe.forpleuvoir.hiirosakura.util.math.Vector3icDeserializer
 import moe.forpleuvoir.hiirosakura.util.math.serialization
-import moe.forpleuvoir.hiirosakura.util.math.toVector
 import moe.forpleuvoir.hiirosakura.util.serialization
+import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.serialization.Deserializable
 import moe.forpleuvoir.nebula.serialization.Deserializer
@@ -18,36 +19,35 @@ import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.block.BlockState
 import net.minecraft.util.Util
-import net.minecraft.util.math.BlockPos
 import org.joml.Vector3ic
 import net.minecraft.block.Block as McBlock
 
-typealias BlockInfo = Pair<BlockState, Vector3ic?>
+data class BlockInfo(
+    val state: BlockState,
+    val pos: Vector3ic
+)
 
-fun BlockInfo(blockState: BlockState, blockPos: BlockPos? = null): BlockInfo =
-    blockState to blockPos?.toVector()
-
-class BlockStateMatcher(
+class BlockInfoMatcher(
     override var mode: MultiMatcher.MatchMode,
-    entries: List<BlockStateMatchEntry>
+    entries: List<BlockInfoMatchEntry>
 ) : MultiMatcher<BlockInfo>, Deserializable, Cloneable {
 
     constructor(
         mode: MultiMatcher.MatchMode,
-        vararg entries: BlockStateMatchEntry
+        vararg entries: BlockInfoMatchEntry
     ) : this(mode, entries.toList())
 
-    override val entries: List<BlockStateMatchEntry> = entries.toMutableList()
+    override val entries: List<BlockInfoMatchEntry> = entries.toMutableList()
 
-    public override fun clone(): BlockStateMatcher {
-        return BlockStateMatcher(mode, ArrayList(entries))
+    public override fun clone(): BlockInfoMatcher {
+        return BlockInfoMatcher(mode, ArrayList(entries))
     }
 
-    fun addEntry(entry: BlockStateMatchEntry) {
+    fun addEntry(entry: BlockInfoMatchEntry) {
         (this.entries as MutableList).add(entry)
     }
 
-    fun setEntry(index: Int, entry: BlockStateMatchEntry) {
+    fun setEntry(index: Int, entry: BlockInfoMatchEntry) {
         (this.entries as MutableList)[index] = entry
     }
 
@@ -55,7 +55,7 @@ class BlockStateMatcher(
         (this.entries as MutableList).removeAt(index)
     }
 
-    fun removeEntry(entry: BlockStateMatchEntry) {
+    fun removeEntry(entry: BlockInfoMatchEntry) {
         (this.entries as MutableList).remove(entry)
     }
 
@@ -69,7 +69,7 @@ class BlockStateMatcher(
             mode = MultiMatcher.MatchMode.deserialization(obj["mode"]!!)
             obj["entries"]!!.checkType<SerializeArray, Unit> { array ->
                 array.forEach { element ->
-                    BlockStateMatchEntry.deserialization(element)
+                    BlockInfoMatchEntry.deserialization(element)
                 }
             }
 
@@ -79,11 +79,16 @@ class BlockStateMatcher(
 }
 
 
-sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode, val type: String) : MatchEntry<BlockInfo> {
+sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val type: String) : MatchEntry<BlockInfo> {
 
-    companion object : Deserializer<BlockStateMatchEntry> {
+    val translateKey: String = "${HiiroSakura.MOD_ID}.block_info_matcher_entry.$type"
 
-        val desMapping = mutableMapOf<String, (SerializeElement) -> BlockStateMatchEntry>(
+    val translateText = Translatable(translateKey)
+
+
+    companion object : Deserializer<BlockInfoMatchEntry> {
+
+        val desMapping = mutableMapOf<String, (SerializeElement) -> BlockInfoMatchEntry>(
             "block" to Block.Companion::deserialization,
             "script" to Script.Companion::deserialization,
             "pos" to Pos.Companion::deserialization,
@@ -91,8 +96,8 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode, val t
             "property" to Property.Companion::deserialization,
         )
 
-        override fun deserialization(serializeElement: SerializeElement): BlockStateMatchEntry {
-            return serializeElement.checkType<SerializeObject, BlockStateMatchEntry> {
+        override fun deserialization(serializeElement: SerializeElement): BlockInfoMatchEntry {
+            return serializeElement.checkType<SerializeObject, BlockInfoMatchEntry> {
                 desMapping[it["type"]!!.asString]?.invoke(it) ?: throw IllegalArgumentException("Unsupported type ${it["type"]}")
             }.getOrThrow()
         }
@@ -102,7 +107,7 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode, val t
 
     }
 
-    class Block(val block: McBlock, mode: MatchEntry.MatchMode) : BlockStateMatchEntry(mode,"block") {
+    class Block(val block: McBlock, mode: MatchEntry.MatchMode) : BlockInfoMatchEntry(mode, "block") {
 
         companion object : Deserializer<Block> {
             override fun deserialization(serializeElement: SerializeElement): Block {
@@ -115,7 +120,7 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode, val t
             }
         }
 
-        override fun match(obj: BlockInfo): Boolean = obj.first == this.block
+        override fun match(obj: BlockInfo): Boolean = obj.state.block == this.block
 
         override fun serialization(): SerializeElement = serializeObject {
             "type" to type
@@ -124,7 +129,7 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode, val t
         }
     }
 
-    class Script(val script: String, mode: MatchEntry.MatchMode) : BlockStateMatchEntry(mode,"script") {
+    class Script(val script: String, mode: MatchEntry.MatchMode) : BlockInfoMatchEntry(mode, "script") {
 
         companion object : Deserializer<Script> {
             override fun deserialization(serializeElement: SerializeElement): Script {
@@ -142,8 +147,8 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode, val t
             ScriptExecutor(
                 script,
                 buildMap {
-                    this["blockState"] = HSBlockState(obj.first)
-                    obj.second?.let { this["blockPos"] = it }
+                    this["blockState"] = HSBlockState(obj.state)
+                    this["blockPos"] = obj.pos
                     this["result"] = result
                 }
             ).execute()
@@ -158,36 +163,40 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode, val t
 
     }
 
-    class Pos(val start: Vector3ic, val end: Vector3ic, mode: MatchEntry.MatchMode) : BlockStateMatchEntry(mode,"pos") {
+    class Pos(val min: Vector3ic, val max: Vector3ic, mode: MatchEntry.MatchMode) : BlockInfoMatchEntry(mode, "pos") {
 
         companion object : Deserializer<Pos> {
             override fun deserialization(serializeElement: SerializeElement): Pos {
                 return serializeElement.checkType<SerializeObject, Pos> {
                     Pos(
-                        start = Vector3icDeserializer.deserialization(it["start"]!!),
-                        end = Vector3icDeserializer.deserialization(it["end"]!!),
+                        min = Vector3icDeserializer.deserialization(it["min"]!!),
+                        max = Vector3icDeserializer.deserialization(it["max"]!!),
                         mode = getMode(it)
                     )
                 }.getOrThrow()
             }
         }
 
-        override fun match(obj: BlockInfo): Boolean = obj.second?.let {
-            it.x() in start.x()..end.x()
-                    && it.y() in start.y()..end.y()
-                    && it.z() in start.z()..end.z()
-        } == true
+        override fun match(obj: BlockInfo): Boolean = obj.pos.let {
+            it.x() in min.x()..max.x()
+                    && it.y() in min.y()..max.y()
+                    && it.z() in min.z()..max.z()
+        }
 
         override fun serialization(): SerializeElement = serializeObject {
             "type" to type
             "mode" to mode
-            "start" to start.serialization()
-            "end" to end.serialization()
+            "min" to min.serialization()
+            "max" to max.serialization()
+        }
+
+        override fun toString(): String {
+            return "[x:${min.x()},y:${min.y()},z:${min.z()}]..[x:${max.x()},y:${max.y()},z:${max.z()}]"
         }
 
     }
 
-    class Tag(val tag: String, mode: MatchEntry.MatchMode) : BlockStateMatchEntry(mode,"tag") {
+    class Tag(val tag: String, mode: MatchEntry.MatchMode) : BlockInfoMatchEntry(mode, "tag") {
 
         companion object : Deserializer<Tag> {
             override fun deserialization(serializeElement: SerializeElement): Tag {
@@ -200,7 +209,7 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode, val t
             }
         }
 
-        override fun match(obj: BlockInfo): Boolean = obj.first.hasTag(tag)
+        override fun match(obj: BlockInfo): Boolean = obj.state.hasTag(tag)
 
         override fun serialization(): SerializeElement = serializeObject {
             "type" to type
@@ -210,7 +219,7 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode, val t
 
     }
 
-    class Property(val property: Pair<String, String>, mode: MatchEntry.MatchMode) : BlockStateMatchEntry(mode,"property") {
+    class Property(val property: Pair<String, String>, mode: MatchEntry.MatchMode) : BlockInfoMatchEntry(mode, "property") {
 
         companion object : Deserializer<Property> {
             override fun deserialization(serializeElement: SerializeElement): Property {
@@ -226,7 +235,7 @@ sealed class BlockStateMatchEntry(override val mode: MatchEntry.MatchMode, val t
             }
         }
 
-        override fun match(obj: BlockInfo): Boolean = obj.first.entries.any {
+        override fun match(obj: BlockInfo): Boolean = obj.state.entries.any {
             it.key.name == property.first && property.second == Util.getValueAsString(it.key, it.value)
         }
 

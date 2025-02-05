@@ -282,5 +282,11 @@
   "hiirosakura.item_stack_matcher_entry.count" : "匹配数量",
   "hiirosakura.item_stack_matcher_entry.rarity" :"匹配稀有",
   "hiirosakura.item_stack_matcher_entry.tag" : "匹配标签",
-  "hiirosakura.item_stack_matcher_entry.data_component_type" :"匹配组件"
+  "hiirosakura.item_stack_matcher_entry.data_component_type" :"匹配组件",
+  "hiirosakura.item_stack_matcher" : "方块匹配器",
+  "hiirosakura.block_info_matcher_entry.block" : "匹配方块",
+  "hiirosakura.block_info_matcher_entry.script" :"匹配脚本",
+  "hiirosakura.block_info_matcher_entry.pos" : "匹配位置",
+  "hiirosakura.block_info_matcher_entry.tag" :"匹配标签",
+  "hiirosakura.block_info_matcher_entry.property" : "匹配属性"
 }

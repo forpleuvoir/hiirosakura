@@ -1,8 +1,10 @@
 package moe.forpleuvoir.hiirosakura.test
 
 import moe.forpleuvoir.hiirosakura.HiiroSakura
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher
+import moe.forpleuvoir.hiirosakura.gui.widget.BlockInfoMatcherBuilder
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemIcon
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemStackMatcherBuilder
 import moe.forpleuvoir.hiirosakura.gui.widget.RouletteSelector
@@ -52,6 +54,9 @@ object TestInitialization {
             }
             register(Keyboard.KP_4) {
                 test4().open()
+            }
+            register(Keyboard.KP_5) {
+                test5().open()
             }
         }
 
@@ -121,3 +126,4 @@ fun test3() = BoxScreen {
 
 fun test4() = ItemStackMatcherBuilder(ItemStackMatcher(MultiMatcher.MatchMode.AllMatch), {})
 
+fun test5() = BlockInfoMatcherBuilder(BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch), {})

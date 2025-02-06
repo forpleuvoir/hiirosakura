@@ -30,8 +30,20 @@ class ItemStackMatcher(override var mode: MultiMatcher.MatchMode, entries: List<
 
     constructor(mode: MultiMatcher.MatchMode, vararg entries: ItemStackMatchEntry) : this(mode, entries.toList())
 
-    companion object {
-        private val log by lazy { logger(ItemStackMatcher::class) }
+    companion object : Deserializer<ItemStackMatcher> {
+        override fun deserialization(serializeElement: SerializeElement): ItemStackMatcher {
+            return serializeElement.checkType<SerializeObject, ItemStackMatcher> { obj ->
+                val entries = obj["entries"]!!.checkType<SerializeArray, List<ItemStackMatchEntry>> { array ->
+                    array.map { element ->
+                        ItemStackMatchEntry.deserialization(element)
+                    }
+                }.getOrThrow()
+                ItemStackMatcher(
+                    mode = MultiMatcher.MatchMode.deserialization(obj["mode"]!!),
+                    entries = entries
+                )
+            }.getOrThrow()
+        }
     }
 
     override val entries: List<ItemStackMatchEntry> = entries.toMutableList()
@@ -61,14 +73,13 @@ class ItemStackMatcher(override var mode: MultiMatcher.MatchMode, entries: List<
     }
 
 
-
     override fun deserialization(serializeElement: SerializeElement) {
         clear()
         serializeElement.checkType<SerializeObject, Unit> { obj ->
             mode = MultiMatcher.MatchMode.deserialization(obj["mode"]!!)
             obj["entries"]!!.checkType<SerializeArray, Unit> { array ->
                 array.forEach { element ->
-                    ItemStackMatchEntry.deserialization(element)
+                    addEntry(ItemStackMatchEntry.deserialization(element))
                 }
             }
         }
@@ -122,7 +133,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     }
 
-    class Item(val item: McItem, mode: MatchEntry.MatchMode) : ItemStackMatchEntry(mode, "item") {
+    class Item(val item: McItem, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "item") {
 
         companion object : Deserializer<Item> {
             override fun deserialization(serializeElement: SerializeElement): Item {
@@ -145,7 +156,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     }
 
-    class Script(val script: String, mode: MatchEntry.MatchMode) : ItemStackMatchEntry(mode, "script") {
+    class Script(val script: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "script") {
 
         companion object : Deserializer<Script> {
             override fun deserialization(serializeElement: SerializeElement): Script {
@@ -177,7 +188,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     }
 
-    class Count(val count: IntRange, mode: MatchEntry.MatchMode) : ItemStackMatchEntry(mode, "count") {
+    class Count(val count: IntRange, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "count") {
 
         companion object : Deserializer<Count> {
             override fun deserialization(serializeElement: SerializeElement): Count {
@@ -200,7 +211,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     }
 
-    class Rarity(val rarity: McRarity, mode: MatchEntry.MatchMode) : ItemStackMatchEntry(mode, "rarity") {
+    class Rarity(val rarity: McRarity, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "rarity") {
 
         companion object : Deserializer<Rarity> {
             override fun deserialization(serializeElement: SerializeElement): Rarity {
@@ -223,7 +234,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     }
 
-    class Tag(val tag: String, mode: MatchEntry.MatchMode) : ItemStackMatchEntry(mode, "tag") {
+    class Tag(val tag: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "tag") {
 
         companion object : Deserializer<Tag> {
             override fun deserialization(serializeElement: SerializeElement): Tag {
@@ -246,7 +257,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     }
 
-    class DataComponentType(val componentType: ComponentType<*>, mode: MatchEntry.MatchMode) : ItemStackMatchEntry(mode, "data_component_type") {
+    class DataComponentType(val componentType: ComponentType<*>, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "data_component_type") {
 
         companion object : Deserializer<DataComponentType> {
             override fun deserialization(serializeElement: SerializeElement): DataComponentType {

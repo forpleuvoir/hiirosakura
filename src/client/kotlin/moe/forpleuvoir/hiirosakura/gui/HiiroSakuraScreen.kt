@@ -75,7 +75,7 @@ private fun TabScope.TaskManager() = Tab(
 }
 
 private fun TabScope.HSEventManager() = Tab(
-    HSLang.taskManager.plainText
+    HSLang.eventSubscriberManager.plainText
 ) {
     HSEventManagerGui()
 }

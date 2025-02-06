@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.gui.widget
 
+import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcher
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryBlock
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryPos
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryProperty
@@ -78,7 +79,7 @@ fun BlockInfoMatcherBuilder(
     ) {
         var onChanged = {}
         val selectedMode: MutableState<MultiMatcher.MatchMode?> = mutableStateOf(matcher.mode)
-        TextLabel(itemStackMatcher)
+        TextLabel(blockInfoMatcher)
         Row(
             verticalArrangement = Arrangement.spacedBy(2f),
         ) {

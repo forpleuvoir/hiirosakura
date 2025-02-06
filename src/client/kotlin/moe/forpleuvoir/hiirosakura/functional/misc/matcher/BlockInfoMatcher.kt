@@ -37,6 +37,22 @@ class BlockInfoMatcher(
         vararg entries: BlockInfoMatchEntry
     ) : this(mode, entries.toList())
 
+    companion object : Deserializer<BlockInfoMatcher> {
+        override fun deserialization(serializeElement: SerializeElement): BlockInfoMatcher {
+            return serializeElement.checkType<SerializeObject, BlockInfoMatcher> { obj ->
+                val entries = obj["entries"]!!.checkType<SerializeArray, List<BlockInfoMatchEntry>> { array ->
+                    array.map { element ->
+                        BlockInfoMatchEntry.deserialization(element)
+                    }
+                }.getOrThrow()
+                BlockInfoMatcher(
+                    mode = MultiMatcher.MatchMode.deserialization(obj["mode"]!!),
+                    entries = entries
+                )
+            }.getOrThrow()
+        }
+    }
+
     override val entries: List<BlockInfoMatchEntry> = entries.toMutableList()
 
     public override fun clone(): BlockInfoMatcher {
@@ -69,10 +85,9 @@ class BlockInfoMatcher(
             mode = MultiMatcher.MatchMode.deserialization(obj["mode"]!!)
             obj["entries"]!!.checkType<SerializeArray, Unit> { array ->
                 array.forEach { element ->
-                    BlockInfoMatchEntry.deserialization(element)
+                    addEntry(BlockInfoMatchEntry.deserialization(element))
                 }
             }
-
         }
     }
 

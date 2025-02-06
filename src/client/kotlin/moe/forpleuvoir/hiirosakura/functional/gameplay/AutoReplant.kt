@@ -1,6 +1,8 @@
 package moe.forpleuvoir.hiirosakura.functional.gameplay
 
 import moe.forpleuvoir.hiirosakura.functional.gameplay.AutoReplant.Config.mapping
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.util.id
 import moe.forpleuvoir.hiirosakura.util.swapSlotWithHotbar
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
@@ -34,6 +36,12 @@ object AutoReplant {
         )
 
     }
+
+    data class MappingEntry(
+        val targetBlock: BlockInfoMatcher,
+        val replantItem: ItemStackMatcher,
+        val groundBlock: BlockInfoMatcher,
+    )
 
     @JvmStatic
     fun onBreakBlock(blockState: BlockState, blockPos: BlockPos, player: ClientPlayerEntity) {

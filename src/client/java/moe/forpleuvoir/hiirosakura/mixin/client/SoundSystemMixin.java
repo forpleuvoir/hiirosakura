@@ -1,7 +1,7 @@
 package moe.forpleuvoir.hiirosakura.mixin.client;
 
 import moe.forpleuvoir.hiirosakura.functional.event.events.SoundPlayEvent;
-import moe.forpleuvoir.hiirosakura.functional.gameplay.SoundEffectFilter;
+import moe.forpleuvoir.hiirosakura.functional.gameplay.SoundEventFilter;
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSSoundInstance;
 import moe.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.client.sound.SoundInstance;
@@ -18,7 +18,7 @@ public class SoundSystemMixin {
     public void play(SoundInstance sound, CallbackInfo ci) {
         var event = new SoundPlayEvent(new HSSoundInstance(sound));
         EventBus.Companion.broadcast(event);
-        if (event.getCanceled() || SoundEffectFilter.shouldFilter(sound)) {
+        if (event.getCanceled() || SoundEventFilter.shouldFilter(sound)) {
             ci.cancel();
         }
     }

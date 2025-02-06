@@ -1,5 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.gameplay
 
+import moe.forpleuvoir.hiirosakura.config.items.itemStackMatcher
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher
 import moe.forpleuvoir.hiirosakura.util.id
 import moe.forpleuvoir.hiirosakura.util.swapSlotWithHotbar
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
@@ -10,6 +14,7 @@ import moe.forpleuvoir.nebula.config.item.impl.stringList
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.entity.EquipmentSlot
+import net.minecraft.item.Items
 import net.minecraft.util.Hand
 import net.minecraft.util.Unit
 
@@ -21,22 +26,43 @@ object AutoSwitchElytra {
 
         val slot: EquipmentSlot by enum("slot", EquipmentSlot.CHEST)
 
-        val switchableEquip by stringList(
+//        val switchableEquip by stringList(
+//            "switchable_equip",
+//            listOf(
+//                "minecraft:netherite_chestplate",
+//                "minecraft:diamond_chestplate",
+//                "minecraft:chainmail_chestplate",
+//                "minecraft:iron_chestplate",
+//                "minecraft:leather_chestplate",
+//                "minecraft:golden_chestplate",
+//            )
+//        )
+
+        val switchableEquip by itemStackMatcher(
             "switchable_equip",
-            listOf(
-                "minecraft:netherite_chestplate",
-                "minecraft:diamond_chestplate",
-                "minecraft:chainmail_chestplate",
-                "minecraft:iron_chestplate",
-                "minecraft:leather_chestplate",
-                "minecraft:golden_chestplate",
+            ItemStackMatcher(
+                MultiMatcher.MatchMode.AnyMatch,
+                ItemStackMatchEntry.Item(Items.NETHERITE_CHESTPLATE),
+                ItemStackMatchEntry.Item(Items.DIAMOND_CHESTPLATE),
+                ItemStackMatchEntry.Item(Items.CHAINMAIL_CHESTPLATE),
+                ItemStackMatchEntry.Item(Items.IRON_CHESTPLATE),
+                ItemStackMatchEntry.Item(Items.LEATHER_CHESTPLATE),
+                ItemStackMatchEntry.Item(Items.GOLDEN_CHESTPLATE),
             )
         )
 
-        val switchableGlider by stringList(
+//        val switchableGlider by stringList(
+//            "switchable_glider",
+//            listOf(
+//                "minecraft:elytra",
+//            )
+//        )
+
+        val switchableGlider by itemStackMatcher(
             "switchable_glider",
-            listOf(
-                "minecraft:elytra",
+            ItemStackMatcher(
+                MultiMatcher.MatchMode.AnyMatch,
+                ItemStackMatchEntry.Item(Items.ELYTRA)
             )
         )
 
@@ -49,7 +75,7 @@ object AutoSwitchElytra {
 
         val offHand = player.offHandStack
         if (
-            offHand.item.id.toString() in Config.switchableGlider
+            Config.switchableGlider.match(offHand)
             && offHand.get(DataComponentTypes.GLIDER) == Unit.INSTANCE
             && offHand.get(DataComponentTypes.EQUIPPABLE)?.slot == Config.slot
         ) {
@@ -57,7 +83,7 @@ object AutoSwitchElytra {
         }
 
         val index = player.swapSlotWithHotbar {
-            it.item.id.toString() in Config.switchableGlider
+            Config.switchableGlider.match(it)
                     && it.get(DataComponentTypes.GLIDER) == Unit.INSTANCE
                     && it.get(DataComponentTypes.EQUIPPABLE)?.slot == Config.slot
         }
@@ -81,14 +107,14 @@ object AutoSwitchElytra {
 
         val offHand = player.offHandStack
         if (
-            offHand.item.id.toString() in Config.switchableEquip
+            Config.switchableEquip.match(offHand)
             && offHand.get(DataComponentTypes.EQUIPPABLE)?.slot == Config.slot
         ) {
             interaction.interactItem(player, Hand.OFF_HAND)
         }
 
         val index = player.swapSlotWithHotbar {
-            it.item.id.toString() in Config.switchableEquip
+            Config.switchableEquip.match(it)
                     && it.get(DataComponentTypes.EQUIPPABLE)?.slot == Config.slot
         }
         if (index < 0) return

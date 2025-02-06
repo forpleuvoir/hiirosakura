@@ -39,7 +39,7 @@ object GamePlay : ModConfigContainer("gameplay") {
         addConfig(AutoSwitchElytra.Config)
         addConfig(AutoReplant.Config)
         addConfig(CameraSwitcher.Config)
-        addConfig(SoundEffectFilter.Config)
+        addConfig(SoundEventFilter.Config)
     }
 
 }

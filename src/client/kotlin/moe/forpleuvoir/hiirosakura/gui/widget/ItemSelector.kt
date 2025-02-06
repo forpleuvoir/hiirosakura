@@ -31,7 +31,7 @@ fun WidgetContainerScope.ItemSelector(
     selectedColor: ARGBColor = defaultSelectedColor,
     selectedWrapper: DropDownMenuScope.(Item) -> IGWidget = {
         Column(
-            modifier= Modifier.weight(1),
+            modifier = Modifier.weight(1),
             horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
         ) {
             ItemIcon(it, .6f)
@@ -40,16 +40,16 @@ fun WidgetContainerScope.ItemSelector(
     },
     optionWrapper: ButtonScope.(Item) -> IGWidget = {
         Column(
-            modifier= Modifier.weight(1),
+            modifier = Modifier.weight(1),
             horizontalArrangement = Arrangement.spacedBy(2f)
         ) {
             ItemIcon(it, .6f)
             TextLabel(it.name.copyToText())
         }
     },
-    modifier: Modifier = Modifier,
-    searchBarModifier: RowScope.() -> Modifier = { Modifier },
-    listModifier: RowScope.() -> Modifier = { Modifier },
+    modifier: Modifier = Modifier.width(120f),
+    searchBarModifier: RowScope.() -> Modifier = { Modifier.width(120f) },
+    listModifier: RowScope.() -> Modifier = { Modifier.width(120f) },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     scope: DropDownMenuScope.() -> Unit = {}
 ) = SelectorWithSearcher(
@@ -86,9 +86,9 @@ fun WidgetContainerScope.DataComponentTypeSelector(
             modifier = Modifier.weight(1)
         )
     },
-    modifier: Modifier = Modifier,
-    searchBarModifier: RowScope.() -> Modifier = { Modifier },
-    listModifier: RowScope.() -> Modifier = { Modifier },
+    modifier: Modifier = Modifier.width(120f),
+    searchBarModifier: RowScope.() -> Modifier = { Modifier.width(120f) },
+    listModifier: RowScope.() -> Modifier = { Modifier.width(120f) },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     scope: DropDownMenuScope.() -> Unit = {}
 ) = SelectorWithSearcher(

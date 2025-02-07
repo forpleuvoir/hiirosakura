@@ -7,6 +7,7 @@ import moe.forpleuvoir.hiirosakura.util.block
 import moe.forpleuvoir.hiirosakura.util.hasTag
 import moe.forpleuvoir.hiirosakura.util.math.Vector3icDeserializer
 import moe.forpleuvoir.hiirosakura.util.math.serialization
+import moe.forpleuvoir.hiirosakura.util.math.toVector
 import moe.forpleuvoir.hiirosakura.util.serialization
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -19,13 +20,16 @@ import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.block.BlockState
 import net.minecraft.util.Util
+import net.minecraft.util.math.BlockPos
 import org.joml.Vector3ic
 import net.minecraft.block.Block as McBlock
 
 data class BlockInfo(
     val state: BlockState,
     val pos: Vector3ic
-)
+) {
+    constructor(state: BlockState, blockPos: BlockPos) : this(state, blockPos.toVector())
+}
 
 class BlockInfoMatcher(
     override var mode: MultiMatcher.MatchMode,
@@ -122,7 +126,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     }
 
-    class Block(val block: McBlock, mode: MatchEntry.MatchMode) : BlockInfoMatchEntry(mode, "block") {
+    class Block(val block: McBlock, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, "block") {
 
         companion object : Deserializer<Block> {
             override fun deserialization(serializeElement: SerializeElement): Block {
@@ -144,7 +148,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
         }
     }
 
-    class Script(val script: String, mode: MatchEntry.MatchMode) : BlockInfoMatchEntry(mode, "script") {
+    class Script(val script: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, "script") {
 
         companion object : Deserializer<Script> {
             override fun deserialization(serializeElement: SerializeElement): Script {
@@ -178,7 +182,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     }
 
-    class Pos(val min: Vector3ic, val max: Vector3ic, mode: MatchEntry.MatchMode) : BlockInfoMatchEntry(mode, "pos") {
+    class Pos(val min: Vector3ic, val max: Vector3ic, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, "pos") {
 
         companion object : Deserializer<Pos> {
             override fun deserialization(serializeElement: SerializeElement): Pos {
@@ -211,7 +215,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     }
 
-    class Tag(val tag: String, mode: MatchEntry.MatchMode) : BlockInfoMatchEntry(mode, "tag") {
+    class Tag(val tag: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, "tag") {
 
         companion object : Deserializer<Tag> {
             override fun deserialization(serializeElement: SerializeElement): Tag {
@@ -234,7 +238,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     }
 
-    class Property(val property: Pair<String, String>, mode: MatchEntry.MatchMode) : BlockInfoMatchEntry(mode, "property") {
+    class Property(val property: Pair<String, String>, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, "property") {
 
         companion object : Deserializer<Property> {
             override fun deserialization(serializeElement: SerializeElement): Property {

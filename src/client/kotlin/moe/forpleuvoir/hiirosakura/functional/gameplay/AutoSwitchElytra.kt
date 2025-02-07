@@ -26,18 +26,6 @@ object AutoSwitchElytra {
 
         val slot: EquipmentSlot by enum("slot", EquipmentSlot.CHEST)
 
-//        val switchableEquip by stringList(
-//            "switchable_equip",
-//            listOf(
-//                "minecraft:netherite_chestplate",
-//                "minecraft:diamond_chestplate",
-//                "minecraft:chainmail_chestplate",
-//                "minecraft:iron_chestplate",
-//                "minecraft:leather_chestplate",
-//                "minecraft:golden_chestplate",
-//            )
-//        )
-
         val switchableEquip by itemStackMatcher(
             "switchable_equip",
             ItemStackMatcher(
@@ -50,13 +38,6 @@ object AutoSwitchElytra {
                 ItemStackMatchEntry.Item(Items.GOLDEN_CHESTPLATE),
             )
         )
-
-//        val switchableGlider by stringList(
-//            "switchable_glider",
-//            listOf(
-//                "minecraft:elytra",
-//            )
-//        )
 
         val switchableGlider by itemStackMatcher(
             "switchable_glider",
@@ -84,8 +65,8 @@ object AutoSwitchElytra {
 
         val index = player.swapSlotWithHotbar {
             Config.switchableGlider.match(it)
-                    && it.get(DataComponentTypes.GLIDER) == Unit.INSTANCE
-                    && it.get(DataComponentTypes.EQUIPPABLE)?.slot == Config.slot
+            && it.get(DataComponentTypes.GLIDER) == Unit.INSTANCE
+            && it.get(DataComponentTypes.EQUIPPABLE)?.slot == Config.slot
         }
         if (index < 0) return
         interaction.interactItem(player, Hand.MAIN_HAND)
@@ -115,7 +96,7 @@ object AutoSwitchElytra {
 
         val index = player.swapSlotWithHotbar {
             Config.switchableEquip.match(it)
-                    && it.get(DataComponentTypes.EQUIPPABLE)?.slot == Config.slot
+            && it.get(DataComponentTypes.EQUIPPABLE)?.slot == Config.slot
         }
         if (index < 0) return
         interaction.interactItem(player, Hand.MAIN_HAND)

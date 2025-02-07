@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.util
 
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.item.ItemStack
@@ -23,6 +24,9 @@ fun ClientPlayerEntity.swapSlotWithHotbar(predicate: (ItemStack) -> Boolean): In
         }
     return -1
 }
+
+fun ClientPlayerEntity.swapSlotWithHotbar(matcher: ItemStackMatcher): Int =
+    swapSlotWithHotbar { matcher.match(it) }
 
 fun ClientPlayerEntity.swapSlotWithHotbar(index: Int) {
     if (index < 0) return

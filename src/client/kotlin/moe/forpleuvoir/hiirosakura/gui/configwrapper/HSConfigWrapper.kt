@@ -1,8 +1,10 @@
 package moe.forpleuvoir.hiirosakura.gui.configwrapper
 
+import moe.forpleuvoir.hiirosakura.config.items.ConfigAutoReplantMapEntryList
 import moe.forpleuvoir.hiirosakura.config.items.ConfigBlockInfoMatcher
 import moe.forpleuvoir.hiirosakura.config.items.ConfigItemStackMatcher
 import moe.forpleuvoir.hiirosakura.config.items.ConfigSoundEventList
+import moe.forpleuvoir.hiirosakura.gui.configwrapper.HSConfigWrapper
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigWrapperMap
 import moe.forpleuvoir.nebula.event.EventSubscriber
@@ -18,6 +20,7 @@ object HSConfigWrapper {
         register<ConfigItemStackMatcher> { c, m -> ItemStackMatcherWrapper(c, m) }
         register<ConfigBlockInfoMatcher> { c, m -> BlockInfoMatcherWrapper(c, m) }
 
+        register<ConfigAutoReplantMapEntryList> { c, m -> AutoReplantMapEntryListWrapper(c, m) }
     }
 
 

@@ -11,23 +11,21 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher
+import moe.forpleuvoir.hiirosakura.gui.widget.ItemIcon
 import moe.forpleuvoir.hiirosakura.util.id
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.height
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverText
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.onClose
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
+import moe.forpleuvoir.ibukigourd.gui.widget.ColoredBox
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
+import moe.forpleuvoir.ibukigourd.gui.widget.Rect
 import moe.forpleuvoir.ibukigourd.gui.widget.Selector
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.RadioButtons
@@ -42,10 +40,16 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.text.*
+import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.state.ImmutableState
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
+import moe.forpleuvoir.ibukigourd.util.state.State
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.ibukigourd.util.textRenderer
+import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import net.minecraft.component.ComponentType
 import net.minecraft.component.DataComponentTypes
@@ -182,7 +186,7 @@ private fun WidgetContainerScope.EntryWrapper(
             TextLabel(entry.item.name.copyToText())
         }
 
-        is ItemStackMatchEntry.Script            -> Unit
+        is ItemStackMatchEntry.Script            -> TextLabel(entry.script.substring(0..(64.coerceAtMost(entry.script.lastIndex))))
         is ItemStackMatchEntry.Count             -> TextLabel(entry.count.toString())
         is ItemStackMatchEntry.Rarity            -> TextLabel(entry.rarity.name)
         is ItemStackMatchEntry.Tag               -> TextLabel(entry.tag)
@@ -400,3 +404,113 @@ private fun ComponentTypeMatchEntryBuilder(
     }
 }
 
+fun WidgetContainerScope.ItemStackMathcerSimpleInfo(
+    itemStackMatcher: State<ItemStackMatcher>,
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+) = Column(
+    modifier,
+    horizontalArrangement,
+    verticalAlignment
+) {
+    val entries = itemStackMatcher.getValue().entries
+    when (entries.size) {
+        0    -> TextLabel(IGLang.hasNothing)
+        1    -> ItemStackEntryInfo(stateOf(entries.first()))
+        else -> TextLabel(IGLang.listConfigWrapperText(entries.size))
+    }
+}
+
+fun WidgetContainerScope.ItemStackMathcerInfo(
+    itemStackMatcher: State<ItemStackMatcher>,
+    modifier: Modifier = Modifier,
+    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(1f),
+    horizontalAlignment: Alignment.Horizontal = Alignment.Left,
+) = Row(
+    modifier,
+    verticalArrangement,
+    horizontalAlignment
+) {
+    //mode
+    TextLabel(itemStackMatcher.getValue().mode.translateText)
+    Rect(Colors.DARK_BLUE_GREY.alpha(0.5f), Modifier.height(1f).matchSibling())
+    //entries
+    itemStackMatcher.getValue().entries.forEachWithLimit(10) {
+        ItemStackEntryInfo(stateOf(it))
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+fun WidgetContainerScope.ItemStackEntryInfo(entry: State<ItemStackMatchEntry>) {
+    when (entry.getValue()) {
+        is ItemStackMatchEntry.Item              -> ItemStackEntryItemInfo(entry as State<ItemStackMatchEntry.Item>)
+        is ItemStackMatchEntry.Script            -> ItemStackEntryScriptInfo(entry as State<ItemStackMatchEntry.Script>)
+        is ItemStackMatchEntry.Count             -> ItemStackEntryCountInfo(entry as State<ItemStackMatchEntry.Count>)
+        is ItemStackMatchEntry.Tag               -> ItemStackEntryTagInfo(entry as State<ItemStackMatchEntry.Tag>)
+        is ItemStackMatchEntry.Rarity            -> ItemStackEntryRarityInfo(entry as State<ItemStackMatchEntry.Rarity>)
+        is ItemStackMatchEntry.DataComponentType -> ItemStackEntryDataComponentTypeInfo(entry as State<ItemStackMatchEntry.DataComponentType>)
+    }
+}
+
+fun WidgetContainerScope.ItemStackEntryItemInfo(
+    entry: State<ItemStackMatchEntry.Item>,
+) = Column(
+    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
+) {
+    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(itemStackMatcherEntryItem)
+    ItemIcon(entry.getValue().item, .6f)
+    TextLabel(entry.getValue().item.name.copyToText())
+}
+
+fun WidgetContainerScope.ItemStackEntryScriptInfo(
+    entry: State<ItemStackMatchEntry.Script>,
+) = Column(
+    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
+) {
+    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(
+        mutableStateBy { itemStackMatcherEntryScript.appendLiteral(entry.getValue().script.substring(0..(64.coerceAtMost(entry.getValue().script.lastIndex)))) },
+        modifier = Modifier.maxWidth(180f)
+    )
+}
+
+fun WidgetContainerScope.ItemStackEntryCountInfo(
+    entry: State<ItemStackMatchEntry.Count>,
+) = Column(
+    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
+) {
+    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(mutableStateBy { itemStackMatcherEntryCount.appendLiteral(entry.getValue().count.toString()) }, modifier = Modifier.maxWidth(180f))
+}
+
+fun WidgetContainerScope.ItemStackEntryRarityInfo(
+    entry: State<ItemStackMatchEntry.Rarity>,
+) = Column(
+    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
+) {
+    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(mutableStateBy { itemStackMatcherEntryRarity.appendLiteral(entry.getValue().rarity.name) }, modifier = Modifier.maxWidth(180f))
+}
+
+fun WidgetContainerScope.ItemStackEntryTagInfo(
+    entry: State<ItemStackMatchEntry.Tag>,
+) = Column(
+    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
+) {
+    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(mutableStateBy { itemStackMatcherEntryTag.appendLiteral(entry.getValue().tag) }, modifier = Modifier.maxWidth(180f))
+}
+
+fun WidgetContainerScope.ItemStackEntryDataComponentTypeInfo(
+    entry: State<ItemStackMatchEntry.DataComponentType>,
+) = Column(
+    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
+) {
+    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(
+        mutableStateBy { itemStackMatcherEntryDataComponentType.appendLiteral(entry.getValue().componentType.id.toString()) },
+        modifier = Modifier.maxWidth(180f)
+    )
+}

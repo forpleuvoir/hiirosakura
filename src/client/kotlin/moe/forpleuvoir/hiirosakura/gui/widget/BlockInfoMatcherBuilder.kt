@@ -6,10 +6,6 @@ import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryPos
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryProperty
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryScript
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryTag
-import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcher
-import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryCount
-import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryScript
-import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryTag
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
@@ -25,6 +21,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
+import moe.forpleuvoir.ibukigourd.gui.widget.Rect
 import moe.forpleuvoir.ibukigourd.gui.widget.Vector3iEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.RadioButtons
@@ -37,10 +34,11 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.text.*
+import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.state.MutableState
-import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.ibukigourd.util.state.*
 import moe.forpleuvoir.ibukigourd.util.textRenderer
+import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import net.minecraft.block.Blocks
 import org.joml.Vector3i
@@ -314,4 +312,105 @@ private fun PropertyMatchEntryBuilder(
             }
         }
     }
+}
+
+fun WidgetContainerScope.BlockInfoMathcerSimpleInfo(
+    blockInfoMatcher: State<BlockInfoMatcher>,
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+) = Column(
+    modifier,
+    horizontalArrangement,
+    verticalAlignment
+) {
+    val entries = blockInfoMatcher.getValue().entries
+    when (entries.size) {
+        0    -> TextLabel(IGLang.hasNothing)
+        1    -> BlockInfoEntryInfo(stateOf(entries.first()))
+        else -> TextLabel(IGLang.listConfigWrapperText(entries.size))
+    }
+}
+
+fun WidgetContainerScope.BlockInfoMatcherInfo(
+    blockInfoMatcher: State<BlockInfoMatcher>,
+    modifier: Modifier = Modifier,
+    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(1f),
+    horizontalAlignment: Alignment.Horizontal = Alignment.Left,
+) = Row(
+    modifier,
+    verticalArrangement,
+    horizontalAlignment
+) {
+    //mode
+    TextLabel(blockInfoMatcher.getValue().mode.translateText)
+    Rect(Colors.DARK_BLUE_GREY.alpha(0.5f), Modifier.height(1f).matchSibling())
+    //entries
+    blockInfoMatcher.getValue().entries.forEachWithLimit(10) {
+        BlockInfoEntryInfo(stateOf(it))
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+fun WidgetContainerScope.BlockInfoEntryInfo(entry: State<BlockInfoMatchEntry>) {
+    when (entry.getValue()) {
+        is BlockInfoMatchEntry.Block    -> BlockInfoEntryBlockInfo(entry as State<BlockInfoMatchEntry.Block>)
+        is BlockInfoMatchEntry.Script   -> BlockInfoEntryScriptInfo(entry as State<BlockInfoMatchEntry.Script>)
+        is BlockInfoMatchEntry.Pos      -> BlockInfoEntryPosInfo(entry as State<BlockInfoMatchEntry.Pos>)
+        is BlockInfoMatchEntry.Tag      -> BlockInfoEntryTagInfo(entry as State<BlockInfoMatchEntry.Tag>)
+        is BlockInfoMatchEntry.Property -> BlockInfoEntryPropertyInfo(entry as State<BlockInfoMatchEntry.Property>)
+    }
+}
+
+fun WidgetContainerScope.BlockInfoEntryBlockInfo(
+    entry: State<BlockInfoMatchEntry.Block>,
+) = Column(
+    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
+) {
+    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(blockInfoMatcherEntryBlock)
+    ItemIcon(entry.getValue().block.asItem(), .6f)
+    TextLabel(entry.getValue().block.name.copyToText())
+}
+
+fun WidgetContainerScope.BlockInfoEntryScriptInfo(
+    entry: State<BlockInfoMatchEntry.Script>,
+) = Column(
+    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
+) {
+    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(
+        mutableStateBy { blockInfoMatcherEntryScript.appendLiteral(entry.getValue().script.substring(0..(64.coerceAtMost(entry.getValue().script.lastIndex)))) },
+        modifier = Modifier.maxWidth(180f)
+    )
+}
+
+fun WidgetContainerScope.BlockInfoEntryPosInfo(
+    entry: State<BlockInfoMatchEntry.Pos>,
+) = Column(
+    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
+) {
+    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(mutableStateBy { blockInfoMatcherEntryPos.appendLiteral(entry.getValue().toString()) }, modifier = Modifier.maxWidth(180f))
+}
+
+fun WidgetContainerScope.BlockInfoEntryTagInfo(
+    entry: State<BlockInfoMatchEntry.Tag>,
+) = Column(
+    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
+) {
+    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(mutableStateBy { blockInfoMatcherEntryTag.appendLiteral(entry.getValue().tag) }, modifier = Modifier.maxWidth(180f))
+}
+
+fun WidgetContainerScope.BlockInfoEntryPropertyInfo(
+    entry: State<BlockInfoMatchEntry.Property>,
+) = Column(
+    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
+) {
+    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(
+        mutableStateBy { blockInfoMatcherEntryProperty.appendLiteral(entry.getValue().property.toString()) },
+        modifier = Modifier.maxWidth(180f)
+    )
 }

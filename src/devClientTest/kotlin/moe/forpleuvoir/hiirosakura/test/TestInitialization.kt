@@ -8,9 +8,11 @@ import moe.forpleuvoir.hiirosakura.gui.widget.BlockInfoMatcherBuilder
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemIcon
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemStackMatcherBuilder
 import moe.forpleuvoir.hiirosakura.gui.widget.RouletteSelector
+import moe.forpleuvoir.hiirosakura.gui.widget.renderItem
 import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager
 import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderAlignmentText
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderText
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
@@ -27,6 +29,7 @@ import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
+import net.minecraft.client.font.TextRenderer
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 
@@ -118,8 +121,9 @@ fun test3() = BoxScreen {
         context.useMatrixStack {
             it.scale(scale, scale, 1f)
             it.translate((position.x() - width / 2f) * (1f / scale), (position.y() - height / 2f) * (1f / scale), 0f)
-            drawItem(item, 0, 0)
+            renderItem(item, 0f, 0f)
         }
+        context.renderText("TSAFAF", x = position.x(), y = position.y(), layerType = TextRenderer.TextLayerType.SEE_THROUGH)
     }
 
 }

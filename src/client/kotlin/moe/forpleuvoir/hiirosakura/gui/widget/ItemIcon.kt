@@ -1,5 +1,7 @@
 package moe.forpleuvoir.hiirosakura.gui.widget
 
+import moe.forpleuvoir.hiirosakura.mixin.client.render.LightmapTextureManagerMixin
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
@@ -9,8 +11,15 @@ import moe.forpleuvoir.ibukigourd.gui.widget.Widget
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
+import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.render.DiffuseLighting
+import net.minecraft.client.render.LightmapTextureManager
+import net.minecraft.client.render.OverlayTexture
+import net.minecraft.entity.LivingEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.item.ModelTransformationMode
+import net.minecraft.world.World
 
 @JvmName("ItemStackIcon")
 fun WidgetContainerScope.ItemIcon(
@@ -23,7 +32,7 @@ fun WidgetContainerScope.ItemIcon(
             context.useMatrixStack {
                 it.scale(scale, scale, 1f)
                 it.translate(transform.worldX * (1f / scale), transform.worldY * (1f / scale), 0f)
-                drawItem(item.getValue(), 0, 0)
+                renderItem(item.getValue(), 0f, 0f)
             }
         }
 })
@@ -46,3 +55,30 @@ fun WidgetContainerScope.ItemIcon(
     scale: Float = 1f,
     modifier: Modifier = Modifier
 ) = ItemIcon(mutableStateBy { ItemStack(item.getValue()) }, scale, modifier)
+
+
+fun DrawContext.renderItem(
+    stack: ItemStack,
+    x: Float,
+    y: Float,
+    seed: Int = 0,
+    entity: LivingEntity? = this.client.player,
+    world: World? = this.client.world
+) {
+    if (stack.isEmpty) return
+    this.client.itemModelManager.update(this.itemRenderState, stack, ModelTransformationMode.GUI, false, world, entity, seed)
+    this.useMatrixStack { matrices ->
+        matrices.translate(x + 8, y + 8, 8f)
+        matrices.scale(16.0f, -16.0f, 16f)
+        val isSideLit: Boolean = !this.itemRenderState.isSideLit
+        if (isSideLit) {
+            this.draw()
+            DiffuseLighting.disableGuiDepthLighting()
+        }
+        this.itemRenderState.render(this.matrices, this.vertexConsumers, LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV)
+        this.draw()
+        if (isSideLit) {
+            DiffuseLighting.enableGuiDepthLighting()
+        }
+    }
+}

@@ -77,11 +77,10 @@ fun WidgetContainerScope.AutoReplantMapEntryListWrapper(
                                     AutoReplantMapEntryWrapper(
                                         mapEntry,
                                         {
-                                            listValue.disableNotify {
-                                                listValue[index] = it
-                                            }
+                                            listValue[index] = it
+                                            execute { this@RowListWrapped.recompose() }
                                         },
-                                        Modifier.width(200f),
+                                        Modifier.weight(1),
                                         Arrangement.SpaceAround
                                     )
 

@@ -114,12 +114,12 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
     companion object : Deserializer<ItemStackMatchEntry> {
 
         val desMapping = mutableMapOf<String, (SerializeElement) -> ItemStackMatchEntry>(
-            "item" to Item.Companion::deserialization,
-            "script" to Script.Companion::deserialization,
-            "count" to Count.Companion::deserialization,
-            "rarity" to Rarity.Companion::deserialization,
-            "tag" to Tag.Companion::deserialization,
-            "data_component_type" to DataComponentType.Companion::deserialization,
+            "item" to { Item.deserialization(it) },
+            "script" to { Script.deserialization(it) },
+            "count" to { Count.deserialization(it) },
+            "rarity" to { Rarity.deserialization(it) },
+            "tag" to { Tag.deserialization(it) },
+            "data_component_type" to { DataComponentType.deserialization(it) }
         )
 
         override fun deserialization(serializeElement: SerializeElement): ItemStackMatchEntry {
@@ -257,7 +257,8 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     }
 
-    class DataComponentType(val componentType: ComponentType<*>, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "data_component_type") {
+    class DataComponentType(val componentType: ComponentType<*>, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) :
+        ItemStackMatchEntry(mode, "data_component_type") {
 
         companion object : Deserializer<DataComponentType> {
             override fun deserialization(serializeElement: SerializeElement): DataComponentType {

@@ -56,7 +56,7 @@ object AutoSwitchElytra {
 
         val offHand = player.offHandStack
         if (
-            Config.switchableGlider.match(offHand)
+             Config.switchableGlider.match(offHand)
             && offHand.get(DataComponentTypes.GLIDER) == Unit.INSTANCE
             && offHand.get(DataComponentTypes.EQUIPPABLE)?.slot == Config.slot
         ) {

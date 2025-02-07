@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(LightmapTextureManager.class)
 public class LightmapTextureManagerMixin {
 
-
     @ModifyExpressionValue(method = "update", at = @At(value = "INVOKE", target = "Ljava/lang/Double;floatValue()F"))
     public float hiirosakura$update(float original) {
         if (GammaOverride.INSTANCE.getEnable().getValue()) {

@@ -108,11 +108,11 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
     companion object : Deserializer<BlockInfoMatchEntry> {
 
         val desMapping = mutableMapOf<String, (SerializeElement) -> BlockInfoMatchEntry>(
-            "block" to Block.Companion::deserialization,
-            "script" to Script.Companion::deserialization,
-            "pos" to Pos.Companion::deserialization,
-            "tag" to Tag.Companion::deserialization,
-            "property" to Property.Companion::deserialization,
+            "block" to { Block.deserialization(it) },
+            "script" to { Script.deserialization(it) },
+            "pos" to { Pos.deserialization(it) },
+            "tag" to { Tag.deserialization(it) },
+            "property" to { Property.deserialization(it) },
         )
 
         override fun deserialization(serializeElement: SerializeElement): BlockInfoMatchEntry {

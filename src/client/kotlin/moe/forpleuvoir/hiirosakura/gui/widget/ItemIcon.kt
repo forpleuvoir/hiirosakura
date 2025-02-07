@@ -1,13 +1,19 @@
 package moe.forpleuvoir.hiirosakura.gui.widget
 
 import moe.forpleuvoir.hiirosakura.mixin.client.render.LightmapTextureManagerMixin
+import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
+import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.widget.Widget
+import moe.forpleuvoir.ibukigourd.render.disableBlend
+import moe.forpleuvoir.ibukigourd.render.disableDepthTest
+import moe.forpleuvoir.ibukigourd.render.enableBlend
+import moe.forpleuvoir.ibukigourd.render.enableDepthTest
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.stateOf

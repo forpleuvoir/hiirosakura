@@ -19,6 +19,8 @@ object HSLang {
 
     val success = lang("success")
 
+    val blockBreakProtection = lang("gameplay.block_break_protection.toast")
+
     //------------ CustomData ------------\\
 
     val customData get() = lang("custom_data")
@@ -64,6 +66,14 @@ object HSLang {
     val eventSubscriberEditor get() = lang("event.subscriber.editor")
 
     val eventSubscriberName get() = lang("event.subscriber.name")
+
+    //------------ AutoReplan ------------\\
+
+    val autoReplantMapEntryTargetBlock get() = lang("auto_replant.map_entry.target_block")
+
+    val autoReplantMapEntryReplantItem get() = lang("auto_replant.map_entry.replant_item")
+
+    val autoReplantMapEntryGroundBlock get() = lang("auto_replant.map_entry.ground_block")
 
     //------------ Matcher.ItemStack ------------\\
 

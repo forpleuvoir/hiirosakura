@@ -22,5 +22,4 @@ object SoundEventFilter {
         return sound.id in Config.filterMapping.map { it.id }
     }
 
-
 }

@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.gui.widget
 
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.gameplay.AutoReplant
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -26,7 +27,7 @@ fun WidgetContainerScope.AutoReplantMapEntryWrapper(
         },
         horizontalArrangement = Arrangement.Left
     ) {
-        TextLabel("目标方块")
+        TextLabel(HSLang.autoReplantMapEntryTargetBlock)
         TextLabel(" -> ")
         BlockInfoMathcerSimpleInfo(stateOf(autoReplantMapEntry.targetBlock))
         click {
@@ -42,7 +43,7 @@ fun WidgetContainerScope.AutoReplantMapEntryWrapper(
         },
         horizontalArrangement = Arrangement.Left
     ) {
-        TextLabel("补种物品")
+        TextLabel(HSLang.autoReplantMapEntryReplantItem)
         TextLabel(" -> ")
         ItemStackMathcerSimpleInfo(stateOf(autoReplantMapEntry.replantItem))
         click {
@@ -58,7 +59,7 @@ fun WidgetContainerScope.AutoReplantMapEntryWrapper(
         },
         horizontalArrangement = Arrangement.Left
     ) {
-        TextLabel("可种植地面方块")
+        TextLabel(HSLang.autoReplantMapEntryGroundBlock)
         TextLabel(" -> ")
         BlockInfoMathcerSimpleInfo(stateOf(autoReplantMapEntry.groundBlock))
         click {

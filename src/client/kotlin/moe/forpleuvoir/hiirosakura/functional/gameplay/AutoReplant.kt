@@ -37,16 +37,6 @@ object AutoReplant {
 
         val enable by keyBindBoolean("enable", false)
 
-//        val mapping by stringMap(
-//            "mapping", mapOf(
-//                "minecraft:wheat" to "minecraft:wheat_seeds",
-//                "minecraft:carrots" to "minecraft:carrot",
-//                "minecraft:potatoes" to "minecraft:potato",
-//                "minecraft:beetroots" to "minecraft:beetroot_seeds",
-//                "minecraft:nether_wart" to "minecraft:nether_wart",
-//            )
-//        )
-
         val mapping by autoReplantMapEntryList(
             "mapping",
             listOf(
@@ -138,29 +128,6 @@ object AutoReplant {
                     }
                 }
             }
-//        mapping[blockState.block.id.toString()]?.let { item ->
-//            val vec3d = Vec3d(blockPos.x.toDouble(), blockPos.y.toDouble() - 1, blockPos.z.toDouble())
-//            val pos = BlockPos.ofFloored(player.world.worldBorder.clamp(vec3d))
-//            //如果下面的方块是同类型方块则取消
-//            val block = player.world.getBlockState(pos).block
-//            if (block == Blocks.AIR || block == blockState.block) return
-//
-//            //如果副手有对应物品则使用副手交互
-//            if (player.offHandStack.item.id.toString() == item) {
-//                mc.scheduleStartTick { _, _ ->
-//                    mc.interactionManager!!.interactBlock(player, Hand.OFF_HAND, BlockHitResult(vec3d, Direction.UP, pos, false))
-//                }
-//            }
-//
-//            val index = player.swapSlotWithHotbar {
-//                it.item.id.toString() == item
-//            }
-//            if (index < 0) return
-//            mc.scheduleStartTick { _, _ ->
-//                mc.interactionManager!!.interactBlock(player, Hand.MAIN_HAND, BlockHitResult(vec3d, Direction.UP, pos, false))
-//                player.swapSlotWithHotbar(index)
-//            }
-//        }
     }
 
 }

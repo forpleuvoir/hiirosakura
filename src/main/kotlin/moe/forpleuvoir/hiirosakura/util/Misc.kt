@@ -23,3 +23,11 @@ fun <T : Comparable<T>> deserialization(serializeElement: SerializeElement, supp
         return supplier(pair[0])..supplier(pair[1])
     }
 }
+
+inline fun <reified T : Enum<T>> T.cycle(): T {
+    val values = enumValues<T>()
+    val nextIndex: Int = values.indexOf(this).let {
+        if (it == values.lastIndex) 0 else it + 1
+    }
+    return values[nextIndex]
+}

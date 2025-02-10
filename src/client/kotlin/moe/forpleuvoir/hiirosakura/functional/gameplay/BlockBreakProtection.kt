@@ -4,6 +4,7 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.config.items.ConfigBlockInfoMatcher
 import moe.forpleuvoir.hiirosakura.config.items.blockInfoMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfo
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher
 import moe.forpleuvoir.hiirosakura.util.cycle
@@ -16,6 +17,7 @@ import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.translateText
 import net.minecraft.block.BlockState
+import net.minecraft.block.Blocks
 import net.minecraft.util.math.BlockPos
 
 object BlockBreakProtection {
@@ -38,7 +40,12 @@ object BlockBreakProtection {
             )
         })
 
-        val matcher = blockInfoMatcher("matcher", BlockInfoMatcher(MultiMatcher.MatchMode.AnyMatch))
+        val matcher = blockInfoMatcher(
+            "matcher", BlockInfoMatcher(
+                MultiMatcher.MatchMode.AnyMatch,
+                BlockInfoMatchEntry.Block(Blocks.BUDDING_AMETHYST)
+            )
+        )
 
     }
 

@@ -10,6 +10,7 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher
 import moe.forpleuvoir.hiirosakura.util.id
 import moe.forpleuvoir.hiirosakura.util.swapSlotWithHotbar
+import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
@@ -72,9 +73,20 @@ object AutoReplant {
     val FARMLAND get() = BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Block(Blocks.FARMLAND))
 
     data class MapEntry(
-        val targetBlock: BlockInfoMatcher = BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Block(Blocks.WHEAT)),
-        val replantItem: ItemStackMatcher = ItemStackMatcher(MultiMatcher.MatchMode.AllMatch, ItemStackMatchEntry.Item(Items.WHEAT_SEEDS)),
-        val groundBlock: BlockInfoMatcher = FARMLAND,
+        val targetBlock: BlockInfoMatcher = BlockInfoMatcher(
+            MultiMatcher.MatchMode.AllMatch,
+            BlockInfoMatchEntry.Block(mc.targetBlock?.state?.block ?: Blocks.WHEAT)
+        ),
+        val replantItem: ItemStackMatcher = ItemStackMatcher(
+            MultiMatcher.MatchMode.AllMatch,
+            ItemStackMatchEntry.Item(mc.player?.mainHandStack?.item ?: Items.WHEAT_SEEDS)
+        ),
+        val groundBlock: BlockInfoMatcher = BlockInfoMatcher(
+            MultiMatcher.MatchMode.AllMatch,
+            BlockInfoMatchEntry.Block(mc.targetBlock?.let {
+                mc.world!!.getBlockState(BlockPos(it.pos.x(), it.pos.y(), it.pos.z()).down()).block
+            } ?: Blocks.FARMLAND)
+        ),
     ) : Serializable {
         companion object : Deserializer<MapEntry> {
             override fun deserialization(serializeElement: SerializeElement): MapEntry {

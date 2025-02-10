@@ -25,10 +25,9 @@ fun WidgetContainerScope.AutoReplantMapEntryWrapper(
         modifier = Modifier.weight(1).hoverTtp {
             BlockInfoMatcherInfo(stateOf(autoReplantMapEntry.targetBlock))
         },
-        horizontalArrangement = Arrangement.Left
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        TextLabel(HSLang.autoReplantMapEntryTargetBlock)
-        TextLabel(" -> ")
+        TextLabel(HSLang.autoReplantMapEntryTargetBlock.appendLiteral(" -> "))
         BlockInfoMathcerSimpleInfo(stateOf(autoReplantMapEntry.targetBlock))
         click {
             BlockInfoMatcherBuilder(autoReplantMapEntry.targetBlock, {
@@ -41,10 +40,9 @@ fun WidgetContainerScope.AutoReplantMapEntryWrapper(
         modifier = Modifier.weight(1).hoverTtp {
             ItemStackMathcerInfo(stateOf(autoReplantMapEntry.replantItem))
         },
-        horizontalArrangement = Arrangement.Left
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        TextLabel(HSLang.autoReplantMapEntryReplantItem)
-        TextLabel(" -> ")
+        TextLabel(HSLang.autoReplantMapEntryReplantItem.appendLiteral(" -> "))
         ItemStackMathcerSimpleInfo(stateOf(autoReplantMapEntry.replantItem))
         click {
             ItemStackMatcherBuilder(autoReplantMapEntry.replantItem, {
@@ -57,10 +55,9 @@ fun WidgetContainerScope.AutoReplantMapEntryWrapper(
         modifier = Modifier.weight(1).hoverTtp {
             BlockInfoMatcherInfo(stateOf(autoReplantMapEntry.groundBlock))
         },
-        horizontalArrangement = Arrangement.Left
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        TextLabel(HSLang.autoReplantMapEntryGroundBlock)
-        TextLabel(" -> ")
+        TextLabel(HSLang.autoReplantMapEntryGroundBlock.appendLiteral(" -> "))
         BlockInfoMathcerSimpleInfo(stateOf(autoReplantMapEntry.groundBlock))
         click {
             BlockInfoMatcherBuilder(autoReplantMapEntry.groundBlock, {

@@ -1,19 +1,17 @@
 package moe.forpleuvoir.hiirosakura.gui.widget
 
-import moe.forpleuvoir.hiirosakura.mixin.client.render.LightmapTextureManagerMixin
-import moe.forpleuvoir.ibukigourd.gui.base.GuiLayer
+import moe.forpleuvoir.ibukigourd.gui.base.element.ElementCustomData.name
+import moe.forpleuvoir.ibukigourd.gui.base.element.parentChain
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.placeCompletion
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
-import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
+import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.Widget
-import moe.forpleuvoir.ibukigourd.render.disableBlend
-import moe.forpleuvoir.ibukigourd.render.disableDepthTest
-import moe.forpleuvoir.ibukigourd.render.enableBlend
-import moe.forpleuvoir.ibukigourd.render.enableDepthTest
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
@@ -36,12 +34,17 @@ fun WidgetContainerScope.ItemIcon(
     size(16f * scale, 16f * scale)
         .render { context, x, y, delta ->
             context.useMatrixStack {
-                it.scale(scale, scale, 1f)
+                it.scale(scale, scale, scale)
                 it.translate(transform.worldX * (1f / scale), transform.worldY * (1f / scale), 0f)
                 renderItem(item.getValue(), 0f, 0f)
             }
         }
 })
+
+val IGWidget.layers: Int
+    get() = generateSequence(this.screen()) {
+        it.parentScreen as IGScreen?
+    }.count() + this.parentChain.size
 
 fun WidgetContainerScope.ItemIcon(
     item: ItemStack,
@@ -67,6 +70,7 @@ fun DrawContext.renderItem(
     stack: ItemStack,
     x: Float,
     y: Float,
+    z: Float = 0f,
     seed: Int = 0,
     entity: LivingEntity? = this.client.player,
     world: World? = this.client.world
@@ -74,7 +78,7 @@ fun DrawContext.renderItem(
     if (stack.isEmpty) return
     this.client.itemModelManager.update(this.itemRenderState, stack, ModelTransformationMode.GUI, false, world, entity, seed)
     this.useMatrixStack { matrices ->
-        matrices.translate(x + 8, y + 8, 8f)
+        matrices.translate(x + 8, y + 8, z + 8f)
         matrices.scale(16.0f, -16.0f, 16f)
         val isSideLit: Boolean = !this.itemRenderState.isSideLit
         if (isSideLit) {

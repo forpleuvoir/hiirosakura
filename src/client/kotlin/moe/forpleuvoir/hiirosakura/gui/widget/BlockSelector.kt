@@ -22,7 +22,7 @@ import net.minecraft.registry.Registries
 fun WidgetContainerScope.BlockSelector(
     block: MutableState<Block>,
     blocks: List<Block> = Registries.BLOCK.toList(),
-    onChange: (Block) -> Unit = {},
+    onSelected: (Block) -> Unit = {},
     selectedColor: ARGBColor = defaultSelectedColor,
     selectedWrapper: DropDownMenuScope.(Block) -> IGWidget = {
         Column(
@@ -53,7 +53,7 @@ fun WidgetContainerScope.BlockSelector(
     predicate = { block, str ->
         block.name.string.contains(str, ignoreCase = true) || Registries.BLOCK.getKey(block).toString().contains(str)
     },
-    onChange = onChange,
+    onSelected = onSelected,
     selectedColor = selectedColor,
     selectedWrapper = selectedWrapper,
     optionWrapper = optionWrapper,

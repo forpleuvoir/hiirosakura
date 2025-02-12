@@ -19,7 +19,7 @@ object HSLang {
 
     val success = lang("success")
 
-    val blockBreakProtection = lang("gameplay.block_break_protection.toast")
+    fun blockBreakProtection(supplier: String) = lang("gameplay.block_break_protection.toast", supplier)
 
     //------------ CustomData ------------\\
 
@@ -77,16 +77,19 @@ object HSLang {
 
     //------------ Matcher.ItemStack ------------\\
 
+    val fromHandItem get() = lang("from_hand_item")
     val itemStackMatcher get() = lang("item_stack_matcher")
     val itemStackMatcherEntryItem get() = lang("item_stack_matcher_entry.item")
     val itemStackMatcherEntryScript get() = lang("item_stack_matcher_entry.script")
     val itemStackMatcherEntryCount get() = lang("item_stack_matcher_entry.count")
     val itemStackMatcherEntryRarity get() = lang("item_stack_matcher_entry.rarity")
+    val itemStackMatcherEntryEnchantment get() = lang("item_stack_matcher_entry.enchantment")
     val itemStackMatcherEntryTag get() = lang("item_stack_matcher_entry.tag")
     val itemStackMatcherEntryDataComponentType get() = lang("item_stack_matcher_entry.data_component_type")
 
     //------------ Matcher.BlockInfo ------------\\
 
+    val fromTargetBlock get() = lang("from_target_block")
     val blockInfoMatcher get() = lang("block_info_matcher")
     val blockInfoMatcherEntryBlock get() = lang("block_info_matcher_entry.block")
     val blockInfoMatcherEntryScript get() = lang("block_info_matcher_entry.script")

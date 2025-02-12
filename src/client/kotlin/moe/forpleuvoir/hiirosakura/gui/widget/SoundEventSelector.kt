@@ -23,7 +23,7 @@ import net.minecraft.sound.SoundEvent
 fun WidgetContainerScope.SoundEventSelector(
     soundEvent: MutableState<SoundEvent>,
     soundEvents: List<SoundEvent> = Registries.SOUND_EVENT.toList(),
-    onChange: (SoundEvent) -> Unit = {},
+    onSelected: (SoundEvent) -> Unit = {},
     selectedColor: ARGBColor = defaultSelectedColor,
     selectedWrapper: DropDownMenuScope.(SoundEvent) -> IGWidget = {
         Column(
@@ -52,7 +52,7 @@ fun WidgetContainerScope.SoundEventSelector(
     predicate = { soundEvent, str ->
         Translatable("subtitles.${soundEvent.id.path}", soundEvent.id.toString()).plainText.contains(str, ignoreCase = true) || Registries.SOUND_EVENT.getKey(soundEvent).toString().contains(str)
     },
-    onChange = onChange,
+    onSelected = onSelected,
     selectedColor = selectedColor,
     selectedWrapper = selectedWrapper,
     optionWrapper = optionWrapper,

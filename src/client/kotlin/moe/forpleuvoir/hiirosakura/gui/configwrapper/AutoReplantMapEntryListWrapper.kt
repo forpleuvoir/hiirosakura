@@ -3,6 +3,7 @@ package moe.forpleuvoir.hiirosakura.gui.configwrapper
 import moe.forpleuvoir.hiirosakura.config.items.ConfigAutoReplantMapEntryList
 import moe.forpleuvoir.hiirosakura.functional.gameplay.AutoReplant
 import moe.forpleuvoir.hiirosakura.gui.widget.AutoReplantMapEntryWrapper
+import moe.forpleuvoir.hiirosakura.gui.widget.RemoveButton
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -11,6 +12,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.height
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverText
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.margin
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.maxHeight
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minHeight
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minWidth
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
@@ -61,7 +64,7 @@ fun WidgetContainerScope.AutoReplantMapEntryListWrapper(
                     ) {
                         RowListWrapped(
                             modifier = Modifier.disableRenderBackground().padding(0).minWidth(240f),
-                            listModifier = { Modifier.height(160f) }
+                            listModifier = { Modifier.maxHeight(240f).minHeight(160f) }
                         ) {
                             if (listValue.isEmpty()) TextLabel(IGLang.hasNothing)
                             listValue.forEachIndexed { index, mapEntry ->
@@ -83,7 +86,6 @@ fun WidgetContainerScope.AutoReplantMapEntryListWrapper(
                                         Modifier.weight(1),
                                         Arrangement.SpaceAround
                                     )
-
                                     FlatButton(
                                         hoveredColor = Colors.LIGHT_RED,
                                         modifier = Modifier.margin(right = 2f).hoverText(IGLang.remove)

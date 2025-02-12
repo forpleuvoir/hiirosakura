@@ -9,7 +9,10 @@ import moe.forpleuvoir.hiirosakura.util.math.Vector3icDeserializer
 import moe.forpleuvoir.hiirosakura.util.math.serialization
 import moe.forpleuvoir.hiirosakura.util.math.toVector
 import moe.forpleuvoir.hiirosakura.util.serialization
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.serialization.Deserializable
 import moe.forpleuvoir.nebula.serialization.Deserializer
@@ -104,6 +107,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     val translateText = Translatable(translateKey)
 
+    abstract val asText: Text
 
     companion object : Deserializer<BlockInfoMatchEntry> {
 
@@ -139,6 +143,8 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
+        override val asText: Text = block.name.copyToText()
+
         override fun match(obj: BlockInfo): Boolean = obj.state.block == this.block
 
         override fun serialization(): SerializeElement = serializeObject {
@@ -160,6 +166,8 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
                 }.getOrThrow()
             }
         }
+
+        override val asText: Text = Literal(script.substring(0..(64.coerceAtMost(script.lastIndex))))
 
         override fun match(obj: BlockInfo): Boolean {
             val result = mutableStateOf<Boolean>(false)
@@ -196,6 +204,8 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
+        override val asText: Text = Literal("[x:${min.x()},y:${min.y()},z:${min.z()}]..[x:${max.x()},y:${max.y()},z:${max.z()}]")
+
         override fun match(obj: BlockInfo): Boolean = obj.pos.let {
             it.x() in min.x()..max.x()
                     && it.y() in min.y()..max.y()
@@ -207,10 +217,6 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             "mode" to mode
             "min" to min.serialization()
             "max" to max.serialization()
-        }
-
-        override fun toString(): String {
-            return "[x:${min.x()},y:${min.y()},z:${min.z()}]..[x:${max.x()},y:${max.y()},z:${max.z()}]"
         }
 
     }
@@ -228,6 +234,8 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
+        override val asText: Text = Literal("#$tag")
+
         override fun match(obj: BlockInfo): Boolean = obj.state.hasTag(tag)
 
         override fun serialization(): SerializeElement = serializeObject {
@@ -244,8 +252,8 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             override fun deserialization(serializeElement: SerializeElement): Property {
                 return serializeElement.checkType<SerializeObject, Property> {
                     Property(
-                        property = it["property"]!!.asString.let {
-                            val strings = it.split(" = ")
+                        property = it["property"]!!.asString.let { str ->
+                            val strings = str.split(" = ")
                             strings[0] to strings[1]
                         },
                         mode = getMode(it)
@@ -253,6 +261,8 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
                 }.getOrThrow()
             }
         }
+
+        override val asText: Text = Literal(property.first + " = " + property.second)
 
         override fun match(obj: BlockInfo): Boolean = obj.state.entries.any {
             it.key.name == property.first && property.second == Util.getValueAsString(it.key, it.value)

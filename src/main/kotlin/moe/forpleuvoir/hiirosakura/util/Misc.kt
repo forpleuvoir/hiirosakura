@@ -1,6 +1,8 @@
 package moe.forpleuvoir.hiirosakura.util
 
+import com.mojang.serialization.Codec
 import moe.forpleuvoir.hiirosakura.HiiroSakura
+import moe.forpleuvoir.hiirosakura.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.ModLogger
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -30,4 +32,12 @@ inline fun <reified T : Enum<T>> T.cycle(): T {
         if (it == values.lastIndex) 0 else it + 1
     }
     return values[nextIndex]
+}
+
+fun <T> Codec<T>.serialization(obj: T): SerializeElement {
+    return this.encodeStart(NebulaOps, obj).orThrow
+}
+
+fun <T> Codec<T>.deserialization(serializeElement: SerializeElement): T {
+    return this.decode(NebulaOps, serializeElement).orThrow.first
 }

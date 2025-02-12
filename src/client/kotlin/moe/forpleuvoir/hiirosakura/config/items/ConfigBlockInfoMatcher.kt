@@ -4,6 +4,9 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
 import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.config.item.impl.ConfigList
+import moe.forpleuvoir.nebula.config.item.impl.ConfigStringKeyMap
+import moe.forpleuvoir.nebula.config.item.impl.ConfigStringMap
+import moe.forpleuvoir.nebula.config.item.impl.stringKeyMap
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 
 class ConfigBlockInfoMatcher(
@@ -45,3 +48,22 @@ fun ConfigContainer.blockInfoMatcherList(
     key: String,
     defaultValue: List<BlockInfoMatcher> = emptyList()
 ) = addConfig(ConfigBlockInfoMatcherList(key, defaultValue))
+
+class ConfigBlockInfoMatcherMap(
+    key: String,
+    defaultValue: Map<String, BlockInfoMatcher> = emptyMap()
+) : ConfigStringKeyMap<BlockInfoMatcher>(
+    key,
+    defaultValue,
+    {
+        it.serialization()
+    },
+    {
+        BlockInfoMatcher.deserialization(it)
+    }
+)
+
+fun ConfigContainer.blockInfoMatcherMap(
+    key: String,
+    defaultValue: Map<String, BlockInfoMatcher> = emptyMap()
+) = addConfig(ConfigBlockInfoMatcherMap(key, defaultValue))

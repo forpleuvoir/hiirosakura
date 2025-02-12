@@ -3,12 +3,17 @@ package moe.forpleuvoir.hiirosakura.functional.misc.matcher
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSItemStack
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
+import moe.forpleuvoir.hiirosakura.util.ENCHANTMENT_LIST
+import moe.forpleuvoir.hiirosakura.util.deserialization
 import moe.forpleuvoir.hiirosakura.util.hasTag
 import moe.forpleuvoir.hiirosakura.util.id
 import moe.forpleuvoir.hiirosakura.util.item
-import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.hiirosakura.util.serialization
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.text.copyToText
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.serialization.Deserializable
 import moe.forpleuvoir.nebula.serialization.Deserializer
@@ -19,10 +24,11 @@ import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.deserialization
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.component.ComponentType
+import net.minecraft.enchantment.Enchantment as McEnchantment
 import net.minecraft.item.ItemStack
 import net.minecraft.registry.Registries
+import net.minecraft.registry.entry.RegistryEntry
 import net.minecraft.util.Identifier
-import java.util.Collections
 import net.minecraft.item.Item as McItem
 import net.minecraft.util.Rarity as McRarity
 
@@ -31,6 +37,16 @@ class ItemStackMatcher(override var mode: MultiMatcher.MatchMode, entries: List<
     constructor(mode: MultiMatcher.MatchMode, vararg entries: ItemStackMatchEntry) : this(mode, entries.toList())
 
     companion object : Deserializer<ItemStackMatcher> {
+
+        val handItemStack: ItemStack?
+            get() {
+                mc.player?.apply {
+                    if (!mainHandStack.isEmpty) return mainHandStack
+                    if (!offHandStack.isEmpty) return offHandStack
+                }
+                return null
+            }
+
         override fun deserialization(serializeElement: SerializeElement): ItemStackMatcher {
             return serializeElement.checkType<SerializeObject, ItemStackMatcher> { obj ->
                 val entries = obj["entries"]!!.checkType<SerializeArray, List<ItemStackMatchEntry>> { array ->
@@ -111,6 +127,8 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     val translateText = Translatable(translateKey)
 
+    abstract val asText: Text
+
     companion object : Deserializer<ItemStackMatchEntry> {
 
         val desMapping = mutableMapOf<String, (SerializeElement) -> ItemStackMatchEntry>(
@@ -118,6 +136,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             "script" to { Script.deserialization(it) },
             "count" to { Count.deserialization(it) },
             "rarity" to { Rarity.deserialization(it) },
+            "enchantment" to { Enchantment.deserialization(it) },
             "tag" to { Tag.deserialization(it) },
             "data_component_type" to { DataComponentType.deserialization(it) }
         )
@@ -146,6 +165,8 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
+        override val asText: Text = item.name.copyToText()
+
         override fun match(obj: ItemStack): Boolean = obj.item == item
 
         override fun serialization(): SerializeElement = serializeObject {
@@ -168,6 +189,8 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
                 }.getOrThrow()
             }
         }
+
+        override val asText: Text = Literal(script.substring(0..(64.coerceAtMost(script.lastIndex))))
 
         override fun match(obj: ItemStack): Boolean {
             val result = mutableStateOf<Boolean>(false)
@@ -201,6 +224,8 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
+        override val asText: Text = Literal("x${count.first}..x${count.last}")
+
         override fun match(obj: ItemStack): Boolean = obj.count in count
 
         override fun serialization(): SerializeElement = serializeObject {
@@ -224,12 +249,48 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
+        override val asText: Text = Literal(rarity.name)
+
         override fun match(obj: ItemStack): Boolean = obj.rarity == rarity
 
         override fun serialization(): SerializeElement = serializeObject {
             "type" to type
             "mode" to mode
             "rarity" to rarity
+        }
+
+    }
+
+    class Enchantment(
+        val enchantment: RegistryEntry<McEnchantment>,
+        val level: IntRange,
+        mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+    ) : ItemStackMatchEntry(mode, "enchantment") {
+
+        companion object : Deserializer<Enchantment> {
+            override fun deserialization(serializeElement: SerializeElement): ItemStackMatchEntry.Enchantment {
+                return serializeElement.checkType<SerializeObject, Enchantment> {
+                    Enchantment(
+                        enchantment = ENCHANTMENT_LIST.find { e -> e.idAsString == it["enchantment"]!!.asString }!!,
+                        level = IntRange.deserialization(it["level"]!!),
+                        mode = getMode(it)
+                    )
+                }.getOrThrow()
+            }
+
+        }
+
+        override val asText: Text = enchantment.value().description.copyToText().appendLiteral(" : ${level.first}..${level.last}")
+
+        override fun match(obj: ItemStack): Boolean {
+            return obj.enchantments.getLevel(enchantment) in level
+        }
+
+        override fun serialization(): SerializeElement = serializeObject {
+            "type" to type
+            "mode" to mode
+            "enchantment" to enchantment.idAsString
+            "level" to level.serialization()
         }
 
     }
@@ -246,6 +307,8 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
                 }.getOrThrow()
             }
         }
+
+        override val asText: Text = Literal("#$tag")
 
         override fun match(obj: ItemStack): Boolean = obj.hasTag(tag)
 
@@ -270,6 +333,8 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
                 }.getOrThrow()
             }
         }
+
+        override val asText: Text = Literal(componentType.id.toString())
 
         override fun match(obj: ItemStack): Boolean = obj.components.contains(componentType)
 

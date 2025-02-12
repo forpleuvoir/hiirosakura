@@ -1,8 +1,10 @@
 package moe.forpleuvoir.hiirosakura.gui.widget
 
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcher
 import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryCount
 import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryDataComponentType
+import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryEnchantment
 import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryItem
 import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryRarity
 import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryScript
@@ -11,8 +13,7 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher
-import moe.forpleuvoir.hiirosakura.gui.widget.ItemIcon
-import moe.forpleuvoir.hiirosakura.util.id
+import moe.forpleuvoir.hiirosakura.util.ENCHANTMENT_LIST
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
@@ -23,7 +24,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
-import moe.forpleuvoir.ibukigourd.gui.widget.ColoredBox
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
 import moe.forpleuvoir.ibukigourd.gui.widget.Rect
 import moe.forpleuvoir.ibukigourd.gui.widget.Selector
@@ -42,12 +42,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.state.ImmutableState
-import moe.forpleuvoir.ibukigourd.util.state.MutableState
-import moe.forpleuvoir.ibukigourd.util.state.State
-import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
-import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
-import moe.forpleuvoir.ibukigourd.util.state.stateOf
+import moe.forpleuvoir.ibukigourd.util.state.*
 import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
@@ -55,6 +50,7 @@ import net.minecraft.component.ComponentType
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.item.Items
 import net.minecraft.util.Rarity
+import kotlin.jvm.optionals.getOrNull
 
 private val map: Map<Text, (Modifier, Modifier, (ItemStackMatchEntry) -> Unit) -> IGScreenImpl> = mapOf(
     itemStackMatcherEntryItem to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (ItemStackMatchEntry.Item) -> Unit ->
@@ -68,6 +64,9 @@ private val map: Map<Text, (Modifier, Modifier, (ItemStackMatchEntry) -> Unit) -
     },
     itemStackMatcherEntryRarity to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (ItemStackMatchEntry.Rarity) -> Unit ->
         RarityMatchEntryBuilder(modifier, screenModifier, entryConsumer = entryConsumer)
+    },
+    itemStackMatcherEntryEnchantment to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (ItemStackMatchEntry.Enchantment) -> Unit ->
+        EnchantmentMatchEntryBuilder(modifier, screenModifier, entryConsumer = entryConsumer)
     },
     itemStackMatcherEntryTag to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (ItemStackMatchEntry.Tag) -> Unit ->
         TagMatchEntryBuilder(modifier, screenModifier, entryConsumer = entryConsumer)
@@ -179,18 +178,14 @@ private fun WidgetContainerScope.EntryWrapper(
 ) {
     TextLabel(entry.translateText, modifier = Modifier.weight(1))
     when (entry) {
-        is ItemStackMatchEntry.Item              -> Column(
+        is ItemStackMatchEntry.Item -> Column(
             horizontalArrangement = Arrangement.spacedBy(2f)
         ) {
             ItemIcon(entry.item, .6f)
-            TextLabel(entry.item.name.copyToText())
+            TextLabel(entry.asText)
         }
 
-        is ItemStackMatchEntry.Script            -> TextLabel(entry.script.substring(0..(64.coerceAtMost(entry.script.lastIndex))))
-        is ItemStackMatchEntry.Count             -> TextLabel(entry.count.toString())
-        is ItemStackMatchEntry.Rarity            -> TextLabel(entry.rarity.name)
-        is ItemStackMatchEntry.Tag               -> TextLabel(entry.tag)
-        is ItemStackMatchEntry.DataComponentType -> TextLabel(entry.componentType.id.toString())
+        else                        -> TextLabel(entry.asText)
     }
     TextLabel(entry.mode.translateText)
     EditButton {
@@ -199,6 +194,7 @@ private fun WidgetContainerScope.EntryWrapper(
             is ItemStackMatchEntry.Script            -> ScriptMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
             is ItemStackMatchEntry.Count             -> CountMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
             is ItemStackMatchEntry.Rarity            -> RarityMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
+            is ItemStackMatchEntry.Enchantment       -> EnchantmentMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
             is ItemStackMatchEntry.Tag               -> TagMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
             is ItemStackMatchEntry.DataComponentType -> ComponentTypeMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
         }.open()
@@ -251,7 +247,7 @@ internal fun <T : MatchEntry<*>> MatchEntryDialog(
 private fun ItemMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    entry: ItemStackMatchEntry.Item = ItemStackMatchEntry.Item(mc.player?.mainHandStack?.item ?: Items.MELON, MatchEntry.MatchMode.Include),
+    entry: ItemStackMatchEntry.Item = ItemStackMatchEntry.Item(ItemStackMatcher.handItemStack?.item ?: Items.MELON, MatchEntry.MatchMode.Include),
     entryConsumer: (ItemStackMatchEntry.Item) -> Unit
 ): IGScreenImpl {
     val item = mutableStateOf(entry.item)
@@ -298,7 +294,7 @@ private fun CountMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
     entry: ItemStackMatchEntry.Count = ItemStackMatchEntry.Count(
-        (mc.player?.mainHandStack?.count ?: 1)..(mc.player?.mainHandStack?.count ?: 64),
+        (ItemStackMatcher.handItemStack?.count ?: 1)..(ItemStackMatcher.handItemStack?.count ?: 64),
         MatchEntry.MatchMode.Include
     ),
     entryConsumer: (ItemStackMatchEntry.Count) -> Unit
@@ -323,7 +319,7 @@ private fun CountMatchEntryBuilder(
 private fun RarityMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    entry: ItemStackMatchEntry.Rarity = ItemStackMatchEntry.Rarity(mc.player?.mainHandStack?.rarity ?: Rarity.COMMON, MatchEntry.MatchMode.Include),
+    entry: ItemStackMatchEntry.Rarity = ItemStackMatchEntry.Rarity(ItemStackMatcher.handItemStack?.rarity ?: Rarity.COMMON, MatchEntry.MatchMode.Include),
     entryConsumer: (ItemStackMatchEntry.Rarity) -> Unit
 ): IGScreenImpl {
     val rarity = mutableStateOf(entry.rarity)
@@ -360,13 +356,84 @@ private fun RarityMatchEntryBuilder(
     }
 }
 
+private fun EnchantmentMatchEntryBuilder(
+    modifier: Modifier = Modifier,
+    screenModifier: Modifier = Modifier,
+    entry: ItemStackMatchEntry.Enchantment = ItemStackMatchEntry.Enchantment(
+        ItemStackMatcher.handItemStack?.enchantments?.enchantmentEntries?.firstOrNull()?.key
+            ?: ENCHANTMENT_LIST.first(),
+        1..255,
+        MatchEntry.MatchMode.Include
+    ),
+    entryConsumer: (ItemStackMatchEntry.Enchantment) -> Unit
+): IGScreenImpl {
+    val enchantment = mutableStateOf(entry.enchantment)
+
+    val level = mutableStateOf(entry.level.first)
+    val levelEnd = mutableStateOf(entry.level.endInclusive)
+
+    val enchantments = ItemStackMatcher.handItemStack
+        ?.enchantments
+        ?.enchantmentEntries
+        ?.run {
+            buildMap {
+                this@run.forEach { (enchantment, level) ->
+                    this.put(enchantment, level)
+                }
+            }
+        }
+
+    return MatchEntryDialog(
+        title = itemStackMatcherEntryTag,
+        modifier = modifier,
+        screenModifier = screenModifier,
+        entrySupplier = { mode -> ItemStackMatchEntry.Enchantment(enchantment.getValue(), level.getValue()..levelEnd.getValue(), mode) },
+        entryConsumer = entryConsumer
+    ) {
+        EnchatmentSelector(enchantment, modifier = Modifier.matchSibling())
+
+        enchantments?.let { enchantments ->
+            if (enchantments.isEmpty()) return@let
+            EnchatmentSelector(
+                mutableStateOf(enchantments.entries.first().key),
+                enchantments = enchantments.keys.toList(),
+                onSelected = {
+                    ENCHANTMENT_LIST
+                        .find { e -> e.idAsString == it.idAsString }
+                        ?.let { e ->
+                            enchantment.setValue(e)
+                        }
+                    enchantments[it]?.let { lv ->
+                        level.setValue(lv)
+                        levelEnd.setValue(lv)
+                    }
+                },
+                modifier = Modifier.matchSibling().hoverText(HSLang.fromHandItem),
+            )
+        }
+
+        Column {
+            IntEditor(level, 1..65535, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
+            TextLabel("<= .. <=")
+            IntEditor(levelEnd, 1..65535, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
+        }
+    }
+}
+
 private fun TagMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    entry: ItemStackMatchEntry.Tag = ItemStackMatchEntry.Tag("", MatchEntry.MatchMode.Include),
+    entry: ItemStackMatchEntry.Tag = ItemStackMatchEntry.Tag(
+        ItemStackMatcher.handItemStack?.streamTags()?.findFirst()?.getOrNull()?.id?.toString() ?: "",
+        MatchEntry.MatchMode.Include
+    ),
     entryConsumer: (ItemStackMatchEntry.Tag) -> Unit
 ): IGScreenImpl {
     var tag = entry.tag
+    val tags = ItemStackMatcher.handItemStack
+        ?.streamTags()
+        ?.toList()
+        ?.map { tag -> tag.id.toString() }
     return MatchEntryDialog(
         title = itemStackMatcherEntryTag,
         modifier = modifier,
@@ -374,9 +441,26 @@ private fun TagMatchEntryBuilder(
         entrySupplier = { mode -> ItemStackMatchEntry.Tag(tag, mode) },
         entryConsumer = entryConsumer
     ) {
-        TextEditor(modifier = Modifier.width(120f)) {
+        val editor = TextEditor(modifier = Modifier.width(240f)) {
             text = tag
             textConsumer { tag = it }
+        }
+        tags?.let { tags ->
+            if (tags.isEmpty()) return@let
+            Selector(
+                tags,
+                modifier = Modifier.width(240f).hoverText(HSLang.fromHandItem),
+                onSelected = {
+                    editor.text = it
+                    tag = it
+                },
+                selectedWrapper = {
+                    TextLabel(it, modifier = Modifier.weight(1))
+                },
+                optionWrapper = {
+                    TextLabel(it, modifier = Modifier.width(tags.maxWidth(textRenderer).toFloat() + 1))
+                }
+            )
         }
     }
 }
@@ -384,10 +468,14 @@ private fun TagMatchEntryBuilder(
 private fun ComponentTypeMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    entry: ItemStackMatchEntry.DataComponentType = ItemStackMatchEntry.DataComponentType(DataComponentTypes.FOOD, MatchEntry.MatchMode.Include),
+    entry: ItemStackMatchEntry.DataComponentType = ItemStackMatchEntry.DataComponentType(
+        ItemStackMatcher.handItemStack?.components?.types?.firstOrNull() ?: DataComponentTypes.FOOD, MatchEntry.MatchMode.Include
+    ),
     entryConsumer: (ItemStackMatchEntry.DataComponentType) -> Unit
 ): IGScreenImpl {
     val componentType: MutableState<ComponentType<*>> = mutableStateOf(entry.componentType)
+    val components = ItemStackMatcher.handItemStack
+        ?.components?.types
     return MatchEntryDialog(
         title = itemStackMatcherEntryDataComponentType,
         modifier = modifier,
@@ -401,6 +489,16 @@ private fun ComponentTypeMatchEntryBuilder(
             searchBarModifier = { Modifier.width(200f) },
             listModifier = { Modifier.width(200f) },
         )
+        components?.let { components ->
+            if (components.isEmpty()) return@let
+            DataComponentTypeSelector(
+                componentType,
+                components.toList(),
+                modifier = Modifier.width(120f).hoverText(HSLang.fromHandItem),
+                searchBarModifier = { Modifier.width(200f) },
+                listModifier = { Modifier.width(200f) },
+            )
+        }
     }
 }
 
@@ -447,6 +545,7 @@ fun WidgetContainerScope.ItemStackEntryInfo(entry: State<ItemStackMatchEntry>) {
         is ItemStackMatchEntry.Item              -> ItemStackEntryItemInfo(entry as State<ItemStackMatchEntry.Item>)
         is ItemStackMatchEntry.Script            -> ItemStackEntryScriptInfo(entry as State<ItemStackMatchEntry.Script>)
         is ItemStackMatchEntry.Count             -> ItemStackEntryCountInfo(entry as State<ItemStackMatchEntry.Count>)
+        is ItemStackMatchEntry.Enchantment       -> ItemStackEntryEnchantmentInfo(entry as State<ItemStackMatchEntry.Enchantment>)
         is ItemStackMatchEntry.Tag               -> ItemStackEntryTagInfo(entry as State<ItemStackMatchEntry.Tag>)
         is ItemStackMatchEntry.Rarity            -> ItemStackEntryRarityInfo(entry as State<ItemStackMatchEntry.Rarity>)
         is ItemStackMatchEntry.DataComponentType -> ItemStackEntryDataComponentTypeInfo(entry as State<ItemStackMatchEntry.DataComponentType>)
@@ -461,7 +560,7 @@ fun WidgetContainerScope.ItemStackEntryItemInfo(
     Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
     TextLabel(itemStackMatcherEntryItem)
     ItemIcon(entry.getValue().item, .6f)
-    TextLabel(entry.getValue().item.name.copyToText())
+    TextLabel(entry.getValue().asText)
 }
 
 fun WidgetContainerScope.ItemStackEntryScriptInfo(
@@ -471,7 +570,7 @@ fun WidgetContainerScope.ItemStackEntryScriptInfo(
 ) {
     Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
     TextLabel(
-        mutableStateBy { itemStackMatcherEntryScript.appendLiteral(entry.getValue().script.substring(0..(64.coerceAtMost(entry.getValue().script.lastIndex)))) },
+        mutableStateBy { itemStackMatcherEntryScript.append(entry.getValue().asText) },
         modifier = Modifier.maxWidth(180f)
     )
 }
@@ -482,7 +581,7 @@ fun WidgetContainerScope.ItemStackEntryCountInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
-    TextLabel(mutableStateBy { itemStackMatcherEntryCount.appendLiteral(entry.getValue().count.toString()) }, modifier = Modifier.maxWidth(180f))
+    TextLabel(mutableStateBy { itemStackMatcherEntryCount.append(entry.getValue().asText) }, modifier = Modifier.maxWidth(180f))
 }
 
 fun WidgetContainerScope.ItemStackEntryRarityInfo(
@@ -491,7 +590,16 @@ fun WidgetContainerScope.ItemStackEntryRarityInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
-    TextLabel(mutableStateBy { itemStackMatcherEntryRarity.appendLiteral(entry.getValue().rarity.name) }, modifier = Modifier.maxWidth(180f))
+    TextLabel(mutableStateBy { itemStackMatcherEntryRarity.append(entry.getValue().asText) }, modifier = Modifier.maxWidth(180f))
+}
+
+fun WidgetContainerScope.ItemStackEntryEnchantmentInfo(
+    entry: State<ItemStackMatchEntry.Enchantment>,
+) = Column(
+    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
+) {
+    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(mutableStateBy { itemStackMatcherEntryEnchantment.append(entry.getValue().asText) }, modifier = Modifier.maxWidth(180f))
 }
 
 fun WidgetContainerScope.ItemStackEntryTagInfo(
@@ -500,7 +608,7 @@ fun WidgetContainerScope.ItemStackEntryTagInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
-    TextLabel(mutableStateBy { itemStackMatcherEntryTag.appendLiteral(entry.getValue().tag) }, modifier = Modifier.maxWidth(180f))
+    TextLabel(mutableStateBy { itemStackMatcherEntryTag.append(entry.getValue().asText) }, modifier = Modifier.maxWidth(180f))
 }
 
 fun WidgetContainerScope.ItemStackEntryDataComponentTypeInfo(
@@ -510,7 +618,7 @@ fun WidgetContainerScope.ItemStackEntryDataComponentTypeInfo(
 ) {
     Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
     TextLabel(
-        mutableStateBy { itemStackMatcherEntryDataComponentType.appendLiteral(entry.getValue().componentType.id.toString()) },
+        mutableStateBy { itemStackMatcherEntryDataComponentType.append(entry.getValue().asText) },
         modifier = Modifier.maxWidth(180f)
     )
 }

@@ -1,13 +1,16 @@
 package moe.forpleuvoir.hiirosakura.gui.widget
 
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcher
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryBlock
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryPos
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryProperty
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryScript
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryTag
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfo
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher
 import moe.forpleuvoir.hiirosakura.util.targetBlock
@@ -22,6 +25,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
 import moe.forpleuvoir.ibukigourd.gui.widget.Rect
+import moe.forpleuvoir.ibukigourd.gui.widget.Selector
 import moe.forpleuvoir.ibukigourd.gui.widget.Vector3iEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.RadioButtons
@@ -32,6 +36,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditorWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
@@ -41,7 +46,9 @@ import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import net.minecraft.block.Blocks
+import net.minecraft.util.Util
 import org.joml.Vector3i
+import kotlin.jvm.optionals.getOrNull
 
 private val map: Map<Text, (Modifier, Modifier, (BlockInfoMatchEntry) -> Unit) -> IGScreenImpl> = mapOf(
     blockInfoMatcherEntryBlock to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (BlockInfoMatchEntry.Block) -> Unit ->
@@ -167,13 +174,13 @@ private fun WidgetContainerScope.EntryWrapper(
             horizontalArrangement = Arrangement.spacedBy(2f)
         ) {
             ItemIcon(entry.block.asItem(), .6f)
-            TextLabel(entry.block.name.copyToText())
+            TextLabel(entry.asText)
         }
 
-        is BlockInfoMatchEntry.Script   -> Unit
-        is BlockInfoMatchEntry.Pos      -> TextLabel(entry.toString())
-        is BlockInfoMatchEntry.Tag      -> TextLabel(entry.tag)
-        is BlockInfoMatchEntry.Property -> TextLabel(entry.property.toString())
+        is BlockInfoMatchEntry.Script   -> TextLabel(entry.asText)
+        is BlockInfoMatchEntry.Pos      -> TextLabel(entry.asText)
+        is BlockInfoMatchEntry.Tag      -> TextLabel(entry.asText)
+        is BlockInfoMatchEntry.Property -> TextLabel(entry.asText)
     }
     TextLabel(entry.mode.translateText)
     EditButton {
@@ -267,10 +274,17 @@ private fun PosMatchEntryBuilder(
 private fun TagMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    entry: BlockInfoMatchEntry.Tag = BlockInfoMatchEntry.Tag("", MatchEntry.MatchMode.Include),
+    entry: BlockInfoMatchEntry.Tag = BlockInfoMatchEntry.Tag(
+        mc.targetBlock?.state?.streamTags()?.findFirst()?.getOrNull()?.id?.toString() ?: "",
+        MatchEntry.MatchMode.Include
+    ),
     entryConsumer: (BlockInfoMatchEntry.Tag) -> Unit
 ): IGScreenImpl {
     var tag = entry.tag
+    val tags = mc.targetBlock?.state
+        ?.streamTags()
+        ?.toList()
+        ?.map { tag -> tag.id.toString() }
     return MatchEntryDialog(
         title = blockInfoMatcherEntryTag,
         modifier = modifier,
@@ -278,9 +292,26 @@ private fun TagMatchEntryBuilder(
         entrySupplier = { mode -> BlockInfoMatchEntry.Tag(tag, mode) },
         entryConsumer = entryConsumer
     ) {
-        TextEditor(modifier = Modifier.width(120f)) {
+        val editor = TextEditor(modifier = Modifier.width(240f)) {
             text = tag
             textConsumer { tag = it }
+        }
+        tags?.let { tags ->
+            if (tags.isEmpty()) return@let
+            Selector(
+                tags,
+                modifier = Modifier.width(240f).hoverText(HSLang.fromTargetBlock),
+                onSelected = {
+                    editor.text = it
+                    tag = it
+                },
+                selectedWrapper = {
+                    TextLabel(it, modifier = Modifier.weight(1))
+                },
+                optionWrapper = {
+                    TextLabel(it, modifier = Modifier.width(tags.maxWidth(textRenderer).toFloat() + 1))
+                }
+            )
         }
     }
 }
@@ -288,11 +319,22 @@ private fun TagMatchEntryBuilder(
 private fun PropertyMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    entry: BlockInfoMatchEntry.Property = BlockInfoMatchEntry.Property("" to "", MatchEntry.MatchMode.Include),
+    entry: BlockInfoMatchEntry.Property = BlockInfoMatchEntry.Property(
+        mc.targetBlock?.state?.entries?.entries?.firstOrNull()?.run {
+            this.key.name to Util.getValueAsString(this.key, this.value)
+        } ?: ("" to ""),
+        MatchEntry.MatchMode.Include
+    ),
     entryConsumer: (BlockInfoMatchEntry.Property) -> Unit
 ): IGScreenImpl {
+
     var key = entry.property.first
     var value = entry.property.second
+
+    val properties = mc.targetBlock?.state?.entries?.map { (key, value) ->
+        key.name to Util.getValueAsString(key, value)
+    }
+
     return MatchEntryDialog(
         title = blockInfoMatcherEntryProperty,
         modifier = modifier,
@@ -300,16 +342,41 @@ private fun PropertyMatchEntryBuilder(
         entrySupplier = { mode -> BlockInfoMatchEntry.Property(key to value, mode) },
         entryConsumer = entryConsumer
     ) {
+        var k: TextEditorWidget? = null
+        var v: TextEditorWidget? = null
         Column {
-            TextEditor(modifier = Modifier.width(120f)) {
+            k = TextEditor(modifier = Modifier.width(120f)) {
                 text = key
                 textConsumer { key = it }
             }
             TextLabel(" = ")
-            TextEditor(modifier = Modifier.width(120f)) {
+            v = TextEditor(modifier = Modifier.width(120f)) {
                 text = value
                 textConsumer { value = it }
             }
+
+        }
+        properties?.let { properties ->
+            if (properties.isEmpty()) return@let
+            Selector(
+                properties,
+                modifier = Modifier.matchSibling().hoverText(HSLang.fromTargetBlock),
+                onSelected = { (kt, vt) ->
+                    k?.text = kt
+                    key = kt
+                    v?.text = vt
+                    value = vt
+                },
+                selectedWrapper = {
+                    TextLabel("${it.first} = ${it.second}", modifier = Modifier.weight(1))
+                },
+                optionWrapper = {
+                    TextLabel(
+                        "${it.first} = ${it.second}",
+                        modifier = Modifier.width(properties.map { p -> "${p.first} = ${p.second}" }.maxWidth(textRenderer).toFloat() + 1)
+                    )
+                }
+            )
         }
     }
 }
@@ -370,7 +437,7 @@ fun WidgetContainerScope.BlockInfoEntryBlockInfo(
     Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
     TextLabel(blockInfoMatcherEntryBlock)
     ItemIcon(entry.getValue().block.asItem(), .6f)
-    TextLabel(entry.getValue().block.name.copyToText())
+    TextLabel(entry.getValue().asText)
 }
 
 fun WidgetContainerScope.BlockInfoEntryScriptInfo(
@@ -380,7 +447,7 @@ fun WidgetContainerScope.BlockInfoEntryScriptInfo(
 ) {
     Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
     TextLabel(
-        mutableStateBy { blockInfoMatcherEntryScript.appendLiteral(entry.getValue().script.substring(0..(64.coerceAtMost(entry.getValue().script.lastIndex)))) },
+        mutableStateBy { blockInfoMatcherEntryScript.append(entry.getValue().asText) },
         modifier = Modifier.maxWidth(180f)
     )
 }
@@ -391,7 +458,7 @@ fun WidgetContainerScope.BlockInfoEntryPosInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
-    TextLabel(mutableStateBy { blockInfoMatcherEntryPos.appendLiteral(entry.getValue().toString()) }, modifier = Modifier.maxWidth(180f))
+    TextLabel(mutableStateBy { blockInfoMatcherEntryPos.append(entry.getValue().asText) }, modifier = Modifier.maxWidth(180f))
 }
 
 fun WidgetContainerScope.BlockInfoEntryTagInfo(
@@ -400,7 +467,7 @@ fun WidgetContainerScope.BlockInfoEntryTagInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
-    TextLabel(mutableStateBy { blockInfoMatcherEntryTag.appendLiteral(entry.getValue().tag) }, modifier = Modifier.maxWidth(180f))
+    TextLabel(mutableStateBy { blockInfoMatcherEntryTag.append(entry.getValue().asText) }, modifier = Modifier.maxWidth(180f))
 }
 
 fun WidgetContainerScope.BlockInfoEntryPropertyInfo(
@@ -410,7 +477,7 @@ fun WidgetContainerScope.BlockInfoEntryPropertyInfo(
 ) {
     Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
     TextLabel(
-        mutableStateBy { blockInfoMatcherEntryProperty.appendLiteral(entry.getValue().property.toString()) },
+        mutableStateBy { blockInfoMatcherEntryProperty.append(entry.getValue().asText) },
         modifier = Modifier.maxWidth(180f)
     )
 }

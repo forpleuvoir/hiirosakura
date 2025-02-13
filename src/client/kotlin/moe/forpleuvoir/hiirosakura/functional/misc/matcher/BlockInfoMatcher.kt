@@ -154,7 +154,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
         }
     }
 
-    class Script(val script: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, "script") {
+    class Script(val script: String = defaultScript, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, "script") {
 
         companion object : Deserializer<Script> {
             override fun deserialization(serializeElement: SerializeElement): Script {
@@ -165,12 +165,19 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
                     )
                 }.getOrThrow()
             }
+
+            val defaultScript = """
+                // The variable blockState represents a wrapped BlockState object [HSBlockState].
+                // The variable blockPos represents a Vector3ic object.
+                // To indicate a successful match, set the return value by calling:
+                // result.setValue(true)
+            """.trimIndent()
         }
 
         override val asText: Text = Literal(script.substring(0..(64.coerceAtMost(script.lastIndex))))
 
         override fun match(obj: BlockInfo): Boolean {
-            val result = mutableStateOf<Boolean>(false)
+            val result = mutableStateOf(false)
             ScriptExecutor(
                 script,
                 buildMap {

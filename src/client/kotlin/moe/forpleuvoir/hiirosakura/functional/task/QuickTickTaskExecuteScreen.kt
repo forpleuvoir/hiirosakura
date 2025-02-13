@@ -9,17 +9,23 @@ import moe.forpleuvoir.hiirosakura.functional.task.QTTEConfig.optionRadius
 import moe.forpleuvoir.hiirosakura.functional.task.QTTEConfig.outerRadius
 import moe.forpleuvoir.hiirosakura.functional.task.QTTEConfig.singlePageMaxCount
 import moe.forpleuvoir.hiirosakura.gui.widget.RouletteSelector
+import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBind
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderAlignmentText
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minWidth
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.mousePress
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderParent
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.base.screen.execute
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
+import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
@@ -73,7 +79,7 @@ fun QuickTickTaskExecuteScreen(modifier: Modifier = Modifier) = BoxScreen(
     val (width, height) = 16f * scale to 16f * scale
     RouletteSelector(
         TaskManager.taskList,
-        unselectedColor =stateOf(QTTEConfig.rouletteColor),
+        unselectedColor = stateOf(QTTEConfig.rouletteColor),
         selectedColor = stateOf(QTTEConfig.rouletteSelectedColor),
         innerRadius = innerRadius,
         outerRadius = outerRadius,
@@ -87,6 +93,9 @@ fun QuickTickTaskExecuteScreen(modifier: Modifier = Modifier) = BoxScreen(
             } ?: run {
                 TaskEditor(KeyBindTickTask.empty, screenModifier = Modifier.renderParent(false)) { task ->
                     TaskManager.add(task.withKeyBind())
+                    this.execute {
+                        (this.parent() as? WidgetContainer)?.recompose()
+                    }
                 }.open()
             }
         },
@@ -94,6 +103,22 @@ fun QuickTickTaskExecuteScreen(modifier: Modifier = Modifier) = BoxScreen(
             it?.let { task ->
                 TaskEditor(task, screenModifier = Modifier.renderParent(false)) {
                     task.fromTask(it)
+                }.open()
+            }
+        },
+        onMiddlePressSelected = {
+            it?.let { task ->
+                ConfirmDialog(
+                    stateOf(IGLang.remove),
+                    onConfirm = {
+                        TaskManager.remove(task)
+                        this.execute {
+                            (this.parent() as? WidgetContainer)?.recompose()
+                        }
+                        mc.currentScreen?.close()
+                    }
+                ) {
+                    TextLabel(Literal(task.name), Modifier.minWidth(120f))
                 }.open()
             }
         },

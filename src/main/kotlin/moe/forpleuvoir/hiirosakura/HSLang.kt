@@ -80,6 +80,7 @@ object HSLang {
     val fromHandItem get() = lang("from_hand_item")
     val itemStackMatcher get() = lang("item_stack_matcher")
     val itemStackMatcherEntryItem get() = lang("item_stack_matcher_entry.item")
+    val itemStackMatcherEntryName get() = lang("item_stack_matcher_entry.name")
     val itemStackMatcherEntryScript get() = lang("item_stack_matcher_entry.script")
     val itemStackMatcherEntryCount get() = lang("item_stack_matcher_entry.count")
     val itemStackMatcherEntryRarity get() = lang("item_stack_matcher_entry.rarity")

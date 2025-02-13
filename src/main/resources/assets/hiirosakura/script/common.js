@@ -201,3 +201,7 @@ function scheduleEndTick() {
         _api.scheduleEndTick(arguments[0], arguments[1])
     }
 }
+
+function setConfig(key, value) {
+    _api.setConfig(key, value)
+}

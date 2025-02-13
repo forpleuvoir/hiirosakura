@@ -11,6 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.widget.Widget
 import moe.forpleuvoir.ibukigourd.input.Mouse.*
@@ -33,9 +34,9 @@ fun <T> WidgetContainerScope.RouletteSelector(
     selectedColor: State<ARGBColor> = stateOf(Colors.YELLOW),
     unselectedColor: State<ARGBColor> = stateOf(Colors.BLACK.alpha(0.5f)),
     modifier: Modifier = Modifier,
-    onLeftPressSelected: (option: T?) -> Unit = {},
-    onRightPressSelected: (option: T?) -> Unit = {},
-    onMiddlePressSelected: (option: T?) -> Unit = {},
+    onLeftPressSelected: IGWidget.(option: T?) -> Unit = {},
+    onRightPressSelected: IGWidget.(option: T?) -> Unit = {},
+    onMiddlePressSelected: IGWidget.(option: T?) -> Unit = {},
     selectedRenderer: (option: T?, context: IGDrawContext, position: Vector2fc, mouseX: Float, mouseY: Float, delta: Float) -> Unit,
     optionRenderer: (option: T, context: IGDrawContext, selected: Boolean, position: Vector2fc, mouseX: Float, mouseY: Float, delta: Float) -> Unit,
 ): IGWidgetImpl {
@@ -59,9 +60,9 @@ fun <T> WidgetContainerScope.RouletteSelector(
     var selectedIndex = 0
 
     val maxPage = if (options.size % currentOptions > 0) {
-        (options.size / currentOptions).toInt()
+        (options.size / currentOptions)
     } else {
-        (options.size / currentOptions).toInt() - 1
+        (options.size / currentOptions) - 1
     }
 
     var currentPageIndex = 0

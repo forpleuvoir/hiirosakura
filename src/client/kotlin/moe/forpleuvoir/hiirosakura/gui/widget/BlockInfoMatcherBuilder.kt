@@ -221,7 +221,7 @@ private fun BlockMatchEntryBuilder(
 private fun ScriptMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    entry: BlockInfoMatchEntry.Script = BlockInfoMatchEntry.Script("", MatchEntry.MatchMode.Include),
+    entry: BlockInfoMatchEntry.Script = BlockInfoMatchEntry.Script(mode = MatchEntry.MatchMode.Include),
     entryConsumer: (BlockInfoMatchEntry.Script) -> Unit
 ): IGScreenImpl {
     var script = entry.script
@@ -233,7 +233,7 @@ private fun ScriptMatchEntryBuilder(
         entryConsumer = entryConsumer
     ) {
         TextAreaWrapped(
-            modifier = Modifier.size(360f, 240f)
+            modifier = Modifier.size(440f, 200f)
         ) {
             text = script
             textConsumer { script = it }
@@ -292,7 +292,7 @@ private fun TagMatchEntryBuilder(
         entrySupplier = { mode -> BlockInfoMatchEntry.Tag(tag, mode) },
         entryConsumer = entryConsumer
     ) {
-        val editor = TextEditor(modifier = Modifier.width(240f)) {
+        val editor = TextEditor(modifier = Modifier.width(200f)) {
             text = tag
             textConsumer { tag = it }
         }
@@ -300,7 +300,7 @@ private fun TagMatchEntryBuilder(
             if (tags.isEmpty()) return@let
             Selector(
                 tags,
-                modifier = Modifier.width(240f).hoverText(HSLang.fromTargetBlock),
+                modifier = Modifier.width(200f).hoverText(HSLang.fromTargetBlock),
                 onSelected = {
                     editor.text = it
                     tag = it

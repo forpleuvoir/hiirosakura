@@ -1,14 +1,22 @@
 package moe.forpleuvoir.hiirosakura.functional.script
 
 import kotlinx.coroutines.delay
+import moe.forpleuvoir.hiirosakura.config.HSConfig
 import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
+import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.hiirosakura.input.InputSimulator
+import moe.forpleuvoir.hiirosakura.util.flat
+import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.ibukigourd.config.translationKey
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.task.scheduleEndTick
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.sendMessage
 import moe.forpleuvoir.nebula.common.util.defaultLaunch
+import moe.forpleuvoir.nebula.config.ConfigBase
+import moe.forpleuvoir.nebula.config.ConfigValue
+import moe.forpleuvoir.nebula.config.fold
 
 @Suppress("unused")
 interface CommonApi {
@@ -110,6 +118,26 @@ interface CommonApi {
 
     fun scheduleEndTick(delay: Int, runner: Runnable) {
         mc.scheduleEndTick { _, _ -> runner.run() }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun setConfig(key: String, value: Any) {
+        HSConfig.flat { it is ConfigValue<*> }
+            .find { it.translationKey() == key }
+            ?.let {
+                runCatching {
+                    (it as? ConfigValue<Any>)?.setValue(value)
+                }.onSuccess {
+                    Toast.showToast("set config: $key = $value")
+                }.onFailure { t ->
+                    Toast.showToast("set config: $key = $value failed: ${t.message}")
+                }
+            }
+    }
+
+    fun getConfig(key: String): Any? {
+        return HSConfig.flat { it is ConfigValue<*> }
+            .find { it.translationKey() == key }
     }
 
 }

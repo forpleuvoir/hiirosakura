@@ -133,6 +133,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
         val desMapping = mutableMapOf<String, (SerializeElement) -> ItemStackMatchEntry>(
             "item" to { Item.deserialization(it) },
+            "name" to { Name.deserialization(it) },
             "script" to { Script.deserialization(it) },
             "count" to { Count.deserialization(it) },
             "rarity" to { Rarity.deserialization(it) },
@@ -177,7 +178,31 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     }
 
-    class Script(val script: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "script") {
+    class Name(val name: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "name") {
+        companion object : Deserializer<Name> {
+            override fun deserialization(serializeElement: SerializeElement): Name {
+                return serializeElement.checkType<SerializeObject, Name> {
+                    Name(
+                        name = it["name"]!!.asString,
+                        mode = getMode(it)
+                    )
+                }.getOrThrow()
+            }
+        }
+
+        override val asText: Text = Literal(name)
+
+        override fun match(obj: ItemStack): Boolean =
+            name.toRegex().matches(obj.item.name.string)
+
+        override fun serialization(): SerializeElement = serializeObject {
+            "type" to type
+            "mode" to mode
+            "name" to name
+        }
+    }
+
+    class Script(val script: String = defaultScript, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "script") {
 
         companion object : Deserializer<Script> {
             override fun deserialization(serializeElement: SerializeElement): Script {
@@ -188,12 +213,18 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
                     )
                 }.getOrThrow()
             }
+
+            val defaultScript = """
+                // The variable itemStack represents a wrapped ItemStack object [HSItemStack].
+                // To indicate a successful match, set the return value by calling:
+                // result.setValue(true);
+            """.trimIndent()
         }
 
         override val asText: Text = Literal(script.substring(0..(64.coerceAtMost(script.lastIndex))))
 
         override fun match(obj: ItemStack): Boolean {
-            val result = mutableStateOf<Boolean>(false)
+            val result = mutableStateOf(false)
             ScriptExecutor(
                 script, mapOf(
                     "itemStack" to HSItemStack(obj),

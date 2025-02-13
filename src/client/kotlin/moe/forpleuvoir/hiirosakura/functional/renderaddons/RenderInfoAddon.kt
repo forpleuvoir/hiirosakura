@@ -6,6 +6,7 @@ import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 import moe.forpleuvoir.ibukigourd.config.item.vector2f
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
+import moe.forpleuvoir.nebula.config.item.impl.boolean
 import moe.forpleuvoir.nebula.config.item.impl.float
 
 object RenderInfoAddon : ModConfigContainer("render_info_addon") {
@@ -13,6 +14,8 @@ object RenderInfoAddon : ModConfigContainer("render_info_addon") {
     val alwaysRenderBarrier by keyBindBoolean("always_render_barrier", value = false)
 
     val alwaysRenderLight by keyBindBoolean("always_render_light", value = false)
+
+    val disableTextObfuscationRender by boolean("disable_text_obfuscation_render", false)
 
     val disableScoreboardSidebarRender by keyBindBoolean("disable_scoreboard_sidebar_render", value = false)
 

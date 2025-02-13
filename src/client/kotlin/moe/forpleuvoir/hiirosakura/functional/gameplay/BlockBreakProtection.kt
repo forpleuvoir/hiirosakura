@@ -21,6 +21,7 @@ import moe.forpleuvoir.nebula.config.item.impl.stringKeyMap
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.util.math.BlockPos
+import kotlin.time.TimeSource
 
 object BlockBreakProtection {
 
@@ -42,12 +43,19 @@ object BlockBreakProtection {
 
     private val matcher by Config.matcher
 
+    private var mark = TimeSource.Monotonic.markNow()
+
     @JvmStatic
     fun canBreak(block: BlockState, pos: BlockPos): Boolean {
         if (!Config.enabled.value) return true
         val info = BlockInfo(block, pos)
         return !matcher.any {
-            it.value.match(info).apply { if (this) Toast.showToast(HSLang.blockBreakProtection(it.key)) }
+            it.value.match(info).apply {
+                if (this && mark.elapsedNow() > Toast.SHORT_DURATION) {
+                    mark = TimeSource.Monotonic.markNow()
+                    Toast.showToast(HSLang.blockBreakProtection(it.key))
+                }
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryCount
 import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryDataComponentType
 import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryEnchantment
 import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryItem
+import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryName
 import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryRarity
 import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryScript
 import moe.forpleuvoir.hiirosakura.HSLang.itemStackMatcherEntryTag
@@ -55,6 +56,9 @@ import kotlin.jvm.optionals.getOrNull
 private val map: Map<Text, (Modifier, Modifier, (ItemStackMatchEntry) -> Unit) -> IGScreenImpl> = mapOf(
     itemStackMatcherEntryItem to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (ItemStackMatchEntry.Item) -> Unit ->
         ItemMatchEntryBuilder(modifier, screenModifier, entryConsumer = entryConsumer)
+    },
+    itemStackMatcherEntryName to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (ItemStackMatchEntry.Name) -> Unit ->
+        NameMatchEntryBuilder(modifier, screenModifier, entryConsumer = entryConsumer)
     },
     itemStackMatcherEntryScript to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (ItemStackMatchEntry.Script) -> Unit ->
         ScriptMatchEntryBuilder(modifier, screenModifier, entryConsumer = entryConsumer)
@@ -116,7 +120,7 @@ fun ItemStackMatcherBuilder(
                 horizontalArrangement = Arrangement.spacedBy(4f)
             ) {
                 RowListWrapped(
-                    modifier = Modifier.height(180f).weight(1),
+                    modifier = Modifier.matchSibling().weight(1),
                     listModifier = { Modifier.weight(1).fill() },
                 ) {
                     if (matcher.entries.isEmpty()) {
@@ -141,7 +145,7 @@ fun ItemStackMatcherBuilder(
                 }
 
                 Row(
-                    modifier = Modifier.height(180f),
+//                    modifier = Modifier.height(180f),
                     verticalArrangement = Arrangement.spacedBy(2f),
                 ) {
                     map.forEach { (key, builder) ->
@@ -191,6 +195,7 @@ private fun WidgetContainerScope.EntryWrapper(
     EditButton {
         when (entry) {
             is ItemStackMatchEntry.Item              -> ItemMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
+            is ItemStackMatchEntry.Name              -> NameMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
             is ItemStackMatchEntry.Script            -> ScriptMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
             is ItemStackMatchEntry.Count             -> CountMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
             is ItemStackMatchEntry.Rarity            -> RarityMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
@@ -267,10 +272,34 @@ private fun ItemMatchEntryBuilder(
     }
 }
 
+private fun NameMatchEntryBuilder(
+    modifier: Modifier = Modifier,
+    screenModifier: Modifier = Modifier,
+    entry: ItemStackMatchEntry.Name = ItemStackMatchEntry.Name(
+        ItemStackMatcher.handItemStack?.name?.string ?: Items.MELON.name.string,
+        MatchEntry.MatchMode.Include
+    ),
+    entryConsumer: (ItemStackMatchEntry.Name) -> Unit
+): IGScreenImpl {
+    var name = entry.name
+    return MatchEntryDialog(
+        title = itemStackMatcherEntryName,
+        modifier = modifier,
+        screenModifier = screenModifier,
+        entrySupplier = { mode -> ItemStackMatchEntry.Name(name, mode) },
+        entryConsumer = entryConsumer
+    ) {
+        TextEditor(Modifier.width(200f)) {
+            text = name
+            textConsumer { name = it }
+        }
+    }
+}
+
 private fun ScriptMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    entry: ItemStackMatchEntry.Script = ItemStackMatchEntry.Script("", MatchEntry.MatchMode.Include),
+    entry: ItemStackMatchEntry.Script = ItemStackMatchEntry.Script(mode = MatchEntry.MatchMode.Include),
     entryConsumer: (ItemStackMatchEntry.Script) -> Unit
 ): IGScreenImpl {
     var script = entry.script
@@ -282,7 +311,7 @@ private fun ScriptMatchEntryBuilder(
         entryConsumer = entryConsumer
     ) {
         TextAreaWrapped(
-            modifier = Modifier.size(360f, 240f)
+            modifier = Modifier.size(440f, 200f)
         ) {
             text = script
             textConsumer { script = it }
@@ -384,7 +413,7 @@ private fun EnchantmentMatchEntryBuilder(
         }
 
     return MatchEntryDialog(
-        title = itemStackMatcherEntryTag,
+        title = itemStackMatcherEntryEnchantment,
         modifier = modifier,
         screenModifier = screenModifier,
         entrySupplier = { mode -> ItemStackMatchEntry.Enchantment(enchantment.getValue(), level.getValue()..levelEnd.getValue(), mode) },
@@ -441,7 +470,7 @@ private fun TagMatchEntryBuilder(
         entrySupplier = { mode -> ItemStackMatchEntry.Tag(tag, mode) },
         entryConsumer = entryConsumer
     ) {
-        val editor = TextEditor(modifier = Modifier.width(240f)) {
+        val editor = TextEditor(modifier = Modifier.width(200f)) {
             text = tag
             textConsumer { tag = it }
         }
@@ -449,7 +478,7 @@ private fun TagMatchEntryBuilder(
             if (tags.isEmpty()) return@let
             Selector(
                 tags,
-                modifier = Modifier.width(240f).hoverText(HSLang.fromHandItem),
+                modifier = Modifier.width(200f).hoverText(HSLang.fromHandItem),
                 onSelected = {
                     editor.text = it
                     tag = it
@@ -485,7 +514,7 @@ private fun ComponentTypeMatchEntryBuilder(
     ) {
         DataComponentTypeSelector(
             componentType,
-            modifier = Modifier.width(120f),
+            modifier = Modifier.width(200f),
             searchBarModifier = { Modifier.width(200f) },
             listModifier = { Modifier.width(200f) },
         )
@@ -494,7 +523,7 @@ private fun ComponentTypeMatchEntryBuilder(
             DataComponentTypeSelector(
                 componentType,
                 components.toList(),
-                modifier = Modifier.width(120f).hoverText(HSLang.fromHandItem),
+                modifier = Modifier.width(200f).hoverText(HSLang.fromHandItem),
                 searchBarModifier = { Modifier.width(200f) },
                 listModifier = { Modifier.width(200f) },
             )
@@ -543,6 +572,7 @@ fun WidgetContainerScope.ItemStackMathcerInfo(
 fun WidgetContainerScope.ItemStackEntryInfo(entry: State<ItemStackMatchEntry>) {
     when (entry.getValue()) {
         is ItemStackMatchEntry.Item              -> ItemStackEntryItemInfo(entry as State<ItemStackMatchEntry.Item>)
+        is ItemStackMatchEntry.Name              -> ItemStackEntryNameInfo(entry as State<ItemStackMatchEntry.Name>)
         is ItemStackMatchEntry.Script            -> ItemStackEntryScriptInfo(entry as State<ItemStackMatchEntry.Script>)
         is ItemStackMatchEntry.Count             -> ItemStackEntryCountInfo(entry as State<ItemStackMatchEntry.Count>)
         is ItemStackMatchEntry.Enchantment       -> ItemStackEntryEnchantmentInfo(entry as State<ItemStackMatchEntry.Enchantment>)
@@ -561,6 +591,18 @@ fun WidgetContainerScope.ItemStackEntryItemInfo(
     TextLabel(itemStackMatcherEntryItem)
     ItemIcon(entry.getValue().item, .6f)
     TextLabel(entry.getValue().asText)
+}
+
+fun WidgetContainerScope.ItemStackEntryNameInfo(
+    entry: State<ItemStackMatchEntry.Name>,
+) = Column(
+    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
+) {
+    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(
+        mutableStateBy { itemStackMatcherEntryScript.append(entry.getValue().asText) },
+        modifier = Modifier.maxWidth(180f)
+    )
 }
 
 fun WidgetContainerScope.ItemStackEntryScriptInfo(

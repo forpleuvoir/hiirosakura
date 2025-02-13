@@ -9,6 +9,7 @@
     "ClientPlayNetworkHandlerMixin",
     "DisconnectedScreenMixin",
     "MinecraftClientMixin",
+    "StyleMixin",
     "SoundSystemMixin",
     "render.ClientWorldMixin",
     "render.CreeperEntityRendererMixin",

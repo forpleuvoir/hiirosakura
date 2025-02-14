@@ -1,126 +1,70 @@
 # **HiiroSakura Mod**
 
-<img src = "asperite/logo.png" width ="128" alt="icon">
+![Icon](asperite/logo.png)
 
-![版本](https://img.shields.io/badge/version-3.0.4%2Bbeta-blue)
+![版本](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fforpleuvoir%2Fhiirosakura%2Frefs%2Fheads%2F1.21.4%2Fgradle%2Flibs.versions.toml&query=%24.versions.modVersion&label=%E7%89%88%E6%9C%AC)
 
-**HiiroSakura** 是一个致力于提升 Minecraft 游戏体验的多功能模组，提供玩法增强、聊天功能扩展、渲染信息优化以及灵活的配置管理界面。无论是生存模式还是创造模式，此模组都能为玩家带来更流畅、便捷的游戏体验。
+**HiiroSakura** 是一个致力于提升 Minecraft 游戏体验的多功能模组，提供玩法增强、聊天功能扩展、渲染信息优化以及灵活的配置管理界面。
 
----
+## 📦 **前置模组**
 
-## 📦 **依赖库**
+<img src="https://github.com/forpleuvoir/ibuki_gourd/blob/dev/doc/logo.png?raw=true" width="16"/>[IbukiGourd](https://modrinth.com/mod/ibukigourd)
 
-- **[ibukigourd](https://modrinth.com/mod/ibukigourd)**: 提供配置管理、快捷键绑定、输入和 GUI 支持。
+![ibukigourd](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fforpleuvoir%2Fhiirosakura%2Frefs%2Fheads%2F1.21.4%2Fsrc%2Fmain%2Fresources%2Ffabric.mod.json&query=%24.depends.ibukigourd&label=ibukigourd)
 
----
+模组所有功能都为默认关闭
+
+**打开模组设置界面**：
+  - 按下快捷键 **H + S**。
+  - 在界面中调整模组设置，启用或禁用不同功能。
 
 ## ✨ **主要功能**
 
-### **1. 游戏玩法增强**
-- **自动化功能**：
-    - 支持自动播种、方块破坏保护等强大功能。
-    - 能够适应不同的游戏场景，保持高灵活性。
-- **创造模式支持**：
-    - 在创造模式中允许快速拾取玩家头颅（可配置启用或关闭）。
-- 通过 `GamePlay` 模块，玩家可以动态调整多种游戏机制。
-
----
-
-### **2. 聊天功能扩展**
-- **聊天窗口增强**：
-    - 增加关键词高亮、消息过滤等功能。
-    - 支持聊天窗口的自定义设计，为玩家带来更友好的交互体验。
-
----
-
-### **3. 渲染信息优化 (HUD 增强)**
-- **实时信息显示**：
-    - 在 HUD 上显示玩家状态、方块数据、任务进程等内容。
-- **渲染性能优化**：
-    - 动态调整渲染内容，兼具性能与视觉效果。
-- 通过 `RenderInfoAddon` 模块自由定义 HUD 的显示样式和信息。
-
----
-
-### **4. 灵活的快捷键系统**
-- **快捷键支持**：
-    - 默认快捷键 **H + S** 用于快速打开模组配置界面。
-    - 支持个性化的快捷键绑定，便于玩家自定义操作习惯。
-- 动态切换功能，无需退出游戏即可轻松调整模组设置。
-
----
-
-### **5. 强大的配置管理**
-- **配置选项**：
-    - 支持布尔值、枚举、快捷键等多种类型的配置。
-    - 允许玩家通过设置界面或配置文件调整模组行为。
-- **动态配置更新**：
-    - 任何配置的更改都会立即生效，例如教程步骤调整功能。
-- 配置管理基于 `ClientModConfigManager`，提供可靠且便捷的用户体验。
-
----
-
----
-
-## 🔧 **使用方法**
-
-1. **打开模组设置界面**：
-    - 按下快捷键 **H + S**。
-    - 在界面中调整模组设置，启用或禁用不同功能。
-
-2. **玩法增强**：
-    - 激活方块保护或自动化种植功能。
-    - 在创造模式中开启玩家头颅拾取功能。
-
-3. **渲染优化**：
-    - 在 HUD 上显示实时信息（如状态、任务、方块数据等）。
-
-4. **聊天扩展**：
-    - 自定义聊天窗口外观，使用关键词高亮或过滤功能更高效地与他人互动。
-
----
+### **1.渲染修改**
+- 总是渲染(屏障,光源)方块
+- 禁用文本混淆效果
+- 禁用侧边计分板
+- 伽马值覆盖
+- TNT,苦力怕引信渲染
+- 切换物品时显示附魔
+- 掉落物信息渲染
 
 
+### **2. 游戏玩法增强**
+- 自动播种
+- 方块破坏保护
+- 自动切换胸甲鞘翅
+- 自动复活
+- 音效过滤
+- 切换客户端相机实体
 
----
+### **3. 聊天功能扩展**
+- **消息过滤**
+- **消息注入**
+- **聊天气泡**
 
-## 📝 **更新日志**
+## **🌟 自定义任务**
+- 支持发送消息,指令,以及编写`JavaScript`脚本自定义任务。
+- 通过快捷键或者任务执行界面快速执行任务。
 
-### **3.0.4 版本**
-- **新增功能**：
-    - 增加方块破坏保护的多匹配器支持。
-    - 多种功能模块适配更多动态场景。
-    - 添加快捷键功能（默认 H + S 打开设置界面）。
+## **📌 事件订阅**
+提供对多类型事件的订阅支持：
+  - **玩家事件**（聊天、进入游戏、登出等）
+  - **世界事件**（方块破坏等）
 
-- **优化改进**：
-    - 配置管理性能优化，增强界面布局。
-    - 改进聊天功能，改善渲染状态模块。
-
-- **问题修复**：
-    - 修复方块保护提示过多的问题。
-    - 修正自动播种在某些情况下无法正常工作的 BUG。
-
----
-
-## ❤️ **致谢**
-
-- 开发者：**forpleuvoir**
-- 特别感谢所有为此模组提供帮助的贡献者，以及支持本项目的社区玩家！
-
----
-
-## 🤝 **如何贡献**
-
-欢迎所有玩家和开发者为 HiiroSakura 作出贡献！  
-**如何参与**：
-1. Fork 本项目至您的仓库。
-2. 开发新功能或修复问题。
-3. 发起 Pull Request，我们会认真审查您的贡献！
-
----
+事件支持多种触发动作:
+  - **发送消息**
+  - **发送指令**
+  - **执行脚本**
+  - **执行自定义任务**
 
 ### 🌟 **享受更优雅的 Minecraft 游戏体验吧！**
 
----
+## 鸣谢
 
-若有任何需求或意见，请随时反馈给我们！希望此 `README.md` 能完整且直观地介绍模组的主要功能和使用方式。
+> [IntelliJ IDEA](https://zh.wikipedia.org/zh-hans/IntelliJ_IDEA) 是一个在各个方面都最大程度地提高开发人员的生产力的
+> IDE，适用于 JVM 平台语言。
+
+特别感谢 [JetBrains](https://www.jetbrains.com)
+为开源项目提供免费的 [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=mirai) 等 IDE 的授权  
+[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="200"/>](https://www.jetbrains.com)

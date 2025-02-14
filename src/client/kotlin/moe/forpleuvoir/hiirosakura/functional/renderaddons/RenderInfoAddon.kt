@@ -1,7 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.renderaddons
 
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.CreeperFeatureRenderer
-import moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.TntRenderConfig
+import moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.TntFuseRenderer
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 import moe.forpleuvoir.ibukigourd.config.item.vector2f
@@ -21,10 +21,10 @@ object RenderInfoAddon : ModConfigContainer("render_info_addon") {
 
     init {
         addConfig(GammaOverride)
-        addConfig(TntRenderConfig)
+        addConfig(TntFuseRenderer)
         addConfig(ShowEnchantmentWhenSwitch)
-        addConfig(CreeperFeatureRenderer.Config)
-        addConfig(DropEntityRenderAddon.Config)
+        addConfig(CreeperFeatureRenderer)
+        addConfig(DropEntityRenderAddon)
     }
 
 }

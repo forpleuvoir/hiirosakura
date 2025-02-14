@@ -56,7 +56,7 @@ fun WidgetContainerScope.HSEventManagerGui(
 ) {
     val filterList = notifiableList(HSEventManager.subscriberList)
     var name = ""
-    var selectedEvent: MutableState<KClass<out Event>> = mutableStateOf(Event::class)
+    val selectedEvent: MutableState<KClass<out Event>> = mutableStateOf(Event::class)
 
     fun onChanged() {
         filterList.disableNotify {

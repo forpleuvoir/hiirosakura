@@ -3,8 +3,11 @@ package moe.forpleuvoir.hiirosakura.gui.configwrapper
 import moe.forpleuvoir.hiirosakura.config.items.ConfigBlockInfoMatcher
 import moe.forpleuvoir.hiirosakura.config.items.ConfigBlockInfoMatcherMap
 import moe.forpleuvoir.hiirosakura.config.items.ConfigItemStackMatcher
+import moe.forpleuvoir.hiirosakura.config.items.ConfigItemStackMatcherMap
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher
 import moe.forpleuvoir.hiirosakura.gui.widget.*
 import moe.forpleuvoir.hiirosakura.util.targetBlock
@@ -49,6 +52,8 @@ import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.collection.notifiableMap
+import net.minecraft.block.Blocks
+import net.minecraft.item.Items
 import net.minecraft.util.math.BlockPos
 import kotlin.time.Duration.Companion.seconds
 
@@ -246,7 +251,161 @@ fun WidgetContainerScope.BlockInfoMatcherMapWrapper(
                             mapValue["block matcher ${(mapValue.size)}"] = BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch).apply {
                                 mc.targetBlock
                                     ?.let {
-                                        BlockInfoMatchEntry.Block(mc.world!!.getBlockState(BlockPos(it.pos.x(), it.pos.y(), it.pos.z()).down()).block)
+                                        BlockInfoMatchEntry.Block(mc.targetBlock?.state?.block ?: Blocks.MELON)
+                                    }?.let {
+                                        addEntry(it)
+                                    }
+                            }
+                            this@Dialog.recompose()
+                        }
+                    }
+                }.open()
+            }
+        }
+        ConfigResetButton(config) {
+            mapValue.clear()
+            mapValue.putAll(config.defaultValue)
+        }
+    }
+}
+
+//------------ ItemStackMatcherMap ------------\\
+
+fun WidgetContainerScope.ItemStackMatcherMapWrapper(
+    config: ConfigItemStackMatcherMap,
+    modifier: Modifier = Modifier
+) = ConfigColumnWrapper(config, modifier) {
+
+    val mapValue = notifiableMap(config.getValue()).apply {
+        subscribe {
+            config.setValue(it)
+        }
+    }
+
+    Column(
+        horizontalArrangement = Arrangement.spacedBy(5f)
+    ) {
+        Button(
+            Modifier.width(80f)
+                .hoverTtp {
+                    Row(
+                        verticalArrangement = Arrangement.spacedBy(1f),
+                        horizontalAlignment = Alignment.Left,
+                    ) {
+                        mapValue.forEachWithLimit(10) { k, v ->
+                            Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
+                                TextLabel("$k => ")
+                                ItemStackMathcerSimpleInfo(stateOf(v))
+                            }
+                        }
+                        if (mapValue.size > 10) TextLabel("...")
+                        if (mapValue.isEmpty()) TextLabel(IGLang.hasNothing.plainText)
+                    }
+                }
+        ) {
+            TextLabel(mutableStateBy { mapConfigWrapperText(mapValue.size) })
+            click {
+                Dialog {
+                    TextLabel(stateOf(config.translateText))
+                    DialogContent(
+                        Modifier.padding(5f, 3f, 5f, 5f)
+                    ) {
+                        RowListWrapped(
+                            modifier = Modifier.disableRenderBackground().padding(0).minWidth(300f),
+                            listModifier = { Modifier.height(160f) }
+                        ) {
+                            if (mapValue.isEmpty()) TextLabel(IGLang.hasNothing)
+                            mapValue.forEach { key, matcher ->
+                                Column(
+                                    horizontalArrangement = Arrangement.spacedBy(2f)
+                                ) {
+                                    TextLabel(
+                                        key, modifier = Modifier.width(mapValue.keys.maxWidth(mc.textRenderer).coerceIn(119, 239) + 1f)
+                                    )
+                                    FlatButton(
+                                        hoveredColor = Colors.PALEGREEN.alpha(.5f),
+                                        modifier = Modifier.hoverText(IGLang.edit)
+                                    ) {
+                                        Icon(IconTextures.EDIT, modifier = Modifier.size(10f, 10f))
+                                        click {
+                                            var newKey = key
+                                            var editor: (() -> Transform)? = null
+                                            ConfirmDialog(
+                                                stateOf(IGLang.edit.appendLiteral(" => $key")),
+                                                onConfirm = {
+                                                    if (newKey == key) {
+                                                        mc.currentScreen?.close()
+                                                        return@ConfirmDialog
+                                                    }
+                                                    if (mapValue.containsKey(newKey)) {
+                                                        editor?.let {
+                                                            TipHandler.pushTip(CONFIG_WRAPPER_TIP, 2.seconds, it, Tip {
+                                                                TextLabel(IGLang.keyExists(newKey).withColor(Colors.RED))
+                                                            })
+                                                        }
+
+                                                        return@ConfirmDialog
+                                                    }
+                                                    mapValue.renameKey(key, newKey)
+                                                    mc.currentScreen?.close()
+                                                    this@RowListWrapped.execute {
+                                                        this@RowListWrapped.recompose()
+                                                    }
+                                                },
+                                                screenModifier = Modifier.onClose {
+                                                    TipHandler.popTip(CONFIG_WRAPPER_TIP)
+                                                }
+                                            ) {
+                                                TextEditor(modifier = Modifier.width(240f)) {
+                                                    editor = { this.owner().transform }
+                                                    text = key
+                                                    textConsumer { newKey = it }
+                                                }
+                                            }.open()
+                                        }
+                                    }
+
+                                    Button(
+                                        Modifier.width(180f)
+                                            .hoverTtp { ItemStackMathcerInfo(stateOf(matcher)) }
+                                    ) {
+                                        ItemStackMathcerSimpleInfo(stateOf(matcher))
+                                        click {
+                                            ItemStackMatcherBuilder(matcher, {
+                                                mapValue[key] = it
+                                                execute { this@RowListWrapped.recompose() }
+                                            }).open()
+                                        }
+                                    }
+
+                                    FlatButton(
+                                        hoveredColor = Colors.LIGHT_RED,
+                                        modifier = Modifier.margin(right = 2f).hoverText(IGLang.remove)
+                                    ) {
+                                        Icon(IconTextures.DELETE, Colors.RED, Modifier.size(10f, 10f))
+                                        click {
+                                            mapValue.remove(key)
+                                            execute {
+                                                this@RowListWrapped.recompose()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Button(
+                        Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .width(40f)
+                            .hoverText(IGLang.add)
+                    ) {
+                        Icon(IconTextures.PLUS, Color(0xFF2EE62E), Modifier.size(8f, 8f))
+                        click {
+                            mapValue["item matcher ${(mapValue.size)}"] = ItemStackMatcher(MultiMatcher.MatchMode.AllMatch).apply {
+                                mc.targetBlock
+                                    ?.let {
+                                        ItemStackMatchEntry.Item(ItemStackMatcher.handItemStack?.item ?: Items.MELON)
                                     }?.let {
                                         addEntry(it)
                                     }

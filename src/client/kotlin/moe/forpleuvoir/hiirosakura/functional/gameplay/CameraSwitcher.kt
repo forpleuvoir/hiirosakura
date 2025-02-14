@@ -12,23 +12,19 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.command.CommandSource
 import net.minecraft.entity.Entity
 
-object CameraSwitcher {
+object CameraSwitcher:ModConfigContainer("camera_switcher") {
 
-    object Config : ModConfigContainer("camera_switcher") {
+    private val _shortcutKey by keyBind("shortcut_key", KeyBind {
+        switchToTarget()
+    })
 
-        val shortcutKey by keyBind("shortcut_key", KeyBind {
-            switchToTarget()
-        })
-
-        val blockPlayerActions by keyBindBoolean("block_player_actions", true)
-
-    }
+    val blockPlayerActions by keyBindBoolean("block_player_actions", true)
 
     @JvmStatic
     val isSwitched: Boolean get() = mc.cameraEntity != mc.player
 
     @JvmStatic
-    val shouldBlockActions: Boolean get() = isSwitched && Config.blockPlayerActions.value
+    val shouldBlockActions: Boolean get() = isSwitched && blockPlayerActions.value
 
     private val clientEntities
         get() = mc.world?.entities ?: emptyList()

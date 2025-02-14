@@ -5,21 +5,17 @@ import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 import moe.forpleuvoir.ibukigourd.text.McText
 import moe.forpleuvoir.nebula.config.item.impl.stringList
 
-object ChatFilterHandler {
+object ChatFilterHandler : ModConfigContainer("chat_filter") {
 
-    object Config : ModConfigContainer("chat_filter") {
+    val enabled by keyBindBoolean("enable", false)
 
-        val enabled by keyBindBoolean("enable", false)
-
-        val filterMapping by stringList("filter_mapping", emptyList())
-
-    }
+    val filterMapping by stringList("filter_mapping", emptyList())
 
     @JvmStatic
     fun shouldFilter(message: McText): Boolean {
-        if (!Config.enabled.value) return false
+        if (!enabled.value) return false
         val string = message.string
-        Config.filterMapping.map { it.toRegex() }.forEach { regex ->
+        filterMapping.map { it.toRegex() }.forEach { regex ->
             if (string.matches(regex)) {
                 return true
             }

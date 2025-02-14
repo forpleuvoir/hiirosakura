@@ -21,6 +21,8 @@ object HSLang {
 
     fun blockBreakProtection(supplier: String) = lang("gameplay.block_break_protection.toast", supplier)
 
+    fun itemUseIntercepted(supplier: String) = lang("gameplay.item_use_intercept.toast", supplier)
+
     //------------ CustomData ------------\\
 
     val customData get() = lang("custom_data")

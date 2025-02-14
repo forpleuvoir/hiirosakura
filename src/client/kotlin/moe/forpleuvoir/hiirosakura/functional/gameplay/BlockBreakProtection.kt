@@ -23,31 +23,23 @@ import net.minecraft.block.Blocks
 import net.minecraft.util.math.BlockPos
 import kotlin.time.TimeSource
 
-object BlockBreakProtection {
+object BlockBreakProtection : ModConfigContainer("block_break_protection") {
 
-    object Config : ModConfigContainer("block_break_protection") {
+    val enabled by keyBindBoolean("enable", false)
 
-        val enabled by keyBindBoolean("enable", false)
-
-        val matcher = blockInfoMatcherMap(
-            "matcher",
-            mapOf(
-                "Budding Amethyst" to BlockInfoMatcher(
-                    MultiMatcher.MatchMode.AnyMatch,
-                    BlockInfoMatchEntry.Block(Blocks.BUDDING_AMETHYST)
-                )
-            ),
-        )
-
-    }
-
-    private val matcher by Config.matcher
-
-    private var mark = TimeSource.Monotonic.markNow()
+    val matcher = blockInfoMatcherMap(
+        "matcher",
+        mapOf(
+            "Budding Amethyst" to BlockInfoMatcher(
+                MultiMatcher.MatchMode.AnyMatch,
+                BlockInfoMatchEntry.Block(Blocks.BUDDING_AMETHYST)
+            )
+        ),
+    )
 
     @JvmStatic
     fun canBreak(block: BlockState, pos: BlockPos): Boolean {
-        if (!Config.enabled.value) return true
+        if (!enabled.value) return true
         val info = BlockInfo(block, pos)
         return !matcher.any {
             it.value.match(info).apply {
@@ -58,4 +50,7 @@ object BlockBreakProtection {
             }
         }
     }
+
 }
+
+private var mark = TimeSource.Monotonic.markNow()

@@ -36,11 +36,12 @@ object GamePlay : ModConfigContainer("gameplay") {
     }
 
     init {
-        addConfig(BlockBreakProtection.Config)
-        addConfig(AutoSwitchElytra.Config)
-        addConfig(AutoReplant.Config)
-        addConfig(CameraSwitcher.Config)
-        addConfig(SoundEventFilter.Config)
+        addConfig(ItemUseIntercept)
+        addConfig(BlockBreakProtection)
+        addConfig(AutoSwitchElytra)
+        addConfig(AutoReplant)
+        addConfig(CameraSwitcher)
+        addConfig(SoundEventFilter)
     }
 
 }

@@ -27,57 +27,53 @@ import net.minecraft.util.math.RotationAxis
 import org.joml.Vector3f
 import java.util.function.Consumer
 
-object DropEntityRenderAddon {
+object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
 
-    object Config : ModConfigContainer("drop_entity") {
+    val distance by double("distance", 233.0, 0.0, 2333.0)
 
-        val distance by double("distance", 233.0, 0.0, 2333.0)
+    val enable by keyBindBoolean("enable", value = false)
 
-        val enable by keyBindBoolean("enable", value = false)
+    val onlyYRotation by keyBindBoolean("only_y_rotation", value = true)
 
-        val onlyYRotation by keyBindBoolean("only_y_rotation", value = true)
+    val experienceOrbValue by keyBindBoolean("experience_orb_value", value = false)
 
-        val experienceOrbValue by keyBindBoolean("experience_orb_value", value = false)
+    val name by keyBindBoolean("name", value = false)
 
-        val name by keyBindBoolean("name", value = false)
+    val count by keyBindBoolean("count", value = false)
 
-        val count by keyBindBoolean("count", value = false)
+    val mapId by keyBindBoolean("map_id", value = false)
 
-        val mapId by keyBindBoolean("map_id", value = false)
+    val additionalTooltip by keyBindBoolean("additional_tooltip", value = false)
 
-        val additionalTooltip by keyBindBoolean("additional_tooltip", value = false)
+    val jukeboxPlayable by keyBindBoolean("jukebox_playable", value = false)
 
-        val jukeboxPlayable by keyBindBoolean("jukebox_playable", value = false)
+    val trim by keyBindBoolean("trim", value = false)
 
-        val trim by keyBindBoolean("trim", value = false)
+    val storedEnchantments by keyBindBoolean("stored_enchantments", value = false)
 
-        val storedEnchantments by keyBindBoolean("stored_enchantments", value = false)
+    val enchantments by keyBindBoolean("enchantments", value = false)
 
-        val enchantments by keyBindBoolean("enchantments", value = false)
+    val dyedColor by keyBindBoolean("dyed_color", value = false)
 
-        val dyedColor by keyBindBoolean("dyed_color", value = false)
+    val lore by keyBindBoolean("lore", value = false)
 
-        val lore by keyBindBoolean("lore", value = false)
+    val attributeModifiers by keyBindBoolean("attribute_modifiers", value = false)
 
-        val attributeModifiers by keyBindBoolean("attribute_modifiers", value = false)
+    val unbreakable by keyBindBoolean("unbreakable", value = false)
 
-        val unbreakable by keyBindBoolean("unbreakable", value = false)
+    val ominousBottleAmplifier by keyBindBoolean("ominous_bottle_amplifier", value = false)
 
-        val ominousBottleAmplifier by keyBindBoolean("ominous_bottle_amplifier", value = false)
+    val suspiciousStewEffect by keyBindBoolean("suspicious_stew_effect", value = false)
 
-        val suspiciousStewEffect by keyBindBoolean("suspicious_stew_effect", value = false)
+    val canBreak by keyBindBoolean("can_break", value = false)
 
-        val canBreak by keyBindBoolean("can_break", value = false)
+    val canPlaceOn by keyBindBoolean("can_place_on", value = false)
 
-        val canPlaceOn by keyBindBoolean("can_place_on", value = false)
+    val durability by keyBindBoolean("durability", value = false)
 
-        val durability by keyBindBoolean("durability", value = false)
+    val itemId by keyBindBoolean("item_id", value = false)
 
-        val itemId by keyBindBoolean("item_id", value = false)
-
-        val components by keyBindBoolean("components", value = false)
-
-    }
+    val components by keyBindBoolean("components", value = false)
 
     @JvmStatic
     var currentItemEntity: ItemEntity? = null
@@ -91,8 +87,8 @@ object DropEntityRenderAddon {
         vertexConsumerProvider: VertexConsumerProvider.Immediate,
         light: Int
     ) {
-        if (!Config.enable.value || Config.distance <= 0) return
-        if (dispatcher.getSquaredDistanceToCamera(itemEntity) > Config.distance) return
+        if (!enable.value || distance <= 0) return
+        if (dispatcher.getSquaredDistanceToCamera(itemEntity) > distance) return
         val texts = getItemEntityRenderText(itemEntity)
         if (texts.isNotEmpty()) {
             renderEntityMultiText(
@@ -110,16 +106,16 @@ object DropEntityRenderAddon {
             // 名称和数量
             val nameAndCount = Text.empty()
             //名称
-            if (Config.name.value) {
+            if (name.value) {
                 stack.formattedName?.let { nameAndCount.append(it) }
             }
             //数量
-            if (Config.count.value && stack.count > 1) {
+            if (count.value && stack.count > 1) {
                 nameAndCount.append(" x${stack.count}")
             }
             if (nameAndCount.plainText.isNotEmpty()) this.add(nameAndCount.copyToText())
             //地图编号
-            if (Config.mapId.value && !type.isAdvanced && !stack.contains(DataComponentTypes.CUSTOM_NAME)) {
+            if (mapId.value && !type.isAdvanced && !stack.contains(DataComponentTypes.CUSTOM_NAME)) {
                 val mapIdComponent = stack.get(DataComponentTypes.MAP_ID)
                 if (mapIdComponent != null) {
                     this.add(FilledMapItem.getIdText(mapIdComponent).copyToText())
@@ -127,52 +123,52 @@ object DropEntityRenderAddon {
             }
             val consumer: Consumer<McText> = Consumer { this.add(it.copyToText()) }
             //其他工具提示
-            if (Config.additionalTooltip.value && !stack.contains(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP)) {
+            if (additionalTooltip.value && !stack.contains(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP)) {
                 val l = mutableListOf<McText>()
                 stack.item.appendTooltip(stack, context, l, type)
                 this.addAll(l.map { it.copyToText() })
             }
             //可播放的唱片
-            if (Config.jukeboxPlayable.value) {
+            if (jukeboxPlayable.value) {
                 stack.get(DataComponentTypes.JUKEBOX_PLAYABLE)?.appendTooltip(context, consumer, type)
             }
             //盔甲装饰
-            if (Config.trim.value) {
+            if (trim.value) {
                 stack.get(DataComponentTypes.TRIM)?.appendTooltip(context, consumer, type)
             }
             //储存的附魔
-            if (Config.storedEnchantments.value) {
+            if (storedEnchantments.value) {
                 stack.get(DataComponentTypes.STORED_ENCHANTMENTS)?.appendTooltip(context, consumer, type)
             }
             //附魔
-            if (Config.enchantments.value) {
+            if (enchantments.value) {
                 stack.get(DataComponentTypes.ENCHANTMENTS)?.appendTooltip(context, consumer, type)
             }
             //染色颜色
-            if (Config.dyedColor.value) {
+            if (dyedColor.value) {
                 stack.get(DataComponentTypes.DYED_COLOR)?.appendTooltip(context, consumer, type)
             }
-            if (Config.lore.value) {
+            if (lore.value) {
                 stack.get(DataComponentTypes.LORE)?.appendTooltip(context, consumer, type)
             }
             //属性修饰符
-            if (Config.attributeModifiers.value) {
+            if (attributeModifiers.value) {
                 stack.appendAttributeModifiersTooltip(consumer, mc.player)
             }
             //不可破坏
-            if (Config.unbreakable.value) {
+            if (unbreakable.value) {
                 stack.get(DataComponentTypes.UNBREAKABLE)?.appendTooltip(context, consumer, type)
             }
             //不祥之兆
-            if (Config.ominousBottleAmplifier.value) {
+            if (ominousBottleAmplifier.value) {
                 stack.get(DataComponentTypes.OMINOUS_BOTTLE_AMPLIFIER)?.appendTooltip(context, consumer, type)
             }
             //可疑的炖菜
-            if (Config.suspiciousStewEffect.value) {
+            if (suspiciousStewEffect.value) {
                 stack.get(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS)?.appendTooltip(context, consumer, type)
             }
             //可破坏
-            if (Config.canBreak.value) {
+            if (canBreak.value) {
                 stack.get(DataComponentTypes.CAN_BREAK)?.let { blockPredicatesChecker ->
                     if (blockPredicatesChecker.showInTooltip()) {
                         consumer.accept(ScreenTexts.EMPTY)
@@ -182,7 +178,7 @@ object DropEntityRenderAddon {
                 }
             }
             //可放置于
-            if (Config.canPlaceOn.value) {
+            if (canPlaceOn.value) {
                 stack.get(DataComponentTypes.CAN_PLACE_ON)?.let { blockPredicatesChecker ->
                     if (blockPredicatesChecker.showInTooltip()) {
                         consumer.accept(ScreenTexts.EMPTY)
@@ -193,15 +189,15 @@ object DropEntityRenderAddon {
             }
             if (type.isAdvanced) {
                 //耐久度
-                if (Config.durability.value && stack.isDamaged) {
+                if (durability.value && stack.isDamaged) {
                     add(Text.translatable("item.durability", fallback = null, (stack.maxDamage - stack.damage), stack.maxDamage))
                 }
                 //物品id
-                if (Config.itemId.value) {
+                if (itemId.value) {
                     add(Literal(Registries.ITEM.getId(stack.item).toString()).formatted(Formatting.DARK_GRAY))
                 }
                 //组件
-                if (Config.components.value) {
+                if (components.value) {
                     val i = stack.components.size()
                     if (i > 0) add(Text.translatable("item.components", fallback = null, i).formatted(Formatting.DARK_GRAY))
                 }
@@ -222,7 +218,7 @@ object DropEntityRenderAddon {
         vertexConsumerProvider: VertexConsumerProvider.Immediate,
         light: Int
     ) {
-        if (!Config.enable.value || !Config.experienceOrbValue.value || Config.distance <= 0) return
+        if (!enable.value || !experienceOrbValue.value || distance <= 0) return
         val text = Literal(entity.experienceAmount.toString()).withColor(Color(color))
         renderEntityText(entity.height, -0.3, text, dispatcher, textRenderer, matrixStack, vertexConsumerProvider, light)
     }
@@ -252,7 +248,7 @@ object DropEntityRenderAddon {
         val height = height + 0.5f + textHeight
         matrixStack.push()
         matrixStack.translate(0.0, height, 0.0)
-        if (Config.onlyYRotation.value)
+        if (onlyYRotation.value)
             matrixStack.multiply(RotationAxis.POSITIVE_Y.rotation(dispatcher.rotation.getEulerAnglesYXZ(Vector3f()).y()))
         else
             matrixStack.multiply(dispatcher.rotation)

@@ -6,20 +6,16 @@ import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 import moe.forpleuvoir.nebula.config.item.impl.stringList
 import net.minecraft.client.sound.SoundInstance
 
-object SoundEventFilter {
+object SoundEventFilter : ModConfigContainer("sound_event_filter") {
 
-    object Config : ModConfigContainer("sound_event_filter") {
+    val enabled by keyBindBoolean("enable", false)
 
-        val enabled by keyBindBoolean("enable", false)
-
-        val filterMapping by soundEventList("filter_mapping", emptyList())
-
-    }
+    val filterMapping by soundEventList("filter_mapping", emptyList())
 
     @JvmStatic
     fun shouldFilter(sound: SoundInstance): Boolean {
-        if (!Config.enabled.value) return false
-        return sound.id in Config.filterMapping.map { it.id }
+        if (!enabled.value) return false
+        return sound.id in filterMapping.map { it.id }
     }
 
 }

@@ -49,7 +49,7 @@ class ChatBubble(
 
         fun fromChatMessage(message: String): ChatBubble? {
             val msg = message.replace("(§.)", "")
-            ChatBubbleHandler.Config.matchMapping.forEach { (serverMarkerRegex, regex) ->
+            ChatBubbleHandler.matchMapping.forEach { (serverMarkerRegex, regex) ->
                 if (mc.server != null && serverMarkerRegex == "#single") {
                     return extractPlayerMessage(regex, msg)
                 } else if (currentServerAddress?.matches(Regex(serverMarkerRegex)) == true) {
@@ -96,7 +96,7 @@ class ChatBubble(
 
     }
 
-    private val lines: List<String> = message.wrapToLines(textRenderer, ChatBubbleHandler.Config.maxWidth)
+    private val lines: List<String> = message.wrapToLines(textRenderer, ChatBubbleHandler.maxWidth)
 
     private val textBox: Box
 
@@ -112,28 +112,28 @@ class ChatBubble(
         arrowBox = Box(textBox.center.x() - ARROW.width / 2, textureBox.bottom, Size(ARROW.width, ARROW.height - ARROW.corner.top))
     }
 
-    val shouldRemove: Boolean get() = timeMark.elapsedNow() > ChatBubbleHandler.Config.duration
+    val shouldRemove: Boolean get() = timeMark.elapsedNow() > ChatBubbleHandler.duration
 
     fun render(matrices: MatrixStack, vertexConsumers: VertexConsumerProvider.Immediate, light: Int) {
         val alpha = calculateAlpha(
-            ChatBubbleHandler.Config.duration,
-            ChatBubbleHandler.Config.fadeInDuration,
-            ChatBubbleHandler.Config.fadeOutDuration,
+            ChatBubbleHandler.duration,
+            ChatBubbleHandler.fadeInDuration,
+            ChatBubbleHandler.fadeOutDuration,
             timeMark
         ).coerceIn(0.05f, 1f)
         matrices.push()
 
-        val offset = ChatBubbleHandler.Config.offset
+        val offset = ChatBubbleHandler.offset
         matrices.translate(offset.x(), offset.y() + 1.15f, 0f)
 
         val camera = mc.gameRenderer.camera
 
         matrices.multiply(RotationAxis.POSITIVE_Y.rotation(-camera.yaw * (Math.PI.toFloat() / 180F)))
-        if (!ChatBubbleHandler.Config.onlyYRotation.value) {
+        if (!ChatBubbleHandler.onlyYRotation.value) {
             matrices.multiply(RotationAxis.POSITIVE_X.rotation(camera.pitch * (Math.PI.toFloat() / 180F))) // 垂直方向
         }
 
-        val scale = ChatBubbleHandler.Config.scale
+        val scale = ChatBubbleHandler.scale
         val s = -0.025f
 
         matrices.scale(scale.x() * s, scale.y() * s, -s)
@@ -142,20 +142,20 @@ class ChatBubble(
         enablePolygonOffset()
         polygonOffset(0f, 5f)
         batchRenderTextureColored(matrices) {
-            pushWidgetTexture(textureBox, BUBBLE, ChatBubbleHandler.Config.textureColor.alpha(alpha))
+            pushWidgetTexture(textureBox, BUBBLE, ChatBubbleHandler.textureColor.alpha(alpha))
         }
         disablePolygonOffset()
 
         enablePolygonOffset()
         polygonOffset(0, 0f)
         batchRenderTextureColored(matrices) {
-            pushWidgetTexture(arrowBox, ARROW, ChatBubbleHandler.Config.textureColor.alpha(alpha))
+            pushWidgetTexture(arrowBox, ARROW, ChatBubbleHandler.textureColor.alpha(alpha))
         }
         disablePolygonOffset()
 
         polygonOffset(0, 10f)
         textRenderer.batchRenderText(vertexConsumers, matrices.positionMatrix) {
-            pushStringLines(lines, textBox, Alignment.Left, Arrangement.spacedBy(LINE_SPACING), defaultColor = ChatBubbleHandler.Config.textColor.alpha(alpha))
+            pushStringLines(lines, textBox, Alignment.Left, Arrangement.spacedBy(LINE_SPACING), defaultColor = ChatBubbleHandler.textColor.alpha(alpha))
         }
         polygonOffset(0, 0)
         disablePolygonOffset()

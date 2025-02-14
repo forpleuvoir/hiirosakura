@@ -1,21 +1,13 @@
 package moe.forpleuvoir.hiirosakura.functional.gameplay
 
 import moe.forpleuvoir.hiirosakura.config.items.autoReplantMapEntryList
-import moe.forpleuvoir.hiirosakura.functional.gameplay.AutoReplant.Config.mapping
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfo
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher
-import moe.forpleuvoir.hiirosakura.util.id
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.*
 import moe.forpleuvoir.hiirosakura.util.swapSlotWithHotbar
 import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.config.item.impl.stringMap
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -32,43 +24,40 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Vec3d
 
-object AutoReplant {
+object AutoReplant : ModConfigContainer("auto_replant") {
 
-    object Config : ModConfigContainer("auto_replant") {
+    val enable by keyBindBoolean("enable", false)
 
-        val enable by keyBindBoolean("enable", false)
-
-        val mapping by autoReplantMapEntryList(
-            "mapping",
-            listOf(
-                MapEntry(
-                    BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Block(Blocks.WHEAT)),
-                    ItemStackMatcher(MultiMatcher.MatchMode.AllMatch, ItemStackMatchEntry.Item(Items.WHEAT_SEEDS)),
-                    FARMLAND,
-                ),
-                MapEntry(
-                    BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Block(Blocks.CARROTS)),
-                    ItemStackMatcher(MultiMatcher.MatchMode.AllMatch, ItemStackMatchEntry.Item(Items.CARROT)),
-                    FARMLAND,
-                ),
-                MapEntry(
-                    BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Block(Blocks.POTATOES)),
-                    ItemStackMatcher(MultiMatcher.MatchMode.AllMatch, ItemStackMatchEntry.Item(Items.POTATO)),
-                    FARMLAND,
-                ),
-                MapEntry(
-                    BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Block(Blocks.BEETROOTS)),
-                    ItemStackMatcher(MultiMatcher.MatchMode.AllMatch, ItemStackMatchEntry.Item(Items.BEETROOT_SEEDS)),
-                    FARMLAND,
-                ),
-                MapEntry(
-                    BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Block(Blocks.NETHER_WART)),
-                    ItemStackMatcher(MultiMatcher.MatchMode.AllMatch, ItemStackMatchEntry.Item(Items.NETHER_WART)),
-                    BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Block(Blocks.SOUL_SAND)),
-                )
+    val mapping by autoReplantMapEntryList(
+        "mapping",
+        listOf(
+            MapEntry(
+                BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Block(Blocks.WHEAT)),
+                ItemStackMatcher(MultiMatcher.MatchMode.AllMatch, ItemStackMatchEntry.Item(Items.WHEAT_SEEDS)),
+                FARMLAND,
+            ),
+            MapEntry(
+                BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Block(Blocks.CARROTS)),
+                ItemStackMatcher(MultiMatcher.MatchMode.AllMatch, ItemStackMatchEntry.Item(Items.CARROT)),
+                FARMLAND,
+            ),
+            MapEntry(
+                BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Block(Blocks.POTATOES)),
+                ItemStackMatcher(MultiMatcher.MatchMode.AllMatch, ItemStackMatchEntry.Item(Items.POTATO)),
+                FARMLAND,
+            ),
+            MapEntry(
+                BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Block(Blocks.BEETROOTS)),
+                ItemStackMatcher(MultiMatcher.MatchMode.AllMatch, ItemStackMatchEntry.Item(Items.BEETROOT_SEEDS)),
+                FARMLAND,
+            ),
+            MapEntry(
+                BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Block(Blocks.NETHER_WART)),
+                ItemStackMatcher(MultiMatcher.MatchMode.AllMatch, ItemStackMatchEntry.Item(Items.NETHER_WART)),
+                BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Block(Blocks.SOUL_SAND)),
             )
         )
-    }
+    )
 
     val FARMLAND get() = BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Block(Blocks.FARMLAND))
 
@@ -109,7 +98,7 @@ object AutoReplant {
 
     @JvmStatic
     fun onBreakBlock(blockState: BlockState, blockPos: BlockPos, player: ClientPlayerEntity) {
-        if (!Config.enable.value) return
+        if (!enable.value) return
         mapping
             .find { entry ->
                 entry.targetBlock.match(BlockInfo(blockState, blockPos))

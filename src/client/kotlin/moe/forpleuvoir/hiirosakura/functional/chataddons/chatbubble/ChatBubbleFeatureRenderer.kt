@@ -21,7 +21,7 @@ class ChatBubbleFeatureRenderer(
         limbAngle: Float,
         limbDistance: Float
     ) {
-        if (!ChatBubbleHandler.Config.enabled.value) return
+        if (!ChatBubbleHandler.enabled.value) return
         VertexConsumerProviderChecker.isImmediate(vertexConsumers) {
             //需要清除原矩阵栈的旋转数据
             ChatBubbleHandler.render(state.name, matrices.resetMatricesKeepTranslation(), it, light)

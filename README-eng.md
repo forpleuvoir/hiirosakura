@@ -31,7 +31,8 @@ https://cdn.modrinth.com/data/cached_images/1e1e5837bcad6dfff4e89e77bb250037f9c5
 
 ### **2. Gameplay Enhancements**
 - Auto planting.
-- Block destruction protection.
+- Item use intercept.
+- Block break protection.
 - Automatic chestplate and Elytra switching.
 - Auto respawn.
 - Sound effect filtering.

@@ -49,7 +49,7 @@ val gitHash: String by lazy {
 }
 
 val modName: String = properties["archives_base_name"].toString()
-version = properties["mod_version"].toString()
+version = libs.versions.modVersion.get().toString()
 group = properties["maven_group"].toString()
 
 dependencies {

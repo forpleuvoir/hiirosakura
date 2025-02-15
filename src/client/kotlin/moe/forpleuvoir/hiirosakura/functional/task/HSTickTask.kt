@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.task
 
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.executor.Executor
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask.ExecuteOn.EndTick
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask.ExecuteOn.StartTick
@@ -162,6 +163,12 @@ class KeyBindTickTask(
                 EndTick   -> mc.scheduleEndTick(asTickTask())
             }
         }
+        updateKeyBindName()
+    }
+
+    private fun updateKeyBindName(){
+        keyBind.name(HSLang.taskManager.appendLiteral("=>").appendLiteral(name))
+
     }
 
     var iconStack = ItemStack(icon)
@@ -180,6 +187,7 @@ class KeyBindTickTask(
         this.executorType = task.executorType
         if (task is KeyBindTickTask) this.icon = task.icon
         this.executor = task.executor
+        updateKeyBindName()
     }
 
     override fun setting(delay: Int, period: Int, times: Int): KeyBindTickTask =

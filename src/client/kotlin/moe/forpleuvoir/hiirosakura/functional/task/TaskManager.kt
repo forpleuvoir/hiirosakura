@@ -20,7 +20,7 @@ object TaskManager : HiiroSakuraData {
         val scriptCommonLib by string("script_common_lib", "")
 
         init {
-            addConfig(QTTEConfig)
+            addConfig(QuickTickTaskExecuteScreen)
         }
 
     }

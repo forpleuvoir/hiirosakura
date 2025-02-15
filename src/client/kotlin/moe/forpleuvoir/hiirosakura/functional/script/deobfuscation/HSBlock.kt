@@ -75,8 +75,21 @@ class HSBlockState(internal val blockState: BlockState) {
      */
     fun getProperty(key: String) = getProperty()[key]
 
+    /**
+     * 获取当前方块状态关联的标签列表。
+     *
+     * 该方法提取与当前方块状态关联的所有标签，并将其转换为字符串形式的列表。
+     *
+     * @return 表示标签的字符串列表。
+     */
     fun getTags(): List<String> = blockState.streamTags().map { it.id.toString() }.toList()
 
+    /**
+     * 检查当前方块状态是否包含指定的标签。
+     *
+     * @param tag 待检查的标签字符串。
+     * @return 如果当前方块状态包含指定标签，返回 `true`；否则返回 `false`。
+     */
     fun hasTags(tag: String): Boolean = blockState.streamTags().anyMatch { it.id.toString() == tag }
 
     /**

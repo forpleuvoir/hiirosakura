@@ -4,11 +4,7 @@ import moe.forpleuvoir.hiirosakura.config.items.ConfigBlockInfoMatcher
 import moe.forpleuvoir.hiirosakura.config.items.ConfigBlockInfoMatcherMap
 import moe.forpleuvoir.hiirosakura.config.items.ConfigItemStackMatcher
 import moe.forpleuvoir.hiirosakura.config.items.ConfigItemStackMatcherMap
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.*
 import moe.forpleuvoir.hiirosakura.gui.widget.*
 import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.IGLang
@@ -41,7 +37,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -54,7 +49,6 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.collection.notifiableMap
 import net.minecraft.block.Blocks
 import net.minecraft.item.Items
-import net.minecraft.util.math.BlockPos
 import kotlin.time.Duration.Companion.seconds
 
 fun WidgetContainerScope.ItemStackMatcherWrapper(
@@ -69,7 +63,7 @@ fun WidgetContainerScope.ItemStackMatcherWrapper(
     ) {
         Button(
             Modifier.width(120f)
-                .hoverTtp { ItemStackMathcerInfo(value) }
+                .hoverTip { ItemStackMathcerInfo(value) }
         ) {
             ItemStackMathcerSimpleInfo(value).apply {
                 value.subscribe { this.recompose() }
@@ -98,7 +92,7 @@ fun WidgetContainerScope.BlockInfoMatcherWrapper(
     ) {
         Button(
             Modifier.width(120f)
-                .hoverTtp { BlockInfoMatcherInfo(value) }
+                .hoverTip { BlockInfoMatcherInfo(value) }
         ) {
             BlockInfoMathcerSimpleInfo(value).apply {
                 value.subscribe { this.recompose() }
@@ -133,7 +127,7 @@ fun WidgetContainerScope.BlockInfoMatcherMapWrapper(
     ) {
         Button(
             Modifier.width(80f)
-                .hoverTtp {
+                .hoverTip {
                     Row(
                         verticalArrangement = Arrangement.spacedBy(1f),
                         horizontalAlignment = Alignment.Left,
@@ -213,7 +207,7 @@ fun WidgetContainerScope.BlockInfoMatcherMapWrapper(
 
                                     Button(
                                         Modifier.width(180f)
-                                            .hoverTtp { BlockInfoMatcherInfo(stateOf(value)) }
+                                            .hoverTip { BlockInfoMatcherInfo(stateOf(value)) }
                                     ) {
                                         BlockInfoMathcerSimpleInfo(stateOf(value))
                                         click {
@@ -287,7 +281,7 @@ fun WidgetContainerScope.ItemStackMatcherMapWrapper(
     ) {
         Button(
             Modifier.width(80f)
-                .hoverTtp {
+                .hoverTip {
                     Row(
                         verticalArrangement = Arrangement.spacedBy(1f),
                         horizontalAlignment = Alignment.Left,
@@ -367,7 +361,7 @@ fun WidgetContainerScope.ItemStackMatcherMapWrapper(
 
                                     Button(
                                         Modifier.width(180f)
-                                            .hoverTtp { ItemStackMathcerInfo(stateOf(matcher)) }
+                                            .hoverTip { ItemStackMathcerInfo(stateOf(matcher)) }
                                     ) {
                                         ItemStackMathcerSimpleInfo(stateOf(matcher))
                                         click {

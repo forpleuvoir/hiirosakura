@@ -4,12 +4,16 @@ package moe.forpleuvoir.hiirosakura.functional.script.deobfuscation
 
 import moe.forpleuvoir.hiirosakura.util.math.toVector
 import moe.forpleuvoir.hiirosakura.util.swapSlotWithHotbar
+import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.registry.Registries
+import net.minecraft.util.hit.BlockHitResult
+import net.minecraft.util.hit.EntityHitResult
+import net.minecraft.util.hit.HitResult
 import java.util.function.Predicate
 
 /**
@@ -23,9 +27,10 @@ open class HSEntity(internal open val entity: Entity) {
     companion object {
         @JvmStatic
         fun fromEntity(entity: Entity) = when (entity) {
-            is PlayerEntity -> HSPlayerEntity(entity)
-            is LivingEntity -> HSLivingEntity(entity)
-            else            -> HSEntity(entity)
+            is ClientPlayerEntity -> MainPlayer(entity)
+            is PlayerEntity       -> HSPlayerEntity(entity)
+            is LivingEntity       -> HSLivingEntity(entity)
+            else                  -> HSEntity(entity)
         }
     }
 
@@ -290,7 +295,7 @@ open class HSLivingEntity(override val entity: LivingEntity) : HSEntity(entity) 
  *
  * @param entity 玩家实体对象的封装。
  */
-class HSPlayerEntity(override val entity: PlayerEntity) : HSLivingEntity(entity) {
+open class HSPlayerEntity(override val entity: PlayerEntity) : HSLivingEntity(entity) {
 
     /**
      * 检查玩家是否处于创造模式。
@@ -340,6 +345,18 @@ class HSPlayerEntity(override val entity: PlayerEntity) : HSLivingEntity(entity)
      */
     fun getExperienceProgress() = entity.experienceProgress
 
+}
+
+/**
+ * 主玩家类，用于封装并扩展 `HSPlayerEntity` 的功能。
+ *
+ * `MainPlayer` 提供了一系列用于操作和获取与玩家相关的游戏信息的功能。
+ * 包括获取玩家准星命中的目标、方块或实体，以及根据条件函数交换玩家当前选择的物品。
+ *
+ * @param entity 表示当前客户端玩家实体的封装对象。
+ */
+class MainPlayer(override val entity: ClientPlayerEntity) : HSPlayerEntity(entity) {
+
     /**
      * 获取当前玩家准星所指向的目标对象，并将其转换为 `HSHitResult` 实例。
      *
@@ -350,12 +367,45 @@ class HSPlayerEntity(override val entity: PlayerEntity) : HSLivingEntity(entity)
      */
     fun getHitResult() = mc.crosshairTarget?.let { HSHitResult.fromHitResult(it) }
 
+    /**
+     * 获取玩家准星命中的方块目标。
+     *
+     * 该方法判断玩家准星是否命中了目标，并检查该命中目标是否为方块类型。
+     * 如果命中结果是方块类型，则将其封装为 `HSBlockHitResult` 并返回；否则返回 `null`。
+     *
+     * @return 如果准星命中的目标是方块类型，则返回对应的 `HSBlockHitResult` 实例；否则返回 `null`。
+     */
+    fun getHitBlock() = mc.crosshairTarget?.let {
+        if (it.type == HitResult.Type.BLOCK) {
+            HSBlockHitResult(it as BlockHitResult)
+        } else null
+    }
+
+    /**
+     * 获取玩家准星命中的实体。
+     *
+     * 此方法检查玩家准星是否命中一个目标，并判断该目标是否为实体类型。
+     * 如果命中结果是实体类型，则将其封装为 `HSEntityHitResult` 对象并返回；
+     * 否则返回 `null`。
+     *
+     * @return 如果准星命中目标是实体，则返回对应的 `HSEntityHitResult` 实例；否则返回 `null`。
+     */
+    fun getHitEntity() = mc.crosshairTarget?.let {
+        if (it.type == HitResult.Type.ENTITY) {
+            HSEntityHitResult(it as EntityHitResult)
+        } else null
+    }
+
+    /**
+     * 根据条件函数交换玩家当前选择的物品。
+     *
+     * 此方法会检查当前实体是否是主玩家，如果是主玩家，则调用交换物品栏中物品的逻辑。
+     *
+     * @param predicate 条件函数，用于判断哪些物品需要被选中交换，接收一个 `HSItemStack` 并返回 `true` 或 `false`。
+     */
     fun swapItem(predicate: Predicate<HSItemStack>) {
-        if (entity.isMainPlayer) {
-            entity as ClientPlayerEntity
-            entity.swapSlotWithHotbar {
-                predicate.test(HSItemStack(it))
-            }
+        entity.swapSlotWithHotbar {
+            predicate.test(HSItemStack(it))
         }
     }
 

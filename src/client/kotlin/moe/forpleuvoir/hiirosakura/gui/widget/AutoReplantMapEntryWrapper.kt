@@ -4,7 +4,7 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.gameplay.AutoReplant
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverTtp
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
@@ -22,7 +22,7 @@ fun WidgetContainerScope.AutoReplantMapEntryWrapper(
     horizontalArrangement
 ) {
     Button(
-        modifier = Modifier.weight(1).hoverTtp {
+        modifier = Modifier.weight(1).hoverTip {
             BlockInfoMatcherInfo(stateOf(autoReplantMapEntry.targetBlock))
         },
         horizontalArrangement = Arrangement.SpaceBetween
@@ -37,7 +37,7 @@ fun WidgetContainerScope.AutoReplantMapEntryWrapper(
     }
 
     Button(
-        modifier = Modifier.weight(1).hoverTtp {
+        modifier = Modifier.weight(1).hoverTip {
             ItemStackMathcerInfo(stateOf(autoReplantMapEntry.replantItem))
         },
         horizontalArrangement = Arrangement.SpaceBetween
@@ -52,7 +52,7 @@ fun WidgetContainerScope.AutoReplantMapEntryWrapper(
     }
 
     Button(
-        modifier = Modifier.weight(1).hoverTtp {
+        modifier = Modifier.weight(1).hoverTip {
             BlockInfoMatcherInfo(stateOf(autoReplantMapEntry.groundBlock))
         },
         horizontalArrangement = Arrangement.SpaceBetween

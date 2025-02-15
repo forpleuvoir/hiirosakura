@@ -3,6 +3,7 @@ package moe.forpleuvoir.hiirosakura.functional.task.executor
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.executor.Executor
 import moe.forpleuvoir.hiirosakura.functional.script.CommonApiLoader
+import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSEntity
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSPlayerEntity
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
@@ -67,7 +68,7 @@ class ScriptExecutor(
         catch {
             CommonApiLoader.eval(engine)
             mc.player?.let {
-                engine.put("player", HSPlayerEntity(it))
+                engine.put("player", HSEntity.fromEntity(it))
             }
             engine.eval(TaskManager.Config.scriptCommonLib)
             engine.eval(script)

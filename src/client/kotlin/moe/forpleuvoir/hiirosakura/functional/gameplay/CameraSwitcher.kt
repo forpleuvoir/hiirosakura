@@ -5,10 +5,10 @@ import moe.forpleuvoir.hiirosakura.command.ClientCommandDispatcher
 import moe.forpleuvoir.ibukigourd.command.dsl.registerCommand
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBind
-import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.config.item.impl.boolean
 import net.minecraft.command.CommandSource
 import net.minecraft.entity.Entity
 
@@ -18,13 +18,13 @@ object CameraSwitcher:ModConfigContainer("camera_switcher") {
         switchToTarget()
     })
 
-    val blockPlayerActions by keyBindBoolean("block_player_actions", true)
+    val blockPlayerActions by boolean("block_player_actions", true)
 
     @JvmStatic
     val isSwitched: Boolean get() = mc.cameraEntity != mc.player
 
     @JvmStatic
-    val shouldBlockActions: Boolean get() = isSwitched && blockPlayerActions.value
+    val shouldBlockActions: Boolean get() = isSwitched && blockPlayerActions
 
     private val clientEntities
         get() = mc.world?.entities ?: emptyList()

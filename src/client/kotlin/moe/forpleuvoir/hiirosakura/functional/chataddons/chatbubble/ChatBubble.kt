@@ -129,7 +129,7 @@ class ChatBubble(
         val camera = mc.gameRenderer.camera
 
         matrices.multiply(RotationAxis.POSITIVE_Y.rotation(-camera.yaw * (Math.PI.toFloat() / 180F)))
-        if (!ChatBubbleHandler.onlyYRotation.value) {
+        if (!ChatBubbleHandler.onlyYRotation) {
             matrices.multiply(RotationAxis.POSITIVE_X.rotation(camera.pitch * (Math.PI.toFloat() / 180F))) // 垂直方向
         }
 

@@ -3,7 +3,6 @@ package moe.forpleuvoir.hiirosakura.util
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import net.minecraft.component.ComponentType
@@ -19,8 +18,6 @@ import net.minecraft.registry.Registries
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.registry.entry.RegistryEntry
 import net.minecraft.util.Identifier
-import java.rmi.registry.Registry
-import java.util.function.Consumer
 import kotlin.jvm.optionals.getOrNull
 
 fun ItemStack.getEnchantmentTextWithLvl(
@@ -48,9 +45,10 @@ fun ItemStack.hasTag(tag: String): Boolean = this.streamTags().anyMatch { it.id.
 
 val ComponentType<*>.id get() = Registries.DATA_COMPONENT_TYPE.getId(this)
 
-val ENCHANTMENT_LIST
-    get() = BuiltinRegistries.createWrapperLookup().getOrThrow(RegistryKeys.ENCHANTMENT).run {
+val ENCHANTMENT_LIST: List<RegistryEntry.Reference<Enchantment>> by lazy {
+    BuiltinRegistries.createWrapperLookup().getOrThrow(RegistryKeys.ENCHANTMENT).run {
         streamKeys().map { registryKey ->
             (this.getOptional(registryKey).getOrNull() as RegistryEntry.Reference<Enchantment>)
         }.toList()
     }
+}

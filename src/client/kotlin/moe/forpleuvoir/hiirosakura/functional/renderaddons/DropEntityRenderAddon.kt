@@ -29,9 +29,9 @@ import java.util.function.Consumer
 
 object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
 
-    val distance by double("distance", 233.0, 0.0, 2333.0)
-
     val enable by keyBindBoolean("enable", value = false)
+
+    val distance by double("distance", 233.0, 0.0, 2333.0)
 
     val onlyYRotation by keyBindBoolean("only_y_rotation", value = true)
 

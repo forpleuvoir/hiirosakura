@@ -10,7 +10,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.util.state.stateOf
 
 fun WidgetContainerScope.AutoReplantMapEntryWrapper(
     autoReplantMapEntry: AutoReplant.MapEntry,
@@ -23,12 +22,12 @@ fun WidgetContainerScope.AutoReplantMapEntryWrapper(
 ) {
     Button(
         modifier = Modifier.weight(1).hoverTip {
-            BlockInfoMatcherInfo(stateOf(autoReplantMapEntry.targetBlock))
+            BlockInfoMatcherInfo(autoReplantMapEntry.targetBlock)
         },
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         TextLabel(HSLang.autoReplantMapEntryTargetBlock.appendLiteral(" -> "))
-        BlockInfoMathcerSimpleInfo(stateOf(autoReplantMapEntry.targetBlock))
+        BlockInfoMatcherSimpleInfo(autoReplantMapEntry.targetBlock)
         click {
             BlockInfoMatcherBuilder(autoReplantMapEntry.targetBlock, {
                 consumer(autoReplantMapEntry.copy(targetBlock = it))
@@ -38,12 +37,12 @@ fun WidgetContainerScope.AutoReplantMapEntryWrapper(
 
     Button(
         modifier = Modifier.weight(1).hoverTip {
-            ItemStackMathcerInfo(stateOf(autoReplantMapEntry.replantItem))
+            ItemStackMatcherInfo(autoReplantMapEntry.replantItem)
         },
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         TextLabel(HSLang.autoReplantMapEntryReplantItem.appendLiteral(" -> "))
-        ItemStackMathcerSimpleInfo(stateOf(autoReplantMapEntry.replantItem))
+        ItemStackMatcherSimpleInfo(autoReplantMapEntry.replantItem)
         click {
             ItemStackMatcherBuilder(autoReplantMapEntry.replantItem, {
                 consumer(autoReplantMapEntry.copy(replantItem = it))
@@ -53,16 +52,50 @@ fun WidgetContainerScope.AutoReplantMapEntryWrapper(
 
     Button(
         modifier = Modifier.weight(1).hoverTip {
-            BlockInfoMatcherInfo(stateOf(autoReplantMapEntry.groundBlock))
+            BlockInfoMatcherInfo(autoReplantMapEntry.groundBlock)
         },
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         TextLabel(HSLang.autoReplantMapEntryGroundBlock.appendLiteral(" -> "))
-        BlockInfoMathcerSimpleInfo(stateOf(autoReplantMapEntry.groundBlock))
+        BlockInfoMatcherSimpleInfo(autoReplantMapEntry.groundBlock)
         click {
             BlockInfoMatcherBuilder(autoReplantMapEntry.groundBlock, {
                 consumer(autoReplantMapEntry.copy(groundBlock = it))
             }).open()
         }
+    }
+}
+
+
+fun WidgetContainerScope.AutoReplantMapEntryInfo(
+    autoReplantMapEntry: AutoReplant.MapEntry,
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
+) = Column(
+    modifier,
+    horizontalArrangement
+) {
+    Column(
+        modifier = Modifier,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        TextLabel(HSLang.autoReplantMapEntryTargetBlock.appendLiteral(" -> "))
+        BlockInfoMatcherSimpleInfo(autoReplantMapEntry.targetBlock)
+    }
+
+    Column(
+        modifier = Modifier,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        TextLabel(HSLang.autoReplantMapEntryReplantItem.appendLiteral(" -> "))
+        ItemStackMatcherSimpleInfo(autoReplantMapEntry.replantItem)
+    }
+
+    Column(
+        modifier = Modifier,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        TextLabel(HSLang.autoReplantMapEntryGroundBlock.appendLiteral(" -> "))
+        BlockInfoMatcherSimpleInfo(autoReplantMapEntry.groundBlock)
     }
 }

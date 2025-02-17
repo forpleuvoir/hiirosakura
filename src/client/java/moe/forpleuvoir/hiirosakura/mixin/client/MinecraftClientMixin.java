@@ -11,6 +11,7 @@ import moe.forpleuvoir.hiirosakura.functional.gameplay.GamePlay;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.ItemUseIntercept;
 import moe.forpleuvoir.hiirosakura.functional.misc.PickPlayerHead;
 import moe.forpleuvoir.hiirosakura.functional.misc.ServerMarker;
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfo;
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSHitResult;
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSItemStack;
 import moe.forpleuvoir.nebula.event.EventBus;
@@ -88,7 +89,7 @@ public abstract class MinecraftClientMixin {
     @Inject(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isItemEnabled(Lnet/minecraft/resource/featuretoggle/FeatureSet;)Z"), cancellable = true)
     public void hiirosakura$doItemUse(CallbackInfo callbackInfo, @Local(ordinal = 0) Hand hand, @Local(ordinal = 0) ItemStack stack) {
         assert crosshairTarget != null;
-        if (!ItemUseIntercept.canUse(stack)) {
+        if (!ItemUseIntercept.canUse(BlockInfo.getTargetBlockInfoOrEmpty(), stack)) {
             callbackInfo.cancel();
             return;
         }

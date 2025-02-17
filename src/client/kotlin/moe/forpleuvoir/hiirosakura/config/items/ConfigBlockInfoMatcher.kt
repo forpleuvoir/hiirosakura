@@ -1,13 +1,15 @@
 package moe.forpleuvoir.hiirosakura.config.items
 
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.config.item.impl.ConfigList
 import moe.forpleuvoir.nebula.config.item.impl.ConfigStringKeyMap
-import moe.forpleuvoir.nebula.config.item.impl.ConfigStringMap
-import moe.forpleuvoir.nebula.config.item.impl.stringKeyMap
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.extensions.checkType
+import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 
 class ConfigBlockInfoMatcher(
     override val key: String,
@@ -67,3 +69,31 @@ fun ConfigContainer.blockInfoMatcherMap(
     key: String,
     defaultValue: Map<String, BlockInfoMatcher> = emptyMap()
 ) = addConfig(ConfigBlockInfoMatcherMap(key, defaultValue))
+
+typealias ItemStackBlockInfoPair = Pair<ItemStackMatcher, BlockInfoMatcher>
+
+val ItemStackBlockInfoPair.item get() = first
+val ItemStackBlockInfoPair.block get() = second
+
+class ConfigStringItemStackBlockInfoPairMap(
+    key: String,
+    defaultValue: Map<String, ItemStackBlockInfoPair> = emptyMap()
+) : ConfigStringKeyMap<ItemStackBlockInfoPair>(
+    key,
+    defaultValue,
+    { (item, block) ->
+        serializeObject {
+            "item" to item.serialization()
+            "block" to block.serialization()
+        }
+    }, {
+        it.checkType<SerializeObject, ItemStackBlockInfoPair> { obj ->
+            ItemStackMatcher.deserialization(obj["item"]!!) to BlockInfoMatcher.deserialization(obj["block"]!!)
+        }.getOrThrow()
+    }
+)
+
+fun ConfigContainer.itemStackBlockInfoMap(
+    key: String,
+    defaultValue: Map<String, ItemStackBlockInfoPair> = emptyMap()
+) = addConfig(ConfigStringItemStackBlockInfoPairMap(key, defaultValue))

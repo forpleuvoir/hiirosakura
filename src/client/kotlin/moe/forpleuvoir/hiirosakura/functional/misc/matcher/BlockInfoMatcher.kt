@@ -9,10 +9,12 @@ import moe.forpleuvoir.hiirosakura.util.math.Vector3icDeserializer
 import moe.forpleuvoir.hiirosakura.util.math.serialization
 import moe.forpleuvoir.hiirosakura.util.math.toVector
 import moe.forpleuvoir.hiirosakura.util.serialization
+import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.copyToText
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.serialization.Deserializable
 import moe.forpleuvoir.nebula.serialization.Deserializer
@@ -22,6 +24,7 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.block.BlockState
+import net.minecraft.block.Blocks
 import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
 import org.joml.Vector3ic
@@ -32,6 +35,16 @@ data class BlockInfo(
     val pos: Vector3ic
 ) {
     constructor(state: BlockState, blockPos: BlockPos) : this(state, blockPos.toVector())
+
+    companion object {
+
+        @JvmStatic
+        val emptyBlockInfo: BlockInfo = BlockInfo(Blocks.AIR.defaultState, BlockPos(0, 0, 0))
+
+        @JvmStatic
+        val targetBlockInfoOrEmpty: BlockInfo get() = mc.targetBlock ?: emptyBlockInfo
+
+    }
 }
 
 class BlockInfoMatcher(
@@ -45,6 +58,7 @@ class BlockInfoMatcher(
     ) : this(mode, entries.toList())
 
     companion object : Deserializer<BlockInfoMatcher> {
+
         override fun deserialization(serializeElement: SerializeElement): BlockInfoMatcher {
             return serializeElement.checkType<SerializeObject, BlockInfoMatcher> { obj ->
                 val entries = obj["entries"]!!.checkType<SerializeArray, List<BlockInfoMatchEntry>> { array ->
@@ -58,6 +72,14 @@ class BlockInfoMatcher(
                 )
             }.getOrThrow()
         }
+
+        val anyMatcher
+            get() = BlockInfoMatcher(
+                mode = MultiMatcher.MatchMode.AnyMatch,
+                BlockInfoMatchEntry.Block(Blocks.AIR, MatchEntry.MatchMode.Include),
+                BlockInfoMatchEntry.Block(Blocks.AIR, mode = MatchEntry.MatchMode.Exclude)
+            )
+
     }
 
     override val entries: List<BlockInfoMatchEntry> = entries.toMutableList()

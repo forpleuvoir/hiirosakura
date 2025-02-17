@@ -3,6 +3,8 @@ package moe.forpleuvoir.hiirosakura.mixin.client;
 import moe.forpleuvoir.hiirosakura.functional.event.events.BreakBlockEvent;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.BlockBreakProtection;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.CameraSwitcher;
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfo;
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher;
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSBlockState;
 import moe.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.client.MinecraftClient;
@@ -38,7 +40,7 @@ public class ClientPlayerInteractionManagerMixin {
     @Unique
     private void hiirosakura$breakBlockEvent(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> cir) {
         if (client.world != null) {
-            if (!BlockBreakProtection.canBreak(client.world.getBlockState(pos), pos)) {
+            if (!BlockBreakProtection.canBreak(ItemStackMatcher.getHandItemStackOrEmpty(), BlockInfo.getTargetBlockInfoOrEmpty())) {
                 cir.setReturnValue(false);
                 cir.cancel();
                 return;

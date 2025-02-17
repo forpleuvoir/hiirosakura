@@ -43,12 +43,15 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.state.*
+import moe.forpleuvoir.ibukigourd.util.state.MutableState
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import net.minecraft.component.ComponentType
 import net.minecraft.component.DataComponentTypes
+import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.util.Rarity
 import kotlin.jvm.optionals.getOrNull
@@ -531,8 +534,8 @@ private fun ComponentTypeMatchEntryBuilder(
     }
 }
 
-fun WidgetContainerScope.ItemStackMathcerSimpleInfo(
-    itemStackMatcher: State<ItemStackMatcher>,
+fun WidgetContainerScope.ItemStackMatcherSimpleInfo(
+    itemStackMatcher: MultiMatcher<ItemStack>,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -541,16 +544,16 @@ fun WidgetContainerScope.ItemStackMathcerSimpleInfo(
     horizontalArrangement,
     verticalAlignment
 ) {
-    val entries = itemStackMatcher.getValue().entries
+    val entries = itemStackMatcher.entries
     when (entries.size) {
         0    -> TextLabel(IGLang.hasNothing)
-        1    -> ItemStackEntryInfo(stateOf(entries.first()))
+        1    -> ItemStackEntryInfo(entries.first())
         else -> TextLabel(IGLang.listConfigWrapperText(entries.size))
     }
 }
 
-fun WidgetContainerScope.ItemStackMathcerInfo(
-    itemStackMatcher: State<ItemStackMatcher>,
+fun WidgetContainerScope.ItemStackMatcherInfo(
+    itemStackMatcher: MultiMatcher<ItemStack>,
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(1f),
     horizontalAlignment: Alignment.Horizontal = Alignment.Left,
@@ -560,107 +563,107 @@ fun WidgetContainerScope.ItemStackMathcerInfo(
     horizontalAlignment
 ) {
     //mode
-    TextLabel(itemStackMatcher.getValue().mode.translateText)
+    TextLabel(itemStackMatcher.mode.translateText)
     Rect(Colors.DARK_BLUE_GREY.alpha(0.5f), Modifier.height(1f).matchSibling())
     //entries
-    itemStackMatcher.getValue().entries.forEachWithLimit(10) {
-        ItemStackEntryInfo(stateOf(it))
+    itemStackMatcher.entries.forEachWithLimit(10) {
+        ItemStackEntryInfo(it)
     }
 }
 
 @Suppress("UNCHECKED_CAST")
-fun WidgetContainerScope.ItemStackEntryInfo(entry: State<ItemStackMatchEntry>) {
-    when (entry.getValue()) {
-        is ItemStackMatchEntry.Item              -> ItemStackEntryItemInfo(entry as State<ItemStackMatchEntry.Item>)
-        is ItemStackMatchEntry.Name              -> ItemStackEntryNameInfo(entry as State<ItemStackMatchEntry.Name>)
-        is ItemStackMatchEntry.Script            -> ItemStackEntryScriptInfo(entry as State<ItemStackMatchEntry.Script>)
-        is ItemStackMatchEntry.Count             -> ItemStackEntryCountInfo(entry as State<ItemStackMatchEntry.Count>)
-        is ItemStackMatchEntry.Enchantment       -> ItemStackEntryEnchantmentInfo(entry as State<ItemStackMatchEntry.Enchantment>)
-        is ItemStackMatchEntry.Tag               -> ItemStackEntryTagInfo(entry as State<ItemStackMatchEntry.Tag>)
-        is ItemStackMatchEntry.Rarity            -> ItemStackEntryRarityInfo(entry as State<ItemStackMatchEntry.Rarity>)
-        is ItemStackMatchEntry.DataComponentType -> ItemStackEntryDataComponentTypeInfo(entry as State<ItemStackMatchEntry.DataComponentType>)
+fun WidgetContainerScope.ItemStackEntryInfo(entry: MatchEntry<ItemStack>) {
+    when (entry) {
+        is ItemStackMatchEntry.Item              -> ItemStackEntryItemInfo(entry)
+        is ItemStackMatchEntry.Name              -> ItemStackEntryNameInfo(entry)
+        is ItemStackMatchEntry.Script            -> ItemStackEntryScriptInfo(entry)
+        is ItemStackMatchEntry.Count             -> ItemStackEntryCountInfo(entry)
+        is ItemStackMatchEntry.Enchantment       -> ItemStackEntryEnchantmentInfo(entry)
+        is ItemStackMatchEntry.Tag               -> ItemStackEntryTagInfo(entry)
+        is ItemStackMatchEntry.Rarity            -> ItemStackEntryRarityInfo(entry)
+        is ItemStackMatchEntry.DataComponentType -> ItemStackEntryDataComponentTypeInfo(entry)
     }
 }
 
 fun WidgetContainerScope.ItemStackEntryItemInfo(
-    entry: State<ItemStackMatchEntry.Item>,
+    entry: ItemStackMatchEntry.Item,
 ) = Column(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
-    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
     TextLabel(itemStackMatcherEntryItem)
-    ItemIcon(entry.getValue().item, .6f)
-    TextLabel(entry.getValue().asText)
+    ItemIcon(entry.item, .6f)
+    TextLabel(entry.asText)
 }
 
 fun WidgetContainerScope.ItemStackEntryNameInfo(
-    entry: State<ItemStackMatchEntry.Name>,
+    entry: ItemStackMatchEntry.Name,
 ) = Column(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
-    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
     TextLabel(
-        mutableStateBy { itemStackMatcherEntryScript.append(entry.getValue().asText) },
+        mutableStateBy { itemStackMatcherEntryScript.append(entry.asText) },
         modifier = Modifier.maxWidth(180f)
     )
 }
 
 fun WidgetContainerScope.ItemStackEntryScriptInfo(
-    entry: State<ItemStackMatchEntry.Script>,
+    entry: ItemStackMatchEntry.Script,
 ) = Column(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
-    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
     TextLabel(
-        mutableStateBy { itemStackMatcherEntryScript.append(entry.getValue().asText) },
+        mutableStateBy { itemStackMatcherEntryScript.append(entry.asText) },
         modifier = Modifier.maxWidth(180f)
     )
 }
 
 fun WidgetContainerScope.ItemStackEntryCountInfo(
-    entry: State<ItemStackMatchEntry.Count>,
+    entry: ItemStackMatchEntry.Count,
 ) = Column(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
-    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
-    TextLabel(mutableStateBy { itemStackMatcherEntryCount.append(entry.getValue().asText) }, modifier = Modifier.maxWidth(180f))
+    Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(mutableStateBy { itemStackMatcherEntryCount.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
 }
 
 fun WidgetContainerScope.ItemStackEntryRarityInfo(
-    entry: State<ItemStackMatchEntry.Rarity>,
+    entry: ItemStackMatchEntry.Rarity,
 ) = Column(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
-    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
-    TextLabel(mutableStateBy { itemStackMatcherEntryRarity.append(entry.getValue().asText) }, modifier = Modifier.maxWidth(180f))
+    Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(mutableStateBy { itemStackMatcherEntryRarity.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
 }
 
 fun WidgetContainerScope.ItemStackEntryEnchantmentInfo(
-    entry: State<ItemStackMatchEntry.Enchantment>,
+    entry: ItemStackMatchEntry.Enchantment,
 ) = Column(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
-    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
-    TextLabel(mutableStateBy { itemStackMatcherEntryEnchantment.append(entry.getValue().asText) }, modifier = Modifier.maxWidth(180f))
+    Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(mutableStateBy { itemStackMatcherEntryEnchantment.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
 }
 
 fun WidgetContainerScope.ItemStackEntryTagInfo(
-    entry: State<ItemStackMatchEntry.Tag>,
+    entry: ItemStackMatchEntry.Tag,
 ) = Column(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
-    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
-    TextLabel(mutableStateBy { itemStackMatcherEntryTag.append(entry.getValue().asText) }, modifier = Modifier.maxWidth(180f))
+    Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    TextLabel(mutableStateBy { itemStackMatcherEntryTag.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
 }
 
 fun WidgetContainerScope.ItemStackEntryDataComponentTypeInfo(
-    entry: State<ItemStackMatchEntry.DataComponentType>,
+    entry: ItemStackMatchEntry.DataComponentType,
 ) = Column(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
-    Rect(if (entry.getValue().mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
     TextLabel(
-        mutableStateBy { itemStackMatcherEntryDataComponentType.append(entry.getValue().asText) },
+        mutableStateBy { itemStackMatcherEntryDataComponentType.append(entry.asText) },
         modifier = Modifier.maxWidth(180f)
     )
 }

@@ -15,9 +15,11 @@ object HSConfigWrapper {
 
         register<ConfigItemStackMatcher> { c, m -> ItemStackMatcherWrapper(c, m) }
         register<ConfigItemStackMatcherMap> { c, m -> ItemStackMatcherMapWrapper(c, m) }
+        register<ConfigStringItemStackBlockInfoPairMap> { c, m -> ConfigStringItemStackBlockInfoPairMapWrapper(c, m) }
 
         register<ConfigBlockInfoMatcher> { c, m -> BlockInfoMatcherWrapper(c, m) }
         register<ConfigBlockInfoMatcherMap> { c, m -> BlockInfoMatcherMapWrapper(c, m) }
+        register<ConfigStringBlockInfoItemStackPairMap> { c, m -> ConfigStringBlockInfoItemStackPairMapWrapper(c, m) }
 
         register<ConfigAutoReplantMapEntryList> { c, m -> AutoReplantMapEntryListWrapper(c, m) }
     }

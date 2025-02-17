@@ -81,6 +81,7 @@ object HSLang {
 
     val fromHandItem get() = lang("from_hand_item")
     val itemStackMatcher get() = lang("item_stack_matcher")
+    val handledItem get() = lang("item_stack_matcher.handled_item")
     val itemStackMatcherEntryItem get() = lang("item_stack_matcher_entry.item")
     val itemStackMatcherEntryName get() = lang("item_stack_matcher_entry.name")
     val itemStackMatcherEntryScript get() = lang("item_stack_matcher_entry.script")
@@ -94,6 +95,7 @@ object HSLang {
 
     val fromTargetBlock get() = lang("from_target_block")
     val blockInfoMatcher get() = lang("block_info_matcher")
+    val targetBlock get() = lang("block_info_matcher.target_block")
     val blockInfoMatcherEntryBlock get() = lang("block_info_matcher_entry.block")
     val blockInfoMatcherEntryScript get() = lang("block_info_matcher_entry.script")
     val blockInfoMatcherEntryPos get() = lang("block_info_matcher_entry.pos")

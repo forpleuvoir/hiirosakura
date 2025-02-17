@@ -3,12 +3,7 @@ package moe.forpleuvoir.hiirosakura.functional.misc.matcher
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSItemStack
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
-import moe.forpleuvoir.hiirosakura.util.ENCHANTMENT_LIST
-import moe.forpleuvoir.hiirosakura.util.deserialization
-import moe.forpleuvoir.hiirosakura.util.hasTag
-import moe.forpleuvoir.hiirosakura.util.id
-import moe.forpleuvoir.hiirosakura.util.item
-import moe.forpleuvoir.hiirosakura.util.serialization
+import moe.forpleuvoir.hiirosakura.util.*
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
@@ -24,11 +19,12 @@ import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.deserialization
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.component.ComponentType
-import net.minecraft.enchantment.Enchantment as McEnchantment
 import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
 import net.minecraft.registry.Registries
 import net.minecraft.registry.entry.RegistryEntry
 import net.minecraft.util.Identifier
+import net.minecraft.enchantment.Enchantment as McEnchantment
 import net.minecraft.item.Item as McItem
 import net.minecraft.util.Rarity as McRarity
 
@@ -38,6 +34,7 @@ class ItemStackMatcher(override var mode: MultiMatcher.MatchMode, entries: List<
 
     companion object : Deserializer<ItemStackMatcher> {
 
+        @JvmStatic
         val handItemStack: ItemStack?
             get() {
                 mc.player?.apply {
@@ -46,6 +43,16 @@ class ItemStackMatcher(override var mode: MultiMatcher.MatchMode, entries: List<
                 }
                 return null
             }
+
+        @JvmStatic
+        val handItemStackOrEmpty: ItemStack get() = handItemStack ?: ItemStack.EMPTY
+
+        val anyMatcher
+            get() = ItemStackMatcher(
+                mode = MultiMatcher.MatchMode.AnyMatch,
+                ItemStackMatchEntry.Item(Items.AIR, MatchEntry.MatchMode.Include),
+                ItemStackMatchEntry.Item(Items.AIR, mode = MatchEntry.MatchMode.Exclude)
+            )
 
         override fun deserialization(serializeElement: SerializeElement): ItemStackMatcher {
             return serializeElement.checkType<SerializeObject, ItemStackMatcher> { obj ->

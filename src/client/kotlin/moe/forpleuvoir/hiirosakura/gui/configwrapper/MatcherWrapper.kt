@@ -129,7 +129,7 @@ fun <T, M : MultiMatcher<T>> WidgetContainerScope.ConfigMatcherMapWrappedButton(
     newValue: (Iterable<Map.Entry<String, M>>) -> Map.Entry<String, M>,
     hoverContent: ColumnScope.(M) -> Unit,
     entryWrapper: RowListScope.(Map.Entry<String, M>, index: Int) -> Unit
-) = MapConfigWrapedButton(
+) = MapConfigWrappedButton(
     config = config,
     newValue = newValue,
     hoverContent = {
@@ -308,7 +308,7 @@ fun <A, B, C : Pair<MultiMatcher<A>, MultiMatcher<B>>> WidgetContainerScope.Conf
     hoverContentA: ColumnScope.(MultiMatcher<A>) -> Unit,
     hoverContentB: ColumnScope.(MultiMatcher<B>) -> Unit,
     entryWrapper: RowListScope.(Map.Entry<String, C>, index: Int) -> Unit
-) = MapConfigWrapedButton(
+) = MapConfigWrappedButton(
     config = config,
     newValue = newValue,
     hoverContent = {

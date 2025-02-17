@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.recompose
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigColumnWrapper
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigResetButton
-import moe.forpleuvoir.ibukigourd.gui.configwrapper.ListConfigWrapedButton
+import moe.forpleuvoir.ibukigourd.gui.configwrapper.ListConfigWrappedButton
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.MoveableListConfigEntryWrapper
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -22,7 +22,7 @@ fun WidgetContainerScope.SoundEffectListWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        ListConfigWrapedButton(
+        ListConfigWrappedButton(
             config = config,
             newValue = { SoundEvents.BLOCK_COPPER_PLACE },
             hoverEntryToString = { it.id.toString() }
@@ -30,7 +30,7 @@ fun WidgetContainerScope.SoundEffectListWrapper(
             MoveableListConfigEntryWrapper(
                 config = config,
                 index = index,
-                recompose = { execute { this@ListConfigWrapedButton.recompose() } }
+                recompose = { execute { this@ListConfigWrappedButton.recompose() } }
             ) {
                 val state = mutableStateOf(entry).apply {
                     onSetValue = {

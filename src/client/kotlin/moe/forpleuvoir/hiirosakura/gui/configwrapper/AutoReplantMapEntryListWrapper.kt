@@ -13,7 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.recompose
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigColumnWrapper
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigResetButton
-import moe.forpleuvoir.ibukigourd.gui.configwrapper.ListConfigWrapedButton
+import moe.forpleuvoir.ibukigourd.gui.configwrapper.ListConfigWrappedButton
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.MoveableListConfigEntryWrapper
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
@@ -25,7 +25,7 @@ fun WidgetContainerScope.AutoReplantMapEntryListWrapper(
     Column(
         horizontalArrangement = Arrangement.spacedBy(5f)
     ) {
-        ListConfigWrapedButton(
+        ListConfigWrappedButton(
             config,
             newValue = { AutoReplant.MapEntry() },
             rowListModifier = { Modifier.height(180f) },
@@ -40,13 +40,13 @@ fun WidgetContainerScope.AutoReplantMapEntryListWrapper(
             }
         ) { entry, index ->
             MoveableListConfigEntryWrapper(
-                config, index, { execute { this@ListConfigWrapedButton.recompose() } }
+                config, index, { execute { this@ListConfigWrappedButton.recompose() } }
             ) {
                 AutoReplantMapEntryWrapper(
                     entry,
                     {
                         config.getValue()[index] = it
-                        execute { this@ListConfigWrapedButton.recompose() }
+                        execute { this@ListConfigWrappedButton.recompose() }
                     },
                     Modifier.weight(1),
                     Arrangement.SpaceAround

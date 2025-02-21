@@ -8,7 +8,7 @@ import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.config.item.impl.boolean
 import moe.forpleuvoir.nebula.config.item.impl.color
 import moe.forpleuvoir.nebula.config.item.impl.duration
-import moe.forpleuvoir.nebula.config.item.impl.int
+import moe.forpleuvoir.nebula.config.item.impl.float
 import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.util.math.MatrixStack
 import org.joml.Vector2f
@@ -26,7 +26,7 @@ object ChatBubbleHandler:ModConfigContainer("chat_bubble") {
 
     val scale by vector2f("scale", Vector2f(1f, 1f), Vector2f(0.1f, 0.1f), Vector2f(10f, 10f))
 
-    val maxWidth by int("max_width", 120, 9, 480)
+    val maxWidth by float("max_width", 120f, 9f, 480f)
 
     val textureColor by color("texture_color", Color("#FFFF4646"))
 

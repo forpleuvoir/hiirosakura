@@ -42,7 +42,6 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
-import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import net.minecraft.block.Blocks
@@ -138,7 +137,7 @@ fun BlockInfoMatcherBuilder(
                 ) {
                     map.forEach { (key, builder) ->
                         Button(Modifier, Arrangement.spacedBy(6f, Alignment.CenterHorizontally)) {
-                            TextLabel(key, modifier = Modifier.width(map.keys.maxWidth(textRenderer).toFloat()))
+                            TextLabel(key, modifier = Modifier.width(map.keys.maxWidth))
                             Icon(IconTextures.PLUS, HSVColor(120f, 1f, .65f), modifier = Modifier.size(8f, 8f))
                             click {
                                 builder.invoke(Modifier, Modifier) {
@@ -309,7 +308,7 @@ private fun TagMatchEntryBuilder(
                     TextLabel(it, modifier = Modifier.weight(1))
                 },
                 optionWrapper = {
-                    TextLabel(it, modifier = Modifier.width(tags.maxWidth(textRenderer).toFloat() + 1))
+                    TextLabel(it, modifier = Modifier.width(tags.maxWidth + 1))
                 }
             )
         }
@@ -373,7 +372,7 @@ private fun PropertyMatchEntryBuilder(
                 optionWrapper = {
                     TextLabel(
                         "${it.first} = ${it.second}",
-                        modifier = Modifier.width(properties.map { p -> "${p.first} = ${p.second}" }.maxWidth(textRenderer).toFloat() + 1)
+                        modifier = Modifier.width(properties.map { p -> "${p.first} = ${p.second}" }.maxWidth + 1)
                     )
                 }
             )

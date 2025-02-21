@@ -163,7 +163,7 @@ fun <T, M : MultiMatcher<T>> WidgetContainerScope.ConfigMatcherMapEntryWrapper(
     horizontalArrangement = Arrangement.spacedBy(2f)
 ) {
     TextLabel(
-        key, modifier = Modifier.width(config.getValue().keys.maxWidth(mc.textRenderer).coerceIn(119, 239) + 1f)
+        key, modifier = Modifier.width(config.getValue().keys.maxWidth.coerceIn(119f, 239f) + 1f)
     )
     FlatButton(
         hoveredColor = Colors.PALEGREEN.alpha(.5f),
@@ -352,7 +352,7 @@ fun <A, B, C : Pair<MultiMatcher<A>, MultiMatcher<B>>> WidgetContainerScope.Conf
             modifier = Modifier.hoverText(IGLang.edit)
         ) {
             TextLabel(
-                key, modifier = Modifier.width(config.getValue().keys.maxWidth(mc.textRenderer).coerceIn(59, 99) + 1f)
+                key, modifier = Modifier.width(config.getValue().keys.maxWidth.coerceIn(59f, 99f) + 1f)
             )
             click {
                 var newKey = key

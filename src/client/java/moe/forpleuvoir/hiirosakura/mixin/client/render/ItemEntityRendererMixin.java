@@ -1,6 +1,6 @@
 package moe.forpleuvoir.hiirosakura.mixin.client.render;
 
-import moe.forpleuvoir.hiirosakura.compat.iris.VertexConsumerProviderChecker;
+import moe.forpleuvoir.hiirosakura.compat.iris.IrisCompat;
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.DropEntityRenderAddon;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -37,7 +37,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
     public void hiirosakura$render(ItemEntityRenderState itemEntityRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
         ItemEntity currentItemEntity = DropEntityRenderAddon.getCurrentItemEntity();
         if (currentItemEntity != null) {
-            VertexConsumerProviderChecker.isImmediate(vertexConsumerProvider, (immediate) -> {
+            IrisCompat.isImmediate(vertexConsumerProvider, (immediate) -> {
                 DropEntityRenderAddon.renderItemEntityInfo(
                     currentItemEntity,
                     getTextRenderer(),

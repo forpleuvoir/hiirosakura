@@ -96,7 +96,7 @@ class ChatBubble(
 
     }
 
-    private val lines: List<String> = message.wrapToLines(textRenderer, ChatBubbleHandler.maxWidth)
+    private val lines: List<String> = message.wrapToLines(ChatBubbleHandler.maxWidth)
 
     private val textBox: Box
 
@@ -105,7 +105,7 @@ class ChatBubble(
     private val arrowBox: Box
 
     init {
-        val maxWidth = lines.maxWidth(textRenderer)
+        val maxWidth = lines.maxWidth
         val height = lines.size * (textRenderer.fontHeight + LINE_SPACING) - LINE_SPACING
         textBox = Box(-maxWidth / 2f, -height, maxWidth, height)
         textureBox = textBox.expandEdges(4f)

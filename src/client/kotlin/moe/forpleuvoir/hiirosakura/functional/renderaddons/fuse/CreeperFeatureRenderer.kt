@@ -1,6 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse
 
-import moe.forpleuvoir.hiirosakura.compat.iris.VertexConsumerProviderChecker
+import moe.forpleuvoir.hiirosakura.compat.iris.IrisCompat
 import moe.forpleuvoir.hiirosakura.util.resetMatricesKeepTranslation
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.positionMatrix
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderText
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
+import moe.forpleuvoir.ibukigourd.text.width
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
@@ -45,7 +46,7 @@ class CreeperFeatureRenderer(
         limbDistance: Float
     ) {
         if (renderType == FuseRenderType.None || state.fuseTime <= 0) return
-        VertexConsumerProviderChecker.isImmediate(vertexConsumers) {
+        IrisCompat.isImmediate(vertexConsumers) {
             renderCreeperFuse(
                 state,
                 mc.textRenderer,
@@ -92,7 +93,7 @@ class CreeperFeatureRenderer(
                 matrixStack.multiply(Quaternionf().rotateX(cameraPitch * (Math.PI.toFloat() / 180F))) // 垂直旋转
             matrixStack.scale(-0.025f, -0.025f, 0.025f)
             val text = "%.2f".format(MAX_FUSE - fuse)
-            val width = textRenderer.getWidth(text)
+            val width = text.width
             textRenderer.renderText(
                 vertexConsumers = vertexConsumerProvider,
                 positionMatrix = matrixStack.positionMatrix,

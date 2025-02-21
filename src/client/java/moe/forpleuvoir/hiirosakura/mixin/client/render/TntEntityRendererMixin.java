@@ -1,6 +1,6 @@
 package moe.forpleuvoir.hiirosakura.mixin.client.render;
 
-import moe.forpleuvoir.hiirosakura.compat.iris.VertexConsumerProviderChecker;
+import moe.forpleuvoir.hiirosakura.compat.iris.IrisCompat;
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.TntFuseRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -23,7 +23,7 @@ public abstract class TntEntityRendererMixin extends EntityRenderer<TntEntity, T
 
     @Inject(method = "render(Lnet/minecraft/client/render/entity/state/TntEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("RETURN"))
     public void hiirosakura$render(TntEntityRenderState tntEntityRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
-        VertexConsumerProviderChecker.isImmediate(vertexConsumerProvider, (immediate) -> {
+        IrisCompat.isImmediate(vertexConsumerProvider, (immediate) -> {
             TntFuseRenderer.renderTntFuse(tntEntityRenderState, getTextRenderer(), matrixStack, immediate, i);
         });
     }

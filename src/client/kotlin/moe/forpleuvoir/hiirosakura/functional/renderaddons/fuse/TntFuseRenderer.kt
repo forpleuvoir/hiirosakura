@@ -6,6 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.positionMatrix
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderText
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
+import moe.forpleuvoir.ibukigourd.text.width
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
@@ -62,7 +63,7 @@ object TntFuseRenderer : ModConfigContainer("tnt") {
                 matrixStack.multiply(Quaternionf().rotateX(cameraPitch * (Math.PI.toFloat() / 180F))) // 垂直旋转
             matrixStack.scale(-0.025f, -0.025f, 0.025f)
             val text = "%.2f".format(fuse)
-            val width = textRenderer.getWidth(text)
+            val width = text.width
             textRenderer.renderText(
                 vertexConsumers = vertexConsumerProvider,
                 positionMatrix = matrixStack.positionMatrix,

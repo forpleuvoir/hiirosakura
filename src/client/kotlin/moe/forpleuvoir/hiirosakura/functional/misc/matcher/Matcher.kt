@@ -25,6 +25,7 @@ interface MatchEntry<T> : Matcher<T>, Serializable {
          * 表示匹配模式中的包含模式，用于确定匹配的项目是否应包含在结果内。
          */
         Include(true),
+
         /**
          * 表示匹配模式中的排除模式，用于确定匹配的项目是否应从结果中排除。
          */
@@ -36,6 +37,8 @@ interface MatchEntry<T> : Matcher<T>, Serializable {
                     if (it.asBoolean) Include else Exclude
                 }.getOrThrow()
             }
+
+            fun fromBoolean(value: Boolean): MatchMode = if (value) Include else Exclude
         }
 
         fun toBoolean(): Boolean = value
@@ -54,7 +57,7 @@ interface MultiMatcher<T> : Matcher<T> {
 
     override fun match(obj: T): Boolean {
         return when (mode) {
-            MatchMode.AnyMatch -> entries.any { it.matchWithMode(obj) }
+            MatchMode.AnyMatch  -> entries.any { it.matchWithMode(obj) }
             MatchMode.AllMatch  -> entries.all { it.matchWithMode(obj) }
             MatchMode.NoneMatch -> entries.none { it.matchWithMode(obj) }
         }
@@ -74,11 +77,13 @@ interface MultiMatcher<T> : Matcher<T> {
          *
          */
         AnyMatch,
+
         /**
          * 当且仅当所有匹配项均不符合指定规则时，匹配才成功。
          * 适用于需要确保没有一项符合条件的场景，例如检测某集合中是否不存在特定属性或值。
          */
         NoneMatch,
+
         /**
          *  此模式通常用于需要确保全部条件均满足的场景。例如，当需要验证某个集合中所有元素都满足给定规则时，可采用此模式。
          */

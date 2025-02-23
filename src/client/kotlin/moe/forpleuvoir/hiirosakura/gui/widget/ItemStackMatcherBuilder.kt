@@ -29,6 +29,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
 import moe.forpleuvoir.ibukigourd.gui.widget.Rect
 import moe.forpleuvoir.ibukigourd.gui.widget.Selector
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.RadioButtons
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
@@ -36,10 +37,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
-import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.gui.widget.text.*
 import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -184,16 +182,38 @@ private fun WidgetContainerScope.EntryWrapper(
 ) {
     TextLabel(entry.translateText, modifier = Modifier.weight(1))
     when (entry) {
-        is ItemStackMatchEntry.Item -> Column(
+        is ItemStackMatchEntry.Item   -> Column(
             horizontalArrangement = Arrangement.spacedBy(2f)
         ) {
             ItemIcon(entry.item, .6f)
             TextLabel(entry.asText)
         }
 
-        else                        -> TextLabel(entry.asText)
+        is ItemStackMatchEntry.Script -> TextLabel(entry.asText, Modifier.hoverText(entry.script))
+        else                          -> TextLabel(entry.asText)
     }
-    TextLabel(entry.mode.translateText)
+    FlatButton(
+        idleColor = Colors.BLACK.alpha(0f), round = 0
+    ) {
+        TextLabel(
+            entry.mode.translateText,
+            setting = TextSetting().copy(backgroundColor = if (entry.mode.toBoolean()) Colors.LIME.alpha(.25f) else Colors.RED.alpha(0.25f))
+        )
+        click {
+            val mode = MatchEntry.MatchMode.fromBoolean(!entry.mode.toBoolean())
+            val newValue = when (entry) {
+                is ItemStackMatchEntry.Item              -> ItemStackMatchEntry.Item(entry.item, mode)
+                is ItemStackMatchEntry.Name              -> ItemStackMatchEntry.Name(entry.name, mode)
+                is ItemStackMatchEntry.Script            -> ItemStackMatchEntry.Script(entry.script, mode)
+                is ItemStackMatchEntry.Count             -> ItemStackMatchEntry.Count(entry.count, mode)
+                is ItemStackMatchEntry.Rarity            -> ItemStackMatchEntry.Rarity(entry.rarity, mode)
+                is ItemStackMatchEntry.Enchantment       -> ItemStackMatchEntry.Enchantment(entry.enchantment, entry.level, mode)
+                is ItemStackMatchEntry.Tag               -> ItemStackMatchEntry.Tag(entry.tag, mode)
+                is ItemStackMatchEntry.DataComponentType -> ItemStackMatchEntry.DataComponentType(entry.componentType, mode)
+            }
+            entryConsumer(newValue)
+        }
+    }
     EditButton {
         when (entry) {
             is ItemStackMatchEntry.Item              -> ItemMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
@@ -546,7 +566,11 @@ fun WidgetContainerScope.ItemStackMatcherSimpleInfo(
     when (entries.size) {
         0    -> TextLabel(IGLang.hasNothing)
         1    -> ItemStackEntryInfo(entries.first())
-        else -> TextLabel(IGLang.listConfigWrapperText(entries.size))
+        else -> {
+            if (ItemStackMatcher.isAnyMatcher(itemStackMatcher)) {
+                TextLabel(MultiMatcher.MatchMode.AnyMatch.translateText)
+            } else TextLabel(itemStackMatcher.mode.translateText.appendLiteral(":").append(IGLang.listConfigWrapperText(entries.size)))
+        }
     }
 }
 
@@ -561,7 +585,11 @@ fun WidgetContainerScope.ItemStackMatcherInfo(
     horizontalAlignment
 ) {
     //mode
-    TextLabel(itemStackMatcher.mode.translateText)
+    TextLabel(
+        itemStackMatcher.mode.translateText,
+        Modifier.matchSibling(),
+        setting = TextWidget.Setting().copy(horizontalAlignment = Alignment.CenterHorizontally)
+    )
     Rect(Colors.DARK_BLUE_GREY.alpha(0.5f), Modifier.height(1f).matchSibling())
     //entries
     itemStackMatcher.entries.forEachWithLimit(10) {

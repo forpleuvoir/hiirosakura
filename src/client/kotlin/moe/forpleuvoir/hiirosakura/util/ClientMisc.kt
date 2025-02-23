@@ -3,7 +3,6 @@ package moe.forpleuvoir.hiirosakura.util
 import kotlinx.coroutines.delay
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfo
-import moe.forpleuvoir.hiirosakura.util.math.toVector
 import moe.forpleuvoir.ibukigourd.util.ModLogger
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.nebula.common.util.defaultLaunch
@@ -37,8 +36,7 @@ fun MatrixStack.resetMatricesKeepTranslation(): MatrixStack {
 val MinecraftClient.targetBlock: BlockInfo?
     get() {
         if (this.crosshairTarget?.type == HitResult.Type.BLOCK) {
-            val block = this.crosshairTarget!! as BlockHitResult
-            return BlockInfo(this.world!!.getBlockState(block.blockPos), block.blockPos.toVector())
+            return BlockInfo(this.crosshairTarget!! as BlockHitResult)
         }
         return null
     }

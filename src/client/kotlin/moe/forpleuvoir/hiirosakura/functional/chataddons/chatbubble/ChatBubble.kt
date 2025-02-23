@@ -12,7 +12,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.texture.Corner
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.render.*
-import moe.forpleuvoir.ibukigourd.text.maxWidth
+import moe.forpleuvoir.ibukigourd.text.size
 import moe.forpleuvoir.ibukigourd.text.wrapToLines
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.render.VertexConsumerProvider
@@ -105,9 +105,8 @@ class ChatBubble(
     private val arrowBox: Box
 
     init {
-        val maxWidth = lines.maxWidth
-        val height = lines.size * (textRenderer.fontHeight + LINE_SPACING) - LINE_SPACING
-        textBox = Box(-maxWidth / 2f, -height, maxWidth, height)
+        val (maxWidth, height) = lines.size(LINE_SPACING)
+        textBox = Box(x = -maxWidth / 2, y = -height / 2, maxWidth, height)
         textureBox = textBox.expandEdges(4f)
         arrowBox = Box(textBox.center.x() - ARROW.width / 2, textureBox.bottom, Size(ARROW.width, ARROW.height - ARROW.corner.top))
     }

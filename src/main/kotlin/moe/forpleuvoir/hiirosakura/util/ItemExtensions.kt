@@ -32,6 +32,8 @@ fun ItemStack.getEnchantmentTextWithLvl(
     }
 }
 
+val ItemStack?.empty: Boolean get() = this == null || this.isEmpty
+
 val Item.id get() = Registries.ITEM.getId(this)
 
 val Item.serialization get() = SerializePrimitive(id.toString())

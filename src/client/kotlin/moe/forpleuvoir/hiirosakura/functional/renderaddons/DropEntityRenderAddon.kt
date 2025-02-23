@@ -252,7 +252,7 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
         matrixStack.scale(0.025f, -0.025f, 0.025f)
         val matrix4f = matrixStack.peek().positionMatrix
         val alpha = mc.options.getTextBackgroundOpacity(0.25f)
-        val backgroundColor = (alpha * 255.0f).toInt() shl 24
+        val backgroundColor = if (text.plainText.isEmpty()) 0 else (alpha * 255.0f).toInt() shl 24
         val x = (-text.width / 2)
         textRenderer.draw(
             text, x, 0f, -1, false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.NORMAL,

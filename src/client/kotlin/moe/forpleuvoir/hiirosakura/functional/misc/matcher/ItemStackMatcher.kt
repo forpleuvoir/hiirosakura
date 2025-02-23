@@ -67,6 +67,18 @@ class ItemStackMatcher(override var mode: MultiMatcher.MatchMode, entries: List<
                 )
             }.getOrThrow()
         }
+
+        fun isAnyMatcher(matcher: MultiMatcher<ItemStack>): Boolean {
+            val mode = matcher.mode == MultiMatcher.MatchMode.AnyMatch
+            if (!mode) return false
+            val itemEntries = matcher.entries.filterIsInstance<ItemStackMatchEntry.Item>()
+            if (itemEntries.size < 2) return false
+            return itemEntries.any { entry1 ->
+                itemEntries.any { entry2 ->
+                    entry1 != entry2 && entry1.item == entry2.item && entry1.mode != entry2.mode
+                }
+            }
+        }
     }
 
     override val entries: List<ItemStackMatchEntry> = entries.toMutableList()
@@ -228,7 +240,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             """.trimIndent()
         }
 
-        override val asText: Text = Literal(script.substring(0..(64.coerceAtMost(script.lastIndex))))
+        override val asText: Text = Literal("Script Matcher")
 
         override fun match(obj: ItemStack): Boolean {
             val result = mutableStateOf(false)

@@ -23,16 +23,14 @@ import moe.forpleuvoir.ibukigourd.gui.widget.Rect
 import moe.forpleuvoir.ibukigourd.gui.widget.Selector
 import moe.forpleuvoir.ibukigourd.gui.widget.Vector3iEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.RadioButtons
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditorWidget
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.gui.widget.text.*
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.text.translateComment
@@ -176,12 +174,30 @@ private fun WidgetContainerScope.EntryWrapper(
             TextLabel(entry.asText)
         }
 
-        is BlockInfoMatchEntry.Script   -> TextLabel(entry.asText)
+        is BlockInfoMatchEntry.Script   -> TextLabel(entry.asText, Modifier.hoverText(entry.script))
         is BlockInfoMatchEntry.Pos      -> TextLabel(entry.asText)
         is BlockInfoMatchEntry.Tag      -> TextLabel(entry.asText)
         is BlockInfoMatchEntry.Property -> TextLabel(entry.asText)
     }
-    TextLabel(entry.mode.translateText)
+    FlatButton(
+        idleColor = Colors.BLACK.alpha(0f), round = 0
+    ) {
+        TextLabel(
+            entry.mode.translateText,
+            setting = TextSetting().copy(backgroundColor = if (entry.mode.toBoolean()) Colors.LIME.alpha(.25f) else Colors.RED.alpha(0.25f))
+        )
+        click {
+            val mode = MatchEntry.MatchMode.fromBoolean(!entry.mode.toBoolean())
+            val newValue = when (entry) {
+                is BlockInfoMatchEntry.Block    -> BlockInfoMatchEntry.Block(entry.block, mode)
+                is BlockInfoMatchEntry.Script   -> BlockInfoMatchEntry.Script(entry.script, mode)
+                is BlockInfoMatchEntry.Pos      -> BlockInfoMatchEntry.Pos(entry.min, entry.max, mode)
+                is BlockInfoMatchEntry.Tag      -> BlockInfoMatchEntry.Tag(entry.tag, mode)
+                is BlockInfoMatchEntry.Property -> BlockInfoMatchEntry.Property(entry.property, mode)
+            }
+            entryConsumer(newValue)
+        }
+    }
     EditButton {
         when (entry) {
             is BlockInfoMatchEntry.Block    -> BlockMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
@@ -394,7 +410,11 @@ fun WidgetContainerScope.BlockInfoMatcherSimpleInfo(
     when (entries.size) {
         0    -> TextLabel(IGLang.hasNothing)
         1    -> BlockInfoEntryInfo(entries.first())
-        else -> TextLabel(IGLang.listConfigWrapperText(entries.size))
+        else -> {
+            if (BlockInfoMatcher.isAnyMatcher(blockInfoMatcher)) {
+                TextLabel(MultiMatcher.MatchMode.AnyMatch.translateText)
+            } else TextLabel(blockInfoMatcher.mode.translateText.appendLiteral(":").append(IGLang.listConfigWrapperText(entries.size)))
+        }
     }
 }
 
@@ -409,7 +429,11 @@ fun WidgetContainerScope.BlockInfoMatcherInfo(
     horizontalAlignment
 ) {
     //mode
-    TextLabel(blockInfoMatcher.mode.translateText)
+    TextLabel(
+        blockInfoMatcher.mode.translateText,
+        Modifier.matchSibling(),
+        setting = TextWidget.Setting().copy(horizontalAlignment = Alignment.CenterHorizontally)
+    )
     Rect(Colors.DARK_BLUE_GREY.alpha(0.5f), Modifier.height(1f).matchSibling())
     //entries
     blockInfoMatcher.entries.forEachWithLimit(10) {

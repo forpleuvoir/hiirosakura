@@ -39,28 +39,30 @@ import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.config.Config
-import net.minecraft.block.Blocks
-import net.minecraft.item.Items
 import kotlin.time.Duration.Companion.seconds
 
-private val handItemMatcher
-    get() = ItemStackMatcher(MultiMatcher.MatchMode.AllMatch).apply {
-        mc.targetBlock
-            ?.let {
-                ItemStackMatchEntry.Item(ItemStackMatcher.handItemStack?.item ?: Items.MELON)
-            }?.let { item ->
-                addEntry(item)
+private val handItemMatcher: ItemStackMatcher
+    get() {
+        val handleItem = ItemStackMatcher.handItemStack
+        return if (handleItem != null) {
+            ItemStackMatcher(MultiMatcher.MatchMode.AllMatch).apply {
+                addEntry(ItemStackMatchEntry.Item(handleItem.item))
             }
+        } else {
+            ItemStackMatcher.anyMatcher
+        }
     }
 
-private val targetBlockMatcher
-    get() = BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch).apply {
-        mc.targetBlock
-            ?.let {
-                BlockInfoMatchEntry.Block(mc.targetBlock?.state?.block ?: Blocks.MELON)
-            }?.let { block ->
-                addEntry(block)
+private val targetBlockMatcher: BlockInfoMatcher
+    get() {
+        val targetBlock = mc.targetBlock
+        return if (targetBlock != null) {
+            BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch).apply {
+                addEntry(BlockInfoMatchEntry.Block(targetBlock.state.block))
             }
+        } else {
+            BlockInfoMatcher.anyMatcher
+        }
     }
 
 fun WidgetContainerScope.ItemStackMatcherWrapper(
@@ -311,22 +313,47 @@ fun <A, B, C : Pair<MultiMatcher<A>, MultiMatcher<B>>> WidgetContainerScope.Conf
 ) = MapConfigWrappedButton(
     config = config,
     newValue = newValue,
-    hoverContent = {
-        Row(
-            verticalArrangement = Arrangement.spacedBy(1f),
-            horizontalAlignment = Alignment.Left,
-        ) {
-            it.forEachWithLimit(10) { (k, v) ->
-                Column(horizontalArrangement = Arrangement.spacedBy(2f)) {
-                    TextLabel("$k => ")
-                    hoverContentA(v.first)
-                    TextLabel(" => ")
-                    hoverContentB(v.second)
+    hoverContent = hoverContent@{
+        if (it.count() == 0) {
+            TextLabel(IGLang.hasNothing.plainText)
+            return@hoverContent
+        }
+        val limit = 20
+        Row {
+            Column(
+                horizontalArrangement = Arrangement.spacedBy(10f),
+            ) {
+                Row(
+                    verticalArrangement = Arrangement.spacedBy(1f),
+                    horizontalAlignment = Alignment.Left,
+                ) {
+                    it.forEachWithLimit(limit) { (k, _) ->
+                        TextLabel(k, modifier = Modifier.height(10f))
+                    }
+                }
+                Row(
+                    verticalArrangement = Arrangement.spacedBy(1f),
+                    horizontalAlignment = Alignment.Left,
+                ) {
+                    it.forEachWithLimit(limit) { (k, v) ->
+                        Column(modifier = Modifier.height(10f)) {
+                            hoverContentA(v.first)
+                        }
+                    }
+                }
+                Row(
+                    verticalArrangement = Arrangement.spacedBy(1f),
+                    horizontalAlignment = Alignment.Left,
+                ) {
+                    it.forEachWithLimit(limit) { (k, v) ->
+                        Column(modifier = Modifier.height(10f)) {
+                            hoverContentB(v.second)
+                        }
+                    }
                 }
             }
-            if (it.count() > 10) TextLabel("...")
-            if (it.count() == 0) TextLabel(IGLang.hasNothing.plainText)
         }
+        if (it.count() > limit) TextLabel("...")
     },
 
     entryWrapper = entryWrapper

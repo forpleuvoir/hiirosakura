@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.misc.matcher
 
 import moe.forpleuvoir.hiirosakura.HiiroSakura
+import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSBlockHitResult
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSBlockState
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
 import moe.forpleuvoir.hiirosakura.util.block
@@ -26,20 +27,30 @@ import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.util.Util
+import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Direction
+import net.minecraft.util.math.Vec3d
 import org.joml.Vector3ic
 import net.minecraft.block.Block as McBlock
 
 data class BlockInfo(
     val state: BlockState,
-    val pos: Vector3ic
+    val pos: Vector3ic,
+    val side: Direction = Direction.EAST
 ) {
-    constructor(state: BlockState, blockPos: BlockPos) : this(state, blockPos.toVector())
+    constructor(state: BlockState, blockPos: BlockPos, side: Direction) : this(state, blockPos.toVector(), side)
+
+    constructor(hitResult: BlockHitResult) : this(mc.world!!.getBlockState(hitResult.blockPos), hitResult.blockPos, hitResult.side)
+
+    val asHitResult: BlockHitResult by lazy {
+        BlockHitResult(Vec3d(pos.x().toDouble(), pos.y().toDouble(), pos.z().toDouble()), side, BlockPos(pos.x(), pos.y(), pos.z()), false)
+    }
 
     companion object {
 
         @JvmStatic
-        val emptyBlockInfo: BlockInfo = BlockInfo(Blocks.AIR.defaultState, BlockPos(0, 0, 0))
+        val emptyBlockInfo: BlockInfo = BlockInfo(Blocks.AIR.defaultState, BlockPos(0, 0, 0), Direction.EAST)
 
         @JvmStatic
         val targetBlockInfoOrEmpty: BlockInfo get() = mc.targetBlock ?: emptyBlockInfo
@@ -80,6 +91,17 @@ class BlockInfoMatcher(
                 BlockInfoMatchEntry.Block(Blocks.AIR, mode = MatchEntry.MatchMode.Exclude)
             )
 
+        fun isAnyMatcher(matcher: MultiMatcher<BlockInfo>): Boolean {
+            val mode = matcher.mode == MultiMatcher.MatchMode.AnyMatch
+            if (!mode) return false
+            val blockEntries = matcher.entries.filterIsInstance<BlockInfoMatchEntry.Block>()
+            if (blockEntries.size < 2) return false
+            return blockEntries.any { entry1 ->
+                blockEntries.any { entry2 ->
+                    entry1 != entry2 && entry1.block == entry2.block && entry1.mode != entry2.mode
+                }
+            }
+        }
     }
 
     override val entries: List<BlockInfoMatchEntry> = entries.toMutableList()
@@ -189,6 +211,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
 
             val defaultScript = """
+                // The variable blockResult represents a wrapped BlockHitResult object [HSBlockHitResult].
                 // The variable blockState represents a wrapped BlockState object [HSBlockState].
                 // The variable blockPos represents a Vector3ic object.
                 // To indicate a successful match, set the return value by calling:
@@ -196,13 +219,14 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             """.trimIndent()
         }
 
-        override val asText: Text = Literal(script.substring(0..(64.coerceAtMost(script.lastIndex))))
+        override val asText: Text = Literal("Script Matcher")
 
         override fun match(obj: BlockInfo): Boolean {
             val result = mutableStateOf(false)
             ScriptExecutor(
                 script,
                 buildMap {
+                    this["blockResult"] = HSBlockHitResult(obj.asHitResult)
                     this["blockState"] = HSBlockState(obj.state)
                     this["blockPos"] = obj.pos
                     this["result"] = result

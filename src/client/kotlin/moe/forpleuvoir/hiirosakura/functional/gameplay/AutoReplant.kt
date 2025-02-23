@@ -101,8 +101,8 @@ object AutoReplant : ModConfigContainer("auto_replant") {
         if (!enable.value) return
         mapping
             .find { entry ->
-                entry.targetBlock.match(BlockInfo(blockState, blockPos))
-                        && entry.groundBlock.match(BlockInfo(player.world.getBlockState(blockPos.down()), blockPos.down()))
+                entry.targetBlock.match(BlockInfo(blockState, blockPos, Direction.EAST))
+                        && entry.groundBlock.match(BlockInfo(player.world.getBlockState(blockPos.down()), blockPos.down(), Direction.EAST))
             }
             ?.let { entry ->
                 val vec3d = Vec3d(blockPos.x.toDouble(), blockPos.y.toDouble() - 1, blockPos.z.toDouble())

@@ -17,6 +17,8 @@ object ItemUseIntercept : ModConfigContainer("item_use_intercept") {
 
     val matcher by blockInfoItemStackMap("matcher")
 
+    private var mark = TimeSource.Monotonic.markNow()
+
     @JvmStatic
     fun canUse(blockInfo: BlockInfo, itemStack: ItemStack): Boolean {
         if (!enabled.value) return true
@@ -31,4 +33,3 @@ object ItemUseIntercept : ModConfigContainer("item_use_intercept") {
     }
 }
 
-private var mark = TimeSource.Monotonic.markNow()

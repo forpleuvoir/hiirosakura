@@ -7,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
+import net.minecraft.util.math.Direction
 
 /**
  * HSHitResult 类表示一次命中检测结果的通用封装。
@@ -181,5 +182,17 @@ class HSBlockHitResult(override val result: BlockHitResult) : HSHitResult(result
      * @return HSBlock 实例，表示相关联的方块对象；如果方块状态不可用，则返回 null。
      */
     fun getBlock() = getBlockState()?.getBlock()
+
+    /**
+     * 根据指定的方向和偏移量获取目标方块的状态。
+     *
+     * @param direction 方块偏移的方向（如 "north", "south", "east", "west", "up", "down"）。
+     *                  该参数不区分大小写。
+     * @param i 偏移量的距离，表示沿指定方向移动的方块数。
+     * @return 表示目标方块状态的 BlockState 对象。
+     */
+    fun offset(direction: String, i: Int): HSBlockState {
+        return HSBlockState(mc.world!!.getBlockState(result.blockPos.offset(Direction.byName(direction.lowercase()))))
+    }
 
 }

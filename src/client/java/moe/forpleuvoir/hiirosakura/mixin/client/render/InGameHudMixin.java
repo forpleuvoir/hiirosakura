@@ -16,8 +16,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static moe.forpleuvoir.hiirosakura.functional.renderaddons.RenderEnchantmentWhenSwitchKt.renderEnchantmentWhenSwitch;
-
 @Mixin(InGameHud.class)
 public abstract class InGameHudMixin {
 
@@ -37,15 +35,12 @@ public abstract class InGameHudMixin {
         )
     )
     public void hiirosakura$renderHeldItemTooltip(DrawContext context, CallbackInfo ci, @Local(ordinal = 3) int alpha, @Local(ordinal = 2) int y) {
-        renderEnchantmentWhenSwitch(y, currentStack, getTextRenderer(), IGDrawContext.Companion.toIGDrawContext(context), alpha);
+        ShowEnchantmentWhenSwitch.render$hiirosakura_client(y, currentStack, getTextRenderer(), IGDrawContext.Companion.toIGDrawContext(context), alpha);
     }
 
     @ModifyExpressionValue(method = "tick()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z", ordinal = 1))
     public boolean hiirosakura$tick(boolean original, @Local(ordinal = 0) ItemStack stack) {
-        if (ShowEnchantmentWhenSwitch.INSTANCE.getEnable().getValue()) {
-            return original || stack != currentStack;
-        }
-        return original;
+        return original || ShowEnchantmentWhenSwitch.shouldRender(stack, currentStack);
     }
 
     @Inject(method = "renderScoreboardSidebar(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/render/RenderTickCounter;)V", at = @At("HEAD"), cancellable = true)

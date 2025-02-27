@@ -4,8 +4,6 @@ import moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.CreeperFeatureRe
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.TntFuseRenderer
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
-import moe.forpleuvoir.ibukigourd.config.item.vector2f
-import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.nebula.config.item.impl.boolean
 import moe.forpleuvoir.nebula.config.item.impl.float
 
@@ -29,13 +27,7 @@ object RenderInfoAddon : ModConfigContainer("render_info_addon") {
 
 }
 
-object ShowEnchantmentWhenSwitch : ModConfigContainer("show_enchantment_when_switch") {
 
-    val enable by keyBindBoolean("enable", value = false)
-
-    val offset by vector2f("offset", Vector2f(0f, 0f), Vector2f(-200f, -200f), Vector2f(200f, 200f))
-
-}
 
 object GammaOverride : ModConfigContainer("gamma_override") {
 

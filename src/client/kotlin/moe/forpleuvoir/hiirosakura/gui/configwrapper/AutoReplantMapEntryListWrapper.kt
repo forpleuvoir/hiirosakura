@@ -11,8 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.height
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.execute
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.recompose
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigColumnWrapper
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigResetButton
@@ -80,13 +79,13 @@ fun WidgetContainerScope.AutoReplantMapEntryListWrapper(
             }
         ) { entry, index ->
             MoveableListConfigEntryWrapper(
-                config, index, { execute { this@ListConfigWrappedButton.recompose() } }
+                config, index, { this@ListConfigWrappedButton.executeRecompose() }
             ) {
                 AutoReplantMapEntryWrapper(
                     entry,
                     {
                         config.getValue()[index] = it
-                        execute { this@ListConfigWrappedButton.recompose() }
+                        this@ListConfigWrappedButton.executeRecompose()
                     },
                     Modifier.weight(1),
                     Arrangement.SpaceAround
@@ -94,7 +93,7 @@ fun WidgetContainerScope.AutoReplantMapEntryListWrapper(
             }
         }
         ConfigResetButton(config) {
-            execute { this@Column.recompose() }
+            this@Column.executeRecompose()
         }
     }
 }

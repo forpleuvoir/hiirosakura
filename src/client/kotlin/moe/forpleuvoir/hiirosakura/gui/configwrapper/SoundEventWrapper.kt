@@ -4,8 +4,7 @@ import moe.forpleuvoir.hiirosakura.config.items.ConfigSoundEventList
 import moe.forpleuvoir.hiirosakura.gui.widget.SoundEventSelector
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.execute
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.recompose
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigColumnWrapper
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigResetButton
@@ -30,7 +29,7 @@ fun WidgetContainerScope.SoundEffectListWrapper(
             MoveableListConfigEntryWrapper(
                 config = config,
                 index = index,
-                recompose = { execute { this@ListConfigWrappedButton.recompose() } }
+                recompose = { this@ListConfigWrappedButton.executeRecompose() }
             ) {
                 val state = mutableStateOf(entry).apply {
                     onSetValue = {
@@ -42,7 +41,7 @@ fun WidgetContainerScope.SoundEffectListWrapper(
             }
         }
         ConfigResetButton(config) {
-            execute { this@Column.recompose() }
+            this@Column.executeRecompose()
         }
     }
 }

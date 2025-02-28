@@ -15,8 +15,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderParent
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
-import moe.forpleuvoir.ibukigourd.gui.base.screen.execute
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetContainer
+import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
@@ -84,8 +84,8 @@ object QuickTickTaskExecuteScreen : ModConfigContainer("quick_tick_task_execute"
                 } ?: run {
                     TaskEditor(KeyBindTickTask.empty, screenModifier = Modifier.renderParent(false)) { task ->
                         TaskManager.add(task.withKeyBind())
-                        this.execute {
-                            (this.parent() as? WidgetContainer)?.recompose()
+                        parent()?.let { p ->
+                            if (p is WidgetContainer) p.executeRecompose()
                         }
                     }.open()
                 }
@@ -103,8 +103,8 @@ object QuickTickTaskExecuteScreen : ModConfigContainer("quick_tick_task_execute"
                         stateOf(IGLang.remove),
                         onConfirm = {
                             TaskManager.remove(task)
-                            this.execute {
-                                (this.parent() as? WidgetContainer)?.recompose()
+                            parent()?.let { p ->
+                                if (p is WidgetContainer) p.executeRecompose()
                             }
                             mc.currentScreen?.close()
                         }

@@ -16,12 +16,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.execute
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
+import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
@@ -153,9 +153,7 @@ fun WidgetContainerScope.HSEventManagerGui(
         }
     }.apply {
         filterList.subscribe {
-            execute {
-                this.recompose()
-            }
+            executeRecompose()
         }
     }
 }

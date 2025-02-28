@@ -11,8 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.execute
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.recompose
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
@@ -81,7 +80,7 @@ fun WidgetContainerScope.ItemStackMatcherWrapper(
         ) {
             ItemStackMatcherSimpleInfo(value.getValue()).apply {
                 value.subscribe {
-                    execute { this@Button.recompose() }
+                    this@Button.executeRecompose()
                 }
             }
             click {
@@ -112,7 +111,7 @@ fun WidgetContainerScope.BlockInfoMatcherWrapper(
         ) {
             BlockInfoMatcherSimpleInfo(value.getValue()).apply {
                 value.subscribe {
-                    execute { this@Button.recompose() }
+                    this@Button.executeRecompose()
                 }
             }
             click {
@@ -257,7 +256,7 @@ fun WidgetContainerScope.BlockInfoMatcherMapWrapper(
         ) { (key, value), index ->
             ConfigMatcherMapEntryWrapper(
                 config,
-                { execute { this@ConfigMatcherMapWrappedButton.recompose() } },
+                { this@ConfigMatcherMapWrappedButton.executeRecompose() },
                 key,
                 value,
                 { BlockInfoMatcherInfo(it) },
@@ -267,7 +266,7 @@ fun WidgetContainerScope.BlockInfoMatcherMapWrapper(
             }
         }
         ConfigResetButton(config) {
-            execute { this@Column.recompose() }
+            this@Column.executeRecompose()
         }
     }
 }
@@ -290,7 +289,7 @@ fun WidgetContainerScope.ItemStackMatcherMapWrapper(
         ) { (key, value), index ->
             ConfigMatcherMapEntryWrapper(
                 config,
-                { execute { this@ConfigMatcherMapWrappedButton.recompose() } },
+                { this@ConfigMatcherMapWrappedButton.executeRecompose() },
                 key,
                 value,
                 { ItemStackMatcherInfo(it) },
@@ -301,7 +300,7 @@ fun WidgetContainerScope.ItemStackMatcherMapWrapper(
 
         }
         ConfigResetButton(config) {
-            execute { this@Column.recompose() }
+            this@Column.executeRecompose()
         }
     }
 }
@@ -476,7 +475,7 @@ fun WidgetContainerScope.ConfigStringBlockInfoItemStackPairMapWrapper(
         ) { (key, value), index ->
             ConfigMatcherPairMapEntryWrapper(
                 config,
-                { execute { this@ConfigMatcherPairMapWrappedButton.recompose() } },
+                { this@ConfigMatcherPairMapWrappedButton.executeRecompose() },
                 key,
                 value,
                 { BlockInfoMatcherInfo(it) },
@@ -518,7 +517,7 @@ fun WidgetContainerScope.ConfigStringBlockInfoItemStackPairMapWrapper(
             )
         }
         ConfigResetButton(config) {
-            execute { this@Column.recompose() }
+            this@Column.executeRecompose()
         }
     }
 }
@@ -541,7 +540,7 @@ fun WidgetContainerScope.ConfigStringItemStackBlockInfoPairMapWrapper(
         ) { (key, value), index ->
             ConfigMatcherPairMapEntryWrapper(
                 config,
-                { execute { this@ConfigMatcherPairMapWrappedButton.recompose() } },
+                { this@ConfigMatcherPairMapWrappedButton.executeRecompose() },
                 key,
                 value,
                 { ItemStackMatcherInfo(it) },
@@ -583,7 +582,7 @@ fun WidgetContainerScope.ConfigStringItemStackBlockInfoPairMapWrapper(
             )
         }
         ConfigResetButton(config) {
-            execute { this@Column.recompose() }
+            this@Column.executeRecompose()
         }
     }
 }

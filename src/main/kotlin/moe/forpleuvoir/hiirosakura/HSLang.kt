@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura
 
+import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
 
@@ -22,6 +23,16 @@ object HSLang {
     fun blockBreakProtection(supplier: String) = lang("gameplay.block_break_protection.toast", supplier)
 
     fun itemUseIntercepted(supplier: String) = lang("gameplay.item_use_intercept.toast", supplier)
+
+    fun setConfigSuccess(key: String, value: String) = lang("script.set_config.success", key, value)
+
+    fun setConfigFail(key: String, value: String, message: String?) = lang("script.set_config.fail", key, value, message ?: "unknown")
+
+    fun setConfigFailNotFound(key: String) = lang("script.set_config.not_found", key)
+
+    fun enableEvent(name: String, enabled: Boolean) = lang("event.enable.success", name).append(IGLang.coloredSwitch(enabled))
+
+    fun enableEventNotFound(name: String) = lang("event.enable.not_found", name)
 
     //------------ CustomData ------------\\
 

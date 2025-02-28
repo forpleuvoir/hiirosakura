@@ -24,6 +24,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
 import moe.forpleuvoir.ibukigourd.gui.widget.Rect
@@ -141,7 +142,7 @@ fun ItemStackMatcherBuilder(
                         )
                     }
                 }.apply {
-                    onChanged = { screen()?.execute { this.recompose() } }
+                    onChanged = { this.executeRecompose() }
                 }
 
                 Row(

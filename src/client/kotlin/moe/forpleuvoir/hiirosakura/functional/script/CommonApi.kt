@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.script
 
 import kotlinx.coroutines.delay
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.config.HSConfig
 import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventManager
@@ -125,12 +126,11 @@ interface CommonApi {
                 runCatching {
                     (it as? ConfigValue<Any>)?.setValue(value)
                 }.onSuccess {
-                    //todo i18n
-                    Toast.showToast("set config: $key = $value")
+                    Toast.showToast(HSLang.setConfigSuccess(key, value.toString()))
                 }.onFailure { t ->
-                    Toast.showToast("set config: $key = $value failed: ${t.message}")
+                    Toast.showToast(HSLang.setConfigFail(key, value.toString(), t.message))
                 }
-            }
+            } ?: Toast.showToast(HSLang.setConfigFailNotFound(key))
     }
 
     fun getConfig(key: String): Any? {
@@ -141,9 +141,8 @@ interface CommonApi {
     fun enableEvent(name: String, enable: Boolean) {
         HSEventManager.subscriberList.find { it.name == name }?.let {
             it.enabled = enable
-            //todo i18n
-            Toast.showToast("set event: $name = $enable success: ${it.enabled}")
-        } ?: Toast.showToast("set event: $name = $enable failed: not found")
+            Toast.showToast(HSLang.enableEvent(name, enable))
+        } ?: Toast.showToast(HSLang.enableEventNotFound(name))
     }
 
 

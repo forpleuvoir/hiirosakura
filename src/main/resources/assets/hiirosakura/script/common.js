@@ -205,3 +205,7 @@ function scheduleEndTick() {
 function setConfig(key, value) {
     _api.setConfig(key, value)
 }
+
+function enableEvent(event, enabled) {
+    _api.enableEvent(event, enabled)
+}

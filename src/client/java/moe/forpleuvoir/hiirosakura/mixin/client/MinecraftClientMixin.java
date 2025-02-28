@@ -7,7 +7,7 @@ import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerAttackEvent;
 import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerPickEvent;
 import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerUseEvent;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.CameraSwitcher;
-import moe.forpleuvoir.hiirosakura.functional.gameplay.GamePlay;
+import moe.forpleuvoir.hiirosakura.functional.gameplay.Gliding;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.ItemUseIntercept;
 import moe.forpleuvoir.hiirosakura.functional.misc.PickPlayerHead;
 import moe.forpleuvoir.hiirosakura.functional.misc.ServerMarker;
@@ -96,7 +96,7 @@ public abstract class MinecraftClientMixin {
         var event = new PlayerUseEvent(HSHitResult.fromHitResult(crosshairTarget), new HSItemStack(stack));
         EventBus.Companion.broadcast(event);
         assert player != null;
-        var cancelFireworkRocket = GamePlay.fireworkRocketInteractionWhenGliding(player, hand, stack);
+        var cancelFireworkRocket = Gliding.fireworkRocketInteractionWhenGliding(player, hand, stack);
 
         if (event.getCanceled() || CameraSwitcher.getShouldBlockActions() || cancelFireworkRocket)
             callbackInfo.cancel();
@@ -107,6 +107,5 @@ public abstract class MinecraftClientMixin {
     public void hiirosakura$doItemPickPlayerHead(CallbackInfo ci, @Local(ordinal = 0) EntityHitResult result) {
         PickPlayerHead.pickPlayerHead(result.getEntity());
     }
-
 
 }

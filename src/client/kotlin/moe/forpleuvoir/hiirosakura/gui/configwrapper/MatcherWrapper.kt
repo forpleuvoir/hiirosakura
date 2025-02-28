@@ -80,7 +80,9 @@ fun WidgetContainerScope.ItemStackMatcherWrapper(
                 .hoverTip { ItemStackMatcherInfo(value.getValue()) }
         ) {
             ItemStackMatcherSimpleInfo(value.getValue()).apply {
-                value.subscribe { this.recompose() }
+                value.subscribe {
+                    execute { this@Button.recompose() }
+                }
             }
             click {
                 ItemStackMatcherBuilder(value.getValue(), {
@@ -109,7 +111,9 @@ fun WidgetContainerScope.BlockInfoMatcherWrapper(
                 .hoverTip { BlockInfoMatcherInfo(value.getValue()) }
         ) {
             BlockInfoMatcherSimpleInfo(value.getValue()).apply {
-                value.subscribe { this.recompose() }
+                value.subscribe {
+                    execute { this@Button.recompose() }
+                }
             }
             click {
                 BlockInfoMatcherBuilder(value.getValue(), {

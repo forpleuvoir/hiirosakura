@@ -274,7 +274,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
-        override val asText: Text = Literal("x${count.first}..x${count.last}")
+        override val asText: Text = Literal(if (count.first == count.last) "x${count.first}" else "x${count.first}..${count.last}")
 
         override fun match(obj: ItemStack): Boolean = obj.count in count
 

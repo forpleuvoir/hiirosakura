@@ -47,6 +47,7 @@ object AutoSwitchElytra : ModConfigContainer("auto_switch_elytra") {
     @JvmStatic
     fun trySwitchElytra(player: ClientPlayerEntity) {
         if (!enable.value) return
+
         val interaction = mc.interactionManager!!
 
         val offHand = player.offHandStack

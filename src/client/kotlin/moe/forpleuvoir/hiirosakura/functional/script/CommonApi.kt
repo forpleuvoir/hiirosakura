@@ -3,10 +3,9 @@ package moe.forpleuvoir.hiirosakura.functional.script
 import kotlinx.coroutines.delay
 import moe.forpleuvoir.hiirosakura.config.HSConfig
 import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
-import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
+import moe.forpleuvoir.hiirosakura.functional.event.HSEventManager
 import moe.forpleuvoir.hiirosakura.input.InputSimulator
 import moe.forpleuvoir.hiirosakura.util.flat
-import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.config.translationKey
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.task.scheduleEndTick
@@ -14,9 +13,7 @@ import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.sendMessage
 import moe.forpleuvoir.nebula.common.util.defaultLaunch
-import moe.forpleuvoir.nebula.config.ConfigBase
 import moe.forpleuvoir.nebula.config.ConfigValue
-import moe.forpleuvoir.nebula.config.fold
 
 @Suppress("unused")
 interface CommonApi {
@@ -128,6 +125,7 @@ interface CommonApi {
                 runCatching {
                     (it as? ConfigValue<Any>)?.setValue(value)
                 }.onSuccess {
+                    //todo i18n
                     Toast.showToast("set config: $key = $value")
                 }.onFailure { t ->
                     Toast.showToast("set config: $key = $value failed: ${t.message}")
@@ -139,5 +137,14 @@ interface CommonApi {
         return HSConfig.flat { it is ConfigValue<*> }
             .find { it.translationKey() == key }
     }
+
+    fun enableEvent(name: String, enable: Boolean) {
+        HSEventManager.subscriberList.find { it.name == name }?.let {
+            it.enabled = enable
+            //todo i18n
+            Toast.showToast("set event: $name = $enable success: ${it.enabled}")
+        } ?: Toast.showToast("set event: $name = $enable failed: not found")
+    }
+
 
 }

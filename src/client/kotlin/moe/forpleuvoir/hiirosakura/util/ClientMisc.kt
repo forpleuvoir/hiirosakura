@@ -11,8 +11,6 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.item.tooltip.TooltipType
 import net.minecraft.util.Identifier
-import net.minecraft.util.hit.BlockHitResult
-import net.minecraft.util.hit.HitResult
 import org.joml.Vector3f
 import java.awt.SystemTray
 import java.awt.Toolkit
@@ -34,12 +32,7 @@ fun MatrixStack.resetMatricesKeepTranslation(): MatrixStack {
 }
 
 val MinecraftClient.targetBlock: BlockInfo?
-    get() {
-        if (this.crosshairTarget?.type == HitResult.Type.BLOCK) {
-            return BlockInfo(this.crosshairTarget!! as BlockHitResult)
-        }
-        return null
-    }
+    get() = hitBlock?.let { BlockInfo(it) }
 
 internal fun identifier(path: String): Identifier = identifier(HiiroSakura.MOD_ID, path)
 

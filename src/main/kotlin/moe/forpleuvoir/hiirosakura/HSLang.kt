@@ -24,6 +24,8 @@ object HSLang {
 
     fun itemUseIntercepted(supplier: String) = lang("gameplay.item_use_intercept.toast", supplier)
 
+    fun itemDropIntercepted(supplier: String) = lang("gameplay.item_drop_intercept.toast", supplier)
+
     fun setConfigSuccess(key: String, value: String) = lang("script.set_config.success", key, value)
 
     fun setConfigFail(key: String, value: String, message: String?) = lang("script.set_config.fail", key, value, message ?: "unknown")

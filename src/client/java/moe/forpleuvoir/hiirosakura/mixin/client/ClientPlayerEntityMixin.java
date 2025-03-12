@@ -5,8 +5,10 @@ import com.mojang.authlib.GameProfile;
 import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerDeathEvent;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.AutoSwitchElytra;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.GamePlay;
+import moe.forpleuvoir.hiirosakura.functional.gameplay.ItemDropIntercept;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,6 +50,14 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity {
         var player = (ClientPlayerEntity) (Object) this;
         if (!player.isGliding()) {
             AutoSwitchElytra.trySwitchChestplate(player);
+        }
+    }
+
+    @Inject(method = "dropSelectedItem", at = @At(value = "HEAD"), cancellable = true)
+    public void hiirosakura$dropSelectedItem(boolean entireStack, CallbackInfoReturnable<Boolean> cir) {
+        ItemStack itemStack = this.getInventory().getMainHandStack();
+        if (!ItemDropIntercept.canDrop(itemStack)) {
+            cir.setReturnValue(false);
         }
     }
 

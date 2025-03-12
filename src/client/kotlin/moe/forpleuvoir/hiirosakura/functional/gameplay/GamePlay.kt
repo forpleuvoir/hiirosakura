@@ -9,6 +9,7 @@ object GamePlay : ModConfigContainer("gameplay") {
 
     init {
         addConfig(ItemUseIntercept)
+        addConfig(ItemDropIntercept)
         addConfig(BlockBreakProtection)
         addConfig(Gliding)
         addConfig(AutoSwitchElytra)

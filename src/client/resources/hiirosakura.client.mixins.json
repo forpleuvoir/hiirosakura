@@ -7,10 +7,11 @@
     "ClientPlayerEntityMixin",
     "ClientPlayerInteractionManagerMixin",
     "ClientPlayNetworkHandlerMixin",
+    "CreativeInventoryScreenMixin",
     "DisconnectedScreenMixin",
     "MinecraftClientMixin",
-    "StyleMixin",
     "SoundSystemMixin",
+    "StyleMixin",
     "render.ClientWorldMixin",
     "render.CreeperEntityRendererMixin",
     "render.ExperienceOrbEntityRendererMixin",
@@ -24,6 +25,7 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "BlockMixin"
+    "BlockMixin",
+    "ScreenHandlerMixin"
   ]
 }

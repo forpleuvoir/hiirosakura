@@ -18,7 +18,7 @@ object CameraSwitcher:ModConfigContainer("camera_switcher") {
         switchToTarget()
     })
 
-    val blockPlayerActions by boolean("block_player_actions", true)
+    val blockPlayerActions by boolean("block_player_actions", false)
 
     @JvmStatic
     val isSwitched: Boolean get() = mc.cameraEntity != mc.player

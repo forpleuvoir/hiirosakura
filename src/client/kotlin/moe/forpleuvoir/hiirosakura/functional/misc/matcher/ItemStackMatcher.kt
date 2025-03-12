@@ -333,7 +333,8 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
         override val asText: Text = enchantment.value().description.copyToText().appendLiteral(" : ${level.first}..${level.last}")
 
         override fun match(obj: ItemStack): Boolean {
-            return obj.enchantments.getLevel(enchantment) in level
+            val lv = obj.enchantments.enchantmentEntries.find { it.key.idAsString == enchantment.idAsString }?.intValue ?: 0
+            return lv in level
         }
 
         override fun serialization(): SerializeElement = serializeObject {

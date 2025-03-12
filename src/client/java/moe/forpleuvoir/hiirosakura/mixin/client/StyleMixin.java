@@ -15,7 +15,6 @@ public class StyleMixin {
     public void hiirosakura$isObfuscated(CallbackInfoReturnable<Boolean> cir) {
         if (RenderInfoAddon.INSTANCE.getDisableTextObfuscationRender()) {
             cir.setReturnValue(false);
-            cir.cancel();
         }
     }
 

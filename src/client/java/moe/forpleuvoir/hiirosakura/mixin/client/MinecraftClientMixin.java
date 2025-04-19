@@ -14,6 +14,7 @@ import moe.forpleuvoir.hiirosakura.functional.misc.ServerMarker;
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfo;
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSHitResult;
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSItemStack;
+import moe.forpleuvoir.hiirosakura.functional.task.HSTickTaskScheduler;
 import moe.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
@@ -22,10 +23,8 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.tutorial.TutorialManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TickDurationMonitor;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.profiler.Profiler;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -50,12 +49,19 @@ public abstract class MinecraftClientMixin {
     @Nullable
     public ClientPlayerEntity player;
 
-    @Shadow
-    protected abstract Profiler startMonitor(boolean active, @Nullable TickDurationMonitor monitor);
-
     @Inject(method = "<init>", at = @At("RETURN"))
     public void hiirosakura$init(RunArgs args, CallbackInfo ci) {
         tutorialManager.setStep(HSConfig.INSTANCE.getTutorialStep());
+    }
+
+    @Inject(method = "tick", at = @At("HEAD"))
+    public void ibukigourd$tickStart(CallbackInfo ci) {
+        HSTickTaskScheduler.INSTANCE.startTick((MinecraftClient) (Object) this);
+    }
+
+    @Inject(method = "tick", at = @At("RETURN"))
+    public void ibukigourd$tickEnd(CallbackInfo ci) {
+        HSTickTaskScheduler.INSTANCE.endTick((MinecraftClient) (Object) this);
     }
 
     @Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))

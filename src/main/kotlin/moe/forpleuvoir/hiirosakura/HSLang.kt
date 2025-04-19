@@ -56,6 +56,12 @@ object HSLang {
 
     val taskManager get() = lang("task.manager")
 
+    val taskRunning get() = lang("task.running")
+
+    fun taskRunningPeriod(period: Int) = lang("task.running.period", period)
+
+    fun taskRunningRemainingTimes(times: Int) = lang("task.running.remaining_times", times)
+
     val taskEditor get() = lang("task.editor")
 
     val taskName get() = lang("task.name")

@@ -101,6 +101,12 @@ fun WidgetContainerScope.TaskManagerGui(
                 }
             }
         }
+        Button{
+            TextLabel(HSLang.taskRunning)
+            click {
+                HSTickTaskScheduler.openScreen()
+            }
+        }
         Button {
             Icon(IconTextures.SETTING)
             click {

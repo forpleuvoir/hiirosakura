@@ -2,7 +2,6 @@ package moe.forpleuvoir.hiirosakura.functional.task
 
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.executor.Executor
-import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask.ExecuteOn.EndTick
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask.ExecuteOn.StartTick
 import moe.forpleuvoir.hiirosakura.functional.task.executor.CommandExecutor
 import moe.forpleuvoir.hiirosakura.functional.task.executor.MessageExecutor
@@ -11,9 +10,6 @@ import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.task.TaskExecutor
 import moe.forpleuvoir.ibukigourd.task.TickTask
-import moe.forpleuvoir.ibukigourd.task.scheduleEndTick
-import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
-import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
@@ -103,9 +99,8 @@ open class HSTickTask(
 
     fun asTickTask() = TickTask(setting, executor)
 
-    override fun execute() = when (executeOn) {
-        StartTick -> mc.scheduleStartTick(asTickTask())
-        EndTick   -> mc.scheduleEndTick(asTickTask())
+    override fun execute() {
+        HSTickTaskScheduler.execute(this)
     }
 
     open fun setting(delay: Int = setting.delay, period: Int = setting.period, times: Int = setting.times) =
@@ -158,15 +153,12 @@ class KeyBindTickTask(
 
     init {
         keyBind.action = {
-            when (executeOn) {
-                StartTick -> mc.scheduleStartTick(asTickTask())
-                EndTick   -> mc.scheduleEndTick(asTickTask())
-            }
+            execute()
         }
         updateKeyBindName()
     }
 
-    private fun updateKeyBindName(){
+    private fun updateKeyBindName() {
         keyBind.name(HSLang.taskManager.appendLiteral("=>").appendLiteral(name))
 
     }

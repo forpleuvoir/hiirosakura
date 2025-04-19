@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble
 
+import moe.forpleuvoir.hiirosakura.functional.misc.ServerMarker
 import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
@@ -40,7 +41,7 @@ class ChatBubble(
 
         private const val LINE_SPACING = 4f
 
-        private val currentServerAddress: String? get() = mc.currentServerEntry?.address
+        private val currentServerAddress: String? get() = ServerMarker.lastServerAddress
 
         private const val NAME_GROUP = "name"
         private const val MESSAGE_GROUP = "message"
@@ -60,16 +61,18 @@ class ChatBubble(
         }
 
         private fun extractPlayerMessage(regex: String, message: String): ChatBubble? {
-            val pattern = Pattern.compile(regex)
-            val matcher = pattern.matcher(message)
-            if (matcher.find()) {
-                val name: String? = matcher.group(NAME_GROUP)
-                val msg: String? = matcher.group(MESSAGE_GROUP)
-                if (name != null && msg != null) {
-                    return ChatBubble(
-                        playerName = name,
-                        message = msg
-                    )
+            runCatching {
+                val pattern = Pattern.compile(regex)
+                val matcher = pattern.matcher(message)
+                if (matcher.find()) {
+                    val name: String? = matcher.group(NAME_GROUP)
+                    val msg: String? = matcher.group(MESSAGE_GROUP)
+                    if (name != null && msg != null) {
+                        return ChatBubble(
+                            playerName = name,
+                            message = msg
+                        )
+                    }
                 }
             }
             return null

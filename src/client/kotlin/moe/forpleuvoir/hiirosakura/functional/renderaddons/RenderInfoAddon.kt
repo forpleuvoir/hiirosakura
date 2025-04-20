@@ -20,8 +20,8 @@ object RenderInfoAddon : ModConfigContainer("render_info_addon") {
     init {
         addConfig(GammaOverride)
         addConfig(TntFuseRenderer)
-        addConfig(ShowEnchantmentWhenSwitch)
         addConfig(CreeperFeatureRenderer)
+        addConfig(HeldItemRenderAddon)
         addConfig(DropEntityRenderAddon)
     }
 

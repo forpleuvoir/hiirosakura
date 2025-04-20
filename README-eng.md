@@ -26,14 +26,14 @@ https://cdn.modrinth.com/data/cached_images/1e1e5837bcad6dfff4e89e77bb250037f9c5
 - Disable sidebar scoreboards.
 - Gamma value override.
 - Render TNT and creeper fuse timers.
-- Display enchantments when switching items.
+- Handheld Item Additional Information Rendering
 - Render item drop information.
 
 ### **2. Gameplay Enhancements**
 - Auto planting.
 - Item use intercept.
 - Block break protection.
-- Automatic chestplate and Elytra switching.
+- Automatic chestplate and elytra switching.
 - Auto respawn.
 - Sound effect filtering.
 - Switch client-side camera entity.

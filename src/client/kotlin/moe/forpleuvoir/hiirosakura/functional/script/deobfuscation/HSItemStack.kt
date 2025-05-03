@@ -2,7 +2,6 @@
 
 package moe.forpleuvoir.hiirosakura.functional.script.deobfuscation
 
-import moe.forpleuvoir.hiirosakura.util.hasTag
 import moe.forpleuvoir.hiirosakura.util.tooltipType
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.component.DataComponentTypes

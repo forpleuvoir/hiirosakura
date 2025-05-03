@@ -15,7 +15,6 @@ object CustomData : HiiroSakuraData {
 
     val data: LinkedHashMap<String, Any?> = LinkedHashMap()
 
-
     override fun serialization(): SerializeElement = serializeObject(data)
 
     @Suppress("UNCHECKED_CAST")

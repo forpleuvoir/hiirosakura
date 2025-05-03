@@ -61,7 +61,7 @@ data class BlockInfo(
 class BlockInfoMatcher(
     override var mode: MultiMatcher.MatchMode,
     entries: List<BlockInfoMatchEntry>
-) : MultiMatcher<BlockInfo>, Deserializable, Cloneable {
+) : MultiMatcher<BlockInfo>, Deserializable {
 
     constructor(
         mode: MultiMatcher.MatchMode,
@@ -69,6 +69,18 @@ class BlockInfoMatcher(
     ) : this(mode, entries.toList())
 
     companion object : Deserializer<BlockInfoMatcher> {
+
+        val targetBlockMatcher: BlockInfoMatcher
+            get() {
+                val targetBlock = mc.targetBlock
+                return if (targetBlock != null) {
+                    BlockInfoMatcher(MultiMatcher.MatchMode.AllMatch).apply {
+                        addEntry(BlockInfoMatchEntry.Block(targetBlock.state.block))
+                    }
+                } else {
+                    anyMatcher
+                }
+            }
 
         override fun deserialization(serializeElement: SerializeElement): BlockInfoMatcher {
             return serializeElement.checkType<SerializeObject, BlockInfoMatcher> { obj ->
@@ -106,7 +118,7 @@ class BlockInfoMatcher(
 
     override val entries: List<BlockInfoMatchEntry> = entries.toMutableList()
 
-    public override fun clone(): BlockInfoMatcher {
+    override fun clone(): BlockInfoMatcher {
         return BlockInfoMatcher(mode, ArrayList(entries))
     }
 

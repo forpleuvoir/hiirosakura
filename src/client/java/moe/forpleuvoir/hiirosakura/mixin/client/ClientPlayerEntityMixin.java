@@ -38,7 +38,7 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity {
     @Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;checkGliding()Z"))
     public boolean hiirosakura$tickMovement(ClientPlayerEntity instance) {
         var state = instance.checkGliding();
-        if (!state && !instance.isOnGround() && !instance.isRiding() && !instance.isSubmergedInWater()) {
+        if (!state && !instance.isOnGround() && !instance.isRiding() && !instance.isSubmergedInWater() && !instance.getAbilities().flying) {
             AutoSwitchElytra.trySwitchElytra(instance);
             return instance.checkGliding();
         }

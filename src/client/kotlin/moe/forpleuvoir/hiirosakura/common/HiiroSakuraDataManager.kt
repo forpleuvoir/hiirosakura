@@ -24,7 +24,7 @@ object HiiroSakuraDataManager {
 
     private val log = logger()
 
-    private val datas = listOf(
+    private val data = listOf(
         TaskManager,
         HSEventManager,
         CustomData
@@ -32,12 +32,11 @@ object HiiroSakuraDataManager {
 
     private val dataPath = File(loader.configDir.toFile(), "${HiiroSakura.MOD_ID}/data").toPath()
 
-
     @Subscriber
     fun init(event: ClientLifecycleEvent.ClientStartingEvent) {
         runBlocking {
             log.info("Loading data...")
-            datas.forEach { data ->
+            data.forEach { data ->
                 log.info("Loading data: ${data.key}")
                 loadData(data)
             }
@@ -47,14 +46,14 @@ object HiiroSakuraDataManager {
     @Subscriber
     fun onSave(event: ClientLifecycleEvent.ClientStopEvent) {
         runBlocking {
-            datas.forEach {
+            data.forEach {
                 saveData(it)
             }
         }
     }
 
     fun asyncLoad() {
-        datas.forEach {
+        data.forEach {
             ioLaunch { loadData(it) }
         }
     }
@@ -74,7 +73,7 @@ object HiiroSakuraDataManager {
     }
 
     fun asyncSave() {
-        datas.forEach {
+        data.forEach {
             ioLaunch { saveData(it) }
         }
     }

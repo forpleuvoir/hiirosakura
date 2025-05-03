@@ -1,11 +1,9 @@
 package moe.forpleuvoir.hiirosakura.gui.widget
 
-import moe.forpleuvoir.ibukigourd.gui.base.element.ElementCustomData.name
 import moe.forpleuvoir.ibukigourd.gui.base.element.parentChain
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.placeCompletion
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.render
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
@@ -20,7 +18,7 @@ import net.minecraft.client.render.DiffuseLighting
 import net.minecraft.client.render.LightmapTextureManager
 import net.minecraft.client.render.OverlayTexture
 import net.minecraft.entity.LivingEntity
-import net.minecraft.item.Item
+import net.minecraft.item.ItemConvertible
 import net.minecraft.item.ItemStack
 import net.minecraft.item.ModelTransformationMode
 import net.minecraft.world.World
@@ -54,17 +52,16 @@ fun WidgetContainerScope.ItemIcon(
 
 
 fun WidgetContainerScope.ItemIcon(
-    item: Item,
+    item: ItemConvertible,
     scale: Float = 1f,
     modifier: Modifier = Modifier
 ) = ItemIcon(stateOf(ItemStack(item)), scale, modifier)
 
 fun WidgetContainerScope.ItemIcon(
-    item: State<Item>,
+    item: State<out ItemConvertible>,
     scale: Float = 1f,
     modifier: Modifier = Modifier
 ) = ItemIcon(mutableStateBy { ItemStack(item.getValue()) }, scale, modifier)
-
 
 fun DrawContext.renderItem(
     stack: ItemStack,

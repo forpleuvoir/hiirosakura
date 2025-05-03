@@ -14,9 +14,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
+import moe.forpleuvoir.ibukigourd.gui.base.scope.TableLayoutColumnScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
@@ -30,7 +32,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.TableScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.*
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.maxWidth
@@ -83,10 +86,10 @@ fun BlockInfoMatcherBuilder(
         var onChanged = {}
         val selectedMode: MutableState<MultiMatcher.MatchMode?> = mutableStateOf(matcher.mode)
         TextLabel(blockInfoMatcher)
-        Row(
+        Column(
             verticalArrangement = Arrangement.spacedBy(2f),
         ) {
-            Column(
+            Row(
                 Modifier.fill(),
                 horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Left)
             ) {
@@ -102,10 +105,10 @@ fun BlockInfoMatcherBuilder(
                     }
                 )
             }
-            Column(
+            Row(
                 horizontalArrangement = Arrangement.spacedBy(4f)
             ) {
-                RowListWrapped(
+                ColumnListWrapped(
                     modifier = Modifier.height(180f).weight(1),
                     listModifier = { Modifier.weight(1).fill() },
                 ) {
@@ -130,7 +133,7 @@ fun BlockInfoMatcherBuilder(
                     onChanged = { this.executeRecompose() }
                 }
 
-                Row(
+                Column(
                     modifier = Modifier.height(180f),
                     verticalArrangement = Arrangement.spacedBy(2f),
                 ) {
@@ -159,7 +162,7 @@ private fun WidgetContainerScope.EntryWrapper(
     entryConsumer: (BlockInfoMatchEntry) -> Unit,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier
-) = Column(
+) = Row(
     Modifier
         .padding(horizontal = 2f)
         .bgHoverHighlightBox()
@@ -168,7 +171,7 @@ private fun WidgetContainerScope.EntryWrapper(
 ) {
     TextLabel(entry.translateText, modifier = Modifier.weight(1))
     when (entry) {
-        is BlockInfoMatchEntry.Block    -> Column(
+        is BlockInfoMatchEntry.Block    -> Row(
             horizontalArrangement = Arrangement.spacedBy(2f)
         ) {
             ItemIcon(entry.block.asItem(), .6f)
@@ -228,8 +231,6 @@ private fun BlockMatchEntryBuilder(
         BlockSelector(
             block,
             modifier = Modifier.width(120f),
-            searchBarModifier = { Modifier.width(120f) },
-            listModifier = { Modifier.width(120f) },
         )
     }
 }
@@ -276,11 +277,11 @@ private fun PosMatchEntryBuilder(
         entrySupplier = { mode -> BlockInfoMatchEntry.Pos(start.getValue(), end.getValue(), mode) },
         entryConsumer = entryConsumer
     ) {
-        Column(modifier = Modifier.width(240f), horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(modifier = Modifier.width(240f), horizontalArrangement = Arrangement.SpaceBetween) {
             TextLabel("MIN: ")
             Vector3iEditor(start)
         }
-        Column(modifier = Modifier.width(240f), horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(modifier = Modifier.width(240f), horizontalArrangement = Arrangement.SpaceBetween) {
             TextLabel("MAX: ")
             Vector3iEditor(end)
         }
@@ -360,7 +361,7 @@ private fun PropertyMatchEntryBuilder(
     ) {
         var k: TextEditorWidget? = null
         var v: TextEditorWidget? = null
-        Column {
+        Row {
             k = TextEditor(modifier = Modifier.width(120f)) {
                 text = key
                 textConsumer { key = it }
@@ -397,12 +398,40 @@ private fun PropertyMatchEntryBuilder(
     }
 }
 
+
+//------------ ItemStackMatcherTableColumn ------------\\
+
+fun <T> TableScope<T>.BlockInfoMatcherTableColumn(
+    consumer: (Int, T, BlockInfoMatcher) -> Unit,
+    matcherExtractor: (T) -> BlockInfoMatcher,
+    buttonModifier: TableLayoutColumnScope.() -> Modifier = { Modifier },
+    weight: Int = 0,
+    header: TableLayoutColumnScope.() -> IGWidget,
+) = Header(weight, header).Column { index, entry ->
+    val matcher = matcherExtractor(entry)
+    Button(
+        modifier = Modifier.hoverTip {
+            BlockInfoMatcherInfo(matcher)
+        }.then(buttonModifier()),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        BlockInfoMatcherSimpleInfo(matcher)
+        click {
+            BlockInfoMatcherBuilder(matcher, {
+                consumer(index, entry, it)
+            }).open()
+        }
+    }
+}
+
+//------------ BlockInfoMatcher ------------\\
+
 fun WidgetContainerScope.BlockInfoMatcherSimpleInfo(
     blockInfoMatcher: MultiMatcher<BlockInfo>,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = Column(
+) = Row(
     modifier,
     horizontalArrangement,
     verticalAlignment
@@ -424,7 +453,7 @@ fun WidgetContainerScope.BlockInfoMatcherInfo(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(1f),
     horizontalAlignment: Alignment.Horizontal = Alignment.Left,
-) = Row(
+) = Column(
     modifier,
     verticalArrangement,
     horizontalAlignment
@@ -442,6 +471,8 @@ fun WidgetContainerScope.BlockInfoMatcherInfo(
     }
 }
 
+//------------ BlockInfoEntryInfo ------------\\
+
 @Suppress("UNCHECKED_CAST")
 fun WidgetContainerScope.BlockInfoEntryInfo(entry: MatchEntry<BlockInfo>) {
     when (entry) {
@@ -455,7 +486,7 @@ fun WidgetContainerScope.BlockInfoEntryInfo(entry: MatchEntry<BlockInfo>) {
 
 fun WidgetContainerScope.BlockInfoEntryBlockInfo(
     entry: BlockInfoMatchEntry.Block,
-) = Column(
+) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
@@ -466,7 +497,7 @@ fun WidgetContainerScope.BlockInfoEntryBlockInfo(
 
 fun WidgetContainerScope.BlockInfoEntryScriptInfo(
     entry: BlockInfoMatchEntry.Script,
-) = Column(
+) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
@@ -478,7 +509,7 @@ fun WidgetContainerScope.BlockInfoEntryScriptInfo(
 
 fun WidgetContainerScope.BlockInfoEntryPosInfo(
     entry: BlockInfoMatchEntry.Pos,
-) = Column(
+) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
@@ -487,7 +518,7 @@ fun WidgetContainerScope.BlockInfoEntryPosInfo(
 
 fun WidgetContainerScope.BlockInfoEntryTagInfo(
     entry: BlockInfoMatchEntry.Tag,
-) = Column(
+) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
@@ -496,7 +527,7 @@ fun WidgetContainerScope.BlockInfoEntryTagInfo(
 
 fun WidgetContainerScope.BlockInfoEntryPropertyInfo(
     entry: BlockInfoMatchEntry.Property,
-) = Column(
+) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())

@@ -28,7 +28,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
@@ -50,7 +50,7 @@ import moe.forpleuvoir.ibukigourd.task.TickTask.Setting as TickTaskSetting
 
 fun WidgetContainerScope.HSEventManagerGui(
     modifier: Modifier = Modifier
-) = Row(
+) = Column(
     modifier,
     verticalArrangement = Arrangement.spacedBy(5f)
 ) {
@@ -74,7 +74,7 @@ fun WidgetContainerScope.HSEventManagerGui(
         onChanged()
     }
 
-    Column(
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f),
     ) {
         EventSelector(
@@ -103,13 +103,13 @@ fun WidgetContainerScope.HSEventManagerGui(
     }
 
     //------------ Content ------------\\
-    RowListWrapped(
+    ColumnListWrapped(
         modifier = Modifier.fill().weight(1),
         listModifier = { Modifier.weight(1).fill() },
     ) {
         if (filterList.isEmpty()) TextLabel(IGLang.hasNothing)
         filterList.forEachIndexed { index, eventSubscriber ->
-            Column(
+            Row(
                 modifier = Modifier.fill()
                     .padding(horizontal = 2f, vertical = 4f)
                     .bgHoverHighlightBox(),
@@ -124,7 +124,7 @@ fun WidgetContainerScope.HSEventManagerGui(
                     onChanged()
                 })
                 //text
-                Column(
+                Row(
                     modifier = Modifier.weight(1),
                     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
                 ) {
@@ -199,11 +199,11 @@ fun EventSubscriberEditor(
         //title
         TextLabel(HSLang.eventSubscriberEditor)
 
-        Row(
+        Column(
             modifier = Modifier.weight(1),
             verticalArrangement = Arrangement.spacedBy(3f)
         ) {
-            Column(
+            Row(
                 horizontalArrangement = Arrangement.spacedBy(5f)
             ) {
                 //name
@@ -227,7 +227,7 @@ fun EventSubscriberEditor(
             }
             SwitchableProxy(
                 {
-                    Column(
+                    Row(
                         horizontalArrangement = Arrangement.spacedBy(5f)
                     ) {
                         //delay
@@ -261,7 +261,7 @@ fun EventSubscriberEditor(
 
         }
 
-        Column(
+        Row(
             Modifier.fill(),
             horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Right)
         ) {

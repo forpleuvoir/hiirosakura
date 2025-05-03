@@ -29,7 +29,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
@@ -48,7 +48,7 @@ import kotlin.time.Duration.Companion.seconds
 
 fun WidgetContainerScope.TaskManagerGui(
     modifier: Modifier = Modifier
-) = Row(
+) = Column(
     modifier,
     verticalArrangement = Arrangement.spacedBy(5f)
 ) {
@@ -68,7 +68,7 @@ fun WidgetContainerScope.TaskManagerGui(
     }
 
     //------------  Header ------------\\
-    Column(
+    Row(
         horizontalArrangement = Arrangement.spacedBy(5f),
     ) {
         SearchBar(
@@ -131,13 +131,13 @@ fun WidgetContainerScope.TaskManagerGui(
     //------------ Content ------------\\
 
 
-    RowListWrapped(
+    ColumnListWrapped(
         modifier = Modifier.fill().weight(1),
         listModifier = { Modifier.weight(1).fill() },
     ) {
         if (filterList.isEmpty()) TextLabel(IGLang.hasNothing)
         filterList.forEachIndexed { index, task ->
-            Column(
+            Row(
                 modifier = Modifier.fill()
                     .padding(horizontal = 2f)
                     .bgHoverHighlightBox(),
@@ -155,7 +155,7 @@ fun WidgetContainerScope.TaskManagerGui(
                 //Icon
                 ItemIcon(task.icon)
                 //text
-                Column(
+                Row(
                     modifier = Modifier.weight(1),
                     horizontalArrangement = Arrangement.Left
                 ) {
@@ -238,11 +238,11 @@ fun TaskEditor(
         //title
         TextLabel(HSLang.taskEditor)
 
-        Row(
+        Column(
             modifier = Modifier.weight(1),
             verticalArrangement = Arrangement.spacedBy(3f)
         ) {
-            Column(
+            Row(
                 horizontalArrangement = Arrangement.spacedBy(5f)
             ) {
                 //name
@@ -264,7 +264,7 @@ fun TaskEditor(
                 //times
                 IntEditor(times, 1..999, modifier = Modifier.weight(1).hoverText(HSLang.taskTimes), editorModifier = { Modifier.weight(1) })
             }
-            Column(
+            Row(
                 horizontalArrangement = Arrangement.spacedBy(5f)
             ) {
                 if (task is KeyBindTickTask) {
@@ -272,8 +272,6 @@ fun TaskEditor(
                     ItemSelector(
                         icon,
                         modifier = Modifier.weight(1).hoverText(HSLang.taskIcon),
-                        searchBarModifier = { Modifier.width(120f) },
-                        listModifier = { Modifier.width(120f) },
                     )
                 }
                 //executeOn
@@ -292,7 +290,7 @@ fun TaskEditor(
             }
         }
 
-        Column(
+        Row(
             Modifier.fill(),
             horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Right)
         ) {
@@ -353,7 +351,7 @@ fun WidgetContainerScope.MoveButton(
     lastIndex: Int,
     moveUp: () -> Unit = {},
     moveDown: () -> Unit = {}
-) = Row {
+) = Column {
     FlatButton(
         hoveredColor = Colors.BLACK.alpha(.15f),
         round = 0,

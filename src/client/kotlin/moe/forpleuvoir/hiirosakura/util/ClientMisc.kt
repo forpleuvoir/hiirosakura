@@ -5,6 +5,7 @@ import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfo
 import moe.forpleuvoir.ibukigourd.util.ModLogger
 import moe.forpleuvoir.ibukigourd.util.identifier
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.util.defaultLaunch
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.MinecraftClient
@@ -33,6 +34,8 @@ fun MatrixStack.resetMatricesKeepTranslation(): MatrixStack {
 
 val MinecraftClient.targetBlock: BlockInfo?
     get() = hitBlock?.let { BlockInfo(it) }
+
+fun closeScreen() = mc.currentScreen?.close()
 
 internal fun identifier(path: String): Identifier = identifier(HiiroSakura.MOD_ID, path)
 

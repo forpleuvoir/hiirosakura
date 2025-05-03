@@ -29,9 +29,9 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.*
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.configContainerWrapperGuidelinesColor
@@ -58,12 +58,12 @@ import moe.forpleuvoir.nebula.common.util.primitive.pick
 fun WidgetContainerScope.TreeNodeEditor(
     data: MutableMap<String, Any?>,
     modifier: Modifier = Modifier,
-    listModifier: ColumnScope.() -> Modifier = { Modifier },
-) = Row(
+    listModifier: RowScope.() -> Modifier = { Modifier },
+) = Column(
     verticalArrangement = Arrangement.spacedBy(4f),
 ) {
     var recompose: (() -> Unit)? = null
-    Column(
+    Row(
         modifier = Modifier.fill(),
         horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Left)
     ) {
@@ -81,7 +81,7 @@ fun WidgetContainerScope.TreeNodeEditor(
             }
         }
     }
-    RowListWrapped(
+    ColumnListWrapped(
         modifier,
         listModifier = listModifier
     ) {
@@ -124,11 +124,11 @@ private fun WidgetContainerScope.Entry(key: String, valueSupplier: () -> Any?, v
     }
 }
 
-private fun WidgetContainerScope.EntryColumn(
+private fun WidgetContainerScope.EntryRow(
     key: String,
     modifier: Modifier = Modifier,
-    content: ColumnScope.() -> Unit
-) = Column(
+    content: RowScope.() -> Unit
+) = Row(
     modifier = modifier.attachLeft {
         bgHoverHighlightBox()
             .padding(2f)
@@ -136,7 +136,7 @@ private fun WidgetContainerScope.EntryColumn(
     },
     horizontalArrangement = Arrangement.spacedBy(4f)
 ) {
-    Column(
+    Row(
         modifier = modifier.attachLeft { weight(1) },
         horizontalArrangement = Arrangement.Left
     ) {
@@ -161,14 +161,14 @@ private fun WidgetContainerScope.ObjectEntry(
     key: String,
     obj: MutableMap<String, Any>,
     valueRemover: () -> Unit
-) = Row {
+) = Column {
     val expanded = mutableStateOf(false)
     var recompose: (() -> Unit)? = null
     Button(
         modifier = Modifier.disableRender().padding(0)
     ) {
         click { expanded.switch() }
-        EntryColumn(key) {
+        EntryRow(key) {
             AddButton {
                 EntryAdder(
                     key = "key${obj.size}",
@@ -188,7 +188,7 @@ private fun WidgetContainerScope.ObjectEntry(
     }
     SwitchableProxy(
         widgetA = {
-            Column {
+            Row {
                 Widget(
                     Modifier.width(1.5f)
                         .matchSibling()
@@ -201,7 +201,7 @@ private fun WidgetContainerScope.ObjectEntry(
                             )
                         }
                 )
-                Row(
+                Column(
                     modifier = Modifier.padding(2, 8, 2, 2),
                     verticalArrangement = Arrangement.spacedBy(4f)
                 ) {
@@ -240,14 +240,14 @@ private fun WidgetContainerScope.ArrayEntry(
     key: String,
     array: MutableList<Any>,
     valueRemover: () -> Unit
-) = Row {
+) = Column {
     val expanded = mutableStateOf(false)
     var recompose: (() -> Unit)? = null
     Button(
         modifier = Modifier.disableRender().padding(0)
     ) {
         click { expanded.switch() }
-        EntryColumn(key) {
+        EntryRow(key) {
             AddButton {
                 EntryAdder(
                     key = array.size.toString(),
@@ -267,7 +267,7 @@ private fun WidgetContainerScope.ArrayEntry(
     }
     SwitchableProxy(
         widgetA = {
-            Column {
+            Row {
                 Widget(
                     Modifier.width(1.5f)
                         .matchSibling()
@@ -280,7 +280,7 @@ private fun WidgetContainerScope.ArrayEntry(
                             )
                         }
                 )
-                Row(
+                Column(
                     modifier = Modifier.padding(2, 8, 2, 2),
                     verticalArrangement = Arrangement.spacedBy(4f)
                 ) {
@@ -319,7 +319,7 @@ private fun WidgetContainerScope.PrimitiveEntry(
     valueSupplier: () -> Any?,
     valueSetter: (Any) -> Unit,
     valueRemover: () -> Unit
-) = EntryColumn(key) {
+) = EntryRow(key) {
     when (val value = valueSupplier()) {
         is Boolean -> BooleanEntry(value, valueSetter)
         is String  -> StringEntry(value, valueSetter)
@@ -349,7 +349,7 @@ private fun WidgetContainerScope.BooleanEntry(
 private fun WidgetContainerScope.StringEntry(
     value: String,
     valueSetter: (String) -> Unit
-) = Column(
+) = Row(
     horizontalArrangement = Arrangement.spacedBy(5f)
 ) {
     val str = mutableStateOf(value).apply {
@@ -398,7 +398,7 @@ private fun WidgetContainerScope.NumberEntry(
     valueSetter: (Number) -> Unit
 ): IGWidgetImpl {
     val modifier = Modifier.width(EDITOR_WIDTH)
-    val editorModifier: ColumnScope.() -> Modifier = { Modifier.weight(1) }
+    val editorModifier: RowScope.() -> Modifier = { Modifier.weight(1) }
     val state = mutableStateOf(value)
     state.subscribe {
         valueSetter(it)
@@ -453,10 +453,10 @@ private fun EntryAdder(
         },
     ) {
         DialogContent {
-            Row(
+            Column(
                 verticalArrangement = Arrangement.spacedBy(4f)
             ) {
-                Column(
+                Row(
                     modifier.width(240f),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -467,7 +467,7 @@ private fun EntryAdder(
                         transform = { this.owner().transform }
                     }
                 }
-                Column(
+                Row(
                     modifier.width(240f),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {

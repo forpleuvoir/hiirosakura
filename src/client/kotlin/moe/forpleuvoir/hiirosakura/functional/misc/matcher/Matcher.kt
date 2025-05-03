@@ -49,11 +49,13 @@ interface MatchEntry<T> : Matcher<T>, Serializable {
     }
 }
 
-interface MultiMatcher<T> : Matcher<T> {
+interface MultiMatcher<T> : Matcher<T>, Cloneable {
 
     val entries: List<MatchEntry<T>>
 
     val mode: MatchMode
+
+    public override fun clone(): MultiMatcher<T>
 
     override fun match(obj: T): Boolean {
         return when (mode) {

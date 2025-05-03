@@ -3,7 +3,6 @@ package moe.forpleuvoir.hiirosakura.functional.gameplay
 import moe.forpleuvoir.hiirosakura.config.items.soundEventList
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
-import moe.forpleuvoir.nebula.config.item.impl.stringList
 import net.minecraft.client.sound.SoundInstance
 
 object SoundEventFilter : ModConfigContainer("sound_event_filter") {

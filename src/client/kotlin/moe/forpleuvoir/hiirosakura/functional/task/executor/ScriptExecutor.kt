@@ -4,7 +4,6 @@ import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.executor.Executor
 import moe.forpleuvoir.hiirosakura.functional.script.CommonApiLoader
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSEntity
-import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSPlayerEntity
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.task.TaskExecutor

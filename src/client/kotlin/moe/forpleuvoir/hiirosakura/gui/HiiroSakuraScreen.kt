@@ -25,7 +25,7 @@ import moe.forpleuvoir.ibukigourd.gui.screen.TabScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.TabScope
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.state.State
@@ -39,7 +39,7 @@ private val icon = WidgetTexture(Corner(), 0, 0, 128, 128, TextureInfo(128, 128,
 
 fun HiiroSakuraScreen() = TabScreen(
     header = {
-        Column(
+        Row(
             Modifier
                 .fill()
                 .padding(5f),

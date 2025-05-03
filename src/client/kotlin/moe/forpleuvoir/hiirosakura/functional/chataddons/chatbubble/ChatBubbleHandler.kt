@@ -1,8 +1,11 @@
 package moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble
 
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.stringPairList
 import moe.forpleuvoir.ibukigourd.config.item.vector2f
+import moe.forpleuvoir.ibukigourd.config.userdata.setGuiWrapper
+import moe.forpleuvoir.ibukigourd.gui.configwrapper.StringPairListConfigWrapper
 import moe.forpleuvoir.ibukigourd.text.McText
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.config.item.impl.boolean
@@ -16,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-object ChatBubbleHandler:ModConfigContainer("chat_bubble") {
+object ChatBubbleHandler : ModConfigContainer("chat_bubble") {
 
     val enabled by boolean("enable", false)
 
@@ -40,9 +43,12 @@ object ChatBubbleHandler:ModConfigContainer("chat_bubble") {
 
     val matchMapping by stringPairList(
         "match_mapping", listOf(
-            "#single" to "<(?<name>[^>]+)>\\s(?<message>.+)"
+            "" to "<(?<name>[^>]+)>\\s(?<message>.+)"
         )
-    )
+    ).setGuiWrapper { config, modifier ->
+        StringPairListConfigWrapper(config, modifier, HSLang.chatBubbleServerName, HSLang.chatBubbleRegex)
+
+    }
 
     private val bubbleQueue = ConcurrentHashMap<String, ChatBubble>()
 

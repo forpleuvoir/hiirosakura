@@ -20,10 +20,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
+import moe.forpleuvoir.ibukigourd.gui.base.scope.TableLayoutColumnScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
@@ -35,9 +37,10 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.RadioButtons
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.TableScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.*
 import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
@@ -98,10 +101,10 @@ fun ItemStackMatcherBuilder(
         var onChanged = {}
         val selectedMode: MutableState<MultiMatcher.MatchMode?> = mutableStateOf(matcher.mode)
         TextLabel(itemStackMatcher)
-        Row(
+        Column(
             verticalArrangement = Arrangement.spacedBy(2f),
         ) {
-            Column(
+            Row(
                 Modifier.fill(),
                 horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Left)
             ) {
@@ -117,10 +120,10 @@ fun ItemStackMatcherBuilder(
                     }
                 )
             }
-            Column(
+            Row(
                 horizontalArrangement = Arrangement.spacedBy(4f)
             ) {
-                RowListWrapped(
+                ColumnListWrapped(
                     modifier = Modifier.matchSibling().weight(1),
                     listModifier = { Modifier.weight(1).fill() },
                 ) {
@@ -145,7 +148,7 @@ fun ItemStackMatcherBuilder(
                     onChanged = { this.executeRecompose() }
                 }
 
-                Row(
+                Column(
 //                    modifier = Modifier.height(180f),
                     verticalArrangement = Arrangement.spacedBy(2f),
                 ) {
@@ -174,7 +177,7 @@ private fun WidgetContainerScope.EntryWrapper(
     entryConsumer: (ItemStackMatchEntry) -> Unit,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier
-) = Column(
+) = Row(
     Modifier
         .padding(horizontal = 2f)
         .bgHoverHighlightBox()
@@ -183,7 +186,7 @@ private fun WidgetContainerScope.EntryWrapper(
 ) {
     TextLabel(entry.translateText, modifier = Modifier.weight(1))
     when (entry) {
-        is ItemStackMatchEntry.Item   -> Column(
+        is ItemStackMatchEntry.Item   -> Row(
             horizontalArrangement = Arrangement.spacedBy(2f)
         ) {
             ItemIcon(entry.item, .6f)
@@ -237,7 +240,7 @@ internal fun <T : MatchEntry<*>> MatchEntryDialog(
     parentScreen: IGScreen? = mc.currentScreen as IGScreen?,
     entrySupplier: (MatchEntry.MatchMode) -> T,
     entryConsumer: (T) -> Unit,
-    content: RowScope.() -> Unit
+    content: ColumnScope.() -> Unit
 ): IGScreenImpl {
     return Dialog(
         modifier,
@@ -246,7 +249,7 @@ internal fun <T : MatchEntry<*>> MatchEntryDialog(
     ) {
         TextLabel(title)
         content()
-        Column(
+        Row(
             Modifier.matchSibling(),
             horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Right)
         ) {
@@ -289,8 +292,6 @@ private fun ItemMatchEntryBuilder(
         ItemSelector(
             item,
             modifier = Modifier.width(120f),
-            searchBarModifier = { Modifier.width(120f) },
-            listModifier = { Modifier.width(120f) },
         )
     }
 }
@@ -463,7 +464,7 @@ private fun EnchantmentMatchEntryBuilder(
             )
         }
 
-        Column {
+        Row {
             IntEditor(level, 1..65535, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
             TextLabel("<= .. <=")
             IntEditor(levelEnd, 1..65535, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
@@ -553,12 +554,39 @@ private fun ComponentTypeMatchEntryBuilder(
     }
 }
 
+//------------ ItemStackMatcherTableColumn ------------\\
+
+fun <T> TableScope<T>.ItemStackMatcherTableColumn(
+    consumer: (Int, T, ItemStackMatcher) -> Unit,
+    matcherExtractor: (T) -> ItemStackMatcher,
+    buttonModifier: TableLayoutColumnScope.() -> Modifier = { Modifier },
+    weight: Int = 0,
+    header: TableLayoutColumnScope.() -> IGWidget,
+) = Header(weight, header).Column { index, entry ->
+    val matcher = matcherExtractor(entry)
+    Button(
+        modifier = Modifier.hoverTip {
+            ItemStackMatcherInfo(matcher)
+        }.then(buttonModifier()),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        ItemStackMatcherSimpleInfo(matcher)
+        click {
+            ItemStackMatcherBuilder(matcher, {
+                consumer(index, entry, it)
+            }).open()
+        }
+    }
+}
+
+//------------ ItemStackMatcherInfo ------------\\
+
 fun WidgetContainerScope.ItemStackMatcherSimpleInfo(
     itemStackMatcher: MultiMatcher<ItemStack>,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = Column(
+) = Row(
     modifier,
     horizontalArrangement,
     verticalAlignment
@@ -580,7 +608,7 @@ fun WidgetContainerScope.ItemStackMatcherInfo(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(1f),
     horizontalAlignment: Alignment.Horizontal = Alignment.Left,
-) = Row(
+) = Column(
     modifier,
     verticalArrangement,
     horizontalAlignment
@@ -598,6 +626,8 @@ fun WidgetContainerScope.ItemStackMatcherInfo(
     }
 }
 
+//------------ ItemStackMatchEntryInfo ------------\\
+
 @Suppress("UNCHECKED_CAST")
 fun WidgetContainerScope.ItemStackEntryInfo(entry: MatchEntry<ItemStack>) {
     when (entry) {
@@ -614,7 +644,7 @@ fun WidgetContainerScope.ItemStackEntryInfo(entry: MatchEntry<ItemStack>) {
 
 fun WidgetContainerScope.ItemStackEntryItemInfo(
     entry: ItemStackMatchEntry.Item,
-) = Column(
+) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
@@ -625,7 +655,7 @@ fun WidgetContainerScope.ItemStackEntryItemInfo(
 
 fun WidgetContainerScope.ItemStackEntryNameInfo(
     entry: ItemStackMatchEntry.Name,
-) = Column(
+) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
@@ -637,7 +667,7 @@ fun WidgetContainerScope.ItemStackEntryNameInfo(
 
 fun WidgetContainerScope.ItemStackEntryScriptInfo(
     entry: ItemStackMatchEntry.Script,
-) = Column(
+) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
@@ -649,7 +679,7 @@ fun WidgetContainerScope.ItemStackEntryScriptInfo(
 
 fun WidgetContainerScope.ItemStackEntryCountInfo(
     entry: ItemStackMatchEntry.Count,
-) = Column(
+) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
@@ -658,7 +688,7 @@ fun WidgetContainerScope.ItemStackEntryCountInfo(
 
 fun WidgetContainerScope.ItemStackEntryRarityInfo(
     entry: ItemStackMatchEntry.Rarity,
-) = Column(
+) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
@@ -667,7 +697,7 @@ fun WidgetContainerScope.ItemStackEntryRarityInfo(
 
 fun WidgetContainerScope.ItemStackEntryEnchantmentInfo(
     entry: ItemStackMatchEntry.Enchantment,
-) = Column(
+) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
@@ -676,7 +706,7 @@ fun WidgetContainerScope.ItemStackEntryEnchantmentInfo(
 
 fun WidgetContainerScope.ItemStackEntryTagInfo(
     entry: ItemStackMatchEntry.Tag,
-) = Column(
+) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
@@ -685,7 +715,7 @@ fun WidgetContainerScope.ItemStackEntryTagInfo(
 
 fun WidgetContainerScope.ItemStackEntryDataComponentTypeInfo(
     entry: ItemStackMatchEntry.DataComponentType,
-) = Column(
+) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())

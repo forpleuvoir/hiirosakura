@@ -28,11 +28,23 @@ import net.minecraft.enchantment.Enchantment as McEnchantment
 import net.minecraft.item.Item as McItem
 import net.minecraft.util.Rarity as McRarity
 
-class ItemStackMatcher(override var mode: MultiMatcher.MatchMode, entries: List<ItemStackMatchEntry>) : MultiMatcher<ItemStack>, Deserializable, Cloneable {
+class ItemStackMatcher(override var mode: MultiMatcher.MatchMode, entries: List<ItemStackMatchEntry>) : MultiMatcher<ItemStack>, Deserializable {
 
     constructor(mode: MultiMatcher.MatchMode, vararg entries: ItemStackMatchEntry) : this(mode, entries.toList())
 
     companion object : Deserializer<ItemStackMatcher> {
+
+        val handItemMatcher: ItemStackMatcher
+            get() {
+                val handleItem = handItemStack
+                return if (handleItem != null) {
+                    ItemStackMatcher(MultiMatcher.MatchMode.AllMatch).apply {
+                        addEntry(ItemStackMatchEntry.Item(handleItem.item))
+                    }
+                } else {
+                    anyMatcher
+                }
+            }
 
         @JvmStatic
         val handItemStack: ItemStack?
@@ -83,7 +95,7 @@ class ItemStackMatcher(override var mode: MultiMatcher.MatchMode, entries: List<
 
     override val entries: List<ItemStackMatchEntry> = entries.toMutableList()
 
-    public override fun clone(): ItemStackMatcher {
+    override fun clone(): ItemStackMatcher {
         return ItemStackMatcher(mode, ArrayList(entries))
     }
 

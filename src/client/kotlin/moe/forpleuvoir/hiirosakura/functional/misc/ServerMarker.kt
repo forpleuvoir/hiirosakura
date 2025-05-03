@@ -17,6 +17,7 @@ object ServerMarker {
     @JvmStatic
     var lastServerAddress: String = ""
         private set
+
     var disConnectCounter = 0
         private set
 

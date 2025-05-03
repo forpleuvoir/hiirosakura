@@ -41,7 +41,7 @@ class ChatBubble(
 
         private const val LINE_SPACING = 4f
 
-        private val currentServerAddress: String? get() = ServerMarker.lastServerAddress
+        private val currentServerName: String? get() = ServerMarker.lastServerName
 
         private const val NAME_GROUP = "name"
         private const val MESSAGE_GROUP = "message"
@@ -50,13 +50,15 @@ class ChatBubble(
 
         fun fromChatMessage(message: String): ChatBubble? {
             val msg = message.replace("(§.)", "")
-            ChatBubbleHandler.matchMapping.forEach { (serverMarkerRegex, regex) ->
-                if (mc.server != null && serverMarkerRegex == "#single") {
+
+            ChatBubbleHandler.matchMapping.forEach { (serverName, regex) ->
+                if (mc.server != null && serverName == "") {
                     return extractPlayerMessage(regex, msg)
-                } else if (currentServerAddress?.matches(Regex(serverMarkerRegex)) == true) {
+                } else if (currentServerName == serverName) {
                     return extractPlayerMessage(regex, msg)
                 }
             }
+
             return extractPlayerMessage(DEFAULT_REGEX, msg)
         }
 

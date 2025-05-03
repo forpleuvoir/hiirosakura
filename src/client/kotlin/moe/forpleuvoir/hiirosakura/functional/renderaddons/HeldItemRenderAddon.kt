@@ -84,6 +84,16 @@ object HeldItemRenderAddon : ModConfigContainer("held_item") {
 
     @JvmStatic
     fun shouldRender(new: ItemStack, origin: ItemStack): Boolean {
+        val new = new.copy()
+        val origin = origin.copy()
+        if (!count.value) {
+            new.count = 1
+            origin.count = 1
+        }
+        if (!durability.value) {
+            new.damage = 1
+            origin.damage = 1
+        }
         return enable.value && !ItemStack.areEqual(new, origin)
     }
 

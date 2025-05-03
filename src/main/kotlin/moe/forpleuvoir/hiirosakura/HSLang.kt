@@ -10,15 +10,17 @@ object HSLang {
 
     fun cantBeEmpty(text: Text): Text = lang("cant_be_empty", text)
 
-    val loadFromDisk = lang("load_from_disk")
+    val loadFromDisk get() = lang("load_from_disk")
 
     fun clickToCopy(text: Text): Text = lang("click_to_copy", text)
 
-    val enable = lang("enable")
+    val name get() = lang("name")
 
-    val copySuccess = lang("copy_success")
+    val enable get() = lang("enable")
 
-    val success = lang("success")
+    val copySuccess get() = lang("copy_success")
+
+    val success get() = lang("success")
 
     fun blockBreakProtection(supplier: String) = lang("gameplay.block_break_protection.toast", supplier)
 
@@ -36,6 +38,10 @@ object HSLang {
 
     fun enableEventNotFound(name: String) = lang("event.enable.not_found", name)
 
+    //------------ Sound ------------\\
+
+    val soundEffect get() = lang("sound_effect")
+
     //------------ CustomData ------------\\
 
     val customData get() = lang("custom_data")
@@ -43,6 +49,34 @@ object HSLang {
     val customDataType get() = lang("custom_data.type")
 
     val customDataKey get() = lang("custom_data.key")
+
+    //------------ Chat ------------\\
+
+    val chatInjectRegex
+        get() = lang("chat.inject.regex").style {
+            hover(lang("chat.inject.regex.comment"))
+        }
+
+    val chatInjectExp
+        get() = lang("chat.inject.exp").style {
+            hover(lang("chat.inject.exp.comment"))
+        }
+
+    val chatFilterExp
+        get() = lang("chat.filter.regex").style {
+            hover(lang("chat.filter.regex.comment"))
+        }
+
+    val chatBubbleServerName
+        get() = lang("chat.bubble.server_name").style {
+            hover(lang("chat.bubble.server_name.comment"))
+        }
+
+    val chatBubbleRegex
+        get() = lang("chat.bubble.regex").style {
+            hover(lang("chat.bubble.regex.comment"))
+        }
+
 
     //------------ TaskManager ------------\\
 
@@ -88,13 +122,16 @@ object HSLang {
 
     val eventSubscriberName get() = lang("event.subscriber.name")
 
-    //------------ AutoReplan ------------\\
+    //------------ AutoReplant ------------\\
 
     val autoReplantMapEntryTargetBlock get() = lang("auto_replant.map_entry.target_block")
+    val autoReplantMapEntryTargetBlockComment get() = lang("auto_replant.map_entry.target_block.comment")
 
     val autoReplantMapEntryReplantItem get() = lang("auto_replant.map_entry.replant_item")
+    val autoReplantMapEntryReplantItemComment get() = lang("auto_replant.map_entry.replant_item.comment")
 
     val autoReplantMapEntryGroundBlock get() = lang("auto_replant.map_entry.ground_block")
+    val autoReplantMapEntryGroundBlockComment get() = lang("auto_replant.map_entry.ground_block.comment")
 
     //------------ Matcher.ItemStack ------------\\
 

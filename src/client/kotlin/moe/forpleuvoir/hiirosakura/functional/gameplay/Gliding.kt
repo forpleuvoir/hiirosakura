@@ -1,6 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.gameplay
 
-import moe.forpleuvoir.hiirosakura.config.items.itemStackMatcher
+import moe.forpleuvoir.hiirosakura.config.items.matcher.itemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher

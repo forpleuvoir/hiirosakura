@@ -1,14 +1,20 @@
 package moe.forpleuvoir.hiirosakura.functional.chataddons
 
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 import moe.forpleuvoir.ibukigourd.config.item.stringPairList
+import moe.forpleuvoir.ibukigourd.config.userdata.setGuiWrapper
+import moe.forpleuvoir.ibukigourd.gui.configwrapper.StringPairListConfigWrapper
 
-object ChatInjectHandler:ModConfigContainer("chat_inject") {
+object ChatInjectHandler : ModConfigContainer("chat_inject") {
 
     val enabled by keyBindBoolean("enable", false)
 
     val injectMapping by stringPairList("inject_mapping", listOf(".*" to "#{message}"))
+        .setGuiWrapper { config, modifier ->
+            StringPairListConfigWrapper(config, modifier, HSLang.chatInjectRegex, HSLang.chatInjectExp)
+        }
 
     private const val PLACEHOLDERS = "#{message}"
 

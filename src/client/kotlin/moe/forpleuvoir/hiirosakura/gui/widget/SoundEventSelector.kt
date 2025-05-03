@@ -11,8 +11,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.DropDownMenuScope
 import moe.forpleuvoir.ibukigourd.gui.widget.SelectorWithSearcher
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonScope
 import moe.forpleuvoir.ibukigourd.gui.widget.defaultSelectedColor
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
@@ -26,7 +26,7 @@ fun WidgetContainerScope.SoundEventSelector(
     onSelected: (SoundEvent) -> Unit = {},
     selectedColor: ARGBColor = defaultSelectedColor,
     selectedWrapper: DropDownMenuScope.(SoundEvent) -> IGWidget = {
-        Column(
+        Row(
             modifier = Modifier.weight(1),
             horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
         ) {
@@ -34,7 +34,7 @@ fun WidgetContainerScope.SoundEventSelector(
         }
     },
     optionWrapper: ButtonScope.(SoundEvent) -> IGWidget = {
-        Column(
+        Row(
             modifier = Modifier.weight(1),
             horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
         ) {
@@ -42,8 +42,8 @@ fun WidgetContainerScope.SoundEventSelector(
         }
     },
     modifier: Modifier = Modifier.width(280f),
-    searchBarModifier: RowScope.() -> Modifier = { Modifier.width(280f) },
-    listModifier: RowScope.() -> Modifier = { Modifier.width(280f) },
+    searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width(280f) },
+    listModifier: ColumnScope.() -> Modifier = { Modifier.width(280f) },
     optionsDirection: List<Direction> = Direction.rightLeftBottomTop,
     scope: DropDownMenuScope.() -> Unit = {}
 ) = SelectorWithSearcher(

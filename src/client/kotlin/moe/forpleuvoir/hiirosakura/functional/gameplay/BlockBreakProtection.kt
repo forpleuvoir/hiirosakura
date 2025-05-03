@@ -1,12 +1,14 @@
 package moe.forpleuvoir.hiirosakura.functional.gameplay
 
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.config.items.block
-import moe.forpleuvoir.hiirosakura.config.items.item
-import moe.forpleuvoir.hiirosakura.config.items.itemStackBlockInfoMap
+import moe.forpleuvoir.hiirosakura.config.items.matcher.ConfigStringItemStackBlockInfoPairMapWrapper
+import moe.forpleuvoir.hiirosakura.config.items.matcher.block
+import moe.forpleuvoir.hiirosakura.config.items.matcher.item
+import moe.forpleuvoir.hiirosakura.config.items.matcher.itemStackBlockInfoMap
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.*
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
+import moe.forpleuvoir.ibukigourd.config.userdata.setGuiWrapper
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import net.minecraft.block.Blocks
 import net.minecraft.item.ItemStack
@@ -24,7 +26,11 @@ object BlockBreakProtection : ModConfigContainer("block_break_protection") {
                 BlockInfoMatchEntry.Block(Blocks.BUDDING_AMETHYST)
             ))
         ),
-    )
+    ).setGuiWrapper { config, modifier ->
+        ConfigStringItemStackBlockInfoPairMapWrapper(config, modifier, HSLang.name, HSLang.handledItem, HSLang.targetBlock)
+    }
+
+    private var mark = TimeSource.Monotonic.markNow()
 
     @JvmStatic
     fun canBreak(itemStack: ItemStack, blockInfo: BlockInfo): Boolean {
@@ -41,4 +47,3 @@ object BlockBreakProtection : ModConfigContainer("block_break_protection") {
 
 }
 
-private var mark = TimeSource.Monotonic.markNow()

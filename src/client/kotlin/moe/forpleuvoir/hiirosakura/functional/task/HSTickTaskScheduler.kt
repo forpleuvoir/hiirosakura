@@ -16,8 +16,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecom
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler.launch
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.RowListWrapped
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.task.TickTask
@@ -55,12 +55,12 @@ object HSTickTaskScheduler : TickTaskScheduler<MinecraftClient>() {
         Modifier
     ) {
         TextLabel(stateOf(HSLang.taskRunning))
-        RowListWrapped(
+        ColumnListWrapped(
             listModifier = { Modifier.width(360f).height(200f) }
         ) {
             if (hsTasks.isEmpty()) TextLabel(IGLang.hasNothing)
             hsTasks.forEach { (tickTask, task) ->
-                Column(
+                Row(
                     Modifier.padding(horizontal = 2f),
                     horizontalArrangement = Arrangement.spacedBy(5f, Alignment.CenterHorizontally)
                 ) {
@@ -71,7 +71,7 @@ object HSTickTaskScheduler : TickTaskScheduler<MinecraftClient>() {
                         if (counter <= 0) {
                             launch {
                                 delay(50)
-                                this@RowListWrapped.executeRecompose()
+                                this@ColumnListWrapped.executeRecompose()
                             }
                         }
                         HSLang.taskRunningRemainingTimes(counter)
@@ -80,7 +80,7 @@ object HSTickTaskScheduler : TickTaskScheduler<MinecraftClient>() {
                         remove(tickTask)
                         launch {
                             delay(50)
-                            this@RowListWrapped.executeRecompose()
+                            this@ColumnListWrapped.executeRecompose()
                         }
                     }
                 }

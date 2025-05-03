@@ -4,7 +4,6 @@ package moe.forpleuvoir.hiirosakura.functional.script.deobfuscation
 
 import moe.forpleuvoir.hiirosakura.util.math.toVector
 import moe.forpleuvoir.hiirosakura.util.swapSlotWithHotbar
-import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.entity.Entity

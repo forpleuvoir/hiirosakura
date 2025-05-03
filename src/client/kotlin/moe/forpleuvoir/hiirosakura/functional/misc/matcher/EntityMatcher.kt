@@ -19,7 +19,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 
-class EntityMatcher(override var mode: MultiMatcher.MatchMode, entries: List<EntityMatchEntry>) : MultiMatcher<Entity>, Deserializable, Cloneable {
+class EntityMatcher(override var mode: MultiMatcher.MatchMode, entries: List<EntityMatchEntry>) : MultiMatcher<Entity>, Deserializable {
 
     constructor(mode: MultiMatcher.MatchMode, vararg entries: EntityMatchEntry) : this(mode, entries.toList())
 
@@ -70,7 +70,7 @@ class EntityMatcher(override var mode: MultiMatcher.MatchMode, entries: List<Ent
 
     override val entries: List<EntityMatchEntry> = entries.toMutableList()
 
-    public override fun clone(): EntityMatcher {
+    override fun clone(): EntityMatcher {
         return EntityMatcher(mode, ArrayList(entries))
     }
 

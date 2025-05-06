@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName")
+
 package moe.forpleuvoir.hiirosakura.gui.widget
 
 import moe.forpleuvoir.hiirosakura.HSLang
@@ -21,10 +23,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
-import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
-import moe.forpleuvoir.ibukigourd.gui.widget.Rect
-import moe.forpleuvoir.ibukigourd.gui.widget.Selector
-import moe.forpleuvoir.ibukigourd.gui.widget.Vector3iEditor
+import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.RadioButtons

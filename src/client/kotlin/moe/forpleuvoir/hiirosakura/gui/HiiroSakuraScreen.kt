@@ -54,7 +54,7 @@ fun HiiroSakuraScreen() = TabScreen(
             }
         }
     },
-    modifier = Modifier.onClose {
+    screenModifier = Modifier.onClose {
         HSConfig.asyncSave()
         HiiroSakuraDataManager.asyncSave()
     },

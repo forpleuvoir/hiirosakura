@@ -3,7 +3,6 @@ package moe.forpleuvoir.hiirosakura.functional.task
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask.ExecutorType
 import moe.forpleuvoir.hiirosakura.functional.task.KeyBindTickTask.Companion.withKeyBind
-import moe.forpleuvoir.hiirosakura.gui.widget.ItemIcon
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemSelector
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText

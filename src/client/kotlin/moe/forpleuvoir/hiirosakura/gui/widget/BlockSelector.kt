@@ -16,13 +16,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRender
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
-import moe.forpleuvoir.ibukigourd.gui.widget.DropDownMenuScope
-import moe.forpleuvoir.ibukigourd.gui.widget.SearchBar
-import moe.forpleuvoir.ibukigourd.gui.widget.SelectorWithSearcher
+import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonScope
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
-import moe.forpleuvoir.ibukigourd.gui.widget.defaultSelectedColor
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
@@ -91,6 +88,7 @@ fun WidgetContainerScope.BlockSelector(
     blocks: List<Block> = Registries.BLOCK.toList(),
     onSelected: (Block) -> Unit = {},
     selectorBGColor: ARGBColor = Color(0xffffccf0),
+    optionsDirection: List<Direction> = listOf(Direction.Bottom, Direction.Right, Direction.Top, Direction.Left),
     modifier: Modifier = Modifier
 ) = Button(
     modifier.attachLeft {
@@ -108,7 +106,8 @@ fun WidgetContainerScope.BlockSelector(
     TextLabel(text)
     click {
         PopupTip(
-            modifier = Modifier.disableRender().margin(0f).padding(0f)
+            modifier = Modifier.disableRender().margin(0f).padding(0f),
+            optionalDirection = notifiableList(optionsDirection)
         ) {
             BlockSelector(blocks = blocks, bgColor = selectorBGColor, onSelected = {
                 block.setValue(it)

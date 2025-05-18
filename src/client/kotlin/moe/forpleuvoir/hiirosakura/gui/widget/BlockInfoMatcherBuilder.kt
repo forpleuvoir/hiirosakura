@@ -16,8 +16,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.TableLayoutColumnScope
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
@@ -156,7 +156,7 @@ fun BlockInfoMatcherBuilder(
     }
 }
 
-private fun WidgetContainerScope.EntryWrapper(
+private fun ContainerScope.EntryWrapper(
     entry: BlockInfoMatchEntry,
     entryConsumer: (BlockInfoMatchEntry) -> Unit,
     removeAction: () -> Unit,
@@ -425,7 +425,7 @@ fun <T> TableScope<T>.BlockInfoMatcherTableColumn(
 
 //------------ BlockInfoMatcher ------------\\
 
-fun WidgetContainerScope.BlockInfoMatcherSimpleInfo(
+fun ContainerScope.BlockInfoMatcherSimpleInfo(
     blockInfoMatcher: MultiMatcher<BlockInfo>,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
@@ -447,7 +447,7 @@ fun WidgetContainerScope.BlockInfoMatcherSimpleInfo(
     }
 }
 
-fun WidgetContainerScope.BlockInfoMatcherInfo(
+fun ContainerScope.BlockInfoMatcherInfo(
     blockInfoMatcher: MultiMatcher<BlockInfo>,
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(1f),
@@ -473,7 +473,7 @@ fun WidgetContainerScope.BlockInfoMatcherInfo(
 //------------ BlockInfoEntryInfo ------------\\
 
 @Suppress("UNCHECKED_CAST")
-fun WidgetContainerScope.BlockInfoEntryInfo(entry: MatchEntry<BlockInfo>) {
+fun ContainerScope.BlockInfoEntryInfo(entry: MatchEntry<BlockInfo>) {
     when (entry) {
         is BlockInfoMatchEntry.Block    -> BlockInfoEntryBlockInfo(entry)
         is BlockInfoMatchEntry.Script   -> BlockInfoEntryScriptInfo(entry)
@@ -483,7 +483,7 @@ fun WidgetContainerScope.BlockInfoEntryInfo(entry: MatchEntry<BlockInfo>) {
     }
 }
 
-fun WidgetContainerScope.BlockInfoEntryBlockInfo(
+fun ContainerScope.BlockInfoEntryBlockInfo(
     entry: BlockInfoMatchEntry.Block,
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
@@ -494,7 +494,7 @@ fun WidgetContainerScope.BlockInfoEntryBlockInfo(
     TextLabel(entry.asText)
 }
 
-fun WidgetContainerScope.BlockInfoEntryScriptInfo(
+fun ContainerScope.BlockInfoEntryScriptInfo(
     entry: BlockInfoMatchEntry.Script,
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
@@ -506,7 +506,7 @@ fun WidgetContainerScope.BlockInfoEntryScriptInfo(
     )
 }
 
-fun WidgetContainerScope.BlockInfoEntryPosInfo(
+fun ContainerScope.BlockInfoEntryPosInfo(
     entry: BlockInfoMatchEntry.Pos,
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
@@ -515,7 +515,7 @@ fun WidgetContainerScope.BlockInfoEntryPosInfo(
     TextLabel(mutableStateBy { blockInfoMatcherEntryPos.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
 }
 
-fun WidgetContainerScope.BlockInfoEntryTagInfo(
+fun ContainerScope.BlockInfoEntryTagInfo(
     entry: BlockInfoMatchEntry.Tag,
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
@@ -524,7 +524,7 @@ fun WidgetContainerScope.BlockInfoEntryTagInfo(
     TextLabel(mutableStateBy { blockInfoMatcherEntryTag.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
 }
 
-fun WidgetContainerScope.BlockInfoEntryPropertyInfo(
+fun ContainerScope.BlockInfoEntryPropertyInfo(
     entry: BlockInfoMatchEntry.Property,
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)

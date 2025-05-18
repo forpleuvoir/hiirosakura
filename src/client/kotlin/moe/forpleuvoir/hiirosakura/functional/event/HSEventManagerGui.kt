@@ -16,7 +16,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
@@ -48,7 +48,7 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.time.Duration.Companion.seconds
 import moe.forpleuvoir.ibukigourd.task.TickTask.Setting as TickTaskSetting
 
-fun WidgetContainerScope.HSEventManagerGui(
+fun ContainerScope.HSEventManagerGui(
     modifier: Modifier = Modifier
 ) = Column(
     modifier,

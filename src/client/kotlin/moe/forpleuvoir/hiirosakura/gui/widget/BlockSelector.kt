@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
@@ -38,7 +38,7 @@ import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 import net.minecraft.block.Block
 import net.minecraft.registry.Registries
 
-fun WidgetContainerScope.BlockSelector(
+fun ContainerScope.BlockSelector(
     block: MutableState<Block>,
     blocks: List<Block> = Registries.BLOCK.toList(),
     onSelected: (Block) -> Unit = {},
@@ -83,7 +83,7 @@ fun WidgetContainerScope.BlockSelector(
     scope = scope
 )
 
-fun WidgetContainerScope.BlockSelector(
+fun ContainerScope.BlockSelector(
     block: MutableState<Block>,
     blocks: List<Block> = Registries.BLOCK.toList(),
     onSelected: (Block) -> Unit = {},
@@ -119,7 +119,7 @@ fun WidgetContainerScope.BlockSelector(
     }
 }
 
-fun WidgetContainerScope.BlockSelector(
+fun ContainerScope.BlockSelector(
     blocks: List<Block> = Registries.BLOCK.toList(),
     onSelected: (Block) -> Unit = {},
     columnSize: Int = 9,

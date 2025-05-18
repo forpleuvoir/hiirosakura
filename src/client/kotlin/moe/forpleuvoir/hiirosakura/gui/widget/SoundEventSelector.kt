@@ -4,7 +4,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.DropDownMenuScope
@@ -20,7 +20,7 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import net.minecraft.registry.Registries
 import net.minecraft.sound.SoundEvent
 
-fun WidgetContainerScope.SoundEventSelector(
+fun ContainerScope.SoundEventSelector(
     soundEvent: MutableState<SoundEvent>,
     soundEvents: List<SoundEvent> = Registries.SOUND_EVENT.toList(),
     onSelected: (SoundEvent) -> Unit = {},

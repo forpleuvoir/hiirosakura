@@ -11,7 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
@@ -45,7 +45,7 @@ import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.item.Items
 import kotlin.time.Duration.Companion.seconds
 
-fun WidgetContainerScope.TaskManagerGui(
+fun ContainerScope.TaskManagerGui(
     modifier: Modifier = Modifier
 ) = Column(
     modifier,
@@ -345,7 +345,7 @@ fun TaskEditor(
 }
 
 
-fun WidgetContainerScope.MoveButton(
+fun ContainerScope.MoveButton(
     index: Int,
     lastIndex: Int,
     moveUp: () -> Unit = {},

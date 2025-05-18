@@ -10,7 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
@@ -42,7 +42,7 @@ import net.minecraft.item.Item
 import net.minecraft.registry.Registries
 import net.minecraft.registry.entry.RegistryEntry
 
-fun WidgetContainerScope.ItemSelector(
+fun ContainerScope.ItemSelector(
     item: MutableState<Item>,
     items: List<Item> = Registries.ITEM.toList(),
     onSelected: (Item) -> Unit = {},
@@ -87,7 +87,7 @@ fun WidgetContainerScope.ItemSelector(
     scope = scope
 )
 
-fun WidgetContainerScope.ItemSelector(
+fun ContainerScope.ItemSelector(
     item: MutableState<Item>,
     items: List<Item> = Registries.ITEM.toList(),
     onSelected: (Item) -> Unit = {},
@@ -123,7 +123,7 @@ fun WidgetContainerScope.ItemSelector(
     }
 }
 
-fun WidgetContainerScope.ItemSelector(
+fun ContainerScope.ItemSelector(
     items: List<Item> = Registries.ITEM.toList(),
     onSelected: (Item) -> Unit = {},
     columnSize: Int = 9,
@@ -201,7 +201,7 @@ fun WidgetContainerScope.ItemSelector(
     }
 }
 
-fun WidgetContainerScope.DataComponentTypeSelector(
+fun ContainerScope.DataComponentTypeSelector(
     componentType: MutableState<ComponentType<*>>,
     componentTypes: List<ComponentType<*>> = Registries.DATA_COMPONENT_TYPE.toList(),
     onSelected: (ComponentType<*>) -> Unit = {},
@@ -240,7 +240,7 @@ fun WidgetContainerScope.DataComponentTypeSelector(
     scope = scope
 )
 
-fun WidgetContainerScope.EnchatmentSelector(
+fun ContainerScope.EnchatmentSelector(
     enchantment: MutableState<RegistryEntry<Enchantment>>,
     enchantments: List<RegistryEntry<Enchantment>> = ENCHANTMENT_LIST,
     onSelected: (RegistryEntry<Enchantment>) -> Unit = {},

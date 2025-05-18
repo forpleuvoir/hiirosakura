@@ -10,7 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.render.IGDrawContext
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.widget.Widget
@@ -24,7 +24,7 @@ import org.joml.Vector2fc
 import kotlin.math.cos
 import kotlin.math.sin
 
-fun <T> WidgetContainerScope.RouletteSelector(
+fun <T> ContainerScope.RouletteSelector(
     options: List<T>,
     innerRadius: Float = 60f,
     outerRadius: Float = 120f,

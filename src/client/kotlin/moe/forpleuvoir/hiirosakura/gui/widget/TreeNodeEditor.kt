@@ -11,7 +11,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
@@ -55,7 +55,7 @@ import moe.forpleuvoir.nebula.common.util.primitive.pick
  * - null
  *
  */
-fun WidgetContainerScope.TreeNodeEditor(
+fun ContainerScope.TreeNodeEditor(
     data: MutableMap<String, Any?>,
     modifier: Modifier = Modifier,
     listModifier: RowScope.() -> Modifier = { Modifier },
@@ -108,7 +108,7 @@ fun WidgetContainerScope.TreeNodeEditor(
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun WidgetContainerScope.Entry(key: String, valueSupplier: () -> Any?, valueSetter: (Any) -> Unit, valueRemover: () -> Unit) {
+private fun ContainerScope.Entry(key: String, valueSupplier: () -> Any?, valueSetter: (Any) -> Unit, valueRemover: () -> Unit) {
     when (val value = valueSupplier()) {
         is MutableMap<*, *>              -> {
             ObjectEntry(key, value as MutableMap<String, Any>, valueRemover)
@@ -124,7 +124,7 @@ private fun WidgetContainerScope.Entry(key: String, valueSupplier: () -> Any?, v
     }
 }
 
-private fun WidgetContainerScope.EntryRow(
+private fun ContainerScope.EntryRow(
     key: String,
     modifier: Modifier = Modifier,
     content: RowScope.() -> Unit
@@ -157,7 +157,7 @@ private fun WidgetContainerScope.EntryRow(
     content()
 }
 
-private fun WidgetContainerScope.ObjectEntry(
+private fun ContainerScope.ObjectEntry(
     key: String,
     obj: MutableMap<String, Any>,
     valueRemover: () -> Unit
@@ -236,7 +236,7 @@ private fun WidgetContainerScope.ObjectEntry(
     )
 }
 
-private fun WidgetContainerScope.ArrayEntry(
+private fun ContainerScope.ArrayEntry(
     key: String,
     array: MutableList<Any>,
     valueRemover: () -> Unit
@@ -314,7 +314,7 @@ private fun WidgetContainerScope.ArrayEntry(
     )
 }
 
-private fun WidgetContainerScope.PrimitiveEntry(
+private fun ContainerScope.PrimitiveEntry(
     key: String,
     valueSupplier: () -> Any?,
     valueSetter: (Any) -> Unit,
@@ -330,11 +330,11 @@ private fun WidgetContainerScope.PrimitiveEntry(
     RemoveButton { valueRemover() }
 }
 
-private fun WidgetContainerScope.UnsupportedEntry() = TextLabel(IGLang.unsupported)
+private fun ContainerScope.UnsupportedEntry() = TextLabel(IGLang.unsupported)
 
-private fun WidgetContainerScope.NullEntry() = TextLabel("null")
+private fun ContainerScope.NullEntry() = TextLabel("null")
 
-private fun WidgetContainerScope.BooleanEntry(
+private fun ContainerScope.BooleanEntry(
     value: Boolean,
     valueSetter: (Boolean) -> Unit
 ) = SwitchButton(
@@ -346,7 +346,7 @@ private fun WidgetContainerScope.BooleanEntry(
     }
 )
 
-private fun WidgetContainerScope.StringEntry(
+private fun ContainerScope.StringEntry(
     value: String,
     valueSetter: (String) -> Unit
 ) = Row(
@@ -393,7 +393,7 @@ private fun WidgetContainerScope.StringEntry(
 private const val EDITOR_WIDTH = 120f
 
 @Suppress("UNCHECKED_CAST")
-private fun WidgetContainerScope.NumberEntry(
+private fun ContainerScope.NumberEntry(
     value: Number,
     valueSetter: (Number) -> Unit
 ): IGWidgetImpl {

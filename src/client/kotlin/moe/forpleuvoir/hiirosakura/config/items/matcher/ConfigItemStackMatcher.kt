@@ -8,8 +8,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverTip
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigResetButton
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigRowWrapper
@@ -43,7 +43,7 @@ fun ConfigContainer.itemStackMatcher(
 
 //------------ GUI Wrapper ------------\\
 
-fun WidgetContainerScope.ItemStackMatcherWrapper(
+fun ContainerScope.ItemStackMatcherWrapper(
     config: ConfigItemStackMatcher,
     modifier: Modifier = Modifier,
 ) = ConfigRowWrapper(config, modifier) {

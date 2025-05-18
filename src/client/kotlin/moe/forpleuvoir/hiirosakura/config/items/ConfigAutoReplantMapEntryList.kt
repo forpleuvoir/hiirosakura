@@ -14,8 +14,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.height
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverText
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.DeleteButton
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
@@ -46,7 +46,7 @@ fun ConfigContainer.autoReplantMapEntryList(
 
 //------------ GUI Wrapper ------------\\
 
-fun WidgetContainerScope.AutoReplantMapEntryListWrapper(
+fun ContainerScope.AutoReplantMapEntryListWrapper(
     config: ConfigAutoReplantMapEntryList,
     modifier: Modifier = Modifier,
 ) = ConfigRowWrapper(config, modifier) {
@@ -90,8 +90,7 @@ fun WidgetContainerScope.AutoReplantMapEntryListWrapper(
                 TextLabel(
                     HSLang.autoReplantMapEntryTargetBlock,
                     setting = TextSetting().copy(horizontalAlignment = Alignment.CenterHorizontally),
-                    modifier = Modifier.padding(bottom = 3f)
-                        .hoverText(HSLang.autoReplantMapEntryTargetBlockComment)
+                    modifier = Modifier.hoverText(HSLang.autoReplantMapEntryTargetBlockComment)
                 )
             }
 
@@ -101,8 +100,7 @@ fun WidgetContainerScope.AutoReplantMapEntryListWrapper(
                 TextLabel(
                     HSLang.autoReplantMapEntryReplantItem,
                     setting = TextSetting().copy(horizontalAlignment = Alignment.CenterHorizontally),
-                    modifier = Modifier.padding(bottom = 3f)
-                        .hoverText(HSLang.autoReplantMapEntryReplantItemComment)
+                    modifier = Modifier.hoverText(HSLang.autoReplantMapEntryReplantItemComment)
                 )
             }
 
@@ -112,15 +110,14 @@ fun WidgetContainerScope.AutoReplantMapEntryListWrapper(
                 TextLabel(
                     HSLang.autoReplantMapEntryGroundBlock,
                     setting = TextSetting().copy(horizontalAlignment = Alignment.CenterHorizontally),
-                    modifier = Modifier.padding(bottom = 3f)
-                        .hoverText(HSLang.autoReplantMapEntryGroundBlockComment)
+                    modifier = Modifier.hoverText(HSLang.autoReplantMapEntryGroundBlockComment)
                 )
             }
 
             Header {
                 TextLabel(IGLang.remove)
             }.Column { index, entry ->
-                DeleteButton(IGLang.removeConfirm("$index"), recompose) {
+                DeleteButton({ IGLang.removeConfirm("$index") }, recompose) {
                     config.removeAt(index)
                 }
             }

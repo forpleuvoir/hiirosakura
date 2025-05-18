@@ -15,11 +15,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.DeleteButton
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Table
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.text.Text
@@ -57,7 +58,7 @@ fun ConfigContainer.blockInfoItemStackMap(
     defaultValue: Map<String, BlockInfoItemStackPair> = emptyMap()
 ) = addConfig(ConfigStringBlockInfoItemStackPairMap(key, defaultValue))
 
-fun WidgetContainerScope.ConfigStringBlockInfoItemStackPairMapWrapper(
+fun ContainerScope.ConfigStringBlockInfoItemStackPairMapWrapper(
     config: ConfigStringBlockInfoItemStackPairMap,
     modifier: Modifier = Modifier,
     keyTableName: Text = IGLang.mapKey,
@@ -71,32 +72,46 @@ fun WidgetContainerScope.ConfigStringBlockInfoItemStackPairMapWrapper(
             config,
             title = config.translateTextWithParent(1, " -> "),
             newValue = { mapEntry("block to item matcher ${(it.count())}", targetBlockMatcher to handItemMatcher) },
-            hoverTableScope = {
-                Header {
-                    TextLabel(keyTableName, modifier = Modifier.align(Alignment.CenterLeft))
-                }.Column {
-                    TextLabel(it.key.take(60), modifier = Modifier.align(Alignment.CenterLeft).minWidth(20f).maxWidth(100f))
-                }
+            hoverTableScope = {},
+            hoverContent = {
+                Table(
+                    config.getValue().entries.toList().subList(0, config.getValue().size.coerceAtMost(9)),
+                    rowGap = 10f
+                ) {
+                    Header {
+                        TextLabel(keyTableName, modifier = Modifier.align(Alignment.CenterLeft))
+                    }.Column {
+                        TextLabel(it.key.take(60), modifier = Modifier.align(Alignment.CenterLeft).minWidth(20f).maxWidth(100f))
+                    }
 
-                Header {
-                    TextLabel(HSLang.targetBlock)
-                }.Column {
-                    BlockInfoMatcherSimpleInfo(it.value.block, Modifier.height(10f).align(Alignment.CenterLeft))
-                }
+                    Header {
+                        TextLabel(HSLang.targetBlock)
+                    }.Column {
+                        BlockInfoMatcherSimpleInfo(it.value.block, Modifier.height(10f).align(Alignment.CenterLeft))
+                    }
 
-                Header {
-                    TextLabel(HSLang.handledItem)
-                }.Column {
-                    ItemStackMatcherSimpleInfo(it.value.item, Modifier.height(10f).align(Alignment.CenterLeft))
+                    Header {
+                        TextLabel(HSLang.handledItem)
+                    }.Column {
+                        ItemStackMatcherSimpleInfo(it.value.item, Modifier.height(10f).align(Alignment.CenterLeft))
+                    }
                 }
-
             },
             dialogModifier = Modifier.padding(20f)
         ) {
 
-            TableConfigMapStringKeyColumn(config, headerText = keyTableName, keyWrapper = { k, v, map ->
-                TextLabel(k, modifier = Modifier.width(80f))
-            })
+            TableConfigMapStringKeyColumn(
+                config,
+                header = {
+                    TextLabel(
+                        keyTableName,
+                        setting = TextSetting().copy(horizontalAlignment = Alignment.CenterHorizontally),
+                        modifier = Modifier.padding(bottom = 3f).minWidth(80f)
+                    )
+                }, keyWrapper = { k, v, map ->
+                    TextLabel(k, modifier = Modifier.width(120f))
+                }
+            )
 
             BlockInfoMatcherTableColumn(
                 { index, entry, matcher ->
@@ -111,7 +126,7 @@ fun WidgetContainerScope.ConfigStringBlockInfoItemStackPairMapWrapper(
                 TextLabel(
                     blockInfoTableName,
                     setting = TextSetting().copy(horizontalAlignment = Alignment.CenterHorizontally),
-                    modifier = Modifier.padding(bottom = 3f)
+                    modifier = Modifier.minWidth(120f)
                 )
             }
 
@@ -128,7 +143,7 @@ fun WidgetContainerScope.ConfigStringBlockInfoItemStackPairMapWrapper(
                 TextLabel(
                     itemStackTableName,
                     setting = TextSetting().copy(horizontalAlignment = Alignment.CenterHorizontally),
-                    modifier = Modifier.padding(bottom = 3f)
+                    modifier = Modifier.minWidth(120f)
                 )
             }
 
@@ -136,7 +151,7 @@ fun WidgetContainerScope.ConfigStringBlockInfoItemStackPairMapWrapper(
                 TextLabel(IGLang.remove)
             }.Column { index, (key, _) ->
                 DeleteButton(
-                    IGLang.removeConfirm(key),
+                    { IGLang.removeConfirm(key) },
                     { this@TableConfigMapWrappedButton.executeRecompose() }
                 ) {
                     config.remove(key)

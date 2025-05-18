@@ -10,12 +10,10 @@ import moe.forpleuvoir.ibukigourd.config.translateTextWithParent
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.height
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.scope.TableLayoutColumnScope
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.DeleteButton
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
@@ -46,7 +44,7 @@ fun ConfigContainer.blockInfoMatcherMap(
 
 //------------ GUI Wrapper ------------\\
 
-fun WidgetContainerScope.BlockInfoMatcherMapWrapper(
+fun ContainerScope.BlockInfoMatcherMapWrapper(
     config: ConfigBlockInfoMatcherMap,
     modifier: Modifier = Modifier,
     buttonModifier: TableLayoutColumnScope.() -> Modifier = { Modifier.width(140f) },
@@ -77,9 +75,18 @@ fun WidgetContainerScope.BlockInfoMatcherMapWrapper(
             dialogModifier = Modifier.padding(20f)
         ) {
 
-            TableConfigMapStringKeyColumn(config, headerText = keyTableName, keyWrapper = { k, v, map ->
-                TextLabel(k, modifier = Modifier.width(80f))
-            })
+            TableConfigMapStringKeyColumn(
+                config,
+                header = {
+                    TextLabel(
+                        keyTableName,
+                        setting = TextSetting().copy(horizontalAlignment = Alignment.CenterHorizontally),
+                        modifier = Modifier.padding(bottom = 3f).minWidth(80f)
+                    )
+                }, keyWrapper = { k, v, map ->
+                    TextLabel(k, modifier = Modifier.maxWidth(120f))
+                }
+            )
 
             BlockInfoMatcherTableColumn(
                 { index, entry, matcher ->
@@ -89,14 +96,14 @@ fun WidgetContainerScope.BlockInfoMatcherMapWrapper(
                 { it.value },
                 buttonModifier
             ) {
-                TextLabel(matcherTableName, setting = TextSetting().copy(horizontalAlignment = Alignment.CenterHorizontally))
+                TextLabel(matcherTableName, setting = TextSetting().copy(horizontalAlignment = Alignment.CenterHorizontally), modifier = Modifier.minWidth(120f))
             }
 
             Header {
                 TextLabel(IGLang.remove)
             }.Column { index, (key, _) ->
                 DeleteButton(
-                    IGLang.removeConfirm(key),
+                    { IGLang.removeConfirm(key) },
                     { this@TableConfigMapWrappedButton.executeRecompose() }
                 ) {
                     config.remove(key)

@@ -9,13 +9,15 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.maxWidth
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minWidth
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.DeleteButton
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.config.item.impl.ConfigList
@@ -57,7 +59,7 @@ object SoundEventDeserializer : Deserializer<SoundEvent> {
 
 }
 
-fun WidgetContainerScope.SoundEffectListWrapper(
+fun ContainerScope.SoundEffectListWrapper(
     config: ConfigSoundEventList,
     modifier: Modifier = Modifier,
     contentTableName: Text = HSLang.soundEffect,
@@ -80,8 +82,8 @@ fun WidgetContainerScope.SoundEffectListWrapper(
             val recompose = { this@TableConfigListWrappedButton.executeRecompose() }
             MoveableTableHeader().MoveableTableColumCell(config, recompose, showIndex)
 
-            Header {
-                TextLabel(contentTableName)
+            Header(1) {
+                TextLabel(contentTableName, setting = TextSetting().copy(Alignment.CenterHorizontally), modifier = Modifier.minWidth(120f).maxWidth(250f).align(Alignment.Center))
             }.Column { index, entry ->
                 val state = mutableStateOf(entry).apply {
                     onSetValue = {
@@ -89,13 +91,13 @@ fun WidgetContainerScope.SoundEffectListWrapper(
                         it
                     }
                 }
-                SoundEventSelector(state)
+                SoundEventSelector(state, modifier = Modifier.maxWidth(250f))
             }
 
             Header {
                 TextLabel(IGLang.edit)
-            }.Column { index, entry ->
-                DeleteButton(IGLang.removeConfirm("[$index]$entry"), recompose) {
+            }.Column { index, _ ->
+                DeleteButton({ IGLang.removeConfirm("[$index]${Translatable("subtitles.${config[index].id.path}", config[index].id.toString()).plainText}") }, recompose) {
                     config.removeAt(index)
                 }
             }

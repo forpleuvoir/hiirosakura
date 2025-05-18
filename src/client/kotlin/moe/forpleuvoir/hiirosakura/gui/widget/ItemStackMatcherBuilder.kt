@@ -22,8 +22,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
+import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.TableLayoutColumnScope
-import moe.forpleuvoir.ibukigourd.gui.base.scope.WidgetContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
@@ -175,7 +175,7 @@ fun ItemStackMatcherBuilder(
     }
 }
 
-private fun WidgetContainerScope.EntryWrapper(
+private fun ContainerScope.EntryWrapper(
     entry: ItemStackMatchEntry,
     entryConsumer: (ItemStackMatchEntry) -> Unit,
     removeAction: () -> Unit,
@@ -584,7 +584,7 @@ fun <T> TableScope<T>.ItemStackMatcherTableColumn(
 
 //------------ ItemStackMatcherInfo ------------\\
 
-fun WidgetContainerScope.ItemStackMatcherSimpleInfo(
+fun ContainerScope.ItemStackMatcherSimpleInfo(
     itemStackMatcher: MultiMatcher<ItemStack>,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
@@ -606,7 +606,7 @@ fun WidgetContainerScope.ItemStackMatcherSimpleInfo(
     }
 }
 
-fun WidgetContainerScope.ItemStackMatcherInfo(
+fun ContainerScope.ItemStackMatcherInfo(
     itemStackMatcher: MultiMatcher<ItemStack>,
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(1f),
@@ -632,7 +632,7 @@ fun WidgetContainerScope.ItemStackMatcherInfo(
 //------------ ItemStackMatchEntryInfo ------------\\
 
 @Suppress("UNCHECKED_CAST")
-fun WidgetContainerScope.ItemStackEntryInfo(entry: MatchEntry<ItemStack>) {
+fun ContainerScope.ItemStackEntryInfo(entry: MatchEntry<ItemStack>) {
     when (entry) {
         is ItemStackMatchEntry.Item              -> ItemStackEntryItemInfo(entry)
         is ItemStackMatchEntry.Name              -> ItemStackEntryNameInfo(entry)
@@ -645,7 +645,7 @@ fun WidgetContainerScope.ItemStackEntryInfo(entry: MatchEntry<ItemStack>) {
     }
 }
 
-fun WidgetContainerScope.ItemStackEntryItemInfo(
+fun ContainerScope.ItemStackEntryItemInfo(
     entry: ItemStackMatchEntry.Item,
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
@@ -656,7 +656,7 @@ fun WidgetContainerScope.ItemStackEntryItemInfo(
     TextLabel(entry.asText)
 }
 
-fun WidgetContainerScope.ItemStackEntryNameInfo(
+fun ContainerScope.ItemStackEntryNameInfo(
     entry: ItemStackMatchEntry.Name,
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
@@ -668,7 +668,7 @@ fun WidgetContainerScope.ItemStackEntryNameInfo(
     )
 }
 
-fun WidgetContainerScope.ItemStackEntryScriptInfo(
+fun ContainerScope.ItemStackEntryScriptInfo(
     entry: ItemStackMatchEntry.Script,
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
@@ -680,7 +680,7 @@ fun WidgetContainerScope.ItemStackEntryScriptInfo(
     )
 }
 
-fun WidgetContainerScope.ItemStackEntryCountInfo(
+fun ContainerScope.ItemStackEntryCountInfo(
     entry: ItemStackMatchEntry.Count,
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
@@ -689,7 +689,7 @@ fun WidgetContainerScope.ItemStackEntryCountInfo(
     TextLabel(mutableStateBy { itemStackMatcherEntryCount.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
 }
 
-fun WidgetContainerScope.ItemStackEntryRarityInfo(
+fun ContainerScope.ItemStackEntryRarityInfo(
     entry: ItemStackMatchEntry.Rarity,
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
@@ -698,7 +698,7 @@ fun WidgetContainerScope.ItemStackEntryRarityInfo(
     TextLabel(mutableStateBy { itemStackMatcherEntryRarity.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
 }
 
-fun WidgetContainerScope.ItemStackEntryEnchantmentInfo(
+fun ContainerScope.ItemStackEntryEnchantmentInfo(
     entry: ItemStackMatchEntry.Enchantment,
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
@@ -707,7 +707,7 @@ fun WidgetContainerScope.ItemStackEntryEnchantmentInfo(
     TextLabel(mutableStateBy { itemStackMatcherEntryEnchantment.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
 }
 
-fun WidgetContainerScope.ItemStackEntryTagInfo(
+fun ContainerScope.ItemStackEntryTagInfo(
     entry: ItemStackMatchEntry.Tag,
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
@@ -716,7 +716,7 @@ fun WidgetContainerScope.ItemStackEntryTagInfo(
     TextLabel(mutableStateBy { itemStackMatcherEntryTag.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
 }
 
-fun WidgetContainerScope.ItemStackEntryDataComponentTypeInfo(
+fun ContainerScope.ItemStackEntryDataComponentTypeInfo(
     entry: ItemStackMatchEntry.DataComponentType,
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)

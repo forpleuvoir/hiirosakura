@@ -71,9 +71,9 @@ dependencies {
     //兼容测试
     modImplementation("maven.modrinth", "sodium", "mc1.21.4-0.6.3-fabric")
     modImplementation("maven.modrinth", "iris", "1.8.5+1.21.4-fabric")
-    implementation("org.anarres:jcpp:1.4.14")
-    implementation("org.antlr:antlr4-runtime:4.13.1")
-    implementation("io.github.douira:glsl-transformer:2.0.1")
+    runtimeOnly("org.anarres:jcpp:1.4.14")
+    runtimeOnly("org.antlr:antlr4-runtime:4.13.1")
+    runtimeOnly("io.github.douira:glsl-transformer:2.0.1")
 
 
     //nebula

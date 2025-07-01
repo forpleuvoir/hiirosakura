@@ -1,21 +1,29 @@
 package moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble
 
-import moe.forpleuvoir.hiirosakura.HSLang
+import com.mojang.authlib.GameProfile
+import moe.forpleuvoir.hiirosakura.config.items.stringChatBubbleServerConfigMap
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.EntityMatcher
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
-import moe.forpleuvoir.ibukigourd.config.item.stringPairList
 import moe.forpleuvoir.ibukigourd.config.item.vector2f
 import moe.forpleuvoir.ibukigourd.config.userdata.setGuiWrapper
-import moe.forpleuvoir.ibukigourd.gui.configwrapper.StringPairListConfigWrapper
 import moe.forpleuvoir.ibukigourd.text.McText
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.config.item.impl.boolean
 import moe.forpleuvoir.nebula.config.item.impl.color
 import moe.forpleuvoir.nebula.config.item.impl.duration
 import moe.forpleuvoir.nebula.config.item.impl.float
+import moe.forpleuvoir.nebula.serialization.Deserializer
+import moe.forpleuvoir.nebula.serialization.Serializable
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.extensions.checkType
+import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import net.minecraft.client.network.AbstractClientPlayerEntity
 import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.util.math.MatrixStack
 import org.joml.Vector2f
-import java.util.concurrent.ConcurrentHashMap
+import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -41,27 +49,65 @@ object ChatBubbleHandler : ModConfigContainer("chat_bubble") {
 
     val fadeOutDuration by duration("fade_out_duration", 0.25.seconds, 0.seconds, 2.seconds)
 
-    val matchMapping by stringPairList(
-        "match_mapping", listOf(
-            "" to "<(?<name>[^>]+)>\\s(?<message>.+)"
+    val serverChatBubbleConfig by stringChatBubbleServerConfigMap(
+        "server_chat_bubble_config", mapOf(
+            "#single" to ChatBubbleServerConfig.DEFAULT_CONFIG
         )
-    ).setGuiWrapper { config, modifier ->
-        StringPairListConfigWrapper(config, modifier, HSLang.chatBubbleServerName, HSLang.chatBubbleRegex)
+    )
 
+    init {
+        setGuiWrapper { config, modifier ->
+            ChatBubbleConfigGui(config, modifier)
+        }
     }
 
-    private val bubbleQueue = ConcurrentHashMap<String, ChatBubble>()
-
+    private val bubbleQueue = ConcurrentLinkedQueue<ChatBubblePair>()
 
     @JvmStatic
-    fun addChatBubble(text: McText) {
+    fun addChatBubble(text: McText, uuid: UUID?, profile: GameProfile?) {
         if (!enabled) return
-        ChatBubble.fromChatMessage(text.string)?.let { bubbleQueue[it.playerName] = it }
+        ChatBubble.fromChatMessage(text.string, uuid, profile)?.let { bubbleQueue.add(it) }
     }
 
-    fun render(playerName: String, matrices: MatrixStack, vertexConsumers: VertexConsumerProvider.Immediate, light: Int) {
-        bubbleQueue.filter { it.value.shouldRemove }.forEach { bubbleQueue.remove(it.key) }
-        bubbleQueue[playerName]?.render(matrices, vertexConsumers, light)
+    fun render(player: AbstractClientPlayerEntity, matrices: MatrixStack, vertexConsumers: VertexConsumerProvider.Immediate) {
+        bubbleQueue.filter { it.bubble.shouldRemove }
+            .let { bubbleQueue.removeAll(it) }
+
+        bubbleQueue.findLast {
+            val test = it.matcher.match(player)
+            test
+        }?.bubble?.render(matrices, vertexConsumers)
+    }
+
+}
+
+data class ChatBubblePair(
+    val matcher: EntityMatcher,
+    val bubble: ChatBubble
+)
+
+data class ChatBubbleServerConfig(
+    val regex: String = "<(?<name>[^>]+)>\\s(?<message>.+)",
+    val enableUUID: Boolean = false,
+    val enableProfile: Boolean = false,
+) : Serializable {
+    companion object : Deserializer<ChatBubbleServerConfig> {
+        val DEFAULT_CONFIG = ChatBubbleServerConfig()
+        override fun deserialization(serializeElement: SerializeElement): ChatBubbleServerConfig {
+            return serializeElement.checkType<SerializeObject, ChatBubbleServerConfig> {
+                ChatBubbleServerConfig(
+                    it["regex"]!!.asString,
+                    it["enable_uuid"]!!.asBoolean,
+                    it["enable_profile"]!!.asBoolean
+                )
+            }.getOrThrow()
+        }
+    }
+
+    override fun serialization(): SerializeElement = serializeObject {
+        "regex" to regex
+        "enable_uuid" to enableUUID
+        "enable_profile" to enableProfile
     }
 
 }

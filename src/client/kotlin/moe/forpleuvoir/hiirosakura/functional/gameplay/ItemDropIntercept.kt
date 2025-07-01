@@ -7,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 import moe.forpleuvoir.ibukigourd.config.userdata.setGuiWrapper
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import net.minecraft.item.ItemStack
 import kotlin.time.TimeSource
 
@@ -33,7 +34,7 @@ object ItemDropIntercept : ModConfigContainer("item_drop_intercept") {
             matcher.match(itemStack).apply {
                 if (this && mark.elapsedNow() > Toast.SHORT_DURATION) {
                     mark = TimeSource.Monotonic.markNow()
-                    Toast.showToast(HSLang.itemDropIntercepted(key))
+                    Toast.showToast(InlineStyleText(HSLang.itemDropIntercepted(key).plainText))
                 }
             }
         }

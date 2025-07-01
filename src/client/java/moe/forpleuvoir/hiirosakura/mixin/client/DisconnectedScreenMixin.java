@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(DisconnectedScreen.class)
-public class DisconnectedScreenMixin {
+public abstract class DisconnectedScreenMixin {
 
     @Inject(method = "<init>(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/text/Text;Lnet/minecraft/text/Text;)V", at = @At("RETURN"))
     public void hiirosakura$init(Screen parent, Text title, Text reason, CallbackInfo ci) {

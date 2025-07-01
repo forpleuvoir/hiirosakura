@@ -2,6 +2,7 @@ package moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble
 
 import moe.forpleuvoir.hiirosakura.compat.iris.IrisCompat
 import moe.forpleuvoir.hiirosakura.util.resetMatricesKeepTranslation
+import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.render.entity.feature.FeatureRenderer
 import net.minecraft.client.render.entity.feature.FeatureRendererContext
@@ -23,8 +24,12 @@ class ChatBubbleFeatureRenderer(
     ) {
         if (!ChatBubbleHandler.enabled) return
         IrisCompat.isImmediate(vertexConsumers) {
-            //需要清除原矩阵栈的旋转数据
-            ChatBubbleHandler.render(state.name, matrices.resetMatricesKeepTranslation(), it, light)
+            mc.world?.players
+                ?.find { player -> player.gameProfile.name == state.name && !player.isInvisible }
+                ?.let { player ->
+                    //需要清除原矩阵栈的旋转数据
+                    ChatBubbleHandler.render(player, matrices.resetMatricesKeepTranslation(), it)
+                }
         }
     }
 

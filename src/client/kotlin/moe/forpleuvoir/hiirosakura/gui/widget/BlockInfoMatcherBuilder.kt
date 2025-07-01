@@ -5,6 +5,7 @@ package moe.forpleuvoir.hiirosakura.gui.widget
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcher
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryBlock
+import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryMatcher
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryPos
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryProperty
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryScript
@@ -51,6 +52,9 @@ import org.joml.Vector3i
 import kotlin.jvm.optionals.getOrNull
 
 private val map: Map<Text, (Modifier, Modifier, (BlockInfoMatchEntry) -> Unit) -> IGScreenImpl> = mapOf(
+    blockInfoMatcherEntryMatcher to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (BlockInfoMatchEntry.Matcher) -> Unit ->
+        MatcherMatchEntryBuilder(modifier, screenModifier, entryConsumer = entryConsumer)
+    },
     blockInfoMatcherEntryBlock to { modifier: Modifier, screenModifier: Modifier, entryConsumer: (BlockInfoMatchEntry.Block) -> Unit ->
         BlockMatchEntryBuilder(modifier, screenModifier, entryConsumer = entryConsumer)
     },
@@ -170,6 +174,7 @@ private fun ContainerScope.EntryWrapper(
 ) {
     TextLabel(entry.translateText, modifier = Modifier.weight(1))
     when (entry) {
+        is BlockInfoMatchEntry.Matcher  -> BlockInfoMatcherSimpleInfo(entry.matcher, Modifier.hoverTip { BlockInfoMatcherInfo(entry.matcher) })
         is BlockInfoMatchEntry.Block    -> Row(
             horizontalArrangement = Arrangement.spacedBy(2f)
         ) {
@@ -192,6 +197,7 @@ private fun ContainerScope.EntryWrapper(
         click {
             val mode = MatchEntry.MatchMode.fromBoolean(!entry.mode.toBoolean())
             val newValue = when (entry) {
+                is BlockInfoMatchEntry.Matcher  -> BlockInfoMatchEntry.Matcher(entry.matcher, mode)
                 is BlockInfoMatchEntry.Block    -> BlockInfoMatchEntry.Block(entry.block, mode)
                 is BlockInfoMatchEntry.Script   -> BlockInfoMatchEntry.Script(entry.script, mode)
                 is BlockInfoMatchEntry.Pos      -> BlockInfoMatchEntry.Pos(entry.min, entry.max, mode)
@@ -202,7 +208,9 @@ private fun ContainerScope.EntryWrapper(
         }
     }
     EditButton {
+        //应该是对应Entry的编辑屏幕
         when (entry) {
+            is BlockInfoMatchEntry.Matcher  -> MatcherMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
             is BlockInfoMatchEntry.Block    -> BlockMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
             is BlockInfoMatchEntry.Script   -> ScriptMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
             is BlockInfoMatchEntry.Pos      -> PosMatchEntryBuilder(entry = entry, entryConsumer = entryConsumer)
@@ -211,6 +219,22 @@ private fun ContainerScope.EntryWrapper(
         }.open()
     }
     RemoveButton { removeAction() }
+}
+
+private fun MatcherMatchEntryBuilder(
+    modifier: Modifier = Modifier,
+    screenModifier: Modifier = Modifier,
+    entry: BlockInfoMatchEntry.Matcher = BlockInfoMatchEntry.Matcher(BlockInfoMatcher.targetBlockMatcher, MatchEntry.MatchMode.Include),
+    entryConsumer: (BlockInfoMatchEntry.Matcher) -> Unit
+): IGScreenImpl {
+    return BlockInfoMatcherBuilder(
+        entry.matcher,
+        {
+            entryConsumer(BlockInfoMatchEntry.Matcher(it, entry.mode))
+        },
+        modifier,
+        screenModifier
+    )
 }
 
 private fun BlockMatchEntryBuilder(
@@ -475,6 +499,7 @@ fun ContainerScope.BlockInfoMatcherInfo(
 @Suppress("UNCHECKED_CAST")
 fun ContainerScope.BlockInfoEntryInfo(entry: MatchEntry<BlockInfo>) {
     when (entry) {
+        is BlockInfoMatchEntry.Matcher  -> BlockInfoEntryMatcherInfo(entry)
         is BlockInfoMatchEntry.Block    -> BlockInfoEntryBlockInfo(entry)
         is BlockInfoMatchEntry.Script   -> BlockInfoEntryScriptInfo(entry)
         is BlockInfoMatchEntry.Pos      -> BlockInfoEntryPosInfo(entry)
@@ -483,12 +508,23 @@ fun ContainerScope.BlockInfoEntryInfo(entry: MatchEntry<BlockInfo>) {
     }
 }
 
+
+fun ContainerScope.BlockInfoEntryMatcherInfo(
+    entry: BlockInfoMatchEntry.Matcher,
+) = Row(
+    horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
+) {
+    ModeRect(entry)
+    TextLabel(blockInfoMatcherEntryMatcher)
+    BlockInfoMatcherSimpleInfo(entry.matcher)
+}
+
 fun ContainerScope.BlockInfoEntryBlockInfo(
     entry: BlockInfoMatchEntry.Block,
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
-    Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    ModeRect(entry)
     TextLabel(blockInfoMatcherEntryBlock)
     ItemIcon(entry.block.asItem(), .6f)
     TextLabel(entry.asText)
@@ -499,7 +535,7 @@ fun ContainerScope.BlockInfoEntryScriptInfo(
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
-    Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    ModeRect(entry)
     TextLabel(
         mutableStateBy { blockInfoMatcherEntryScript.append(entry.asText) },
         modifier = Modifier.maxWidth(180f)
@@ -511,7 +547,7 @@ fun ContainerScope.BlockInfoEntryPosInfo(
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
-    Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    ModeRect(entry)
     TextLabel(mutableStateBy { blockInfoMatcherEntryPos.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
 }
 
@@ -520,7 +556,7 @@ fun ContainerScope.BlockInfoEntryTagInfo(
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
-    Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    ModeRect(entry)
     TextLabel(mutableStateBy { blockInfoMatcherEntryTag.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
 }
 
@@ -529,7 +565,7 @@ fun ContainerScope.BlockInfoEntryPropertyInfo(
 ) = Row(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
-    Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
+    ModeRect(entry)
     TextLabel(
         mutableStateBy { blockInfoMatcherEntryProperty.append(entry.asText) },
         modifier = Modifier.maxWidth(180f)

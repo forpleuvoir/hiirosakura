@@ -4,10 +4,8 @@ import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSItemStack
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
 import moe.forpleuvoir.hiirosakura.util.*
-import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.Translatable
-import moe.forpleuvoir.ibukigourd.text.copyToText
+import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.serialization.Deserializable
@@ -15,6 +13,7 @@ import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.extensions.SerializeObjectScope
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.deserialization
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
@@ -95,6 +94,15 @@ class ItemStackMatcher(override var mode: MultiMatcher.MatchMode, entries: List<
 
     override val entries: List<ItemStackMatchEntry> = entries.toMutableList()
 
+    val simpleText
+        get() = when (entries.size) {
+            0    -> IGLang.hasNothing
+            1    -> entries[0].asText
+            else -> if (isAnyMatcher(this)) {
+                MultiMatcher.MatchMode.AnyMatch.translateText
+            } else mode.translateText.appendLiteral(":").append(IGLang.listConfigWrapperText(entries.size))
+        }
+
     override fun clone(): ItemStackMatcher {
         return ItemStackMatcher(mode, ArrayList(entries))
     }
@@ -160,17 +168,24 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     abstract val asText: Text
 
+    fun entrySerialization(scope: SerializeObjectScope.() -> Unit) = serializeObject {
+        "type" to type
+        "mode" to mode
+        scope()
+    }
+
     companion object : Deserializer<ItemStackMatchEntry> {
 
         val desMapping = mutableMapOf<String, (SerializeElement) -> ItemStackMatchEntry>(
-            "item" to { Item.deserialization(it) },
-            "name" to { Name.deserialization(it) },
-            "script" to { Script.deserialization(it) },
-            "count" to { Count.deserialization(it) },
-            "rarity" to { Rarity.deserialization(it) },
-            "enchantment" to { Enchantment.deserialization(it) },
-            "tag" to { Tag.deserialization(it) },
-            "data_component_type" to { DataComponentType.deserialization(it) }
+            Matcher.TYPE to { Matcher.deserialization(it) },
+            Item.TYPE to { Item.deserialization(it) },
+            Name.TYPE to { Name.deserialization(it) },
+            Script.TYPE to { Script.deserialization(it) },
+            Count.TYPE to { Count.deserialization(it) },
+            Rarity.TYPE to { Rarity.deserialization(it) },
+            Enchantment.TYPE to { Enchantment.deserialization(it) },
+            Tag.TYPE to { Tag.deserialization(it) },
+            DataComponentType.TYPE to { DataComponentType.deserialization(it) },
         )
 
         override fun deserialization(serializeElement: SerializeElement): ItemStackMatchEntry {
@@ -184,9 +199,32 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     }
 
-    class Item(val item: McItem, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "item") {
+    class Matcher(val matcher: ItemStackMatcher, mode: MatchEntry.MatchMode) : ItemStackMatchEntry(mode, TYPE) {
+
+        companion object : Deserializer<Matcher> {
+            const val TYPE = "matcher"
+            override fun deserialization(serializeElement: SerializeElement): Matcher {
+                return serializeElement.checkType<SerializeObject, Matcher> {
+                    Matcher(
+                        matcher = ItemStackMatcher.deserialization(it["matcher"]!!),
+                        mode = getMode(it)
+                    )
+                }.getOrThrow()
+            }
+        }
+
+        override val asText: Text get() = matcher.simpleText
+
+        override fun match(obj: ItemStack): Boolean = matcher.match(obj)
+
+        override fun serialization(): SerializeElement = entrySerialization { "matcher" to matcher.serialization() }
+
+    }
+
+    class Item(val item: McItem, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, TYPE) {
 
         companion object : Deserializer<Item> {
+            const val TYPE = "item"
             override fun deserialization(serializeElement: SerializeElement): Item {
                 return serializeElement.checkType<SerializeObject, Item> {
                     Item(
@@ -201,16 +239,15 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
         override fun match(obj: ItemStack): Boolean = obj.item == item
 
-        override fun serialization(): SerializeElement = serializeObject {
-            "type" to type
-            "mode" to mode
+        override fun serialization(): SerializeElement = entrySerialization {
             "item" to item.serialization
         }
 
     }
 
-    class Name(val name: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "name") {
+    class Name(val name: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, TYPE) {
         companion object : Deserializer<Name> {
+            const val TYPE = "name"
             override fun deserialization(serializeElement: SerializeElement): Name {
                 return serializeElement.checkType<SerializeObject, Name> {
                     Name(
@@ -226,16 +263,15 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
         override fun match(obj: ItemStack): Boolean =
             name.toRegex().matches(obj.item.name.string)
 
-        override fun serialization(): SerializeElement = serializeObject {
-            "type" to type
-            "mode" to mode
+        override fun serialization(): SerializeElement = entrySerialization {
             "name" to name
         }
     }
 
-    class Script(val script: String = defaultScript, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "script") {
+    class Script(val script: String = defaultScript, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, TYPE) {
 
         companion object : Deserializer<Script> {
+            const val TYPE = "script"
             override fun deserialization(serializeElement: SerializeElement): Script {
                 return serializeElement.checkType<SerializeObject, Script> {
                     Script(
@@ -265,17 +301,16 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             return result.getValue()
         }
 
-        override fun serialization(): SerializeElement = serializeObject {
-            "type" to type
-            "mode" to mode
+        override fun serialization(): SerializeElement = entrySerialization {
             "script" to script
         }
 
     }
 
-    class Count(val count: IntRange, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "count") {
+    class Count(val count: IntRange, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, TYPE) {
 
         companion object : Deserializer<Count> {
+            const val TYPE = "count"
             override fun deserialization(serializeElement: SerializeElement): Count {
                 return serializeElement.checkType<SerializeObject, Count> {
                     Count(
@@ -290,17 +325,16 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
         override fun match(obj: ItemStack): Boolean = obj.count in count
 
-        override fun serialization(): SerializeElement = serializeObject {
-            "type" to type
-            "mode" to mode
+        override fun serialization(): SerializeElement = entrySerialization {
             "count" to count.serialization()
         }
 
     }
 
-    class Rarity(val rarity: McRarity, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "rarity") {
+    class Rarity(val rarity: McRarity, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, TYPE) {
 
         companion object : Deserializer<Rarity> {
+            const val TYPE = "rarity"
             override fun deserialization(serializeElement: SerializeElement): Rarity {
                 return serializeElement.checkType<SerializeObject, Rarity> {
                     Rarity(
@@ -315,9 +349,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
         override fun match(obj: ItemStack): Boolean = obj.rarity == rarity
 
-        override fun serialization(): SerializeElement = serializeObject {
-            "type" to type
-            "mode" to mode
+        override fun serialization(): SerializeElement = entrySerialization {
             "rarity" to rarity
         }
 
@@ -327,9 +359,10 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
         val enchantment: RegistryEntry<McEnchantment>,
         val level: IntRange,
         mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
-    ) : ItemStackMatchEntry(mode, "enchantment") {
+    ) : ItemStackMatchEntry(mode, TYPE) {
 
         companion object : Deserializer<Enchantment> {
+            const val TYPE = "enchantment"
             override fun deserialization(serializeElement: SerializeElement): ItemStackMatchEntry.Enchantment {
                 return serializeElement.checkType<SerializeObject, Enchantment> {
                     Enchantment(
@@ -349,18 +382,17 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             return lv in level
         }
 
-        override fun serialization(): SerializeElement = serializeObject {
-            "type" to type
-            "mode" to mode
+        override fun serialization(): SerializeElement = entrySerialization {
             "enchantment" to enchantment.idAsString
             "level" to level.serialization()
         }
 
     }
 
-    class Tag(val tag: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, "tag") {
+    class Tag(val tag: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, TYPE) {
 
         companion object : Deserializer<Tag> {
+            const val TYPE = "tag"
             override fun deserialization(serializeElement: SerializeElement): Tag {
                 return serializeElement.checkType<SerializeObject, Tag> {
                     Tag(
@@ -375,18 +407,17 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
         override fun match(obj: ItemStack): Boolean = obj.hasTag(tag)
 
-        override fun serialization(): SerializeElement = serializeObject {
-            "type" to type
-            "mode" to mode
+        override fun serialization(): SerializeElement = entrySerialization {
             "tag" to tag
         }
 
     }
 
     class DataComponentType(val componentType: ComponentType<*>, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) :
-        ItemStackMatchEntry(mode, "data_component_type") {
+        ItemStackMatchEntry(mode, TYPE) {
 
         companion object : Deserializer<DataComponentType> {
+            const val TYPE = "data_component_type"
             override fun deserialization(serializeElement: SerializeElement): DataComponentType {
                 return serializeElement.checkType<SerializeObject, DataComponentType> {
                     DataComponentType(
@@ -401,9 +432,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
         override fun match(obj: ItemStack): Boolean = obj.components.contains(componentType)
 
-        override fun serialization(): SerializeElement = serializeObject {
-            "type" to type
-            "mode" to mode
+        override fun serialization(): SerializeElement = entrySerialization {
             "component_type" to componentType.id.toString()
         }
 

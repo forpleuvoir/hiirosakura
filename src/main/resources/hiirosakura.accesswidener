@@ -8,8 +8,15 @@ accessible method net/minecraft/client/Mouse onMouseButton (JIII)V
 accessible method net/minecraft/client/Mouse onMouseScroll (JDD)V
 accessible field net/minecraft/client/option/KeyBinding boundKey Lnet/minecraft/client/util/InputUtil$Key;
 
+#Style
+accessible method net/minecraft/text/Style <init> (Lnet/minecraft/text/TextColor;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Lnet/minecraft/text/ClickEvent;Lnet/minecraft/text/HoverEvent;Ljava/lang/String;Lnet/minecraft/util/Identifier;)V
+
 #DrawContext
 accessible field net/minecraft/client/gui/DrawContext client Lnet/minecraft/client/MinecraftClient;
 accessible field net/minecraft/client/gui/DrawContext matrices Lnet/minecraft/client/util/math/MatrixStack;
 accessible field net/minecraft/client/gui/DrawContext vertexConsumers Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;
 accessible field net/minecraft/client/gui/DrawContext itemRenderState Lnet/minecraft/client/render/item/ItemRenderState;
+
+#Misc
+accessible field net/minecraft/client/network/message/MessageHandler VALIDATION_ERROR_TEXT Lnet/minecraft/text/Text;
+accessible field net/minecraft/client/render/OutlineVertexConsumerProvider parent Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;

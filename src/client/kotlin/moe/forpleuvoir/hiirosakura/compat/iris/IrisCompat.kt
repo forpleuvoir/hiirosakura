@@ -1,43 +1,44 @@
 package moe.forpleuvoir.hiirosakura.compat.iris
 
+import moe.forpleuvoir.hiirosakura.mixin.client.compat.BufferSourceWrapperAccessor
 import moe.forpleuvoir.hiirosakura.util.logger
-import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.util.loader
-import moe.forpleuvoir.nebula.event.EventSubscriber
-import moe.forpleuvoir.nebula.event.Subscriber
 import net.irisshaders.iris.Iris
 import net.irisshaders.iris.layer.BufferSourceWrapper
+import net.minecraft.client.render.OutlineVertexConsumerProvider
 import net.minecraft.client.render.VertexConsumerProvider
 import java.util.function.Consumer
 
-@EventSubscriber
 object IrisCompat {
 
-    private val log = loader.logger()
+    private val log = logger()
 
-    var isIrisLoaded = false
-        private set
-
-
-    @Subscriber
-    fun init(event: ClientLifecycleEvent.ClientStartedEvent) {
+    val isIrisLoaded by lazy {
         runCatching {
-            log.info("{} mod is loaded", Iris.MODID)
-            isIrisLoaded = true
-        }
+            val hasIrisMod = loader.allMods.any { it.metadata.id == Iris.MODID }
+            if (hasIrisMod) {
+                log.info("{} mod is loaded", Iris.MODID)
+            }
+            hasIrisMod
+        }.getOrDefault(false)
     }
 
     @JvmStatic
     fun getImmediate(vertexConsumerProvider: VertexConsumerProvider): VertexConsumerProvider.Immediate? {
-        if (vertexConsumerProvider is VertexConsumerProvider.Immediate) return vertexConsumerProvider
+        when(vertexConsumerProvider){
+            is VertexConsumerProvider.Immediate -> return vertexConsumerProvider
+            is OutlineVertexConsumerProvider -> return vertexConsumerProvider.parent
+        }
         if (isIrisLoaded) {
             if (vertexConsumerProvider is BufferSourceWrapper) {
-                return vertexConsumerProvider.runCatching {
-                    val filed = this::class.java.declaredFields[0]
-                    filed.isAccessible = true
-                    val vertexConsumerProvider = filed.get(this)
-                    vertexConsumerProvider as? VertexConsumerProvider.Immediate
-                }.getOrNull()
+                val provider = vertexConsumerProvider.run {
+                    (this as BufferSourceWrapperAccessor).`hiirosakura$getBufferSource`()
+                }
+                return when (provider) {
+                    is VertexConsumerProvider.Immediate -> provider
+                    is OutlineVertexConsumerProvider    -> provider.parent
+                    else                                -> null
+                }
             }
         }
         return null

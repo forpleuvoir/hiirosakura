@@ -1,10 +1,12 @@
 package moe.forpleuvoir.hiirosakura.functional.misc.matcher
 
 import moe.forpleuvoir.hiirosakura.HiiroSakura
-import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSEntity
+import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
+import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.serialization.Deserializable
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
@@ -15,8 +17,8 @@ import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
-import net.minecraft.item.ItemStack
 import net.minecraft.registry.Registries
+import net.minecraft.screen.ScreenTexts
 import net.minecraft.util.Identifier
 
 class EntityMatcher(override var mode: MultiMatcher.MatchMode, entries: List<EntityMatchEntry>) : MultiMatcher<Entity>, Deserializable {
@@ -25,21 +27,32 @@ class EntityMatcher(override var mode: MultiMatcher.MatchMode, entries: List<Ent
 
     companion object : Deserializer<EntityMatcher> {
 
-        @JvmStatic
-        val handItemStack: ItemStack?
+        val targetEntityMatcher: EntityMatcher
             get() {
-                mc.player?.apply {
-                    if (!mainHandStack.isEmpty) return mainHandStack
-                    if (!offHandStack.isEmpty) return offHandStack
+                val targetEntity = targetEntity
+                return if (targetEntity != null) {
+                    EntityMatcher(MultiMatcher.MatchMode.AllMatch).apply {
+                        addEntry(EntityMatchEntry.Type(targetEntity.type))
+                    }
+                } else {
+                    anyMatcher
                 }
-                return null
+            }
+
+        @JvmStatic
+        val targetEntity: Entity?
+            get() {
+                return mc.targetedEntity
             }
 
         val anyMatcher
             get() = EntityMatcher(
                 mode = MultiMatcher.MatchMode.AnyMatch,
-
+                listOf(
+                    EntityMatchEntry.Type(EntityType.CREEPER, MatchEntry.MatchMode.Include),
+                    EntityMatchEntry.Type(EntityType.CREEPER, MatchEntry.MatchMode.Exclude)
                 )
+            )
 
         override fun deserialization(serializeElement: SerializeElement): EntityMatcher {
             return serializeElement.checkType<SerializeObject, EntityMatcher> { obj ->
@@ -58,17 +71,26 @@ class EntityMatcher(override var mode: MultiMatcher.MatchMode, entries: List<Ent
         fun isAnyMatcher(matcher: MultiMatcher<Entity>): Boolean {
             val mode = matcher.mode == MultiMatcher.MatchMode.AnyMatch
             if (!mode) return false
-            val itemEntries = matcher.entries.filterIsInstance<ItemStackMatchEntry.Item>()
+            val itemEntries = matcher.entries.filterIsInstance<EntityMatchEntry.Type>()
             if (itemEntries.size < 2) return false
             return itemEntries.any { entry1 ->
                 itemEntries.any { entry2 ->
-                    entry1 != entry2 && entry1.item == entry2.item && entry1.mode != entry2.mode
+                    entry1 != entry2 && entry1.entityType == entry2.entityType && entry1.mode != entry2.mode
                 }
             }
         }
     }
 
     override val entries: List<EntityMatchEntry> = entries.toMutableList()
+
+    val simpleText
+        get() = when (entries.size) {
+            0    -> IGLang.hasNothing
+            1    -> entries[0].asText
+            else -> if (isAnyMatcher(this)) {
+                MultiMatcher.MatchMode.AnyMatch.translateText
+            } else mode.translateText.appendLiteral(":").append(IGLang.listConfigWrapperText(entries.size))
+        }
 
     override fun clone(): EntityMatcher {
         return EntityMatcher(mode, ArrayList(entries))
@@ -110,7 +132,7 @@ class EntityMatcher(override var mode: MultiMatcher.MatchMode, entries: List<Ent
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as ItemStackMatcher
+        other as EntityMatcher
 
         if (mode != other.mode) return false
         if (entries != other.entries) return false
@@ -145,8 +167,13 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
     companion object : Deserializer<EntityMatchEntry> {
 
         val desMapping = mutableMapOf<String, (SerializeElement) -> EntityMatchEntry>(
-            "entity_type" to Type::deserialization,
-            "name" to Name::deserialization,
+            Matcher.TYPE to { Matcher.deserialization(it) },
+            Type.TYPE to { Type.deserialization(it) },
+            Name.TYPE to { Name.deserialization(it) },
+            DisplayName.TYPE to { DisplayName.deserialization(it) },
+            Script.TYPE to { Script.deserialization(it) },
+            UUID.TYPE to { UUID.deserialization(it) },
+            Alive.TYPE to { Alive.deserialization(it) },
         )
 
         override fun deserialization(serializeElement: SerializeElement): EntityMatchEntry {
@@ -160,13 +187,38 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
 
     }
 
-    class Type(val entityType: EntityType<*>, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, "entity_type") {
+    class Matcher(val matcher: EntityMatcher, mode: MatchEntry.MatchMode) : EntityMatchEntry(mode, TYPE) {
+
+        companion object : Deserializer<Matcher> {
+            const val TYPE = "matcher"
+            override fun deserialization(serializeElement: SerializeElement): Matcher {
+                return serializeElement.checkType<SerializeObject, Matcher> {
+                    Matcher(
+                        matcher = EntityMatcher.deserialization(it["matcher"]!!),
+                        mode = getMode(it)
+                    )
+                }.getOrThrow()
+            }
+        }
+
+        override val asText: Text get() = matcher.simpleText
+
+        override fun match(obj: Entity): Boolean = matcher.match(obj)
+
+        override fun SerializeObjectScope.entrySerialization() {
+            "matcher" to matcher.serialization()
+        }
+
+    }
+
+    class Type(val entityType: EntityType<*>, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, TYPE) {
 
         companion object : Deserializer<Type> {
+            const val TYPE = "entity_type"
             override fun deserialization(serializeElement: SerializeElement): Type {
                 return serializeElement.checkType<SerializeObject, Type> {
                     Type(
-                        entityType = Registries.ENTITY_TYPE.get(Identifier.of(serializeElement.asString)),
+                        entityType = Registries.ENTITY_TYPE.get(Identifier.of(it["entity_type"]!!.asString)),
                         mode = getMode(it)
                     )
                 }.getOrThrow()
@@ -186,13 +238,14 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
 
     }
 
-    class Name(val name: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, "name") {
+    class Name(val name: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, TYPE) {
 
         companion object : Deserializer<Name> {
+            const val TYPE = "name"
             override fun deserialization(serializeElement: SerializeElement): Name {
                 return serializeElement.checkType<SerializeObject, Name> {
                     Name(
-                        name = serializeElement.asString,
+                        name = it["name"]!!.asString,
                         mode = getMode(it)
                     )
                 }.getOrThrow()
@@ -203,11 +256,131 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
         override val asText: Text = Literal(name)
 
         override fun match(obj: Entity): Boolean {
-            return (obj.displayName?.string ?: obj.name.string) == name
+            return name.toRegex().matches(obj.name.string)
         }
 
         override fun SerializeObjectScope.entrySerialization() {
             "name" to name
+        }
+
+    }
+
+    class DisplayName(val displayName: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, TYPE) {
+
+        companion object : Deserializer<DisplayName> {
+            const val TYPE = "display_name"
+            override fun deserialization(serializeElement: SerializeElement): DisplayName {
+                return serializeElement.checkType<SerializeObject, DisplayName> {
+                    DisplayName(
+                        displayName = it["display_name"]!!.asString,
+                        mode = getMode(it)
+                    )
+                }.getOrThrow()
+            }
+
+        }
+
+        override val asText: Text = Literal(displayName)
+
+        override fun match(obj: Entity): Boolean {
+            return displayName.toRegex().matches(obj.displayName?.string ?: "")
+        }
+
+        override fun SerializeObjectScope.entrySerialization() {
+            "display_name" to displayName
+        }
+
+    }
+
+    class Script(val script: String = defaultScript, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, TYPE) {
+
+        companion object : Deserializer<Script> {
+            const val TYPE = "script"
+            override fun deserialization(serializeElement: SerializeElement): Script {
+                return serializeElement.checkType<SerializeObject, Script> {
+                    Script(
+                        script = it["script"]!!.asString,
+                        mode = getMode(it)
+                    )
+                }.getOrThrow()
+            }
+
+            val defaultScript = """
+                // The variable entity represents a wrapped Entity object [HSEntity].
+                // To indicate a successful match, set the return value by calling:
+                // result.setValue(true);
+            """.trimIndent()
+        }
+
+        override val asText: Text = Literal("Script Matcher")
+
+        override fun match(obj: Entity): Boolean {
+            val result = mutableStateOf(false)
+            ScriptExecutor(
+                script, mapOf(
+                    "entity" to HSEntity(obj),
+                    "result" to result
+                )
+            ).execute()
+            return result.getValue()
+        }
+
+        override fun SerializeObjectScope.entrySerialization() {
+            "script" to script
+        }
+
+    }
+
+    class UUID(val uuid: java.util.UUID, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, TYPE) {
+
+        companion object : Deserializer<UUID> {
+            const val TYPE = "uuid"
+            override fun deserialization(serializeElement: SerializeElement): UUID {
+                return serializeElement.checkType<SerializeObject, UUID> {
+                    UUID(
+                        uuid = java.util.UUID.fromString(it["uuid"]!!.asString),
+                        mode = getMode(it)
+                    )
+                }.getOrThrow()
+            }
+
+        }
+
+        override val asText: Text = Literal(uuid.toString())
+
+        override fun match(obj: Entity): Boolean {
+            return obj.uuid == uuid
+        }
+
+        override fun SerializeObjectScope.entrySerialization() {
+            "uuid" to uuid.toString()
+        }
+
+    }
+
+    class Alive(val alive: Boolean = true, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, TYPE) {
+
+        companion object : Deserializer<Alive> {
+            const val TYPE = "alive"
+            override fun deserialization(serializeElement: SerializeElement): Alive {
+                return serializeElement.checkType<SerializeObject, Alive> {
+                    Alive(
+                        alive = it["alive"]!!.asBoolean,
+                        mode = getMode(it)
+                    )
+                }.getOrThrow()
+            }
+
+        }
+
+        override val asText: Text = (if (alive) ScreenTexts.YES else ScreenTexts.NO).copyToText()
+
+        override fun match(obj: Entity): Boolean {
+            return obj.isAlive == alive
+        }
+
+        override fun SerializeObjectScope.entrySerialization() {
+            "alive" to alive
         }
 
     }

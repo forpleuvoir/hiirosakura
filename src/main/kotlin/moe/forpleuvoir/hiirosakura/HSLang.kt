@@ -22,11 +22,15 @@ object HSLang {
 
     val success get() = lang("success")
 
-    fun blockBreakProtection(supplier: String) = lang("gameplay.block_break_protection.toast", supplier)
+    val message get() = lang("message")
 
-    fun itemUseIntercepted(supplier: String) = lang("gameplay.item_use_intercept.toast", supplier)
+    val send get() = lang("send")
 
-    fun itemDropIntercepted(supplier: String) = lang("gameplay.item_drop_intercept.toast", supplier)
+    fun blockBreakProtection(supplier: Any) = lang("gameplay.block_break_protection.toast", supplier)
+
+    fun itemUseIntercepted(supplier: Any) = lang("gameplay.item_use_intercept.toast", supplier)
+
+    fun itemDropIntercepted(supplier: Any) = lang("gameplay.item_drop_intercept.toast", supplier)
 
     fun setConfigSuccess(key: String, value: String) = lang("script.set_config.success", key, value)
 
@@ -37,6 +41,10 @@ object HSLang {
     fun enableEvent(name: String, enabled: Boolean) = lang("event.enable.success", name).append(IGLang.coloredSwitch(enabled))
 
     fun enableEventNotFound(name: String) = lang("event.enable.not_found", name)
+
+    //------------ GUI Wrapper ------------\\
+
+    val chatBubblePreviewLock get() = lang("chat_bubble.preview.lock")
 
     //------------ Sound ------------\\
 
@@ -72,9 +80,24 @@ object HSLang {
             hover(lang("chat.bubble.server_name.comment"))
         }
 
-    val chatBubbleRegex
-        get() = lang("chat.bubble.regex").style {
-            hover(lang("chat.bubble.regex.comment"))
+    val chatBubbleServerConfig
+        get() = lang("chat.bubble.server_config").style {
+            hover(lang("chat.bubble.server_config.comment"))
+        }
+
+    val chatBubbleServerConfigRegex
+        get() = lang("chat.bubble.server_config.regex").style {
+            hover(lang("chat.bubble.server_config.regex.comment"))
+        }
+
+    val chatBubbleServerConfigEnableUUID
+        get() = lang("chat.bubble.server_config.enable_uuid").style {
+            hover(lang("chat.bubble.server_config.enable_uuid.comment"))
+        }
+
+    val chatBubbleServerConfigEnableProfile
+        get() = lang("chat.bubble.server_config.enable_profile").style {
+            hover(lang("chat.bubble.server_config.enable_profile.comment"))
         }
 
 
@@ -138,6 +161,7 @@ object HSLang {
     val fromHandItem get() = lang("from_hand_item")
     val itemStackMatcher get() = lang("item_stack_matcher")
     val handledItem get() = lang("item_stack_matcher.handled_item")
+    val itemStackMatcherEntryMatcher get() = lang("item_stack_matcher_entry.matcher")
     val itemStackMatcherEntryItem get() = lang("item_stack_matcher_entry.item")
     val itemStackMatcherEntryName get() = lang("item_stack_matcher_entry.name")
     val itemStackMatcherEntryScript get() = lang("item_stack_matcher_entry.script")
@@ -152,6 +176,7 @@ object HSLang {
     val fromTargetBlock get() = lang("from_target_block")
     val blockInfoMatcher get() = lang("block_info_matcher")
     val targetBlock get() = lang("block_info_matcher.target_block")
+    val blockInfoMatcherEntryMatcher get() = lang("block_info_matcher_entry.matcher")
     val blockInfoMatcherEntryBlock get() = lang("block_info_matcher_entry.block")
     val blockInfoMatcherEntryScript get() = lang("block_info_matcher_entry.script")
     val blockInfoMatcherEntryPos get() = lang("block_info_matcher_entry.pos")

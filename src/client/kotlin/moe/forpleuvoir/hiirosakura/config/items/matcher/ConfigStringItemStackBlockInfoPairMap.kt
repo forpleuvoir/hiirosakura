@@ -23,6 +23,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Table
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.config.item.impl.ConfigStringKeyMap
@@ -83,19 +84,19 @@ fun ContainerScope.ConfigStringItemStackBlockInfoPairMapWrapper(
                     Header {
                         TextLabel(keyTableName, modifier = Modifier.align(Alignment.CenterLeft))
                     }.Column {
-                        TextLabel(it.key.take(60), modifier = Modifier.align(Alignment.CenterLeft).minWidth(20f).maxWidth(100f))
-                    }
-
-                    Header {
-                        TextLabel(HSLang.targetBlock)
-                    }.Column {
-                        BlockInfoMatcherSimpleInfo(it.value.block, Modifier.height(10f).align(Alignment.CenterLeft))
+                        TextLabel(InlineStyleText(it.key), modifier = Modifier.align(Alignment.CenterLeft).minWidth(20f).maxWidth(100f))
                     }
 
                     Header {
                         TextLabel(HSLang.handledItem)
                     }.Column {
                         ItemStackMatcherSimpleInfo(it.value.item, Modifier.height(10f).align(Alignment.CenterLeft))
+                    }
+
+                    Header {
+                        TextLabel(HSLang.targetBlock)
+                    }.Column {
+                        BlockInfoMatcherSimpleInfo(it.value.block, Modifier.height(10f).align(Alignment.CenterLeft))
                     }
                 }
             },
@@ -111,7 +112,7 @@ fun ContainerScope.ConfigStringItemStackBlockInfoPairMapWrapper(
                         modifier = Modifier.padding(bottom = 3f).minWidth(80f)
                     )
                 }, keyWrapper = { k, v, map ->
-                    TextLabel(k, modifier = Modifier.width(120f))
+                    TextLabel(InlineStyleText(k), modifier = Modifier.width(120f))
                 }
             )
 

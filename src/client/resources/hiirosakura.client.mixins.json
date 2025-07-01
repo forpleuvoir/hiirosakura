@@ -9,6 +9,7 @@
     "ClientPlayNetworkHandlerMixin",
     "CreativeInventoryScreenMixin",
     "DisconnectedScreenMixin",
+    "MessageHandlerMixin",
     "MinecraftClientMixin",
     "SoundSystemMixin",
     "StyleMixin",

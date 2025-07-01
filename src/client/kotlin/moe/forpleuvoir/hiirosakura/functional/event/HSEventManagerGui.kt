@@ -33,6 +33,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.translateComment
 import moe.forpleuvoir.ibukigourd.text.translateText
@@ -133,7 +134,7 @@ fun ContainerScope.HSEventManagerGui(
                         Modifier.hoverText(eventSubscriber.eventType.translateComment)
                     )
                     TextLabel(Literal("=>").withColor(Colors.LIME))
-                    TextLabel(eventSubscriber.name)
+                    TextLabel(InlineStyleText(eventSubscriber.name))
                 }
                 //enabled
                 SwitchButton(mutableStateOf(eventSubscriber::enabled), modifier = Modifier.hoverText(HSLang.enable))

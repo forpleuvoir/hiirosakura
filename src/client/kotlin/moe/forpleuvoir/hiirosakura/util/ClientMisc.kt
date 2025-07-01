@@ -32,6 +32,16 @@ fun MatrixStack.resetMatricesKeepTranslation(): MatrixStack {
     return newMatrices
 }
 
+fun MatrixStack.clearRotation(): MatrixStack {
+    val translation = this.peek().positionMatrix.getTranslation(Vector3f())
+    val scale = this.peek().normalMatrix.getScale(Vector3f())
+    val newMatrices = MatrixStack()
+    newMatrices.loadIdentity()
+    newMatrices.translate(translation.x(), translation.y(), translation.z())
+    newMatrices.scale(scale.x(), scale.y(), scale.z())
+    return newMatrices
+}
+
 val MinecraftClient.targetBlock: BlockInfo?
     get() = hitBlock?.let { BlockInfo(it) }
 

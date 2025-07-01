@@ -34,6 +34,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.task.TickTask
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -100,7 +101,7 @@ fun ContainerScope.TaskManagerGui(
                 }
             }
         }
-        Button{
+        Button {
             TextLabel(HSLang.taskRunning)
             click {
                 HSTickTaskScheduler.openScreen()
@@ -158,7 +159,7 @@ fun ContainerScope.TaskManagerGui(
                     modifier = Modifier.weight(1),
                     horizontalArrangement = Arrangement.Left
                 ) {
-                    TextLabel(task.name)
+                    TextLabel(InlineStyleText(task.name))
                 }
                 //run
                 FlatButton(

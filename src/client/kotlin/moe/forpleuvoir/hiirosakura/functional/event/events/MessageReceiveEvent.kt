@@ -10,10 +10,14 @@ import moe.forpleuvoir.nebula.event.CancellableEvent
  * 本事件可以被取消，取消后将阻止消息的接收。
  *
  * @property message 接收到的消息内容。
+ *
+ * @property uuid 接收到消息发送者UUID。
  */
 class MessageReceiveEvent(
     @JvmField
-    val message: String
+    val message: String,
+    @JvmField
+    val uuid: String?,
 ) : CancellableEvent {
     override var canceled: Boolean = false
 }

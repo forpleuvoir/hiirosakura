@@ -1,6 +1,10 @@
 package moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble
 
+import com.mojang.authlib.GameProfile
 import moe.forpleuvoir.hiirosakura.functional.misc.ServerMarker
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.EntityMatchEntry
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.EntityMatcher
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher
 import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderText
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
@@ -19,15 +23,19 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.math.RotationAxis
+import org.joml.Vector2fc
+import java.util.*
 import java.util.regex.Pattern
 import kotlin.time.Duration
 import kotlin.time.TimeSource
 import kotlin.time.TimeSource.Monotonic.ValueTimeMark
 
 class ChatBubble(
+    val message: String,
     val timeMark: ValueTimeMark = TimeSource.Monotonic.markNow(),
-    val playerName: String,
-    val message: String
+    val duration: Duration = ChatBubbleHandler.duration,
+    val fadeInDuration: Duration = ChatBubbleHandler.fadeInDuration,
+    val fadeOutDuration: Duration = ChatBubbleHandler.fadeOutDuration,
 ) {
     companion object {
 
@@ -46,23 +54,35 @@ class ChatBubble(
         private const val NAME_GROUP = "name"
         private const val MESSAGE_GROUP = "message"
 
-        private const val DEFAULT_REGEX = "<(?<name>[^>]+)>\\s(?<message>.+)"
+        fun fromChatMessage(message: String, uuid: UUID?, profile: GameProfile?): ChatBubblePair? {
+            val message = message.replace("(§.)", "")
+            //有配置
+            val config = ChatBubbleHandler.serverChatBubbleConfig.asSequence().firstOrNull { (serverName, _) ->
+                //单人游戏                                          多人游戏
+                (mc.server != null && serverName == "#single") || serverName == currentServerName
+            }?.value ?: ChatBubbleServerConfig.DEFAULT_CONFIG //没有配置 使用默认配置
 
-        fun fromChatMessage(message: String): ChatBubble? {
-            val msg = message.replace("(§.)", "")
-
-            ChatBubbleHandler.matchMapping.forEach { (serverName, regex) ->
-                if (mc.server != null && serverName == "") {
-                    return extractPlayerMessage(regex, msg)
-                } else if (currentServerName == serverName) {
-                    return extractPlayerMessage(regex, msg)
-                }
-            }
-
-            return extractPlayerMessage(DEFAULT_REGEX, msg)
+            val (chatBubble, name) = extractPlayerMessage(config.regex, message) ?: return null
+            return ChatBubblePair(
+                EntityMatcher(
+                    MultiMatcher.MatchMode.AnyMatch,
+                    buildList {
+                        add(EntityMatchEntry.Name(name))
+                        add(EntityMatchEntry.DisplayName(name))
+                        if (config.enableUUID && uuid != null) {
+                            add(EntityMatchEntry.UUID(uuid))
+                        }
+                        if (config.enableProfile && profile != null) {
+                            add(EntityMatchEntry.Name(profile.name))
+                            add(EntityMatchEntry.DisplayName(profile.name))
+                        }
+                    }
+                ),
+                chatBubble
+            )
         }
 
-        private fun extractPlayerMessage(regex: String, message: String): ChatBubble? {
+        private fun extractPlayerMessage(regex: String, message: String): Pair<ChatBubble, String>? {
             runCatching {
                 val pattern = Pattern.compile(regex)
                 val matcher = pattern.matcher(message)
@@ -70,12 +90,11 @@ class ChatBubble(
                     val name: String? = matcher.group(NAME_GROUP)
                     val msg: String? = matcher.group(MESSAGE_GROUP)
                     if (name != null && msg != null) {
-                        return ChatBubble(
-                            playerName = name,
-                            message = msg
-                        )
+                        return ChatBubble(msg) to name
                     }
                 }
+            }.onFailure {
+                it.printStackTrace()
             }
             return null
         }
@@ -86,15 +105,17 @@ class ChatBubble(
             fadeOutDuration: Duration,
             timeMark: ValueTimeMark
         ): Float {
-            val progress = (timeMark.elapsedNow() / duration).coerceIn(0.0, 1.0)
-            val fadeInRatio = (fadeInDuration / duration).coerceIn(0.001, 1.0)
-            val fadeOutRatio = (fadeOutDuration / duration).coerceIn(0.001, 1.0)
+            val elapsedTime = timeMark.elapsedNow()
 
             // 计算透明度
             val alpha = when {
-                progress < fadeInRatio      -> (progress / fadeInRatio).toFloat()
-                progress < 1 - fadeOutRatio -> 1f
-                else                        -> (1f - (progress - (1 - fadeOutRatio)) / fadeOutRatio).toFloat()
+                elapsedTime < fadeInDuration ->
+                    (elapsedTime / fadeInDuration).toFloat().coerceIn(0.0f, 1.0f)
+
+                elapsedTime > duration - fadeOutDuration ->
+                    (1f - ((elapsedTime - (duration - fadeOutDuration)) / fadeOutDuration)).toFloat().coerceIn(0.0f, 1.0f)
+
+                else -> 1f
             }
             return alpha
         }
@@ -116,29 +137,34 @@ class ChatBubble(
         arrowBox = Box(textBox.center.x() - ARROW.width / 2, textureBox.bottom, Size(ARROW.width, ARROW.height - ARROW.corner.top))
     }
 
-    val shouldRemove: Boolean get() = timeMark.elapsedNow() > ChatBubbleHandler.duration
+    val shouldRemove: Boolean get() = timeMark.elapsedNow() > duration
 
-    fun render(matrices: MatrixStack, vertexConsumers: VertexConsumerProvider.Immediate, light: Int) {
+    fun render(
+        matrices: MatrixStack,
+        vertexConsumers: VertexConsumerProvider.Immediate,
+        facingCamera: Boolean = true,
+        scale: Vector2fc = ChatBubbleHandler.scale,
+        offset: Vector2fc = ChatBubbleHandler.offset
+    ) {
         val alpha = calculateAlpha(
-            ChatBubbleHandler.duration,
-            ChatBubbleHandler.fadeInDuration,
-            ChatBubbleHandler.fadeOutDuration,
+            duration,
+            fadeInDuration,
+            fadeOutDuration,
             timeMark
         ).coerceIn(0.05f, 1f)
         matrices.push()
 
-        val offset = ChatBubbleHandler.offset
-        matrices.translate(offset.x(), offset.y() + 1.15f, 0f)
-
-        val camera = mc.gameRenderer.camera
-
-        matrices.multiply(RotationAxis.POSITIVE_Y.rotation(-camera.yaw * (Math.PI.toFloat() / 180F)))
-        if (!ChatBubbleHandler.onlyYRotation) {
-            matrices.multiply(RotationAxis.POSITIVE_X.rotation(camera.pitch * (Math.PI.toFloat() / 180F))) // 垂直方向
-        }
-
-        val scale = ChatBubbleHandler.scale
         val s = -0.025f
+
+        matrices.translate(offset.x(), offset.y() + 1.05f + textBox.halfHeight * -s, 0f)
+
+        if (facingCamera) {
+            val camera = mc.gameRenderer.camera
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotation(-camera.yaw * (Math.PI.toFloat() / 180F)))
+            if (!ChatBubbleHandler.onlyYRotation) {
+                matrices.multiply(RotationAxis.POSITIVE_X.rotation(camera.pitch * (Math.PI.toFloat() / 180F))) // 垂直方向
+            }
+        }
 
         matrices.scale(scale.x() * s, scale.y() * s, -s)
         enableDepthTest()

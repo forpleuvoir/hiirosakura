@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 
 @Mixin(Style.class)
-public class StyleMixin {
+public abstract class StyleMixin {
 
     @Inject(method = "isObfuscated", at = @At("HEAD"), cancellable = true)
     public void hiirosakura$isObfuscated(CallbackInfoReturnable<Boolean> cir) {

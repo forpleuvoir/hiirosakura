@@ -23,7 +23,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.input.KeyBind
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
-import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Color
@@ -109,13 +109,13 @@ object QuickTickTaskExecuteScreen : ModConfigContainer("quick_tick_task_execute"
                             mc.currentScreen?.close()
                         }
                     ) {
-                        TextLabel(Literal(task.name), Modifier.minWidth(120f))
+                        TextLabel(InlineStyleText(task.name), Modifier.minWidth(120f))
                     }.open()
                 }
             },
             selectedRenderer = { item, context, position, mouseX, mouseY, delta ->
                 context.renderAlignmentText(
-                    item?.name?.let { Literal(it) } ?: HSLang.taskUnSelected,
+                    item?.name?.let { InlineStyleText(it) } ?: HSLang.taskUnSelected,
                     Box(position.x() - 40f, position.y() - 20f, Size(80f, 40f)),
                     color = Colors.WHITE
                 )

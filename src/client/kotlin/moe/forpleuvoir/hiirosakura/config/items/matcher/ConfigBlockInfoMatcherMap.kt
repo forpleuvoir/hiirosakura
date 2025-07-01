@@ -19,6 +19,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.DeleteButton
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.nebula.config.container.ConfigContainer
 import moe.forpleuvoir.nebula.config.item.impl.ConfigStringKeyMap
@@ -64,7 +65,7 @@ fun ContainerScope.BlockInfoMatcherMapWrapper(
                 Header {
                     TextLabel(keyTableName)
                 }.Column {
-                    TextLabel(it.key, modifier = Modifier.align(Alignment.CenterLeft))
+                    TextLabel(InlineStyleText(it.key), modifier = Modifier.align(Alignment.CenterLeft))
                 }
                 Header {
                     TextLabel(HSLang.autoReplantMapEntryReplantItem)
@@ -84,7 +85,7 @@ fun ContainerScope.BlockInfoMatcherMapWrapper(
                         modifier = Modifier.padding(bottom = 3f).minWidth(80f)
                     )
                 }, keyWrapper = { k, v, map ->
-                    TextLabel(k, modifier = Modifier.maxWidth(120f))
+                    TextLabel(InlineStyleText(k), modifier = Modifier.maxWidth(120f))
                 }
             )
 

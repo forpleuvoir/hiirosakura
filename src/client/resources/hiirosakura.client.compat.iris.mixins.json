@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "moe.forpleuvoir.hiirosakura.mixin.client.compat",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "moe.forpleuvoir.hiirosakura.compat.mixinconfigplugin.IrisCompatMixinConfigPlugin",
+  "client": [
+    "BufferSourceWrapperAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": []
+}

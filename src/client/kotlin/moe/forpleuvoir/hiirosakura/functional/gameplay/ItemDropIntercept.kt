@@ -21,7 +21,7 @@ object ItemDropIntercept : ModConfigContainer("item_drop_intercept") {
                 config,
                 modifier,
                 keyTableName = HSLang.name,
-                matcherTableName = HSLang.handledItem,
+                matcherTableName = HSLang.handheldItem,
             )
         }
 

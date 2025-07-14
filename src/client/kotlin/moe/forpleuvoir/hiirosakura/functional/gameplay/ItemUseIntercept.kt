@@ -24,7 +24,7 @@ object ItemUseIntercept : ModConfigContainer("item_use_intercept") {
                 config, modifier,
                 keyTableName = HSLang.name,
                 blockInfoTableName = HSLang.targetBlock,
-                itemStackTableName = HSLang.handledItem,
+                itemStackTableName = HSLang.handheldItem,
             )
         }
 

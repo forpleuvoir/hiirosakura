@@ -11,6 +11,7 @@ import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryProperty
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryScript
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryTag
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.*
+import moe.forpleuvoir.hiirosakura.util.lateInitValueOf
 import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -76,7 +77,8 @@ fun BlockInfoMatcherBuilder(
     matcher: BlockInfoMatcher,
     matcherConsumer: (BlockInfoMatcher) -> Unit,
     modifier: Modifier = Modifier,
-    screenModifier: Modifier = Modifier
+    screenModifier: Modifier = Modifier,
+    title: Text = blockInfoMatcher
 ): IGScreenImpl {
     val matcher = matcher.clone()
     return Dialog(
@@ -88,7 +90,7 @@ fun BlockInfoMatcherBuilder(
     ) {
         var onChanged = {}
         val selectedMode: MutableState<MultiMatcher.MatchMode?> = mutableStateOf(matcher.mode)
-        TextLabel(blockInfoMatcher)
+        TextLabel(title)
         Column(
             verticalArrangement = Arrangement.spacedBy(2f),
         ) {
@@ -226,16 +228,16 @@ private fun MatcherMatchEntryBuilder(
     screenModifier: Modifier = Modifier,
     entry: BlockInfoMatchEntry.Matcher = BlockInfoMatchEntry.Matcher(BlockInfoMatcher.targetBlockMatcher, MatchEntry.MatchMode.Include),
     entryConsumer: (BlockInfoMatchEntry.Matcher) -> Unit
-): IGScreenImpl {
-    return BlockInfoMatcherBuilder(
-        entry.matcher,
-        {
-            entryConsumer(BlockInfoMatchEntry.Matcher(it, entry.mode))
-        },
-        modifier,
-        screenModifier
-    )
-}
+): IGScreenImpl = BlockInfoMatcherBuilder(
+    entry.matcher,
+    {
+        entryConsumer(BlockInfoMatchEntry.Matcher(it, entry.mode))
+    },
+    modifier,
+    screenModifier,
+    blockInfoMatcherEntryMatcher
+)
+
 
 private fun BlockMatchEntryBuilder(
     modifier: Modifier = Modifier,
@@ -332,26 +334,37 @@ private fun TagMatchEntryBuilder(
         entrySupplier = { mode -> BlockInfoMatchEntry.Tag(tag, mode) },
         entryConsumer = entryConsumer
     ) {
-        val editor = TextEditor(modifier = Modifier.width(200f)) {
-            text = tag
-            textConsumer { tag = it }
-        }
-        tags?.let { tags ->
-            if (tags.isEmpty()) return@let
-            Selector(
-                tags,
-                modifier = Modifier.width(200f).hoverText(HSLang.fromTargetBlock),
-                onSelected = {
-                    editor.text = it
-                    tag = it
-                },
-                selectedWrapper = {
-                    TextLabel(it, modifier = Modifier.weight(1))
-                },
-                optionWrapper = {
-                    TextLabel(it, modifier = Modifier.width(tags.maxWidth + 1))
+        var editor by lateInitValueOf<TextEditorWidget>()
+        Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
+            Column(horizontalAlignment = Alignment.Left,verticalArrangement = Arrangement.spacedBy(5f)) {
+                if (!tags.isNullOrEmpty()) {
+                    TextLabel(HSLang.getFromTargetBlock, modifier = Modifier.height(20f))
                 }
-            )
+                TextLabel(HSLang.tag, modifier = Modifier.height(20f))
+            }
+            Column(horizontalAlignment = Alignment.Right,verticalArrangement = Arrangement.spacedBy(5f)) {
+                if (!tags.isNullOrEmpty()) {
+                    Selector(
+                        tags,
+                        modifier = Modifier.width(200f),
+                        onSelected = {
+                            editor.text = it
+                            tag = it
+                        },
+                        selectedWrapper = {
+                            TextLabel(it, modifier = Modifier.weight(1))
+                        },
+                        optionWrapper = {
+                            TextLabel(it, modifier = Modifier.width(tags.maxWidth + 1))
+                        }
+                    )
+                }
+                TextEditor(modifier = Modifier.width(200f)) {
+                    text = tag
+                    textConsumer { tag = it }
+                    editor = owner()
+                }
+            }
         }
     }
 }
@@ -382,41 +395,50 @@ private fun PropertyMatchEntryBuilder(
         entrySupplier = { mode -> BlockInfoMatchEntry.Property(key to value, mode) },
         entryConsumer = entryConsumer
     ) {
-        var k: TextEditorWidget? = null
-        var v: TextEditorWidget? = null
-        Row {
-            k = TextEditor(modifier = Modifier.width(120f)) {
-                text = key
-                textConsumer { key = it }
-            }
-            TextLabel(" = ")
-            v = TextEditor(modifier = Modifier.width(120f)) {
-                text = value
-                textConsumer { value = it }
+        var k by lateInitValueOf<TextEditorWidget>()
+        var v by lateInitValueOf<TextEditorWidget>()
+        Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
+            Column(horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.spacedBy(5f)) {
+                if (!properties.isNullOrEmpty()) {
+                    TextLabel(HSLang.getFromTargetBlock, modifier = Modifier.height(20f))
+                }
+                TextLabel(HSLang.blockProperty, modifier = Modifier.height(20f))
             }
 
-        }
-        properties?.let { properties ->
-            if (properties.isEmpty()) return@let
-            Selector(
-                properties,
-                modifier = Modifier.matchSibling().hoverText(HSLang.fromTargetBlock),
-                onSelected = { (kt, vt) ->
-                    k?.text = kt
-                    key = kt
-                    v?.text = vt
-                    value = vt
-                },
-                selectedWrapper = {
-                    TextLabel("${it.first} = ${it.second}", modifier = Modifier.weight(1))
-                },
-                optionWrapper = {
-                    TextLabel(
-                        "${it.first} = ${it.second}",
-                        modifier = Modifier.width(properties.map { p -> "${p.first} = ${p.second}" }.maxWidth + 1)
+            Column(horizontalAlignment = Alignment.Right, verticalArrangement = Arrangement.spacedBy(5f)) {
+                if (!properties.isNullOrEmpty()) {
+                    Selector(
+                        properties,
+                        modifier = Modifier.matchSibling(),
+                        onSelected = { (kt, vt) ->
+                            k.text = kt
+                            key = kt
+                            v.text = vt
+                            value = vt
+                        },
+                        selectedWrapper = {
+                            TextLabel("${it.first} = ${it.second}", modifier = Modifier.weight(1))
+                        },
+                        optionWrapper = {
+                            TextLabel(
+                                "${it.first} = ${it.second}",
+                                modifier = Modifier.width(properties.map { p -> "${p.first} = ${p.second}" }.maxWidth + 1)
+                            )
+                        }
                     )
                 }
-            )
+                Row {
+                    k = TextEditor(modifier = Modifier.width(100f)) {
+                        text = key
+                        textConsumer { key = it }
+                    }
+                    TextLabel(" = ")
+                    v = TextEditor(modifier = Modifier.width(60f)) {
+                        text = value
+                        textConsumer { value = it }
+                    }
+                }
+            }
         }
     }
 }

@@ -4,7 +4,7 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher.Companion.targetBlockMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher.Companion.handItemMatcher
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher.Companion.handheldItemMatcher
 import moe.forpleuvoir.hiirosakura.gui.widget.BlockInfoMatcherSimpleInfo
 import moe.forpleuvoir.hiirosakura.gui.widget.BlockInfoMatcherTableColumn
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemStackMatcherSimpleInfo
@@ -74,7 +74,7 @@ fun ContainerScope.ConfigStringItemStackBlockInfoPairMapWrapper(
         TableConfigMapWrappedButton(
             config,
             title = config.translateTextWithParent(1, " -> "),
-            newValue = { mapEntry("block to item matcher ${(it.count())}", handItemMatcher to targetBlockMatcher) },
+            newValue = { mapEntry("block to item matcher ${(it.count())}", handheldItemMatcher to targetBlockMatcher) },
             hoverTableScope = {},
             hoverContent = {
                 Table(
@@ -88,7 +88,7 @@ fun ContainerScope.ConfigStringItemStackBlockInfoPairMapWrapper(
                     }
 
                     Header {
-                        TextLabel(HSLang.handledItem)
+                        TextLabel(HSLang.handheldItem)
                     }.Column {
                         ItemStackMatcherSimpleInfo(it.value.item, Modifier.height(10f).align(Alignment.CenterLeft))
                     }

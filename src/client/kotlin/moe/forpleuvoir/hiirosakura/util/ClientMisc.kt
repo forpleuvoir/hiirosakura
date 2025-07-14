@@ -3,6 +3,9 @@ package moe.forpleuvoir.hiirosakura.util
 import kotlinx.coroutines.delay
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfo
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.util.ModLogger
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -19,6 +22,8 @@ import java.awt.TrayIcon
 import kotlin.reflect.KClass
 
 private val log = logger("ClientMisc")
+
+val registryManager get() = mc.player?.world?.registryManager
 
 val MinecraftClient.tooltipType: TooltipType
     get() = this.options.advancedItemTooltips.pick(TooltipType.ADVANCED, TooltipType.BASIC)
@@ -48,6 +53,19 @@ val MinecraftClient.targetBlock: BlockInfo?
 fun closeScreen() = mc.currentScreen?.close()
 
 internal fun identifier(path: String): Identifier = identifier(HiiroSakura.MOD_ID, path)
+
+fun Identifier.asTranslateText(prefix: String? = null, suffix: String? = null): Text {
+    return if (prefix != null && suffix != null)
+        Translatable(this.toTranslationKey(prefix, suffix), this.toString())
+    else if (prefix != null)
+        Translatable(this.toTranslationKey(prefix), this.toString())
+    else if (suffix != null)
+        Translatable(this.toTranslationKey(suffix), this.toString())
+    else
+        Translatable(this.toTranslationKey(), this.toString())
+}
+
+fun Identifier.asText(): Text = Literal(this.toString())
 
 internal fun Any.logger(): ModLogger = ModLogger(this::class, HiiroSakura.MOD_NAME)
 

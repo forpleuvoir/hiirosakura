@@ -7,18 +7,13 @@ import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import net.minecraft.component.ComponentType
 import net.minecraft.component.DataComponentTypes
-import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.Item
 import net.minecraft.item.Item.TooltipContext
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.item.tooltip.TooltipType
-import net.minecraft.registry.BuiltinRegistries
 import net.minecraft.registry.Registries
-import net.minecraft.registry.RegistryKeys
-import net.minecraft.registry.entry.RegistryEntry
 import net.minecraft.util.Identifier
-import kotlin.jvm.optionals.getOrNull
 
 fun ItemStack.getEnchantmentTextWithLvl(
     context: TooltipContext,
@@ -47,10 +42,3 @@ fun ItemStack.hasTag(tag: String): Boolean = this.streamTags().anyMatch { it.id.
 
 val ComponentType<*>.id get() = Registries.DATA_COMPONENT_TYPE.getId(this)
 
-val ENCHANTMENT_LIST: List<RegistryEntry.Reference<Enchantment>> by lazy {
-    BuiltinRegistries.createWrapperLookup().getOrThrow(RegistryKeys.ENCHANTMENT).run {
-        streamKeys().map { registryKey ->
-            (this.getOptional(registryKey).getOrNull() as RegistryEntry.Reference<Enchantment>)
-        }.toList()
-    }
-}

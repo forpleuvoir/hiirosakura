@@ -1,13 +1,15 @@
 package moe.forpleuvoir.hiirosakura.test
 
+import com.mojang.serialization.JsonOps
 import moe.forpleuvoir.hiirosakura.HiiroSakura
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.ItemStackEditor
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher
 import moe.forpleuvoir.hiirosakura.gui.widget.BlockInfoMatcherBuilder
-import moe.forpleuvoir.hiirosakura.gui.widget.ItemSelector
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemStackMatcherBuilder
 import moe.forpleuvoir.hiirosakura.gui.widget.RouletteSelector
+import moe.forpleuvoir.hiirosakura.util.registryManager
 import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager
 import moe.forpleuvoir.ibukigourd.event.events.ModInitializerEvent
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderAlignmentText
@@ -17,20 +19,27 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
-import moe.forpleuvoir.ibukigourd.gui.widget.ItemIcon
 import moe.forpleuvoir.ibukigourd.gui.widget.renderItem
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.util.NebulaOps
+import moe.forpleuvoir.ibukigourd.util.logger
+import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.common.api.ExperimentalApi
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
+import moe.forpleuvoir.nebula.serialization.gson.gson
+import moe.forpleuvoir.nebula.serialization.json.JsonSerializer.Companion.dumpAsJson
 import net.minecraft.client.font.TextRenderer
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
+import kotlin.jvm.optionals.getOrNull
 
 @EventSubscriber
 object TestInitialization {
+    internal val log = logger("HS TEST")
 
     @Subscriber
     fun init(event: ModInitializerEvent) {
@@ -46,7 +55,7 @@ object TestInitialization {
                 testScreen().open()
             }
             register(Keyboard.KP_2) {
-                test2().open()
+                test2()
             }
             register(Keyboard.KP_3) {
                 test3().open()
@@ -62,12 +71,30 @@ object TestInitialization {
     }
 }
 
-fun testScreen() = BoxScreen {
-    ItemIcon(Items.BEACON)
+fun testScreen() = ItemStackEditor { stack ->
+    mc.player!!.inventory.insertStack(stack)
 }
 
-fun test2() = BoxScreen {
-    ItemSelector()
+
+@OptIn(ExperimentalApi::class)
+fun test2() {
+    runCatching {
+        ItemStackMatcher.handheldItemStack?.let { item ->
+            ItemStack.CODEC.encodeStart(registryManager!!.getOps(NebulaOps), item).resultOrPartial {
+                TestInitialization.log.info(it)
+            }.getOrNull()?.let {
+                TestInitialization.log.info(it.dumpAsJson(true))
+            }
+            ItemStack.CODEC.encodeStart(registryManager!!.getOps(JsonOps.INSTANCE), item).resultOrPartial {
+                TestInitialization.log.info(it)
+            }.getOrNull()?.let {
+                TestInitialization.log.info(gson.toJson(it))
+            }
+
+        }
+    }.onFailure {
+        TestInitialization.log.error(it)
+    }
 }
 
 fun test3() = BoxScreen {

@@ -3,7 +3,7 @@ package moe.forpleuvoir.hiirosakura.config.items
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble.ChatBubbleServerConfig
 import moe.forpleuvoir.hiirosakura.functional.misc.ServerMarker
-import moe.forpleuvoir.hiirosakura.gui.widget.EditButton
+import moe.forpleuvoir.hiirosakura.gui.widget.ExpandableTextEditor
 import moe.forpleuvoir.hiirosakura.util.closeScreen
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateTextWithParent
@@ -19,7 +19,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.*
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
-import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
 import moe.forpleuvoir.ibukigourd.gui.widget.DialogContent
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.DeleteButton
@@ -28,8 +27,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Table
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.TableScope
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -110,7 +107,7 @@ fun ContainerScope.ConfigStringChatBubbleServerConfigMapWrapper(
                     )
                 },
                 keyWrapper = { k, v, map ->
-                    TextLabel(Literal(k), modifier = Modifier.maxWidth(35f))
+                    TextLabel(Literal(k.ifEmpty { " " }), modifier = Modifier.maxWidth(35f))
                 },
                 modifier = { Modifier.minWidth(80f).hoverText(IGLang.edit.appendLiteral(" ").append(keyTableName)) }
             )
@@ -188,7 +185,7 @@ fun ContainerScope.ChatBubbleServerConfigWrapper(
     }
 ) {
     TextLabel(
-        config.regex,
+        config.regex.ifEmpty { " " },
         modifier = modifier.maxWidth(80f)
     )
     click {
@@ -206,19 +203,8 @@ fun ContainerScope.ChatBubbleServerConfigWrapper(
                 Column(Modifier.width(260f), verticalArrangement = Arrangement.spacedBy(5f)) {
                     Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
                         TextLabel(HSLang.chatBubbleServerConfigRegex)
-                        Row {
-                            TextEditor { bindState(regex) }
-                            EditButton {
-                                Dialog(Modifier.maxWidth(330f).maxHeight(185f)) {
-                                    TextLabel(HSLang.chatBubbleServerConfigRegex)
-                                    TextArea(Modifier.fill().weight(1)) {
-                                        bindState(regex)
-                                    }
-                                }.open()
-                            }
-                        }
+                        ExpandableTextEditor(regex, HSLang.chatBubbleServerConfigRegex, textEditorModifier = { Modifier.weight(1) })
                     }
-
                     Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
                         TextLabel(HSLang.chatBubbleServerConfigEnableUUID)
                         SwitchButton(uuid)

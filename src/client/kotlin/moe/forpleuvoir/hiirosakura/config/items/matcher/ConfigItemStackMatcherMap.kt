@@ -2,7 +2,7 @@ package moe.forpleuvoir.hiirosakura.config.items.matcher
 
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher.Companion.handItemMatcher
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher.Companion.handheldItemMatcher
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemStackMatcherSimpleInfo
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemStackMatcherTableColumn
 import moe.forpleuvoir.ibukigourd.IGLang
@@ -61,7 +61,7 @@ fun ContainerScope.ItemStackMatcherMapWrapper(
             config,
             title = config.translateTextWithParent(1, " -> "),
             newValue = {
-                mapEntry("${HSLang.itemStackMatcher.plainText} ${(it.count())}", handItemMatcher)
+                mapEntry("${HSLang.itemStackMatcher.plainText} ${(it.count())}", handheldItemMatcher)
             },
             hoverTableScope = {
                 Header {

@@ -3,6 +3,7 @@ package moe.forpleuvoir.hiirosakura.gui.widget
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.gui.widget.DataType.Array
 import moe.forpleuvoir.hiirosakura.gui.widget.DataType.Object
+import moe.forpleuvoir.hiirosakura.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderBox
@@ -12,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
@@ -62,7 +64,7 @@ fun ContainerScope.TreeNodeEditor(
 ) = Column(
     verticalArrangement = Arrangement.spacedBy(4f),
 ) {
-    var recompose: (() -> Unit)? = null
+    var recompose by lateInitValueOf<() -> Unit>()
     Row(
         modifier = Modifier.fill(),
         horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Left)
@@ -76,7 +78,7 @@ fun ContainerScope.TreeNodeEditor(
                     keyPredicate = { !data.containsKey(it) },
                 ) { key, value, type ->
                     data[key] = value
-                    recompose?.invoke()
+                    recompose()
                 }.open()
             }
         }
@@ -96,14 +98,11 @@ fun ContainerScope.TreeNodeEditor(
                     }
                 }, {
                     data.remove(key)
-                    recompose?.invoke()
+                    recompose()
                 }
             )
         }
-    }.apply {
-        recompose = {
-            executeRecompose()
-        }
+        recompose = { executeRecompose() }
     }
 }
 

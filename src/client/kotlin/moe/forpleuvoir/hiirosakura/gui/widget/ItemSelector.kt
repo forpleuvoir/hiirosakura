@@ -1,8 +1,8 @@
 package moe.forpleuvoir.hiirosakura.gui.widget
 
-import moe.forpleuvoir.hiirosakura.util.ENCHANTMENT_LIST
 import moe.forpleuvoir.hiirosakura.util.closeScreen
 import moe.forpleuvoir.hiirosakura.util.id
+import moe.forpleuvoir.hiirosakura.util.registryManager
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -29,6 +29,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -39,8 +40,11 @@ import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 import net.minecraft.component.ComponentType
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.Item
+import net.minecraft.registry.BuiltinRegistries
 import net.minecraft.registry.Registries
+import net.minecraft.registry.RegistryKeys
 import net.minecraft.registry.entry.RegistryEntry
+import kotlin.jvm.optionals.getOrNull
 
 fun ContainerScope.ItemSelector(
     item: MutableState<Item>,
@@ -92,7 +96,8 @@ fun ContainerScope.ItemSelector(
     items: List<Item> = Registries.ITEM.toList(),
     onSelected: (Item) -> Unit = {},
     selectorBGColor: ARGBColor = Color(0xffffccf0),
-    optionsDirection: List<Direction> = listOf(Direction.Bottom,Direction.Right,Direction.Top,Direction.Left),
+    optionsDirection: List<Direction> = listOf(Direction.Bottom, Direction.Right, Direction.Top, Direction.Left),
+    amountStep: Float? = null,
     modifier: Modifier = Modifier
 ) = Button(
     modifier.attachLeft {
@@ -113,7 +118,7 @@ fun ContainerScope.ItemSelector(
             modifier = Modifier.disableRender().margin(0f).padding(0f),
             optionalDirection = notifiableList(optionsDirection)
         ) {
-            ItemSelector(items = items, bgColor = selectorBGColor, onSelected = {
+            ItemSelector(items = items, bgColor = selectorBGColor, amountStep = amountStep, onSelected = {
                 item.setValue(it)
                 onSelected(it)
                 text.setValue(it.name.copyToText())
@@ -137,6 +142,7 @@ fun ContainerScope.ItemSelector(
     searchBarModifier: ColumnScope.() -> Modifier = { Modifier.matchSibling() },
     listWrapperModifier: ColumnScope.() -> Modifier = { Modifier },
     listModifier: RowScope.() -> Modifier = { Modifier.height(147f).width(147f) },
+    amountStep: Float? = null
 ) = Column(
     modifier = modifier.attachLeft {
         padding(5)
@@ -173,6 +179,7 @@ fun ContainerScope.ItemSelector(
         },
         listModifier = listModifier
     ) {
+        amountStep?.let(::amountStep)
         if (showList.isEmpty()) {
             TextLabel(IGLang.hasNothing)
             return@ColumnListWrapped
@@ -222,6 +229,7 @@ fun ContainerScope.DataComponentTypeSelector(
     searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
     listModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
+    amountStep: Float? = 15f,
     scope: DropDownMenuScope.() -> Unit = {}
 ) = SelectorWithSearcher(
     options = componentTypes,
@@ -237,6 +245,7 @@ fun ContainerScope.DataComponentTypeSelector(
     searchBarModifier = searchBarModifier,
     listModifier = listModifier,
     optionsDirection = optionsDirection,
+    amountStep = amountStep,
     scope = scope
 )
 
@@ -261,6 +270,7 @@ fun ContainerScope.EnchatmentSelector(
     searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
     listModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
+    amountStep: Float? = 15f,
     scope: DropDownMenuScope.() -> Unit = {}
 ) = SelectorWithSearcher(
     options = enchantments,
@@ -277,5 +287,62 @@ fun ContainerScope.EnchatmentSelector(
     searchBarModifier = searchBarModifier,
     listModifier = listModifier,
     optionsDirection = optionsDirection,
+    amountStep = amountStep,
     scope = scope
 )
+
+@JvmName("EnchatmentSelectorString")
+fun ContainerScope.EnchatmentSelector(
+    enchantment: MutableState<String>,
+    enchantments: List<String> = ENCHANTMENT_ID_LIST,
+    onSelected: (String) -> Unit = {},
+    selectedColor: ARGBColor = defaultSelectedColor,
+    selectedWrapper: DropDownMenuScope.(String) -> IGWidget = {
+        TextLabel(ecnchantmentDescription(it), modifier = Modifier.weight(1))
+    },
+    optionWrapper: ButtonScope.(String) -> IGWidget = {
+        TextLabel(ecnchantmentDescription(it), modifier = Modifier.weight(1))
+    },
+    modifier: Modifier = Modifier.width(120f),
+    searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
+    listModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
+    optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
+    amountStep: Float? = 15f,
+    scope: DropDownMenuScope.() -> Unit = {}
+) = SelectorWithSearcher(
+    options = enchantments,
+    predicate = { type, str ->
+        ecnchantmentDescription(type).string?.contains(str) == true
+    },
+    selected = enchantment,
+    checker = { a, b -> a == b },
+    onSelected = onSelected,
+    selectedColor = selectedColor,
+    selectedWrapper = selectedWrapper,
+    optionWrapper = optionWrapper,
+    modifier = modifier,
+    searchBarModifier = searchBarModifier,
+    listModifier = listModifier,
+    optionsDirection = optionsDirection,
+    amountStep = amountStep,
+    scope = scope
+)
+
+val ENCHANTMENT_LIST: List<RegistryEntry<Enchantment>>
+    get() = registryManager?.getOrThrow(RegistryKeys.ENCHANTMENT)?.indexedEntries?.toList() ?: emptyList()
+
+
+val ENCHANTMENT_ID_LIST get() = ENCHANTMENT_LIST.map { it.idAsString }
+
+fun ecnchantmentDescription(id: String): Text {
+    return ENCHANTMENT_LIST.find { it.idAsString == id }?.value()?.description?.copyToText() ?: Literal(id)
+}
+
+@Deprecated("The type of enchantment registered by the client, after a forced transfer, is not recommended", replaceWith = ReplaceWith("ENCHANTMENT_LIST"))
+val CLIENT_ENCHANTMENT_LIST: List<RegistryEntry.Reference<Enchantment>> by lazy {
+    BuiltinRegistries.createWrapperLookup().getOrThrow(RegistryKeys.ENCHANTMENT).run {
+        streamKeys().map { registryKey ->
+            (this.getOptional(registryKey).getOrNull() as RegistryEntry.Reference<Enchantment>)
+        }.toList()
+    }
+}

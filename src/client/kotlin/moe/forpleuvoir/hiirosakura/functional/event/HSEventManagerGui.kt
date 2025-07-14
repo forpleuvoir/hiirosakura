@@ -81,7 +81,8 @@ fun ContainerScope.HSEventManagerGui(
         EventSelector(
             listOf(Event::class) + HSEventManager.subscribableEvents,
             selectedEvent,
-            modifier = Modifier.width(120f).height(20f)
+            modifier = Modifier.width(120f).height(20f),
+            amountStep = 15f
         )
         SearchBar(
             textConsumer = { str ->

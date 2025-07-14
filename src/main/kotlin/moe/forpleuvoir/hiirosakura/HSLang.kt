@@ -156,11 +156,18 @@ object HSLang {
     val autoReplantMapEntryGroundBlock get() = lang("auto_replant.map_entry.ground_block")
     val autoReplantMapEntryGroundBlockComment get() = lang("auto_replant.map_entry.ground_block.comment")
 
+    //------------ ItemEditor ------------\\
+
+    val itemEditor get() = lang("item_editor")
+
     //------------ Matcher.ItemStack ------------\\
 
-    val fromHandItem get() = lang("from_hand_item")
+    val tag get() = lang("tag")
+    val itemComponent get() = lang("item_component")
+    val getFromHandItem get() = lang("get_from_handheld_item")
+    val getFromRegistry get() = lang("get_from_registry")
     val itemStackMatcher get() = lang("item_stack_matcher")
-    val handledItem get() = lang("item_stack_matcher.handled_item")
+    val handheldItem get() = lang("item_stack_matcher.handheld_item")
     val itemStackMatcherEntryMatcher get() = lang("item_stack_matcher_entry.matcher")
     val itemStackMatcherEntryItem get() = lang("item_stack_matcher_entry.item")
     val itemStackMatcherEntryName get() = lang("item_stack_matcher_entry.name")
@@ -168,12 +175,15 @@ object HSLang {
     val itemStackMatcherEntryCount get() = lang("item_stack_matcher_entry.count")
     val itemStackMatcherEntryRarity get() = lang("item_stack_matcher_entry.rarity")
     val itemStackMatcherEntryEnchantment get() = lang("item_stack_matcher_entry.enchantment")
+    val itemStackMatcherEntryEnchantmentID get() = lang("item_stack_matcher_entry.enchantment.id")
+    val itemStackMatcherEntryEnchantmentLevelRange get() = lang("item_stack_matcher_entry.enchantment.level_range")
     val itemStackMatcherEntryTag get() = lang("item_stack_matcher_entry.tag")
     val itemStackMatcherEntryDataComponentType get() = lang("item_stack_matcher_entry.data_component_type")
 
     //------------ Matcher.BlockInfo ------------\\
 
-    val fromTargetBlock get() = lang("from_target_block")
+    val getFromTargetBlock get() = lang("get_from_target_block")
+    val blockProperty get() = lang("block_property")
     val blockInfoMatcher get() = lang("block_info_matcher")
     val targetBlock get() = lang("block_info_matcher.target_block")
     val blockInfoMatcherEntryMatcher get() = lang("block_info_matcher_entry.matcher")

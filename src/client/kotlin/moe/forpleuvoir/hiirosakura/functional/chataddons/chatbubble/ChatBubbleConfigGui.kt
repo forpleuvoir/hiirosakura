@@ -1,7 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble
 
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.gui.widget.EditButton
+import moe.forpleuvoir.hiirosakura.gui.widget.ExpandableTextEditor
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderBox
@@ -23,8 +23,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.LockButton
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.render.defaultZOffset
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -95,19 +93,7 @@ private fun ContainerScope.Preview(
         )
     )
     PreviewCanvas(Modifier.width(145f).weight(1), 1f, chatBubble)
-    Row(Modifier.matchSibling()) {
-        TextEditor(Modifier.weight(1)) {
-            bindState(msg)
-        }
-        EditButton {
-            Dialog(Modifier.maxWidth(330f).maxHeight(185f)) {
-                TextLabel(HSLang.message)
-                TextArea(Modifier.fill().weight(1)) {
-                    bindState(msg)
-                }
-            }.open()
-        }
-    }
+    ExpandableTextEditor(msg, HSLang.message, Modifier.matchSibling(), textEditorModifier = { Modifier.weight(1) })
     Row(Modifier.matchSibling()) {
         Button(Modifier.weight(1)) {
             TextLabel(HSLang.send)

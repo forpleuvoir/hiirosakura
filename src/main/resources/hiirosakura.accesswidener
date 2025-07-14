@@ -2,6 +2,7 @@ accessWidener v2 named
 
 #ItemStack
 accessible method net/minecraft/item/ItemStack appendAttributeModifiersTooltip (Ljava/util/function/Consumer;Lnet/minecraft/entity/player/PlayerEntity;)V
+accessible method net/minecraft/item/ItemStack <init> (Lnet/minecraft/item/ItemConvertible;ILnet/minecraft/component/MergedComponentMap;)V
 
 #Mouse
 accessible method net/minecraft/client/Mouse onMouseButton (JIII)V
@@ -10,6 +11,12 @@ accessible field net/minecraft/client/option/KeyBinding boundKey Lnet/minecraft/
 
 #Style
 accessible method net/minecraft/text/Style <init> (Lnet/minecraft/text/TextColor;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Lnet/minecraft/text/ClickEvent;Lnet/minecraft/text/HoverEvent;Ljava/lang/String;Lnet/minecraft/util/Identifier;)V
+accessible field net/minecraft/text/Style bold Ljava/lang/Boolean;
+accessible field net/minecraft/text/Style italic Ljava/lang/Boolean;
+accessible field net/minecraft/text/Style underlined Ljava/lang/Boolean;
+accessible field net/minecraft/text/Style strikethrough Ljava/lang/Boolean;
+accessible field net/minecraft/text/Style obfuscated Ljava/lang/Boolean;
+accessible field net/minecraft/text/Style font Lnet/minecraft/util/Identifier;
 
 #DrawContext
 accessible field net/minecraft/client/gui/DrawContext client Lnet/minecraft/client/MinecraftClient;
@@ -20,3 +27,8 @@ accessible field net/minecraft/client/gui/DrawContext itemRenderState Lnet/minec
 #Misc
 accessible field net/minecraft/client/network/message/MessageHandler VALIDATION_ERROR_TEXT Lnet/minecraft/text/Text;
 accessible field net/minecraft/client/render/OutlineVertexConsumerProvider parent Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;
+
+#DataCommponent
+accessible method net/minecraft/component/type/ItemEnchantmentsComponent <init> (Lit/unimi/dsi/fastutil/objects/Object2IntOpenHashMap;Z)V
+accessible field net/minecraft/component/type/ItemEnchantmentsComponent showInTooltip Z
+accessible field net/minecraft/component/type/ItemEnchantmentsComponent enchantments Lit/unimi/dsi/fastutil/objects/Object2IntOpenHashMap;

@@ -17,7 +17,7 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MultiMatcher
-import moe.forpleuvoir.hiirosakura.util.ENCHANTMENT_LIST
+import moe.forpleuvoir.hiirosakura.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
@@ -47,6 +47,7 @@ import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
+import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -91,7 +92,8 @@ fun ItemStackMatcherBuilder(
     matcher: ItemStackMatcher,
     matcherConsumer: (ItemStackMatcher) -> Unit,
     modifier: Modifier = Modifier,
-    screenModifier: Modifier = Modifier
+    screenModifier: Modifier = Modifier,
+    title: Text = itemStackMatcher
 ): IGScreenImpl {
     val matcher = matcher.clone()
     return Dialog(
@@ -103,7 +105,7 @@ fun ItemStackMatcherBuilder(
     ) {
         var onChanged = {}
         val selectedMode: MutableState<MultiMatcher.MatchMode?> = mutableStateOf(matcher.mode)
-        TextLabel(itemStackMatcher)
+        TextLabel(title)
         Column(
             verticalArrangement = Arrangement.spacedBy(2f),
         ) {
@@ -253,10 +255,10 @@ internal fun <T : MatchEntry<*>> MatchEntryDialog(
         screenModifier,
         parentScreen = parentScreen
     ) {
-        TextLabel(title)
+        TextLabel(title, modifier = Modifier.margin(bottom = 5f))
         content()
         Row(
-            Modifier.matchSibling(),
+            Modifier.matchSibling().margin(top = 5f),
             horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Right)
         ) {
             Button(
@@ -284,23 +286,23 @@ internal fun <T : MatchEntry<*>> MatchEntryDialog(
 private fun MatcherMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    entry: ItemStackMatchEntry.Matcher = ItemStackMatchEntry.Matcher(ItemStackMatcher.handItemMatcher, MatchEntry.MatchMode.Include),
+    entry: ItemStackMatchEntry.Matcher = ItemStackMatchEntry.Matcher(ItemStackMatcher.handheldItemMatcher, MatchEntry.MatchMode.Include),
     entryConsumer: (ItemStackMatchEntry.Matcher) -> Unit
-): IGScreenImpl {
-    return ItemStackMatcherBuilder(
-        entry.matcher,
-        {
-            entryConsumer(ItemStackMatchEntry.Matcher(it, entry.mode))
-        },
-        modifier,
-        screenModifier
-    )
-}
+): IGScreenImpl = ItemStackMatcherBuilder(
+    entry.matcher,
+    {
+        entryConsumer(ItemStackMatchEntry.Matcher(it, entry.mode))
+    },
+    modifier,
+    screenModifier,
+    itemStackMatcherEntryMatcher
+)
+
 
 private fun ItemMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    entry: ItemStackMatchEntry.Item = ItemStackMatchEntry.Item(ItemStackMatcher.handItemStack?.item ?: Items.MELON, MatchEntry.MatchMode.Include),
+    entry: ItemStackMatchEntry.Item = ItemStackMatchEntry.Item(ItemStackMatcher.handheldItemStack?.item ?: Items.MELON, MatchEntry.MatchMode.Include),
     entryConsumer: (ItemStackMatchEntry.Item) -> Unit
 ): IGScreenImpl {
     val item = mutableStateOf(entry.item)
@@ -322,7 +324,7 @@ private fun NameMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
     entry: ItemStackMatchEntry.Name = ItemStackMatchEntry.Name(
-        ItemStackMatcher.handItemStack?.name?.string ?: Items.MELON.name.string,
+        ItemStackMatcher.handheldItemStack?.name?.string ?: Items.MELON.name.string,
         MatchEntry.MatchMode.Include
     ),
     entryConsumer: (ItemStackMatchEntry.Name) -> Unit
@@ -369,7 +371,7 @@ private fun CountMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
     entry: ItemStackMatchEntry.Count = ItemStackMatchEntry.Count(
-        (ItemStackMatcher.handItemStack?.count ?: 1)..(ItemStackMatcher.handItemStack?.count ?: 64),
+        (ItemStackMatcher.handheldItemStack?.count ?: 1)..(ItemStackMatcher.handheldItemStack?.count ?: 64),
         MatchEntry.MatchMode.Include
     ),
     entryConsumer: (ItemStackMatchEntry.Count) -> Unit
@@ -383,7 +385,7 @@ private fun CountMatchEntryBuilder(
         entrySupplier = { mode -> ItemStackMatchEntry.Count(start.getValue()..end.getValue(), mode) },
         entryConsumer = entryConsumer
     ) {
-        Column {
+        Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
             IntEditor(start, 1..Int.MAX_VALUE, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
             TextLabel("<= .. <=")
             IntEditor(end, 1..Int.MAX_VALUE, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
@@ -394,7 +396,7 @@ private fun CountMatchEntryBuilder(
 private fun RarityMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    entry: ItemStackMatchEntry.Rarity = ItemStackMatchEntry.Rarity(ItemStackMatcher.handItemStack?.rarity ?: Rarity.COMMON, MatchEntry.MatchMode.Include),
+    entry: ItemStackMatchEntry.Rarity = ItemStackMatchEntry.Rarity(ItemStackMatcher.handheldItemStack?.rarity ?: Rarity.COMMON, MatchEntry.MatchMode.Include),
     entryConsumer: (ItemStackMatchEntry.Rarity) -> Unit
 ): IGScreenImpl {
     val rarity = mutableStateOf(entry.rarity)
@@ -434,8 +436,8 @@ private fun EnchantmentMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
     entry: ItemStackMatchEntry.Enchantment = ItemStackMatchEntry.Enchantment(
-        ItemStackMatcher.handItemStack?.enchantments?.enchantmentEntries?.firstOrNull()?.key
-            ?: ENCHANTMENT_LIST.first(),
+        ItemStackMatcher.handheldItemStack?.enchantments?.enchantmentEntries?.firstOrNull()?.key?.idAsString
+            ?: "minecraft:aqua_affinity",
         1..255,
         MatchEntry.MatchMode.Include
     ),
@@ -446,7 +448,7 @@ private fun EnchantmentMatchEntryBuilder(
     val level = mutableStateOf(entry.level.first)
     val levelEnd = mutableStateOf(entry.level.endInclusive)
 
-    val enchantments = ItemStackMatcher.handItemStack
+    val enchantments = ItemStackMatcher.handheldItemStack
         ?.enchantments
         ?.enchantmentEntries
         ?.run {
@@ -464,33 +466,63 @@ private fun EnchantmentMatchEntryBuilder(
         entrySupplier = { mode -> ItemStackMatchEntry.Enchantment(enchantment.getValue(), level.getValue()..levelEnd.getValue(), mode) },
         entryConsumer = entryConsumer
     ) {
-        EnchatmentSelector(enchantment, modifier = Modifier.matchSibling())
+        Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
+            Column(horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.spacedBy(5f)) {
 
-        enchantments?.let { enchantments ->
-            if (enchantments.isEmpty()) return@let
-            EnchatmentSelector(
-                mutableStateOf(enchantments.entries.first().key),
-                enchantments = enchantments.keys.toList(),
-                onSelected = {
-                    ENCHANTMENT_LIST
-                        .find { e -> e.idAsString == it.idAsString }
-                        ?.let { e ->
-                            enchantment.setValue(e)
-                        }
-                    enchantments[it]?.let { lv ->
-                        level.setValue(lv)
-                        levelEnd.setValue(lv)
+                if (!enchantments.isNullOrEmpty()) {
+                    TextLabel(HSLang.getFromHandItem, modifier = Modifier.height(20f))
+                }
+
+                if (ENCHANTMENT_ID_LIST.isNotEmpty()) {
+                    TextLabel(HSLang.getFromRegistry, modifier = Modifier.height(20f))
+                }
+
+                TextLabel(HSLang.itemStackMatcherEntryEnchantmentID, modifier = Modifier.height(20f))
+                TextLabel(HSLang.itemStackMatcherEntryEnchantmentLevelRange, modifier = Modifier.height(20f))
+            }
+
+            Column(horizontalAlignment = Alignment.Right, verticalArrangement = Arrangement.spacedBy(5f)) {
+                if (!enchantments.isNullOrEmpty()) {
+                    EnchatmentSelector(
+                        mutableStateOf(enchantments.entries.first().key),
+                        enchantments = enchantments.keys.toList(),
+                        onSelected = {
+                            ENCHANTMENT_LIST
+                                .find { e -> e.idAsString == it.idAsString }
+                                ?.let { e ->
+                                    enchantment.setValue(e.idAsString)
+                                }
+                            enchantments[it]?.let { lv ->
+                                level.setValue(lv)
+                                levelEnd.setValue(lv)
+                            }
+                        },
+                        modifier = Modifier.matchSibling()
+                    )
+                }
+
+                if (ENCHANTMENT_ID_LIST.isNotEmpty()) {
+                    val selectedEnchantment = enchantment.getValue().asMutableState
+                    selectedEnchantment.subscribe {
+                        enchantment.setValue(it)
                     }
-                },
-                modifier = Modifier.matchSibling().hoverText(HSLang.fromHandItem),
-            )
+                    EnchatmentSelector(selectedEnchantment, modifier = Modifier.matchSibling())
+                }
+
+                TextEditor(Modifier.matchSibling().hoverTip {
+                    TextLabel(ecnchantmentDescription(enchantment.getValue()))
+                }) { bindState(enchantment) }
+
+                Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
+                    IntEditor(level, 1..65535, modifier = Modifier.width(65f), editorModifier = { Modifier.weight(1) })
+                    TextLabel("<= .. <=")
+                    IntEditor(levelEnd, 1..65535, modifier = Modifier.width(65f), editorModifier = { Modifier.weight(1) })
+                }
+
+            }
         }
 
-        Row {
-            IntEditor(level, 1..65535, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
-            TextLabel("<= .. <=")
-            IntEditor(levelEnd, 1..65535, modifier = Modifier.width(60f), editorModifier = { Modifier.weight(1) })
-        }
+
     }
 }
 
@@ -498,13 +530,13 @@ private fun TagMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
     entry: ItemStackMatchEntry.Tag = ItemStackMatchEntry.Tag(
-        ItemStackMatcher.handItemStack?.streamTags()?.findFirst()?.getOrNull()?.id?.toString() ?: "",
+        ItemStackMatcher.handheldItemStack?.streamTags()?.findFirst()?.getOrNull()?.id?.toString() ?: "",
         MatchEntry.MatchMode.Include
     ),
     entryConsumer: (ItemStackMatchEntry.Tag) -> Unit
 ): IGScreenImpl {
     var tag = entry.tag
-    val tags = ItemStackMatcher.handItemStack
+    val tags = ItemStackMatcher.handheldItemStack
         ?.streamTags()
         ?.toList()
         ?.map { tag -> tag.id.toString() }
@@ -515,26 +547,37 @@ private fun TagMatchEntryBuilder(
         entrySupplier = { mode -> ItemStackMatchEntry.Tag(tag, mode) },
         entryConsumer = entryConsumer
     ) {
-        val editor = TextEditor(modifier = Modifier.width(200f)) {
-            text = tag
-            textConsumer { tag = it }
-        }
-        tags?.let { tags ->
-            if (tags.isEmpty()) return@let
-            Selector(
-                tags,
-                modifier = Modifier.width(200f).hoverText(HSLang.fromHandItem),
-                onSelected = {
-                    editor.text = it
-                    tag = it
-                },
-                selectedWrapper = {
-                    TextLabel(it, modifier = Modifier.weight(1))
-                },
-                optionWrapper = {
-                    TextLabel(it, modifier = Modifier.width(tags.maxWidth + 1))
+        var editor by lateInitValueOf<TextEditorWidget>()
+        Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
+            Column(horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.spacedBy(5f)) {
+                if (!tags.isNullOrEmpty()) {
+                    TextLabel(HSLang.getFromHandItem, modifier = Modifier.height(20f))
                 }
-            )
+                TextLabel(HSLang.tag, modifier = Modifier.height(20f))
+            }
+            Column(horizontalAlignment = Alignment.Right, verticalArrangement = Arrangement.spacedBy(5f)) {
+                if (!tags.isNullOrEmpty()) {
+                    Selector(
+                        tags,
+                        modifier = Modifier.width(200f),
+                        onSelected = {
+                            editor.text = it
+                            tag = it
+                        },
+                        selectedWrapper = {
+                            TextLabel(it, modifier = Modifier.weight(1))
+                        },
+                        optionWrapper = {
+                            TextLabel(it, modifier = Modifier.width(tags.maxWidth + 1))
+                        }
+                    )
+                }
+                TextEditor(modifier = Modifier.width(200f)) {
+                    text = tag
+                    textConsumer { tag = it }
+                    editor = owner()
+                }
+            }
         }
     }
 }
@@ -543,12 +586,12 @@ private fun ComponentTypeMatchEntryBuilder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
     entry: ItemStackMatchEntry.DataComponentType = ItemStackMatchEntry.DataComponentType(
-        ItemStackMatcher.handItemStack?.components?.types?.firstOrNull() ?: DataComponentTypes.FOOD, MatchEntry.MatchMode.Include
+        ItemStackMatcher.handheldItemStack?.components?.types?.firstOrNull() ?: DataComponentTypes.FOOD, MatchEntry.MatchMode.Include
     ),
     entryConsumer: (ItemStackMatchEntry.DataComponentType) -> Unit
 ): IGScreenImpl {
     val componentType: MutableState<ComponentType<*>> = mutableStateOf(entry.componentType)
-    val components = ItemStackMatcher.handItemStack
+    val components = ItemStackMatcher.handheldItemStack
         ?.components?.types
     return MatchEntryDialog(
         title = itemStackMatcherEntryDataComponentType,
@@ -557,21 +600,30 @@ private fun ComponentTypeMatchEntryBuilder(
         entrySupplier = { mode -> ItemStackMatchEntry.DataComponentType(componentType.getValue(), mode) },
         entryConsumer = entryConsumer
     ) {
-        DataComponentTypeSelector(
-            componentType,
-            modifier = Modifier.width(200f),
-            searchBarModifier = { Modifier.width(200f) },
-            listModifier = { Modifier.width(200f) },
-        )
-        components?.let { components ->
-            if (components.isEmpty()) return@let
-            DataComponentTypeSelector(
-                componentType,
-                components.toList(),
-                modifier = Modifier.width(200f).hoverText(HSLang.fromHandItem),
-                searchBarModifier = { Modifier.width(200f) },
-                listModifier = { Modifier.width(200f) },
-            )
+        Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
+            Column(horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.spacedBy(5f)) {
+                if (!components.isNullOrEmpty()) {
+                    TextLabel(HSLang.getFromHandItem, modifier = Modifier.height(20f))
+                }
+                TextLabel(HSLang.itemComponent, modifier = Modifier.height(20f))
+            }
+            Column(horizontalAlignment = Alignment.Right, verticalArrangement = Arrangement.spacedBy(5f)) {
+                if (!components.isNullOrEmpty()) {
+                    DataComponentTypeSelector(
+                        componentType,
+                        components.toList(),
+                        modifier = Modifier.width(200f),
+                        searchBarModifier = { Modifier.width(200f) },
+                        listModifier = { Modifier.width(200f) },
+                    )
+                }
+                DataComponentTypeSelector(
+                    componentType,
+                    modifier = Modifier.width(200f),
+                    searchBarModifier = { Modifier.width(200f) },
+                    listModifier = { Modifier.width(200f) },
+                )
+            }
         }
     }
 }

@@ -28,7 +28,7 @@ object BlockBreakProtection : ModConfigContainer("block_break_protection") {
             ))
         ),
     ).setGuiWrapper { config, modifier ->
-        ConfigStringItemStackBlockInfoPairMapWrapper(config, modifier, HSLang.name, HSLang.handledItem, HSLang.targetBlock)
+        ConfigStringItemStackBlockInfoPairMapWrapper(config, modifier, HSLang.name, HSLang.handheldItem, HSLang.targetBlock)
     }
 
     private var mark = TimeSource.Monotonic.markNow()

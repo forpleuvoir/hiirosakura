@@ -11,7 +11,7 @@ modMenuVersion = "13.0.0-beta.1"
 fabricKotlinVersion = "1.12.3+kotlin.2.0.21"
 ibukigourdVersion = "0.8.5+beta"
 #other
-nebulaVersion = "0.2.25"
+nebulaVersion = "0.2.26"
 kotlinVersion = "2.0.0"
 nashornVersion = "15.4"
 

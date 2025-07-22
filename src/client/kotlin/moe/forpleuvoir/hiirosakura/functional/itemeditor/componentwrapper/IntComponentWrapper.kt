@@ -14,14 +14,17 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
 import net.minecraft.util.Identifier
+import kotlin.time.Duration.Companion.milliseconds
 
-private const val WIDTH = 95f
+private const val WIDTH = 115f
 
 fun ContainerScope.IntComponentWrapper(
     id: Identifier,
@@ -42,12 +45,12 @@ fun ContainerScope.IntComponentWrapper(
         SwitchableProxy(
             {
                 IntSlider(valueState, valueRange, textMapper = textMapper, modifier = Modifier.width(WIDTH).hoverTip {
-                    IntComponentPreview(component, textMapper)
+                    IntComponentPreview(valueState::getValue, textMapper)
                 })
             },
             {
                 IntEditor(valueState, valueRange, modifier = Modifier.width(WIDTH).hoverTip {
-                    IntComponentPreview(component, textMapper)
+                    IntComponentPreview(valueState::getValue, textMapper)
                 }, editorModifier = { Modifier.weight(1) })
             },
             state
@@ -61,7 +64,7 @@ fun ContainerScope.IntComponentWrapper(
 
 
 private fun ContainerScope.IntComponentPreview(
-    component: Int,
+    component: () -> Int,
     textMapper: (Int) -> Text = { Literal(it.toString()) },
     modifier: Modifier = Modifier,
-) = TextLabel(textMapper(component), modifier = modifier)
+) = TextLabel(mutableStateBy { textMapper(component()) }, modifier = modifier, TextSetting(textLabelUpdateInterval = 50.milliseconds))

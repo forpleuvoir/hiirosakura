@@ -9,10 +9,7 @@ import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.height
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minHeight
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
@@ -21,6 +18,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
@@ -112,10 +111,11 @@ fun <C : Any> ContainerScope.DefaultComponentWrapper(
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     onValueChange: (C, Boolean) -> Unit
 ) = DataComponentWrapperRow(id, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Button {
-        TextLabel(IGLang.edit)
+    Button(Modifier.hoverText(IGLang.edit)) {
+        Icon(IconTextures.EDIT)
         click {
             runCatching {
+                //TODO支持更多类型 而不只是Object,或许需要一个SerializeElement编辑器
                 val data = componentType.codecOrThrow
                     .encodeStart(registryManager!!.getOps(NebulaOps), component as C)
                     .resultOrPartial {
@@ -139,10 +139,10 @@ fun <C : Any> ContainerScope.DefaultComponentWrapper(
                                 .parse(registryManager!!.getOps(NebulaOps), data.toSerializeObject())
                                 .resultOrPartial {
                                     Toast.showToast(Literal(it).withColor(Colors.RED))
+                                    DataComponentWrappers.log.error(it)
                                     r = false
                                 }.get()
                         }.onFailure {
-                            Toast.showToast(Literal(it.message ?: "unknown error").withColor(Colors.RED))
                             DataComponentWrappers.log.error(it)
                         }
                         r
@@ -177,10 +177,11 @@ fun <C : Any> DefaultComponentBuilder(
                     .parse(registryManager!!.getOps(NebulaOps), data.toSerializeObject())
                     .resultOrPartial {
                         Toast.showToast(Literal(it).withColor(Colors.RED))
+                        DataComponentWrappers.log.error(it)
                         r = false
                     }.get()
             }.onFailure {
-                Toast.showToast(Literal(it.message ?: "unknown error").withColor(Colors.RED))
+//                Toast.showToast(Literal(it.message ?: "unknown error").withColor(Colors.RED))
                 DataComponentWrappers.log.error(it)
             }
             r

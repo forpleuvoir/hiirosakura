@@ -170,8 +170,8 @@ fun ContainerScope.TaskManagerGui(
                     Icon(IconTextures.RIGHT, HSVColor(120f, 1f, 0.5f))
                 }
                 //key bind
-                KeyBindButton(task.keyBind)
-                KeyBindSettingButton(task.keyBind, Literal(task.name))
+                KeyBindSetterButton(task.keyBind)
+                KeyBindSettingSetterButton(task.keyBind, Literal(task.name))
                 //edit
                 FlatButton(
                     hoveredColor = Colors.LIME.alpha(0.25f),

@@ -12,7 +12,7 @@ object HSLang {
 
     val loadFromDisk get() = lang("load_from_disk")
 
-    fun clickToCopy(text: Text): Text = lang("click_to_copy", text)
+    fun pressToCopy(text: Text): Text = lang("press_to_copy", text)
 
     val name get() = lang("name")
 
@@ -159,6 +159,18 @@ object HSLang {
     //------------ ItemEditor ------------\\
 
     val itemEditor get() = lang("item_editor")
+
+    val itemEditorSaveSuccess get() = lang("item_editor.save_success")
+
+    val itemEditorAddFromHandheldItem get() = lang("item_editor.add_from_handheld_item")
+    val itemEditorGetToBackpack get() = lang("item_editor.get_to_backpack")
+    fun itemEditorGetToBackpackSuccess(text: Text) = lang("item_editor.get_to_backpack.success", text)
+    val itemEditorRemoveConfirm get() = lang("item_editor.remove_confirm")
+    val itemEditorCopyToCommand get() = lang("item_editor.copy_to_command")
+
+    val itemEditorItemType get() = lang("item_editor.item_type")
+    val itemEditorItemCount get() = lang("item_editor.item_count")
+    val itemEditorItemComponent get() = lang("item_editor.item_component")
 
     //------------ Matcher.ItemStack ------------\\
 

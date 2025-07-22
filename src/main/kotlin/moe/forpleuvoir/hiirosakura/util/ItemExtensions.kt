@@ -12,7 +12,9 @@ import net.minecraft.item.Item.TooltipContext
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.item.tooltip.TooltipType
+import net.minecraft.registry.DynamicRegistryManager
 import net.minecraft.registry.Registries
+import net.minecraft.registry.RegistryKeys
 import net.minecraft.util.Identifier
 
 fun ItemStack.getEnchantmentTextWithLvl(
@@ -41,4 +43,5 @@ val SerializeElement.item: Item
 fun ItemStack.hasTag(tag: String): Boolean = this.streamTags().anyMatch { it.id.toString() == tag }
 
 val ComponentType<*>.id get() = Registries.DATA_COMPONENT_TYPE.getId(this)
+fun ComponentType<*>.id(registryManager: DynamicRegistryManager) = registryManager.getOrThrow(RegistryKeys.DATA_COMPONENT_TYPE).getId(this)
 

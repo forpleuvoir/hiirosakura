@@ -22,6 +22,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.Corner
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
+import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.base.widget.IGWidget
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigManagerWrapper
 import moe.forpleuvoir.ibukigourd.gui.screen.TabScreen
@@ -38,7 +39,7 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
-import net.minecraft.registry.DynamicRegistryManager
+import moe.forpleuvoir.nebula.common.util.ioLaunch
 
 private val icon = WidgetTexture(Corner(), 0, 0, 128, 128, TextureInfo(128, 128, identifier("icon.png")))
 
@@ -54,28 +55,40 @@ fun HiiroSakuraScreen() = TabScreen(
             TextLabel(Literal(HiiroSakura.MOD_NAME).style {
                 color(HSVColor(358f, 0.65f, 0.74f))
                 bold()
-            }) {
-                setting { }
-            }
+            })
         }
     },
     modifier = Modifier.onClose {
         HSConfig.asyncSave()
         HiiroSakuraDataManager.asyncSave()
         registryManager?.let {
-            ItemStackManager.saveDataAsync(it)
+            ioLaunch {
+                if (ItemStackManager.saveDataAsync(it).await()) {
+                    Toast.showToast(HSLang.itemEditorSaveSuccess)
+                }
+            }
         }
     },
     tabColor = stateOf(Color(0xffffccf0)),
     inactiveColor = stateOf(Color(0xffb3f2ff))
 ) {
-    Config()
-    CustomData()
-    TaskManager()
-    HSEventManager()
-    registryManager?.let {
-        ItemEditor(it)
+    HSTab(HSConfig.translateText) { ConfigManagerWrapper(HSConfig) }
+    HSTab(HSLang.customData) { TreeNodeEditor(CustomData.data, Modifier.fill(), listModifier = { Modifier.weight(1).fill() }) }
+    HSTab(HSLang.taskManager) { TaskManagerGui() }
+    HSTab(HSLang.eventSubscriberManager) { HSEventManagerGui() }
+    registryManager?.let { registryManager ->
+        HSTab(
+            HSLang.itemEditor,
+            onTabChanged = {
+                if (!it) ioLaunch {
+                    if (ItemStackManager.saveDataAsync(registryManager).await()) {
+                        Toast.showToast(HSLang.itemEditorSaveSuccess)
+                    }
+                }
+            }
+        ) { ItemStackManagerGui(registryManager) }
     }
+
 }
 
 private var currentTab = HSConfig.translateText
@@ -99,36 +112,3 @@ private fun TabScope.HSTab(
     modifier,
     content
 )
-
-private fun TabScope.Config() = HSTab(
-    HSConfig.translateText
-) {
-    ConfigManagerWrapper(HSConfig)
-}
-
-private fun TabScope.TaskManager() = HSTab(
-    HSLang.taskManager
-) {
-    TaskManagerGui()
-}
-
-private fun TabScope.HSEventManager() = HSTab(
-    HSLang.eventSubscriberManager
-) {
-    HSEventManagerGui()
-}
-
-private fun TabScope.CustomData() = HSTab(
-    HSLang.customData
-) {
-    TreeNodeEditor(CustomData.data, Modifier.fill(), listModifier = { Modifier.weight(1).fill() })
-}
-
-private fun TabScope.ItemEditor(registryManager: DynamicRegistryManager) = HSTab(
-    HSLang.itemEditor,
-    onTabChanged = {
-        if (!it) ItemStackManager.saveDataAsync(registryManager)
-    }
-) {
-    ItemStackManagerGui(registryManager)
-}

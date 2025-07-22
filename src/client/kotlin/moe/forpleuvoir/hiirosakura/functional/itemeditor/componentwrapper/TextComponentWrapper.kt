@@ -39,7 +39,7 @@ fun ContainerScope.TextComponentWrapper(
 ) = DataComponentWrapperRow(id, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     var text = component
     Box(
-        Modifier.width(95f).padding(4f).renderBackground { ctx, x, y, d ->
+        Modifier.width(115f).padding(4f).renderBackground { ctx, x, y, d ->
             ctx.batchRenderTextureColored {
                 pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_BACKGROUND)
             }

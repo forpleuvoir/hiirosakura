@@ -1,10 +1,15 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
+import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverText
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderBackground
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
@@ -12,8 +17,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.tip.TipHandler
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.DialogContent
-import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
+import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
+import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
@@ -22,7 +31,6 @@ import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.color.HSVColor
 import net.minecraft.util.Identifier
 import kotlin.time.Duration.Companion.seconds
 
@@ -38,8 +46,19 @@ fun ContainerScope.IdentifierComponentWrapper(
     onValueChange: (Identifier, Boolean) -> Unit,
 ) = DataComponentWrapperRow(id, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     var component = component
-    FlatButton(hoveredColor = HSVColor(180f, 1f, 1f, 0.3f)) {
-        TextLabel(Literal(component.toString()).withColor(HSVColor(35f, 1f, 1f)))
+    Box(
+        Modifier.width(115f).padding(4f).renderBackground { ctx, x, y, d ->
+            ctx.batchRenderTextureColored {
+                pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_BACKGROUND)
+            }
+        }
+    ) {
+        TextLabel(component.asTranslateText())
+    }
+    Button(
+        Modifier.hoverText(IGLang.edit)
+    ) {
+        Icon(IconTextures.EDIT)
         click {
             IdentifierComponentEditor(id.asTranslateText(), component) { it, recompose ->
                 if (component != it) {

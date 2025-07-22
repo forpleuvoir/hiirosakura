@@ -3,7 +3,6 @@ package moe.forpleuvoir.hiirosakura.gui.widget
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.gui.widget.DataType.Array
 import moe.forpleuvoir.hiirosakura.gui.widget.DataType.Object
-import moe.forpleuvoir.hiirosakura.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.renderBox
@@ -38,6 +37,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.*
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.configContainerWrapperGuidelinesColor
 import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -96,10 +96,62 @@ fun ContainerScope.TreeNodeEditor(
                     if (data[key] != it) {
                         data[key] = it
                     }
-                }, {
+                },
+                {
                     data.remove(key)
                     recompose()
-                }
+                },
+                Modifier.unlockConstraint()
+            )
+        }
+        recompose = { executeRecompose() }
+    }
+}
+
+fun ContainerScope.ListNodeEditor(
+    list: MutableList<Any?>,
+    modifier: Modifier = Modifier,
+    listModifier: RowScope.() -> Modifier = { Modifier },
+) = Column(
+    verticalArrangement = Arrangement.spacedBy(4f),
+) {
+    var recompose by lateInitValueOf<() -> Unit>()
+    Row(
+        modifier = Modifier.fill(),
+        horizontalArrangement = Arrangement.spacedBy(4f, Alignment.Left)
+    ) {
+        Button {
+            TextLabel(IGLang.add)
+            click {
+                EntryAdder(
+                    key = list.size.toString(),
+                    isObject = false,
+                    keyPredicate = { it.toInt() !in list.indices },
+                ) { key, value, type ->
+                    list.add(value)
+                    recompose()
+                }.open()
+            }
+        }
+    }
+    ColumnListWrapped(
+        modifier,
+        listModifier = listModifier
+    ) {
+        if (list.isEmpty()) TextLabel(IGLang.hasNothing)
+        list.forEachIndexed { index, value ->
+            Entry(
+                index.toString(),
+                { list[index] },
+                {
+                    if (list[index] != it) {
+                        list[index] = it
+                    }
+                }, {
+                    list.removeAt(index)
+                    recompose()
+                },
+                Modifier.unlockConstraint()
             )
         }
         recompose = { executeRecompose() }
@@ -107,18 +159,18 @@ fun ContainerScope.TreeNodeEditor(
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun ContainerScope.Entry(key: String, valueSupplier: () -> Any?, valueSetter: (Any) -> Unit, valueRemover: () -> Unit) {
+private fun ContainerScope.Entry(key: String, valueSupplier: () -> Any?, valueSetter: (Any) -> Unit, valueRemover: () -> Unit, modifier: Modifier = Modifier) {
     when (val value = valueSupplier()) {
         is MutableMap<*, *>              -> {
-            ObjectEntry(key, value as MutableMap<String, Any>, valueRemover)
+            ObjectEntry(key, value as MutableMap<String, Any>, modifier, valueRemover)
         }
 
         is MutableList<*>                -> {
-            ArrayEntry(key, value as MutableList<Any>, valueRemover)
+            ArrayEntry(key, value as MutableList<Any>, modifier, valueRemover)
         }
 
         is Number, is String, is Boolean -> {
-            PrimitiveEntry(key, valueSupplier, valueSetter, valueRemover)
+            PrimitiveEntry(key, valueSupplier, valueSetter, valueRemover, modifier)
         }
     }
 }
@@ -142,7 +194,7 @@ private fun ContainerScope.EntryRow(
         TextLabel(
             key,
             modifier = modifier
-                .hoverText(HSLang.clickToCopy(Translatable(Mouse.RIGHT.translationKey)))
+                .hoverText(HSLang.pressToCopy(Translatable(Mouse.RIGHT.translationKey)))
                 .mousePress {
                     it.tryUse(it.button == Mouse.RIGHT && wasMouseOver)
                         .onSuccess {
@@ -159,8 +211,9 @@ private fun ContainerScope.EntryRow(
 private fun ContainerScope.ObjectEntry(
     key: String,
     obj: MutableMap<String, Any>,
+    modifier: Modifier,
     valueRemover: () -> Unit
-) = Column {
+) = Column(modifier) {
     val expanded = mutableStateOf(false)
     var recompose: (() -> Unit)? = null
     Button(
@@ -238,8 +291,9 @@ private fun ContainerScope.ObjectEntry(
 private fun ContainerScope.ArrayEntry(
     key: String,
     array: MutableList<Any>,
+    modifier: Modifier,
     valueRemover: () -> Unit
-) = Column {
+) = Column(modifier) {
     val expanded = mutableStateOf(false)
     var recompose: (() -> Unit)? = null
     Button(
@@ -317,8 +371,9 @@ private fun ContainerScope.PrimitiveEntry(
     key: String,
     valueSupplier: () -> Any?,
     valueSetter: (Any) -> Unit,
-    valueRemover: () -> Unit
-) = EntryRow(key) {
+    valueRemover: () -> Unit,
+    modifier: Modifier,
+) = EntryRow(key, modifier = modifier) {
     when (val value = valueSupplier()) {
         is Boolean -> BooleanEntry(value, valueSetter)
         is String  -> StringEntry(value, valueSetter)

@@ -1,20 +1,21 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor
 
+import com.google.common.collect.Lists
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.delay
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
+import moe.forpleuvoir.hiirosakura.gui.widget.CopyButton
 import moe.forpleuvoir.hiirosakura.gui.widget.EditButton
 import moe.forpleuvoir.hiirosakura.gui.widget.RemoveButton
 import moe.forpleuvoir.hiirosakura.util.closeScreen
-import moe.forpleuvoir.hiirosakura.util.lateInitValueOf
+import moe.forpleuvoir.hiirosakura.util.id
+import moe.forpleuvoir.hiirosakura.util.registryManager
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.active
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverText
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
@@ -37,34 +38,38 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
-import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.copyToText
+import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.asState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.ioLaunch
 import moe.forpleuvoir.nebula.common.util.primitive.pick
+import net.minecraft.component.ComponentChanges
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
+import net.minecraft.nbt.NbtCompound
+import net.minecraft.nbt.NbtOps
+import net.minecraft.nbt.visitor.StringNbtWriter
 import net.minecraft.registry.DynamicRegistryManager
+import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.milliseconds
 
 fun ContainerScope.ItemStackManagerGui(
     registryManager: DynamicRegistryManager,
     modifier: Modifier = Modifier,
-    verticalArrangement: Arrangement.Vertical = Arrangement.Center,
+    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(5f),
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
 ) = Column(modifier, verticalArrangement, horizontalAlignment) {
-    //TODO i18n
     var recompose by lateInitValueOf<() -> Unit>()
     val deferred = ItemStackManager.loadDataAsync(registryManager)
 
     val regex = Regex("").asMutableState
-    println("重组了")
 
     ToolBar(regexConsumer = {
         regex.setValue(it)
@@ -103,7 +108,7 @@ private fun ContainerScope.ToolBar(
     )
     ItemStackMatcher.handheldItemStack?.let { handheldItem ->
         Button {
-            TextLabel("以手中的物品为基础添加")
+            TextLabel(HSLang.itemEditorAddFromHandheldItem)
             click {
                 ItemStackEditor(handheldItem, consumer).open()
             }
@@ -172,7 +177,14 @@ private fun ColumnListScope.EntryRow(
     filtered: Boolean,
     recompose: () -> Unit
 ) = Row(Modifier.fill().bgHoverHighlightBox(), horizontalArrangement = Arrangement.SpaceBetween) {
-    Row(horizontalArrangement = Arrangement.spacedBy(4f)) {
+    Row(
+        modifier = Modifier.renderOverlay { ctx, mx, my, d ->
+            ctx.postRender {
+                if (wasMouseOver) drawItemTooltip(textRenderer, itemStack, mx.toInt(), my.toInt())
+            }
+        },
+        horizontalArrangement = Arrangement.spacedBy(4f)
+    ) {
         if (!filtered) {
             MoveButton(recompose, index)
         }
@@ -183,12 +195,18 @@ private fun ColumnListScope.EntryRow(
 
         if (mc.player?.isCreative == true) {
             Button {
-                TextLabel("获取物品到背包")
+                TextLabel(HSLang.itemEditorGetToBackpack)
                 click {
                     mc.player?.inventory?.insertStack(itemStack.copy())
-                    Toast.showToast(Literal("已将物品[").append(itemStack.name).appendLiteral("]添加到背包l"))
+                    Toast.showToast(HSLang.itemEditorGetToBackpackSuccess(itemStack.name.copyToText()))
                 }
             }
+        }
+
+        CopyButton(Modifier.hoverText(HSLang.itemEditorCopyToCommand)) {
+            val command = genCommand(itemStack)
+            mc.keyboard.clipboard = command
+            Toast.showToast(command)
         }
 
         EditButton {
@@ -198,7 +216,7 @@ private fun ColumnListScope.EntryRow(
         }
 
         RemoveButton {
-            ConfirmDialog(Literal("Are you sure you want to delete this item?").asState) {
+            ConfirmDialog(HSLang.itemEditorRemoveConfirm.asState) {
                 Row {
                     ItemIcon(itemStack)
                     TextLabel(itemStack.name.copyToText())
@@ -212,6 +230,30 @@ private fun ColumnListScope.EntryRow(
         }
     }
 }
+
+private fun genCommand(itemStack: ItemStack): String {
+    val nbt = ComponentChanges.CODEC.encodeStart(registryManager!!.getOps(NbtOps.INSTANCE), itemStack.componentChanges).result().getOrNull()
+    val nbtString = nbt?.let { CommandNbtWriter().apply(it) } ?: ""
+    val type = itemStack.item.id.toString()
+    val count = itemStack.count
+    return "give @p $type$nbtString $count"
+}
+
+class CommandNbtWriter() : StringNbtWriter() {
+    override fun visitCompound(compound: NbtCompound) {
+        this.result.append('[')
+        val list = Lists.newArrayList<String>(compound.keys)
+        list.sort()
+        for (string in list) {
+            if (this.result.length != 1) {
+                this.result.append(',')
+            }
+            this.result.append(string).append('=').append(StringNbtWriter().apply(compound.get(string)))
+        }
+        this.result.append(']')
+    }
+}
+
 
 private fun ContainerScope.MoveButton(
     recompose: () -> Unit,

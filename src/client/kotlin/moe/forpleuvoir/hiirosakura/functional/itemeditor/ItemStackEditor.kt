@@ -8,16 +8,11 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemSelector
 import moe.forpleuvoir.hiirosakura.util.closeScreen
 import moe.forpleuvoir.hiirosakura.util.id
-import moe.forpleuvoir.hiirosakura.util.lateInitValueOf
 import moe.forpleuvoir.hiirosakura.util.registryManager
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.height
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverText
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.size
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
-import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
@@ -35,6 +30,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.state.*
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
@@ -50,8 +46,7 @@ fun ItemStackEditor(
     itemStack: ItemStack = ItemStackMatcher.handheldItemStack ?: ItemStack(Items.MELON),
     consumer: (ItemStack) -> Unit
 ) = ConfirmDialog(
-    //TODO i18n
-    stateOf(Literal("ItemStackEditor")),
+    stateOf(HSLang.itemEditor),
 ) {
     val itemState = itemStack.item.asMutableState
     val countState = itemStack.count.asMutableState
@@ -67,18 +62,19 @@ fun ItemStackEditor(
         closeScreen()
     }
 
-    Row(Modifier.width(360f), horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(Modifier.width(400f), horizontalArrangement = Arrangement.SpaceBetween) {
         ItemType(itemState)
-        ItemCount(countState)
     }
-    ComponentAdder(componentMap) { recompose() }
-    recompose = Component(componentMap)
+    Row(Modifier.matchSibling(), horizontalArrangement = Arrangement.SpaceBetween) {
+        ItemCount(countState)
+        ComponentAdder(componentMap) { recompose() }
+    }
+    recompose = Components(componentMap)
 
 }
 
 private fun RowScope.ItemType(itemState: MutableState<Item>) = Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
-    //TODO i18n
-    TextLabel("ItemType")
+    TextLabel(HSLang.itemEditorItemType)
     ItemSelector(
         itemState,
         modifier = Modifier.width(100f).hoverText(HSLang.taskIcon),
@@ -86,8 +82,7 @@ private fun RowScope.ItemType(itemState: MutableState<Item>) = Row(horizontalArr
 }
 
 private fun RowScope.ItemCount(countState: MutableState<Int>) = Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
-    //TODO i18n
-    TextLabel("Count")
+    TextLabel(HSLang.itemEditorItemCount)
     val state = mutableStateOf(true)
     SwitchableProxy(
         { IntSlider(countState, 1..64, modifier = Modifier.width(60f)) },
@@ -102,51 +97,51 @@ private fun RowScope.ItemCount(countState: MutableState<Int>) = Row(horizontalAr
 
 
 @Suppress("UNCHECKED_CAST")
-private fun ContainerScope.ComponentAdder(
+private fun RowScope.ComponentAdder(
     componentMap: MergedComponentMap,
     onAdd: () -> Unit
-) =
-    Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
-        val components = registryManager!!.getOrThrow(RegistryKeys.DATA_COMPONENT_TYPE).toList()
-        val selected = components.first().asMutableState
-        TextLabel("DataComponent")
-        Selector(
-            options = components,
-            selected = selected,
-            selectedWrapper = {
-                TextLabel(it.id.toString())
-            },
-            optionWrapper = {
-                TextLabel(it.id.toString())
-            },
-            amountStep = 15f
-        )
-        Button {
-            Icon(IconTextures.PLUS, HSVColor(120f, 1f, .65f), modifier = Modifier.size(9f, 9f))
-            click {
-                runCatching {
-                    DataComponentWrappers.defaultValue(selected.getValue())?.let {
-                        componentMap.set(selected.getValue() as ComponentType<Any>, it)
-                        onAdd()
-                    } ?: run {
-                        DefaultComponentBuilder(selected.getValue().id!!, selected.getValue()) { component, recompose ->
-                            componentMap.set(selected.getValue() as ComponentType<Any>, component)
-                            if (recompose) onAdd()
-                        }.open()
-                    }
-                }.onFailure {
-                    Toast.showToast(Literal(it.message ?: "unknown error").withColor(Colors.RED))
-                    DataComponentWrappers.log.error(it)
+) = Row(modifier = Modifier, horizontalArrangement = Arrangement.spacedBy(5f)) {
+    val registryManager = registryManager!!
+    val components = registryManager.getOrThrow(RegistryKeys.DATA_COMPONENT_TYPE).sortedBy { it.id(registryManager) }
+    val selected = components.first().asMutableState
+    TextLabel(HSLang.itemEditorItemComponent)
+    Selector(
+        options = components,
+        selected = selected,
+        selectedWrapper = {
+            TextLabel(it.id(registryManager).toString())
+        },
+        optionWrapper = {
+            TextLabel(it.id(registryManager).toString())
+        },
+        amountStep = 15f
+    )
+    Button {
+        Icon(IconTextures.PLUS, HSVColor(120f, 1f, .65f), modifier = Modifier.size(9f, 9f))
+        click {
+            runCatching {
+                DataComponentWrappers.defaultValue(selected.getValue())?.let {
+                    componentMap.set(selected.getValue() as ComponentType<Any>, it)
+                    onAdd()
+                } ?: run {
+                    DefaultComponentBuilder(selected.getValue().id(registryManager)!!, selected.getValue()) { component, recompose ->
+                        componentMap.set(selected.getValue() as ComponentType<Any>, component)
+                        if (recompose) onAdd()
+                    }.open()
                 }
+            }.onFailure {
+                Toast.showToast(Literal(it.message ?: "unknown error").withColor(Colors.RED))
+                DataComponentWrappers.log.error(it)
             }
         }
     }
+}
 
 @Suppress("UNCHECKED_CAST")
-private fun ColumnScope.Component(components: MergedComponentMap): () -> Unit {
+private fun ColumnScope.Components(components: MergedComponentMap): () -> Unit {
     var recompose by lateInitValueOf<() -> Unit>()
     ColumnListWrapped(
-        Modifier.matchSibling().height(160f),
+        Modifier.matchSibling().minHeight(140f).maxHeight(180f),
         spacing = 2f,
         horizontalAlignment = Alignment.Left,
         listModifier = {
@@ -155,7 +150,7 @@ private fun ColumnScope.Component(components: MergedComponentMap): () -> Unit {
     ) {
         recompose = { this.executeRecompose() }
         components.types.sortedBy {
-            it.id
+            it.id(registryManager!!)
         }.forEach { type ->
             components[type]?.let { c ->
                 DataComponentWrapper(

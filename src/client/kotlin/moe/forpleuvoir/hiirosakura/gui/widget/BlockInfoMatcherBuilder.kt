@@ -11,7 +11,6 @@ import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryProperty
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryScript
 import moe.forpleuvoir.hiirosakura.HSLang.blockInfoMatcherEntryTag
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.*
-import moe.forpleuvoir.hiirosakura.util.lateInitValueOf
 import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -41,6 +40,7 @@ import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.text.translateComment
 import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
+import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy

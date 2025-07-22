@@ -52,7 +52,7 @@ fun ContainerScope.ItemEnchantmentsComponentWrapper(
     var component = ItemEnchantmentsComponent.Builder(component).build()
     Button(
         modifier = Modifier
-            .minWidth(120f)
+            .width(140f)
             .hoverTip {
                 Column(horizontalAlignment = Alignment.Left) {
                     val list = listOf(Literal("showInTooltip") to Literal(component.showInTooltip.toString())) +

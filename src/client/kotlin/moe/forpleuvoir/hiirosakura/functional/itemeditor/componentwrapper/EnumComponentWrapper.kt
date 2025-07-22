@@ -20,5 +20,5 @@ fun <E : Enum<E>> ContainerScope.EnumComponentWrapper(
 ) = DataComponentWrapperRow(id, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     val valueState = component.asMutableState
     valueState.subscribe { onValueChange(it, false) }
-    EnumSelector(valueState, modifier = Modifier.width(120f))
+    EnumSelector(valueState, modifier = Modifier.width(140f))
 }

@@ -46,7 +46,7 @@ fun ContainerScope.LoreComponentWrapper(
     var component = component
     Button(
         modifier = Modifier
-            .minWidth(120f)
+            .minWidth(140f)
             .hoverTip {
                 Column(horizontalAlignment = Alignment.Left) {
                     if (component.lines.isEmpty()) {

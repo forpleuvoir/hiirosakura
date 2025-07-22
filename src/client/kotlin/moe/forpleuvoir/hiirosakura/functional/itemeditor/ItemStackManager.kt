@@ -84,7 +84,7 @@ object ItemStackManager {
                 deserialization(registryManager, json.jsonStringToObject())
             }
         }.onFailure {
-            saveDataAsync(registryManager)
+//            saveDataAsync(registryManager)
             log.warn(it)
         }
     }
@@ -101,7 +101,9 @@ object ItemStackManager {
                 log.warn(it)
             }
             changed = false
+            return@ioAsync true
         }
+        return@ioAsync false
     }
 
     fun serialization(registryManager: DynamicRegistryManager): SerializeElement = serializeObject {

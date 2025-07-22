@@ -13,31 +13,45 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 
 fun ContainerScope.RemoveButton(
+    modifier: Modifier = Modifier,
     action: (IGButtonWidget) -> Unit,
 ) = FlatButton(
     hoveredColor = Colors.RED.alpha(0.25f),
-    modifier = Modifier.hoverText(IGLang.remove).size(14f, 14f)
+    modifier = Modifier.hoverText(IGLang.remove).size(14f, 14f).then(modifier)
 ) {
     click(action)
     Icon(IconTextures.DELETE, HSVColor(0f, .1f, .25f), modifier = Modifier.size(12f, 12f))
 }
 
 fun ContainerScope.AddButton(
+    modifier: Modifier = Modifier,
     action: (IGButtonWidget) -> Unit,
 ) = FlatButton(
     hoveredColor = Colors.LIME.alpha(0.25f),
-    modifier = Modifier.hoverText(IGLang.add).size(14f, 14f)
+    modifier = Modifier.hoverText(IGLang.add).size(14f, 14f).then(modifier)
 ) {
     click(action)
     Icon(IconTextures.PLUS, HSVColor(120f, 1f, .65f), modifier = Modifier.size(9f, 9f))
 }
 
 fun ContainerScope.EditButton(
+    modifier: Modifier = Modifier,
     action: (IGButtonWidget) -> Unit,
 ) = FlatButton(
     hoveredColor = Colors.LIME.alpha(0.25f),
-    modifier = Modifier.hoverText(IGLang.edit).size(14f, 14f)
+    modifier = Modifier.hoverText(IGLang.edit).size(14f, 14f).then(modifier)
 ) {
     click(action)
     Icon(IconTextures.EDIT, modifier = Modifier.size(12f, 12f))
+}
+
+fun ContainerScope.CopyButton(
+    modifier: Modifier = Modifier,
+    action: (IGButtonWidget) -> Unit,
+) = FlatButton(
+    hoveredColor = Colors.LIME.alpha(0.25f),
+    modifier = Modifier.hoverText(IGLang.edit).size(14f, 14f).then(modifier)
+) {
+    click(action)
+    Icon(IconTextures.COPY)
 }

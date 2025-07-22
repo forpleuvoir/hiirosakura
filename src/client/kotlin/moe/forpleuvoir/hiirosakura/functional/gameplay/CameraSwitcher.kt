@@ -12,7 +12,7 @@ import moe.forpleuvoir.nebula.config.item.impl.boolean
 import net.minecraft.command.CommandSource
 import net.minecraft.entity.Entity
 
-object CameraSwitcher:ModConfigContainer("camera_switcher") {
+object CameraSwitcher : ModConfigContainer("camera_switcher") {
 
     private val _shortcutKey by keyBind("shortcut_key", KeyBind {
         switchToTarget()
@@ -33,12 +33,12 @@ object CameraSwitcher:ModConfigContainer("camera_switcher") {
         registerCommand("hs:camera_switch") {
             argument("target", StringArgumentType.string()) {
                 suggests { _, builder ->
-                    CommandSource.suggestMatching(clientEntities.map { it.name.string }, builder)
+                    CommandSource.suggestMatching(clientEntities.map { "\"${it.name.string}[${it.uuidAsString}]\"" }, builder)
                 }
                 execute {
                     val playerName = StringArgumentType.getString(this, "target")
                     clientEntities
-                        .find { it.name.string == playerName }
+                        .find { "${it.name.string}[${it.uuidAsString}]" == playerName }
                         ?.let { switchCamera(it) }
                         ?: this.source.sendFeedback(Literal("entity not found"))
                 }

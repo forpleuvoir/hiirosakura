@@ -71,7 +71,8 @@ fun ContainerScope.ItemSelector(
     },
     modifier: Modifier = Modifier.width(120f),
     searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
-    listModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
+    listWrapperModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
+    listModifier: RowScope.() -> Modifier = { Modifier.weight(1) },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     scope: DropDownMenuScope.() -> Unit = {}
 ) = SelectorWithSearcher(
@@ -86,6 +87,7 @@ fun ContainerScope.ItemSelector(
     optionWrapper = optionWrapper,
     modifier = modifier,
     searchBarModifier = searchBarModifier,
+    listWrapperModifier = listWrapperModifier,
     listModifier = listModifier,
     optionsDirection = optionsDirection,
     scope = scope
@@ -227,7 +229,8 @@ fun ContainerScope.DataComponentTypeSelector(
     },
     modifier: Modifier = Modifier.width(120f),
     searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
-    listModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
+    listWrapperModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
+    listModifier: RowScope.() -> Modifier = { Modifier.weight(1) },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     amountStep: Float? = 15f,
     scope: DropDownMenuScope.() -> Unit = {}
@@ -243,6 +246,7 @@ fun ContainerScope.DataComponentTypeSelector(
     optionWrapper = optionWrapper,
     modifier = modifier,
     searchBarModifier = searchBarModifier,
+    listWrapperModifier = listWrapperModifier,
     listModifier = listModifier,
     optionsDirection = optionsDirection,
     amountStep = amountStep,
@@ -268,7 +272,8 @@ fun ContainerScope.EnchatmentSelector(
     },
     modifier: Modifier = Modifier.width(120f),
     searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
-    listModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
+    listWrapperModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
+    listModifier: RowScope.() -> Modifier = { Modifier.weight(1) },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     amountStep: Float? = 15f,
     scope: DropDownMenuScope.() -> Unit = {}
@@ -284,6 +289,7 @@ fun ContainerScope.EnchatmentSelector(
     selectedWrapper = selectedWrapper,
     optionWrapper = optionWrapper,
     modifier = modifier,
+    listWrapperModifier = listWrapperModifier,
     searchBarModifier = searchBarModifier,
     listModifier = listModifier,
     optionsDirection = optionsDirection,
@@ -305,7 +311,8 @@ fun ContainerScope.EnchatmentSelector(
     },
     modifier: Modifier = Modifier.width(120f),
     searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
-    listModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
+    listWrapperModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
+    listModifier: RowScope.() -> Modifier = { Modifier.weight(1) },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     amountStep: Float? = 15f,
     scope: DropDownMenuScope.() -> Unit = {}
@@ -322,6 +329,7 @@ fun ContainerScope.EnchatmentSelector(
     optionWrapper = optionWrapper,
     modifier = modifier,
     searchBarModifier = searchBarModifier,
+    listWrapperModifier = listWrapperModifier,
     listModifier = listModifier,
     optionsDirection = optionsDirection,
     amountStep = amountStep,

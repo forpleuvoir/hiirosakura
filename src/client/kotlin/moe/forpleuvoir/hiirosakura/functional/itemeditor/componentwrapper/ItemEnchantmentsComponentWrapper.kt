@@ -1,22 +1,28 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.gui.widget.ENCHANTMENT_LIST
 import moe.forpleuvoir.hiirosakura.gui.widget.EnchatmentSelector
-import moe.forpleuvoir.hiirosakura.gui.widget.RemoveButton
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.height
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverText
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverTip
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.base.screen.closeScreen
+import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.widget.IntSlider
 import moe.forpleuvoir.ibukigourd.gui.widget.SwitchableProxy
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.DeleteButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
@@ -31,10 +37,10 @@ import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.copyToText
+import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
-import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.component.type.ItemEnchantmentsComponent
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.registry.entry.RegistryEntry
@@ -122,19 +128,23 @@ fun ItemEnchantmentsComponentEditor(
 
             Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
                 val selectedEnchantment = mutableStateOf(ENCHANTMENT_LIST.first())
-                EnchatmentSelector(selectedEnchantment)
-                Button(
-                    Modifier.hoverText(IGLang.add)
-                ) {
-                    Icon(IconTextures.PLUS, Color(0xFF2EE62E), Modifier.size(8f, 8f))
-                    click {
+                var toggle by lateInitValueOf {}
+                EnchatmentSelector(
+                    selectedEnchantment,
+                    modifier = Modifier.hoverText(IGLang.add).width(120f),
+                    onSelected = { enchantment ->
+                        closeScreen()
+                        toggle()
                         val list = enchantments.map { it.idAsString }
-                        if (selectedEnchantment.getValue().idAsString !in list) {
-                            enchantments.add(selectedEnchantment.getValue())
+                        if (enchantment.idAsString !in list) {
+                            enchantments.add(enchantment)
                             levels.add(1)
                             recompose()
+                        } else {
+                            Toast.showToast(HSLang.itemEditorEnchantmentExist(enchantment.value().description))
                         }
-                    }
+                    }) {
+                    toggle = { this.toggle() }
                 }
             }
         }
@@ -187,10 +197,21 @@ fun ItemEnchantmentsComponentEditor(
             Header {
                 TextLabel(text = IGLang.remove)
             }.Column { (index, _) ->
-                RemoveButton {
+                DeleteButton(
+                    {
+                        HSLang.deleteConfirm(
+                            "${enchantments[index].value().description.string} ${
+                                Translatable(
+                                    "enchantment.level.${levels[index]}",
+                                    levels[index].toString()
+                                ).string
+                            }"
+                        )
+                    },
+                    { recompose() }
+                ) {
                     enchantments.removeAt(index)
                     levels.removeAt(index)
-                    recompose()
                 }
             }
         }

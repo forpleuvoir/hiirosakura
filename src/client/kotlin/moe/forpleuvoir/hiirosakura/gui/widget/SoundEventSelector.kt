@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonScope
 import moe.forpleuvoir.ibukigourd.gui.widget.defaultSelectedColor
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
@@ -43,14 +44,17 @@ fun ContainerScope.SoundEventSelector(
     },
     modifier: Modifier = Modifier.width(280f),
     searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width(280f) },
-    listModifier: ColumnScope.() -> Modifier = { Modifier.width(280f) },
+    listWrapperModifier: ColumnScope.() -> Modifier = { Modifier.width(280f) },
+    listModifier: RowScope.() -> Modifier = { Modifier.weight(1) },
     optionsDirection: List<Direction> = Direction.rightLeftBottomTop,
     scope: DropDownMenuScope.() -> Unit = {}
 ) = SelectorWithSearcher(
     options = soundEvents,
     selected = soundEvent,
     predicate = { soundEvent, str ->
-        Translatable("subtitles.${soundEvent.id.path}", soundEvent.id.toString()).plainText.contains(str, ignoreCase = true) || Registries.SOUND_EVENT.getKey(soundEvent).toString().contains(str)
+        Translatable("subtitles.${soundEvent.id.path}", soundEvent.id.toString()).plainText.contains(str, ignoreCase = true) || Registries.SOUND_EVENT.getKey(
+            soundEvent
+        ).toString().contains(str)
     },
     onSelected = onSelected,
     selectedColor = selectedColor,
@@ -58,7 +62,9 @@ fun ContainerScope.SoundEventSelector(
     optionWrapper = optionWrapper,
     modifier = modifier,
     searchBarModifier = searchBarModifier,
+    listWrapperModifier = listWrapperModifier,
     listModifier = listModifier,
     optionsDirection = optionsDirection,
+    amountStep = 15f,
     scope = scope
 )

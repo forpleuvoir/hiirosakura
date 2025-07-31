@@ -1,8 +1,10 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
-import moe.forpleuvoir.hiirosakura.gui.widget.RemoveButton
+import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.gui.widget.EditButton
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -11,10 +13,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.MoveButton
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.DialogContent
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.DeleteButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
@@ -24,6 +28,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
+import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.text.inlinestyletext.InlineStyleTextParser
@@ -79,10 +84,10 @@ fun LoreComponentEditor(
     screenModifier: Modifier = Modifier,
     onValueChange: (LoreComponent, Boolean) -> Unit,
 ): IGScreenImpl {
-    val lines = component.lines.map { InlineStyleTextParser.inline(it) }.toMutableList()
+    val lines = component.lines.toMutableList()
     return DataComponentWrapperDialog(
         title,
-        { LoreComponent(lines.map { InlineStyleTextParser.parse(it) }) to true },
+        { LoreComponent(lines) to true },
         onValueChange,
         modifier = modifier,
         screenModifier = screenModifier
@@ -101,33 +106,45 @@ fun LoreComponentEditor(
                     Row(Modifier, horizontalArrangement = Arrangement.spacedBy(2f)) {
                         MoveButton(recompose, lines, index)
 
-                        Button(Modifier.width(280f).minHeight(19f)) {
-                            TextLabel(entry)
-                            click {
-                                val stringState = mutableStateOf(entry)
-                                DataComponentWrapperDialog(
-                                    title,
-                                    { stringState.getValue() to true },
-                                    { it, recompose ->
-                                        lines[index] = stringState.getValue()
-                                        if (recompose) recompose()
-                                    },
-                                    modifier = modifier,
-                                    screenModifier = screenModifier
-                                ) {
-                                    TextArea(Modifier.size(280f, 100f)) { bindState(stringState) }
-                                    Box(Modifier.matchSibling().height(30f).margin(top = 5f)) {
-                                        TextLabel(mutableStateBy {
-                                            InlineStyleTextParser.parse(stringState.getValue(), InlineStyleTextParser.noneEventModifier).copyToText()
-                                        }, setting = TextSetting(textLabelUpdateInterval = 1.milliseconds))
+                        Box(
+                            Modifier.padding(horizontal = 5f, vertical = 4f)
+                                .width(260f).minHeight(19f)
+                                .render { ctx, _, _, _ ->
+                                    ctx.batchRenderTextureColored {
+                                        pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_BACKGROUND)
                                     }
-                                }.open()
-                            }
+                                }
+                        ) {
+                            TextLabel(entry.copyToText())
+                        }
+                        EditButton {
+                            val stringState = mutableStateOf(InlineStyleTextParser.inline(entry))
+                            DataComponentWrapperDialog(
+                                title,
+                                { stringState.getValue() to true },
+                                { it, recompose ->
+                                    lines[index] = InlineStyleTextParser.parse(stringState.getValue(), InlineStyleTextParser.noneEventModifier)
+                                    if (recompose) recompose()
+                                },
+                                modifier = modifier,
+                                screenModifier = screenModifier
+                            ) {
+                                //Editor
+                                TextArea(Modifier.size(280f, 100f)) { bindState(stringState) }
+                                //Preview
+                                Box(Modifier.matchSibling().height(30f).margin(top = 5f)) {
+                                    TextLabel(mutableStateBy {
+                                        InlineStyleTextParser.parse(stringState.getValue(), InlineStyleTextParser.noneEventModifier).copyToText()
+                                    }, setting = TextSetting(textLabelUpdateInterval = 1.milliseconds))
+                                }
+                            }.open()
                         }
 
-                        RemoveButton {
+                        DeleteButton(
+                            { HSLang.deleteConfirm(lines[index]) },
+                            { recompose() }
+                        ) {
                             lines.removeAt(index)
-                            recompose()
                         }
                     }
                 }
@@ -142,7 +159,7 @@ fun LoreComponentEditor(
             Icon(IconTextures.PLUS, Color(0xFF2EE62E), Modifier.size(8f, 8f))
             click {
                 if (lines.size <= LoreComponent.MAX_LORES) {
-                    lines.addLast("")
+                    lines.addLast(Literal(""))
                     recompose()
                 }
             }

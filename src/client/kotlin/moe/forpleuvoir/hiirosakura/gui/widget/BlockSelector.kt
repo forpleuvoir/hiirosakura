@@ -63,7 +63,8 @@ fun ContainerScope.BlockSelector(
     },
     modifier: Modifier = Modifier,
     searchBarModifier: ColumnScope.() -> Modifier = { Modifier },
-    listModifier: ColumnScope.() -> Modifier = { Modifier },
+    listWrapperModifier: ColumnScope.() -> Modifier = { Modifier },
+    listModifier: RowScope.() -> Modifier = { Modifier },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     scope: DropDownMenuScope.() -> Unit = {}
 ) = SelectorWithSearcher(
@@ -78,6 +79,7 @@ fun ContainerScope.BlockSelector(
     optionWrapper = optionWrapper,
     modifier = modifier,
     searchBarModifier = searchBarModifier,
+    listWrapperModifier = listWrapperModifier,
     listModifier = listModifier,
     optionsDirection = optionsDirection,
     scope = scope

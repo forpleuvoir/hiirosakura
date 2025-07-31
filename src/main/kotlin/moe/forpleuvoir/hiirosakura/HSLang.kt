@@ -26,6 +26,8 @@ object HSLang {
 
     val send get() = lang("send")
 
+    fun deleteConfirm(someThing: Any): Text = lang("delete_confirm", someThing)
+
     fun blockBreakProtection(supplier: Any) = lang("gameplay.block_break_protection.toast", supplier)
 
     fun itemUseIntercepted(supplier: Any) = lang("gameplay.item_use_intercept.toast", supplier)
@@ -169,8 +171,14 @@ object HSLang {
     val itemEditorCopyToCommand get() = lang("item_editor.copy_to_command")
 
     val itemEditorItemType get() = lang("item_editor.item_type")
+    val itemEditorItemPreview get() = lang("item_editor.item_preview")
     val itemEditorItemCount get() = lang("item_editor.item_count")
-    val itemEditorItemComponent get() = lang("item_editor.item_component")
+    val itemEditorItemAddComponent get() = lang("item_editor.add_item_component")
+    val itemEditorAdaptedComponent get() = lang("item_editor.adapted_component")
+    val itemEditorUnadaptedComponent get() = lang("item_editor.unadapted_component")
+
+    fun itemEditorItemComponentExist(component: Any) = lang("item_editor.item_component_exist", component)
+    fun itemEditorEnchantmentExist(enchantment: Any) = lang("item_editor.enchantment_exist", enchantment)
 
     //------------ Matcher.ItemStack ------------\\
 

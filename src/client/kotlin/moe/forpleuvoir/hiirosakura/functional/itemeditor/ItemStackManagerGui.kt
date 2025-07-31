@@ -2,7 +2,6 @@ package moe.forpleuvoir.hiirosakura.functional.itemeditor
 
 import com.google.common.collect.Lists
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.delay
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.gui.widget.CopyButton
@@ -12,6 +11,7 @@ import moe.forpleuvoir.hiirosakura.util.closeScreen
 import moe.forpleuvoir.hiirosakura.util.id
 import moe.forpleuvoir.hiirosakura.util.registryManager
 import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.drawcontext.batchRenderTextureColored
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -21,6 +21,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecom
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.tip.Tip
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
+import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
@@ -32,12 +33,14 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -58,7 +61,6 @@ import net.minecraft.nbt.NbtOps
 import net.minecraft.nbt.visitor.StringNbtWriter
 import net.minecraft.registry.DynamicRegistryManager
 import kotlin.jvm.optionals.getOrNull
-import kotlin.time.Duration.Companion.milliseconds
 
 fun ContainerScope.ItemStackManagerGui(
     registryManager: DynamicRegistryManager,
@@ -133,7 +135,7 @@ private fun ContainerScope.ItemStackList(
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     barThickness: Float = 9f,
     listModifier: RowScope.() -> Modifier = { Modifier.fill().weight(1) },
-    scrollerModifier: RowScope.() -> Modifier = { Modifier },
+    scrollerModifier: BoxScope.() -> Modifier = { Modifier },
 ) = ColumnListWrapped(
     modifier,
     scrollState,
@@ -165,7 +167,7 @@ private fun ContainerScope.ItemStackList(
         ioLaunch {
             loadDataAsync.await()
             loaded.setValue(true)
-            delay(50.milliseconds)
+//            delay(50.milliseconds)
             this@ColumnListWrapped.executeRecompose()
         }
     }
@@ -179,8 +181,8 @@ private fun ColumnListScope.EntryRow(
 ) = Row(Modifier.fill().bgHoverHighlightBox(), horizontalArrangement = Arrangement.SpaceBetween) {
     Row(
         modifier = Modifier.renderOverlay { ctx, mx, my, d ->
-            ctx.postRender {
-                if (wasMouseOver) drawItemTooltip(textRenderer, itemStack, mx.toInt(), my.toInt())
+            if (wasMouseOver) ctx.postRender {
+                drawItemTooltip(textRenderer, itemStack, mx.toInt(), my.toInt())
             }
         },
         horizontalArrangement = Arrangement.spacedBy(4f)
@@ -206,7 +208,9 @@ private fun ColumnListScope.EntryRow(
         CopyButton(Modifier.hoverText(HSLang.itemEditorCopyToCommand)) {
             val command = genCommand(itemStack)
             mc.keyboard.clipboard = command
-            Toast.showToast(command)
+            Toast.showToast {
+                TextLabel(command, modifier = Modifier.maxWidth(360f).maxHeight(400f), setting = TextSetting(autoNewLine = true))
+            }
         }
 
         EditButton {
@@ -217,8 +221,23 @@ private fun ColumnListScope.EntryRow(
 
         RemoveButton {
             ConfirmDialog(HSLang.itemEditorRemoveConfirm.asState) {
-                Row {
-                    ItemIcon(itemStack)
+                Row(
+                    Modifier
+                        .width(120f)
+                        .padding(horizontal = 5f, vertical = 4f)
+                        .render { ctx, _, _, _ ->
+                            ctx.batchRenderTextureColored {
+                                pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_BACKGROUND)
+                            }
+                        }
+                        .renderOverlay { ctx, mx, my, d ->
+                            if (wasMouseOver) ctx.postRender {
+                                drawItemTooltip(textRenderer, itemStack, mx.toInt(), my.toInt())
+                            }
+                        },
+                    Arrangement.spacedBy(5f)
+                ) {
+                    ItemIcon(itemStack, 0.6f)
                     TextLabel(itemStack.name.copyToText())
                 }
                 confirm {
@@ -226,7 +245,7 @@ private fun ColumnListScope.EntryRow(
                     recompose()
                     closeScreen()
                 }
-            }
+            }.open()
         }
     }
 }

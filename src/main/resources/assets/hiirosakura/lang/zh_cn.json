@@ -7,6 +7,7 @@
   "hiirosakura.name": "名称",
   "hiirosakura.message": "消息",
   "hiirosakura.send": "发送",
+  "hiirosakura.delete_confirm": "你确认要删除[%s]吗?",
   "hiirosakura.script.set_config.success": "设置配置[%s = %s]成功",
   "hiirosakura.script.set_config.fail": "设置配置[%s = %s]失败:%s",
   "hiirosakura.script.set_config.not_found": "未找到配置[%s]",
@@ -394,7 +395,12 @@
   "hiirosakura.item_editor.save_success": "物品编辑器 保存成功",
   "hiirosakura.item_editor.copy_to_command": "复制为指令",
   "hiirosakura.item_editor.item_type": "物品类型",
+  "hiirosakura.item_editor.item_preview": "物品预览",
   "hiirosakura.item_editor.item_count": "物品数量",
-  "hiirosakura.item_editor.item_component": "物品组件"
+  "hiirosakura.item_editor.add_item_component": "添加组件",
+  "hiirosakura.item_editor.adapted_component": "适配的组件",
+  "hiirosakura.item_editor.unadapted_component": "未适配的组件",
+  "hiirosakura.item_editor.item_component_exist": "组件[%s]已存在",
+  "hiirosakura.item_editor.enchantment_exist": "附魔[%s]已存在"
 }
 

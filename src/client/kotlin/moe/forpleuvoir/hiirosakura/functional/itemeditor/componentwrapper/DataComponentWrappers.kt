@@ -8,6 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.text.Literal
 import net.minecraft.component.ComponentType
 import net.minecraft.component.DataComponentTypes.*
+import net.minecraft.component.type.FoodComponents
 import net.minecraft.component.type.ItemEnchantmentsComponent
 import net.minecraft.component.type.LoreComponent
 import net.minecraft.component.type.UnbreakableComponent
@@ -32,7 +33,15 @@ object DataComponentWrappers {
     private val componentWrappers = mutableMapOf<ComponentType<*>, DataComponentWrapper<Any>>()
     private val componentDefaultValues = mutableMapOf<ComponentType<*>, Any>()
     private val componentIds = mutableMapOf<ComponentType<*>, Identifier>()
-    private val supportedComponent = mutableListOf<ComponentType<*>>()
+    private val adaptedComponent = mutableListOf<ComponentType<*>>()
+
+    fun isAdaptedComponent(type: ComponentType<*>): Boolean {
+        return adaptedComponent.contains(type)
+    }
+
+    fun isAdaptedComponent(id: Identifier): Boolean {
+        return adaptedComponent.any { it.id == id }
+    }
 
     fun <C> defaultValue(type: ComponentType<C>): C? {
         return componentDefaultValues[type] as? C
@@ -47,7 +56,7 @@ object DataComponentWrappers {
         componentWrappers[type] = wrapper as DataComponentWrapper<Any>
         componentDefaultValues[type] = defaultValue
         componentIds[type] = id
-        supportedComponent.add(type)
+        adaptedComponent.add(type)
     }
 
     fun <C : Any> ContainerScope.DataComponentWrapper(
@@ -147,6 +156,10 @@ object DataComponentWrappers {
         }
         register(GLIDER, net.minecraft.util.Unit.INSTANCE) { id, c, m, rm, consumer ->
             UnitComponentWrapper(id, modifier = m, removeAction = rm)
+        }
+        //------------ Food ------------\\
+        register(FOOD, FoodComponents.MELON_SLICE) { id, c, m, rm, consumer ->
+            FoodComponentWrapper(id, c, modifier = m, removeAction = rm, onValueChange = consumer)
         }
     }
 

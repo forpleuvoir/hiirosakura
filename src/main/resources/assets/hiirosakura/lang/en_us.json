@@ -7,6 +7,7 @@
   "hiirosakura.name": "Name",
   "hiirosakura.message": "Message",
   "hiirosakura.send": "Send",
+  "hiirosakura.delete_confirm": "Did you want to delete [%s]?",
   "hiirosakura.script.set_config.success": "Successfully set configuration [%s = %s]",
   "hiirosakura.script.set_config.fail": "Failed to set configuration [%s = %s]: %s",
   "hiirosakura.script.set_config.not_found": "Configuration [%s] not found",
@@ -394,7 +395,12 @@
   "hiirosakura.item_editor.remove_confirm": "Are you sure you want to delete this item",
   "hiirosakura.item_editor.copy_to_command": "Copy to Command",
   "hiirosakura.item_editor.item_type": "Item Type",
+  "hiirosakura.item_editor.item_preview": "Preview",
   "hiirosakura.item_editor.item_count": "Count",
-  "hiirosakura.item_editor.item_component": "Item Component"
+  "hiirosakura.item_editor.add_item_component": "Add Component",
+  "hiirosakura.item_editor.adapted_component": "Adapted Component",
+  "hiirosakura.item_editor.unadapted_component": "Unadapted Component",
+  "hiirosakura.item_editor.item_component_exist": "Component [%s] is existed",
+  "hiirosakura.item_editor.enchantment_exist": "Enchantment [%s] is existed"
 }
 

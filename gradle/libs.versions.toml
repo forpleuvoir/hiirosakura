@@ -1,5 +1,5 @@
 [versions]
-modVersion = "3.2.0+beta"
+modVersion = "3.3.0+beta"
 #Fabric checks these on https://fabricmc.net/versions.html
 minecraftVersion = "1.21.4"
 yarnMappingsVersion = "1.21.4+build.2"
@@ -11,7 +11,7 @@ modMenuVersion = "13.0.0-beta.1"
 fabricKotlinVersion = "1.12.3+kotlin.2.0.21"
 ibukigourdVersion = "0.8.5+beta"
 #other
-nebulaVersion = "0.2.26"
+nebulaVersion = "0.2.27"
 kotlinVersion = "2.0.0"
 nashornVersion = "15.4"
 

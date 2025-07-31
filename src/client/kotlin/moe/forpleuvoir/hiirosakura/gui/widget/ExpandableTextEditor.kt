@@ -10,7 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextLabel
 import moe.forpleuvoir.ibukigourd.text.Text
@@ -29,7 +29,7 @@ fun ContainerScope.ExpandableTextEditor(
     EditButton {
         Dialog(Modifier.maxWidth(330f).maxHeight(185f).then(dialogModifier)) {
             TextLabel(title)
-            TextArea(Modifier.fill().weight(1)) {
+            TextAreaWrapped(modifier = Modifier.fill().weight(1)) {
                 bindState(text)
             }
         }.open()

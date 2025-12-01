@@ -71,8 +71,7 @@ fun ContainerScope.IdentifierComponentWrapper(
     }
 }
 
-
-private fun IdentifierComponentEditor(
+fun IdentifierComponentEditor(
     title: Text,
     component: Identifier,
     modifier: Modifier = Modifier,

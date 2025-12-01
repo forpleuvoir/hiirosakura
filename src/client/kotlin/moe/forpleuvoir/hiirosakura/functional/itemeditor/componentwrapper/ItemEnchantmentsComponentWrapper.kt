@@ -2,8 +2,8 @@ package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.gui.widget.ENCHANTMENT_LIST
 import moe.forpleuvoir.hiirosakura.gui.widget.EnchatmentSelector
+import moe.forpleuvoir.hiirosakura.gui.widget.REGISTERED_ENCHANTMENT
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -127,7 +127,7 @@ fun ItemEnchantmentsComponentEditor(
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
-                val selectedEnchantment = mutableStateOf(ENCHANTMENT_LIST.first())
+                val selectedEnchantment = mutableStateOf(REGISTERED_ENCHANTMENT.first())
                 var toggle by lateInitValueOf {}
                 EnchatmentSelector(
                     selectedEnchantment,

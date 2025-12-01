@@ -38,7 +38,7 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
         textRenderer: TextRenderer,
         dispatcher: EntityRenderDispatcher,
         matrixStack: MatrixStack,
-        vertexConsumerProvider: VertexConsumerProvider.Immediate,
+        vertexConsumerProvider: VertexConsumerProvider,
         light: Int
     ) {
         if (!enable.value || distance <= 0) return
@@ -62,7 +62,7 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
         textRenderer: TextRenderer,
         dispatcher: EntityRenderDispatcher,
         matrixStack: MatrixStack,
-        vertexConsumerProvider: VertexConsumerProvider.Immediate,
+        vertexConsumerProvider: VertexConsumerProvider,
         light: Int
     ) {
         if (!enable.value || !experienceOrbValue.value || distance <= 0) return

@@ -57,7 +57,6 @@ dependencies {
         implementation(dependencyNotation)
         include(dependencyNotation)
     }
-
     minecraft(libs.minecraft)
     mappings("${libs.yarnMappings.get()}:v2")
     modImplementation(libs.fabricLoader)

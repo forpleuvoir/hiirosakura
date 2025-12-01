@@ -7,6 +7,14 @@ object GamePlay : ModConfigContainer("gameplay") {
 
     val autoRebirth by keyBindBoolean("auto_rebirth", false)
 
+    //TODO 槽位锁定物品,优先将指定物品移动到指定槽位,不匹配的物品默认不占用指定槽位,只在物品栏已满的情况下占用,或者给开关强制不允许占用,多余的物品直接丢出
+    //TODO 方块放置辅助,类似按下快捷键弹出一个轮盘选项,选择辅助模式并开启辅助或关闭辅助.
+    //TODO 方块破坏辅助,类似按下快捷键弹出一个轮盘选项,选择辅助模式并开启辅助或关闭辅助.
+    //TODO 添加槽位切换功能,预期按下快捷键切换槽位.长按快捷键鼠标滚轮选择槽位.并且提供配置选择可以启用的槽位,以及添加物品匹配器过滤不想切换的物品.
+    //TODO 双开门
+    //TODO 自动丢弃物品
+    //TODO 附近实体查看器
+
     init {
         addConfig(ItemUseIntercept)
         addConfig(ItemDropIntercept)

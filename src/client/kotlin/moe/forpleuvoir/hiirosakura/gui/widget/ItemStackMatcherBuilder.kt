@@ -473,7 +473,7 @@ private fun EnchantmentMatchEntryBuilder(
                     TextLabel(HSLang.getFromHandItem, modifier = Modifier.height(20f))
                 }
 
-                if (ENCHANTMENT_ID_LIST.isNotEmpty()) {
+                if (REGISTERED_ENCHANTMENT_ID.isNotEmpty()) {
                     TextLabel(HSLang.getFromRegistry, modifier = Modifier.height(20f))
                 }
 
@@ -487,7 +487,7 @@ private fun EnchantmentMatchEntryBuilder(
                         mutableStateOf(enchantments.entries.first().key),
                         enchantments = enchantments.keys.toList(),
                         onSelected = {
-                            ENCHANTMENT_LIST
+                            REGISTERED_ENCHANTMENT
                                 .find { e -> e.idAsString == it.idAsString }
                                 ?.let { e ->
                                     enchantment.setValue(e.idAsString)
@@ -501,7 +501,7 @@ private fun EnchantmentMatchEntryBuilder(
                     )
                 }
 
-                if (ENCHANTMENT_ID_LIST.isNotEmpty()) {
+                if (REGISTERED_ENCHANTMENT_ID.isNotEmpty()) {
                     val selectedEnchantment = enchantment.getValue().asMutableState
                     selectedEnchantment.subscribe {
                         enchantment.setValue(it)
@@ -510,7 +510,7 @@ private fun EnchantmentMatchEntryBuilder(
                 }
 
                 TextEditor(Modifier.matchSibling().hoverTip {
-                    TextLabel(ecnchantmentDescription(enchantment.getValue()))
+                    TextLabel(enchantmentDescription(enchantment.getValue()))
                 }) { bindState(enchantment) }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(5f)) {

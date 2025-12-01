@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.mixin.client.render;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import moe.forpleuvoir.hiirosakura.compat.iris.IrisCompat;
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.DropEntityRenderAddon;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -30,22 +29,20 @@ public abstract class ExperienceOrbEntityRendererMixin extends EntityRenderer<Ex
     }
 
     @Inject(
-        method = "render(Lnet/minecraft/client/render/entity/state/ExperienceOrbEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
-        at = @At("RETURN")
+            method = "render(Lnet/minecraft/client/render/entity/state/ExperienceOrbEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+            at = @At("RETURN")
     )
     public void hiirosakura$render(
-        ExperienceOrbEntityRenderState experienceOrbEntityRenderState,
-        MatrixStack matrixStack,
-        VertexConsumerProvider vertexConsumerProvider,
-        int i,
-        CallbackInfo ci,
-        @Local(ordinal = 2) int red,
-        @Local(ordinal = 4) int blue
+            ExperienceOrbEntityRenderState experienceOrbEntityRenderState,
+            MatrixStack matrixStack,
+            VertexConsumerProvider vertexConsumerProvider,
+            int i,
+            CallbackInfo ci,
+            @Local(ordinal = 2) int red,
+            @Local(ordinal = 4) int blue
     ) {
         if (DropEntityRenderAddon.getCurrentExperienceOrbEntity() != null) {
-            IrisCompat.isImmediate(vertexConsumerProvider, (immediate) -> {
-                DropEntityRenderAddon.renderExperienceOrbValue(new Color(red, 255, blue).getRGB(), DropEntityRenderAddon.getCurrentExperienceOrbEntity(), getTextRenderer(), dispatcher, matrixStack, immediate, i);
-            });
+            DropEntityRenderAddon.renderExperienceOrbValue(new Color(red, 255, blue).getRGB(), DropEntityRenderAddon.getCurrentExperienceOrbEntity(), getTextRenderer(), dispatcher, matrixStack, vertexConsumerProvider, i);
         }
     }
 

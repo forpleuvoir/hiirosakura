@@ -21,8 +21,12 @@ object CustomData : HiiroSakuraData {
     @OptIn(ExperimentalApi::class)
     override fun deserialization(serializeElement: SerializeElement) {
         serializeElement.checkType<SerializeObject, Unit> {
-            data.clear()
-            data.putAll(it.toMap())
+            runCatching {
+                it.toMap()
+            }.getOrNull()?.let { map ->
+                data.clear()
+                data.putAll(map)
+            }
         }
     }
 

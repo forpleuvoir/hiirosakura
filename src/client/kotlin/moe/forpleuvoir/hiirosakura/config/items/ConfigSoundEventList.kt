@@ -59,7 +59,7 @@ object SoundEventDeserializer : Deserializer<SoundEvent> {
 
 }
 
-fun ContainerScope.SoundEffectListWrapper(
+fun ContainerScope.SoundEventListWrapper(
     config: ConfigSoundEventList,
     modifier: Modifier = Modifier,
     contentTableName: Text = HSLang.soundEffect,
@@ -83,7 +83,7 @@ fun ContainerScope.SoundEffectListWrapper(
             MoveableTableHeader().MoveableTableColumCell(config, recompose, showIndex)
 
             Header(1) {
-                TextLabel(contentTableName, setting = TextSetting().copy(Alignment.CenterHorizontally), modifier = Modifier.minWidth(120f).maxWidth(250f).align(Alignment.Center))
+                TextLabel(contentTableName, setting = TextSetting(horizontalAlignment = Alignment.CenterHorizontally), modifier = Modifier.minWidth(120f).maxWidth(250f).align(Alignment.Center))
             }.Column { index, entry ->
                 val state = mutableStateOf(entry).apply {
                     onSetValue = {

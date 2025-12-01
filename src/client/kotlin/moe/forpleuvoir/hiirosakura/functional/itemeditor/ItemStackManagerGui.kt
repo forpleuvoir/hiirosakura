@@ -146,6 +146,7 @@ private fun ContainerScope.ItemStackList(
     scrollerModifier
 ) {
     if (!loaded.getValue()) {
+        //TODO i18n
         TextLabel("Loading...")
     } else {
         val list = ItemStackManager.asSequence().filter {

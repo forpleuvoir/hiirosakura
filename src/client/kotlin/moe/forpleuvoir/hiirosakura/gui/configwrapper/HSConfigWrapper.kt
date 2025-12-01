@@ -12,7 +12,7 @@ object HSConfigWrapper {
 
     @Subscriber
     fun init(event: ClientLifecycleEvent.ClientStartingEvent) = ConfigWrapperMap.apply {
-        register<ConfigSoundEventList> { c, m -> SoundEffectListWrapper(c, m) }
+        register<ConfigSoundEventList> { c, m -> SoundEventListWrapper(c, m) }
 
         register<ConfigItemStackMatcher> { c, m -> ItemStackMatcherWrapper(c, m) }
         register<ConfigItemStackMatcherMap> { c, m -> ItemStackMatcherMapWrapper(c, m) }

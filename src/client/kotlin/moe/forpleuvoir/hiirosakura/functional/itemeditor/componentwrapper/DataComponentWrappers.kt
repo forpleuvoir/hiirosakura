@@ -8,10 +8,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.text.Literal
 import net.minecraft.component.ComponentType
 import net.minecraft.component.DataComponentTypes.*
-import net.minecraft.component.type.FoodComponents
-import net.minecraft.component.type.ItemEnchantmentsComponent
-import net.minecraft.component.type.LoreComponent
-import net.minecraft.component.type.UnbreakableComponent
+import net.minecraft.component.type.*
 import net.minecraft.util.Identifier
 import net.minecraft.util.Rarity
 
@@ -141,6 +138,10 @@ object DataComponentWrappers {
         register(STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT) { id, c, m, rm, consumer ->
             ItemEnchantmentsComponentWrapper(id, c, modifier = m, removeAction = rm, onValueChange = consumer)
         }
+        //------------ EnchantableComponent ------------\\
+        register(ENCHANTABLE, EnchantableComponent(15)) { id, c, m, rm, consumer ->
+            EnchantableComponentWrapper(id, c, modifier = m, removeAction = rm, onValueChange = consumer)
+        }
         //------------  Unit ------------\\
         register(HIDE_ADDITIONAL_TOOLTIP, net.minecraft.util.Unit.INSTANCE) { id, c, m, rm, consumer ->
             UnitComponentWrapper(id, modifier = m, removeAction = rm)
@@ -160,6 +161,10 @@ object DataComponentWrappers {
         //------------ Food ------------\\
         register(FOOD, FoodComponents.MELON_SLICE) { id, c, m, rm, consumer ->
             FoodComponentWrapper(id, c, modifier = m, removeAction = rm, onValueChange = consumer)
+        }
+        //------------ Attribute Modifiers ------------\\
+        register(ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT) { id, c, m, rm, consumer ->
+            AttributeModifiersComponentWrapper(id, c, modifier = m, removeAction = rm, onValueChange = consumer)
         }
     }
 

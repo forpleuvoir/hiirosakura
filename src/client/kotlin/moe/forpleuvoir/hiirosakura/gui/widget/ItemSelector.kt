@@ -31,6 +31,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.copyToText
+import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
@@ -39,6 +40,7 @@ import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 import net.minecraft.component.ComponentType
 import net.minecraft.enchantment.Enchantment
+import net.minecraft.entity.attribute.EntityAttribute
 import net.minecraft.item.Item
 import net.minecraft.registry.BuiltinRegistries
 import net.minecraft.registry.Registries
@@ -255,7 +257,7 @@ fun ContainerScope.DataComponentTypeSelector(
 
 fun ContainerScope.EnchatmentSelector(
     enchantment: MutableState<RegistryEntry<Enchantment>>,
-    enchantments: List<RegistryEntry<Enchantment>> = ENCHANTMENT_LIST,
+    enchantments: List<RegistryEntry<Enchantment>> = REGISTERED_ENCHANTMENT,
     onSelected: (RegistryEntry<Enchantment>) -> Unit = {},
     selectedColor: ARGBColor = defaultSelectedColor,
     selectedWrapper: DropDownMenuScope.(RegistryEntry<Enchantment>) -> IGWidget = {
@@ -297,17 +299,17 @@ fun ContainerScope.EnchatmentSelector(
     scope = scope
 )
 
-@JvmName("EnchatmentSelectorString")
+@JvmName("EnchantmentSelectorString")
 fun ContainerScope.EnchatmentSelector(
     enchantment: MutableState<String>,
-    enchantments: List<String> = ENCHANTMENT_ID_LIST,
+    enchantments: List<String> = REGISTERED_ENCHANTMENT_ID,
     onSelected: (String) -> Unit = {},
     selectedColor: ARGBColor = defaultSelectedColor,
     selectedWrapper: DropDownMenuScope.(String) -> IGWidget = {
-        TextLabel(ecnchantmentDescription(it), modifier = Modifier.weight(1))
+        TextLabel(enchantmentDescription(it), modifier = Modifier.weight(1))
     },
     optionWrapper: ButtonScope.(String) -> IGWidget = {
-        TextLabel(ecnchantmentDescription(it), modifier = Modifier.weight(1))
+        TextLabel(enchantmentDescription(it), modifier = Modifier.weight(1))
     },
     modifier: Modifier = Modifier.width(120f),
     searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
@@ -319,7 +321,7 @@ fun ContainerScope.EnchatmentSelector(
 ) = SelectorWithSearcher(
     options = enchantments,
     predicate = { type, str ->
-        ecnchantmentDescription(type).string?.contains(str) == true
+        enchantmentDescription(type).string?.contains(str) == true
     },
     selected = enchantment,
     checker = { a, b -> a == b },
@@ -336,21 +338,60 @@ fun ContainerScope.EnchatmentSelector(
     scope = scope
 )
 
-val ENCHANTMENT_LIST: List<RegistryEntry<Enchantment>>
+val REGISTERED_ENCHANTMENT: List<RegistryEntry<Enchantment>>
     get() = registryManager?.getOrThrow(RegistryKeys.ENCHANTMENT)?.indexedEntries?.toList() ?: emptyList()
 
 
-val ENCHANTMENT_ID_LIST get() = ENCHANTMENT_LIST.map { it.idAsString }
+val REGISTERED_ENCHANTMENT_ID get() = REGISTERED_ENCHANTMENT.map { it.idAsString }
 
-fun ecnchantmentDescription(id: String): Text {
-    return ENCHANTMENT_LIST.find { it.idAsString == id }?.value()?.description?.copyToText() ?: Literal(id)
+fun enchantmentDescription(id: String): Text {
+    return REGISTERED_ENCHANTMENT.find { it.idAsString == id }?.value()?.description?.copyToText() ?: Literal(id)
 }
 
-@Deprecated("The type of enchantment registered by the client, after a forced transfer, is not recommended", replaceWith = ReplaceWith("ENCHANTMENT_LIST"))
-val CLIENT_ENCHANTMENT_LIST: List<RegistryEntry.Reference<Enchantment>> by lazy {
+@Deprecated("The type of enchantment registered by the client side, after a forced transfer, is not recommended", replaceWith = ReplaceWith("REGISTERED_ENCHANTMENT"))
+val CLIENT_REGISTERED_ENCHANTMENT: List<RegistryEntry.Reference<Enchantment>> by lazy {
     BuiltinRegistries.createWrapperLookup().getOrThrow(RegistryKeys.ENCHANTMENT).run {
         streamKeys().map { registryKey ->
             (this.getOptional(registryKey).getOrNull() as RegistryEntry.Reference<Enchantment>)
         }.toList()
     }
 }
+
+
+val REGISTERED_ATTRIBUTE get() = registryManager?.getOrThrow(RegistryKeys.ATTRIBUTE)?.indexedEntries?.toList() ?: emptyList()
+
+fun ContainerScope.EntiryAttributeSelector(
+    entityAttribute: MutableState<RegistryEntry<EntityAttribute>>,
+    entityAttributes: List<RegistryEntry<EntityAttribute>> = REGISTERED_ATTRIBUTE,
+    onSelected: (RegistryEntry<EntityAttribute>) -> Unit = {},
+    selectedColor: ARGBColor = defaultSelectedColor,
+    selectedWrapper: DropDownMenuScope.(RegistryEntry<EntityAttribute>) -> IGWidget = {
+        TextLabel(it.idAsString, modifier = Modifier.weight(1))
+    },
+    optionWrapper: ButtonScope.(RegistryEntry<EntityAttribute>) -> IGWidget = {
+        TextLabel(it.idAsString, modifier = Modifier.weight(1))
+    },
+    modifier: Modifier = Modifier.width(120f),
+    searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width((entityAttributes.map { it.idAsString }.maxWidth + 12f).coerceAtLeast(120f)) },
+    listWrapperModifier: ColumnScope.() -> Modifier = { Modifier.width((entityAttributes.map { it.idAsString }.maxWidth + 12f).coerceAtLeast(120f)) },
+    listModifier: RowScope.() -> Modifier = { Modifier.weight(1) },
+    optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
+    amountStep: Float? = 15f,
+    scope: DropDownMenuScope.() -> Unit = {}
+) = SelectorWithSearcher(
+    options = entityAttributes,
+    predicate = { type, str -> type.idAsString.contains(str) },
+    selected = entityAttribute,
+    checker = { a, b -> a.idAsString == b.idAsString },
+    onSelected = onSelected,
+    selectedColor = selectedColor,
+    selectedWrapper = selectedWrapper,
+    optionWrapper = optionWrapper,
+    modifier = modifier,
+    listWrapperModifier = listWrapperModifier,
+    searchBarModifier = searchBarModifier,
+    listModifier = listModifier,
+    optionsDirection = optionsDirection,
+    amountStep = amountStep,
+    scope = scope
+)

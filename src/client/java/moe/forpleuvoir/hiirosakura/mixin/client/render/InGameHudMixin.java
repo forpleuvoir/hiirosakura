@@ -34,11 +34,11 @@ public abstract class InGameHudMixin {
             target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithBackground(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;IIII)I"
         )
     )
-    public int hiirosakura$renderHeldItemTooltip(DrawContext instance, TextRenderer textRenderer, Text text, int x, int y, int width, int color, @Local(ordinal = 3) int alpha) {
+    public int hiirosakura$renderHeldItemTooltip(DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int width, int color, @Local(ordinal = 3) int alpha) {
         if (!HeldItemRenderAddon.INSTANCE.getEnable().getValue()) {
-            instance.drawTextWithBackground(this.getTextRenderer(), text, x, y, width, color);
+            context.drawTextWithBackground(this.getTextRenderer(), text, x, y, width, color);
         } else {
-            HeldItemRenderAddon.render$hiirosakura_client(IGDrawContext.Companion.toIGDrawContext(instance), getTextRenderer(), y, alpha, currentStack);
+            HeldItemRenderAddon.render$hiirosakura_client(IGDrawContext.Companion.toIGDrawContext(context), getTextRenderer(), y, alpha, currentStack);
         }
         return 0;
     }

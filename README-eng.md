@@ -1,6 +1,6 @@
 # **HiiroSakura Mod**
 
-![Icon](asperite/logo.png)
+<img src = "doc/img/logo.png" width ="256" alt="icon">
 
 ![Version](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fforpleuvoir%2Fhiirosakura%2Frefs%2Fheads%2F1.21.4%2Fgradle%2Flibs.versions.toml&query=%24.versions.modVersion&label=Version)
 
@@ -19,7 +19,6 @@ All features of the mod are disabled by default.
 - Adjust mod settings in the interface to enable or disable different features.
 
 ## ✨ **Main Features**
-https://cdn.modrinth.com/data/cached_images/1e1e5837bcad6dfff4e89e77bb250037f9c54345.png
 ### **1. Rendering Modifications**
 - Always render blocks (barriers, light sources).
 - Disable text obfuscation effects.

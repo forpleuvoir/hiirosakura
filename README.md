@@ -1,6 +1,6 @@
 # **HiiroSakura Mod**
 
-![Icon](asperite/logo.png)
+<img src = "doc/img/logo.png" width ="256" alt="icon">
 
 ![版本](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fforpleuvoir%2Fhiirosakura%2Frefs%2Fheads%2F1.21.4%2Fgradle%2Flibs.versions.toml&query=%24.versions.modVersion&label=%E7%89%88%E6%9C%AC)
 

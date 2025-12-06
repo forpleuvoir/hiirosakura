@@ -6,3 +6,11 @@
 build
 run
 server_run
+/src/test/**
+.fabric
+.kotlin
+.lingma
+.vscode
+fabric/runs
+modJar
+out

@@ -1,0 +1,38 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "moe.forpleuvoir.hiirosakura.mixin",
+  "refmap": "${mod_id}.refmap.json",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "client.AbstractContainerMenuMixin",
+    "client.BlockMixin",
+    "client.StyleMixin"
+  ],
+  "client": [
+    "client.ChatComponentMixin",
+    "client.ChatListenerMixin",
+    "client.ClientPacketListenerMixin",
+    "client.CreativeModeInventoryScreenMixin",
+    "client.DisconnectedScreenMixin",
+    "client.LocalPlayerMixin",
+    "client.MinecraftMixin",
+    "client.MultiPlayerGameModeMixin",
+    "client.SoundEngineMixin",
+    "client.render.AvatarRendererMixin",
+    "client.render.AvatarRenderStateMixin",
+    "client.render.ClientLevelMixin",
+    "client.render.CreeperRendererMixin",
+    "client.render.ExperienceOrbRendererMixin",
+    "client.render.ExperienceOrbRenderStateMixin",
+    "client.render.GuiMixin",
+    "client.render.ItemEntityRendererMixin",
+    "client.render.ItemEntityRenderStateMixin",
+    "client.render.LightTextureMixin",
+    "client.render.TntRendererMixin"
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

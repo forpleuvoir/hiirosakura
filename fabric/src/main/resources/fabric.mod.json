@@ -1,0 +1,59 @@
+                                                                                                                                         {
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "不知道",
+  "authors": [
+    "${mod_author}"
+  ],
+  "contact": {
+    "email": "695801070@qq.com",
+    "homepage": "https://modrinth.com/mod/hiirosakura",
+    "sources": "https://github.com/forpleuvoir/ibuki_gourd",
+    "issues": "https://github.com/forpleuvoir/ibuki_gourd/issues"
+  },
+  "license": "${license}",
+  "icon": "${mod_id}.png",
+  "accessWidener": "${mod_id}.accesswidener",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "moe.forpleuvoir.hiirosakura.FabricHiiroSakura"
+      }
+    ],
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "moe.forpleuvoir.hiirosakura.FabricHiiroSakuraClient"
+      }
+    ],
+    "modmenu": [
+      {
+        "adapter": "kotlin",
+        "value": "moe.forpleuvoir.hiirosakura.compat.modmenu.ModMenuImpl"
+      }
+    ]
+  },
+  "mixins": [
+    "${mod_id}.fabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}",
+    "java": ">=${java_version}",
+    "fabric-language-kotlin": ">=${fabric_kotlin_version}",
+    "ibukigourd": ">=${ibukigourd_version}"
+  },
+  "suggests": {
+    "another-mod": "modmenu"
+  },
+  "custom": {
+    "ibukigourd": {
+      "package": "moe.forpleuvoir.hiirosakura"
+    }
+  }
+}

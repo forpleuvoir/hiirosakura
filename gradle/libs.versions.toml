@@ -1,34 +1,71 @@
 [versions]
-modVersion = "3.3.0+beta"
+java = "21"
+kotlin = "2.2.20"
+kotlinCoroutines = "1.10.2"
+
+minecraft = "1.21.10"
+minecraftRange = "[1.21.10,1.22)"
+
+#Ibukigourd
+ibukigourd = "0.9.4+beta"
+
 #Fabric checks these on https://fabricmc.net/versions.html
-minecraftVersion = "1.21.4"
-yarnMappingsVersion = "1.21.4+build.2"
-fabricLoaderVersion = "0.16.9"
-fabricApiVersion = "0.112.0+1.21.4"
-fabricLoomVersion = "1.10-SNAPSHOT"
-#mods
-modMenuVersion = "13.0.0-beta.1"
-fabricKotlinVersion = "1.12.3+kotlin.2.0.21"
-ibukigourdVersion = "0.8.5+beta"
+fabricApi = "0.135.0+1.21.10"
+fabricLoader = "0.17.2"
+fabricLoom = "1.11-SNAPSHOT"
+fabricKotlin = "1.13.6+kotlin.2.2.20"
+
+modMenu = "16.0.0-rc.1"
+
+#Neoforge
+neoforgedModDev = "2.0.115"
+neoForm = "1.21.10-20251010.172816"
+neoforge = "21.10.8-beta"
+neoforgeRange = "[4,)"
+forgeKotlin = "6.0.0"
+forgeKotlinRange = "[6.0,)"
+
+parchmentMinecraft = "1.21.9"
+parchment = "2025.10.05"
+
+mixin = "0.8.5"
+minxinExtras = "0.3.5"
+
 #other
-nebulaVersion = "0.2.27"
-kotlinVersion = "2.0.0"
-nashornVersion = "15.4"
+nebula = "0.2.27"
+nashorn = "15.4"
 
 [libraries]
+minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
+mixin = { group = "org.spongepowered", name = "mixin", version.ref = "mixin" }
+minxinExtras-common = { group = "io.github.llamalad7", name = "mixinextras-common", version.ref = "minxinExtras" }
+
+#Ibukigourd
+ibukigourd-common = { group = "moe.forpleuvoir", name = "ibukigourd-common-1.21.10", version.ref = "ibukigourd" }
+ibukigourd-fabric = { group = "moe.forpleuvoir", name = "ibukigourd-fabric-1.21.10", version.ref = "ibukigourd" }
+ibukigourd-neoforge = { group = "moe.forpleuvoir", name = "ibukigourd-neoforge-1.21.10", version.ref = "ibukigourd" }
+
 #Fabric
-minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraftVersion" }
-yarnMappings = { group = "net.fabricmc", name = "yarn", version.ref = "yarnMappingsVersion" }
-fabricLoader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabricLoaderVersion" }
-fabricApi = { group = "net.fabricmc.fabric-api", name = "fabric-api", version.ref = "fabricApiVersion" }
-#mods
-modMenu = { group = "com.terraformersmc", name = "modmenu", version.ref = "modMenuVersion" }
-fabricKotlin = { group = "net.fabricmc", name = "fabric-language-kotlin", version.ref = "fabricKotlinVersion" }
-ibukigourd = { group = "moe.forpleuvoir", name = "ibukigourd", version.ref = "ibukigourdVersion" }
+fabricLoader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabricLoader" }
+fabricApi = { group = "net.fabricmc.fabric-api", name = "fabric-api", version.ref = "fabricApi" }
+fabricKotlin = { group = "net.fabricmc", name = "fabric-language-kotlin", version.ref = "fabricKotlin" }
+modMenu = { group = "com.terraformersmc", name = "modmenu", version.ref = "modMenu" }
+
+#Neoforge
+forgeKotlin = { group = "thedarkcolour", name = "kotlinforforge-neoforge", version.ref = "forgeKotlin" }
+
 #ohter
-nebula = { group = "moe.forpleuvoir", name = "nebula", version.ref = "nebulaVersion" }
-nashorn = { group = "org.openjdk.nashorn", name = "nashorn-core", version.ref = "nashornVersion" }
+nebula = { group = "moe.forpleuvoir", name = "nebula", version.ref = "nebula" }
+nashorn = { group = "org.openjdk.nashorn", name = "nashorn-core", version.ref = "nashorn" }
+
+kotlinStdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+kotlinReflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+kotlinCoroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
+
+[bundles]
+kotlin = ["kotlinStdlib", "kotlinReflect", "kotlinCoroutines"]
 
 [plugins]
-kotlinJVM = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
-fabricLoom = { id = "fabric-loom", version.ref = "fabricLoomVersion" }
+fabricLoom = { id = "fabric-loom", version.ref = "fabricLoom" }
+neoforgedModDev = { id = "net.neoforged.moddev", version.ref = "neoforgedModDev" }
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

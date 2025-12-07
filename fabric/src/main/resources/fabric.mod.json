@@ -3,7 +3,7 @@
   "id": "${mod_id}",
   "version": "${version}",
   "name": "${mod_name}",
-  "description": "不知道",
+  "description": "${description}",
   "authors": [
     "${mod_author}"
   ],
@@ -38,6 +38,7 @@
     ]
   },
   "mixins": [
+    "${mod_id}.mixins.json",
     "${mod_id}.fabric.mixins.json"
   ],
   "depends": {

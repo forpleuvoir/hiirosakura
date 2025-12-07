@@ -9,6 +9,8 @@ import moe.forpleuvoir.nebula.config.item.impl.float
 
 object RenderInfoAddon : ModConfigContainer("render_info_addon") {
 
+    val useIrisCompatiblePipeline by keyBindBoolean("use_iris_compatible_pipeline", false)
+
     val alwaysRenderBarrier by keyBindBoolean("always_render_barrier", value = false)
 
     val alwaysRenderLight by keyBindBoolean("always_render_light", value = false)

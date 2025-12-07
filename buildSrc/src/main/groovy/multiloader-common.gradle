@@ -57,6 +57,7 @@ repositories {
         content { includeGroup "thedarkcolour" }
     }
     maven { url = uri("https://maven.forpleuvoir.moe/snapshots") }
+    maven {url = "https://api.modrinth.com/maven"}
 }
 
 // Declare capabilities on the outgoing configurations.

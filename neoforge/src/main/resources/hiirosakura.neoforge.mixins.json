@@ -2,16 +2,13 @@
   "required": true,
   "minVersion": "0.8",
   "package": "moe.forpleuvoir.hiirosakura.mixin",
-  "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [
-  ],
-  "client": [
-    "client.CreativeModeInventoryScreenMixin",
-    "client.render.GuiMixin"
-  ],
   "server": [],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+    "client.CreativeModeInventoryScreenMixin",
+    "client.render.GuiMixin"
+  ]
 }

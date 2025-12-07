@@ -13,6 +13,7 @@ object HSRenderPipeline {
         .withVertexShader("core/position_tex_color")
         .withFragmentShader("core/position_tex_color")
         .withSampler("Sampler0")
+        .withSampler("Sampler1")
         .withVertexFormat(DefaultVertexFormat.POSITION_TEX_LIGHTMAP_COLOR, VertexFormat.Mode.QUADS)
         .buildSnippet()
 

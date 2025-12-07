@@ -13,10 +13,7 @@ import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
-import moe.forpleuvoir.nebula.config.item.impl.boolean
-import moe.forpleuvoir.nebula.config.item.impl.double
-import moe.forpleuvoir.nebula.config.item.impl.enum
-import moe.forpleuvoir.nebula.config.item.impl.float
+import moe.forpleuvoir.nebula.config.item.impl.*
 import net.minecraft.client.gui.Font
 import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.SubmitNodeCollector
@@ -42,9 +39,17 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
 
     val spacing by float("spacing", 0f, 0f, 10f)
 
+    val textDefaultColor by color("default_color", Colors.WHITE)
+
+    val textBackgroundColor by color("background_color", Colors.BLACK.alpha(0f))
+
+    val invertOutlineColor by boolean("invert_outline_color", false)
+
+    val textOutlineColor by color("text_outline_color", Colors.BLACK)
+
     val displayMode: Font.DisplayMode by enum("display_mode", Font.DisplayMode.NORMAL)
 
-    val onlyYRotation by keyBindBoolean("only_y_rotation", value = true)
+    val onlyYRotation by boolean("only_y_rotation", false)
 
     val experienceOrbValue by keyBindBoolean("experience_orb_value", value = false)
 
@@ -88,7 +93,7 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
         val text = Literal(entity.value.toString()).withColor(color)
         renderEntityText(
             renderState.boundingBoxHeight,
-            -0.3,
+            -0.5,
             text,
             renderState.lightCoords,
             renderState,
@@ -110,13 +115,11 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
     ) {
         val light = useMaxLight.pick(LightTexture.FULL_BRIGHT, packedLight)
 
-        val height = height + 0.7f + textHeight
         poseStack.pushPose()
-        poseStack.translate(0.0, height, 0.0)
 
-        poseStack.translate(offset.x() * 0.01f, offset.y() * 0.01f, offset.z() * 0.01f)
+        poseStack.translate(offset.x() * 0.01f, offset.y() * 0.01f + (height + 0.7f + textHeight).toFloat(), offset.z() * 0.01f)
 
-        if (onlyYRotation.value) {
+        if (onlyYRotation) {
             val dx = cameraRenderState.pos.x - entityRenderState.x
             val dz = cameraRenderState.pos.z - entityRenderState.z
             val yaw = (Math.toDegrees(atan2(-dx, dz))).toFloat()
@@ -130,19 +133,20 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
             poseStack.mulPose(cameraRenderState.orientation)
 
         poseStack.scale(0.025f, -0.025f, 0.025f)
-        val alpha = mc.options.getBackgroundOpacity(0.25f)
-        val backgroundColor = if (text.string.isEmpty()) 0 else (alpha * 255.0f).toInt() shl 24
-        val x = (-text.width / 2)
+
+        val outlineColor = text.style.color?.let {
+            Color(it.value).alpha(255).reverse()
+        } ?: textDefaultColor.reverse()
         nodeCollector.pushText(
             text,
-            x,
+            (-text.width / 2),
             0f,
             false,
             displayMode,
             light,
-            Colors.BLACK,
-            if (text.string.isEmpty()) Color(backgroundColor) else Color(backgroundColor),
-            Colors.BLACK.alpha(0),
+            textDefaultColor,
+            if (text.string.isEmpty()) Color(0) else textBackgroundColor,
+            if(invertOutlineColor) outlineColor else textOutlineColor,
             poseStack
         )
         poseStack.popPose()
@@ -151,7 +155,7 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
     fun renderEntityMultiText(
         height: Float,
         text: List<Component>,
-        pacekdLight: Int,
+        packedLight: Int,
         entityRenderState: EntityRenderState,
         cameraRenderState: CameraRenderState,
         poseStack: PoseStack,
@@ -161,7 +165,7 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
         var textHeight = (textRows * (0.25f + (spacing * 0.05f))).toDouble()
         for (item in text) {
             textHeight -= 0.25 + spacing * 0.05f
-            renderEntityText(height, textHeight, item, pacekdLight, entityRenderState, cameraRenderState, poseStack, nodeCollector)
+            renderEntityText(height, textHeight, item, packedLight, entityRenderState, cameraRenderState, poseStack, nodeCollector)
         }
     }
 

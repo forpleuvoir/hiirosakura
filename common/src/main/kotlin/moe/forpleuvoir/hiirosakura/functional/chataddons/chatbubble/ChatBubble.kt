@@ -6,6 +6,8 @@ import moe.forpleuvoir.hiirosakura.functional.misc.ServerMarker
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.EntityMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.EntityMatcher
+import moe.forpleuvoir.hiirosakura.functional.renderaddons.RenderInfoAddon.useIrisCompatiblePipeline
+import moe.forpleuvoir.hiirosakura.platform.PLATFORM
 import moe.forpleuvoir.hiirosakura.render.HSRenderType
 import moe.forpleuvoir.hiirosakura.render.pushStringLines
 import moe.forpleuvoir.hiirosakura.render.pushTexture
@@ -25,6 +27,7 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.gui.Font
 import net.minecraft.client.renderer.LightTexture
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.SubmitNodeCollector
 import net.minecraft.client.renderer.entity.state.AvatarRenderState
 import org.joml.Quaternionf
@@ -45,19 +48,24 @@ class ChatBubble(
 ) {
     companion object {
 
-        private val textRenderer get() = mc.font
-
         internal val TEXTURE = TextureInfo(16, 16, resourceLocation("texture/gui/chat/bubble.png"))
 
         private val BUBBLE = WidgetTexture(Corner(4), 0, 0, 16, 10, TEXTURE)
 
         private val ARROW = WidgetTexture(Corner(top = -1), 5, 11, 12, 14, TEXTURE)
 
+        private val RENDER_TYPE get() = if (useIrisCompatiblePipeline.value) IRIS_RENDER_TYPE else VANILLA_RENDER_TYPE
+
+        private val VANILLA_RENDER_TYPE = HSRenderType.POSITION_TEX_COLOR.apply(TEXTURE.texture)
+
+        private val IRIS_RENDER_TYPE = RenderType.entityTranslucent(TEXTURE.texture)
+
         private const val LINE_SPACING = 4f
 
         private val currentServerName: String get() = ServerMarker.lastServerName
 
         private const val NAME_GROUP = "name"
+
         private const val MESSAGE_GROUP = "message"
 
         fun fromChatMessage(message: String, uuid: UUID?, profile: GameProfile?): ChatBubblePair? {
@@ -126,7 +134,6 @@ class ChatBubble(
             return alpha
         }
 
-        @JvmStatic
         private fun renderBubble(
             textureBox: Box,
             arrowBox: Box,
@@ -157,8 +164,13 @@ class ChatBubble(
                 poseStack.mulPose(Quaternionf().rotateX(cameraPitch * (Math.PI.toFloat() / 180F))) // 垂直旋转
 
             poseStack.scale(scale.x() * s, scale.y() * s, -s)
-            nodeCollector.pushTexture(textureBox, BUBBLE, packedLight, ChatBubbleHandler.textureColor.alpha(alpha), poseStack, HSRenderType.CHAT_BUBBLE)
-            nodeCollector.pushTexture(arrowBox, ARROW, packedLight, ChatBubbleHandler.textureColor.alpha(alpha), poseStack, HSRenderType.CHAT_BUBBLE_ARROW)
+            nodeCollector.pushTexture(arrowBox, ARROW, packedLight, ChatBubbleHandler.textureColor.alpha(alpha), poseStack, RENDER_TYPE)
+            //有点无语,Iris疑似不让用自定义的渲染管线.导致用不了多边形偏移,只能调整气泡的位置了
+            poseStack.translate(0f, 0f, 0.015f)
+            nodeCollector.pushTexture(textureBox, BUBBLE, packedLight, ChatBubbleHandler.textureColor.alpha(alpha), poseStack, RENDER_TYPE)
+            if (PLATFORM.getPlatformName() == "Neoforge") {
+                poseStack.translate(0f, 0f, 0f)
+            }
             nodeCollector.pushStringLines(
                 lines,
                 textBox,
@@ -174,7 +186,6 @@ class ChatBubble(
             poseStack.popPose()
         }
 
-        @JvmStatic
         private fun renderBubbleInGui(
             box: Box,
             textureBox: Box,
@@ -211,7 +222,7 @@ class ChatBubble(
     init {
         val (maxWidth, height) = lines.size(LINE_SPACING)
         textBox = Box(x = -maxWidth / 2, y = -height / 2, maxWidth, height)
-        textureBox = textBox.expandEdges(4f)
+        textureBox = textBox.expandEdges(5f, 4f, 4f, 4f)
         arrowBox = Box(textBox.center.x() - ARROW.width / 2, textureBox.bottom, Size(ARROW.width, ARROW.height - ARROW.corner.top))
     }
 

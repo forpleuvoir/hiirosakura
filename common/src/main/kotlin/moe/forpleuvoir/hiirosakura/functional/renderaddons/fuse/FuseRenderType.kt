@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse
 
 import com.mojang.blaze3d.vertex.PoseStack
+import moe.forpleuvoir.hiirosakura.functional.renderaddons.RenderInfoAddon.useIrisCompatiblePipeline
 import moe.forpleuvoir.hiirosakura.render.HSRenderType
 import moe.forpleuvoir.hiirosakura.render.pushTexture
 import moe.forpleuvoir.hiirosakura.util.resourceLocation
@@ -9,18 +10,25 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.texture.Corner
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.nebula.common.color.ARGBColor
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.SubmitNodeCollector
 
 enum class FuseRenderType {
-    Text, Box, None;
+    Text, ProgressBar, None;
 
     companion object {
 
-        val TEXTURE = TextureInfo(16, 16, resourceLocation("texture/gui/fuse.png"))
+        private val TEXTURE = TextureInfo(16, 16, resourceLocation("texture/gui/fuse.png"))
 
-        val BORDER = WidgetTexture(Corner(1), 0, 0, 16, 8, TEXTURE)
+        private val BORDER = WidgetTexture(Corner(1), 0, 0, 16, 8, TEXTURE)
 
-        val CONTENT = WidgetTexture(Corner(1), 0, 8, 16, 16, TEXTURE)
+        private val CONTENT = WidgetTexture(Corner(1), 0, 8, 16, 16, TEXTURE)
+
+        private val RENDER_TYPE get() = if (useIrisCompatiblePipeline.value) IRIS_RENDER_TYPE else VANILLA_RENDER_TYPE
+
+        private val VANILLA_RENDER_TYPE = HSRenderType.POSITION_TEX_COLOR.apply(TEXTURE.texture)
+
+        private val IRIS_RENDER_TYPE = RenderType.entityTranslucent(TEXTURE.texture)
 
         fun renderBox(
             poseStack: PoseStack,
@@ -31,8 +39,8 @@ enum class FuseRenderType {
             contentColor: ARGBColor,
             packedLight: Int
         ) {
-            nodeCollector.pushTexture(box, BORDER, packedLight, borderColor, poseStack, HSRenderType.FUSE)
-            nodeCollector.pushTexture(box.copy(width = box.width * progress), CONTENT, packedLight, contentColor, poseStack, HSRenderType.FUSE)
+            nodeCollector.pushTexture(box, BORDER, packedLight, borderColor, poseStack, RENDER_TYPE)
+            nodeCollector.pushTexture(box.copy(width = box.width * progress), CONTENT, packedLight, contentColor, poseStack, RENDER_TYPE)
         }
 
     }

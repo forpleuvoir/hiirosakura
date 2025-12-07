@@ -256,7 +256,7 @@ class ItemStackInfo(key: String = "item_stack_info") : ModConfigContainer(key) {
         }
 
         if (isEnabled(map, "disabled_item_tooltip", disabledItemTooltip.getValue())) {
-            if (player != null && itemStack.item.isEnabled(player.level().enabledFeatures()))
+            if (player != null && !itemStack.item.isEnabled(player.level().enabledFeatures()))
                 adder.accept(ItemStack.DISABLED_ITEM_TOOLTIP)
         }
         if (isEnabled(map, "op_nbt_warning", opNbtWarning.getValue())) {

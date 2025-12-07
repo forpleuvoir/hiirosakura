@@ -78,8 +78,8 @@ object HeldItemRenderAddon : ModConfigContainer("held_item") {
                     text,
                     offset.x,
                     offset.y,
-                    color = Color(text.style.color?.value ?: 0xAAAAAA).alpha(alpha),
-                    if (text.string.isEmpty()) Colors.BLACK.alpha(0) else textBackground.opacity(alpha),
+                    color = Color(text.style.color?.value ?: 0xAAAAAA).alpha(alpha.coerceIn(0, 255)),
+                    if (text.string.isEmpty()) Colors.BLACK.alpha(0) else textBackground.opacity(alpha.coerceIn(0, 255)),
                     shadow = shadow
                 )
             }

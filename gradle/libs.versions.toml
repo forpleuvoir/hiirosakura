@@ -7,7 +7,7 @@ minecraft = "1.21.10"
 minecraftRange = "[1.21.10,1.22)"
 
 #Ibukigourd
-ibukigourd = "0.9.4+beta"
+ibukigourd = "0.10.0+beta"
 
 #Fabric checks these on https://fabricmc.net/versions.html
 fabricApi = "0.135.0+1.21.10"
@@ -32,7 +32,7 @@ mixin = "0.8.5"
 minxinExtras = "0.3.5"
 
 #other
-nebula = "0.2.27"
+nebula = "0.2.29"
 nashorn = "15.4"
 
 [libraries]

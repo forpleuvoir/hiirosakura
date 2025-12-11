@@ -9,6 +9,7 @@ import moe.forpleuvoir.ibukigourd.config.item.impl.keyBind
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.keyPress
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minWidth
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.mousePress
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderParent
@@ -21,10 +22,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
-import moe.forpleuvoir.ibukigourd.input.KeyBind
-import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.input.*
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.PopupScreen.enableReturnHotkey
+import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.PopupScreen.returnHotkeyKeycode
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
+import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Color
@@ -35,13 +38,20 @@ import moe.forpleuvoir.nebula.config.item.impl.int
 
 object QuickTickTaskExecuteScreen : ModConfigContainer("quick_tick_task_execute") {
 
-    val keyBind by keyBind("key_bind", KeyBind {
-        screen().open()
-    })
+    val keyBind by keyBind(
+        "key_bind", KeyBind(
+            defaultSetting = KeyBindSetting {
+                nextAction = NextAction.Continue
+                exactMatch = false
+                triggerMode = KeyTriggerMode.OnPress
+            }
+        ) {
+            screen().open()
+        })
 
     val rouletteColor by color("roulette_color", Colors.BLACK.alpha(0.5f))
 
-    val rouletteSelectedColor by color("roulette_selected_color", Color("#FFD4FF00"))
+    val rouletteSelectedColor by color("roulette_selected_color", Color.ofRGB(0xD4FF00))
 
     val iconScale by float("icon_scale", 1f, 0.2f, 2f)
 
@@ -59,10 +69,14 @@ object QuickTickTaskExecuteScreen : ModConfigContainer("quick_tick_task_execute"
         modifier.attachLeft {
             mousePress {
                 onMousePress(it)
-                it.tryUse(it.button == Mouse.RIGHT).onSuccess {
-                    mc.scheduleStartTick(1) { _, _ ->
-                        closeScreen()
-                    }
+                it.tryUse(it.button == Mouse.RIGHT || (enableReturnHotkey && InputHandler.wasKeyPressed(returnHotkeyKeycode))).onSuccess {
+                    mc.scheduleStartTick(1) { _, _ -> closeScreen() }
+                }
+
+            }.keyPress {
+                onKeyPress(it)
+                it.tryUse(enableReturnHotkey && InputHandler.wasKeyPressed(returnHotkeyKeycode)).onSuccess {
+                    mc.scheduleStartTick(1) { _, _ -> closeScreen() }
                 }
             }
         }

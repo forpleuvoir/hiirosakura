@@ -46,14 +46,14 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.minecraft.world.item.component.ItemAttributeModifiers
 
 fun ContainerScope.AttributeModifiersComponentWrapper(
-    id: ResourceLocation,
+    key: ResourceLocation,
     component: ItemAttributeModifiers,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f, Alignment.Right),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     onValueChange: (ItemAttributeModifiers, Boolean) -> Unit,
-) = DataComponentWrapperRow(id, removeAction, modifier, horizontalArrangement, verticalAlignment) {
+) = DataComponentWrapperRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     var component = component
     Button(
         modifier = Modifier.width(140f)
@@ -61,7 +61,7 @@ fun ContainerScope.AttributeModifiersComponentWrapper(
         Text(IGLang.listConfigWrapperText(component.modifiers.size))
 
         click {
-            AttributeModifiersComponentEditor(id.asTranslateText(), component) { it, recompose ->
+            AttributeModifiersComponentEditor(key.asTranslateText(), component) { it, recompose ->
                 if (component != it) {
                     component = it
                     onValueChange(component, recompose)
@@ -117,7 +117,7 @@ fun AttributeModifiersComponentEditor(
             spacing = 2f, modifier = Modifier, listModifier = { Modifier.height(170f) }
         ) {
             amountStep(15f)
-            if (modifiers.isEmpty()) Text(IGLang.hasNothing)
+            if (modifiers.isEmpty()) Text(IGLang.hasNothing,modifier= Modifier.width(300f))
             modifiers.forEachIndexed { index, entry ->
                 AttributeModifiersComponentEntryWrapper(entry, Literal("Modifier:${index}"), {
                     modifiers.removeAt(index)

@@ -13,6 +13,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
+import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
@@ -58,13 +59,11 @@ import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPosition
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.component.DataComponents
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.NbtOps
-import net.minecraft.nbt.StringTagVisitor
-import net.minecraft.nbt.Tag
+import net.minecraft.nbt.*
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import java.util.Map
+import java.util.regex.Pattern
 import kotlin.jvm.optionals.getOrNull
 
 fun ContainerScope.ItemStackManagerGui(
@@ -188,19 +187,7 @@ private fun ColumnListScope.EntryRow(
     Row(
         modifier = Modifier.renderOverlay { guiGraphics, mx, my, d ->
             if (wasMouseOver) guiGraphics.postEndRender {
-                val lines = Screen.getTooltipFromItem(mc, itemStack)
-                val list = lines.stream()
-                    .map { it.visualOrderText }
-                    .map { ClientTooltipComponent.create(it) }
-                    .collect(Util.toMutableList())
-                renderTooltip(
-                    textRenderer,
-                    list,
-                    mx.toInt(),
-                    my.toInt(),
-                    DefaultTooltipPositioner.INSTANCE,
-                    itemStack.get(DataComponents.TOOLTIP_STYLE)
-                )
+                pushItemTooltip(itemStack, mx, my)
             }
         },
         horizontalArrangement = Arrangement.spacedBy(4f)
@@ -209,7 +196,7 @@ private fun ColumnListScope.EntryRow(
             MoveButton(recompose, index)
         }
         ItemIcon(itemStack)
-        Text(itemStack.hoverName.copyToText(), Modifier)
+        Text(itemStack.styledHoverName.copyToText(), Modifier)
     }
     Row(horizontalArrangement = Arrangement.spacedBy(4f)) {
 
@@ -234,6 +221,7 @@ private fun ColumnListScope.EntryRow(
         EditButton {
             ItemStackEditor(itemStack) { newItem ->
                 ItemStackManager[index] = newItem
+                recompose()
             }.open()
         }
 
@@ -248,7 +236,7 @@ private fun ColumnListScope.EntryRow(
                         }
                         .renderOverlay { guiGraphics, mx, my, d ->
                             if (wasMouseOver) guiGraphics.postEndRender {
-                                renderItemDecorations(textRenderer, itemStack, mx.toInt(), my.toInt())
+                                pushItemTooltip(itemStack, mx, my)
                             }
                         },
                     Arrangement.spacedBy(5f)
@@ -266,16 +254,37 @@ private fun ColumnListScope.EntryRow(
     }
 }
 
+fun IGGuiGraphics.pushItemTooltip(
+    itemStack: ItemStack,
+    mx: Float,
+    my: Float
+) {
+    val lines = Screen.getTooltipFromItem(mc, itemStack)
+    val list = lines.stream()
+        .map { it.visualOrderText }
+        .map { ClientTooltipComponent.create(it) }
+        .collect(Util.toMutableList())
+    renderTooltip(
+        textRenderer,
+        list,
+        mx.toInt(),
+        my.toInt(),
+        DefaultTooltipPositioner.INSTANCE,
+        itemStack.get(DataComponents.TOOLTIP_STYLE)
+    )
+}
+
 private fun genCommand(itemStack: ItemStack): String {
     val tag = DataComponentPatch.CODEC.encodeStart(registryAccess!!.createSerializationContext(NbtOps.INSTANCE), itemStack.componentsPatch).result().getOrNull()
     val tagString = tag?.getAsString() ?: ""
     val type = itemStack.item.key.toString()
     val count = itemStack.count
-    return "give @p $type$tagString $count"
+    return "/give @p $type$tagString $count"
 }
 
 private fun <T : Tag> T.getAsString(): String {
     return if (this is CompoundTag) {
+//        TextComponentTagVisitor("").visit(this).string
         CommandNbtWriter().apply {
             visitCompound(this@getAsString as CompoundTag)
         }.build()
@@ -296,9 +305,23 @@ class CommandNbtWriter() : StringTagVisitor() {
                 this.builder.append(',')
             }
 
-            this.handleKeyEscape(entry.key)
-            this.builder.append(':')
-            entry.value.accept(this)
+            val key = entry.key
+            if (!key.equals("true", ignoreCase = true) && !key.equals("false", ignoreCase = true) && Pattern.compile("[A-Za-z._]+[A-Za-z0-9._+-]*")
+                    .matcher(key)
+                    .matches()
+            ) {
+                this.builder.append(key)
+            } else {
+                buildString {
+                    StringTag.quoteAndEscape(key, this)
+                }.apply {
+                    builder.append(this.trim('"'))
+                }
+            }
+            this.builder.append('=')
+            val sub = StringTagVisitor()
+            entry.value.accept(sub)
+            this.builder.append(sub.builder)
         }
 
         this.builder.append(']')

@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.RenderPipelines
 
 object HSRenderPipeline {
 
-    val POSITION_TEX_COLOR = RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
+    val POSITION_TEX_COLOR: RenderPipeline.Snippet = RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
         .withVertexShader("core/position_tex_color")
         .withFragmentShader("core/position_tex_color")
         .withSampler("Sampler0")

@@ -42,9 +42,9 @@ object ChatBubbleHandler : ModConfigContainer("chat_bubble") {
 
     val maxWidth by float("max_width", 120f, 9f, 480f)
 
-    val textureColor by color("texture_color", Color("#FFFF4646"))
+    val textureColor by color("texture_color", Color.ofRGB(0xFF6666))
 
-    val textColor by color("text_color", Color("#FFFFFF"))
+    val textColor by color("text_color", Color.ofRGB(0xFFFFFF))
 
     val duration by duration("duration", 10.seconds, Duration.ZERO, 60.seconds)
 

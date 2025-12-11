@@ -7,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.Corner
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
+import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.render.color
 import moe.forpleuvoir.ibukigourd.render.uv
 import moe.forpleuvoir.ibukigourd.text.*
@@ -75,7 +76,7 @@ private fun pushTexture(
     val v0 = widgetTexture.v0
     val u1 = widgetTexture.u1
     val v1 = widgetTexture.v1
-    setVertex(vertexConsumer, pose, x0, y0, color, u0, v1, packedLight, x1, u1, y1, v0)
+    setVertex(vertexConsumer, pose, x0, y0, x1, y1, u0, v0, u1, v1, color, packedLight)
 }
 
 private fun pushTexture(
@@ -102,7 +103,7 @@ private fun pushTexture(
     val v0 = v.toFloat() / textureHeight.toFloat()
     val u1 = (u + uSize).toFloat() / textureWidth.toFloat()
     val v1 = (v + vSize).toFloat() / textureHeight.toFloat()
-    setVertex(vertexConsumer, pose, x0, y0, color, u0, v1, packedLight, x1, u1, y1, v0)
+    setVertex(vertexConsumer, pose, x0, y0, x1, y1, u0, v0, u1, v1, color, packedLight)
 }
 
 private fun setVertex(
@@ -110,15 +111,16 @@ private fun setVertex(
     pose: PoseStack.Pose,
     x0: Float,
     y0: Float,
-    color: ARGBColor,
-    u0: Float,
-    v1: Float,
-    packedLight: Int,
     x1: Float,
-    u1: Float,
     y1: Float,
-    v0: Float
+    u0: Float,
+    v0: Float,
+    u1: Float,
+    v1: Float,
+    color: ARGBColor,
+    packedLight: Int
 ) {
+    if (x1 - x0 <= 0f || y1 - y0 <= 0f || color.alpha == 0) return
     vertexConsumer.apply {
         vertex(pose, x0, y0).color(color).uv(u0, v0).setOLN(pose, packedLight)
         vertex(pose, x0, y1).color(color).uv(u0, v1).setOLN(pose, packedLight)
@@ -146,8 +148,8 @@ private fun pushNineSlicedTexture(
         return
     }
 
-    val textureWidth = widgetTexture.textureInfo.width
-    val textureHeight = widgetTexture.textureInfo.height
+    val tw = widgetTexture.textureInfo.width
+    val th = widgetTexture.textureInfo.height
     val u = widgetTexture.uStart
     val v = widgetTexture.vStart
     val uSize = widgetTexture.uSize
@@ -197,25 +199,177 @@ private fun pushNineSlicedTexture(
     val bottomVS = cb.toInt()
 
     //top left
-    pushTexture(leftX, topY, cl, ct, leftU, topV, leftUS, topVS, packedLight, color, textureWidth, textureHeight, pose, vertexConsumer)
+    pushTexture(leftX, topY, cl, ct, leftU, topV, leftUS, topVS, packedLight, color, tw, th, pose, vertexConsumer)
     //top center
-    pushTexture(centerX, topY, cw, ct, centerU, topV, centerUS, topVS, packedLight, color, textureWidth, textureHeight, pose, vertexConsumer)
+    pushTexture(centerX, topY, cw, ct, centerU, topV, centerUS, topVS, packedLight, color, tw, th, pose, vertexConsumer)
     //top right
-    pushTexture(rightX, topY, cr, ct, rightU, topV, rightUS, topVS, packedLight, color, textureWidth, textureHeight, pose, vertexConsumer)
+    pushTexture(rightX, topY, cr, ct, rightU, topV, rightUS, topVS, packedLight, color, tw, th, pose, vertexConsumer)
 
     //center left
-    pushTexture(leftX, centerY, cl, ch, leftU, centerV, leftUS, centerVS, packedLight, color, textureWidth, textureHeight, pose, vertexConsumer)
+    pushTexture(leftX, centerY, cl, ch, leftU, centerV, leftUS, centerVS, packedLight, color, tw, th, pose, vertexConsumer)
     //center
-    pushTexture(centerX, centerY, cw, ch, centerU, centerV, centerUS, centerVS, packedLight, color, textureWidth, textureHeight, pose, vertexConsumer)
+    pushTexture(centerX, centerY, cw, ch, centerU, centerV, centerUS, centerVS, packedLight, color, tw, th, pose, vertexConsumer)
     //center right
-    pushTexture(rightX, centerY, cr, ch, rightU, centerV, rightUS, centerVS, packedLight, color, textureWidth, textureHeight, pose, vertexConsumer)
+    pushTexture(rightX, centerY, cr, ch, rightU, centerV, rightUS, centerVS, packedLight, color, tw, th, pose, vertexConsumer)
 
     //bottom left
-    pushTexture(leftX, bottomY, cl, cb, leftU, bottomV, leftUS, bottomVS, packedLight, color, textureWidth, textureHeight, pose, vertexConsumer)
+    pushTexture(leftX, bottomY, cl, cb, leftU, bottomV, leftUS, bottomVS, packedLight, color, tw, th, pose, vertexConsumer)
     //bottom center
-    pushTexture(centerX, bottomY, cw, cb, centerU, bottomV, centerUS, bottomVS, packedLight, color, textureWidth, textureHeight, pose, vertexConsumer)
+    pushTexture(centerX, bottomY, cw, cb, centerU, bottomV, centerUS, bottomVS, packedLight, color, tw, th, pose, vertexConsumer)
     //bottom right
-    pushTexture(rightX, bottomY, cr, cb, rightU, bottomV, rightUS, bottomVS, packedLight, color, textureWidth, textureHeight, pose, vertexConsumer)
+    pushTexture(rightX, bottomY, cr, cb, rightU, bottomV, rightUS, bottomVS, packedLight, color, tw, th, pose, vertexConsumer)
+}
+
+fun OrderedSubmitNodeCollector.pushSpeechBubbleTexture(
+    bubbleBox: Box,
+    bubble: WidgetTexture,
+    arrowBox: Box,
+    arrow: WidgetTexture,
+    /**
+     * 箭头所在的方向
+     */
+    arrowDirection: Direction,
+    packedLight: Int,
+    color: ARGBColor = Colors.WHITE,
+    poseStack: PoseStack,
+    renderType: RenderType
+) {
+    submitCustomGeometry(poseStack, renderType) { pose, consumer ->
+        pushSpeechBubbleTexture(bubbleBox, bubble, arrowBox, arrow, arrowDirection, color, packedLight, pose, consumer)
+    }
+}
+
+fun pushSpeechBubbleTexture(
+    bubbleBox: Box,
+    bubble: WidgetTexture,
+    arrowBox: Box,
+    arrow: WidgetTexture,
+    /**
+     * 箭头所在的方向
+     */
+    arrowDirection: Direction,
+    color: ARGBColor = Colors.WHITE,
+    packedLight: Int,
+    pose: PoseStack.Pose,
+    vertexConsumer: VertexConsumer
+) {
+    pushNineSlicedTexture(arrowBox.x, arrowBox.y, arrowBox.width, arrowBox.height, color, arrow, packedLight, pose, vertexConsumer)
+    val corner = bubble.corner
+    if (!bubble.corner.isSpecified) {
+        pushTexture(bubbleBox.x, bubbleBox.y, bubbleBox.width, bubbleBox.height, bubble, packedLight, color, pose, vertexConsumer)
+        return
+    }
+
+    val aw = arrowBox.width
+    val ah = arrowBox.height
+    val ax = arrowBox.x
+    val ax2 = arrowBox.right
+    val ay = arrowBox.y
+    val ay2 = arrowBox.bottom
+
+    val texture = bubble.textureSetup
+    val x = bubbleBox.x
+    val y = bubbleBox.y
+    val width = bubbleBox.width
+    val height = bubbleBox.height
+    val u0 = bubble.uStart
+    val v0 = bubble.vStart
+    val u1 = bubble.uSize
+    val v1 = bubble.vSize
+    val tw = bubble.textureInfo.width
+    val th = bubble.textureInfo.height
+
+    //corner.left
+    val cl = corner.left.absoluteValue.toFloat()
+    //corner.right
+    val cr = corner.right.absoluteValue.toFloat()
+    //corner.top
+    val ct = corner.top.absoluteValue.toFloat()
+    //corner.bottom
+    val cb = corner.bottom.absoluteValue.toFloat()
+
+    /**
+     * centerWidth
+     */
+    val cw = width - (corner.left.coerceAtLeast(0) + corner.right.coerceAtLeast(0))
+
+    /**
+     * centerHeight
+     */
+    val ch = height - (corner.top.coerceAtLeast(0) + corner.bottom.coerceAtLeast(0))
+
+    val leftX = if (corner.left >= 0) x else x - cl
+    val centerX = if (corner.left >= 0) x + cl else x
+    val rightX = if (corner.right >= 0) x + (width - corner.right) else x + width
+
+    val topY = if (corner.top >= 0) y else y - ct
+    val centerY = if (corner.top >= 0) y + ct else y
+    val bottomY = if (corner.bottom >= 0) y + (height - corner.bottom) else y + height
+
+    val leftU = if (corner.left >= 0) u0 else u0 - cl.toInt()
+    val centerU = if (corner.left >= 0) u0 + cl.toInt() else u0
+    val rightU = if (corner.right >= 0) u0 + (u1 - cr.toInt()) else u0 + u1
+
+    val topV = if (corner.top >= 0) v0 else v0 - ct.toInt()
+    val centerV = if (corner.top >= 0) v0 + ct.toInt() else v0
+    val bottomV = if (corner.bottom >= 0) v0 + (v1 - cb.toInt()) else v0 + v1
+
+    val leftUS = cl.toInt()
+    val centerUS = u1 - (corner.left.coerceAtLeast(0) + corner.right.coerceAtLeast(0))
+    val rightUS = cr.toInt()
+
+    val topVS = ct.toInt()
+    val centerVS = v1 - (corner.top.coerceAtLeast(0) + corner.bottom.coerceAtLeast(0))
+    val bottomVS = cb.toInt()
+
+    //top left
+    pushTexture(leftX, topY, cl, ct, leftU, topV, leftUS, topVS, packedLight, color, tw, th, pose, vertexConsumer)
+    //top center
+    if (arrowDirection == Direction.Top) {
+        if (cw - aw > 0) {
+            pushTexture(centerX, topY, ax - centerX, ct, centerU, topV, centerUS, topVS, packedLight, color, tw, th, pose, vertexConsumer)
+            pushTexture(ax2, topY, rightX - ax2, ct, centerU, topV, centerUS, topVS, packedLight, color, tw, th, pose, vertexConsumer)
+        }
+    } else {
+        pushTexture(centerX, topY, cw, ct, centerU, topV, centerUS, topVS, packedLight, color, tw, th, pose, vertexConsumer)
+    }
+    //top right
+    pushTexture(rightX, topY, cr, ct, rightU, topV, rightUS, topVS, packedLight, color, tw, th, pose, vertexConsumer)
+
+    //center left
+    if (arrowDirection == Direction.Left) {
+        if (ch - ah > 0) {
+            pushTexture(leftX, centerY, cl, ay - centerY, leftU, centerV, leftUS, centerVS, packedLight, color, tw, th, pose, vertexConsumer)
+            pushTexture(leftX, ay2, cl, bottomY - ay2, leftU, centerV, leftUS, centerVS, packedLight, color, tw, th, pose, vertexConsumer)
+        }
+    } else {
+        pushTexture(leftX, centerY, cl, ch, leftU, centerV, leftUS, centerVS, packedLight, color, tw, th, pose, vertexConsumer)
+    }
+    //center
+    pushTexture(centerX, centerY, cw, ch, centerU, centerV, centerUS, centerVS, packedLight, color, tw, th, pose, vertexConsumer)
+    //center right
+    if (arrowDirection == Direction.Right) {
+        if (ch - ah > 0) {
+            pushTexture(rightX, centerY, cr, ay - centerY, rightU, centerV, rightUS, centerVS, packedLight, color, tw, th, pose, vertexConsumer)
+            pushTexture(rightX, ay2, cr, bottomY - ay2, rightU, centerV, rightUS, centerVS, packedLight, color, tw, th, pose, vertexConsumer)
+        }
+    } else {
+        pushTexture(rightX, centerY, cr, ch, rightU, centerV, rightUS, centerVS, packedLight, color, tw, th, pose, vertexConsumer)
+    }
+
+    //bottom left
+    pushTexture(leftX, bottomY, cl, cb, leftU, bottomV, leftUS, bottomVS, packedLight, color, tw, th, pose, vertexConsumer)
+    //bottom center
+    if (arrowDirection == Direction.Bottom) {
+        if (cw - aw > 0) {
+            pushTexture(centerX, bottomY, ax - centerX, cb, centerU, bottomV, centerUS, bottomVS, packedLight, color, tw, th, pose, vertexConsumer)
+            pushTexture(ax2, bottomY, rightX - ax2, cb, centerU, bottomV, centerUS, bottomVS, packedLight, color, tw, th, pose, vertexConsumer)
+        }
+    } else {
+        pushTexture(centerX, bottomY, cw, cb, centerU, bottomV, centerUS, bottomVS, packedLight, color, tw, th, pose, vertexConsumer)
+    }
+    //bottom right
+    pushTexture(rightX, bottomY, cr, cb, rightU, bottomV, rightUS, bottomVS, packedLight, color, tw, th, pose, vertexConsumer)
 }
 
 //------------ Box ------------\\

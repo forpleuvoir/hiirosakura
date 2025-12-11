@@ -10,8 +10,8 @@ import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 import moe.forpleuvoir.nebula.config.item.impl.ConfigBoolean
+import moe.forpleuvoir.nebula.config.item.impl.ConfigString
 import moe.forpleuvoir.nebula.config.item.impl.boolean
-import moe.forpleuvoir.nebula.config.item.impl.string
 import net.minecraft.ChatFormatting
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents
@@ -25,25 +25,7 @@ import net.minecraft.world.item.component.TooltipProvider
 import net.minecraft.world.level.Spawner
 import java.util.function.Consumer
 
-class ItemStackInfo(key: String = "item_stack_info") : ModConfigContainer(key) {
-
-    companion object {
-        private fun isEnabled(map: Map<String, Boolean?>, key: String, default: Boolean): Boolean = map[key] ?: default
-
-        private fun <T : TooltipProvider> ItemStack.addTooltip(
-            map: Map<String, Boolean?>,
-            config: ConfigBoolean,
-            component: DataComponentType<T>,
-            context: Item.TooltipContext,
-            tooltipDisplay: TooltipDisplay,
-            tooltipFlag: TooltipFlag,
-            adder: Consumer<Component>
-        ) {
-            if (isEnabled(map, config.key, config.getValue())) {
-                addToTooltip(component, context, tooltipDisplay, adder, tooltipFlag)
-            }
-        }
-    }
+class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) : ModConfigContainer(key) {
 
     private fun <T : ConfigSerializable> T.setTranslatedText(): T {
         this.setUserData("#translate_text", Translatable("hiirosakura.config.render_info_addon.item_stack_info.${this.key}", fallback = this.key))
@@ -51,7 +33,7 @@ class ItemStackInfo(key: String = "item_stack_info") : ModConfigContainer(key) {
         return this
     }
 
-    val script = string(
+    val script = ConfigString(
         "script",
         """
         //example
@@ -59,11 +41,21 @@ class ItemStackInfo(key: String = "item_stack_info") : ModConfigContainer(key) {
         //  renderState["count"] = false
         //}
     """.trimIndent()
-    ).setTranslatedText()
+    ).setTranslatedText().apply {
+        if (enableScript) {
+            addConfig(this)
+        }
+    }
 
     val name by boolean("name", false).setTranslatedText()
 
     val count by boolean("count", false).setTranslatedText()
+
+    val damage = boolean("damage", false).setTranslatedText()
+
+    val itemId = boolean("item_id", false).setTranslatedText()
+
+    val componentCount = boolean("component_count", false).setTranslatedText()
 
     val tooltipDisplay = boolean("tooltip_display", true).setTranslatedText()
 
@@ -125,17 +117,12 @@ class ItemStackInfo(key: String = "item_stack_info") : ModConfigContainer(key) {
 
     val canPlaceOn = boolean("can_place_on", false).setTranslatedText()
 
-    val damage = boolean("damage", false).setTranslatedText()
-
-    val itemId = boolean("item_id", false).setTranslatedText()
-
-    val componentCount = boolean("component_count", false).setTranslatedText()
-
     val disabledItemTooltip = boolean("disabled_item_tooltip", false).setTranslatedText()
 
     val opNbtWarning = boolean("op_nbt_warning", false).setTranslatedText()
 
     private fun script(itemStack: ItemStack): Map<String, Boolean?> {
+        if (!enableScript) return emptyMap()
         val map = mutableMapOf<String, Boolean?>()
         if (script.getValue().isEmpty() || script.isDefault()) return map
         val executor = ScriptExecutor(script.getValue())
@@ -145,11 +132,27 @@ class ItemStackInfo(key: String = "item_stack_info") : ModConfigContainer(key) {
         return map
     }
 
+    private fun isEnabled(map: Map<String, Boolean?>, key: String, default: Boolean): Boolean =
+        if (enableScript) map[key] ?: default else default
+
+    private fun <T : TooltipProvider> ItemStack.addTooltip(
+        map: Map<String, Boolean?>,
+        config: ConfigBoolean,
+        component: DataComponentType<T>,
+        context: Item.TooltipContext,
+        tooltipDisplay: TooltipDisplay,
+        tooltipFlag: TooltipFlag,
+        adder: Consumer<Component>
+    ) {
+        if (isEnabled(map, config.key, config.getValue())) {
+            addToTooltip(component, context, tooltipDisplay, adder, tooltipFlag)
+        }
+    }
 
     fun getItemStackInfo(
         itemStack: ItemStack,
         player: Player?,
-        context: Item.TooltipContext = Item.TooltipContext.EMPTY,
+        context: Item.TooltipContext = Item.TooltipContext.of(mc.level),
         tooltipFlag: TooltipFlag = mc.tooltipFlag
     ): List<Component> = buildList {
         val map = script(itemStack)
@@ -210,7 +213,7 @@ class ItemStackInfo(key: String = "item_stack_info") : ModConfigContainer(key) {
         ) adder.accept(Text.translatable("item.unbreakable").withStyle(ChatFormatting.BLUE))
 
         itemStack.addTooltip(map, ominousBottleAmplifier, DataComponents.OMINOUS_BOTTLE_AMPLIFIER, context, display, tooltipFlag, adder)
-        itemStack.addTooltip(map, suspiciousStewEffects, DataComponents.SUSPICIOUS_STEW_EFFECTS, context, display, tooltipFlag, adder)
+        itemStack.addTooltip(map, suspiciousStewEffects, DataComponents.SUSPICIOUS_STEW_EFFECTS, context, display, TooltipFlag.Default(true, true), adder)
         itemStack.addTooltip(map, blockState, DataComponents.BLOCK_STATE, context, display, tooltipFlag, adder)
         itemStack.addTooltip(map, entityData, DataComponents.ENTITY_DATA, context, display, tooltipFlag, adder)
 

@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.gui.widget
 
 import moe.forpleuvoir.hiirosakura.util.key
+import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -98,7 +99,7 @@ fun ContainerScope.ItemSelector(
     item: MutableState<Item>,
     items: List<Item> = BuiltInRegistries.ITEM.toList(),
     onSelected: (Item) -> Unit = {},
-    selectorBGColor: ARGBColor = Color(0xffffccf0),
+    selectorBGColor: ARGBColor = Color.ofRGB(0xFFCCF0),
     optionsDirection: List<Direction> = listOf(Direction.Bottom, Direction.Right, Direction.Top, Direction.Left),
     amountStep: Float? = null,
     modifier: Modifier = Modifier
@@ -136,13 +137,13 @@ fun ContainerScope.ItemSelector(
     searchBarHideLimit: Int = 9 * columnSize,
     selectedColor: ARGBColor = defaultSelectedColor,
     optionWrapper: ButtonScope.(Item) -> GuiWidget = {
-        ItemIcon(it, .9f)
+        ItemIcon(it, 1f)
     },
     modifier: Modifier = Modifier,
-    bgColor: ARGBColor = Color(0xffffccf0),
+    bgColor: ARGBColor = Color.ofRGB(0xFFCCF0),
     searchBarModifier: ColumnScope.() -> Modifier = { Modifier.matchSibling() },
     listWrapperModifier: ColumnScope.() -> Modifier = { Modifier },
-    listModifier: RowScope.() -> Modifier = { Modifier.height(147f).width(147f) },
+    listModifier: RowScope.() -> Modifier = { Modifier.height(162.5f).width(162.5f) },
     amountStep: Float? = null
 ) = Column(
     modifier = modifier.attachLeft {
@@ -158,7 +159,9 @@ fun ContainerScope.ItemSelector(
             textConsumer = { str ->
                 showList.disableNotify {
                     showList.clear()
-                    showList.addAll(items.filter { it.name.string.contains(str, ignoreCase = true) || BuiltInRegistries.ITEM.getKey(it).toString().contains(str) })
+                    showList.addAll(items.filter {
+                        it.name.string.contains(str, ignoreCase = true) || BuiltInRegistries.ITEM.getKey(it).toString().contains(str)
+                    })
                 }
                 showList.onChange(showList)
             },
@@ -214,19 +217,23 @@ fun ContainerScope.DataComponentTypeSelector(
     selectedColor: ARGBColor = defaultSelectedColor,
     selectedWrapper: DropDownMenuScope.(DataComponentType<*>) -> GuiWidget = {
         Text(
-            it.key.toString(),
+            it.keyOrUnknown.toString(),
             modifier = Modifier.weight(1)
         )
     },
     optionWrapper: ButtonScope.(DataComponentType<*>) -> GuiWidget = {
         Text(
-            it.key.toString(),
+            it.keyOrUnknown.toString(),
             modifier = Modifier.weight(1)
         )
     },
     modifier: Modifier = Modifier.width(120f),
-    searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
-    listWrapperModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
+    searchBarModifier: ColumnScope.() -> Modifier = {
+        Modifier.width((componentTypes.map { it.keyOrUnknown.toString() }.maxWidth + 12f).coerceAtLeast(210f))
+    },
+    listWrapperModifier: ColumnScope.() -> Modifier = {
+        Modifier.width((componentTypes.map { it.keyOrUnknown.toString() }.maxWidth + 12f).coerceAtLeast(210f)).maxHeight(150f)
+    },
     listModifier: RowScope.() -> Modifier = { Modifier.weight(1) },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     amountStep: Float? = 15f,
@@ -268,8 +275,12 @@ fun ContainerScope.EnchatmentSelector(
         )
     },
     modifier: Modifier = Modifier.width(120f),
-    searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
-    listWrapperModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
+    searchBarModifier: ColumnScope.() -> Modifier = {
+        Modifier.width((enchantments.map { it.value().description }.maxWidth + 12f).coerceAtLeast(80f))
+    },
+    listWrapperModifier: ColumnScope.() -> Modifier = {
+        Modifier.width((enchantments.map { it.value().description }.maxWidth + 12f).coerceAtLeast(80f)).maxHeight(150f)
+    },
     listModifier: RowScope.() -> Modifier = { Modifier.weight(1) },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     amountStep: Float? = 15f,
@@ -307,8 +318,12 @@ fun ContainerScope.EnchatmentSelector(
         Text(enchantmentDescription(it), modifier = Modifier.weight(1))
     },
     modifier: Modifier = Modifier.width(120f),
-    searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
-    listWrapperModifier: ColumnScope.() -> Modifier = { Modifier.width(120f) },
+    searchBarModifier: ColumnScope.() -> Modifier = {
+        Modifier.width((enchantments.map { enchantmentDescription(it) }.maxWidth + 12f).coerceAtLeast(80f))
+    },
+    listWrapperModifier: ColumnScope.() -> Modifier = {
+        Modifier.width((enchantments.map { enchantmentDescription(it) }.maxWidth + 12f).coerceAtLeast(80f)).maxHeight(150f)
+    },
     listModifier: RowScope.() -> Modifier = { Modifier.weight(1) },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     amountStep: Float? = 15f,
@@ -343,7 +358,10 @@ fun enchantmentDescription(id: String): Text {
     return REGISTERED_ENCHANTMENT.find { it.registeredName == id }?.value()?.description?.copyToText() ?: Literal(id)
 }
 
-@Deprecated("The type of enchantment registered by the client side, after a forced transfer, is not recommended", replaceWith = ReplaceWith("REGISTERED_ENCHANTMENT"))
+@Deprecated(
+    "The type of enchantment registered by the client side, after a forced transfer, is not recommended",
+    replaceWith = ReplaceWith("REGISTERED_ENCHANTMENT")
+)
 val CLIENT_REGISTERED_ENCHANTMENT: List<Holder.Reference<Enchantment>> by lazy {
     VanillaRegistries.createLookup().lookupOrThrow(Registries.ENCHANTMENT).run {
         listElementIds().map { registryKey ->
@@ -368,7 +386,9 @@ fun ContainerScope.EntiryAttributeSelector(
     },
     modifier: Modifier = Modifier.width(120f),
     searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width((entityAttributes.map { it.registeredName }.maxWidth + 12f).coerceAtLeast(120f)) },
-    listWrapperModifier: ColumnScope.() -> Modifier = { Modifier.width((entityAttributes.map { it.registeredName }.maxWidth + 12f).coerceAtLeast(120f)) },
+    listWrapperModifier: ColumnScope.() -> Modifier = {
+        Modifier.width((entityAttributes.map { it.registeredName }.maxWidth + 12f).coerceAtLeast(120f)).maxHeight(150f)
+    },
     listModifier: RowScope.() -> Modifier = { Modifier.weight(1) },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     amountStep: Float? = 15f,

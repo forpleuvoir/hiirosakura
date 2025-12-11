@@ -72,8 +72,8 @@ fun HiiroSakuraScreen() = TabScreen(
             }
         }
     },
-    tabColor = stateOf(Color(0xffffccf0)),
-    inactiveColor = stateOf(Color(0xffb3f2ff))
+    tabColor = stateOf(Color.ofRGB(0xFFCCF0)),
+    inactiveColor = stateOf(Color.ofRGB(0xB3F2FF))
 ) {
     HSTab(HSConfig.translateText) { ConfigManagerWrapper(HSConfig) }
     HSTab(HSLang.customData) { TreeNodeEditor(CustomData.data, Modifier.fill(), listModifier = { Modifier.weight(1).fill() }) }

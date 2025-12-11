@@ -2,6 +2,7 @@ package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
+import moe.forpleuvoir.hiirosakura.util.resourceLocation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -27,6 +28,7 @@ import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.network.chat.Style
 import net.minecraft.resources.ResourceLocation
 
+val unknownComponentType = resourceLocation("unknown_component_type")
 
 fun ContainerScope.ResourceLocationText(
     key: ResourceLocation,

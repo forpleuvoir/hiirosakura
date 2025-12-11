@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.util
 
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.unknownComponentType
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -22,9 +23,9 @@ fun ItemStack.getEnchantmentTextWithLvl(
 ): List<Text> {
     return buildList {
         if (`is`(Items.ENCHANTED_BOOK))
-            get(DataComponents.STORED_ENCHANTMENTS)?.addToTooltip(context, { add(it.copyToText()) }, flag,this@getEnchantmentTextWithLvl)
+            get(DataComponents.STORED_ENCHANTMENTS)?.addToTooltip(context, { add(it.copyToText()) }, flag, this@getEnchantmentTextWithLvl.components)
         else
-            get(DataComponents.ENCHANTMENTS)?.addToTooltip(context, { add(it.copyToText()) }, flag,this@getEnchantmentTextWithLvl)
+            get(DataComponents.ENCHANTMENTS)?.addToTooltip(context, { add(it.copyToText()) }, flag, this@getEnchantmentTextWithLvl.components)
     }
 }
 
@@ -42,5 +43,12 @@ val SerializeElement.asItem: Item
 fun ItemStack.hasTag(tag: String): Boolean = this.tags.anyMatch { it.location.toString() == tag }
 
 val DataComponentType<*>.key get() = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(this)
-fun DataComponentType<*>.id(registryAccess: RegistryAccess) = registryAccess.lookupOrThrow(Registries.DATA_COMPONENT_TYPE).getKey(this)
+
+val DataComponentType<*>.keyOrUnknown get() = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(this) ?: unknownComponentType
+
+fun DataComponentType<*>.key(registryAccess: RegistryAccess) = registryAccess.lookupOrThrow(Registries.DATA_COMPONENT_TYPE).getKey(this)
+
+fun DataComponentType<*>.keyOrUnknown(registryAccess: RegistryAccess) =
+    registryAccess.lookupOrThrow(Registries.DATA_COMPONENT_TYPE).getKey(this) ?: unknownComponentType
+
 

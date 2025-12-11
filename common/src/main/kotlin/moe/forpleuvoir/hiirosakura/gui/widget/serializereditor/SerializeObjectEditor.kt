@@ -75,6 +75,7 @@ fun ContainerScope.SerializeObjectEditor(
         barThickness,
         listModifier
     ) {
+        amountStep(15f)
         if (serializeObject.isEmpty()) Text(IGLang.hasNothing, Modifier.fill())
         serializeObject.forEach { (key, value) ->
             SerializeElementEntryEditor(

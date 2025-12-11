@@ -7,10 +7,9 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.EntityMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.EntityMatcher
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.RenderInfoAddon.useIrisCompatiblePipeline
-import moe.forpleuvoir.hiirosakura.platform.PLATFORM
 import moe.forpleuvoir.hiirosakura.render.HSRenderType
+import moe.forpleuvoir.hiirosakura.render.pushSpeechBubbleTexture
 import moe.forpleuvoir.hiirosakura.render.pushStringLines
-import moe.forpleuvoir.hiirosakura.render.pushTexture
 import moe.forpleuvoir.hiirosakura.util.resourceLocation
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -21,6 +20,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.Corner
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
+import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.text.size
 import moe.forpleuvoir.ibukigourd.text.wrapToLines
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -50,9 +50,9 @@ class ChatBubble(
 
         internal val TEXTURE = TextureInfo(16, 16, resourceLocation("texture/gui/chat/bubble.png"))
 
-        private val BUBBLE = WidgetTexture(Corner(4), 0, 0, 16, 10, TEXTURE)
+        private val BUBBLE = WidgetTexture(Corner(4), 0, 0, 16, 9, TEXTURE)
 
-        private val ARROW = WidgetTexture(Corner(top = -1), 5, 11, 12, 14, TEXTURE)
+        private val ARROW = WidgetTexture(Corner(top = -4), 5, 13, 12, 16, TEXTURE)
 
         private val RENDER_TYPE get() = if (useIrisCompatiblePipeline.value) IRIS_RENDER_TYPE else VANILLA_RENDER_TYPE
 
@@ -135,7 +135,7 @@ class ChatBubble(
         }
 
         private fun renderBubble(
-            textureBox: Box,
+            bubbleBox: Box,
             arrowBox: Box,
             textBox: Box,
             lines: List<String>,
@@ -146,7 +146,7 @@ class ChatBubble(
             nodeCollector: SubmitNodeCollector,
             packedLight: Int
         ) {
-            val packedLight = ChatBubbleHandler.useMaxLight.pick(LightTexture.FULL_BRIGHT, packedLight)
+            val packedLight = (ChatBubbleHandler.useMaxLight || !useIrisCompatiblePipeline.value).pick(LightTexture.FULL_BRIGHT, packedLight)
 
             poseStack.pushPose()
 
@@ -164,13 +164,17 @@ class ChatBubble(
                 poseStack.mulPose(Quaternionf().rotateX(cameraPitch * (Math.PI.toFloat() / 180F))) // 垂直旋转
 
             poseStack.scale(scale.x() * s, scale.y() * s, -s)
-            nodeCollector.pushTexture(arrowBox, ARROW, packedLight, ChatBubbleHandler.textureColor.alpha(alpha), poseStack, RENDER_TYPE)
-            //有点无语,Iris疑似不让用自定义的渲染管线.导致用不了多边形偏移,只能调整气泡的位置了
-            poseStack.translate(0f, 0f, 0.015f)
-            nodeCollector.pushTexture(textureBox, BUBBLE, packedLight, ChatBubbleHandler.textureColor.alpha(alpha), poseStack, RENDER_TYPE)
-            if (PLATFORM.getPlatformName() == "Neoforge") {
-                poseStack.translate(0f, 0f, 0f)
-            }
+            nodeCollector.pushSpeechBubbleTexture(
+                bubbleBox,
+                BUBBLE,
+                arrowBox,
+                ARROW,
+                Direction.Bottom,
+                packedLight,
+                ChatBubbleHandler.textureColor.alpha(alpha),
+                poseStack,
+                RENDER_TYPE
+            )
             nodeCollector.pushStringLines(
                 lines,
                 textBox,
@@ -188,7 +192,7 @@ class ChatBubble(
 
         private fun renderBubbleInGui(
             box: Box,
-            textureBox: Box,
+            bubbleBox: Box,
             arrowBox: Box,
             textBox: Box,
             lines: List<String>,
@@ -202,8 +206,7 @@ class ChatBubble(
                 val offsetMul = 5f
                 it.translate(offset.x() * offsetMul, -offset.y() * offsetMul)
                 it.scale(scale)
-                pushWidgetTexture(textureBox, BUBBLE, ChatBubbleHandler.textureColor.alpha(alpha))
-                pushWidgetTexture(arrowBox, ARROW, ChatBubbleHandler.textureColor.alpha(alpha))
+                pushSpeechBubbleTexture(bubbleBox, BUBBLE, arrowBox, ARROW, Direction.Bottom, ChatBubbleHandler.textureColor.alpha(alpha))
                 pushStringLines(lines, textBox, Alignment.Left, Arrangement.spacedBy(LINE_SPACING), defaultColor = ChatBubbleHandler.textColor.alpha(alpha))
             }
 
@@ -215,15 +218,16 @@ class ChatBubble(
 
     private val textBox: Box
 
-    private val textureBox: Box
+    private val bubbleBox: Box
 
     private val arrowBox: Box
 
     init {
-        val (maxWidth, height) = lines.size(LINE_SPACING)
-        textBox = Box(x = -maxWidth / 2, y = -height / 2, maxWidth, height)
-        textureBox = textBox.expandEdges(5f, 4f, 4f, 4f)
-        arrowBox = Box(textBox.center.x() - ARROW.width / 2, textureBox.bottom, Size(ARROW.width, ARROW.height - ARROW.corner.top))
+        val (width, height) = lines.size(LINE_SPACING)
+        val maxWidth = width.coerceAtLeast(7f)
+        textBox = Box(x = -maxWidth / 2f, y = -height / 2f, maxWidth, height)
+        bubbleBox = textBox.expandEdges(5f, 4f, 5f, 5f)
+        arrowBox = Box(textBox.center.x() - ARROW.width / 2f, bubbleBox.bottom, Size(ARROW.width, ARROW.height))
     }
 
     val shouldRemove: Boolean get() = timeMark.elapsedNow() > duration
@@ -244,7 +248,7 @@ class ChatBubble(
             fadeOutDuration,
             timeMark
         ).coerceIn(0.05f, 1f)
-        renderBubble(textureBox, arrowBox, textBox, lines, alpha, poseStack, offset, scale, nodeCollector, packedLight)
+        renderBubble(bubbleBox, arrowBox, textBox, lines, alpha, poseStack, offset, scale, nodeCollector, packedLight)
     }
 
     fun renderInGui(guiGraphics: IGGuiGraphics, box: Box) {
@@ -254,7 +258,7 @@ class ChatBubble(
             fadeOutDuration,
             timeMark
         ).coerceIn(0.05f, 1f)
-        renderBubbleInGui(box, textureBox, arrowBox, textBox, lines, alpha, ChatBubbleHandler.offset, ChatBubbleHandler.scale, guiGraphics)
+        renderBubbleInGui(box, bubbleBox, arrowBox, textBox, lines, alpha, ChatBubbleHandler.offset, ChatBubbleHandler.scale, guiGraphics)
     }
 
 }

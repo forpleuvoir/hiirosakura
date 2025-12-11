@@ -88,7 +88,7 @@ class CreeperFuseLayer(
             if (!onlyYRotation)
                 poseStack.mulPose(Quaternionf().rotateX(cameraPitch * (Math.PI.toFloat() / 180F))) // 垂直旋转
             poseStack.scale(-0.025f, -0.025f, 0.025f)
-            val text = "%.2f".format(MAX_FUSE - fuse)
+            val text = "%.2f".format((MAX_FUSE - fuse)*100)
             val width = text.width
             nodeCollector.pushText(
                 text,
@@ -98,7 +98,7 @@ class CreeperFuseLayer(
                 Font.DisplayMode.NORMAL,
                 packedLight,
                 color,
-                Color(0),
+                Color.ofARGB(0),
                 Colors.GRAY,
                 poseStack
             )

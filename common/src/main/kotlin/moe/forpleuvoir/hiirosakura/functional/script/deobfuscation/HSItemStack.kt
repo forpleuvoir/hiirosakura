@@ -145,7 +145,7 @@ class HSItemStack(internal val stack: ItemStack) {
     fun getStoredEnchantments() = buildList<String> {
         stack.get(DataComponents.STORED_ENCHANTMENTS)?.addToTooltip(Item.TooltipContext.EMPTY, {
             add(it.string)
-        }, mc.tooltipFlag, stack)
+        }, mc.tooltipFlag, stack.components)
     }
 
 }

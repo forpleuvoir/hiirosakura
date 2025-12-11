@@ -1,18 +1,20 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import moe.forpleuvoir.hiirosakura.util.key
+import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
 import moe.forpleuvoir.hiirosakura.util.logger
-import moe.forpleuvoir.hiirosakura.util.resourceLocation
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.text.Literal
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents.*
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.food.Foods
 import net.minecraft.world.item.Rarity
 import net.minecraft.world.item.component.ItemAttributeModifiers
 import net.minecraft.world.item.component.ItemLore
+import net.minecraft.world.item.component.TooltipDisplay
 import net.minecraft.world.item.enchantment.Enchantable
 import net.minecraft.world.item.enchantment.ItemEnchantments
 
@@ -51,7 +53,7 @@ object DataComponentWrappers {
     fun <C : Any> register(
         type: DataComponentType<C>,
         defaultValue: C,
-        key: ResourceLocation = type.key ?: resourceLocation("unknown_component_type"),
+        key: ResourceLocation = type.keyOrUnknown,
         wrapper: DataComponentWrapper<C>
     ) {
         componentWrappers[type] = wrapper as DataComponentWrapper<Any>
@@ -78,7 +80,7 @@ object DataComponentWrappers {
             )
         } ?: run {
             DefaultComponentWrapper(
-                componentType.key ?: resourceLocation("unknown_component_type"),
+                componentType.keyOrUnknown,
                 componentType,
                 component,
                 removeAction,
@@ -143,7 +145,7 @@ object DataComponentWrappers {
             EnchantableComponentWrapper(key, c, modifier = m, removeAction = rm, onValueChange = consumer)
         }
         //------------  Unit ------------\\
-        register(UNBREAKABLE,net.minecraft.util.Unit.INSTANCE) {  key, _, m, rm, _ ->
+        register(UNBREAKABLE, net.minecraft.util.Unit.INSTANCE) { key, _, m, rm, _ ->
             UnitComponentWrapper(key, modifier = m, removeAction = rm)
         }
         register(CREATIVE_SLOT_LOCK, net.minecraft.util.Unit.INSTANCE) { key, _, m, rm, _ ->
@@ -162,6 +164,14 @@ object DataComponentWrappers {
         //------------ Attribute Modifiers ------------\\
         register(ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY) { key, c, m, rm, consumer ->
             AttributeModifiersComponentWrapper(key, c, modifier = m, removeAction = rm, onValueChange = consumer)
+        }
+        //------------ Break Sound ------------\\
+        register(BREAK_SOUND, SoundEvents.ITEM_BREAK) { key, c, m, rm, consumer ->
+            BreakSoundComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        //------------ Tooltip Display ------------\\
+        register(TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT) { key, c, m, rm, consumer ->
+            TooltipDisplayComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
     }
 

@@ -139,14 +139,14 @@ class HSBlockState(internal val blockState: BlockState) {
     fun isSolid() = blockState.isSolid
 
     /**
-     * 获取指定坐标处方块的地图颜色，并将颜色的 alpha 通道设置为 255。
+     * 获取指定坐标处方块的地图颜色。
      *
      * @param x 方块的 x 坐标。
      * @param y 方块的 y 坐标。
      * @param z 方块的 z 坐标。
      * @return 表示地图颜色的 Color 对象。
      */
-    fun getMapColor(x: Int, y: Int, z: Int) = Color(blockState.getMapColor(mc.level!!, BlockPos(x, y, z)).col).alpha(255)
+    fun getMapColor(x: Int, y: Int, z: Int) = Color.ofRGB(blockState.getMapColor(mc.level!!, BlockPos(x, y, z)).col)
 
     /**
      * 获取指定 `Vector3ic` 指定位置的方块地图颜色。

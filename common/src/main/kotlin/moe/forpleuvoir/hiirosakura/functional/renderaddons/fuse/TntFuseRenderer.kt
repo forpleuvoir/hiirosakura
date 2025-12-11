@@ -78,7 +78,7 @@ object TntFuseRenderer : ModConfigContainer("tnt") {
                 y = -4.5f,
                 dropShadow = false,
                 color = color,
-                backgroundColor = Color(0),
+                backgroundColor = Color.ofARGB(0),
                 outlineColor = Colors.GRAY,
                 displayMode = Font.DisplayMode.NORMAL,
                 packedLight = packedLight,

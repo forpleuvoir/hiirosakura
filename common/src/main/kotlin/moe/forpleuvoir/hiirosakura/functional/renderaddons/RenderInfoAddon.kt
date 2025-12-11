@@ -4,12 +4,19 @@ import moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.CreeperFuseLayer
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.TntFuseRenderer
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
+import moe.forpleuvoir.ibukigourd.input.KeyBind
+import moe.forpleuvoir.ibukigourd.input.KeyBindSetting
+import moe.forpleuvoir.ibukigourd.input.KeyTriggerMode
+import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.nebula.config.item.impl.boolean
 import moe.forpleuvoir.nebula.config.item.impl.float
 
 object RenderInfoAddon : ModConfigContainer("render_info_addon") {
 
-    val useIrisCompatiblePipeline by keyBindBoolean("use_iris_compatible_pipeline", false)
+    val useIrisCompatiblePipeline by keyBindBoolean("use_iris_compatible_pipeline", false, KeyBind(defaultSetting = KeyBindSetting {
+        nextAction = NextAction.Continue
+        triggerMode = KeyTriggerMode.OnPress
+    }))
 
     val alwaysRenderBarrier by keyBindBoolean("always_render_barrier", value = false)
 

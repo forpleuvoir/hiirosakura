@@ -88,7 +88,7 @@ fun ContainerScope.BlockSelector(
     block: MutableState<Block>,
     blocks: List<Block> = BuiltInRegistries.BLOCK.toList(),
     onSelected: (Block) -> Unit = {},
-    selectorBGColor: ARGBColor = Color(0xffffccf0),
+    selectorBGColor: ARGBColor = Color.ofRGB(0xFFCCF0),
     optionsDirection: List<Direction> = listOf(Direction.Bottom, Direction.Right, Direction.Top, Direction.Left),
     modifier: Modifier = Modifier
 ) = Button(
@@ -125,13 +125,13 @@ fun ContainerScope.BlockSelector(
     searchBarHideLimit: Int = 9 * columnSize,
     selectedColor: ARGBColor = defaultSelectedColor,
     optionWrapper: ButtonScope.(Block) -> GuiWidget = {
-        ItemIcon(it, .9f)
+        ItemIcon(it, 1f)
     },
     modifier: Modifier = Modifier,
-    bgColor: ARGBColor = Color(0xffffccf0),
+    bgColor: ARGBColor = Color.ofRGB(0xFFCCF0),
     searchBarModifier: ColumnScope.() -> Modifier = { Modifier.matchSibling() },
     listWrapperModifier: ColumnScope.() -> Modifier = { Modifier },
-    listModifier: RowScope.() -> Modifier = { Modifier.height(147f).width(147f) },
+    listModifier: RowScope.() -> Modifier = { Modifier.height(162.5f).width(162.5f) },
 ) = Column(
     modifier = modifier.attachLeft {
         padding(5)

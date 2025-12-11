@@ -6,8 +6,8 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.DataCo
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.DefaultComponentBuilder
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemSelector
-import moe.forpleuvoir.hiirosakura.util.id
 import moe.forpleuvoir.hiirosakura.util.key
+import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
@@ -31,10 +31,10 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.copyToText
+import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.state.*
-import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import net.minecraft.core.component.DataComponentType
@@ -115,7 +115,7 @@ private fun RowScope.ItemPreview(itemSupplier: State<ItemStack>) = Row(horizonta
             }
             .renderOverlay { ctx, mx, my, d ->
                 if (wasMouseOver) ctx.postEndRender {
-                    renderItemDecorations(textRenderer, itemSupplier.getValue(), mx.toInt(), my.toInt())
+                    pushItemTooltip(itemSupplier.getValue(), mx, my)
                 }
             },
         horizontalArrangement = Arrangement.spacedBy(2f),
@@ -173,7 +173,7 @@ private fun RowScope.ComponentAdder(
     onAdd: () -> Unit
 ) = Row(modifier = Modifier, horizontalArrangement = Arrangement.spacedBy(5f)) {
     val registryManager = registryAccess!!
-    val components = registryManager.lookupOrThrow(Registries.DATA_COMPONENT_TYPE).sortedBy { it.id(registryManager) }
+    val components = registryManager.lookupOrThrow(Registries.DATA_COMPONENT_TYPE).sortedBy { it.key(registryManager) }
     val selected = components.first().asMutableState
     Text(HSLang.itemEditorItemAddComponent)
     var toggle by lateInitValueOf {}
@@ -183,13 +183,13 @@ private fun RowScope.ComponentAdder(
         optionWrapper = {
             val isAdapted = DataComponentWrappers.isAdaptedComponent(it)
             Text(
-                it.id(registryManager).toString(),
+                it.key(registryManager).toString(),
                 style = style(if (isAdapted) HSVColor(195f, 1f, 1f) else HSVColor(5f, .6f, 1f)),
                 modifier = Modifier.hoverText(if (isAdapted) HSLang.itemEditorAdaptedComponent else HSLang.itemEditorUnadaptedComponent)
             )
         },
         selectedWrapper = {
-            Text(it.id(registryManager).toString(), modifier = Modifier.width(120f))
+            Text(it.key(registryManager).toString(), modifier = Modifier.width(120f))
         },
         amountStep = 15f,
         onSelected = { type ->
@@ -201,15 +201,15 @@ private fun RowScope.ComponentAdder(
                         componentMap.set(type as DataComponentType<Any>, it)
                         onAdd()
                     } else {
-                        Toast.showToast(HSLang.itemEditorItemComponentExist(type.id(registryManager) ?: "unknown"))
+                        Toast.showToast(HSLang.itemEditorItemComponentExist(type.keyOrUnknown(registryManager)))
                     }
                 } ?: run {
-                    DefaultComponentBuilder(type.id(registryManager)!!, type) { component, recompose ->
+                    DefaultComponentBuilder(type.key(registryManager)!!, type) { component, recompose ->
                         if (!componentMap.has(type)) {
                             componentMap.set(type as DataComponentType<Any>, component)
                             if (recompose) onAdd()
                         } else {
-                            Toast.showToast(HSLang.itemEditorItemComponentExist(type.id(registryManager) ?: "unknown"))
+                            Toast.showToast(HSLang.itemEditorItemComponentExist(type.keyOrUnknown(registryManager)))
                         }
                     }.open()
                 }
@@ -217,7 +217,10 @@ private fun RowScope.ComponentAdder(
                 Toast.showToast(Literal(it.message ?: "unknown error").withColor(Colors.RED))
                 DataComponentWrappers.log.error(it)
             }
-        }
+        },
+        listWrapperModifier = {
+            Modifier.width((components.map { it.keyOrUnknown.toString() }.maxWidth + 12f).coerceAtLeast(210f)).maxHeight(180f)
+        },
     ) {
         toggle = { this.toggle() }
     }
@@ -236,7 +239,7 @@ private fun ColumnScope.Components(
     }
 ) {
     components.keySet().sortedBy {
-        it.id(registryAccess!!)
+        it.key(registryAccess!!)
     }.forEach { type ->
         components[type]?.let { c ->
             DataComponentWrapper(

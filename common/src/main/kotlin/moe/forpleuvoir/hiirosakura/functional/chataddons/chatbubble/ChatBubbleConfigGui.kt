@@ -4,7 +4,6 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.gui.widget.ExpandableTextEditor
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useScissor
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -30,6 +29,7 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import net.minecraft.client.gui.screens.inventory.InventoryScreen
 import net.minecraft.world.entity.player.Player
+import org.joml.Vector3f
 import kotlin.time.Duration.Companion.seconds
 
 fun ContainerScope.ChatBubbleConfigGui(
@@ -59,7 +59,7 @@ fun ContainerScope.ChatBubbleConfigGui(
                                 .maxHeight(262f)
                                 .renderBackground { guiGraphics, x, y, d ->
                                     guiGraphics {
-                                        pushWidgetTexture(transform, WidgetTextures.DIALOG_CONTENT_OUTLINE, Color(0xFFF4D9FF))
+                                        pushWidgetTexture(transform, WidgetTextures.DIALOG_CONTENT_OUTLINE, Color.ofRGB(0xF4D9FF))
                                         pushWidgetTexture(transform, WidgetTextures.DIALOG_CONTENT_INNER, Colors.WHITE)
                                     }
                                 }
@@ -116,17 +116,16 @@ private fun ContainerScope.PreviewCanvas(
     guiGraphics {
         pushRoundBox(box, Color(244, 217, 255), 4)
         pushRoundBox(box.trimEdges(1f), HSVColor(270f, 0.25f, 0.5f), 4)
-    }
-    guiGraphics.useMatrixStack {
+        val yOffset = pose().transform(1f, 1f, 1f, Vector3f()).y()
         val box = box.trimEdges(top = box.height * 0.4f)
         val bubble = chatBubble.getValue()
         useScissor(transform.asWorldCoordinateBox) {
             InventoryScreen.renderEntityInInventoryFollowsMouse(
                 guiGraphics,
                 box.x.toInt(),
-                box.y.toInt(),
+                (box.y + yOffset).toInt(),
                 box.right.toInt(),
-                box.bottom.toInt(),
+                (box.bottom + yOffset).toInt(),
                 (scale * 50f).toInt(),
                 0.0625f,
                 x,
@@ -138,4 +137,5 @@ private fun ContainerScope.PreviewCanvas(
             }
         }
     }
+
 }

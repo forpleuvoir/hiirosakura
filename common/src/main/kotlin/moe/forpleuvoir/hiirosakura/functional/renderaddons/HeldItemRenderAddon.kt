@@ -34,7 +34,7 @@ object HeldItemRenderAddon : ModConfigContainer("held_item") {
 
     val overallBackground by color("overall_background", Colors.BLACK.alpha(0f))
 
-    val itemStackInfo = addConfig(ItemStackInfo())
+    val itemStackInfo = addConfig(ItemStackInfo(enableScript = true))
 
     @JvmStatic
     fun shouldRender(new: ItemStack, origin: ItemStack): Boolean {
@@ -78,7 +78,7 @@ object HeldItemRenderAddon : ModConfigContainer("held_item") {
                     text,
                     offset.x,
                     offset.y,
-                    color = Color(text.style.color?.value ?: 0xAAAAAA).alpha(alpha.coerceIn(0, 255)),
+                    color = Color.ofRGB(text.style.color?.value ?: 0xAAAAAA).alpha(alpha.coerceIn(0, 255)),
                     if (text.string.isEmpty()) Colors.BLACK.alpha(0) else textBackground.opacity(alpha.coerceIn(0, 255)),
                     shadow = shadow
                 )

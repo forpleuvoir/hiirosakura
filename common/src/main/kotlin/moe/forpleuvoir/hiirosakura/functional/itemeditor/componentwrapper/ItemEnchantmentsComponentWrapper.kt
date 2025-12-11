@@ -62,6 +62,10 @@ fun ContainerScope.ItemEnchantmentsComponentWrapper(
                     val list = component.entrySet().map { (enchantment, level) ->
                         enchantment.value().description.copyToText() to Translatable("enchantment.level.$level", level.toString())
                     }
+                    if(list.isEmpty()) {
+                        Text(IGLang.hasNothing)
+                        return@Column
+                    }
                     Table(list, rowGap = 10f) {
                         ColumnBuilder { (key, _) ->
                             Text(key, Modifier.align(Alignment.CenterLeft))
@@ -117,7 +121,6 @@ fun ItemEnchantmentsComponentEditor(
     ) {
         var recompose = {}
         Row(Modifier.matchSibling(), horizontalArrangement = Arrangement.SpaceBetween) {
-
             Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
                 val selectedEnchantment = mutableStateOf(REGISTERED_ENCHANTMENT.first())
                 var toggle by lateInitValueOf {}

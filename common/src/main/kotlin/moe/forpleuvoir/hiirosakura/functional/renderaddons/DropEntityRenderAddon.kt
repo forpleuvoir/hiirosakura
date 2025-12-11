@@ -41,11 +41,11 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
 
     val textDefaultColor by color("default_color", Colors.WHITE)
 
-    val textBackgroundColor by color("background_color", Colors.BLACK.alpha(0f))
+    val textBackgroundColor by color("background_color", Color.ofARGB(0x66000000))
 
     val invertOutlineColor by boolean("invert_outline_color", false)
 
-    val textOutlineColor by color("text_outline_color", Colors.BLACK)
+    val textOutlineColor by color("text_outline_color", Color.ofARGB(0))
 
     val displayMode: Font.DisplayMode by enum("display_mode", Font.DisplayMode.NORMAL)
 
@@ -53,7 +53,7 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
 
     val experienceOrbValue by keyBindBoolean("experience_orb_value", value = false)
 
-    val itemStackInfo = addConfig(ItemStackInfo())
+    val itemStackInfo = addConfig(ItemStackInfo(enableScript = false))
 
     @JvmStatic
     fun renderItemEntityInfo(
@@ -135,7 +135,7 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
         poseStack.scale(0.025f, -0.025f, 0.025f)
 
         val outlineColor = text.style.color?.let {
-            Color(it.value).alpha(255).reverse()
+            Color.ofRGB(it.value).reverse()
         } ?: textDefaultColor.reverse()
         nodeCollector.pushText(
             text,
@@ -145,8 +145,8 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
             displayMode,
             light,
             textDefaultColor,
-            if (text.string.isEmpty()) Color(0) else textBackgroundColor,
-            if(invertOutlineColor) outlineColor else textOutlineColor,
+            if (text.string.isEmpty()) Color.ofARGB(0) else textBackgroundColor,
+            if (invertOutlineColor) outlineColor else textOutlineColor,
             poseStack
         )
         poseStack.popPose()

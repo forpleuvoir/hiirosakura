@@ -34,12 +34,15 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.configContainerWrapperGuidelinesColor
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
 import moe.forpleuvoir.nebula.common.color.Colors
+import net.minecraft.ChatFormatting
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.EquipmentSlotGroup
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
@@ -57,9 +60,29 @@ fun ContainerScope.AttributeModifiersComponentWrapper(
     var component = component
     Button(
         modifier = Modifier.width(140f)
+            .hoverTip {
+                if (component.modifiers.isEmpty()) {
+                    Text(IGLang.hasNothing)
+                    return@hoverTip
+                }
+                Column(horizontalAlignment = Alignment.Left) {
+                    var current = ""
+                    for (slot in EquipmentSlotGroup.entries) {
+                        component.forEach(slot) { attribute, modifier, display ->
+                            if (display != ItemAttributeModifiers.Display.hidden()) {
+                                val slotText = Text.translatable("item.modifiers.${slot.serializedName}").withStyle(ChatFormatting.GRAY)
+                                if (current != slotText.plainText) {
+                                    Text(slotText)
+                                    current = slotText.plainText
+                                }
+                            }
+                            display.apply({ Text(it.copyToText()) }, mc.player, attribute, modifier)
+                        }
+                    }
+                }
+            }
     ) {
         Text(IGLang.listConfigWrapperText(component.modifiers.size))
-
         click {
             AttributeModifiersComponentEditor(key.asTranslateText(), component) { it, recompose ->
                 if (component != it) {
@@ -117,7 +140,7 @@ fun AttributeModifiersComponentEditor(
             spacing = 2f, modifier = Modifier, listModifier = { Modifier.height(170f) }
         ) {
             amountStep(15f)
-            if (modifiers.isEmpty()) Text(IGLang.hasNothing,modifier= Modifier.width(300f))
+            if (modifiers.isEmpty()) Text(IGLang.hasNothing, modifier = Modifier.width(300f))
             modifiers.forEachIndexed { index, entry ->
                 AttributeModifiersComponentEntryWrapper(entry, Literal("Modifier:${index}"), {
                     modifiers.removeAt(index)

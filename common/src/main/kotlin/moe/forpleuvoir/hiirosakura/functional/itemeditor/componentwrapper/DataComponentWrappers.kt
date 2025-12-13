@@ -10,13 +10,16 @@ import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents.*
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundEvents
+import net.minecraft.tags.DamageTypeTags
 import net.minecraft.world.food.Foods
 import net.minecraft.world.item.Rarity
+import net.minecraft.world.item.component.DamageResistant
 import net.minecraft.world.item.component.ItemAttributeModifiers
 import net.minecraft.world.item.component.ItemLore
 import net.minecraft.world.item.component.TooltipDisplay
 import net.minecraft.world.item.enchantment.Enchantable
 import net.minecraft.world.item.enchantment.ItemEnchantments
+import net.minecraft.world.level.block.entity.BannerPatternLayers
 
 fun interface DataComponentWrapper<C> {
     fun ContainerScope.wrapper(
@@ -172,6 +175,14 @@ object DataComponentWrappers {
         //------------ Tooltip Display ------------\\
         register(TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT) { key, c, m, rm, consumer ->
             TooltipDisplayComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        //------------ Banner Pattern ------------\\
+        register(BANNER_PATTERNS, BannerPatternLayers.EMPTY) { key, c, m, rm, consumer ->
+            BannerPatternComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        //------------ DamageResistant ------------\\
+        register(DAMAGE_RESISTANT, DamageResistant(DamageTypeTags.IS_FIRE)) { key, c, m, rm, consumer ->
+            DamageResistantComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
     }
 

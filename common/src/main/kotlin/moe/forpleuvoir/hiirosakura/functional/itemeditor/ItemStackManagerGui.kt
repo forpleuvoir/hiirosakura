@@ -260,6 +260,7 @@ fun IGGuiGraphics.pushItemTooltip(
     my: Float
 ) {
     val lines = Screen.getTooltipFromItem(mc, itemStack)
+    if(lines.isEmpty()) return
     val list = lines.stream()
         .map { it.visualOrderText }
         .map { ClientTooltipComponent.create(it) }

@@ -146,12 +146,7 @@ fun TooltipDisplayEditor(
                     recompose()
                     entry
                 }
-                DataComponentTypeSelector(
-                    state,
-                    modifier = Modifier.width(555f),
-//                    searchBarModifier = { Modifier.width(210f) },
-//                    listWrapperModifier = { Modifier.width(210f).maxHeight(150f) },
-                )
+                DataComponentTypeSelector(state, modifier = Modifier.width(555f),)
             }
 
             Header {

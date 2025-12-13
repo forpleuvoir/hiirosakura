@@ -1,9 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor
 
+import com.mojang.serialization.JsonOps
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.platform.PLATFORM
 import moe.forpleuvoir.hiirosakura.util.logger
-import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.nebula.common.util.ioAsync
 import moe.forpleuvoir.nebula.config.util.ConfigUtil
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -12,7 +12,9 @@ import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import moe.forpleuvoir.nebula.serialization.gson.jsonStringToObject
+import moe.forpleuvoir.nebula.serialization.gson.toJsonElement
 import moe.forpleuvoir.nebula.serialization.gson.toJsonString
+import moe.forpleuvoir.nebula.serialization.gson.toSerializeElement
 import net.minecraft.core.RegistryAccess
 import net.minecraft.world.item.ItemStack
 import java.io.File
@@ -110,13 +112,13 @@ object ItemStackManager {
         "items" to serializeArray().apply {
             _items.forEach { itemStack ->
                 runCatching {
-                    ItemStack.CODEC.encodeStart(registryAccess.createSerializationContext(NebulaOps), itemStack)
+                    ItemStack.CODEC.encodeStart(registryAccess.createSerializationContext(JsonOps.COMPRESSED), itemStack)
                         .resultOrPartial {
                             log.error("serialize item stack error: $it")
                         }
                         .getOrNull()
                         ?.let {
-                            add(it)
+                            add(it.toSerializeElement())
                         }
                 }
             }
@@ -128,7 +130,7 @@ object ItemStackManager {
             serializeElement.checkType {
                 check<SerializeObject> { obj ->
                     obj["items"]!!.asArray.forEach { serializeElement ->
-                        ItemStack.CODEC.parse(registryAccess.createSerializationContext(NebulaOps), serializeElement)
+                        ItemStack.CODEC.parse(registryAccess.createSerializationContext(JsonOps.COMPRESSED), serializeElement.toJsonElement())
                             .resultOrPartial {
                                 log.error("deserialize item stack error: $it")
                             }

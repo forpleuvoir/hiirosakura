@@ -44,8 +44,6 @@ fun PoseStack.clearRotation(): PoseStack {
     return newPose
 }
 
-
-
 fun ResourceLocation.asTranslateText(prefix: String? = null, suffix: String? = null): Text {
     return if (prefix != null && suffix != null)
         Translatable(this.toLanguageKey(prefix, suffix), this.toString())

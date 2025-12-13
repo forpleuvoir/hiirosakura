@@ -1,5 +1,8 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import com.mojang.serialization.JsonOps
 import moe.forpleuvoir.hiirosakura.gui.widget.serializereditor.SerializeElementEditor
 import moe.forpleuvoir.hiirosakura.gui.widget.serializereditor.SerializeElementType
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
@@ -23,13 +26,12 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+import moe.forpleuvoir.nebula.serialization.gson.toJsonElement
+import moe.forpleuvoir.nebula.serialization.gson.toSerializeElement
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.resources.ResourceLocation
 
@@ -49,7 +51,7 @@ fun <C : Any> ContainerScope.DefaultComponentWrapper(
         click {
             runCatching {
                 var data = componentType.codecOrThrow()
-                    .encodeStart(registryAccess!!.createSerializationContext(NebulaOps), component as C)
+                    .encodeStart(registryAccess!!.createSerializationContext(JsonOps.COMPRESSED), component as C)
                     .resultOrPartial {
                         Toast.showToast(Literal(it).withColor(Colors.RED))
                     }
@@ -66,20 +68,21 @@ fun <C : Any> ContainerScope.DefaultComponentWrapper(
                         var r = true
                         runCatching {
                             result = componentType.codecOrThrow()
-                                .parse(registryAccess!!.createSerializationContext(NebulaOps), data)
+                                .parse(registryAccess!!.createSerializationContext(JsonOps.COMPRESSED), data)
                                 .resultOrPartial {
                                     Toast.showToast(Literal(it).withColor(Colors.RED))
                                     DataComponentWrappers.log.error(it)
                                     r = false
                                 }.get()
                         }.onFailure {
+                            Toast.showToast(Literal(it.message ?: "unknown error").withColor(Colors.RED))
                             DataComponentWrappers.log.error(it)
                         }
                         r
                     }
                 ) {
-                    SerializeElementEditor(data.deepCopy(), modifier = Modifier.width(330f).height(190f)) {
-                        data = it
+                    SerializeElementEditor(data.toSerializeElement(), modifier = Modifier.width(330f).height(190f)) {
+                        data = it.toJsonElement()
                     }
                 }.open()
             }.onFailure {
@@ -96,11 +99,11 @@ fun <C : Any> DefaultComponentBuilder(
     componentType: DataComponentType<C>,
     onValueChange: (C, Boolean) -> Unit,
 ): IGScreenImpl {
-    var data: SerializeElement = SerializeObject()
+    var data: JsonElement = JsonObject()
     var editorRecompose by lateInitValueOf {}
     val type = mutableStateOf(SerializeElementType.Object)
     type.subscribe {
-        data = it.defaultValue
+        data = it.defaultValue.toJsonElement()
         editorRecompose()
     }
     var result: C by lateInitValueOf()
@@ -113,7 +116,7 @@ fun <C : Any> DefaultComponentBuilder(
             var r = true
             runCatching {
                 result = componentType.codecOrThrow()
-                    .parse(registryAccess!!.createSerializationContext(NebulaOps), data)
+                    .parse(registryAccess!!.createSerializationContext(JsonOps.COMPRESSED), data)
                     .resultOrPartial {
                         Toast.showToast(Literal(it).withColor(Colors.RED))
                         DataComponentWrappers.log.error(it)
@@ -126,12 +129,12 @@ fun <C : Any> DefaultComponentBuilder(
         EnumSelector(type, SerializeElementType.entries, modifier = Modifier.width(70f))
         Box {
             val modifier = when {
-                data.isObject || data.isArray -> Modifier.width(330f).height(190f)
+                data.isJsonObject || data.isJsonArray -> Modifier.width(330f).height(190f)
                 data is SerializePrimitive && (data as SerializePrimitive).isBoolean -> Modifier.width(40f)
                 else -> Modifier.width(160f)
             }
-            SerializeElementEditor(data.deepCopy(), modifier = modifier) {
-                data = it
+            SerializeElementEditor(data.toSerializeElement(), modifier = modifier) {
+                data = it.toJsonElement()
             }
         }.apply {
             editorRecompose = { this.executeRecompose() }

@@ -40,13 +40,8 @@ private val IG_FOOD_FULL_TEXTURE = WidgetTexture(Corner.Unspecified, 0, 0, 9, 9,
 
 private fun Modifier.foodIconModifier(icon: WidgetTexture) = render { guiGraphics, _, _, _ ->
     val box = contentBox(true)
-//    enablePolygonOffset()
-//    polygonOffset(0f, 5f)
     guiGraphics {
         pushWidgetTexture(box, IG_FOOD_EMPTY_TEXTURE)
-//    }
-//    disablePolygonOffset()
-//    guiGraphics.batchRenderTextureColored {
         pushWidgetTexture(box, icon)
     }
 }
@@ -95,12 +90,12 @@ fun ContainerScope.FoodComponentWrapper(
     ) {
         Icon(IconTextures.EDIT)
         click {
-            FoddComponentEditor(key.asTranslateText(), component, onValueChange = onValueChange).open()
+            FoodEditor(key.asTranslateText(), component, onValueChange = onValueChange).open()
         }
     }
 }
 
-fun FoddComponentEditor(
+fun FoodEditor(
     title: Text,
     component: FoodProperties,
     modifier: Modifier = Modifier,
@@ -110,7 +105,7 @@ fun FoddComponentEditor(
     val nutrition = component.nutrition.asMutableState
     val saturation = component.saturation.asMutableState
     val canAlwaysEat = component.canAlwaysEat.asMutableState
-    return DataComponentWrapperDialog(
+    return DataComponentEditor(
         title,
         { FoodProperties(nutrition.getValue(), saturation.getValue(), canAlwaysEat.getValue()) to true },
         onValueChange,

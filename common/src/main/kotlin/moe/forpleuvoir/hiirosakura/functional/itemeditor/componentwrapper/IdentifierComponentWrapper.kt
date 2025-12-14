@@ -6,10 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverText
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderBackground
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
@@ -36,17 +33,17 @@ import kotlin.time.Duration.Companion.seconds
 private const val IDENTIFIER_COMPONENT_WRAPPER = "#hiiosakura_identifier_component_wrapper"
 
 fun ContainerScope.IdentifierComponentWrapper(
-    id: ResourceLocation,
+    key: ResourceLocation,
     component: ResourceLocation,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f, Alignment.Right),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     onValueChange: (ResourceLocation, Boolean) -> Unit,
-) = DataComponentWrapperRow(id, removeAction, modifier, horizontalArrangement, verticalAlignment) {
+) = DataComponentWrapperRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     var component = component
     Box(
-        Modifier.width(115f).padding(4f).renderBackground { guiGraphics, x, y, d ->
+        Modifier.width(115f).minHeight(14f).padding(4f).renderBackground { guiGraphics, _, _, _ ->
             guiGraphics.pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_BACKGROUND)
         }
     ) {
@@ -57,7 +54,7 @@ fun ContainerScope.IdentifierComponentWrapper(
     ) {
         Icon(IconTextures.EDIT)
         click {
-            IdentifierComponentEditor(id.asTranslateText(), component) { it, recompose ->
+            IdentifierComponentEditor(key.asTranslateText(), component) { it, recompose ->
                 if (component != it) {
                     component = it
                     onValueChange(component, recompose)
@@ -81,7 +78,7 @@ fun IdentifierComponentEditor(
     val pathState = component.path.asMutableState
     var pathEditor: (() -> Transform)? = null
 
-    return DataComponentWrapperDialog(
+    return DataComponentEditor(
         title,
         { ResourceLocation.fromNamespaceAndPath(namespaceState.getValue(), pathState.getValue()) to true },
         onValueChange,

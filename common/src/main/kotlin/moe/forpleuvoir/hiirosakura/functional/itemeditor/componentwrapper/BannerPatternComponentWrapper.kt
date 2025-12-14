@@ -94,7 +94,7 @@ fun BannerPatternComponentEditor(
 ): IGScreenImpl {
     val layers = component.layers().toMutableList()
 
-    return DataComponentWrapperDialog(
+    return DataComponentEditor(
         title,
         {
             BannerPatternLayers(layers) to true

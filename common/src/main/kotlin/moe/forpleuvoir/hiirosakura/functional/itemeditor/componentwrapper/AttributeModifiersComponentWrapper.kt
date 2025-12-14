@@ -105,7 +105,7 @@ fun AttributeModifiersComponentEditor(
 
     val modifiers = component.modifiers.toMutableList()
 
-    return DataComponentWrapperDialog(
+    return DataComponentEditor(
         title,
         {
             ItemAttributeModifiers(modifiers) to true

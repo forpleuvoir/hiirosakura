@@ -59,7 +59,7 @@ fun <C : Any> ContainerScope.DefaultComponentWrapper(
 
                 var result = component
                 //Editor
-                DataComponentWrapperDialog(
+                DataComponentEditor(
                     key.asTranslateText(),
                     { result!! as C to true },
                     onValueChange,
@@ -107,7 +107,7 @@ fun <C : Any> DefaultComponentBuilder(
         editorRecompose()
     }
     var result: C by lateInitValueOf()
-    return DataComponentWrapperDialog(
+    return DataComponentEditor(
         key.asTranslateText(),
         { result to true },
         onValueChange,

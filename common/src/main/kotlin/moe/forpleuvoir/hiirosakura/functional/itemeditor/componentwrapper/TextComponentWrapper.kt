@@ -70,7 +70,7 @@ fun TextComponentEditor(
     onValueChange: (McText, Boolean) -> Unit,
 ): IGScreenImpl {
     val stringState = InlineStyleTextParser.inline(component).asMutableState
-    return DataComponentWrapperDialog(
+    return DataComponentEditor(
         title,
         { InlineStyleTextParser.parse(stringState.getValue(), InlineStyleTextParser.noneEventModifier) to true },
         onValueChange,

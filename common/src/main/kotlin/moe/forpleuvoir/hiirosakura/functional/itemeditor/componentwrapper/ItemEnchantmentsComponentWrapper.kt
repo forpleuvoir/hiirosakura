@@ -105,7 +105,7 @@ fun ItemEnchantmentsComponentEditor(
         levels.add(it.intValue)
     }
 
-    return DataComponentWrapperDialog(
+    return DataComponentEditor(
         title,
         {
             val es = Object2IntOpenHashMap<Holder<Enchantment>>().apply {

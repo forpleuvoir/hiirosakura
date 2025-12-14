@@ -39,7 +39,7 @@ fun ContainerScope.ResourceLocationText(
 ) = Text(key.asTranslateText().setStyle(style), modifier, setting, true, scope)
 
 
-fun <C : Any> DataComponentWrapperDialog(
+fun <C : Any> DataComponentEditor(
     title: Text,
     newComponent: () -> Pair<C, Boolean>,
     onValueChange: (C, Boolean) -> Unit,

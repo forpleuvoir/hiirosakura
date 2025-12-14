@@ -85,7 +85,7 @@ fun TooltipDisplayEditor(
     val hideTooltip = component.hideTooltip.asMutableState
     val hiddenComponents = component.hiddenComponents.toMutableList()
 
-    return DataComponentWrapperDialog(
+    return DataComponentEditor(
         title,
         {
             TooltipDisplay(hideTooltip.getValue(), LinkedHashSet(hiddenComponents)) to true
@@ -116,8 +116,6 @@ fun TooltipDisplayEditor(
                             Toast.showToast(HSLang.itemEditorItemComponentExist(dataComponentType.keyOrUnknown(registryAccess!!)))
                         }
                     },
-//                    searchBarModifier = { Modifier.width(210f) },
-//                    listWrapperModifier = { Modifier.width(210f).maxHeight(150f) },
                     optionsDirection = listOf(Direction.Bottom)
                 ) {
                     toggle = { this.toggle() }

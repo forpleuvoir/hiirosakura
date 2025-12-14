@@ -84,7 +84,7 @@ fun LoreComponentEditor(
     onValueChange: (ItemLore, Boolean) -> Unit,
 ): IGScreenImpl {
     val lines = component.lines.toMutableList()
-    return DataComponentWrapperDialog(
+    return DataComponentEditor(
         title,
         { ItemLore(lines) to true },
         onValueChange,
@@ -116,7 +116,7 @@ fun LoreComponentEditor(
                         }
                         EditButton {
                             val stringState = mutableStateOf(InlineStyleTextParser.inline(entry))
-                            DataComponentWrapperDialog(
+                            DataComponentEditor(
                                 title,
                                 { stringState.getValue() to true },
                                 { it, recompose ->

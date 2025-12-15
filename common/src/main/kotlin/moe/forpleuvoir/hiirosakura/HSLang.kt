@@ -3,6 +3,7 @@ package moe.forpleuvoir.hiirosakura
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
+import net.minecraft.network.chat.Component
 
 object HSLang {
 
@@ -166,7 +167,7 @@ object HSLang {
 
     val itemEditorAddFromHandheldItem get() = lang("item_editor.add_from_handheld_item")
     val itemEditorGetToBackpack get() = lang("item_editor.get_to_backpack")
-    fun itemEditorGetToBackpackSuccess(text: Text) = lang("item_editor.get_to_backpack.success", text)
+    fun itemEditorGetToBackpackSuccess(text: Component) = lang("item_editor.get_to_backpack.success", text)
     val itemEditorRemoveConfirm get() = lang("item_editor.remove_confirm")
     val itemEditorCopyToCommand get() = lang("item_editor.copy_to_command")
 

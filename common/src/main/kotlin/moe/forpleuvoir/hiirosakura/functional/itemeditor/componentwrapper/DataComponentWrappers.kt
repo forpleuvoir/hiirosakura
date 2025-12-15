@@ -6,6 +6,7 @@ import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.text.Literal
+import net.minecraft.core.HolderSet
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents.*
 import net.minecraft.resources.ResourceLocation
@@ -19,6 +20,7 @@ import net.minecraft.world.item.component.ItemLore
 import net.minecraft.world.item.component.TooltipDisplay
 import net.minecraft.world.item.enchantment.Enchantable
 import net.minecraft.world.item.enchantment.ItemEnchantments
+import net.minecraft.world.item.enchantment.Repairable
 import net.minecraft.world.item.equipment.Equippable
 import net.minecraft.world.level.block.entity.BannerPatternLayers
 
@@ -188,6 +190,10 @@ object DataComponentWrappers {
         //------------ Equippable ------------\\
         register(EQUIPPABLE, Equippable.saddle()) { key, c, m, rm, consumer ->
             EquippableComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        //------------ Repairable ------------\\
+        register(REPAIRABLE, Repairable(HolderSet.empty())) { key, c, m, rm, consumer ->
+            RepairableComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
     }
 

@@ -74,8 +74,6 @@ object ChatBubbleHandler : ModConfigContainer("chat_bubble") {
 
     fun render(
         player: AbstractClientPlayer,
-        yRot: Float,
-        xRot: Float,
         packedLight: Int,
         renderState: AvatarRenderState,
         poseStack: PoseStack,
@@ -86,7 +84,7 @@ object ChatBubbleHandler : ModConfigContainer("chat_bubble") {
 
         bubbleQueue.findLast {
             it.matcher.match(player)
-        }?.bubble?.render(xRot, yRot, packedLight, renderState, poseStack, nodeCollector)
+        }?.bubble?.render(packedLight, renderState, poseStack, nodeCollector)
     }
 
 }

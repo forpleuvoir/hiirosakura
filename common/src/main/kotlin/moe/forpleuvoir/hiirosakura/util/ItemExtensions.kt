@@ -1,8 +1,6 @@
 package moe.forpleuvoir.hiirosakura.util
 
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.unknownComponentType
-import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
@@ -11,6 +9,7 @@ import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -20,12 +19,12 @@ import net.minecraft.world.item.TooltipFlag
 fun ItemStack.getEnchantmentTextWithLvl(
     context: Item.TooltipContext,
     flag: TooltipFlag
-): List<Text> {
+): List<Component> {
     return buildList {
         if (`is`(Items.ENCHANTED_BOOK))
-            get(DataComponents.STORED_ENCHANTMENTS)?.addToTooltip(context, { add(it.copyToText()) }, flag, this@getEnchantmentTextWithLvl.components)
+            get(DataComponents.STORED_ENCHANTMENTS)?.addToTooltip(context, { add(it) }, flag, this@getEnchantmentTextWithLvl.components)
         else
-            get(DataComponents.ENCHANTMENTS)?.addToTooltip(context, { add(it.copyToText()) }, flag, this@getEnchantmentTextWithLvl.components)
+            get(DataComponents.ENCHANTMENTS)?.addToTooltip(context, { add(it) }, flag, this@getEnchantmentTextWithLvl.components)
     }
 }
 

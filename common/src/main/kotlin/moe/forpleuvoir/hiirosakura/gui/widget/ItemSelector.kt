@@ -29,11 +29,11 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
-import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.ibukigourd.util.state.State
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
@@ -43,12 +43,13 @@ import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.data.registries.VanillaRegistries
+import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.ai.attributes.Attribute
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.enchantment.Enchantment
 import kotlin.jvm.optionals.getOrNull
 
-fun ContainerScope.ItemSelector(
+fun ContainerScope.ItemListSelector(
     item: MutableState<Item>,
     items: List<Item> = BuiltInRegistries.ITEM.toList(),
     onSelected: (Item) -> Unit = {},
@@ -59,7 +60,7 @@ fun ContainerScope.ItemSelector(
             horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
         ) {
             ItemIcon(it, .6f)
-            Text(it.name.copyToText())
+            Text(it.name)
         }
     },
     optionWrapper: ButtonScope.(Item) -> GuiWidget = {
@@ -68,7 +69,7 @@ fun ContainerScope.ItemSelector(
             horizontalArrangement = Arrangement.spacedBy(2f)
         ) {
             ItemIcon(it, .6f)
-            Text(it.name.copyToText())
+            Text(it.name)
         }
     },
     modifier: Modifier = Modifier.width(120f),
@@ -100,6 +101,10 @@ fun ContainerScope.ItemSelector(
     items: List<Item> = BuiltInRegistries.ITEM.toList(),
     onSelected: (Item) -> Unit = {},
     selectorBGColor: ARGBColor = Color.ofRGB(0xFFCCF0),
+    selectedWrapper: ButtonScope.(State<Item>) -> GuiWidget = {
+        ItemIcon(item, .6f)
+        Text(mutableStateBy { item.getValue().name })
+    },
     optionsDirection: List<Direction> = listOf(Direction.Bottom, Direction.Right, Direction.Top, Direction.Left),
     amountStep: Float? = null,
     modifier: Modifier = Modifier
@@ -112,9 +117,7 @@ fun ContainerScope.ItemSelector(
     },
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
-    ItemIcon(item, .6f)
-    val text = mutableStateOf(item.getValue().name.copyToText())
-    Text(text)
+    selectedWrapper(item)
     click {
         PopupTip(
             modifier = Modifier.disableRender().margin(0f).padding(0f),
@@ -123,7 +126,6 @@ fun ContainerScope.ItemSelector(
             ItemSelector(items = items, bgColor = selectorBGColor, amountStep = amountStep, onSelected = {
                 item.setValue(it)
                 onSelected(it)
-                text.setValue(it.name.copyToText())
                 closeScreen()
             })
         }.open()
@@ -264,13 +266,13 @@ fun ContainerScope.EnchatmentSelector(
     selectedColor: ARGBColor = defaultSelectedColor,
     selectedWrapper: DropDownMenuScope.(Holder<Enchantment>) -> GuiWidget = {
         Text(
-            it.value().description.copyToText(),
+            it.value().description,
             modifier = Modifier.weight(1)
         )
     },
     optionWrapper: ButtonScope.(Holder<Enchantment>) -> GuiWidget = {
         Text(
-            it.value().description.copyToText(),
+            it.value().description,
             modifier = Modifier.weight(1)
         )
     },
@@ -354,8 +356,8 @@ val REGISTERED_ENCHANTMENT: List<Holder<Enchantment>>
 
 val REGISTERED_ENCHANTMENT_ID get() = REGISTERED_ENCHANTMENT.map { it.registeredName }
 
-fun enchantmentDescription(id: String): Text {
-    return REGISTERED_ENCHANTMENT.find { it.registeredName == id }?.value()?.description?.copyToText() ?: Literal(id)
+fun enchantmentDescription(id: String): Component {
+    return REGISTERED_ENCHANTMENT.find { it.registeredName == id }?.value()?.description ?: Literal(id)
 }
 
 @Deprecated(

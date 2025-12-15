@@ -31,8 +31,8 @@ import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.SubmitNodeCollector
 import net.minecraft.client.renderer.entity.state.AvatarRenderState
 import org.joml.Quaternionf
-import org.joml.Vector2f
 import org.joml.Vector2fc
+import org.joml.times
 import java.util.*
 import java.util.regex.Pattern
 import kotlin.time.Duration
@@ -143,18 +143,19 @@ class ChatBubble(
             poseStack: PoseStack,
             offset: Vector2fc,
             scale: Vector2fc,
+            renderState: AvatarRenderState,
             nodeCollector: SubmitNodeCollector,
             packedLight: Int
         ) {
             val packedLight = (ChatBubbleHandler.useMaxLight || !useIrisCompatiblePipeline.value).pick(LightTexture.FULL_BRIGHT, packedLight)
 
             poseStack.pushPose()
+            val s = -0.025f * renderState.scale
+            val height = renderState.boundingBoxHeight * 0.5f
+            val scaledOffset = offset * 0.25f
 
-            val s = -0.025f
-            val scaledOffset = Vector2f()
-            offset.mul(0.25f, scaledOffset)
-
-            poseStack.translate(scaledOffset.x(), scaledOffset.y() + 1.05f + textBox.halfHeight * -s, 0f)
+            poseStack.translate(0f, height + arrowBox.bottom * -s, 0f)
+            poseStack.translate(scaledOffset.x(), scaledOffset.y(), 0f)
 
             val camera = mc.gameRenderer.mainCamera
             val cameraYaw = camera.yRot
@@ -225,7 +226,7 @@ class ChatBubble(
     init {
         val (width, height) = lines.size(LINE_SPACING)
         val maxWidth = width.coerceAtLeast(7f)
-        textBox = Box(x = -maxWidth / 2f, y = -height / 2f, maxWidth, height)
+        textBox = Box(x = -maxWidth / 2f, y = -height - 5f - ARROW.height, maxWidth, height)
         bubbleBox = textBox.expandEdges(5f, 4f, 5f, 5f)
         arrowBox = Box(textBox.center.x() - ARROW.width / 2f, bubbleBox.bottom, Size(ARROW.width, ARROW.height))
     }
@@ -233,8 +234,6 @@ class ChatBubble(
     val shouldRemove: Boolean get() = timeMark.elapsedNow() > duration
 
     fun render(
-        yRot: Float,
-        xRot: Float,
         packedLight: Int,
         renderState: AvatarRenderState,
         poseStack: PoseStack,
@@ -248,7 +247,7 @@ class ChatBubble(
             fadeOutDuration,
             timeMark
         ).coerceIn(0.05f, 1f)
-        renderBubble(bubbleBox, arrowBox, textBox, lines, alpha, poseStack, offset, scale, nodeCollector, packedLight)
+        renderBubble(bubbleBox, arrowBox, textBox, lines, alpha, poseStack, offset, scale, renderState, nodeCollector, packedLight)
     }
 
     fun renderInGui(guiGraphics: IGGuiGraphics, box: Box) {

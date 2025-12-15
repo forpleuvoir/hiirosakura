@@ -27,7 +27,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
@@ -48,7 +47,7 @@ fun ContainerScope.BlockSelector(
             horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
         ) {
             ItemIcon(it.asItem(), .6f)
-            Text(it.name.copyToText())
+            Text(it.name)
         }
     },
     optionWrapper: ButtonScope.(Block) -> GuiWidget = {
@@ -57,7 +56,7 @@ fun ContainerScope.BlockSelector(
             horizontalArrangement = Arrangement.spacedBy(2f)
         ) {
             ItemIcon(it.asItem(), .6f)
-            Text(it.name.copyToText())
+            Text(it.name)
         }
     },
     modifier: Modifier = Modifier,
@@ -101,7 +100,7 @@ fun ContainerScope.BlockSelector(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     ItemIcon(block, .6f)
-    val text = mutableStateOf(block.getValue().name.copyToText())
+    val text = mutableStateOf(block.getValue().name)
     Text(text)
     click {
         PopupTip(
@@ -111,7 +110,7 @@ fun ContainerScope.BlockSelector(
             BlockSelector(blocks = blocks, bgColor = selectorBGColor, onSelected = {
                 block.setValue(it)
                 onSelected(it)
-                text.setValue(it.name.copyToText())
+                text.setValue(it.name)
                 closeScreen()
             })
         }.open()
@@ -179,7 +178,7 @@ fun ContainerScope.BlockSelector(
             ) {
                 column.forEach { block ->
                     FlatButton(
-                        modifier = Modifier.hoverText(block.name.copyToText().append(Literal("\n${block.key}").withColor(Color(10, 136, 226)))),
+                        modifier = Modifier.hoverText(block.name.append(Literal("\n${block.key}").withColor(Color(10, 136, 226)))),
                         hoveredColor = selectedColor,
                         round = 1,
                     ) {

@@ -13,7 +13,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.defaultSelectedColor
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
-import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -26,10 +25,10 @@ fun ContainerScope.EntityTypeSelector(
     onSelected: (EntityType<*>) -> Unit = {},
     selectedColor: ARGBColor = defaultSelectedColor,
     selectedWrapper: DropDownMenuScope.(EntityType<*>) -> GuiWidget = {
-        Text(it.description.copyToText(), modifier = Modifier.weight(1))
+        Text(it.description, modifier = Modifier.weight(1))
     },
     optionWrapper: ButtonScope.(EntityType<*>) -> GuiWidget = {
-        Text(it.description.copyToText(), modifier = Modifier.weight(1))
+        Text(it.description, modifier = Modifier.weight(1))
     },
     modifier: Modifier = Modifier.width(120f),
     searchBarModifier: ColumnScope.() -> Modifier = { Modifier.width(entityTypes.map { it.description }.maxWidth + 14f) },

@@ -30,7 +30,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.math.x
 import moe.forpleuvoir.ibukigourd.util.math.y
@@ -65,7 +64,7 @@ fun ContainerScope.BannerPatternComponentWrapper(
                     component.layers().forEach {
                         Row {
                             BannerPattern(it.pattern.asState, it.color.asState)
-                            Text(it.description().copyToText())
+                            Text(it.description())
                         }
                     }
                 }

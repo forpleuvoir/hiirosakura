@@ -209,3 +209,13 @@ function setConfig(key, value) {
 function enableEvent(event, enabled) {
     _api.enableEvent(event, enabled)
 }
+
+function state(state) {
+    var result = getGlobalData("_hs_" + state);
+    if (result == null) {
+        setGlobalData("_hs_" + state, true);
+        result = true;
+    }
+    setGlobalData("_hs_" + state, !result);
+    return result;
+}

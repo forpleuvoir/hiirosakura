@@ -8,7 +8,9 @@ import moe.forpleuvoir.hiirosakura.util.hasTag
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.serialization
 import moe.forpleuvoir.ibukigourd.IGLang
-import moe.forpleuvoir.ibukigourd.text.*
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.serialization.Deserializable
@@ -21,6 +23,7 @@ import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.deserialization
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -167,7 +170,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     val translateText = Translatable(translateKey)
 
-    abstract val asText: Text
+    abstract val asText: Component
 
     fun entrySerialization(scope: SerializeObjectScope.() -> Unit) = serializeObject {
         "type" to type
@@ -214,7 +217,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
-        override val asText: Text get() = matcher.simpleText
+        override val asText: Component get() = matcher.simpleText
 
         override fun match(obj: ItemStack): Boolean = matcher.match(obj)
 
@@ -236,7 +239,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
-        override val asText: Text = item.name.copyToText()
+        override val asText: Component = item.name
 
         override fun match(obj: ItemStack): Boolean = obj.item == item
 
@@ -259,7 +262,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
-        override val asText: Text = Literal(name)
+        override val asText: Component = Literal(name)
 
         override fun match(obj: ItemStack): Boolean =
             name.toRegex().matches(obj.item.name.string)
@@ -289,7 +292,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             """.trimIndent()
         }
 
-        override val asText: Text = Literal("Script Matcher")
+        override val asText: Component = Literal("Script Matcher")
 
         override fun match(obj: ItemStack): Boolean {
             val result = mutableStateOf(false)
@@ -322,7 +325,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
-        override val asText: Text = Literal(if (count.first == count.last) "x${count.first}" else "x${count.first}..${count.last}")
+        override val asText: Component = Literal(if (count.first == count.last) "x${count.first}" else "x${count.first}..${count.last}")
 
         override fun match(obj: ItemStack): Boolean = obj.count in count
 
@@ -346,7 +349,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
-        override val asText: Text = Literal(rarity.name)
+        override val asText: Component = Literal(rarity.name)
 
         override fun match(obj: ItemStack): Boolean = obj.rarity == rarity
 
@@ -376,7 +379,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
         }
 
-        override val asText: Text = Literal(enchantment)
+        override val asText: Component = Literal(enchantment)
             .appendLiteral(" ")
             .appendTranslate("enchantment.level.${level.first}", level.first.toString())
             .appendLiteral("..")
@@ -408,7 +411,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
-        override val asText: Text = Literal("#$tag")
+        override val asText: Component = Literal("#$tag")
 
         override fun match(obj: ItemStack): Boolean = obj.hasTag(tag)
 
@@ -433,7 +436,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
-        override val asText: Text = Literal(componentType.key.toString())
+        override val asText: Component = Literal(componentType.key.toString())
 
         override fun match(obj: ItemStack): Boolean = obj.components.has(componentType)
 

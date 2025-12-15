@@ -34,7 +34,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
-import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -60,7 +59,7 @@ fun ContainerScope.ItemEnchantmentsComponentWrapper(
             .hoverTip {
                 Column(horizontalAlignment = Alignment.Left) {
                     val list = component.entrySet().map { (enchantment, level) ->
-                        enchantment.value().description.copyToText() to Translatable("enchantment.level.$level", level.toString())
+                        enchantment.value().description to Translatable("enchantment.level.$level", level.toString())
                     }
                     if(list.isEmpty()) {
                         Text(IGLang.hasNothing)

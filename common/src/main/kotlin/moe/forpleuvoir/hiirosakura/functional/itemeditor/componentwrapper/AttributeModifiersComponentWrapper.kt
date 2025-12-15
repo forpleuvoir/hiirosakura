@@ -34,7 +34,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.configContainerWrapperGuidelinesColor
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
@@ -76,7 +75,7 @@ fun ContainerScope.AttributeModifiersComponentWrapper(
                                     current = slotText.plainText
                                 }
                             }
-                            display.apply({ Text(it.copyToText()) }, mc.player, attribute, modifier)
+                            display.apply({ Text(it) }, mc.player, attribute, modifier)
                         }
                     }
                 }

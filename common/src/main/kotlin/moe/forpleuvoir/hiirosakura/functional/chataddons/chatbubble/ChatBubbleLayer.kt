@@ -18,7 +18,7 @@ class ChatBubbleLayer(
         mc.level?.players()
             ?.find { player -> player.gameProfile.name == (renderState as AvatarRenderStateAccessor).`hiirosakura$getName`() && !player.isInvisible }
             ?.let { player ->
-                ChatBubbleHandler.render(player, yRot, xRot, packedLight, renderState, poseStack.restPoseStackKeepTranslation(), nodeCollector)
+                ChatBubbleHandler.render(player, packedLight, renderState, poseStack.restPoseStackKeepTranslation(), nodeCollector)
             }
     }
 

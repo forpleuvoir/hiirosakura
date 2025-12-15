@@ -6,7 +6,6 @@ import moe.forpleuvoir.hiirosakura.util.tooltipFlag
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
-import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.config.ConfigSerializable
 import moe.forpleuvoir.nebula.config.item.impl.ConfigBoolean
@@ -167,7 +166,7 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
         if (isEnabled(map, "count", count) && itemStack.count > 1) {
             nameAndCount.append(" x${itemStack.count}").withStyle(ChatFormatting.WHITE)
         }
-        if (nameAndCount.plainText.isNotEmpty()) this.add(nameAndCount.copyToText())
+        if (nameAndCount.plainText.isNotEmpty()) this.add(nameAndCount)
 
         val display = if (isEnabled(map, "tooltip_display", tooltipDisplay.getValue())) {
             itemStack.getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT)

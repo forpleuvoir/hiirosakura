@@ -22,6 +22,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.maxWidth
+import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.nebula.common.color.ARGBColor
@@ -42,7 +43,7 @@ fun ContainerScope.DamageResistantComponentWrapper(
 ) = DataComponentWrapperRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     val valueState = component.types().asMutableState
     valueState.subscribe { onValueChange(DamageResistant(it), false) }
-    DamageTypeTagKeySelector(valueState, modifier = Modifier.width(140f))
+    DamageTypeTagSelector(valueState, modifier = Modifier.width(140f))
 }
 
 private val damageTypeTags
@@ -53,7 +54,7 @@ private val TagKey<DamageType>.damageTypes
 
 private val DamageType.translatableText get() = Text.translatable("death.attack.${this.msgId}", this.msgId, "xx", "oo")
 
-fun ContainerScope.DamageTypeTagKeySelector(
+fun ContainerScope.DamageTypeTagSelector(
     damageType: MutableState<TagKey<DamageType>>,
     damageTypes: Iterable<TagKey<DamageType>> = damageTypeTags.toList(),
     onSelected: (TagKey<DamageType>) -> Unit = {},
@@ -69,14 +70,15 @@ fun ContainerScope.DamageTypeTagKeySelector(
                         return@hoverTip
                     } else {
                         Column(horizontalAlignment = Alignment.Left) {
-                            types.forEach { type ->
+                            types.forEachWithLimit(20) { type ->
                                 Text(type.value().translatableText)
                             }
+                            if (types.count() > 20) Text("......")
                         }
                     }
                 }
         ) {
-            Text("#${it.location.toLanguageKey()}")
+            Text("#${it.location}")
         }
     },
     optionWrapper: ButtonScope.(TagKey<DamageType>) -> GuiWidget = {
@@ -90,22 +92,23 @@ fun ContainerScope.DamageTypeTagKeySelector(
                     return@hoverTip
                 } else {
                     Column(horizontalAlignment = Alignment.Left) {
-                        types.forEach { type ->
+                        types.forEachWithLimit(20) { type ->
                             Text(type.value().translatableText)
                         }
+                        if (types.count() > 20) Text("......")
                     }
                 }
             }
         ) {
-            Text("#${it.location.toLanguageKey()}")
+            Text("#${it.location}")
         }
     },
     modifier: Modifier = Modifier.width(280f),
     searchBarModifier: ColumnScope.() -> Modifier = {
-        Modifier.width(damageTypes.map { "#${it.location.toLanguageKey()}" }.maxWidth + 12f)
+        Modifier.width(damageTypes.map { "#${it.location}" }.maxWidth + 12f)
     },
     listWrapperModifier: ColumnScope.() -> Modifier = {
-        Modifier.width(damageTypes.map { "#${it.location.toLanguageKey()}" }.maxWidth + 12f).maxHeight(160f)
+        Modifier.width(damageTypes.map { "#${it.location}" }.maxWidth + 12f).maxHeight(160f)
     },
     listModifier: RowScope.() -> Modifier = { Modifier.weight(1) },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
@@ -114,7 +117,7 @@ fun ContainerScope.DamageTypeTagKeySelector(
     options = damageTypes,
     selected = damageType,
     predicate = { tag, str ->
-        "#${tag.location.toLanguageKey()}".contains(str)
+        "#${tag.location}".contains(str)
     },
     onSelected = onSelected,
     selectedColor = selectedColor,

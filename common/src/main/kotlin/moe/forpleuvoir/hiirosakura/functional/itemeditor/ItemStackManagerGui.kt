@@ -40,7 +40,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
-import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
@@ -196,7 +195,7 @@ private fun ColumnListScope.EntryRow(
             MoveButton(recompose, index)
         }
         ItemIcon(itemStack)
-        Text(itemStack.styledHoverName.copyToText(), Modifier)
+        Text(itemStack.styledHoverName, Modifier)
     }
     Row(horizontalArrangement = Arrangement.spacedBy(4f)) {
 
@@ -205,7 +204,7 @@ private fun ColumnListScope.EntryRow(
                 Text(HSLang.itemEditorGetToBackpack)
                 click {
                     mc.player?.inventory?.add(itemStack.copy())
-                    Toast.showToast(HSLang.itemEditorGetToBackpackSuccess(itemStack.hoverName.copyToText()))
+                    Toast.showToast(HSLang.itemEditorGetToBackpackSuccess(itemStack.hoverName))
                 }
             }
         }
@@ -242,7 +241,7 @@ private fun ColumnListScope.EntryRow(
                     Arrangement.spacedBy(5f)
                 ) {
                     ItemIcon(itemStack, 0.6f)
-                    Text(itemStack.hoverName.copyToText())
+                    Text(itemStack.hoverName)
                 }
                 confirm {
                     ItemStackManager.removeAt(index)

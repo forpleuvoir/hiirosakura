@@ -20,7 +20,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.text.McText
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.text.inlinestyletext.InlineStyleTextParser
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
@@ -42,7 +41,7 @@ fun ContainerScope.TextComponentWrapper(
             guiGraphics.pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_BACKGROUND)
         }
     ) {
-        Text(text.copyToText())
+        Text(text)
     }
     Button(
         Modifier.hoverText(IGLang.edit)
@@ -80,7 +79,7 @@ fun TextComponentEditor(
         TextArea(Modifier.size(280f, 100f)) { bindState(stringState) }
         Box(Modifier.matchSibling().height(30f).margin(top = 5f)) {
             Text(mutableStateBy {
-                InlineStyleTextParser.parse(stringState.getValue(), InlineStyleTextParser.noneEventModifier).copyToText()
+                InlineStyleTextParser.parse(stringState.getValue(), InlineStyleTextParser.noneEventModifier)
             }, setting = TextSetting(textLabelUpdateInterval = 1.milliseconds))
         }
     }

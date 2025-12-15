@@ -29,7 +29,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.text.inlinestyletext.InlineStyleTextParser
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -57,7 +56,7 @@ fun ContainerScope.LoreComponentWrapper(
                         Text(IGLang.hasNothing)
                     }
                     for (text in component.lines) {
-                        Text(text.copyToText())
+                        Text(text)
                     }
                 }
             }
@@ -112,7 +111,7 @@ fun LoreComponentEditor(
                                     guiGraphics.pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_BACKGROUND)
                                 }
                         ) {
-                            Text(entry.copyToText())
+                            Text(entry)
                         }
                         EditButton {
                             val stringState = mutableStateOf(InlineStyleTextParser.inline(entry))
@@ -131,7 +130,7 @@ fun LoreComponentEditor(
                                 //Preview
                                 Box(Modifier.matchSibling().height(30f).margin(top = 5f)) {
                                     Text(mutableStateBy {
-                                        InlineStyleTextParser.parse(stringState.getValue(), InlineStyleTextParser.noneEventModifier).copyToText()
+                                        InlineStyleTextParser.parse(stringState.getValue(), InlineStyleTextParser.noneEventModifier)
                                     }, setting = TextSetting(textLabelUpdateInterval = 1.milliseconds))
                                 }
                             }.open()

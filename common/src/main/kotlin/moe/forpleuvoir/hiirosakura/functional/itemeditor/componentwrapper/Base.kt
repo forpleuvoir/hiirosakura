@@ -2,6 +2,7 @@ package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
+import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.hiirosakura.util.resourceLocation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
@@ -11,6 +12,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.screen.closeScreen
+import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.button.DeleteButton
@@ -20,15 +22,19 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextWidgetScope
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.util.state.asState
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.primitive.pick
+import net.minecraft.ChatFormatting
+import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import net.minecraft.resources.ResourceLocation
 
 val unknownComponentType = resourceLocation("unknown_component_type")
+
+private val logger = logger("ComponentWrapper:Base")
 
 fun ContainerScope.ResourceLocationText(
     key: ResourceLocation,
@@ -40,7 +46,7 @@ fun ContainerScope.ResourceLocationText(
 
 
 fun <C : Any> DataComponentEditor(
-    title: Text,
+    title: Component,
     newComponent: () -> Pair<C, Boolean>,
     onValueChange: (C, Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -53,9 +59,15 @@ fun <C : Any> DataComponentEditor(
     screenModifier,
     onConfirm = {
         if (onConfirm()) {
-            val (newComponent, recompose) = newComponent()
-            onValueChange(newComponent, recompose)
-            closeScreen()
+            runCatching {
+                val (newComponent, recompose) = newComponent()
+                onValueChange(newComponent, recompose)
+            }.onFailure {
+                logger.error(it)
+                Toast.showToast(text = Literal(it.message ?: "Unknown Error").withStyle(ChatFormatting.RED))
+            }.onSuccess {
+                closeScreen()
+            }
         }
     }
 ) {

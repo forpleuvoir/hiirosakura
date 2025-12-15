@@ -2,6 +2,7 @@ package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.google.gson.JsonPrimitive
 import com.mojang.serialization.JsonOps
 import moe.forpleuvoir.hiirosakura.gui.widget.serializereditor.SerializeElementEditor
 import moe.forpleuvoir.hiirosakura.gui.widget.serializereditor.SerializeElementType
@@ -29,7 +30,6 @@ import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.gson.toJsonElement
 import moe.forpleuvoir.nebula.serialization.gson.toSerializeElement
 import net.minecraft.core.component.DataComponentType
@@ -130,7 +130,7 @@ fun <C : Any> DefaultComponentBuilder(
         Box {
             val modifier = when {
                 data.isJsonObject || data.isJsonArray -> Modifier.width(330f).height(190f)
-                data is SerializePrimitive && (data as SerializePrimitive).isBoolean -> Modifier.width(40f)
+                data.isJsonPrimitive && (data as JsonPrimitive).isBoolean -> Modifier.width(40f)
                 else -> Modifier.width(160f)
             }
             SerializeElementEditor(data.toSerializeElement(), modifier = modifier) {

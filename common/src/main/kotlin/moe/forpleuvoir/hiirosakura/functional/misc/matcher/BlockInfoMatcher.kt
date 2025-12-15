@@ -12,7 +12,9 @@ import moe.forpleuvoir.hiirosakura.util.math.toVector
 import moe.forpleuvoir.hiirosakura.util.serialization
 import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.IGLang
-import moe.forpleuvoir.ibukigourd.text.*
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.serialization.Deserializable
@@ -26,6 +28,7 @@ import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.Util
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.network.chat.Component
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.BlockHitResult
@@ -172,7 +175,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     val translateText = Translatable(translateKey)
 
-    abstract val asText: Text
+    abstract val asText: Component
 
     fun entrySerialization(scope: SerializeObjectScope.() -> Unit) = serializeObject {
         "type" to type
@@ -216,7 +219,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
-        override val asText: Text get() = matcher.simpleText
+        override val asText: Component get() = matcher.simpleText
 
         override fun match(obj: BlockInfo): Boolean = matcher.match(obj)
 
@@ -239,7 +242,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
-        override val asText: Text = block.name.copyToText()
+        override val asText: Component = block.name
 
         override fun match(obj: BlockInfo): Boolean = obj.state.block == this.block
 
@@ -270,7 +273,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             """.trimIndent()
         }
 
-        override val asText: Text = Literal("Script Matcher")
+        override val asText: Component = Literal("Script Matcher")
 
         override fun match(obj: BlockInfo): Boolean {
             val result = mutableStateOf(false)
@@ -307,7 +310,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
-        override val asText: Text = Literal("[x:${min.x()},y:${min.y()},z:${min.z()}]..[x:${max.x()},y:${max.y()},z:${max.z()}]")
+        override val asText: Component = Literal("[x:${min.x()},y:${min.y()},z:${min.z()}]..[x:${max.x()},y:${max.y()},z:${max.z()}]")
 
         override fun match(obj: BlockInfo): Boolean = obj.pos.let {
             it.x() in min.x()..max.x()
@@ -336,7 +339,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
-        override val asText: Text = Literal("#$tag")
+        override val asText: Component = Literal("#$tag")
 
         override fun match(obj: BlockInfo): Boolean = obj.state.hasTag(tag)
 
@@ -363,7 +366,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             }
         }
 
-        override val asText: Text = Literal(property.first + " = " + property.second)
+        override val asText: Component = Literal(property.first + " = " + property.second)
 
         override fun match(obj: BlockInfo): Boolean = obj.state.values.any {
             it.key.name == property.first && property.second == Util.getPropertyName(it.key, it.value)

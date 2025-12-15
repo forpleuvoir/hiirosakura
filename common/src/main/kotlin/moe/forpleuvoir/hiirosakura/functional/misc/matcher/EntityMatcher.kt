@@ -4,7 +4,9 @@ import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSEntity
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
 import moe.forpleuvoir.ibukigourd.IGLang
-import moe.forpleuvoir.ibukigourd.text.*
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.serialization.Deserializable
@@ -17,6 +19,7 @@ import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.CommonComponents
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
@@ -154,7 +157,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
 
     val translateText = Translatable(translateKey)
 
-    abstract val asText: Text
+    abstract val asText: Component
 
     override fun serialization(): SerializeElement = serializeObject {
         "type" to type
@@ -201,7 +204,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
             }
         }
 
-        override val asText: Text get() = matcher.simpleText
+        override val asText: Component get() = matcher.simpleText
 
         override fun match(obj: Entity): Boolean = matcher.match(obj)
 
@@ -226,7 +229,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
 
         }
 
-        override val asText: Text = Translatable(entityType.descriptionId)
+        override val asText: Component = Translatable(entityType.descriptionId)
 
         override fun match(obj: Entity): Boolean {
             return obj.type == entityType
@@ -253,7 +256,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
 
         }
 
-        override val asText: Text = Literal(name)
+        override val asText: Component = Literal(name)
 
         override fun match(obj: Entity): Boolean {
             return name.toRegex().matches(obj.name.string)
@@ -280,7 +283,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
 
         }
 
-        override val asText: Text = Literal(displayName)
+        override val asText: Component = Literal(displayName)
 
         override fun match(obj: Entity): Boolean {
             return displayName.toRegex().matches(obj.displayName?.string ?: "")
@@ -312,7 +315,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
             """.trimIndent()
         }
 
-        override val asText: Text = Literal("Script Matcher")
+        override val asText: Component = Literal("Script Matcher")
 
         override fun match(obj: Entity): Boolean {
             val result = mutableStateOf(false)
@@ -346,7 +349,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
 
         }
 
-        override val asText: Text = Literal(uuid.toString())
+        override val asText: Component = Literal(uuid.toString())
 
         override fun match(obj: Entity): Boolean {
             return obj.uuid == uuid
@@ -373,7 +376,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
 
         }
 
-        override val asText: Text = (if (alive) CommonComponents.GUI_YES else CommonComponents.GUI_NO).copyToText()
+        override val asText: Component = (if (alive) CommonComponents.GUI_YES else CommonComponents.GUI_NO)
 
         override fun match(obj: Entity): Boolean {
             return obj.isAlive == alive

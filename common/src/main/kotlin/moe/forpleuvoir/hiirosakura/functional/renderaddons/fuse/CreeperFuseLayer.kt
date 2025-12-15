@@ -68,9 +68,10 @@ class CreeperFuseLayer(
         val camera = mc.gameRenderer.mainCamera
         val cameraYaw = camera.yRot
         val cameraPitch = camera.xRot
+        val h =  state.boundingBoxHeight * 0.35f
         if (renderType == FuseRenderType.ProgressBar) {
             poseStack.pushPose()
-            poseStack.translate(0f, .5f, 0f)
+            poseStack.translate(0f, h, 0f)
             // 对齐方向
             poseStack.mulPose(Quaternionf().rotateY(-cameraYaw * (Math.PI.toFloat() / 180F)))// 水平旋转
             if (!onlyYRotation)
@@ -83,12 +84,12 @@ class CreeperFuseLayer(
             poseStack.popPose()
         } else if (renderType == FuseRenderType.Text) {
             poseStack.pushPose()
-            poseStack.translate(0f, .35f, 0f)
+            poseStack.translate(0f, h, 0f)
             poseStack.mulPose(Quaternionf().rotateY(-cameraYaw * (Math.PI.toFloat() / 180F)))// 水平旋转
             if (!onlyYRotation)
                 poseStack.mulPose(Quaternionf().rotateX(cameraPitch * (Math.PI.toFloat() / 180F))) // 垂直旋转
             poseStack.scale(-0.025f, -0.025f, 0.025f)
-            val text = "%.2f".format((MAX_FUSE - fuse)*100)
+            val text = "%.2f".format((MAX_FUSE - fuse) * 100)
             val width = text.width
             nodeCollector.pushText(
                 text,

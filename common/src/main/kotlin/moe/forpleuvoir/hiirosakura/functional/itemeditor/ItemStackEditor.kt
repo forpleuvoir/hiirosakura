@@ -30,7 +30,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
@@ -121,7 +120,7 @@ private fun RowScope.ItemPreview(itemSupplier: State<ItemStack>) = Row(horizonta
         horizontalArrangement = Arrangement.spacedBy(2f),
     ) {
         ItemIcon(itemSupplier, .6f)
-        Text(itemSupplier.getValue().styledHoverName.copyToText())
+        Text(itemSupplier.getValue().styledHoverName)
     }
 }
 
@@ -129,7 +128,7 @@ private fun RowScope.ItemType(itemState: MutableState<Item>) = Row(horizontalArr
     Text(HSLang.itemEditorItemType)
     ItemSelector(
         itemState,
-        modifier = Modifier.width(100f).hoverText(HSLang.taskIcon),
+        modifier = Modifier.width(100f),
     )
 }
 

@@ -4,7 +4,6 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.gui.widget.EntityTypeSelector
 import moe.forpleuvoir.hiirosakura.gui.widget.HolderSoundEventSelector
 import moe.forpleuvoir.hiirosakura.gui.widget.RemoveButton
-import moe.forpleuvoir.hiirosakura.gui.widget.WrappedBox
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
@@ -31,8 +30,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.Selector
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.DeleteButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
-import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
-import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
@@ -42,7 +39,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextWidget
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
@@ -128,13 +124,10 @@ fun EquippableEditor(
                 EntryRow("equip_sound") { HolderSoundEventSelector(equipSound, modifier = Modifier.width(200f)) }
                 EntryRow("asset_id") {
                     Row(Modifier.width(200f), horizontalArrangement = Arrangement.spacedBy(5f)) {
-                        WrappedBox(Modifier.weight(1)) {
-                            Text(assetId.getValue()?.location()?.asTranslateText() ?: Literal("null"))
-                        }
                         Button(
-                            Modifier.hoverText(IGLang.edit)
+                            Modifier.hoverText(IGLang.edit).weight(1)
                         ) {
-                            Icon(IconTextures.EDIT)
+                            Text(assetId.getValue()?.location()?.asTranslateText() ?: Literal("null"))
                             click {
                                 EquipmentAssetEdiotr(assetId.getValue() ?: EquipmentAssets.GOLD) {
                                     assetId.setValue(it)
@@ -150,13 +143,10 @@ fun EquippableEditor(
                 }
                 EntryRow("camera_overlay") {
                     Row(Modifier.width(200f), horizontalArrangement = Arrangement.spacedBy(5f)) {
-                        WrappedBox(Modifier.weight(1)) {
-                            Text(cameraOverlay.getValue()?.asTranslateText() ?: Literal("null"))
-                        }
                         Button(
-                            Modifier.hoverText(IGLang.edit)
+                            Modifier.hoverText(IGLang.edit).weight(1)
                         ) {
-                            Icon(IconTextures.EDIT)
+                            Text(cameraOverlay.getValue()?.asTranslateText() ?: Literal("null"))
                             click {
                                 IdentifierComponentEditor(
                                     Literal("camera_overlay"),
@@ -184,7 +174,7 @@ fun EquippableEditor(
                                     } else {
                                         Column {
                                             list.forEachWithLimit(10) {
-                                                Text(it.value().description.copyToText())
+                                                Text(it.value().description)
                                             }
                                         }
                                     }

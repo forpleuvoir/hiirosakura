@@ -100,26 +100,26 @@ fun TooltipDisplayEditor(
                 Text("hide_tooltip")
                 SwitchButton(hideTooltip)
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
-                val selectedDataComponentType = mutableStateOf(BuiltInRegistries.DATA_COMPONENT_TYPE.toList().first())
-                var toggle by lateInitValueOf {}
-                DataComponentTypeSelector(
-                    selectedDataComponentType,
-                    modifier = Modifier.hoverText(IGLang.add).width(140f),
-                    onSelected = { dataComponentType ->
-//                        closeScreen()
-                        toggle()
-                        if (dataComponentType.keyOrUnknown(registryAccess!!) !in hiddenComponents.map { it.keyOrUnknown(registryAccess!!) }) {
-                            hiddenComponents.add(dataComponentType)
-                            recompose()
-                        } else {
-                            Toast.showToast(HSLang.itemEditorItemComponentExist(dataComponentType.keyOrUnknown(registryAccess!!)))
-                        }
-                    },
-                    optionsDirection = listOf(Direction.Bottom)
-                ) {
-                    toggle = { this.toggle() }
-                }
+            val selectedDataComponentType = mutableStateOf(BuiltInRegistries.DATA_COMPONENT_TYPE.toList().first())
+            var toggle by lateInitValueOf {}
+            DataComponentTypeSelector(
+                selectedDataComponentType,
+                modifier = Modifier.hoverText(IGLang.add).width(172f),
+                selectedWrapper = {
+                    Text("Add From DataComponentType", modifier = Modifier.weight(1))
+                },
+                onSelected = { dataComponentType ->
+                    toggle()
+                    if (dataComponentType.keyOrUnknown(registryAccess!!) !in hiddenComponents.map { it.keyOrUnknown(registryAccess!!) }) {
+                        hiddenComponents.add(dataComponentType)
+                        recompose()
+                    } else {
+                        Toast.showToast(HSLang.itemEditorItemComponentExist(dataComponentType.keyOrUnknown(registryAccess!!)))
+                    }
+                },
+                optionsDirection = listOf(Direction.Bottom)
+            ) {
+                toggle = { this.toggle() }
             }
         }
 
@@ -144,7 +144,7 @@ fun TooltipDisplayEditor(
                     recompose()
                     entry
                 }
-                DataComponentTypeSelector(state, modifier = Modifier.width(555f),)
+                DataComponentTypeSelector(state, modifier = Modifier.width(555f))
             }
 
             Header {

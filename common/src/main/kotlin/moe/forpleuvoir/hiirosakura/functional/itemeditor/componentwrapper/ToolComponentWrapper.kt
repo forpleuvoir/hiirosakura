@@ -96,7 +96,7 @@ fun ToolEditor(
                 Row {
                     val blocks = rules[index].blocks
                     Button(
-                        horizontalArrangement = Arrangement.spacedBy(2f),
+                        horizontalArrangement = Arrangement.spacedBy(2f, Alignment.CenterHorizontally),
                         modifier = Modifier.weight(1)
                             .hoverTip {
                                 Column(horizontalAlignment = Alignment.Left) {

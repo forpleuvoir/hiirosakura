@@ -50,7 +50,7 @@ fun ContainerScope.IdentifierComponentWrapper(
     ) {
         Icon(IconTextures.EDIT)
         click {
-            IdentifierComponentEditor(key.asTranslateText(), component) { it, recompose ->
+            IdentifierEditor(key.asTranslateText(), component) { it, recompose ->
                 if (component != it) {
                     component = it
                     onValueChange(component, recompose)
@@ -61,7 +61,7 @@ fun ContainerScope.IdentifierComponentWrapper(
     }
 }
 
-fun IdentifierComponentEditor(
+fun IdentifierEditor(
     title: Text,
     component: ResourceLocation,
     modifier: Modifier = Modifier,

@@ -49,12 +49,28 @@ fun ContainerScope.RepairableComponentWrapper(
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     onValueChange: (Repairable, Boolean) -> Unit,
 ) = DataComponentWrapperRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
+    var items = component.items
     Button(
-        Modifier.width(140f)
+        Modifier.width(140f).height(20f).hoverTip {
+            Column(horizontalAlignment = Alignment.Left) {
+                items.forEachWithLimit(15) { Text(it.value().name) }
+                if (items.count() > 15) Text("...")
+                if (items.count() == 0) Text(IGLang.hasNothing)
+            }
+        },
+        horizontalArrangement = Arrangement.spacedBy(2f, Alignment.CenterHorizontally)
     ) {
-        Text(IGLang.edit)
+        items.forEachWithLimit(10) { ItemIcon(it.value(), scale = 0.5f) }
+        if (items.count() > 10) Text("...")
+        if (items.count() == 0) Text(IGLang.hasNothing)
         click {
-            RepairableEditor(key.asTranslateText(), component, onValueChange = onValueChange).open()
+            RepairableEditor(key.asTranslateText(), component, onValueChange = { repairable, recompose ->
+                if (items != repairable.items) {
+                    items = repairable.items
+                    onValueChange(component, recompose)
+                    if (recompose) this@DataComponentWrapperRow.executeRecompose()
+                }
+            }).open()
         }
     }
 }

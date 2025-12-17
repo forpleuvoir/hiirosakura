@@ -196,6 +196,10 @@ object DataComponentWrappers {
         register(TOOL, Tool(emptyList(), 1f, 1, true)) { key, c, m, rm, consumer ->
             ToolComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
+        //------------ Weapon ------------\\
+        register(WEAPON, Weapon(1)) { key, c, m, rm, consumer ->
+            WeaponComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
     }
 
 }

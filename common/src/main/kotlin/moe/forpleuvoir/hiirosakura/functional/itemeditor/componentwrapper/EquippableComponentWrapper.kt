@@ -148,7 +148,7 @@ fun EquippableEditor(
                         ) {
                             Text(cameraOverlay.getValue()?.asTranslateText() ?: Literal("null"))
                             click {
-                                IdentifierComponentEditor(
+                                IdentifierEditor(
                                     Literal("camera_overlay"),
                                     cameraOverlay.getValue() ?: resourceLocation("minecraft", "misc/pumpkinblur")
                                 ) { it, _ ->

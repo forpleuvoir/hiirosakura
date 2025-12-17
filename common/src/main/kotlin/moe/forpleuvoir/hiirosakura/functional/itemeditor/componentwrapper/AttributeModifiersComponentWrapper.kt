@@ -115,25 +115,20 @@ fun AttributeModifiersComponentEditor(
     ) {
         var recompose = {}
 
-        Row(
-            modifier = Modifier.matchSibling(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-
-            Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
-                Icon(IconTextures.PLUS, modifier = Modifier.size(8f, 8f))
-                EntiryAttributeSelector(REGISTERED_ATTRIBUTE.first().asMutableState, modifier = Modifier.width(160f), onSelected = {
-                    modifiers.addLast(
-                        ItemAttributeModifiers.Entry(
-                            it,
-                            AttributeModifier(ResourceLocation.parse("minecraft:unknow"), 0.0, AttributeModifier.Operation.ADD_VALUE),
-                            EquipmentSlotGroup.MAINHAND
-                        )
-                    )
-                    recompose()
-                })
-            }
-        }
+        EntiryAttributeSelector(REGISTERED_ATTRIBUTE.first().asMutableState, modifier = Modifier.width(125f),
+            selectedWrapper = {
+                Text("Add From Attributes", modifier = Modifier.weight(1))
+            },
+            onSelected = {
+            modifiers.addLast(
+                ItemAttributeModifiers.Entry(
+                    it,
+                    AttributeModifier(ResourceLocation.parse("minecraft:unknow"), 0.0, AttributeModifier.Operation.ADD_VALUE),
+                    EquipmentSlotGroup.MAINHAND
+                )
+            )
+            recompose()
+        })
 
         ColumnListWrapped(
             spacing = 2f, modifier = Modifier, listModifier = { Modifier.height(170f) }
@@ -268,7 +263,7 @@ fun ContainerScope.AttributeModifiersComponentEntryWrapper(
                             ) {
                                 Icon(IconTextures.EDIT)
                                 click {
-                                    IdentifierComponentEditor(id.getValue().asTranslateText(), id.getValue()) { it, recompose ->
+                                    IdentifierEditor(id.getValue().asTranslateText(), id.getValue()) { it, recompose ->
                                         if (id.getValue() != it) {
                                             id.setValue(it)
                                             if (recompose) executeRecompose()

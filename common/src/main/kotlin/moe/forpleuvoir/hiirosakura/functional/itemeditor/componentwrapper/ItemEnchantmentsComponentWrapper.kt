@@ -61,7 +61,7 @@ fun ContainerScope.ItemEnchantmentsComponentWrapper(
                     val list = component.entrySet().map { (enchantment, level) ->
                         enchantment.value().description to Translatable("enchantment.level.$level", level.toString())
                     }
-                    if(list.isEmpty()) {
+                    if (list.isEmpty()) {
                         Text(IGLang.hasNothing)
                         return@Column
                     }
@@ -119,28 +119,27 @@ fun ItemEnchantmentsComponentEditor(
         screenModifier = screenModifier
     ) {
         var recompose = {}
-        Row(Modifier.matchSibling(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
-                val selectedEnchantment = mutableStateOf(REGISTERED_ENCHANTMENT.first())
-                var toggle by lateInitValueOf {}
-                EnchatmentSelector(
-                    selectedEnchantment,
-                    modifier = Modifier.hoverText(IGLang.add).width(120f),
-                    onSelected = { enchantment ->
-                        closeScreen()
-                        toggle()
-                        val list = enchantments.map { it.registeredName }
-                        if (enchantment.registeredName !in list) {
-                            enchantments.add(enchantment)
-                            levels.add(1)
-                            recompose()
-                        } else {
-                            Toast.showToast(HSLang.itemEditorEnchantmentExist(enchantment.value().description))
-                        }
-                    }) {
-                    toggle = { this.toggle() }
+        val selectedEnchantment = mutableStateOf(REGISTERED_ENCHANTMENT.first())
+        var toggle by lateInitValueOf {}
+        EnchatmentSelector(
+            selectedEnchantment,
+            modifier = Modifier.hoverText(IGLang.add).width(140f),
+            selectedWrapper = {
+                Text("Add From Enchantments", modifier = Modifier.weight(1))
+            },
+            onSelected = { enchantment ->
+                closeScreen()
+                toggle()
+                val list = enchantments.map { it.registeredName }
+                if (enchantment.registeredName !in list) {
+                    enchantments.add(enchantment)
+                    levels.add(1)
+                    recompose()
+                } else {
+                    Toast.showToast(HSLang.itemEditorEnchantmentExist(enchantment.value().description))
                 }
-            }
+            }) {
+            toggle = { this.toggle() }
         }
 
         TableWrapped(

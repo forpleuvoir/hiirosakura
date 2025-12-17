@@ -28,7 +28,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
-import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.ibukigourd.util.state.State
+import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
@@ -36,7 +37,7 @@ import moe.forpleuvoir.nebula.common.util.collection.notifiableList
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.level.block.Block
 
-fun ContainerScope.BlockSelector(
+fun ContainerScope.BlockListSelector(
     block: MutableState<Block>,
     blocks: List<Block> = BuiltInRegistries.BLOCK.toList(),
     onSelected: (Block) -> Unit = {},
@@ -88,6 +89,10 @@ fun ContainerScope.BlockSelector(
     blocks: List<Block> = BuiltInRegistries.BLOCK.toList(),
     onSelected: (Block) -> Unit = {},
     selectorBGColor: ARGBColor = Color.ofRGB(0xFFCCF0),
+    selectedWrapper: ButtonScope.(State<Block>) -> GuiWidget = {
+        ItemIcon(it, .6f)
+        Text(mutableStateBy { it.getValue().name })
+    },
     optionsDirection: List<Direction> = listOf(Direction.Bottom, Direction.Right, Direction.Top, Direction.Left),
     modifier: Modifier = Modifier
 ) = Button(
@@ -99,9 +104,7 @@ fun ContainerScope.BlockSelector(
     },
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
-    ItemIcon(block, .6f)
-    val text = mutableStateOf(block.getValue().name)
-    Text(text)
+    selectedWrapper(block)
     click {
         PopupTip(
             modifier = Modifier.disableRender().margin(0f).padding(0f),
@@ -110,7 +113,6 @@ fun ContainerScope.BlockSelector(
             BlockSelector(blocks = blocks, bgColor = selectorBGColor, onSelected = {
                 block.setValue(it)
                 onSelected(it)
-                text.setValue(it.name)
                 closeScreen()
             })
         }.open()

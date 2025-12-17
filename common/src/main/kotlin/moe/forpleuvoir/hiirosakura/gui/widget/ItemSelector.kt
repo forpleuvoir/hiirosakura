@@ -102,8 +102,8 @@ fun ContainerScope.ItemSelector(
     onSelected: (Item) -> Unit = {},
     selectorBGColor: ARGBColor = Color.ofRGB(0xFFCCF0),
     selectedWrapper: ButtonScope.(State<Item>) -> GuiWidget = {
-        ItemIcon(item, .6f)
-        Text(mutableStateBy { item.getValue().name })
+        ItemIcon(it, .6f)
+        Text(mutableStateBy { it.getValue().name })
     },
     optionsDirection: List<Direction> = listOf(Direction.Bottom, Direction.Right, Direction.Top, Direction.Left),
     amountStep: Float? = null,

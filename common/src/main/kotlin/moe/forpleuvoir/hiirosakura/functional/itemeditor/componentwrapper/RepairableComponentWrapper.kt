@@ -1,7 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemSelector
-import moe.forpleuvoir.hiirosakura.gui.widget.RemoveButton
 import moe.forpleuvoir.hiirosakura.gui.widget.WrappedBox
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.hiirosakura.util.registryAccess
@@ -19,6 +19,7 @@ import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.ButtonScope
+import moe.forpleuvoir.ibukigourd.gui.widget.button.DeleteButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.RadioButtons
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
@@ -53,7 +54,7 @@ fun ContainerScope.RepairableComponentWrapper(
     ) {
         Text(IGLang.edit)
         click {
-            RepairableEditor(key.asTranslateText(), component, modifier, onValueChange = onValueChange).open()
+            RepairableEditor(key.asTranslateText(), component, onValueChange = onValueChange).open()
         }
     }
 }
@@ -65,9 +66,9 @@ private val TagKey<Item>.items
     get() = registryAccess!!.lookupOrThrow(Registries.ITEM).getTagOrEmpty(this)
 
 private val TagKey<Item>.asHolderSet
-    get() = registryAccess!!.lookupOrThrow(Registries.ITEM).tags.toList().find {
+    get() = registryAccess!!.lookupOrThrow(Registries.ITEM).tags.filter {
         it.key().location == this.location
-    }!!
+    }.findFirst().get()
 
 fun RepairableEditor(
     title: Component,
@@ -142,7 +143,7 @@ fun RepairableEditor(
                         )
                     }
 
-                    TableWrapped(list, Modifier, tableModifier = { Modifier.width(200f).height(150f) }) {
+                    TableWrapped(list, tableModifier = { Modifier.width(200f).height(160f) }) {
                         recompose = { executeRecompose() }
                         Header(1) {
                             Text("Item", modifier = Modifier.padding(2f), setting = TextWidget.Setting(horizontalAlignment = Alignment.CenterHorizontally))
@@ -157,9 +158,8 @@ fun RepairableEditor(
                         Header {
                             Text(IGLang.remove, setting = TextWidget.Setting(horizontalAlignment = Alignment.CenterHorizontally))
                         }.Column { index, _ ->
-                            RemoveButton {
+                            DeleteButton({ HSLang.deleteConfirm(list[index].name) }, recompose) {
                                 list.removeAt(index)
-                                recompose()
                             }
                         }
                     }

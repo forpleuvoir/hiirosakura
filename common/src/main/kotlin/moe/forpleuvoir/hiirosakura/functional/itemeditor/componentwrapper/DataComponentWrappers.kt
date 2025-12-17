@@ -14,10 +14,7 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.tags.DamageTypeTags
 import net.minecraft.world.food.Foods
 import net.minecraft.world.item.Rarity
-import net.minecraft.world.item.component.DamageResistant
-import net.minecraft.world.item.component.ItemAttributeModifiers
-import net.minecraft.world.item.component.ItemLore
-import net.minecraft.world.item.component.TooltipDisplay
+import net.minecraft.world.item.component.*
 import net.minecraft.world.item.enchantment.Enchantable
 import net.minecraft.world.item.enchantment.ItemEnchantments
 import net.minecraft.world.item.enchantment.Repairable
@@ -194,6 +191,10 @@ object DataComponentWrappers {
         //------------ Repairable ------------\\
         register(REPAIRABLE, Repairable(HolderSet.empty())) { key, c, m, rm, consumer ->
             RepairableComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        //------------ Tool ------------\\
+        register(TOOL, Tool(emptyList(), 1f, 1, true)) { key, c, m, rm, consumer ->
+            ToolComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
     }
 

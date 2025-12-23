@@ -14,6 +14,7 @@ object GamePlay : ModConfigContainer("gameplay") {
     //TODO 双开门
     //TODO 自动丢弃物品
     //TODO 附近实体查看器
+    //TODO 过滤没有本地化的声音事件在字幕中显示(或者是过滤指定的或者非指定声音字幕)
 
     init {
         addConfig(ItemUseIntercept)

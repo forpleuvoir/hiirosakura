@@ -1,0 +1,6 @@
+state = (key) -> {
+    var current = common:getGlobalData("_hs_" + key);
+    var next = current == null ? true : !current;
+    common:setGlobalData("_hs_" + key, next);
+    return next;
+}

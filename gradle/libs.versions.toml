@@ -33,7 +33,7 @@ minxinExtras = "0.3.5"
 
 #other
 nebula = "0.2.29"
-nashorn = "15.4"
+jexl = "3.4.0"
 
 [libraries]
 minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
@@ -56,11 +56,12 @@ forgeKotlin = { group = "thedarkcolour", name = "kotlinforforge-neoforge", versi
 
 #ohter
 nebula = { group = "moe.forpleuvoir", name = "nebula", version.ref = "nebula" }
-nashorn = { group = "org.openjdk.nashorn", name = "nashorn-core", version.ref = "nashorn" }
 
 kotlinStdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 kotlinReflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 kotlinCoroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
+
+jexl = { group = "org.apache.commons", name = "commons-jexl3", version.ref = "jexl" }
 
 [bundles]
 kotlin = ["kotlinStdlib", "kotlinReflect", "kotlinCoroutines"]

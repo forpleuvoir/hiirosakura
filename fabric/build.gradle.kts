@@ -31,8 +31,9 @@ dependencies {
     modImplementation(libs.modMenu)
 
     compileOnly(libs.nebula)
-    implementation(libs.nashorn)
-    include(libs.nashorn)
+
+    implementation(libs.jexl)
+    include(libs.jexl)
 
     modImplementation(libs.ibukigourd.fabric)
 }

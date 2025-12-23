@@ -2,7 +2,9 @@ package moe.forpleuvoir.hiirosakura.functional.task.executor
 
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.executor.Executor
+import moe.forpleuvoir.hiirosakura.functional.script.CommonApi
 import moe.forpleuvoir.hiirosakura.functional.script.CommonApiLoader
+import moe.forpleuvoir.hiirosakura.functional.script.ScriptEngine
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSEntity
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
@@ -17,18 +19,31 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import net.minecraft.client.Minecraft
-import javax.script.ScriptEngineManager
+import org.apache.commons.jexl3.MapContext
+import org.apache.commons.jexl3.introspection.JexlPermissions
 
 class ScriptExecutor(
     private val script: String,
-    params: Map<String, Any> = mapOf()
+    context: MutableMap<String, Any> = mutableMapOf()
 ) : TaskExecutor<Minecraft>, Executor {
 
     companion object : Deserializer<ScriptExecutor> {
 
         private val log = ModLogger(ScriptExecutor::class, HiiroSakura.MOD_NAME)
 
-        private val scriptEngine get() = ScriptEngineManager().getEngineByName("nashorn")
+        private val scriptEngine: ScriptEngine by lazy {
+            ScriptEngine(
+                mapOf(
+                    "client" to mc,
+                    "common" to CommonApi
+                ),
+                permissions = JexlPermissions.parse(
+                    "java.lang.*",
+                    "java.util.*",
+                    "moe.forpleuvoir.*"
+                )
+            )
+        }
 
         override fun deserialization(serializeElement: SerializeElement): ScriptExecutor {
             return serializeElement.checkType<ScriptExecutor> {
@@ -40,37 +55,37 @@ class ScriptExecutor(
 
     }
 
-    private val engine = scriptEngine
+    private val engine get() = scriptEngine
+
+    private val context = MapContext(context)
 
     init {
-        params.forEach(engine::put)
-        engine.put("_this", this)
+        this.context.set("this", this)
     }
 
     operator fun set(key: String, value: Any) {
-        engine.put(key, value)
+        this.context.set(key, value)
     }
 
     fun putAll(params: Map<String, Any>) {
-        params.forEach(engine::put)
+        params.forEach(this::set)
     }
 
     override fun execute(task: TickTask<Minecraft>, context: Minecraft) {
         catch {
-            engine.put("_client", context)
-            engine.put("_task", task)
+            this.context.set("task", task)
         }
         execute()
     }
 
     override fun execute() {
         catch {
-            CommonApiLoader.eval(engine)
+            CommonApiLoader.eval(engine, context)
             mc.player?.let {
-                engine.put("player", HSEntity.fromEntity(it))
+                context.set("player", HSEntity.fromEntity(it))
             }
-            engine.eval(TaskManager.Config.scriptCommonLib)
-            engine.eval(script)
+            engine.eval(TaskManager.Config.scriptCommonLib, context)
+            engine.eval(script, context)
         }
     }
 

@@ -123,8 +123,8 @@ class BlockInfoMatcher(
 
     val simpleText
         get() = when (entries.size) {
-            0 -> IGLang.hasNothing
-            1 -> entries[0].asText
+            0    -> IGLang.hasNothing
+            1    -> entries[0].asText
             else -> if (isAnyMatcher(this)) {
                 CompositeMatcher.MatchMode.AnyMatch.translateText
             } else mode.translateText.appendLiteral(":").append(IGLang.listConfigWrapperText(entries.size))
@@ -269,7 +269,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
                 // The variable blockState represents a wrapped BlockState object [HSBlockState].
                 // The variable blockPos represents a Vector3ic object.
                 // To indicate a successful match, set the return value by calling:
-                // result.setValue(true)
+                // result.setValue(true);
             """.trimIndent()
         }
 
@@ -279,12 +279,12 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             val result = mutableStateOf(false)
             ScriptExecutor(
                 script,
-                buildMap {
-                    this["blockResult"] = HSBlockHitResult(obj.asHitResult)
-                    this["blockState"] = HSBlockState(obj.state)
-                    this["blockPos"] = obj.pos
-                    this["result"] = result
-                }
+                mutableMapOf(
+                    "blockResult" to HSBlockHitResult(obj.asHitResult),
+                    "blockState" to HSBlockState(obj.state),
+                    "blockPos" to obj.pos,
+                    "result" to result
+                )
             ).execute()
             return result.getValue()
         }

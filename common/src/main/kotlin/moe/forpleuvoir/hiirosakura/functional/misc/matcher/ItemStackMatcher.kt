@@ -297,7 +297,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
         override fun match(obj: ItemStack): Boolean {
             val result = mutableStateOf(false)
             ScriptExecutor(
-                script, mapOf(
+                script, mutableMapOf(
                     "itemStack" to HSItemStack(obj),
                     "result" to result
                 )

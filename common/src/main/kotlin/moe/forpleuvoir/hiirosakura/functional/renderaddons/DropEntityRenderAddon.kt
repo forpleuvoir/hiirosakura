@@ -53,7 +53,7 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
 
     val experienceOrbValue by keyBindBoolean("experience_orb_value", value = false)
 
-    val itemStackInfo = addConfig(ItemStackInfo(enableScript = false))
+    val itemStackInfo = addConfig(ItemStackInfo(enableScript = true))
 
     @JvmStatic
     fun renderItemEntityInfo(

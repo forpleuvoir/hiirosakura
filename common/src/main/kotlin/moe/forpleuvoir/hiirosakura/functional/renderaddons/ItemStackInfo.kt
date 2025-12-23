@@ -37,7 +37,7 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
         """
         //example
         //if(itemStack.getCount()<16){
-        //  renderState["count"] = false
+        //  renderState["count"] = false;
         //}
     """.trimIndent()
     ).setTranslatedText().apply {

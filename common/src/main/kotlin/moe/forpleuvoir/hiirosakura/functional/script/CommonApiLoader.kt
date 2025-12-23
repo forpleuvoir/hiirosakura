@@ -4,7 +4,7 @@ import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.hiirosakura.util.resourceLocation
 import moe.forpleuvoir.ibukigourd.util.SimpleResourceReloaderListener
 import net.minecraft.server.packs.resources.PreparableReloadListener
-import javax.script.ScriptEngine
+import org.apache.commons.jexl3.MapContext
 
 object CommonApiLoader : SimpleResourceReloaderListener<List<String>>() {
 
@@ -15,7 +15,7 @@ object CommonApiLoader : SimpleResourceReloaderListener<List<String>>() {
     override fun prepare(sharedState: PreparableReloadListener.SharedState): List<String> {
         return buildList {
             sharedState.resourceManager()
-                .listResources("script") { it.path.endsWith(".js") }
+                .listResources("script") { it.path.endsWith(".jexl") }
                 .forEach { (path, resource) ->
                     runCatching {
                         resource.open().use { inputStream ->
@@ -36,8 +36,10 @@ object CommonApiLoader : SimpleResourceReloaderListener<List<String>>() {
 
     private val commonApi = mutableListOf<String>()
 
-    fun eval(engine: ScriptEngine) {
-        commonApi.forEach(engine::eval)
+    fun eval(engine: ScriptEngine, context: MapContext) {
+        commonApi.forEach {
+            engine.eval(it, context)
+        }
     }
 
 }

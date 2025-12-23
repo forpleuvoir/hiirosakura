@@ -93,8 +93,9 @@ repositories{
 dependencies {
     implementation(libs.forgeKotlin)
     compileOnly(libs.nebula)
-    implementation(libs.nashorn)
-    jarJar(libs.nashorn)
+
+    implementation(libs.jexl)
+    jarJar(libs.jexl)
 
     implementation(libs.ibukigourd.neoforge)
 }

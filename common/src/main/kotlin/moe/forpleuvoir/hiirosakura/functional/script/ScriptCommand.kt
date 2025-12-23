@@ -8,7 +8,7 @@ import moe.forpleuvoir.ibukigourd.command.dsl.registerCommand
 import net.minecraft.commands.SharedSuggestionProvider
 
 fun CommandDispatcher<out SharedSuggestionProvider>.ScriptCommand() =
-    registerCommand("hs:script") {
+    registerCommand("hs:eval") {
         argument("script", StringArgumentType.string()) {
             execute {
                 val script = StringArgumentType.getString(this, "script")

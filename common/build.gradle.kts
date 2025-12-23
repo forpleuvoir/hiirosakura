@@ -24,7 +24,9 @@ dependencies {
     compileOnly(libs.mixin)
     compileOnly(libs.minxinExtras.common)
     compileOnly(libs.nebula)
-    implementation(libs.nashorn)
+
+    compileOnly(libs.jexl)
+
     annotationProcessor(libs.minxinExtras.common)
 
     implementation(libs.ibukigourd.common)

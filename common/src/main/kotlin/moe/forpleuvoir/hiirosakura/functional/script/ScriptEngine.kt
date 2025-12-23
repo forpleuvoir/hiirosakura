@@ -1,0 +1,42 @@
+package moe.forpleuvoir.hiirosakura.functional.script
+
+import org.apache.commons.jexl3.JexlBuilder
+import org.apache.commons.jexl3.JexlScript
+import org.apache.commons.jexl3.MapContext
+import org.apache.commons.jexl3.introspection.JexlPermissions
+import java.util.concurrent.ConcurrentHashMap
+
+class ScriptEngine(
+    nameSpace: Map<String, Any>,
+    cache: Int = 1024,
+    strict: Boolean = true,
+    silent: Boolean = false,
+    antish: Boolean = false,
+    permissions: JexlPermissions = JexlPermissions.RESTRICTED,
+    classLoader: ClassLoader = ScriptEngine::class.java.classLoader
+) {
+
+    private val jexl = JexlBuilder()
+        .cache(cache)
+        .loader(classLoader)
+        .strict(strict)
+        .silent(silent)
+        .antish(antish)
+        .permissions(permissions)
+        .namespaces(nameSpace)
+        .create()
+
+    private val scriptCache = ConcurrentHashMap<String, JexlScript>()
+
+    fun eval(code: String, context: MapContext): Any? {
+        if (code.isBlank()) return null
+        return cache(code).execute(context)
+    }
+
+    fun cache(code: String) = scriptCache.getOrPut(code) { jexl.createScript(code) }
+
+    fun remove(code: String) = scriptCache.remove(code)
+
+    fun clearCache() = scriptCache.clear()
+
+}

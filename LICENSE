@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2024 forpleuvoir
+Copyright (c) 2025 forpleuvoir
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,24 +23,20 @@ SOFTWARE.
 ---
 
 Third-Party Dependencies:
-1. fabric-language-kotlin - Licensed under Apache License 2.0
-2. Nebula -Licensed under MIT License
-3. ModMenu - Licensed under MIT License
-4. ibukigourd - Licensed under MIT License
-5. Nashorn - Licensed under GNU General Public License 2.0-only (GPL-2.0-only)
-
-### Special Notice Regarding Nashorn (GPL-2.0-only):
-The distributed package of this project includes the Nashorn, which is licensed under the GPL-2.0-only license.
-
-- The inclusion of Nashorn imposes **GPL-2.0-only restrictions** on the **distribution as a whole**.
-- While the source code of this project remains under the MIT License, the distribution package as a whole must also comply with the terms of the GPL-2.0-only license.
-- End-users or redistributors of this package are advised that:
-  - Redistribution of this package or modified versions of it **must comply with the GPL-2.0-only** terms.
-  - A copy of the GPL-2.0-only license is included with this project to fulfill Nashorn's licensing requirements.
-
-For more information about the GPL-2.0-only license, please visit: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+1. Kotlin for Forge (KFF) - Licensed under LGPL-2.1
+2. Fabric Language Kotlin - Licensed under Apache License 2.0
+3. Apache Commons JEXL - Licensed under Apache License 2.0
+4. Nebula - Licensed under MIT License
+5. ModMenu - Licensed under MIT License
+6. ibukigourd - Licensed under MIT License
 
 ---
 
+Notice Regarding LGPL Dependencies:
+This project links to Kotlin for Forge (KFF), which is licensed under the GNU Lesser General Public License v2.1 (LGPL-2.1).
+- The project itself remains under the MIT License.
+- In accordance with LGPL-2.1 requirements, users are notified that KFF is a third-party library used by this project.
+- You may find the source code of KFF at its respective repository (e.g., GitHub/thedarkcolour/KotlinForForge).
+
 Notice:
-By including third-party dependencies with different licenses, the authors do not assume liability for the third-party libraries. Users must ensure compliance
+By including third-party dependencies with different licenses, the authors do not assume liability for the third-party libraries. Users must ensure compliance with the respective licenses of those dependencies.

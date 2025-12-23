@@ -320,7 +320,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
         override fun match(obj: Entity): Boolean {
             val result = mutableStateOf(false)
             ScriptExecutor(
-                script, mapOf(
+                script, mutableMapOf(
                     "entity" to HSEntity(obj),
                     "result" to result
                 )

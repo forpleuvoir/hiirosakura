@@ -2,15 +2,18 @@ package moe.forpleuvoir.hiirosakura.functional.script
 
 import kotlinx.coroutines.delay
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.config.HSConfig
 import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventManager
 import moe.forpleuvoir.hiirosakura.input.InputSimulator
 import moe.forpleuvoir.hiirosakura.util.flat
+import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.config.translationKey
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.task.scheduleEndTick
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
+import moe.forpleuvoir.ibukigourd.util.ModLogger
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.sendMessage
 import moe.forpleuvoir.nebula.common.util.defaultLaunch
@@ -19,12 +22,18 @@ import moe.forpleuvoir.nebula.config.ConfigValue
 @Suppress("unused")
 interface CommonApi {
 
-    companion object {
+    companion object : CommonApi {
 
         private val globalData = mutableMapOf<String, Any>()
 
-        @JvmStatic
-        val INSTANCE = object : CommonApi {}
+        override val logger = logger("CommonApi")
+
+    }
+
+    val logger: ModLogger
+
+    fun import(className: String): Class<*> {
+        return HiiroSakura.javaClass.classLoader.loadClass(className)
     }
 
     fun sendMessage(message: String) {

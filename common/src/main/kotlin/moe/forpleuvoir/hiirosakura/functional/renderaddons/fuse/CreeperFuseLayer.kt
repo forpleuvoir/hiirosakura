@@ -16,7 +16,7 @@ import moe.forpleuvoir.nebula.common.util.primitive.pick
 import moe.forpleuvoir.nebula.config.item.impl.boolean
 import moe.forpleuvoir.nebula.config.item.impl.enum
 import net.minecraft.client.gui.Font
-import net.minecraft.client.model.CreeperModel
+import net.minecraft.client.model.monster.creeper.CreeperModel
 import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.SubmitNodeCollector
 import net.minecraft.client.renderer.entity.RenderLayerParent
@@ -66,8 +66,8 @@ class CreeperFuseLayer(
         val color = HSVColor(0f).lerp(HSVColor(120f), QuadEasing.easeIn(progress))
 
         val camera = mc.gameRenderer.mainCamera
-        val cameraYaw = camera.yRot
-        val cameraPitch = camera.xRot
+        val cameraYaw = camera.yRot()
+        val cameraPitch = camera.xRot()
         val h =  state.boundingBoxHeight * 0.35f
         if (renderType == FuseRenderType.ProgressBar) {
             poseStack.pushPose()

@@ -5,12 +5,12 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.JsonOps
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.ibukigourd.util.ModLogger
-import moe.forpleuvoir.ibukigourd.util.resourceLocation
+import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.gson.toJsonElement
 import moe.forpleuvoir.nebula.serialization.gson.toSerializeElement
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import kotlin.reflect.KClass
 
 internal fun logger(name: String): ModLogger = ModLogger(name, HiiroSakura.MOD_NAME)
@@ -20,7 +20,7 @@ internal fun logger(clazz: KClass<*>): ModLogger = ModLogger(clazz, HiiroSakura.
 
 internal fun Any.logger(): ModLogger = ModLogger(this::class, HiiroSakura.MOD_NAME)
 
-internal fun resourceLocation(path: String): ResourceLocation = resourceLocation(HiiroSakura.MOD_ID, path)
+internal fun identifier(path: String): Identifier = identifier(HiiroSakura.MOD_ID, path)
 
 fun <T : Comparable<T>> ClosedRange<T>.serialization(): SerializeElement {
     return SerializePrimitive("${this.start}..${this.endInclusive}")

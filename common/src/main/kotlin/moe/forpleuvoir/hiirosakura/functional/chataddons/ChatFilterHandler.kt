@@ -5,7 +5,7 @@ import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 import moe.forpleuvoir.ibukigourd.config.userdata.setGuiWrapper
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.StringListConfigWrapper
-import moe.forpleuvoir.ibukigourd.text.McText
+import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.nebula.config.item.impl.stringList
 
 object ChatFilterHandler : ModConfigContainer("chat_filter") {
@@ -18,7 +18,7 @@ object ChatFilterHandler : ModConfigContainer("chat_filter") {
         }
 
     @JvmStatic
-    fun shouldFilter(message: McText): Boolean {
+    fun shouldFilter(message: Text): Boolean {
         if (!enabled.value) return false
         val string = message.string
         filterMapping.map { it.toRegex() }.forEach { regex ->

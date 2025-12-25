@@ -7,7 +7,9 @@ import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverText
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.onClose
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
@@ -25,21 +27,22 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.withColor
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.nebula.common.color.Colors
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import kotlin.time.Duration.Companion.seconds
 
-private const val IDENTIFIER_COMPONENT_WRAPPER = "#hiiosakura_identifier_component_wrapper"
+private var IDENTIFIER_COMPONENT_WRAPPER: Tip? = null
 
 fun ContainerScope.IdentifierComponentWrapper(
-    key: ResourceLocation,
-    component: ResourceLocation,
+    key: Identifier,
+    component: Identifier,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f, Alignment.Right),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    onValueChange: (ResourceLocation, Boolean) -> Unit,
+    onValueChange: (Identifier, Boolean) -> Unit,
 ) = DataComponentWrapperRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     var component = component
     WrappedBox(Modifier.width(115f)) {
@@ -63,28 +66,29 @@ fun ContainerScope.IdentifierComponentWrapper(
 
 fun IdentifierEditor(
     title: Text,
-    component: ResourceLocation,
+    identifier: Identifier,
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    onValueChange: (ResourceLocation, Boolean) -> Unit,
+    onValueChange: (Identifier, Boolean) -> Unit,
 ): IGScreenImpl {
-    val namespaceState = component.namespace.asMutableState
+    val namespaceState = identifier.namespace.asMutableState
     var namespaceEditor: (() -> Transform)? = null
 
-    val pathState = component.path.asMutableState
+    val pathState = identifier.path.asMutableState
     var pathEditor: (() -> Transform)? = null
 
     return DataComponentEditor(
         title,
-        { ResourceLocation.fromNamespaceAndPath(namespaceState.getValue(), pathState.getValue()) to true },
+        { Identifier.fromNamespaceAndPath(namespaceState.getValue(), pathState.getValue()) to true },
         onValueChange,
         modifier,
-        screenModifier,
+        screenModifier.attachLeft { onClose { TipHandler.popTip(IDENTIFIER_COMPONENT_WRAPPER) } },
         {
-            val namespaceValid = ResourceLocation.isValidNamespace(namespaceState.getValue())
+            val namespaceValid = Identifier.isValidNamespace(namespaceState.getValue())
             if (!namespaceValid) {
                 namespaceEditor?.let {
-                    TipHandler.pushTip(IDENTIFIER_COMPONENT_WRAPPER, 5.seconds, it, Tip {
+                    TipHandler.popTip(IDENTIFIER_COMPONENT_WRAPPER)
+                    IDENTIFIER_COMPONENT_WRAPPER = TipHandler.pushTip(5.seconds, it, Tip {
                         Text(
                             Literal("Non [a-z0-9_.-] character in namespace of location: ${namespaceState.getValue()}")
                                 .withColor(Colors.RED)
@@ -92,10 +96,11 @@ fun IdentifierEditor(
                     })
                 }
             }
-            val pathValid = ResourceLocation.isValidPath(pathState.getValue())
+            val pathValid = Identifier.isValidPath(pathState.getValue())
             if (!pathValid) {
                 pathEditor?.let {
-                    TipHandler.pushTip(IDENTIFIER_COMPONENT_WRAPPER, 5.seconds, it, Tip {
+                    TipHandler.popTip(IDENTIFIER_COMPONENT_WRAPPER)
+                    IDENTIFIER_COMPONENT_WRAPPER = TipHandler.pushTip(5.seconds, it, Tip {
                         Text(
                             Literal("Non [a-z0-9/._-] character in path of location: ${pathState.getValue()}")
                                 .withColor(Colors.RED)
@@ -109,14 +114,14 @@ fun IdentifierEditor(
         DialogContent {
             Column(Modifier.width(260f), verticalArrangement = Arrangement.spacedBy(5f)) {
                 Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Namespace")
+                    Text("namespace")
                     TextEditor(Modifier.width(180f)) {
                         bindState(namespaceState)
                         namespaceEditor = { this.owner().transform }
                     }
                 }
                 Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Path")
+                    Text("path")
                     TextEditor(Modifier.width(180f)) {
                         bindState(pathState)
                         pathEditor = { this.owner().transform }

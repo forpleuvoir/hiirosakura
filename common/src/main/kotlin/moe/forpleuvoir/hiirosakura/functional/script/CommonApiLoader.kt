@@ -1,14 +1,14 @@
 package moe.forpleuvoir.hiirosakura.functional.script
 
+import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.hiirosakura.util.logger
-import moe.forpleuvoir.hiirosakura.util.resourceLocation
 import moe.forpleuvoir.ibukigourd.util.SimpleResourceReloaderListener
 import net.minecraft.server.packs.resources.PreparableReloadListener
 import org.apache.commons.jexl3.MapContext
 
 object CommonApiLoader : SimpleResourceReloaderListener<List<String>>() {
 
-    val RESOURCE_ID = resourceLocation("common_api")
+    val RESOURCE_ID = identifier("common_api")
 
     private val log = logger()
 

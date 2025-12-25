@@ -15,7 +15,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.FloatEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.LongEditor
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
@@ -33,7 +33,7 @@ fun ContainerScope.SwitchableIntEditor(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    textMapper: (Int) -> Text = { Literal(it.toString()) },
+    textMapper: (Int) -> MutableText = { Literal(it.toString()) },
 ) = Row(modifier, horizontalArrangement = horizontalArrangement, verticalAlignment = verticalAlignment) {
     val state = mutableStateOf(defaultEditor.value)
     SwitchableProxy(
@@ -59,7 +59,7 @@ fun ContainerScope.SwitchableLongEditor(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    textMapper: (Long) -> Text = { Literal(it.toString()) },
+    textMapper: (Long) -> MutableText = { Literal(it.toString()) },
 ) = Row(modifier, horizontalArrangement = horizontalArrangement, verticalAlignment = verticalAlignment) {
     val state = mutableStateOf(defaultEditor.value)
     SwitchableProxy(
@@ -86,7 +86,7 @@ fun ContainerScope.SwitchableFloatEditor(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    textMapper: (Float) -> Text = { Literal("%.2f".format(it)) },
+    textMapper: (Float) -> MutableText = { Literal("%.2f".format(it)) },
 ) = Row(modifier, horizontalArrangement = horizontalArrangement, verticalAlignment = verticalAlignment) {
     val state = mutableStateOf(defaultEditor.value)
     SwitchableProxy(
@@ -112,7 +112,7 @@ fun ContainerScope.SwitchableDoubleEditor(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    textMapper: (Double) -> Text = { Literal("%.2f".format(it)) },
+    textMapper: (Double) -> MutableText = { Literal("%.2f".format(it)) },
 ) = Row(modifier, horizontalArrangement = horizontalArrangement, verticalAlignment = verticalAlignment) {
     val state = mutableStateOf(defaultEditor.value)
     SwitchableProxy(

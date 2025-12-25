@@ -10,10 +10,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.Transform
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.height
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverText
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverTip
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
@@ -40,17 +37,18 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.TextWidget
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.maxWidth
+import moe.forpleuvoir.ibukigourd.text.withColor
 import moe.forpleuvoir.ibukigourd.util.forEachWithLimit
+import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
-import moe.forpleuvoir.ibukigourd.util.resourceLocation
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.asState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.core.HolderSet
 import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.item.equipment.EquipmentAsset
@@ -61,7 +59,7 @@ import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.seconds
 
 fun ContainerScope.EquippableComponentWrapper(
-    key: ResourceLocation,
+    key: Identifier,
     component: Equippable,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
@@ -127,7 +125,8 @@ fun EquippableEditor(
                         Button(
                             Modifier.hoverText(IGLang.edit).weight(1)
                         ) {
-                            Text(assetId.getValue()?.location()?.asTranslateText() ?: Literal("null"))
+                            val value = assetId.getValue()
+                            Text(assetId.getValue()?.identifier()?.asTranslateText() ?: Literal("null"))
                             click {
                                 EquipmentAssetEdiotr(assetId.getValue() ?: EquipmentAssets.GOLD) {
                                     assetId.setValue(it)
@@ -150,7 +149,7 @@ fun EquippableEditor(
                             click {
                                 IdentifierEditor(
                                     Literal("camera_overlay"),
-                                    cameraOverlay.getValue() ?: resourceLocation("minecraft", "misc/pumpkinblur")
+                                    cameraOverlay.getValue() ?: identifier("minecraft", "misc/pumpkinblur")
                                 ) { it, _ ->
                                     cameraOverlay.setValue(it)
                                     this@EntryRow.executeRecompose()
@@ -295,6 +294,8 @@ val vanillaEquipmentAssets by lazy {
     }
 }
 
+private var TIP: Tip? = null
+
 fun EquipmentAssetEdiotr(
     value: ResourceKey<EquipmentAsset>,
     modifier: Modifier = Modifier,
@@ -303,17 +304,18 @@ fun EquipmentAssetEdiotr(
 ) = ConfirmDialog(
     Text.literal("EquipmentAsset").asState,
     modifier,
-    screenModifier
+    screenModifier.onClose { TipHandler.popTip(TIP) }
 ) {
-    val namespaceState = value.location().namespace.asMutableState
+    val namespaceState = value.identifier().namespace.asMutableState
     var namespaceEditor: (() -> Transform)? = null
-    val pathState = value.location().path.asMutableState
+    val pathState = value.identifier().path.asMutableState
     var pathEditor: (() -> Transform)? = null
     onConfirm = {
-        val namespaceValid = ResourceLocation.isValidNamespace(namespaceState.getValue())
+        val namespaceValid = Identifier.isValidNamespace(namespaceState.getValue())
         if (!namespaceValid) {
             namespaceEditor?.let {
-                TipHandler.pushTip(owner.toString(), 5.seconds, it, Tip {
+                TipHandler.popTip(TIP)
+                TIP = TipHandler.pushTip(5.seconds, it, Tip {
                     Text(
                         Literal("Non [a-z0-9_.-] character in namespace of location: ${namespaceState.getValue()}")
                             .withColor(Colors.RED)
@@ -321,10 +323,11 @@ fun EquipmentAssetEdiotr(
                 })
             }
         }
-        val pathValid = ResourceLocation.isValidPath(pathState.getValue())
+        val pathValid = Identifier.isValidPath(pathState.getValue())
         if (!pathValid) {
             pathEditor?.let {
-                TipHandler.pushTip(owner.toString(), 5.seconds, it, Tip {
+                TipHandler.popTip(TIP)
+                TIP = TipHandler.pushTip(5.seconds, it, Tip {
                     Text(
                         Literal("Non [a-z0-9/._-] character in path of location: ${pathState.getValue()}")
                             .withColor(Colors.RED)
@@ -333,7 +336,7 @@ fun EquipmentAssetEdiotr(
             }
         }
         if (namespaceValid && pathValid) {
-            onValueChange(ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(namespaceState.getValue(), pathState.getValue())))
+            onValueChange(ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(namespaceState.getValue(), pathState.getValue())))
             closeScreen()
         }
     }
@@ -357,17 +360,17 @@ fun EquipmentAssetEdiotr(
                 Text("Form Vanilla")
                 Selector(
                     vanillaEquipmentAssets,
-                    (vanillaEquipmentAssets.find { it.location() == value.location() } ?: vanillaEquipmentAssets.first()).asMutableState,
+                    (vanillaEquipmentAssets.find { it.identifier() == value.identifier() } ?: vanillaEquipmentAssets.first()).asMutableState,
                     modifier = Modifier.width(180f),
                     selectedWrapper = {
-                        Text(it.location().toString(), modifier = Modifier.weight(1))
+                        Text(it.identifier().toString(), modifier = Modifier.weight(1))
                     },
                     optionWrapper = {
-                        Text(it.location().toString(), modifier = Modifier.width(vanillaEquipmentAssets.map { it.location().toString() }.maxWidth))
+                        Text(it.identifier().toString(), modifier = Modifier.width(vanillaEquipmentAssets.map { it.identifier().toString() }.maxWidth))
                     },
                     onSelected = {
-                        namespaceState.setValue(it.location().namespace)
-                        pathState.setValue(it.location().path)
+                        namespaceState.setValue(it.identifier().namespace)
+                        pathState.setValue(it.identifier().path)
                     },
                     amountStep = 15f
                 )

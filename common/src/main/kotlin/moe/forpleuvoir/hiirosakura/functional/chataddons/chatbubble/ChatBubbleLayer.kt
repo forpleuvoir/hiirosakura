@@ -3,7 +3,7 @@ package moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble
 import com.mojang.blaze3d.vertex.PoseStack
 import moe.forpleuvoir.hiirosakura.util.restPoseStackKeepTranslation
 import moe.forpleuvoir.ibukigourd.util.mc
-import net.minecraft.client.model.PlayerModel
+import net.minecraft.client.model.player.PlayerModel
 import net.minecraft.client.renderer.SubmitNodeCollector
 import net.minecraft.client.renderer.entity.RenderLayerParent
 import net.minecraft.client.renderer.entity.layers.RenderLayer

@@ -34,6 +34,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.configContainerWrapperGuidelinesColor
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
@@ -42,13 +43,13 @@ import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.ChatFormatting
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.EquipmentSlotGroup
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.minecraft.world.item.component.ItemAttributeModifiers
 
 fun ContainerScope.AttributeModifiersComponentWrapper(
-    key: ResourceLocation,
+    key: Identifier,
     component: ItemAttributeModifiers,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
@@ -123,7 +124,7 @@ fun AttributeModifiersComponentEditor(
             modifiers.addLast(
                 ItemAttributeModifiers.Entry(
                     it,
-                    AttributeModifier(ResourceLocation.parse("minecraft:unknow"), 0.0, AttributeModifier.Operation.ADD_VALUE),
+                    AttributeModifier(Identifier.parse("minecraft:unknow"), 0.0, AttributeModifier.Operation.ADD_VALUE),
                     EquipmentSlotGroup.MAINHAND
                 )
             )

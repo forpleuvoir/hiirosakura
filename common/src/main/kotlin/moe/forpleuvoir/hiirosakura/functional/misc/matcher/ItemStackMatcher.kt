@@ -8,9 +8,7 @@ import moe.forpleuvoir.hiirosakura.util.hasTag
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.serialization
 import moe.forpleuvoir.ibukigourd.IGLang
-import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Translatable
-import moe.forpleuvoir.ibukigourd.text.translateText
+import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.serialization.Deserializable
@@ -24,7 +22,7 @@ import moe.forpleuvoir.nebula.serialization.extensions.deserialization
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.core.component.DataComponentType as McDataComponentType
@@ -429,7 +427,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             override fun deserialization(serializeElement: SerializeElement): DataComponentType {
                 return serializeElement.checkType<SerializeObject, DataComponentType> {
                     DataComponentType(
-                        componentType = BuiltInRegistries.DATA_COMPONENT_TYPE.get(ResourceLocation.parse(it["component_type"]!!.asString)).get().value(),
+                        componentType = BuiltInRegistries.DATA_COMPONENT_TYPE.get(Identifier.parse(it["component_type"]!!.asString)).get().value(),
                         mode = getMode(it)
                     )
                 }.getOrThrow()

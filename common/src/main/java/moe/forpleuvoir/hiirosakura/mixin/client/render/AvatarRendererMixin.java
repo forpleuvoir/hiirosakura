@@ -3,7 +3,7 @@ package moe.forpleuvoir.hiirosakura.mixin.client.render;
 import moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble.AvatarRenderStateAccessor;
 import moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble.ChatBubbleLayer;
 import net.minecraft.client.entity.ClientAvatarEntity;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;

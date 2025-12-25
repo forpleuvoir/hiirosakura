@@ -39,12 +39,12 @@ import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
 import net.minecraft.core.Holder
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.enchantment.Enchantment
 import net.minecraft.world.item.enchantment.ItemEnchantments
 
 fun ContainerScope.ItemEnchantmentsComponentWrapper(
-    key: ResourceLocation,
+    key: Identifier,
     component: ItemEnchantments,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,

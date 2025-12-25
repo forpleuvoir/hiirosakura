@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.text.Literal
 import net.minecraft.core.HolderSet
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents.*
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.tags.DamageTypeTags
 import net.minecraft.world.food.Foods
@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.entity.BannerPatternLayers
 
 fun interface DataComponentWrapper<C> {
     fun ContainerScope.wrapper(
-        key: ResourceLocation,
+        key: Identifier,
         component: C,
         modifier: Modifier,
         removeAction: () -> Unit,
@@ -38,25 +38,25 @@ object DataComponentWrappers {
 
     private val componentWrappers = mutableMapOf<DataComponentType<*>, DataComponentWrapper<Any>>()
     private val componentDefaultValues = mutableMapOf<DataComponentType<*>, Any>()
-    private val componentIds = mutableMapOf<DataComponentType<*>, ResourceLocation>()
+    private val componentIds = mutableMapOf<DataComponentType<*>, Identifier>()
     private val adaptedComponent = mutableListOf<DataComponentType<*>>()
 
     fun isAdaptedComponent(type: DataComponentType<*>): Boolean {
         return adaptedComponent.contains(type)
     }
 
-    fun isAdaptedComponent(key: ResourceLocation): Boolean {
+    fun isAdaptedComponent(key: Identifier): Boolean {
         return adaptedComponent.any { it.key == key }
     }
 
-    fun <C> defaultValue(type: DataComponentType<C>): C? {
+    fun <C : Any> defaultValue(type: DataComponentType<C>): C? {
         return componentDefaultValues[type] as? C
     }
 
     fun <C : Any> register(
         type: DataComponentType<C>,
         defaultValue: C,
-        key: ResourceLocation = type.keyOrUnknown,
+        key: Identifier = type.keyOrUnknown,
         wrapper: DataComponentWrapper<C>
     ) {
         componentWrappers[type] = wrapper as DataComponentWrapper<Any>
@@ -119,13 +119,13 @@ object DataComponentWrappers {
             TextComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
         //------------ Identifier ------------\\
-        register(ITEM_MODEL, ResourceLocation.parse("minecraft:item_model")) { key, c, m, rm, consumer ->
+        register(ITEM_MODEL, Identifier.parse("minecraft:item_model")) { key, c, m, rm, consumer ->
             IdentifierComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
-        register(TOOLTIP_STYLE, ResourceLocation.parse("minecraft:tooltip_style")) { key, c, m, rm, consumer ->
+        register(TOOLTIP_STYLE, Identifier.parse("minecraft:tooltip_style")) { key, c, m, rm, consumer ->
             IdentifierComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
-        register(NOTE_BLOCK_SOUND, ResourceLocation.parse("minecraft:note_block_sound")) { key, c, m, rm, consumer ->
+        register(NOTE_BLOCK_SOUND, Identifier.parse("minecraft:note_block_sound")) { key, c, m, rm, consumer ->
             IdentifierComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
         //------------ Lore ------------\\
@@ -199,6 +199,10 @@ object DataComponentWrappers {
         //------------ Weapon ------------\\
         register(WEAPON, Weapon(1)) { key, c, m, rm, consumer ->
             WeaponComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        //------------ SwingAnimation ------------\\
+        register(SWING_ANIMATION, SwingAnimation.DEFAULT) { key, c, m, rm, consumer ->
+            SwingAnimationComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
     }
 

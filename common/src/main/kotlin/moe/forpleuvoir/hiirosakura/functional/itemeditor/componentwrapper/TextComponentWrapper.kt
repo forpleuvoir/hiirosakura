@@ -18,22 +18,21 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextArea
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
-import moe.forpleuvoir.ibukigourd.text.McText
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.inlinestyletext.InlineStyleTextParser
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import kotlin.time.Duration.Companion.milliseconds
 
 fun ContainerScope.TextComponentWrapper(
-    key: ResourceLocation,
-    component: McText,
+    key: Identifier,
+    component: Text,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f, Alignment.Right),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    onValueChange: (McText, Boolean) -> Unit,
+    onValueChange: (Text, Boolean) -> Unit,
 ) = DataComponentWrapperRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     var text = component
     Box(
@@ -63,10 +62,10 @@ fun ContainerScope.TextComponentWrapper(
 //TODO 如果可以的话,写一个正经的文本编辑器替换掉字符串的方式
 fun TextComponentEditor(
     title: Text,
-    component: McText,
+    component: Text,
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    onValueChange: (McText, Boolean) -> Unit,
+    onValueChange: (Text, Boolean) -> Unit,
 ): IGScreenImpl {
     val stringState = InlineStyleTextParser.inline(component).asMutableState
     return DataComponentEditor(

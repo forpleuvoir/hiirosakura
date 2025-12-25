@@ -5,7 +5,7 @@ import org.joml.Vector3d
 
 class HSSoundInstance(internal val soundInstance: SoundInstance) {
 
-    fun getId() = soundInstance.location.toString()
+    fun getId() = soundInstance.identifier.toString()
 
     fun getCategory() = soundInstance.source.name
 

@@ -26,8 +26,8 @@ open class HSEntity(internal open val entity: Entity) {
     companion object {
         @JvmStatic
         fun fromEntity(entity: Entity) = when (entity) {
-            is LocalPlayer -> MainPlayer(entity)
-            is Player -> HSPlayerEntity(entity)
+            is LocalPlayer  -> MainPlayer(entity)
+            is Player       -> HSPlayerEntity(entity)
             is LivingEntity -> HSLivingEntity(entity)
             else            -> HSEntity(entity)
         }
@@ -143,7 +143,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 表示当前实体所在世界的唯一标识符字符串。
      */
-    fun getWorld() = entity.level().dimension().location().toString()
+    fun getWorld() = entity.level().dimension().identifier().toString()
 
     /**
      * 判断实体是否具有免疫火焰伤害的属性。

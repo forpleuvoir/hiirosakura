@@ -7,7 +7,7 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.EntityMatcher
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.vector2f
 import moe.forpleuvoir.ibukigourd.config.userdata.setGuiWrapper
-import moe.forpleuvoir.ibukigourd.text.McText
+import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.config.item.impl.boolean
 import moe.forpleuvoir.nebula.config.item.impl.color
@@ -67,7 +67,7 @@ object ChatBubbleHandler : ModConfigContainer("chat_bubble") {
     private val bubbleQueue = ConcurrentLinkedQueue<ChatBubblePair>()
 
     @JvmStatic
-    fun addChatBubble(text: McText, uuid: UUID?, profile: GameProfile?) {
+    fun addChatBubble(text: Text, uuid: UUID?, profile: GameProfile?) {
         if (!enabled) return
         ChatBubble.fromChatMessage(text.string, uuid, profile)?.let { bubbleQueue.add(it) }
     }

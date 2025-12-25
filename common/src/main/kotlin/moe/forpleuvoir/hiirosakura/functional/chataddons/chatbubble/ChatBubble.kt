@@ -10,7 +10,7 @@ import moe.forpleuvoir.hiirosakura.functional.renderaddons.RenderInfoAddon.useIr
 import moe.forpleuvoir.hiirosakura.render.HSRenderType
 import moe.forpleuvoir.hiirosakura.render.pushSpeechBubbleTexture
 import moe.forpleuvoir.hiirosakura.render.pushStringLines
-import moe.forpleuvoir.hiirosakura.util.resourceLocation
+import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
@@ -27,9 +27,9 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.gui.Font
 import net.minecraft.client.renderer.LightTexture
-import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.SubmitNodeCollector
 import net.minecraft.client.renderer.entity.state.AvatarRenderState
+import net.minecraft.client.renderer.rendertype.RenderTypes
 import org.joml.Quaternionf
 import org.joml.Vector2fc
 import org.joml.times
@@ -48,7 +48,7 @@ class ChatBubble(
 ) {
     companion object {
 
-        internal val TEXTURE = TextureInfo(16, 16, resourceLocation("texture/gui/chat/bubble.png"))
+        internal val TEXTURE = TextureInfo(16, 16, identifier("texture/gui/chat/bubble.png"))
 
         private val BUBBLE = WidgetTexture(Corner(4), 0, 0, 16, 9, TEXTURE)
 
@@ -58,7 +58,7 @@ class ChatBubble(
 
         private val VANILLA_RENDER_TYPE = HSRenderType.POSITION_TEX_COLOR.apply(TEXTURE.texture)
 
-        private val IRIS_RENDER_TYPE = RenderType.entityTranslucent(TEXTURE.texture)
+        private val IRIS_RENDER_TYPE = RenderTypes.entityTranslucent(TEXTURE.texture)
 
         private const val LINE_SPACING = 4f
 
@@ -72,8 +72,8 @@ class ChatBubble(
             val message = message.replace("(§.)", "")
             //有配置
             val config = ChatBubbleHandler.serverChatBubbleConfig.asSequence().firstOrNull { (serverName, _) ->
-                //单人游戏                                          多人游戏
-                (mc.services() != null && serverName == "#single") || serverName == currentServerName
+                //单人游戏                   多人游戏
+                serverName == "#single" || serverName == currentServerName
             }?.value ?: ChatBubbleServerConfig.DEFAULT_CONFIG //没有配置 使用默认配置
 
             val (chatBubble, name) = extractPlayerMessage(config.regex, message) ?: return null
@@ -158,8 +158,8 @@ class ChatBubble(
             poseStack.translate(scaledOffset.x(), scaledOffset.y(), 0f)
 
             val camera = mc.gameRenderer.mainCamera
-            val cameraYaw = camera.yRot
-            val cameraPitch = camera.xRot
+            val cameraYaw = camera.yRot()
+            val cameraPitch = camera.xRot()
             poseStack.mulPose(Quaternionf().rotateY(-cameraYaw * (Math.PI.toFloat() / 180F)))// 水平旋转
             if (!ChatBubbleHandler.onlyYRotation)
                 poseStack.mulPose(Quaternionf().rotateX(cameraPitch * (Math.PI.toFloat() / 180F))) // 垂直旋转

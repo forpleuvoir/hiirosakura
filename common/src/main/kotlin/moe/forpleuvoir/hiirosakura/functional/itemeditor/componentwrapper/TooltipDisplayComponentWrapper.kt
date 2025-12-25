@@ -32,11 +32,11 @@ import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.TooltipDisplay
 
 fun ContainerScope.TooltipDisplayComponentWrapper(
-    key: ResourceLocation,
+    key: Identifier,
     component: TooltipDisplay,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,

@@ -35,6 +35,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.configContainerWrapperGuidelinesColor
+import moe.forpleuvoir.ibukigourd.text.withColor
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.renameKey
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
@@ -45,6 +46,8 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import kotlin.time.Duration.Companion.seconds
+
+private var TIP: Tip? = null
 
 fun ContainerScope.SerializeObjectEditor(
     serializeObject: SerializeObject,
@@ -86,7 +89,7 @@ fun ContainerScope.SerializeObjectEditor(
                     FlatButton(hoveredColor = Colors.LIMEGREEN.alpha(.25f), modifier = Modifier.hoverText(IGLang.edit)) {
                         Text(k)
                         click {
-                            ConfirmDialog(IGLang.edit.asState) {
+                            ConfirmDialog(IGLang.edit.asState, screenModifier = Modifier.onClose { TipHandler.popTip(TIP) }) {
                                 var newKey = k
                                 var editor by lateInitValueOf<() -> Transform>()
                                 Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
@@ -99,7 +102,8 @@ fun ContainerScope.SerializeObjectEditor(
                                 }
                                 confirm {
                                     if (serializeObject.containsKey(newKey)) {
-                                        TipHandler.pushTip("#serialize_object_key_eidtor", 2.seconds, editor, Tip {
+                                        TipHandler.popTip(TIP)
+                                        TIP = TipHandler.pushTip(2.seconds, editor, Tip {
                                             Text(IGLang.keyExists(newKey).withColor(Colors.RED))
                                         })
                                     } else {
@@ -206,7 +210,7 @@ fun ContainerScope.SerializeObjectEntryEditor(
                                 FlatButton(hoveredColor = Colors.LIMEGREEN.alpha(.25f), modifier = Modifier.hoverText(IGLang.edit)) {
                                     Text(k)
                                     click {
-                                        ConfirmDialog(IGLang.edit.asState) {
+                                        ConfirmDialog(IGLang.edit.asState, screenModifier = Modifier.onClose { TipHandler.popTip(TIP) }) {
                                             var newKey = k
                                             var editor by lateInitValueOf<() -> Transform>()
                                             Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
@@ -219,7 +223,8 @@ fun ContainerScope.SerializeObjectEntryEditor(
                                             }
                                             confirm {
                                                 if (serializeObject.containsKey(newKey)) {
-                                                    TipHandler.pushTip("#serialize_object_key_eidtor", 2.seconds, editor, Tip {
+                                                    TipHandler.popTip(TIP)
+                                                    TIP = TipHandler.pushTip(2.seconds, editor, Tip {
                                                         Text(IGLang.keyExists(newKey).withColor(Colors.RED))
                                                     })
                                                 } else {

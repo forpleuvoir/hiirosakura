@@ -2,7 +2,7 @@ package moe.forpleuvoir.hiirosakura.gui.widget.textcomponenteditor
 
 import moe.forpleuvoir.hiirosakura.gui.widget.textcomponenteditor.TextSlice.SliceStyle.Companion.EMPTY
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.RGBColor
 import net.minecraft.network.chat.*
@@ -71,8 +71,8 @@ data class TextSlice(
 
     companion object {
 
-        fun List<TextSlice>.compose(text: String): Text {
-            var firstText: Text? = null
+        fun List<TextSlice>.compose(text: String): MutableText {
+            var firstText: MutableText? = null
             this.forEach { slice ->
                 Literal(text.substring(slice.range)).setStyle(slice.mcStyle).let {
                     if (firstText == null) {

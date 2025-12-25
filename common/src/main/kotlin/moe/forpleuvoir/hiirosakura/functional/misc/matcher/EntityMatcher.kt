@@ -6,6 +6,7 @@ import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.text.appendLiteral
 import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
@@ -20,7 +21,7 @@ import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 
@@ -221,7 +222,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
             override fun deserialization(serializeElement: SerializeElement): Type {
                 return serializeElement.checkType<SerializeObject, Type> {
                     Type(
-                        entityType = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(it["entity_type"]!!.asString)).get().value(),
+                        entityType = BuiltInRegistries.ENTITY_TYPE.get(Identifier.parse(it["entity_type"]!!.asString)).get().value(),
                         mode = getMode(it)
                     )
                 }.getOrThrow()

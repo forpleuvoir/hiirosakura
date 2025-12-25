@@ -27,17 +27,18 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.withColor
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.serialization.gson.toJsonElement
 import moe.forpleuvoir.nebula.serialization.gson.toSerializeElement
 import net.minecraft.core.component.DataComponentType
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 @Suppress("UNCHECKED_CAST")
 fun <C : Any> ContainerScope.DefaultComponentWrapper(
-    key: ResourceLocation,
+    key: Identifier,
     componentType: DataComponentType<C>,
     component: Any?,
     removeAction: () -> Unit,
@@ -95,7 +96,7 @@ fun <C : Any> ContainerScope.DefaultComponentWrapper(
 
 
 fun <C : Any> DefaultComponentBuilder(
-    key: ResourceLocation,
+    key: Identifier,
     componentType: DataComponentType<C>,
     onValueChange: (C, Boolean) -> Unit,
 ): IGScreenImpl {

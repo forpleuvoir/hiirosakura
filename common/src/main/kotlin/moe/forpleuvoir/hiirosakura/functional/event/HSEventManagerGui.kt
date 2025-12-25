@@ -34,10 +34,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextAreaWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
-import moe.forpleuvoir.ibukigourd.text.InlineStyleText
-import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.translateComment
-import moe.forpleuvoir.ibukigourd.text.translateText
+import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
@@ -162,6 +159,8 @@ fun ContainerScope.HSEventManagerGui(
     }
 }
 
+private var TIP: Tip? = null
+
 fun EventSubscriberEditor(
     eventSubscriber: HSEventSubscriber,
     modifier: Modifier = Modifier,
@@ -197,7 +196,7 @@ fun EventSubscriberEditor(
     return Dialog(
         Modifier.maxHeight(280f).width(380f).then(modifier),
         Modifier.onClose {
-            TipHandler.popTip("#HSEVENT_MANAGER")
+            TipHandler.popTip(TIP)
         }.then(screenModifier)
     ) {
         //title
@@ -273,8 +272,8 @@ fun EventSubscriberEditor(
                 Text(IGLang.confirm)
                 click {
                     if (name.isEmpty()) {
-                        TipHandler.pushTip(
-                            "#HSEVENT_MANAGER",
+                        TipHandler.popTip(TIP)
+                        TIP = TipHandler.pushTip(
                             4.seconds,
                             nameEditorTransform!!,
                             Tip { Text(HSLang.cantBeEmpty(HSLang.eventSubscriberName).withColor(Colors.RED)) })

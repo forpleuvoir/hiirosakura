@@ -25,17 +25,17 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.food.FoodProperties
 import kotlin.math.absoluteValue
 
-private val FOOD_EMPTY_HUNGER_TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/sprites/hud/food_empty_hunger.png")
+private val FOOD_EMPTY_HUNGER_TEXTURE = Identifier.withDefaultNamespace("textures/gui/sprites/hud/food_empty_hunger.png")
 private val IG_FOOD_EMPTY_HUNGER_TEXTURE = WidgetTexture(Corner.Unspecified, 0, 0, 9, 9, TextureInfo(9, 9, FOOD_EMPTY_HUNGER_TEXTURE))
-private val FOOD_EMPTY_TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/sprites/hud/food_empty.png")
+private val FOOD_EMPTY_TEXTURE = Identifier.withDefaultNamespace("textures/gui/sprites/hud/food_empty.png")
 private val IG_FOOD_EMPTY_TEXTURE = WidgetTexture(Corner.Unspecified, 0, 0, 9, 9, TextureInfo(9, 9, FOOD_EMPTY_TEXTURE))
-private val FOOD_HALF_TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/sprites/hud/food_half.png")
+private val FOOD_HALF_TEXTURE = Identifier.withDefaultNamespace("textures/gui/sprites/hud/food_half.png")
 private val IG_FOOD_HALF_TEXTURE = WidgetTexture(Corner.Unspecified, 0, 0, 9, 9, TextureInfo(9, 9, FOOD_HALF_TEXTURE))
-private val FOOD_FULL_TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/sprites/hud/food_full.png")
+private val FOOD_FULL_TEXTURE = Identifier.withDefaultNamespace("textures/gui/sprites/hud/food_full.png")
 private val IG_FOOD_FULL_TEXTURE = WidgetTexture(Corner.Unspecified, 0, 0, 9, 9, TextureInfo(9, 9, FOOD_FULL_TEXTURE))
 
 private fun Modifier.foodIconModifier(icon: WidgetTexture) = render { guiGraphics, _, _, _ ->
@@ -47,7 +47,7 @@ private fun Modifier.foodIconModifier(icon: WidgetTexture) = render { guiGraphic
 }
 
 fun ContainerScope.FoodComponentWrapper(
-    key: ResourceLocation,
+    key: Identifier,
     component: FoodProperties,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,

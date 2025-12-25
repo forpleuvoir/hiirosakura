@@ -18,7 +18,7 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gui.Font
 import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector
-import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.locale.Language
 import net.minecraft.network.chat.FormattedText
@@ -378,7 +378,7 @@ fun pushSpeechBubbleTexture(
 //------------ Text ------------\\
 
 fun OrderedSubmitNodeCollector.pushText(
-    string: McText,
+    string: Text,
     x: Float,
     y: Float,
     dropShadow: Boolean,
@@ -415,7 +415,7 @@ fun OrderedSubmitNodeCollector.pushText(
 )
 
 fun OrderedSubmitNodeCollector.pusAlignmentText(
-    string: McText,
+    string: Text,
     box: Box,
     alignment: Alignment = Alignment.Center,
     dropShadow: Boolean,
@@ -449,7 +449,7 @@ fun OrderedSubmitNodeCollector.pusAlignmentText(
 }
 
 fun OrderedSubmitNodeCollector.pushTextLines(
-    lines: List<McText>,
+    lines: List<Text>,
     box: Box,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
@@ -477,7 +477,7 @@ fun OrderedSubmitNodeCollector.pushTextLines(
 }
 
 fun OrderedSubmitNodeCollector.pushTextLines(
-    lines: McText,
+    lines: Text,
     box: Box,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
@@ -586,7 +586,7 @@ private fun OrderedSubmitNodeCollector.textLines(
 private fun OrderedSubmitNodeCollector.textLines(
     verticalArrangement: Arrangement.Vertical,
     box: Box,
-    texts: List<McText>,
+    texts: List<Text>,
     horizontalAlignment: Alignment.Horizontal,
     dropShadow: Boolean,
     displayMode: Font.DisplayMode,

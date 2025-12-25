@@ -5,13 +5,13 @@ import kotlinx.coroutines.delay
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.ibukigourd.render.pose
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.util.defaultLaunch
 import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.client.Minecraft
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.TooltipFlag
 import org.joml.Vector3f
 import java.awt.SystemTray
@@ -44,7 +44,7 @@ fun PoseStack.clearRotation(): PoseStack {
     return newPose
 }
 
-fun ResourceLocation.asTranslateText(prefix: String? = null, suffix: String? = null): Text {
+fun Identifier.asTranslateText(prefix: String? = null, suffix: String? = null): MutableText {
     return if (prefix != null && suffix != null)
         Translatable(this.toLanguageKey(prefix, suffix), this.toString())
     else if (prefix != null)
@@ -55,7 +55,7 @@ fun ResourceLocation.asTranslateText(prefix: String? = null, suffix: String? = n
         Translatable(this.toLanguageKey(), this.toString())
 }
 
-fun ResourceLocation.asText(): Text = Literal(this.toString())
+fun Identifier.asText(): MutableText = Literal(this.toString())
 
 fun sendNotification(title: String, message: String) {
     if (!sendAWTNotification(title, message)) {

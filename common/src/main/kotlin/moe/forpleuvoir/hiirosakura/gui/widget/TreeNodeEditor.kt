@@ -37,6 +37,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.*
 import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.configContainerWrapperGuidelinesColor
 import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.text.withColor
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
@@ -466,6 +467,8 @@ private fun ContainerScope.NumberEntry(
     }
 }
 
+private var TIP: Tip? = null
+
 private fun EntryAdder(
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
@@ -481,7 +484,9 @@ private fun EntryAdder(
     return ConfirmDialog(
         stateOf(IGLang.edit),
         modifier,
-        screenModifier,
+        screenModifier.attachLeft {
+            onClose { TipHandler.popTip(TIP) }
+        },
         onConfirm = {
             if (keyPredicate(_key)) {
                 newData(
@@ -500,7 +505,8 @@ private fun EntryAdder(
                 )
                 closeScreen()
             } else {
-                TipHandler.pushTip("#ENTRY_ADDER", transform!!, Tip {
+                TipHandler.popTip(TIP)
+                TIP = TipHandler.pushTip(transform!!, Tip {
                     Text(IGLang.keyExists(key).withColor(Colors.RED))
                 })
             }

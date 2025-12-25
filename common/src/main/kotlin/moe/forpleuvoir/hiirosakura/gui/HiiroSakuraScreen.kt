@@ -10,8 +10,8 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.ItemStackManager
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.ItemStackManagerGui
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManagerGui
 import moe.forpleuvoir.hiirosakura.gui.widget.TreeNodeEditor
+import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.hiirosakura.util.registryAccess
-import moe.forpleuvoir.hiirosakura.util.resourceLocation
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
@@ -32,7 +32,9 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.MutableText
+import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.text.style
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
@@ -42,7 +44,7 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.ioLaunch
 
-private val icon = WidgetTexture(Corner(), 0, 0, 128, 128, TextureInfo(128, 128, resourceLocation("icon.png")))
+private val icon = WidgetTexture(Corner(), 0, 0, 128, 128, TextureInfo(128, 128, identifier("icon.png")))
 
 fun HiiroSakuraScreen() = TabScreen(
     header = {
@@ -99,7 +101,7 @@ fun HiiroSakuraScreen() = TabScreen(
 private var currentTab = HSConfig.translateText
 
 private fun TabScope.HSTab(
-    title: Text,
+    title: MutableText,
     onTabChanged: TabScope.(Boolean) -> Unit = {},
     activeTextColor: State<ARGBColor> = stateOf(Colors.WHITE),
     inactiveTextColor: State<ARGBColor> = stateOf(Colors.BLACK),

@@ -8,11 +8,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import net.minecraft.core.Holder
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvent
 
 fun ContainerScope.BreakSoundComponentWrapper(
-    key: ResourceLocation,
+    key: Identifier,
     component: Holder<SoundEvent>,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,

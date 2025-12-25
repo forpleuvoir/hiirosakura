@@ -14,7 +14,7 @@ object SoundEventFilter : ModConfigContainer("sound_event_filter") {
     @JvmStatic
     fun shouldFilter(sound: SoundInstance): Boolean {
         if (!enabled.value) return false
-        return filterMapping.any { sound.location == it.location }
+        return filterMapping.any { sound.identifier == it.location }
     }
 
 }

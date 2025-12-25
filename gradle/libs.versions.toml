@@ -3,36 +3,36 @@ java = "21"
 kotlin = "2.2.20"
 kotlinCoroutines = "1.10.2"
 
-minecraft = "1.21.10"
-minecraftRange = "[1.21.10,1.22)"
+minecraft = "1.21.11"
+minecraftRange = "[1.21.11,1.22)"
 
 #Ibukigourd
 ibukigourd = "0.10.1+beta"
 
 #Fabric checks these on https://fabricmc.net/versions.html
-fabricApi = "0.135.0+1.21.10"
-fabricLoader = "0.17.2"
-fabricLoom = "1.11-SNAPSHOT"
+fabricApi = "0.140.2+1.21.11"
+fabricLoader = "0.18.2"
+fabricLoom = "1.13-SNAPSHOT"
 fabricKotlin = "1.13.6+kotlin.2.2.20"
 
-modMenu = "16.0.0-rc.1"
+modMenu = "17.0.0-beta.1"
 
-#Neoforge
-neoforgedModDev = "2.0.115"
-neoForm = "1.21.10-20251010.172816"
-neoforge = "21.10.8-beta"
+# NeoForge, see https://projects.neoforged.net/ for new versions
+neoforgedModDev = "2.0.134"
+neoForm = "1.21.11-20251209.172050"
+neoforge = "21.11.13-beta"
 neoforgeRange = "[4,)"
 forgeKotlin = "6.0.0"
 forgeKotlinRange = "[6.0,)"
-
-parchmentMinecraft = "1.21.9"
-parchment = "2025.10.05"
+#https://parchmentmc.org/docs/getting-started#choose-a-version
+parchmentMinecraft = "1.21.10"
+parchment = "2025.10.12"
 
 mixin = "0.8.5"
 minxinExtras = "0.3.5"
 
 #other
-nebula = "0.2.29"
+nebula = "0.2.30"
 jexl = "3.4.0"
 
 [libraries]
@@ -41,9 +41,9 @@ mixin = { group = "org.spongepowered", name = "mixin", version.ref = "mixin" }
 minxinExtras-common = { group = "io.github.llamalad7", name = "mixinextras-common", version.ref = "minxinExtras" }
 
 #Ibukigourd
-ibukigourd-common = { group = "moe.forpleuvoir", name = "ibukigourd-common-1.21.10", version.ref = "ibukigourd" }
-ibukigourd-fabric = { group = "moe.forpleuvoir", name = "ibukigourd-fabric-1.21.10", version.ref = "ibukigourd" }
-ibukigourd-neoforge = { group = "moe.forpleuvoir", name = "ibukigourd-neoforge-1.21.10", version.ref = "ibukigourd" }
+ibukigourd-common = { group = "moe.forpleuvoir", name = "ibukigourd-common-1.21.11", version.ref = "ibukigourd" }
+ibukigourd-fabric = { group = "moe.forpleuvoir", name = "ibukigourd-fabric-1.21.11", version.ref = "ibukigourd" }
+ibukigourd-neoforge = { group = "moe.forpleuvoir", name = "ibukigourd-neoforge-1.21.11", version.ref = "ibukigourd" }
 
 #Fabric
 fabricLoader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabricLoader" }
@@ -69,4 +69,3 @@ kotlin = ["kotlinStdlib", "kotlinReflect", "kotlinCoroutines"]
 [plugins]
 fabricLoom = { id = "fabric-loom", version.ref = "fabricLoom" }
 neoforgedModDev = { id = "net.neoforged.moddev", version.ref = "neoforgedModDev" }
-kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

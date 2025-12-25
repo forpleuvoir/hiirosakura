@@ -31,6 +31,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.maxWidth
+import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.util.math.x
 import moe.forpleuvoir.ibukigourd.util.math.y
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
@@ -42,13 +43,13 @@ import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.client.renderer.Sheets
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.level.block.entity.BannerPattern
 import net.minecraft.world.level.block.entity.BannerPatternLayers
 
 fun ContainerScope.BannerPatternComponentWrapper(
-    key: ResourceLocation,
+    key: Identifier,
     component: BannerPatternLayers,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,

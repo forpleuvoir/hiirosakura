@@ -47,8 +47,8 @@ object TntFuseRenderer : ModConfigContainer("tnt") {
         val color = HSVColor(0f).lerp(HSVColor(120f), QuadEasing.easeIn(progress))
 
         val camera = mc.gameRenderer.mainCamera
-        val cameraYaw = camera.yRot
-        val cameraPitch = camera.xRot
+        val cameraYaw = camera.yRot()
+        val cameraPitch = camera.xRot()
 
         if (renderType == FuseRenderType.ProgressBar) {
             poseStack.pushPose()

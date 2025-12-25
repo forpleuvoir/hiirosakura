@@ -29,8 +29,9 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.tip.PopupTip
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.copyToText
 import moe.forpleuvoir.ibukigourd.text.maxWidth
+import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.text.withColor
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
@@ -139,7 +140,7 @@ fun ContainerScope.ItemSelector(
     searchBarHideLimit: Int = 9 * columnSize,
     selectedColor: ARGBColor = defaultSelectedColor,
     optionWrapper: ButtonScope.(Item) -> GuiWidget = {
-        ItemIcon(it, 1f)
+        ItemIcon(it, 1f, hoverScale = 1.05f)
     },
     modifier: Modifier = Modifier,
     bgColor: ARGBColor = Color.ofRGB(0xFFCCF0),
@@ -195,7 +196,7 @@ fun ContainerScope.ItemSelector(
             ) {
                 column.forEach { item ->
                     FlatButton(
-                        modifier = Modifier.hoverText(item.name.copyToText().append(Literal("\n${item.key}").withColor(Color(10, 136, 226)))),
+                        modifier = Modifier.hoverText(item.name.copy().append(Literal("\n${item.key}").withColor(Color(10, 136, 226)))),
                         hoveredColor = selectedColor,
                         round = 1,
                     ) {

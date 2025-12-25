@@ -2,8 +2,8 @@ package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
+import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.hiirosakura.util.logger
-import moe.forpleuvoir.hiirosakura.util.resourceLocation
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -30,14 +30,14 @@ import moe.forpleuvoir.nebula.common.util.primitive.pick
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
-val unknownComponentType = resourceLocation("unknown_component_type")
+val unknownComponentType = identifier("unknown_component_type")
 
 private val logger = logger("ComponentWrapper:Base")
 
-fun ContainerScope.ResourceLocationText(
-    key: ResourceLocation,
+fun ContainerScope.IdentifierText(
+    key: Identifier,
     style: Style = Style.EMPTY,
     modifier: Modifier = Modifier,
     setting: TextSetting = TextSetting(),
@@ -75,7 +75,7 @@ fun <C : Any> DataComponentEditor(
 }
 
 fun ContainerScope.DataComponentWrapperRow(
-    key: ResourceLocation,
+    key: Identifier,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f, Alignment.Right),
@@ -86,7 +86,7 @@ fun ContainerScope.DataComponentWrapperRow(
         style(HSVColor(195f, 1f, 1f)),
         style(HSVColor(5f, .6f, 1f))
     )
-    ResourceLocationText(key, style, Modifier.weight(1))
+    IdentifierText(key, style, Modifier.weight(1))
     Row(Modifier, horizontalArrangement, verticalAlignment) {
         content()
         DeleteButton(

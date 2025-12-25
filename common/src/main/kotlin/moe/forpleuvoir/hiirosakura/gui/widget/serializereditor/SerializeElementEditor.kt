@@ -6,6 +6,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.onClose
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.renderBackground
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
@@ -129,12 +130,13 @@ enum class SerializeElementType(val defaultValue: SerializeElement) {
     Null(SerializeNull)
 }
 
+private var TIP: Tip? = null
 
 fun SerializeElementAdder(
     key: State<String>,
     keyVerify: (String) -> Boolean,
     consumer: (String, SerializeElement) -> Unit
-) = ConfirmDialog(IGLang.add.asState) {
+) = ConfirmDialog(IGLang.add.asState, screenModifier = Modifier.onClose { TipHandler.popTip(TIP) }) {
     val selected = mutableStateOf(SerializeElementType.String)
     var editor by lateInitValueOf<() -> Transform>()
     DialogContent {
@@ -169,7 +171,8 @@ fun SerializeElementAdder(
             consumer(key, selected.getValue().defaultValue)
             closeScreen()
         } else {
-            TipHandler.pushTip("#serialize_element_adder", 2.seconds, editor, Tip {
+            TipHandler.popTip(TIP)
+            TIP = TipHandler.pushTip(2.seconds, editor, Tip {
                 Text(IGLang.keyExists(key))
             })
         }

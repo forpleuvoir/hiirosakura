@@ -33,7 +33,7 @@ import net.minecraft.core.HolderSet
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.component.Tool
 import net.minecraft.world.level.block.Block
@@ -43,7 +43,7 @@ import kotlin.jvm.optionals.getOrDefault
 import kotlin.time.Duration.Companion.milliseconds
 
 fun ContainerScope.ToolComponentWrapper(
-    key: ResourceLocation,
+    key: Identifier,
     component: Tool,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,

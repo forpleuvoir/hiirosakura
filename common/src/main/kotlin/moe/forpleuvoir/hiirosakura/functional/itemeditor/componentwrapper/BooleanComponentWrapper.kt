@@ -6,10 +6,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 fun ContainerScope.BooleanComponentWrapper(
-    id: ResourceLocation,
+    id: Identifier,
     component: Boolean,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,

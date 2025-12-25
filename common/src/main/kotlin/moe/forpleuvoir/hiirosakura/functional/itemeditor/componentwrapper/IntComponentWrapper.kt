@@ -16,21 +16,22 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val WIDTH = 115f
 
 fun ContainerScope.IntComponentWrapper(
-    key: ResourceLocation,
+    key: Identifier,
     component: Int,
     valueRange: IntRange,
-    textMapper: (Int) -> Text = { Literal(it.toString()) },
+    textMapper: (Int) -> MutableText = { Literal(it.toString()) },
     defaultEditor: Boolean = false,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,

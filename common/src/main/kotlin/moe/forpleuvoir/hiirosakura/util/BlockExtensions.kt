@@ -6,7 +6,7 @@ import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import net.minecraft.client.Minecraft
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 
@@ -19,7 +19,7 @@ val Minecraft.targetBlock: BlockInfo?
 
 val SerializeElement.asBlock: Block
     get() = this.checkType<SerializePrimitive, Block> {
-        BuiltInRegistries.BLOCK.get(ResourceLocation.parse(it.asString)).get().value()
+        BuiltInRegistries.BLOCK.get(Identifier.parse(it.asString)).get().value()
     }.getOrThrow()
 
 fun BlockState.hasTag(tag: String): Boolean = this.tags.anyMatch { it.location.toString() == tag }

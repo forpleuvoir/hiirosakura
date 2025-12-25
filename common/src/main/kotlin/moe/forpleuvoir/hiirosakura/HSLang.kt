@@ -1,19 +1,21 @@
 package moe.forpleuvoir.hiirosakura
 
 import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
+import moe.forpleuvoir.ibukigourd.text.style
 import net.minecraft.network.chat.Component
 
 object HSLang {
 
-    fun lang(key: String, vararg args: Any): Text = Translatable("${HiiroSakura.MOD_ID}.$key", args = args)
+    fun lang(key: String, vararg args: Any): MutableText = Translatable("${HiiroSakura.MOD_ID}.$key", args = args)
 
-    fun cantBeEmpty(text: Text): Text = lang("cant_be_empty", text)
+    fun cantBeEmpty(text: Text): MutableText = lang("cant_be_empty", text)
 
     val loadFromDisk get() = lang("load_from_disk")
 
-    fun pressToCopy(text: Text): Text = lang("press_to_copy", text)
+    fun pressToCopy(text: Text): MutableText = lang("press_to_copy", text)
 
     val name get() = lang("name")
 
@@ -27,7 +29,7 @@ object HSLang {
 
     val send get() = lang("send")
 
-    fun deleteConfirm(someThing: Any): Text = lang("delete_confirm", someThing)
+    fun deleteConfirm(someThing: Any): MutableText = lang("delete_confirm", someThing)
 
     fun blockBreakProtection(supplier: Any) = lang("gameplay.block_break_protection.toast", supplier)
 

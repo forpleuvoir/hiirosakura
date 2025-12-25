@@ -1,19 +1,21 @@
 package moe.forpleuvoir.hiirosakura.render
 
-import net.minecraft.Util
-import net.minecraft.client.renderer.RenderStateShard
-import net.minecraft.client.renderer.RenderType
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.client.renderer.rendertype.RenderSetup
+import net.minecraft.client.renderer.rendertype.RenderType
+import net.minecraft.resources.Identifier
+import net.minecraft.util.Util
 import java.util.function.Function
 
 object HSRenderType {
 
-    val POSITION_TEX_COLOR: Function<ResourceLocation, RenderType> = Util.memoize<ResourceLocation, RenderType> { texture ->
-        val state = RenderType.CompositeState.builder()
-            .setTextureState(RenderStateShard.TextureStateShard(texture, false))
-            .setLightmapState(RenderStateShard.LIGHTMAP)
-            .setOverlayState(RenderStateShard.OVERLAY)
-            .createCompositeState(true)
-        RenderType.create("position_text_color", 1536, true, false, HSRenderPipeline.TEXTURE, state)
+    val POSITION_TEX_COLOR: Function<Identifier, RenderType> = Util.memoize<Identifier, RenderType> { texture ->
+        val state = RenderSetup.builder(HSRenderPipeline.TEXTURE)
+            .bufferSize(1536)
+            .affectsCrumbling()
+            .withTexture("Sampler0",texture)
+            .useLightmap()
+            .useOverlay()
+            .createRenderSetup()
+        RenderType.create("position_text_color", state)
     }
 }

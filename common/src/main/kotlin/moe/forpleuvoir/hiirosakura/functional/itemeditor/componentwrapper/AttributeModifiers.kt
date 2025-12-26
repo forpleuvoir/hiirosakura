@@ -1,5 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditor
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrapperRow
 import moe.forpleuvoir.hiirosakura.gui.widget.EntiryAttributeSelector
 import moe.forpleuvoir.hiirosakura.gui.widget.REGISTERED_ATTRIBUTE
 import moe.forpleuvoir.hiirosakura.gui.widget.RemoveButton
@@ -116,20 +118,21 @@ fun AttributeModifiersComponentEditor(
     ) {
         var recompose = {}
 
-        EntiryAttributeSelector(REGISTERED_ATTRIBUTE.first().asMutableState, modifier = Modifier.width(125f),
+        EntiryAttributeSelector(
+            REGISTERED_ATTRIBUTE.first().asMutableState, modifier = Modifier.width(125f),
             selectedWrapper = {
                 Text("Add From Attributes", modifier = Modifier.weight(1))
             },
             onSelected = {
-            modifiers.addLast(
-                ItemAttributeModifiers.Entry(
-                    it,
-                    AttributeModifier(Identifier.parse("minecraft:unknow"), 0.0, AttributeModifier.Operation.ADD_VALUE),
-                    EquipmentSlotGroup.MAINHAND
+                modifiers.addLast(
+                    ItemAttributeModifiers.Entry(
+                        it,
+                        AttributeModifier(Identifier.parse("minecraft:unknow"), 0.0, AttributeModifier.Operation.ADD_VALUE),
+                        EquipmentSlotGroup.MAINHAND
+                    )
                 )
-            )
-            recompose()
-        })
+                recompose()
+            })
 
         ColumnListWrapped(
             spacing = 2f, modifier = Modifier, listModifier = { Modifier.height(170f) }

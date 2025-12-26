@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrapperRow
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -27,9 +28,11 @@ import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import net.minecraft.core.registries.Registries
+import net.minecraft.network.chat.ComponentUtils
 import net.minecraft.resources.Identifier
 import net.minecraft.tags.TagKey
 import net.minecraft.world.damagesource.DamageType
+import net.minecraft.world.damagesource.DeathMessageType.INTENTIONAL_GAME_DESIGN
 import net.minecraft.world.item.component.DamageResistant
 
 fun ContainerScope.DamageResistantComponentWrapper(
@@ -46,17 +49,26 @@ fun ContainerScope.DamageResistantComponentWrapper(
     DamageTypeTagSelector(valueState, modifier = Modifier.width(140f))
 }
 
-private val damageTypeTags
+internal val damageTypeTags
     get() = registryAccess!!.lookupOrThrow(Registries.DAMAGE_TYPE).tags.map { it.key() }
 
-private val TagKey<DamageType>.damageTypes
+internal val TagKey<DamageType>.damageTypes
     get() = registryAccess!!.lookupOrThrow(Registries.DAMAGE_TYPE).getTagOrEmpty(this)
 
-private val DamageType.translatableText get() = Text.translatable("death.attack.${this.msgId}", this.msgId, "xx", "oo")
+internal val DamageType.translatableText
+    get() = when (this.deathMessageType()) {
+        INTENTIONAL_GAME_DESIGN -> Text.translatable(
+            "death.attack.${this.msgId}.message",
+            "xx",
+            ComponentUtils.wrapInSquareBrackets(Text.translatable("death.attack.${this.msgId}.link"))
+        )
+
+        else                    -> Text.translatable("death.attack.${this.msgId}", "xx", "oo")
+    }
 
 fun ContainerScope.DamageTypeTagSelector(
-    damageType: MutableState<TagKey<DamageType>>,
-    damageTypes: Iterable<TagKey<DamageType>> = damageTypeTags.toList(),
+    damageTypeTag: MutableState<TagKey<DamageType>>,
+    damageTypeTags: Iterable<TagKey<DamageType>> = moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.damageTypeTags.toList(),
     onSelected: (TagKey<DamageType>) -> Unit = {},
     selectedColor: ARGBColor = defaultSelectedColor,
     selectedWrapper: DropDownMenuScope.(TagKey<DamageType>) -> GuiWidget = {
@@ -105,17 +117,17 @@ fun ContainerScope.DamageTypeTagSelector(
     },
     modifier: Modifier = Modifier.width(280f),
     searchBarModifier: ColumnScope.() -> Modifier = {
-        Modifier.width(damageTypes.map { "#${it.location}" }.maxWidth + 12f)
+        Modifier.width(damageTypeTags.map { "#${it.location}" }.maxWidth + 12f)
     },
     listWrapperModifier: ColumnScope.() -> Modifier = {
-        Modifier.width(damageTypes.map { "#${it.location}" }.maxWidth + 12f).maxHeight(160f)
+        Modifier.width(damageTypeTags.map { "#${it.location}" }.maxWidth + 12f).maxHeight(160f)
     },
     listModifier: RowScope.() -> Modifier = { Modifier.weight(1) },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
     scope: DropDownMenuScope.() -> Unit = {}
 ) = SelectorWithSearcher(
-    options = damageTypes,
-    selected = damageType,
+    options = damageTypeTags,
+    selected = damageTypeTag,
     predicate = { tag, str ->
         "#${tag.location}".contains(str)
     },

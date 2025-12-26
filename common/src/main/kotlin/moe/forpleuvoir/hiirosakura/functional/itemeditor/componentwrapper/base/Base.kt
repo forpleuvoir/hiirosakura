@@ -1,4 +1,4 @@
-package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
+package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base
 
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.util.asTranslateText

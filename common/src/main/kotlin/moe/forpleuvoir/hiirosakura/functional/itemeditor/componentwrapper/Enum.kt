@@ -1,23 +1,25 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrapperRow
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
-import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
+import moe.forpleuvoir.ibukigourd.gui.widget.EnumSelector
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import net.minecraft.resources.Identifier
 
-fun ContainerScope.BooleanComponentWrapper(
-    id: Identifier,
-    component: Boolean,
+fun <E : Enum<E>> ContainerScope.EnumComponentWrapper(
+    key: Identifier,
+    component: E,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f, Alignment.Right),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    onValueChange: (Boolean, Boolean) -> Unit,
-) = DataComponentWrapperRow(id, removeAction, modifier, horizontalArrangement, verticalAlignment) {
+    onValueChange: (E, Boolean) -> Unit,
+) = DataComponentWrapperRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     val valueState = component.asMutableState
     valueState.subscribe { onValueChange(it, false) }
-    SwitchButton(valueState)
+    EnumSelector(valueState, modifier = Modifier.width(140f))
 }

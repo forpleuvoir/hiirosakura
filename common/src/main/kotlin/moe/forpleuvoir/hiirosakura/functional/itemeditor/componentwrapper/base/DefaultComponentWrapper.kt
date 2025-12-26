@@ -1,9 +1,5 @@
-package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
+package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base
 
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.google.gson.JsonPrimitive
-import com.mojang.serialization.JsonOps
 import moe.forpleuvoir.hiirosakura.gui.widget.serializereditor.SerializeElementEditor
 import moe.forpleuvoir.hiirosakura.gui.widget.serializereditor.SerializeElementType
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
@@ -28,11 +24,14 @@ import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.withColor
+import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.serialization.gson.toJsonElement
-import moe.forpleuvoir.nebula.serialization.gson.toSerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+import moe.forpleuvoir.nebula.serialization.extensions.toSerializeElement
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.resources.Identifier
 
@@ -51,13 +50,14 @@ fun <C : Any> ContainerScope.DefaultComponentWrapper(
         Icon(IconTextures.EDIT)
         click {
             runCatching {
-                var data = componentType.codecOrThrow()
-                    .encodeStart(registryAccess!!.createSerializationContext(JsonOps.COMPRESSED), component as C)
-                    .resultOrPartial {
-                        Toast.showToast(Literal(it).withColor(Colors.RED))
-                    }
-                    .get()
-
+                componentType.codecOrThrow()
+                    .encodeStart(registryAccess!!.createSerializationContext(NebulaOps), component as C)
+                    .orThrow
+            }.onFailure {
+                Toast.showToast(Literal(it.message ?: "unknown error").withColor(Colors.RED))
+                DataComponentWrappers.log.error(it)
+            }.onSuccess {
+                var data = it
                 var result = component
                 //Editor
                 DataComponentEditor(
@@ -69,27 +69,22 @@ fun <C : Any> ContainerScope.DefaultComponentWrapper(
                         var r = true
                         runCatching {
                             result = componentType.codecOrThrow()
-                                .parse(registryAccess!!.createSerializationContext(JsonOps.COMPRESSED), data)
-                                .resultOrPartial {
-                                    Toast.showToast(Literal(it).withColor(Colors.RED))
-                                    DataComponentWrappers.log.error(it)
-                                    r = false
-                                }.get()
+                                .parse(registryAccess!!.createSerializationContext(NebulaOps), data)
+                                .orThrow
                         }.onFailure {
                             Toast.showToast(Literal(it.message ?: "unknown error").withColor(Colors.RED))
                             DataComponentWrappers.log.error(it)
+                            r = false
                         }
                         r
                     }
                 ) {
-                    SerializeElementEditor(data.toSerializeElement(), modifier = Modifier.width(330f).height(190f)) {
-                        data = it.toJsonElement()
+                    SerializeElementEditor(data, modifier = Modifier.width(330f).height(190f)) {
+                        data = it
                     }
                 }.open()
-            }.onFailure {
-                Toast.showToast(Literal(it.message ?: "unknown error").withColor(Colors.RED))
-                DataComponentWrappers.log.error(it)
             }
+
         }
     }
 }
@@ -100,11 +95,11 @@ fun <C : Any> DefaultComponentBuilder(
     componentType: DataComponentType<C>,
     onValueChange: (C, Boolean) -> Unit,
 ): IGScreenImpl {
-    var data: JsonElement = JsonObject()
+    var data: SerializeElement = SerializeObject()
     var editorRecompose by lateInitValueOf {}
     val type = mutableStateOf(SerializeElementType.Object)
     type.subscribe {
-        data = it.defaultValue.toJsonElement()
+        data = it.defaultValue
         editorRecompose()
     }
     var result: C by lateInitValueOf()
@@ -117,25 +112,30 @@ fun <C : Any> DefaultComponentBuilder(
             var r = true
             runCatching {
                 result = componentType.codecOrThrow()
-                    .parse(registryAccess!!.createSerializationContext(JsonOps.COMPRESSED), data)
-                    .resultOrPartial {
-                        Toast.showToast(Literal(it).withColor(Colors.RED))
-                        DataComponentWrappers.log.error(it)
-                        r = false
-                    }.get()
-            }.onFailure { DataComponentWrappers.log.error(it) }
+                    .parse(registryAccess!!.createSerializationContext(NebulaOps), data)
+                    .orThrow
+            }.onFailure {
+                Toast.showToast(Literal(it.message ?: "unknown error").withColor(Colors.RED))
+                DataComponentWrappers.log.error(it)
+                r = false
+            }
             r
         }
     ) {
         EnumSelector(type, SerializeElementType.entries, modifier = Modifier.width(70f))
         Box {
+//            val modifier = when (data) {
+//                is Map<*, *>, is Iterable<*> -> Modifier.width(330f).height(190f)
+//                is Boolean                   -> Modifier.width(40f)
+//                else                         -> Modifier.width(160f)
+//            }
             val modifier = when {
-                data.isJsonObject || data.isJsonArray -> Modifier.width(330f).height(190f)
-                data.isJsonPrimitive && (data as JsonPrimitive).isBoolean -> Modifier.width(40f)
+                data.isObject || data.isArray -> Modifier.width(330f).height(190f)
+                data.isPrimitive && (data as SerializePrimitive).isBoolean -> Modifier.width(40f)
                 else -> Modifier.width(160f)
             }
             SerializeElementEditor(data.toSerializeElement(), modifier = modifier) {
-                data = it.toJsonElement()
+                data = it
             }
         }.apply {
             editorRecompose = { this.executeRecompose() }

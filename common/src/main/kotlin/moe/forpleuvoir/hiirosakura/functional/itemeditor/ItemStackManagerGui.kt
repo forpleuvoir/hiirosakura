@@ -7,6 +7,7 @@ import moe.forpleuvoir.hiirosakura.gui.widget.CopyButton
 import moe.forpleuvoir.hiirosakura.gui.widget.EditButton
 import moe.forpleuvoir.hiirosakura.gui.widget.RemoveButton
 import moe.forpleuvoir.hiirosakura.util.key
+import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -40,6 +41,8 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
+import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.withColor
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
@@ -63,7 +66,8 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import java.util.Map
 import java.util.regex.Pattern
-import kotlin.jvm.optionals.getOrNull
+
+private val logger = logger("ItemStackManagerGui")
 
 fun ContainerScope.ItemStackManagerGui(
     registryAccess: RegistryAccess,
@@ -210,10 +214,15 @@ private fun ColumnListScope.EntryRow(
         }
 
         CopyButton(Modifier.hoverText(HSLang.itemEditorCopyToCommand)) {
-            val command = genCommand(itemStack)
-            mc.keyboardHandler.clipboard = command
-            Toast.showToast {
-                Text(command, modifier = Modifier.maxWidth(360f).maxHeight(400f), setting = TextSetting(autoNewLine = true))
+            runCatching {
+                val command = genCommand(itemStack)
+                mc.keyboardHandler.clipboard = command
+                Toast.showToast {
+                    Text(command, modifier = Modifier.maxWidth(360f).maxHeight(400f), setting = TextSetting(autoNewLine = true))
+                }
+            }.onFailure {
+                Toast.showToast(Text.literal("Error: ${it.message}").withColor(Colors.RED))
+                logger.error(it)
             }
         }
 
@@ -259,7 +268,7 @@ fun IGGuiGraphics.pushItemTooltip(
     my: Float
 ) {
     val lines = Screen.getTooltipFromItem(mc, itemStack)
-    if(lines.isEmpty()) return
+    if (lines.isEmpty()) return
     val list = lines.stream()
         .map { it.visualOrderText }
         .map { ClientTooltipComponent.create(it) }
@@ -275,8 +284,8 @@ fun IGGuiGraphics.pushItemTooltip(
 }
 
 private fun genCommand(itemStack: ItemStack): String {
-    val tag = DataComponentPatch.CODEC.encodeStart(registryAccess!!.createSerializationContext(NbtOps.INSTANCE), itemStack.componentsPatch).result().getOrNull()
-    val tagString = tag?.getAsString() ?: ""
+    val tag = DataComponentPatch.CODEC.encodeStart(registryAccess!!.createSerializationContext(NbtOps.INSTANCE), itemStack.componentsPatch).orThrow
+    val tagString = tag.getAsString()
     val type = itemStack.item.key.toString()
     val count = itemStack.count
     return "/give @p $type$tagString $count"

@@ -2,6 +2,8 @@ package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditor
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrapperRow
 import moe.forpleuvoir.hiirosakura.gui.widget.EnchatmentSelector
 import moe.forpleuvoir.hiirosakura.gui.widget.REGISTERED_ENCHANTMENT
 import moe.forpleuvoir.hiirosakura.util.asTranslateText

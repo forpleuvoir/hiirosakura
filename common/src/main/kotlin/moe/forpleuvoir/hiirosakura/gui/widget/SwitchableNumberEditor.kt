@@ -22,14 +22,38 @@ import moe.forpleuvoir.ibukigourd.util.state.switch
 
 enum class SwitchableNumberEditorType(val value: Boolean) {
     Slider(true),
-    Editor(false)
+    Editor(false);
+
+    companion object {
+        fun fromRange(range: IntRange): SwitchableNumberEditorType = when {
+            range.last - range.first > 1000 -> Editor
+            else                            -> Slider
+        }
+
+        fun fromRange(range: LongRange): SwitchableNumberEditorType = when {
+            range.last - range.first > 1000 -> Editor
+            else                            -> Slider
+        }
+
+        fun fromRange(range: ClosedFloatingPointRange<Float>): SwitchableNumberEditorType = when {
+            range.endInclusive - range.start > 1000 -> Editor
+            else                                    -> Slider
+        }
+
+        @JvmName("fromDoubleRange")
+        fun fromRange(range: ClosedFloatingPointRange<Double>): SwitchableNumberEditorType = when {
+            range.endInclusive - range.start > 1000 -> Editor
+            else                                    -> Slider
+        }
+
+    }
 }
 
 fun ContainerScope.SwitchableIntEditor(
     valueState: MutableState<Int>,
     valueRange: IntRange = Int.MIN_VALUE..Int.MAX_VALUE,
     width: Float,
-    defaultEditor: SwitchableNumberEditorType = if (valueRange.endInclusive - valueRange.start > 1000) SwitchableNumberEditorType.Slider else SwitchableNumberEditorType.Editor,
+    defaultEditor: SwitchableNumberEditorType = SwitchableNumberEditorType.fromRange(valueRange),
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -55,7 +79,7 @@ fun ContainerScope.SwitchableLongEditor(
     valueState: MutableState<Long>,
     valueRange: LongRange = Long.MIN_VALUE..Long.MAX_VALUE,
     width: Float,
-    defaultEditor: SwitchableNumberEditorType = if (valueRange.endInclusive - valueRange.start > 1000) SwitchableNumberEditorType.Slider else SwitchableNumberEditorType.Editor,
+    defaultEditor: SwitchableNumberEditorType = SwitchableNumberEditorType.fromRange(valueRange),
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -82,7 +106,7 @@ fun ContainerScope.SwitchableFloatEditor(
     valueState: MutableState<Float>,
     valueRange: ClosedFloatingPointRange<Float> = Float.MIN_VALUE..Float.MAX_VALUE,
     width: Float,
-    defaultEditor: SwitchableNumberEditorType = if (valueRange.endInclusive - valueRange.start > 1000) SwitchableNumberEditorType.Slider else SwitchableNumberEditorType.Editor,
+    defaultEditor: SwitchableNumberEditorType = SwitchableNumberEditorType.fromRange(valueRange),
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -108,7 +132,7 @@ fun ContainerScope.SwitchableDoubleEditor(
     valueState: MutableState<Double>,
     valueRange: ClosedFloatingPointRange<Double> = Double.MIN_VALUE..Double.MAX_VALUE,
     width: Float,
-    defaultEditor: SwitchableNumberEditorType = if (valueRange.endInclusive - valueRange.start > 1000) SwitchableNumberEditorType.Slider else SwitchableNumberEditorType.Editor,
+    defaultEditor: SwitchableNumberEditorType = SwitchableNumberEditorType.fromRange(valueRange),
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,

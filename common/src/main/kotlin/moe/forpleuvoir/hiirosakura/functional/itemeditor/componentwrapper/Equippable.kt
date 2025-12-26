@@ -1,6 +1,8 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditor
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrapperRow
 import moe.forpleuvoir.hiirosakura.gui.widget.EntityTypeSelector
 import moe.forpleuvoir.hiirosakura.gui.widget.HolderSoundEventSelector
 import moe.forpleuvoir.hiirosakura.gui.widget.RemoveButton
@@ -343,14 +345,14 @@ fun EquipmentAssetEdiotr(
     DialogContent {
         Column(Modifier.width(260f), verticalArrangement = Arrangement.spacedBy(5f)) {
             Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Namespace")
+                Text("namespace")
                 TextEditor(Modifier.width(180f)) {
                     bindState(namespaceState)
                     namespaceEditor = { this.owner().transform }
                 }
             }
             Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Path")
+                Text("path")
                 TextEditor(Modifier.width(180f)) {
                     bindState(pathState)
                     pathEditor = { this.owner().transform }
@@ -372,6 +374,7 @@ fun EquipmentAssetEdiotr(
                         namespaceState.setValue(it.identifier().namespace)
                         pathState.setValue(it.identifier().path)
                     },
+                    optionsDirection = listOf(Direction.Bottom, Direction.Top),
                     amountStep = 15f
                 )
             }

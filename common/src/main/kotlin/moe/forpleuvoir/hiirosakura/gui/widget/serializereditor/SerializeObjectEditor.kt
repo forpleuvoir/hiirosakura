@@ -36,6 +36,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextEditor
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.configContainerWrapperGuidelinesColor
 import moe.forpleuvoir.ibukigourd.text.withColor
+import moe.forpleuvoir.ibukigourd.util.LateInitValue
 import moe.forpleuvoir.ibukigourd.util.lateInitValueOf
 import moe.forpleuvoir.ibukigourd.util.renameKey
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
@@ -59,7 +60,7 @@ fun ContainerScope.SerializeObjectEditor(
     listModifier: RowScope.() -> Modifier = { Modifier.fill().weight(1) },
     onValueChange: (SerializeObject) -> Unit
 ) = Column(verticalArrangement = Arrangement.spacedBy(2f), horizontalAlignment = Alignment.Left) {
-    var recompose by lateInitValueOf<() -> Unit>()
+    val recompose = lateInitValueOf<() -> Unit>()
     AddButton {
         SerializeElementAdder(
             serializeObject.size.toString().asMutableState,
@@ -67,7 +68,7 @@ fun ContainerScope.SerializeObjectEditor(
         ) { key, element ->
             serializeObject[key] = element
             onValueChange(serializeObject)
-            recompose()
+            recompose.getValue()()
         }.open()
     }
     ColumnListWrapped(
@@ -86,35 +87,7 @@ fun ContainerScope.SerializeObjectEditor(
                 value,
                 Modifier.fill().unlockConstraint(),
                 keyWrapper = { k ->
-                    FlatButton(hoveredColor = Colors.LIMEGREEN.alpha(.25f), modifier = Modifier.hoverText(IGLang.edit)) {
-                        Text(k)
-                        click {
-                            ConfirmDialog(IGLang.edit.asState, screenModifier = Modifier.onClose { TipHandler.popTip(TIP) }) {
-                                var newKey = k
-                                var editor by lateInitValueOf<() -> Transform>()
-                                Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
-                                    Text(IGLang.mapKey)
-                                    TextEditor(Modifier.width(160f)) {
-                                        text = newKey
-                                        textConsumer { newKey = it }
-                                        editor = { owner().transform }
-                                    }
-                                }
-                                confirm {
-                                    if (serializeObject.containsKey(newKey)) {
-                                        TipHandler.popTip(TIP)
-                                        TIP = TipHandler.pushTip(2.seconds, editor, Tip {
-                                            Text(IGLang.keyExists(newKey).withColor(Colors.RED))
-                                        })
-                                    } else {
-                                        serializeObject.renameKey(key, newKey)
-                                        closeScreen()
-                                        recompose()
-                                    }
-                                }
-                            }.open()
-                        }
-                    }
+                    ObjectKeyWrapper(k, serializeObject, key, recompose)
                 },
                 onValueChange = {
                     serializeObject[key] = it
@@ -123,16 +96,52 @@ fun ContainerScope.SerializeObjectEditor(
             ) {
                 DeleteButton(
                     { HSLang.deleteConfirm(key) },
-                    { recompose() }
+                    { recompose.getValue()() }
                 ) {
                     serializeObject.remove(key)
                 }
             }
         }
     }.apply {
-        recompose = { this.executeRecompose() }
+        recompose.setValue { this.executeRecompose() }
     }
 }
+
+private fun RowScope.ObjectKeyWrapper(
+    k: String,
+    serializeObject: SerializeObject,
+    key: String,
+    recompose: LateInitValue<() -> Unit>
+) = FlatButton(hoveredColor = Colors.LIMEGREEN.alpha(.25f), modifier = Modifier.hoverText(IGLang.edit)) {
+    Text(k)
+    click {
+        ConfirmDialog(IGLang.edit.asState, screenModifier = Modifier.onClose { TipHandler.popTip(TIP) }) {
+            var newKey = k
+            var editor by lateInitValueOf<() -> Transform>()
+            Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
+                Text(IGLang.mapKey)
+                TextEditor(Modifier.width(160f)) {
+                    text = newKey
+                    textConsumer { newKey = it }
+                    editor = { owner().transform }
+                }
+            }
+            confirm {
+                if (serializeObject.containsKey(newKey)) {
+                    TipHandler.popTip(TIP)
+                    TIP = TipHandler.pushTip(2.seconds, editor, Tip {
+                        Text(IGLang.keyExists(newKey).withColor(Colors.RED))
+                    })
+                } else {
+                    serializeObject.renameKey(key, newKey)
+                    closeScreen()
+                    recompose.getValue()()
+                }
+            }
+        }.open()
+    }
+}
+
 
 fun ContainerScope.SerializeObjectEntryEditor(
     key: String,
@@ -148,7 +157,7 @@ fun ContainerScope.SerializeObjectEntryEditor(
     expanded.subscribe {
         this.userData["#object_expanded"] = it
     }
-    var recompose by lateInitValueOf<() -> Unit>()
+    val recompose = lateInitValueOf<() -> Unit>()
     var childrenBox by lateInitValueOf { Box.Unspecified }
     Button(
         modifier = Modifier.bgHoverHighlightBox()
@@ -168,7 +177,7 @@ fun ContainerScope.SerializeObjectEntryEditor(
                     ) { key, element ->
                         serializeObject[key] = element
                         onValueChange(serializeObject)
-                        recompose()
+                        recompose.getValue()()
                     }.open()
                 }
                 Icon(
@@ -207,35 +216,7 @@ fun ContainerScope.SerializeObjectEntryEditor(
                             value,
                             Modifier.fill(),
                             keyWrapper = { k ->
-                                FlatButton(hoveredColor = Colors.LIMEGREEN.alpha(.25f), modifier = Modifier.hoverText(IGLang.edit)) {
-                                    Text(k)
-                                    click {
-                                        ConfirmDialog(IGLang.edit.asState, screenModifier = Modifier.onClose { TipHandler.popTip(TIP) }) {
-                                            var newKey = k
-                                            var editor by lateInitValueOf<() -> Transform>()
-                                            Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
-                                                Text(IGLang.mapKey)
-                                                TextEditor(Modifier.width(160f)) {
-                                                    text = newKey
-                                                    textConsumer { newKey = it }
-                                                    editor = { owner().transform }
-                                                }
-                                            }
-                                            confirm {
-                                                if (serializeObject.containsKey(newKey)) {
-                                                    TipHandler.popTip(TIP)
-                                                    TIP = TipHandler.pushTip(2.seconds, editor, Tip {
-                                                        Text(IGLang.keyExists(newKey).withColor(Colors.RED))
-                                                    })
-                                                } else {
-                                                    serializeObject.renameKey(key, newKey)
-                                                    closeScreen()
-                                                    recompose()
-                                                }
-                                            }
-                                        }.open()
-                                    }
-                                }
+                                ObjectKeyWrapper(k, serializeObject, key, recompose)
                             },
                             onValueChange = {
                                 serializeObject[key] = it
@@ -244,20 +225,20 @@ fun ContainerScope.SerializeObjectEntryEditor(
                         ) {
                             DeleteButton(
                                 { HSLang.deleteConfirm(key) },
-                                { recompose() }
+                                { recompose.getValue()() }
                             ) {
                                 serializeObject.remove(key)
                             }
                         }
                     }
                 }.apply {
-                    recompose = { this.executeRecompose() }
+                    recompose.setValue { this.executeRecompose() }
                     childrenBox = { this.transform.asWorldCoordinateBox }
                 }
             }
         },
         {
-            recompose = {}
+            recompose.setValue {}
             childrenBox = { Box.Unspecified }
             Widget(Modifier)
         },

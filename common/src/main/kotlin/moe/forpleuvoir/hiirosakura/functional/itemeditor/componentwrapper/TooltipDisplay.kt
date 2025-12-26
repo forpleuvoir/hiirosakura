@@ -1,6 +1,8 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditor
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrapperRow
 import moe.forpleuvoir.hiirosakura.gui.widget.DataComponentTypeSelector
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
@@ -49,7 +51,7 @@ fun ContainerScope.TooltipDisplayComponentWrapper(
         modifier = Modifier
             .width(140f)
             .hoverTip {
-                Column(horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.spacedBy(10f)) {
+                Column(horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.spacedBy(5f)) {
                     Text("hide_tooltip : ${component.hideTooltip}")
                     if (component.hiddenComponents.isEmpty()) {
                         Text(IGLang.hasNothing)

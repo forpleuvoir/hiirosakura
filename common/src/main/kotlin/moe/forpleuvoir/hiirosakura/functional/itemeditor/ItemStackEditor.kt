@@ -1,9 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor
 
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.DataComponentWrappers
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.DataComponentWrappers.DataComponentWrapper
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.DefaultComponentBuilder
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrappers
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrappers.DataComponentWrapper
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DefaultComponentBuilder
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemSelector
 import moe.forpleuvoir.hiirosakura.util.key

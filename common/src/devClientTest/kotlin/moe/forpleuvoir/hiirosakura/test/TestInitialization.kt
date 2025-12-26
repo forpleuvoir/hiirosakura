@@ -1,6 +1,5 @@
 package moe.forpleuvoir.hiirosakura.test
 
-import com.mojang.serialization.JavaOps
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.ItemStackEditor
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
@@ -20,18 +19,16 @@ import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.api.ExperimentalApi
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.event.EventSubscriber
 import moe.forpleuvoir.nebula.event.Subscriber
-import moe.forpleuvoir.nebula.serialization.extensions.toSerializeElement
 import moe.forpleuvoir.nebula.serialization.json.JsonSerializer.Companion.dumpAsJson
-import net.minecraft.core.component.DataComponents.REPAIRABLE
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
-import kotlin.jvm.optionals.getOrNull
 
 @EventSubscriber
 object TestInitialization {
@@ -74,17 +71,11 @@ fun testScreen() = ItemStackEditor { stack ->
 fun test2() {
     runCatching {
         ItemStackMatcher.handheldItemStack?.let { item ->
-            ItemStack.CODEC.encodeStart(registryAccess!!.createSerializationContext(JavaOps.INSTANCE), item).resultOrPartial {
-                TestInitialization.log.info(it)
-            }.getOrNull()?.let {
-                TestInitialization.log.info(it.toSerializeElement().dumpAsJson(true))
-            }
-            item.get(REPAIRABLE)?.let {
-                val items = it.items
-                items.forEach {
-                    val ite = it.value()
+            ItemStack.CODEC.encodeStart(registryAccess!!.createSerializationContext(NebulaOps), item)
+                .orThrow
+                .let {
+                    TestInitialization.log.info(it.dumpAsJson(true))
                 }
-            }
         }
     }.onFailure {
         TestInitialization.log.error(it)

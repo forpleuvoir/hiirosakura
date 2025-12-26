@@ -117,7 +117,7 @@ fun ContainerScope.ElementEntry(
 
 //------------ Adder ------------\\
 
-enum class SerializeElementType(val defaultValue: SerializeElement) {
+enum class SerializeElementType(private val _defaultValue: SerializeElement) {
     Array(SerializeArray()),
     Object(SerializeObject()),
     String(SerializePrimitive("")),
@@ -127,7 +127,9 @@ enum class SerializeElementType(val defaultValue: SerializeElement) {
     Float(SerializePrimitive(0f)),
     Double(SerializePrimitive(0.0)),
     Byte(SerializePrimitive(0.toByte())),
-    Null(SerializeNull)
+    Null(SerializeNull);
+
+    val defaultValue get() = _defaultValue.deepCopy()
 }
 
 private var TIP: Tip? = null

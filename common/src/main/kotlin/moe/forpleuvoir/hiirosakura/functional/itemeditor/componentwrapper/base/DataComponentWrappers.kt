@@ -1,5 +1,6 @@
-package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
+package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base
 
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.*
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
 import moe.forpleuvoir.hiirosakura.util.logger
@@ -12,7 +13,9 @@ import net.minecraft.core.component.DataComponents.*
 import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.tags.DamageTypeTags
+import net.minecraft.world.damagesource.DamageTypes
 import net.minecraft.world.food.Foods
+import net.minecraft.world.item.EitherHolder
 import net.minecraft.world.item.Rarity
 import net.minecraft.world.item.component.*
 import net.minecraft.world.item.enchantment.Enchantable
@@ -107,6 +110,14 @@ object DataComponentWrappers {
         register(REPAIR_COST, 0) { key, c, m, rm, consumer ->
             IntComponentWrapper(key, c, 0..Int.MAX_VALUE, modifier = m, removeAction = rm, onValueChange = consumer)
         }
+        //------------ Float ------------\\
+        register(POTION_DURATION_SCALE, 1f) { key, c, m, rm, consumer ->
+            FloatComponentWrapper(key, c, 0f..Float.MAX_VALUE, modifier = m, removeAction = rm, onValueChange = consumer)
+        }
+        register(MINIMUM_ATTACK_CHARGE, 1f) { key, c, m, rm, consumer ->
+            FloatComponentWrapper(key, c, 0f..1f, modifier = m, removeAction = rm, onValueChange = consumer)
+        }
+
         //------------ Boolean ------------\\
         register(ENCHANTMENT_GLINT_OVERRIDE, true) { key, c, m, rm, consumer ->
             BooleanComponentWrapper(key, c, modifier = m, removeAction = rm, onValueChange = consumer)
@@ -204,6 +215,22 @@ object DataComponentWrappers {
         register(SWING_ANIMATION, SwingAnimation.DEFAULT) { key, c, m, rm, consumer ->
             SwingAnimationComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
+        //------------ UseEffects ------------\\
+        register(USE_EFFECTS, UseEffects.DEFAULT) { key, c, m, rm, consumer ->
+            UseEffectsComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        //------------ AttackRange ------------\\
+        register(ATTACK_RANGE, AttackRange(0f, 3f, 0f, 5f, 0.3f, 1f)) { key, c, m, rm, consumer ->
+            AttackRangeComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        //------------ DamageType ------------\\
+        register(DAMAGE_TYPE, EitherHolder(DamageTypes.SPEAR)) { key, c, m, rm, consumer ->
+            DamageTypeComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        //------------ KineticWeapon ------------\\
+//        register(KINETIC_WEAPON, KineticWeapon) { key, c, m, rm, consumer ->
+//            DamageTypeComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+//        }
     }
 
 }

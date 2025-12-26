@@ -1,6 +1,6 @@
 package moe.forpleuvoir.hiirosakura.util
 
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.unknownComponentType
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.unknownComponentType
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.checkType

@@ -2,14 +2,13 @@ package moe.forpleuvoir.hiirosakura.util
 
 import com.mojang.datafixers.util.Pair
 import com.mojang.serialization.Codec
-import com.mojang.serialization.JsonOps
+import com.mojang.serialization.DynamicOps
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.ibukigourd.util.ModLogger
+import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
-import moe.forpleuvoir.nebula.serialization.gson.toJsonElement
-import moe.forpleuvoir.nebula.serialization.gson.toSerializeElement
 import net.minecraft.resources.Identifier
 import kotlin.reflect.KClass
 
@@ -45,11 +44,11 @@ inline fun <reified T : Enum<T>> T.cycle(): T {
 operator fun <A, B> Pair<A, B>.component1(): A? = this.first
 operator fun <A, B> Pair<A, B>.component2(): B? = this.second
 
-fun <T> Codec<T>.serialization(obj: T): SerializeElement {
-    return this.encodeStart(JsonOps.INSTANCE, obj).result().get().toSerializeElement()
+fun <T> Codec<T>.serialization(obj: T, dynamicOps: DynamicOps<SerializeElement> = NebulaOps): SerializeElement {
+    return this.encodeStart(dynamicOps, obj).orThrow
 }
 
-fun <T> Codec<T>.deserialization(serializeElement: SerializeElement): T {
-    return this.decode(JsonOps.INSTANCE, serializeElement.toJsonElement()).result().get().first
+fun <T> Codec<T>.deserialization(serializeElement: SerializeElement, dynamicOps: DynamicOps<SerializeElement> = NebulaOps): T {
+    return this.decode(dynamicOps, serializeElement).orThrow.first
 }
 

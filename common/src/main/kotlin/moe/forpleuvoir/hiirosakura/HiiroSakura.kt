@@ -9,7 +9,7 @@ object HiiroSakura {
 
     const val MOD_ID: String = "hiirosakura"
 
-    const val MOD_NAME: String = "Hiiro Sakura"
+    const val MOD_NAME: String = "HiiroSakura"
 
     fun init() {
         logger.info("$MOD_ID,platform:{},env:{}", PLATFORM.getPlatformName(), PLATFORM.getEnvironmentName())

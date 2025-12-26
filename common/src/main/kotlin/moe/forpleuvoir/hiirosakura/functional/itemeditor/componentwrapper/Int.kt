@@ -1,5 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrapperRow
+import moe.forpleuvoir.hiirosakura.gui.widget.SwitchableNumberEditorType
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
@@ -16,42 +18,42 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
 import net.minecraft.resources.Identifier
-import net.minecraft.world.item.enchantment.Enchantable
 import kotlin.time.Duration.Companion.milliseconds
 
-fun ContainerScope.EnchantableComponentWrapper(
+private const val WIDTH = 115f
+
+fun ContainerScope.IntComponentWrapper(
     key: Identifier,
-    component: Enchantable,
+    component: Int,
+    valueRange: IntRange,
+    textMapper: (Int) -> MutableText = { Literal(it.toString()) },
+    defaultEditor: SwitchableNumberEditorType = SwitchableNumberEditorType.fromRange(valueRange),
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
-    defaultEditor: Boolean = false,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f, Alignment.Right),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    onValueChange: (Enchantable, Boolean) -> Unit,
+    onValueChange: (Int, Boolean) -> Unit,
 ) = DataComponentWrapperRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    var component = component
-    val valueState = component.value().asMutableState
-    valueState.subscribe {
-        component = Enchantable(it)
-        onValueChange(component, false)
-    }
+    val valueState = component.asMutableState
+    valueState.subscribe { onValueChange(it, false) }
     Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
-        val state = mutableStateOf(defaultEditor)
+        val state = mutableStateOf(defaultEditor.value)
         SwitchableProxy(
             {
-                IntSlider(valueState, 1..Int.MAX_VALUE, modifier = Modifier.width(115f).hoverTip {
-                    Preview(valueState::getValue)
+                IntSlider(valueState, valueRange, textMapper = textMapper, modifier = Modifier.width(WIDTH).hoverTip {
+                    IntComponentPreview(valueState::getValue, textMapper)
                 })
             },
             {
-                IntEditor(valueState, 1..Int.MAX_VALUE, modifier = Modifier.width(115f).hoverTip {
-                    Preview(valueState::getValue)
+                IntEditor(valueState, valueRange, modifier = Modifier.width(WIDTH).hoverTip {
+                    IntComponentPreview(valueState::getValue, textMapper)
                 }, editorModifier = { Modifier.weight(1) })
             },
             state
@@ -64,7 +66,7 @@ fun ContainerScope.EnchantableComponentWrapper(
 }
 
 
-private fun ContainerScope.Preview(
+private fun ContainerScope.IntComponentPreview(
     component: () -> Int,
     textMapper: (Int) -> Text = { Literal(it.toString()) },
     modifier: Modifier = Modifier,

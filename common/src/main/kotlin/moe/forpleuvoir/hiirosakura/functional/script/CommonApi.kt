@@ -6,13 +6,16 @@ import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.config.HSConfig
 import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventManager
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.ItemStackEditor
 import moe.forpleuvoir.hiirosakura.input.InputSimulator
 import moe.forpleuvoir.hiirosakura.util.flat
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.config.translationKey
+import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.task.scheduleEndTick
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
+import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.ModLogger
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.sendMessage
@@ -154,5 +157,15 @@ interface CommonApi {
         } ?: Toast.showToast(HSLang.enableEventNotFound(name))
     }
 
+    fun editItem() {
+        mc.player?.let { player ->
+            if (player.isCreative && !player.mainHandItem.isEmpty) {
+                ItemStackEditor { stack ->
+                    if (player.isCreative) player.inventory.selectedItem = stack
+                    else Toast.showToast(Text.literal("只有创造模式玩家才能使用").withColor(0xFF0000))
+                }.open()
+            } else Toast.showToast(Text.literal("只有创造模式玩家才能使用").withColor(0xFF0000))
+        }
+    }
 
 }

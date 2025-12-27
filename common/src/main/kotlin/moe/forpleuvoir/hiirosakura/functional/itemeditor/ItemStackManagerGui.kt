@@ -215,7 +215,7 @@ private fun ColumnListScope.EntryRow(
 
         CopyButton(Modifier.hoverText(HSLang.itemEditorCopyToCommand)) {
             runCatching {
-                val command = genCommand(itemStack)
+                val command = itemStack.asCommand()
                 mc.keyboardHandler.clipboard = command
                 Toast.showToast {
                     Text(command, modifier = Modifier.maxWidth(360f).maxHeight(400f), setting = TextSetting(autoNewLine = true))
@@ -283,12 +283,12 @@ fun IGGuiGraphics.pushItemTooltip(
     )
 }
 
-private fun genCommand(itemStack: ItemStack): String {
-    val tag = DataComponentPatch.CODEC.encodeStart(registryAccess!!.createSerializationContext(NbtOps.INSTANCE), itemStack.componentsPatch).orThrow
-    val tagString = tag.getAsString()
-    val type = itemStack.item.key.toString()
-    val count = itemStack.count
-    return "/give @p $type$tagString $count"
+fun ItemStack.asCommand(): String {
+    val tag = DataComponentPatch.CODEC
+        .encodeStart(registryAccess!!.createSerializationContext(NbtOps.INSTANCE), componentsPatch)
+        .orThrow
+        .getAsString()
+    return "/give @p ${item.key}$tag $count"
 }
 
 private fun <T : Tag> T.getAsString(): String {

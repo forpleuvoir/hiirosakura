@@ -7,6 +7,7 @@ import moe.forpleuvoir.hiirosakura.config.HSConfig
 import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventManager
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.ItemStackEditor
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.asCommand
 import moe.forpleuvoir.hiirosakura.input.InputSimulator
 import moe.forpleuvoir.hiirosakura.util.flat
 import moe.forpleuvoir.hiirosakura.util.logger
@@ -141,6 +142,7 @@ interface CommonApi {
                     Toast.showToast(HSLang.setConfigSuccess(key, value.toString()))
                 }.onFailure { t ->
                     Toast.showToast(HSLang.setConfigFail(key, value.toString(), t.message))
+                    logger.warn(t)
                 }
             } ?: Toast.showToast(HSLang.setConfigFailNotFound(key))
     }
@@ -159,12 +161,15 @@ interface CommonApi {
 
     fun editItem() {
         mc.player?.let { player ->
-            if (player.isCreative && !player.mainHandItem.isEmpty) {
+            if (!player.mainHandItem.isEmpty) {
                 ItemStackEditor { stack ->
                     if (player.isCreative) player.inventory.selectedItem = stack
-                    else Toast.showToast(Text.literal("只有创造模式玩家才能使用").withColor(0xFF0000))
+                    else {
+                        mc.keyboardHandler.clipboard = stack.asCommand()
+                        Toast.showToast(Text.literal("已复制物品数据为指令"))
+                    }
                 }.open()
-            } else Toast.showToast(Text.literal("只有创造模式玩家才能使用").withColor(0xFF0000))
+            }
         }
     }
 

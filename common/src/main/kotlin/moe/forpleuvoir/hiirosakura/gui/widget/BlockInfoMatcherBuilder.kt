@@ -42,6 +42,7 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import net.minecraft.util.Util
@@ -103,7 +104,7 @@ fun BlockInfoMatcherBuilder(
                         Text(it.translateText)
                     },
                     {
-                        Modifier.hoverText(it.translateComment)
+                        Modifier.hoverText(it.translateComment).hoverable { widget -> widget.visible }
                     }
                 )
             }
@@ -187,8 +188,9 @@ private fun ContainerScope.EntryWrapper(
         is BlockInfoMatchEntry.Property -> Text(entry.asText)
     }
     FlatButton(
-        idleColor = Colors.BLACK.alpha(0f), round = 0
+        idleColor = Color.ofARGB(0), round = 0
     ) {
+        ModeRect(entry)
         Text(
             entry.mode.translateText,
             setting = TextSetting().copy(backgroundColor = if (entry.mode.toBoolean()) Colors.LIME.alpha(.25f) else Colors.RED.alpha(0.25f))

@@ -1,7 +1,7 @@
 package moe.forpeluvoir.hiirosakura.neoforgeevent
 
 import moe.forpleuvoir.hiirosakura.HiiroSakura
-import moe.forpleuvoir.hiirosakura.functional.script.CommonApiLoader
+import moe.forpleuvoir.hiirosakura.functional.script.CommonScriptLoader
 import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.fml.common.EventBusSubscriber
 import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent
@@ -11,7 +11,7 @@ object ReloadListenerRegistry {
 
     @SubscribeEvent
     fun onAddClientReloadListeners(event: AddClientReloadListenersEvent) {
-        event.addListener(CommonApiLoader.RESOURCE_ID, CommonApiLoader)
+        event.addListener(CommonScriptLoader.RESOURCE_ID, CommonScriptLoader)
     }
 
 }

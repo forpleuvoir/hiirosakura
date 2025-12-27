@@ -3,7 +3,7 @@ package moe.forpleuvoir.hiirosakura.functional.task.executor
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.executor.Executor
 import moe.forpleuvoir.hiirosakura.functional.script.CommonApi
-import moe.forpleuvoir.hiirosakura.functional.script.CommonApiLoader
+import moe.forpleuvoir.hiirosakura.functional.script.CommonScriptLoader
 import moe.forpleuvoir.hiirosakura.functional.script.ScriptEngine
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSEntity
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
@@ -32,7 +32,7 @@ class ScriptExecutor(
 
         private val log = ModLogger(ScriptExecutor::class, HiiroSakura.MOD_NAME)
 
-        private val scriptEngine: ScriptEngine by lazy {
+        val scriptEngine: ScriptEngine by lazy {
             ScriptEngine(
                 mapOf(
                     "client" to mc,
@@ -81,7 +81,7 @@ class ScriptExecutor(
 
     override fun execute() {
         catch {
-            CommonApiLoader.eval(engine, context)
+            CommonScriptLoader.eval(engine, context)
             mc.player?.let {
                 context.set("player", HSEntity.fromEntity(it))
             }

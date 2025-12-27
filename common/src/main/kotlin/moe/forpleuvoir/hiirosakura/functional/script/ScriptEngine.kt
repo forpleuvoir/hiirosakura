@@ -5,6 +5,7 @@ import org.apache.commons.jexl3.JexlScript
 import org.apache.commons.jexl3.MapContext
 import org.apache.commons.jexl3.introspection.JexlPermissions
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedDeque
 
 class ScriptEngine(
     nameSpace: Map<String, Any>,
@@ -26,17 +27,30 @@ class ScriptEngine(
         .namespaces(nameSpace)
         .create()
 
-    private val scriptCache = ConcurrentHashMap<String, JexlScript>()
+    private val scriptCache = ConcurrentHashMap<String, JexlScript>(10)
+
+    private val removeTag = ConcurrentLinkedDeque<String>()
 
     fun eval(code: String, context: MapContext): Any? {
         if (code.isBlank()) return null
         return cache(code).execute(context)
     }
 
-    fun cache(code: String) = scriptCache.getOrPut(code) { jexl.createScript(code) }
+    fun cache(code: String): JexlScript {
+        val result = scriptCache.getOrPut(code) { jexl.createScript(code) }
+        removeTag.add(code)
+        if (removeTag.size > 1000) { removeTag.removeFirst() }
+        return result
+    }
 
-    fun remove(code: String) = scriptCache.remove(code)
+    fun remove(code: String) {
+        removeTag.remove(code)
+        scriptCache.remove(code)
+    }
 
-    fun clearCache() = scriptCache.clear()
+    fun clearCache() {
+        removeTag.clear()
+        scriptCache.clear()
+    }
 
 }

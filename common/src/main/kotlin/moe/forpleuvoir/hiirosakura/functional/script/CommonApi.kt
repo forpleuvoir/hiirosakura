@@ -16,7 +16,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.task.scheduleEndTick
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
-import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.ibukigourd.util.ModLogger
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.sendMessage
@@ -57,7 +57,7 @@ interface CommonApi {
     }
 
     fun toast(content: String) {
-        Toast.showToast(text = content)
+        Toast.showToast(text = Texts.inlineStyle(content))
     }
 
     fun attack(duration: Long = 1) {
@@ -166,7 +166,7 @@ interface CommonApi {
                     if (player.isCreative) player.inventory.selectedItem = stack
                     else {
                         mc.keyboardHandler.clipboard = stack.asCommand()
-                        Toast.showToast(Text.literal("已复制物品数据为指令"))
+                        Toast.showToast(HSLang.itemEditorCopyToCommand)
                     }
                 }.open()
             }

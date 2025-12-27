@@ -1,14 +1,15 @@
 package moe.forpleuvoir.hiirosakura.functional.script
 
+import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
 import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.util.SimpleResourceReloaderListener
 import net.minecraft.server.packs.resources.PreparableReloadListener
 import org.apache.commons.jexl3.MapContext
 
-object CommonApiLoader : SimpleResourceReloaderListener<List<String>>() {
+object CommonScriptLoader : SimpleResourceReloaderListener<List<String>>() {
 
-    val RESOURCE_ID = identifier("common_api")
+    val RESOURCE_ID = identifier("common_script")
 
     private val log = logger()
 
@@ -29,15 +30,21 @@ object CommonApiLoader : SimpleResourceReloaderListener<List<String>>() {
         }
     }
 
+    private val commonScripts = mutableListOf<String>()
+
     override fun apply(prepared: List<String>, sharedState: PreparableReloadListener.SharedState) {
-        commonApi.clear()
-        prepared.forEach(commonApi::add)
+        commonScripts.forEach {
+            ScriptExecutor.scriptEngine.remove(it)
+        }
+        commonScripts.clear()
+        prepared.filter { it.isNotBlank() }.forEach {
+            commonScripts.add(it)
+            ScriptExecutor.scriptEngine.cache(it)
+        }
     }
 
-    private val commonApi = mutableListOf<String>()
-
     fun eval(engine: ScriptEngine, context: MapContext) {
-        commonApi.forEach {
+        commonScripts.forEach {
             engine.eval(it, context)
         }
     }

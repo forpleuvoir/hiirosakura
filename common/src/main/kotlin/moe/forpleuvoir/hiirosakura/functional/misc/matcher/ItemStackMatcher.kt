@@ -3,10 +3,7 @@ package moe.forpleuvoir.hiirosakura.functional.misc.matcher
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSItemStack
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
-import moe.forpleuvoir.hiirosakura.util.asItem
-import moe.forpleuvoir.hiirosakura.util.hasTag
-import moe.forpleuvoir.hiirosakura.util.key
-import moe.forpleuvoir.hiirosakura.util.serialization
+import moe.forpleuvoir.hiirosakura.util.*
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -365,7 +362,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
         companion object : Deserializer<Enchantment> {
             const val TYPE = "enchantment"
-            override fun deserialization(serializeElement: SerializeElement): ItemStackMatchEntry.Enchantment {
+            override fun deserialization(serializeElement: SerializeElement): Enchantment {
                 return serializeElement.checkType<SerializeObject, Enchantment> {
                     Enchantment(
                         enchantment = it["enchantment"]!!.asString,
@@ -384,7 +381,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             .appendTranslate("enchantment.level.${level.last}", level.last.toString())
 
         override fun match(obj: ItemStack): Boolean {
-            val lv = obj.enchantments.entrySet().find { it.key.registeredName == enchantment }?.intValue ?: 0
+            val lv = obj.allEnchantments.entries.find { it.key.registeredName == enchantment }?.value
             return lv in level
         }
 

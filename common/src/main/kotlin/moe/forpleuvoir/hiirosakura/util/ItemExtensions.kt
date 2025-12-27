@@ -15,6 +15,7 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.TooltipFlag
+import net.minecraft.world.item.enchantment.ItemEnchantments
 
 fun ItemStack.getEnchantmentTextWithLvl(
     context: Item.TooltipContext,
@@ -27,6 +28,16 @@ fun ItemStack.getEnchantmentTextWithLvl(
             get(DataComponents.ENCHANTMENTS)?.addToTooltip(context, { add(it) }, flag, this@getEnchantmentTextWithLvl.components)
     }
 }
+
+val ItemStack.allEnchantments
+    get() = buildMap {
+        enchantments.entrySet().forEach { entry ->
+            put(entry.key, entry.intValue)
+        }
+        this@allEnchantments.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY).entrySet().forEach { entry ->
+            put(entry.key, entry.intValue)
+        }
+    }
 
 val ItemStack?.empty: Boolean get() = this == null || this.isEmpty
 

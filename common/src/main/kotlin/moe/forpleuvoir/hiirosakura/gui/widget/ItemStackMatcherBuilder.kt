@@ -17,18 +17,22 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
+import moe.forpleuvoir.hiirosakura.util.allEnchantments
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope
+import moe.forpleuvoir.ibukigourd.gui.base.scope.RowLayoutScope
 import moe.forpleuvoir.ibukigourd.gui.base.scope.TableLayoutColumnScope
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreen
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.screen.closeScreen
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidget
+import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidgetContainer
 import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
@@ -40,7 +44,10 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.RadioButtons
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.*
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.TableScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.*
 import moe.forpleuvoir.ibukigourd.text.*
@@ -51,6 +58,7 @@ import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import net.minecraft.core.component.DataComponentType
@@ -122,7 +130,7 @@ fun ItemStackMatcherBuilder(
                         Text(it.translateText)
                     },
                     {
-                        Modifier.hoverText(it.translateComment)
+                        Modifier.hoverText(it.translateComment).hoverable { widget -> widget.visible }
                     }
                 )
             }
@@ -204,8 +212,9 @@ private fun ContainerScope.EntryWrapper(
         else                           -> Text(entry.asText)
     }
     FlatButton(
-        idleColor = Colors.BLACK.alpha(0f), round = 0
+        idleColor = Color.ofARGB(0), round = 0
     ) {
+        ModeRect(entry)
         Text(
             entry.mode.translateText,
             setting = TextSetting().copy(backgroundColor = if (entry.mode.toBoolean()) Colors.LIME.alpha(.25f) else Colors.RED.alpha(0.25f))
@@ -449,16 +458,7 @@ private fun EnchantmentMatchEntryBuilder(
     val level = mutableStateOf(entry.level.first)
     val levelEnd = mutableStateOf(entry.level.endInclusive)
 
-    val enchantments = ItemStackMatcher.handheldItemStack
-        ?.enchantments
-        ?.entrySet()
-        ?.run {
-            buildMap {
-                this@run.forEach { (enchantment, level) ->
-                    this[enchantment] = level
-                }
-            }
-        }
+    val enchantments = ItemStackMatcher.handheldItemStack?.allEnchantments
 
     return MatchEntryDialog(
         title = itemStackMatcherEntryEnchantment,
@@ -718,7 +718,7 @@ fun ContainerScope.ItemStackEntryInfo(entry: MatchEntry<ItemStack>) {
     }
 }
 
-fun RowScope.ModeRect(entry: MatchEntry<*>) {
+fun <T> T.ModeRect(entry: MatchEntry<*>) where T : GuiScope<out GuiWidgetContainer>, T : RowLayoutScope {
     Rect(if (entry.mode.toBoolean()) Colors.GREEN.alpha(.5F) else Colors.RED.alpha(0.5f), Modifier.width(1f).matchSibling())
 }
 

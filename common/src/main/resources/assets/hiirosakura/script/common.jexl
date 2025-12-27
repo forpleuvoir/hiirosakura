@@ -1,6 +1,22 @@
+toast = (msg) -> common:toast(msg);
+
 state = (key) -> {
     var current = common:getGlobalData("_hs_" + key);
     var next = current == null ? true : !current;
     common:setGlobalData("_hs_" + key, next);
-    return next;
-}
+    next;
+};
+
+move = (dir, duration) -> {
+    if (dir == "forward") {
+        common:moveForward(duration);
+    } else if (dir == "back") {
+        common:moveBack(duration);
+    } else if (dir == "left") {
+        common:moveLeft(duration);
+    } else if (dir == "right") {
+        common:moveRight(duration);
+    } else {
+        common:toast("&{#FF0000}unknown direction " + dir);
+    }
+};

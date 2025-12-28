@@ -13,7 +13,7 @@ import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.SerializeObjectScope
+import moe.forpleuvoir.nebula.serialization.extensions.SerializeObjectBuilder
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.deserialization
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
@@ -167,7 +167,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     abstract val asText: Component
 
-    fun entrySerialization(scope: SerializeObjectScope.() -> Unit) = serializeObject {
+    fun entrySerialization(scope: SerializeObjectBuilder.() -> Unit) = serializeObject {
         "type" to type
         "mode" to mode
         scope()

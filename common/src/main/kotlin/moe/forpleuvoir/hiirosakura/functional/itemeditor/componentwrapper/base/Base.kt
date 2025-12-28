@@ -26,7 +26,7 @@ import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.util.state.asState
 import moe.forpleuvoir.nebula.common.color.HSVColor
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
@@ -82,7 +82,7 @@ fun ContainerScope.DataComponentWrapperRow(
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     content: RowScope.() -> Unit
 ) = Row(Modifier.bgHoverHighlightBox().padding(horizontal = 2f).minHeight(19f).then(modifier), horizontalArrangement = Arrangement.SpaceBetween) {
-    val style = DataComponentWrappers.isAdaptedComponent(key).pick(
+    val style = DataComponentWrappers.isAdaptedComponent(key).either(
         style(HSVColor(195f, 1f, 1f)),
         style(HSVColor(5f, .6f, 1f))
     )

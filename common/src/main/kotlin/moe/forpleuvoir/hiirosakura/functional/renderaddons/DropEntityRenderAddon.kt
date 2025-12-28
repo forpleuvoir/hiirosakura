@@ -13,7 +13,7 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import moe.forpleuvoir.nebula.config.item.impl.*
 import net.minecraft.client.gui.Font
 import net.minecraft.client.renderer.LightTexture
@@ -114,7 +114,7 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
         poseStack: PoseStack,
         nodeCollector: SubmitNodeCollector
     ) {
-        val light = useMaxLight.pick(LightTexture.FULL_BRIGHT, packedLight)
+        val light = useMaxLight.either(LightTexture.FULL_BRIGHT, packedLight)
 
         poseStack.pushPose()
 

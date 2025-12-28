@@ -178,7 +178,7 @@ private fun ContainerScope.EntryWrapper(
         is BlockInfoMatchEntry.Block    -> Row(
             horizontalArrangement = Arrangement.spacedBy(2f)
         ) {
-            ItemIcon(entry.block.asItem(), .6f)
+            ItemIcon(entry.block, .6f)
             Text(entry.asText)
         }
 
@@ -547,7 +547,7 @@ fun ContainerScope.BlockInfoEntryBlockInfo(
 ) {
     ModeRect(entry)
     Text(blockInfoMatcherEntryBlock)
-    ItemIcon(entry.block.asItem(), .6f)
+    ItemIcon(entry.block, .6f)
     Text(entry.asText)
 }
 

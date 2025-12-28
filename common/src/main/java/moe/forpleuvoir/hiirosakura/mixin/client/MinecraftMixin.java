@@ -64,7 +64,7 @@ public abstract class MinecraftMixin {
         HSTickTaskScheduler.INSTANCE.endTick((Minecraft) (Object) this);
     }
 
-    @Inject(method = "disconnect", at = @At("HEAD"))
+    @Inject(method = "disconnect*", at = @At("HEAD"))
     public void disconnect(Screen nextScreen, boolean keepResourcePacks, CallbackInfo ci) {
         EventBus.Companion
             .broadcast(

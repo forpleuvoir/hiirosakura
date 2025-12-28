@@ -11,12 +11,12 @@ object GamePlay : ModConfigContainer("gameplay") {
     //TODO 方块放置辅助,类似按下快捷键弹出一个轮盘选项,选择辅助模式并开启辅助或关闭辅助.
     //TODO 方块破坏辅助,类似按下快捷键弹出一个轮盘选项,选择辅助模式并开启辅助或关闭辅助.
     //TODO 添加槽位切换功能,预期按下快捷键切换槽位.长按快捷键鼠标滚轮选择槽位.并且提供配置选择可以启用的槽位,以及添加物品匹配器过滤不想切换的物品.
-    //TODO 双开门
     //TODO 自动丢弃物品
     //TODO 附近实体查看器
     //TODO 过滤没有本地化的声音事件在字幕中显示(或者是过滤指定的或者非指定声音字幕)
 
     init {
+        addConfig(ChainDoors)
         addConfig(ItemUseIntercept)
         addConfig(ItemDropIntercept)
         addConfig(BlockBreakProtection)

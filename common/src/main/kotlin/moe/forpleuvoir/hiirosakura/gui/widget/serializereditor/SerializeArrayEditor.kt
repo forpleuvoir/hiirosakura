@@ -37,7 +37,7 @@ import moe.forpleuvoir.ibukigourd.util.state.asState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 
 fun ContainerScope.SerializeArrayEditor(
@@ -132,7 +132,7 @@ fun ContainerScope.SerializeArrayEntryEditor(
                 }
                 Icon(
                     mutableStateOf(expanded) {
-                        it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN)
+                        it.either(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN)
                     },
                     modifier = Modifier
                 )

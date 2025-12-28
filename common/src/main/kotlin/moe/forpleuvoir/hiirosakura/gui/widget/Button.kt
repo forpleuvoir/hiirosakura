@@ -55,3 +55,14 @@ fun ContainerScope.CopyButton(
     click(action)
     Icon(IconTextures.COPY)
 }
+
+fun ContainerScope.PasteButton(
+    modifier: Modifier = Modifier,
+    action: (IGButtonWidget) -> Unit,
+) = FlatButton(
+    hoveredColor = Colors.LIME.alpha(0.25f),
+    modifier = Modifier.hoverText(IGLang.edit).size(14f, 14f).then(modifier)
+) {
+    click(action)
+    Icon(IconTextures.PASTE)
+}

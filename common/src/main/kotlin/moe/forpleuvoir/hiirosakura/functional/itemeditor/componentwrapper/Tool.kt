@@ -30,7 +30,7 @@ import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.nebula.common.color.ARGBColor
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.core.HolderSet
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
@@ -214,7 +214,7 @@ fun BlockHolderSetEditor(
     return DataComponentEditor(
         title,
         {
-            mode.getValue().pick(
+            mode.getValue().either(
                 { HolderSet.direct(list.map { BuiltInRegistries.BLOCK.wrapAsHolder(it) }) },
                 { tag.getValue().asHolderSet }) to true
         },

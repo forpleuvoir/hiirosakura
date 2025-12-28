@@ -15,7 +15,7 @@ import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.SerializeObjectScope
+import moe.forpleuvoir.nebula.serialization.extensions.SerializeObjectBuilder
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.core.registries.BuiltInRegistries
@@ -166,7 +166,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
         entrySerialization()
     }
 
-    abstract fun SerializeObjectScope.entrySerialization()
+    abstract fun SerializeObjectBuilder.entrySerialization()
 
     companion object : Deserializer<EntityMatchEntry> {
 
@@ -209,7 +209,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
 
         override fun match(obj: Entity): Boolean = matcher.match(obj)
 
-        override fun SerializeObjectScope.entrySerialization() {
+        override fun SerializeObjectBuilder.entrySerialization() {
             "matcher" to matcher.serialization()
         }
 
@@ -236,7 +236,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
             return obj.type == entityType
         }
 
-        override fun SerializeObjectScope.entrySerialization() {
+        override fun SerializeObjectBuilder.entrySerialization() {
             "entity_type" to BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString()
         }
 
@@ -263,7 +263,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
             return name.toRegex().matches(obj.name.string)
         }
 
-        override fun SerializeObjectScope.entrySerialization() {
+        override fun SerializeObjectBuilder.entrySerialization() {
             "name" to name
         }
 
@@ -290,7 +290,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
             return displayName.toRegex().matches(obj.displayName?.string ?: "")
         }
 
-        override fun SerializeObjectScope.entrySerialization() {
+        override fun SerializeObjectBuilder.entrySerialization() {
             "display_name" to displayName
         }
 
@@ -329,7 +329,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
             return result.getValue()
         }
 
-        override fun SerializeObjectScope.entrySerialization() {
+        override fun SerializeObjectBuilder.entrySerialization() {
             "script" to script
         }
 
@@ -356,7 +356,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
             return obj.uuid == uuid
         }
 
-        override fun SerializeObjectScope.entrySerialization() {
+        override fun SerializeObjectBuilder.entrySerialization() {
             "uuid" to uuid.toString()
         }
 
@@ -383,7 +383,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
             return obj.isAlive == alive
         }
 
-        override fun SerializeObjectScope.entrySerialization() {
+        override fun SerializeObjectBuilder.entrySerialization() {
             "alive" to alive
         }
 

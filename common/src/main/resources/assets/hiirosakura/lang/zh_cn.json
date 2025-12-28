@@ -1,4 +1,5 @@
 {
+  "hiirosakura.sound_effect": "音效",
   "hiirosakura.cant_be_empty": "%s 不能为空",
   "hiirosakura.press_to_copy": "按下 %s 复制",
   "hiirosakura.copy_success": "复制成功",
@@ -14,6 +15,7 @@
   "hiirosakura.event.enable.success": "事件[%s]启用状态:",
   "hiirosakura.event.enable.not_found": "未找到事件[%s]",
   "hiirosakura.chat_bubble.preview.lock": "锁定后将不会消失",
+
   "#Config": "配置",
   "hiirosakura.config": "Hiiro Sakura 设置",
   "hiirosakura.config.comment": "未分类的设置",
@@ -23,8 +25,10 @@
   "hiirosakura.config.tutorial_step.comment": "设置游戏教程步骤",
   "hiirosakura.config.pick_player_head_on_creative": "创造模式下选取玩家时获取头颅",
   "hiirosakura.config.pick_player_head_on_creative.comment": "创造模式下选取(默认是鼠标中键)玩家时获取头颅",
+
   "hiirosakura.config.render_info_addon": "额外信息渲染",
   "hiirosakura.config.render_info_addon.comment": "额外信息渲染",
+
   "hiirosakura.config.render_info_addon.held_item": "手持物品信息",
   "hiirosakura.config.render_info_addon.held_item.comment": "修改手持物品信息的渲染",
   "hiirosakura.config.render_info_addon.held_item.enable": "启用",
@@ -41,6 +45,7 @@
   "hiirosakura.config.render_info_addon.held_item.overall_background.comment": "整体的背景颜色",
   "hiirosakura.config.render_info_addon.held_item.item_stack_info": "物品信息",
   "hiirosakura.config.render_info_addon.held_item.item_stack_info.comment": "物品信息",
+
   "hiirosakura.config.render_info_addon.item_stack_info.script": "§c§l脚本",
   "hiirosakura.config.render_info_addon.item_stack_info.script.comment": "§c§l使用脚本可能会有严重的性能问题\n如果脚本中对 renderState[§6'xxx'§r] 进行了设置（例如 §6renderState['count'] = true§r），则优先采用脚本中的配置\n其中，§6`xxx`§r 为任意配置项名称，§6count§r 仅为示例",
   "hiirosakura.config.render_info_addon.item_stack_info.name": "name",
@@ -117,16 +122,22 @@
   "hiirosakura.config.render_info_addon.item_stack_info.disabled_item_tooltip.comment": "禁用的物品警告",
   "hiirosakura.config.render_info_addon.item_stack_info.op_nbt_warning": "op_nbt_warning",
   "hiirosakura.config.render_info_addon.item_stack_info.op_nbt_warning.comment": "NBT警告",
+
   "hiirosakura.config.render_info_addon.use_iris_compatible_pipeline": "使用兼容Iris着色器的渲染管线",
   "hiirosakura.config.render_info_addon.use_iris_compatible_pipeline.comment": "开启后渲染世界中的纹理时将使用兼容Iris开启着色器之后的渲染管线.\n建议将此快捷键与Iris着色器开关的快捷键设置为同一个.",
+
   "hiirosakura.config.render_info_addon.always_render_barrier": "总是渲染屏障方块标记",
   "hiirosakura.config.render_info_addon.always_render_barrier.comment": "总是渲染屏障方块标记",
+
   "hiirosakura.config.render_info_addon.always_render_light": "总是渲染光源方块标记",
   "hiirosakura.config.render_info_addon.always_render_light.comment": "总是渲染光源方块标记",
+
   "hiirosakura.config.render_info_addon.disable_text_obfuscation_render": "禁用文本混淆渲染",
   "hiirosakura.config.render_info_addon.disable_text_obfuscation_render.comment": "开启后将不再渲染文本的混淆效果",
+
   "hiirosakura.config.render_info_addon.disable_scoreboard_sidebar_render": "禁用侧边计分板渲染",
   "hiirosakura.config.render_info_addon.disable_scoreboard_sidebar_render.comment": "开启后将不会渲染侧边计分板",
+
   "hiirosakura.config.render_info_addon.drop_entity": "掉落物实体信息渲染",
   "hiirosakura.config.render_info_addon.drop_entity.comment": "掉落物实体相关的额外信息渲染",
   "hiirosakura.config.render_info_addon.drop_entity.enable": "启用",
@@ -155,20 +166,23 @@
   "hiirosakura.config.render_info_addon.drop_entity.experience_orb_value.comment": "开启后会渲染经验球实体的经验值",
   "hiirosakura.config.render_info_addon.drop_entity.item_stack_info": "物品信息",
   "hiirosakura.config.render_info_addon.drop_entity.item_stack_info.comment": "物品信息",
-  "hiirosakura.config.render_info_addon.tnt": "Tnt渲染",
-  "hiirosakura.config.render_info_addon.tnt.comment": "Tnt渲染相关设置",
-  "hiirosakura.config.render_info_addon.tnt.tnt_fuse": "引信渲染方式",
-  "hiirosakura.config.render_info_addon.tnt.tnt_fuse.comment": "引信渲染方式",
+
   "enum.moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.FuseRenderType.Text": "文本",
   "enum.moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.FuseRenderType.Text.comment": "以文本方式渲染文本",
   "enum.moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.FuseRenderType.ProgressBar": "进度条",
   "enum.moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.FuseRenderType.ProgressBar.comment": "以进度条渲染",
   "enum.moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.FuseRenderType.None": "不渲染",
   "enum.moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.FuseRenderType.None.comment": "不渲染",
+
+  "hiirosakura.config.render_info_addon.tnt": "Tnt渲染",
+  "hiirosakura.config.render_info_addon.tnt.comment": "Tnt渲染相关设置",
+  "hiirosakura.config.render_info_addon.tnt.tnt_fuse": "引信渲染方式",
+  "hiirosakura.config.render_info_addon.tnt.tnt_fuse.comment": "引信渲染方式",
   "hiirosakura.config.render_info_addon.tnt.only_y_rotation": "仅Y轴旋转",
   "hiirosakura.config.render_info_addon.tnt.only_y_rotation.comment": "开启后渲染的额外信息将只会随Y轴旋转",
   "hiirosakura.config.render_info_addon.tnt.use_max_light": "使用最高亮度",
   "hiirosakura.config.render_info_addon.tnt.use_max_light.comment": "开启后渲染引信时将使用最高亮度\n进读条模式渲染时在未开启Iris的着色器时,即使关闭此选项也会使用最高亮度",
+
   "hiirosakura.config.render_info_addon.creeper": "苦力怕渲染",
   "hiirosakura.config.render_info_addon.creeper.comment": "苦力怕渲染相关设置",
   "hiirosakura.config.render_info_addon.creeper.fuse": "引信渲染方式",
@@ -183,10 +197,42 @@
   "hiirosakura.config.render_info_addon.gamma_override.enable.comment": "启用或禁用伽马覆盖功能。当启用时，会覆盖默认的伽马值",
   "hiirosakura.config.render_info_addon.gamma_override.gamma": "伽马值",
   "hiirosakura.config.render_info_addon.gamma_override.gamma.comment": "设置伽马覆盖的具体数值，用于调整全局的亮度表现",
+
   "hiirosakura.config.gameplay": "游戏玩法",
   "hiirosakura.config.gameplay.comment": "游戏玩法辅助设置",
+
   "hiirosakura.config.gameplay.auto_rebirth": "自动复活",
   "hiirosakura.config.gameplay.auto_rebirth.comment": "开启后死亡时会自动复活而不显示死亡信息屏幕",
+
+  "hiirosakura.config.gameplay.chain_doors": "连锁开门",
+  "hiirosakura.config.gameplay.chain_doors.comment": "开启后，点击一扇门可以带动周围邻近的门一起开关",
+  "hiirosakura.config.gameplay.chain_doors.enable": "启用连锁",
+  "hiirosakura.config.gameplay.chain_doors.enable.comment": "是否开启连锁开门功能",
+  "hiirosakura.config.gameplay.chain_doors.chain_radius": "连锁半径",
+  "hiirosakura.config.gameplay.chain_doors.chain_radius.comment": "搜索邻近方块的半径距离",
+  "hiirosakura.config.gameplay.chain_doors.search_mode": "搜索模式",
+  "hiirosakura.config.gameplay.chain_doors.search_mode.comment": "定义搜索范围的几何形状",
+  "enum.moe.forpleuvoir.hiirosakura.functional.gameplay.ChainDoors$SearchMode.SPHERE": "球形",
+  "enum.moe.forpleuvoir.hiirosakura.functional.gameplay.ChainDoors$SearchMode.SPHERE.comment": "以点击位置为中心，按照欧几里得距离搜索",
+  "enum.moe.forpleuvoir.hiirosakura.functional.gameplay.ChainDoors$SearchMode.CUBE": "立方体",
+  "enum.moe.forpleuvoir.hiirosakura.functional.gameplay.ChainDoors$SearchMode.CUBE.comment": "以点击位置为中心，按照轴对齐包围盒搜索",
+  "hiirosakura.config.gameplay.chain_doors.chain_limit": "数量上限",
+  "hiirosakura.config.gameplay.chain_doors.chain_limit.comment": "单次连锁最多能触发的方块数量限制",
+  "hiirosakura.config.gameplay.chain_doors.key_toggle_mode": "按键切换模式",
+  "hiirosakura.config.gameplay.chain_doors.key_toggle_mode.comment": "关：按住快捷键时禁用连锁；开：按住快捷键时才启用连锁",
+  "hiirosakura.config.gameplay.chain_doors.activation_key": "触发快捷键",
+  "hiirosakura.config.gameplay.chain_doors.activation_key.comment": "配合切换模式使用的快捷键",
+  "hiirosakura.config.gameplay.chain_doors.chain_same_block": "仅限同类方块",
+  "hiirosakura.config.gameplay.chain_doors.chain_same_block.comment": "开启后，只会连锁开启相同方块类型的门",
+  "hiirosakura.config.gameplay.chain_doors.chain_sync_state": "状态同步",
+  "hiirosakura.config.gameplay.chain_doors.chain_sync_state.comment": "开启后，只会连锁那些与初始方块状态相同的门（实现全部整齐开关）",
+  "hiirosakura.config.gameplay.chain_doors.mapping": "连锁映射",
+  "hiirosakura.config.gameplay.chain_doors.mapping.comment": "配置触发方块与连锁方块之间的匹配关系",
+  "hiirosakura.double_doors.clicked_door": "触发方块匹配",
+  "hiirosakura.double_doors.clicked_door.comment": "定义哪些方块在被点击时会启动连锁逻辑",
+  "hiirosakura.double_doors.linked_door": "连锁方块匹配",
+  "hiirosakura.double_doors.linked_door.comment": "定义哪些邻近方块会被视作目标并随之联动",
+
   "hiirosakura.config.gameplay.block_break_protection": "方块破坏保护",
   "hiirosakura.config.gameplay.block_break_protection.comment": "阻止玩家破坏指定方块",
   "hiirosakura.config.gameplay.block_break_protection.enable": "启用",
@@ -194,6 +240,7 @@
   "hiirosakura.config.gameplay.block_break_protection.matcher": "方块匹配器",
   "hiirosakura.config.gameplay.block_break_protection.matcher.comment": "方块破坏保护匹配器,通过匹配的方块将不会被破坏",
   "hiirosakura.gameplay.block_break_protection.toast": "由方块破坏保护阻止的操作 -> %s",
+
   "hiirosakura.config.gameplay.item_use_intercept": "物品使用拦截",
   "hiirosakura.config.gameplay.item_use_intercept.comment": "阻止玩家使用指定物品",
   "hiirosakura.config.gameplay.item_use_intercept.enable": "启用",
@@ -201,6 +248,7 @@
   "hiirosakura.config.gameplay.item_use_intercept.matcher": "物品匹配器",
   "hiirosakura.config.gameplay.item_use_intercept.matcher.comment": "物品使用拦截匹配器,通过匹配的物品将不会被使用",
   "hiirosakura.gameplay.item_use_intercept.toast": "由物品使用拦截阻止的操作 -> %s",
+
   "hiirosakura.config.gameplay.item_drop_intercept": "物品丢弃拦截",
   "hiirosakura.config.gameplay.item_drop_intercept.comment": "阻止玩家丢弃指定物品,§c并不能确保所有丢弃操作都能被成功拦截",
   "hiirosakura.config.gameplay.item_drop_intercept.enable": "启用",
@@ -208,6 +256,7 @@
   "hiirosakura.config.gameplay.item_drop_intercept.matcher": "物品匹配器",
   "hiirosakura.config.gameplay.item_drop_intercept.matcher.comment": "物品丢弃拦截匹配器,通过匹配的物品将不会被丢弃",
   "hiirosakura.gameplay.item_drop_intercept.toast": "由物品丢弃拦截阻止的操作 -> %s",
+
   "hiirosakura.config.gameplay.gliding": "滑翔",
   "hiirosakura.config.gameplay.gliding.comment": "滑翔相关设置",
   "hiirosakura.config.gameplay.gliding.disable_firework_rocket_interaction_when_gliding": "滑翔时禁用烟花火箭交互",
@@ -216,6 +265,7 @@
   "hiirosakura.config.gameplay.gliding.quick_use_firework_rocket__when_gliding.comment": "滑翔时快捷使用烟花火箭的快捷键",
   "hiirosakura.config.gameplay.gliding.firework_matcher": "烟花",
   "hiirosakura.config.gameplay.gliding.firework_matcher.comment": "可用于加速滑翔的物品匹配器",
+
   "hiirosakura.config.gameplay.auto_switch_elytra": "自动切换鞘翅",
   "hiirosakura.config.gameplay.auto_switch_elytra.comment": "自动切换鞘翅和装备",
   "hiirosakura.config.gameplay.auto_switch_elytra.enable": "启用",
@@ -226,6 +276,7 @@
   "hiirosakura.config.gameplay.auto_switch_elytra.switchable_equip.comment": "可用于切换的装备匹配器",
   "hiirosakura.config.gameplay.auto_switch_elytra.switchable_glider": "可切换的滑翔器",
   "hiirosakura.config.gameplay.auto_switch_elytra.switchable_glider.comment": "可用于切换的滑翔器匹配器,带有'minecraft:glider'组件的物品,原版默认只有鞘翅",
+
   "hiirosakura.config.gameplay.auto_replant": "自动补种",
   "hiirosakura.config.gameplay.auto_replant.comment": "自动补种方块,设计时主要用于农作物(可能会有别的用途).\n原理为破坏指定方块时在该方块下面方块的上表面右键交互一次.\n交互时会切换到物品栏中指定的物品,交互完成后切换回去",
   "hiirosakura.config.gameplay.auto_replant.enable": "启用",
@@ -238,26 +289,31 @@
   "hiirosakura.config.gameplay.camera_switcher.shortcut_key.comment": "按下后会将相机切换至目标实体",
   "hiirosakura.config.gameplay.camera_switcher.block_player_actions": "阻断玩家操作",
   "hiirosakura.config.gameplay.camera_switcher.block_player_actions.comment": "开启后切换相机时会阻断玩家操作",
+
   "hiirosakura.config.gameplay.sound_event_filter": "音效过滤",
   "hiirosakura.config.gameplay.sound_event_filter.comment": "音效过滤相关设置",
   "hiirosakura.config.gameplay.sound_event_filter.enable": "启用",
   "hiirosakura.config.gameplay.sound_event_filter.enable.comment": "启用和禁用音效过滤",
   "hiirosakura.config.gameplay.sound_event_filter.filter_mapping": "音效过滤映射",
   "hiirosakura.config.gameplay.sound_event_filter.filter_mapping.comment": "音效过滤映射表,填写音效的注册id以过滤此音效",
+
   "hiirosakura.config.chat": "聊天消息",
   "hiirosakura.config.chat.comment": "聊天消息相关设置",
+
   "hiirosakura.config.chat.chat_inject": "聊天消息注入",
   "hiirosakura.config.chat.chat_inject.comment": "发送时的聊天消息注入",
   "hiirosakura.config.chat.chat_inject.enable": "启用",
   "hiirosakura.config.chat.chat_inject.enable.comment": "是否启用聊天消息注入",
   "hiirosakura.config.chat.chat_inject.inject_mapping": "注入映射",
   "hiirosakura.config.chat.chat_inject.inject_mapping.comment": "聊天消息注入映射,格式为 过滤器(正则表达式):消息表达式(${message}为原始消息).\n自上而下匹配,首次匹配成功时调用消息表达式并且不再进行后续匹配.\n需要优先匹配的表达式应该放在最上面",
+
   "hiirosakura.config.chat.chat_filter": "聊天消息过滤",
   "hiirosakura.config.chat.chat_filter.comment": "聊天消息过滤",
   "hiirosakura.config.chat.chat_filter.enable": "启用",
   "hiirosakura.config.chat.chat_filter.enable.comment": "是否启用聊天消息过滤",
   "hiirosakura.config.chat.chat_filter.filter_mapping": "过滤器映射",
   "hiirosakura.config.chat.chat_filter.filter_mapping.comment": "过滤器映射,使用正则表达式匹配,匹配成功则将消息过滤",
+
   "hiirosakura.config.chat.chat_bubble": "聊天气泡",
   "hiirosakura.config.chat.chat_bubble.comment": "聊天气泡相关设置",
   "hiirosakura.config.chat.chat_bubble.enable": "启用",
@@ -286,6 +342,7 @@
   "hiirosakura.config.chat.chat_bubble.server_chat_bubble_config.comment": "对应服务器所使用的气泡匹配器配置",
   "hiirosakura.config.chat.chat_bubble.match_mapping": "匹配映射",
   "hiirosakura.config.chat.chat_bubble.match_mapping.comment": "聊天气泡匹配消息的规则.\n格式为 服务器匹配正则表达式(#single 代表匹配单人游戏):消息匹配表达式(用于解析玩家名和消息内容).\n消息匹配必须包含组\"name\"和\"message\".",
+
   "#hs.enum": "枚举",
   "enum.moe.forpleuvoir.hiirosakura.functional.task.HSTickTask$ExecuteOn.StartTick": "客户端Tick开始",
   "enum.moe.forpleuvoir.hiirosakura.functional.task.HSTickTask$ExecuteOn.StartTick.comment": "客户端Tick开始",
@@ -305,6 +362,7 @@
   "enum.moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber$ExecutorType$Script.Script.comment": "执行脚本",
   "enum.moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber$ExecutorType$TickTask.TickTask": "Tick任务",
   "enum.moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber$ExecutorType$TickTask.TickTask.comment": "添加一个Tick任务",
+
   "#task": "任务",
   "hiirosakura.data.task_manager": "任务管理器设置",
   "hiirosakura.data.task_manager.comment": "任务管理器设置",
@@ -330,6 +388,7 @@
   "hiirosakura.data.task_manager.quick_tick_task_execute.gap_distance.comment": "设置任务图标之间的间距，用于调节图标的排列疏密程度",
   "hiirosakura.data.task_manager.quick_tick_task_execute.single_page_max_count": "每页最大任务数量",
   "hiirosakura.data.task_manager.quick_tick_task_execute.single_page_max_count.comment": "定义每页最多可显示的任务数量，避免页面过于拥挤",
+
   "hiirosakura.task.execute": "执行任务",
   "hiirosakura.task.manager": "任务管理器",
   "hiirosakura.task.running": "运行中的任务",
@@ -347,10 +406,12 @@
   "hiirosakura.task.un_selected": "未选择任务",
   "hiirosakura.task.re_bind_key": "重新绑定按键",
   "hiirosakura.task.re_bind_key.comment": "重新绑定按键,如果快捷键失效,尝试重新绑定.",
+
   "#hs.event": "绯樱.事件",
   "hiirosakura.event.subscriber.manager": "事件订阅管理器",
   "hiirosakura.event.subscriber.editor": "事件订阅编辑",
   "hiirosakura.event.subscriber.name": "事件订阅名称",
+
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.SoundPlayEvent": "音效播放事件",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.SoundPlayEvent.comment": "音效播放时触发",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.CommandSendEvent": "发送指令事件",
@@ -379,11 +440,12 @@
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.PlayerUseEvent.comment": "当玩家使用某种物品或与方块进行交互时触发。",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.ServerJoinEvent": "服务器加入事件",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.ServerJoinEvent.comment": "当玩家成功连接到服务器时触发。",
-  "hiirosakura.sound_effect": "音效",
+
   "#hs.custom_data": "自定义数据",
   "hiirosakura.custom_data": "自定义数据",
   "hiirosakura.custom_data.key": "键值",
   "hiirosakura.custom_data.type": "数据类型",
+
   "#hs.Chat": "聊天",
   "hiirosakura.chat.inject.regex": "正则表达式",
   "hiirosakura.chat.inject.regex.comment": "当聊天消息匹配某个正则表达式时，会执行对应的消息表达式注入",
@@ -401,7 +463,9 @@
   "hiirosakura.chat.bubble.server_config.enable_uuid.comment": "打开后将尝试匹配与消息§6UUID§r对应§6UUID§r的玩家.\n不过在大多数服务器上聊天消息会作为系统消息发送,并不会附带§6UUID§r.",
   "hiirosakura.chat.bubble.server_config.enable_profile": "玩家档案",
   "hiirosakura.chat.bubble.server_config.enable_profile.comment": "打开后将尝试匹配与消息附带的§6玩家档案§r匹配的玩家.\n不过在大多数服务器上聊天消息会作为系统消息发送,并不会附带§6玩家档案§r.",
+
   "#hs.matcher": "匹配器",
+
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry$MatchMode.Include": "正向匹配",
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry$MatchMode.Include.comment": "正向匹配",
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry$MatchMode.Exclude": "反向匹配",
@@ -412,6 +476,7 @@
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher$MatchMode.NoneMatch.comment": "所有选项都不匹配则通过",
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher$MatchMode.AllMatch": "全部匹配",
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher$MatchMode.AllMatch.comment": "所有选项都匹配则通过",
+
   "hiirosakura.tag": "标签",
   "hiirosakura.item_component": "物品组件",
   "hiirosakura.get_from_handheld_item": "从手中物品中获取",
@@ -429,6 +494,7 @@
   "hiirosakura.item_stack_matcher_entry.enchantment.level_range": "附魔等级范围",
   "hiirosakura.item_stack_matcher_entry.tag": "匹配标签",
   "hiirosakura.item_stack_matcher_entry.data_component_type": "匹配组件",
+
   "hiirosakura.get_from_target_block": "从目标方块中获取",
   "hiirosakura.block_property": "方块属性",
   "hiirosakura.block_info_matcher": "方块匹配器",
@@ -439,6 +505,7 @@
   "hiirosakura.block_info_matcher_entry.pos": "匹配位置",
   "hiirosakura.block_info_matcher_entry.tag": "匹配标签",
   "hiirosakura.block_info_matcher_entry.property": "匹配属性",
+
   "#hs.auto_replant": "绯樱.自动补种",
   "hiirosakura.auto_replant.map_entry.target_block": "目标方块",
   "hiirosakura.auto_replant.map_entry.replant_item": "补种物品",
@@ -446,6 +513,7 @@
   "hiirosakura.auto_replant.map_entry.target_block.comment": "被破坏时触发自动补种的目标方块",
   "hiirosakura.auto_replant.map_entry.replant_item.comment": "触发自动补种时,种下的物品",
   "hiirosakura.auto_replant.map_entry.ground_block.comment": "目标方块下一格方块\n只有匹配的地面方块才会触发补种",
+
   "#hs.item_editor": "物品编辑器",
   "hiirosakura.item_editor": "物品编辑器",
   "hiirosakura.item_editor.add_from_handheld_item": "以手持物品为基础添加",

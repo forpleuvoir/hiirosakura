@@ -24,6 +24,7 @@ object HSConfigWrapper {
         register<ConfigStringBlockInfoItemStackPairMap> { c, m -> ConfigStringBlockInfoItemStackPairMapWrapper(c, modifier = m) }
 
         register<ConfigAutoReplantMapEntryList> { c, m -> AutoReplantMapEntryListWrapper(c, m) }
+        register<ConfigChainDoorsMapEntryList> { c, m -> ChainDoorsMapEntryListWrapper(c, m) }
     }
 
 

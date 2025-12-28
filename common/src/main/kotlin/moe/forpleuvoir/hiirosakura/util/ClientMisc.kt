@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.util.defaultLaunch
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.client.Minecraft
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.TooltipFlag
@@ -23,7 +23,7 @@ private val logger = logger("ClientMisc")
 val registryAccess get() = mc.player?.level()?.registryAccess()
 
 val Minecraft.tooltipFlag: TooltipFlag
-    get() = this.options.advancedItemTooltips.pick(TooltipFlag.ADVANCED, TooltipFlag.NORMAL)
+    get() = this.options.advancedItemTooltips.either(TooltipFlag.ADVANCED, TooltipFlag.NORMAL)
 
 
 fun PoseStack.restPoseStackKeepTranslation(): PoseStack {

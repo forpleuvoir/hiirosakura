@@ -161,6 +161,14 @@ object HSLang {
     val autoReplantMapEntryGroundBlock get() = lang("auto_replant.map_entry.ground_block")
     val autoReplantMapEntryGroundBlockComment get() = lang("auto_replant.map_entry.ground_block.comment")
 
+    //------------ DoubleDoors ------------\\
+
+    val doubleDoorsClickedDoor get() = lang("double_doors.clicked_door")
+    val doubleDoorsClickedDoorComment get() = lang("double_doors.clicked_door.comment")
+
+    val doubleDoorsLinkedDoor get() = lang("double_doors.linked_door")
+    val doubleDoorsLinkedDoorComment get() = lang("double_doors.linked_door.comment")
+
     //------------ ItemEditor ------------\\
 
     val itemEditor get() = lang("item_editor")

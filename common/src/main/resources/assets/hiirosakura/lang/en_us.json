@@ -1,4 +1,5 @@
 {
+  "hiirosakura.sound_effect": "Sound Effect",
   "hiirosakura.cant_be_empty": "%s can't be empty",
   "hiirosakura.press_to_copy": "Press %s to copy",
   "hiirosakura.copy_success": "Copy Success",
@@ -14,6 +15,7 @@
   "hiirosakura.event.enable.success": "Event [%s] enable status:",
   "hiirosakura.event.enable.not_found": "Event [%s] not found",
   "hiirosakura.chat_bubble.preview.lock": "It will not disappear after locking",
+
   "#Config": "Configuration",
   "hiirosakura.config": "Hiiro Sakura Settings",
   "hiirosakura.config.comment": "Uncategorized settings",
@@ -23,8 +25,10 @@
   "hiirosakura.config.tutorial_step.comment": "Game Tutorial Step",
   "hiirosakura.config.pick_player_head_on_creative": "Give PlayerHead on Pick in Creative Mode",
   "hiirosakura.config.pick_player_head_on_creative.comment": "In creative mode, give the playerHead by pick a player (default: middle mouse button)",
+
   "hiirosakura.config.render_info_addon": "Additional Info Rendering",
   "hiirosakura.config.render_info_addon.comment": "Additional info rendering",
+
   "hiirosakura.config.render_info_addon.held_item": "Held Item Info",
   "hiirosakura.config.render_info_addon.held_item.comment": "Modify the rendering of held item information",
   "hiirosakura.config.render_info_addon.held_item.enable": "Enable",
@@ -41,6 +45,7 @@
   "hiirosakura.config.render_info_addon.held_item.overall_background.comment": "The overall background color",
   "hiirosakura.config.render_info_addon.held_item.item_stack_info": "ItemStack Info",
   "hiirosakura.config.render_info_addon.held_item.item_stack_info.comment": "ItemStack Info",
+
   "hiirosakura.config.render_info_addon.item_stack_info.script": "§c§lScript",
   "hiirosakura.config.render_info_addon.item_stack_info.script.comment": "§c§lUsing scripts can have serious performance issues\nIf renderState[§6'xxx'§r] is set in the script (for example, §6renderState['count'] = true§r), the script's configuration will take precedence\nHere, §6`xxx`§r represents any configuration item name; §6'count'§r is just an example",
   "hiirosakura.config.render_info_addon.item_stack_info.name": "name",
@@ -117,16 +122,22 @@
   "hiirosakura.config.render_info_addon.item_stack_info.disabled_item_tooltip.comment": "Disabled item warning",
   "hiirosakura.config.render_info_addon.item_stack_info.op_nbt_warning": "op_nbt_warning",
   "hiirosakura.config.render_info_addon.item_stack_info.op_nbt_warning.comment": "NBT warning",
+
   "hiirosakura.config.render_info_addon.use_iris_compatible_pipeline": "Use Iris Shader Compatible Rendering Pipeline",
   "hiirosakura.config.render_info_addon.use_iris_compatible_pipeline.comment": "When enabled, the rendering pipeline compatible with Iris shaders will be used when rendering textures in the world.\nIt is recommended to set this shortcut key to the same as the Iris shader toggle shortcut.",
+
   "hiirosakura.config.render_info_addon.always_render_barrier": "Always render the barrier block markers",
   "hiirosakura.config.render_info_addon.always_render_barrier.comment": "Always render the barrier block markers",
+
   "hiirosakura.config.render_info_addon.always_render_light": "Always render the light source block markers",
   "hiirosakura.config.render_info_addon.always_render_light.comment": "Always render the light source block markers",
+
   "hiirosakura.config.render_info_addon.disable_text_obfuscation_render": "Disable Text Obfuscation Rendering",
   "hiirosakura.config.render_info_addon.disable_text_obfuscation_render.comment": "When enabled, the obfuscation effect on text will not be rendered.",
+
   "hiirosakura.config.render_info_addon.disable_scoreboard_sidebar_render": "Disable Scoreboard Sidebar Rendering",
   "hiirosakura.config.render_info_addon.disable_scoreboard_sidebar_render.comment": "When enabled, the scoreboard sidebar will not be rendered",
+
   "hiirosakura.config.render_info_addon.drop_entity": "Dropped Item Entity Info Rendering",
   "hiirosakura.config.render_info_addon.drop_entity.comment": "Additional info rendering related to dropped item entities",
   "hiirosakura.config.render_info_addon.drop_entity.enable": "Enable",
@@ -155,20 +166,23 @@
   "hiirosakura.config.render_info_addon.drop_entity.experience_orb_value.comment": "When enabled, the XP of the XP orb entity will be rendered",
   "hiirosakura.config.render_info_addon.drop_entity.item_stack_info": "ItemStack info",
   "hiirosakura.config.render_info_addon.drop_entity.item_stack_info.comment": "ItemStack info",
-  "hiirosakura.config.render_info_addon.tnt": "TNT Rendering",
-  "hiirosakura.config.render_info_addon.tnt.comment": "Settings related to TNT rendering",
-  "hiirosakura.config.render_info_addon.tnt.tnt_fuse": "Fuse Rendering Style",
-  "hiirosakura.config.render_info_addon.tnt.tnt_fuse.comment": "Box: Progress bar style, Text: Text style, None: No rendering",
+
   "enum.moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.FuseRenderType.Text": "Text",
   "enum.moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.FuseRenderType.Text.comment": "Render using text format",
   "enum.moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.FuseRenderType.ProgressBar": "ProgressBar",
   "enum.moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.FuseRenderType.ProgressBar.comment": "Render using ProgressBar",
   "enum.moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.FuseRenderType.None": "None",
   "enum.moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.FuseRenderType.None.comment": "Do not render",
+
+  "hiirosakura.config.render_info_addon.tnt": "TNT Rendering",
+  "hiirosakura.config.render_info_addon.tnt.comment": "Settings related to TNT rendering",
+  "hiirosakura.config.render_info_addon.tnt.tnt_fuse": "Fuse Rendering Style",
+  "hiirosakura.config.render_info_addon.tnt.tnt_fuse.comment": "Box: Progress bar style, Text: Text style, None: No rendering",
   "hiirosakura.config.render_info_addon.tnt.only_y_rotation": "Only Y-Axis Rotation",
   "hiirosakura.config.render_info_addon.tnt.only_y_rotation.comment": "When enabled, the additional rendered information will only rotate along the Y-axis",
   "hiirosakura.config.render_info_addon.tnt.use_max_light": "Use Maximum Brightness",
   "hiirosakura.config.render_info_addon.tnt.use_max_light.comment": "When enabled, maximum brightness will be used when rendering the fuse\nIn progress bar mode rendering, when Iris shaders are not enabled, maximum brightness will be used even if this option is disabled",
+
   "hiirosakura.config.render_info_addon.creeper": "Creeper Rendering",
   "hiirosakura.config.render_info_addon.creeper.comment": "Settings related to Creeper rendering",
   "hiirosakura.config.render_info_addon.creeper.fuse": "Fuse Rendering Style",
@@ -183,10 +197,42 @@
   "hiirosakura.config.render_info_addon.gamma_override.enable.comment": "Enable or disable the Gamma Override feature. When enabled, it will override the default gamma value",
   "hiirosakura.config.render_info_addon.gamma_override.gamma": "Gamma Value",
   "hiirosakura.config.render_info_addon.gamma_override.gamma.comment": "Set the specific gamma value for the override, used to adjust global brightness performance",
+
   "hiirosakura.config.gameplay": "Gameplay",
   "hiirosakura.config.gameplay.comment": "Gameplay assistance settings",
+
   "hiirosakura.config.gameplay.auto_rebirth": "Auto Rebirth",
   "hiirosakura.config.gameplay.auto_rebirth.comment": "When enabled, it will automatically revive without displaying the death message screen",
+
+  "hiirosakura.config.gameplay.chain_doors": "Chain Doors",
+  "hiirosakura.config.gameplay.chain_doors.comment": "When enabled, interacting with a door will trigger nearby doors to open or close together",
+  "hiirosakura.config.gameplay.chain_doors.enable": "Enable Chain",
+  "hiirosakura.config.gameplay.chain_doors.enable.comment": "Whether to enable the Chain Doors feature",
+  "hiirosakura.config.gameplay.chain_doors.chain_radius": "Chain Radius",
+  "hiirosakura.config.gameplay.chain_doors.chain_radius.comment": "The radius within which to search for nearby blocks",
+  "hiirosakura.config.gameplay.chain_doors.search_mode": "Search Mode",
+  "hiirosakura.config.gameplay.chain_doors.search_mode.comment": "Defines the geometric shape of the search range",
+  "enum.moe.forpleuvoir.hiirosakura.functional.gameplay.ChainDoors$SearchMode.SPHERE": "Sphere",
+  "enum.moe.forpleuvoir.hiirosakura.functional.gameplay.ChainDoors$SearchMode.SPHERE.comment": "Search based on Euclidean distance from the clicked position",
+  "enum.moe.forpleuvoir.hiirosakura.functional.gameplay.ChainDoors$SearchMode.CUBE": "Cube",
+  "enum.moe.forpleuvoir.hiirosakura.functional.gameplay.ChainDoors$SearchMode.CUBE.comment": "Search based on Axis-Aligned Bounding Box (AABB) from the clicked position",
+  "hiirosakura.config.gameplay.chain_doors.chain_limit": "Chain Limit",
+  "hiirosakura.config.gameplay.chain_doors.chain_limit.comment": "Maximum number of blocks that can be triggered in a single chain",
+  "hiirosakura.config.gameplay.chain_doors.key_toggle_mode": "Key Toggle Mode",
+  "hiirosakura.config.gameplay.chain_doors.key_toggle_mode.comment": "Off: Disable chain while holding the key; On: Enable chain only while holding the key",
+  "hiirosakura.config.gameplay.chain_doors.activation_key": "Activation Key",
+  "hiirosakura.config.gameplay.chain_doors.activation_key.comment": "The hotkey used in conjunction with the Toggle Mode",
+  "hiirosakura.config.gameplay.chain_doors.chain_same_block": "Same Block Only",
+  "hiirosakura.config.gameplay.chain_doors.chain_same_block.comment": "When enabled, only blocks of the same type as the initial door will be chained",
+  "hiirosakura.config.gameplay.chain_doors.chain_sync_state": "Sync State",
+  "hiirosakura.config.gameplay.chain_doors.chain_sync_state.comment": "When enabled, only doors with the same initial state as the clicked door will be chained (ensuring uniform movement)",
+  "hiirosakura.config.gameplay.chain_doors.mapping": "Chain Mappings",
+  "hiirosakura.config.gameplay.chain_doors.mapping.comment": "Configure matching rules between trigger blocks and linked blocks",
+  "hiirosakura.double_doors.clicked_door": "Trigger Block Matcher",
+  "hiirosakura.double_doors.clicked_door.comment": "Defines which blocks will initiate the chain logic when interacted with",
+  "hiirosakura.double_doors.linked_door": "Linked Block Matcher",
+  "hiirosakura.double_doors.linked_door.comment": "Defines which nearby blocks will be considered as targets for the chain reaction",
+
   "hiirosakura.config.gameplay.block_break_protection": "Block Break Protection",
   "hiirosakura.config.gameplay.block_break_protection.comment": "Prevent players from breaking specified blocks",
   "hiirosakura.config.gameplay.block_break_protection.enable": "Enable",
@@ -194,6 +240,7 @@
   "hiirosakura.config.gameplay.block_break_protection.matcher": "Block Matcher",
   "hiirosakura.config.gameplay.block_break_protection.matcher.comment": "Block Break Protection matcher, blocks matching the criteria will not be broken",
   "hiirosakura.gameplay.block_break_protection.toast": "Action blocked by Block Break Protection -> %s ",
+
   "hiirosakura.config.gameplay.item_use_intercept": "Item Use Intercept",
   "hiirosakura.config.gameplay.item_use_intercept.comment": "Prevent players from using specified items",
   "hiirosakura.config.gameplay.item_use_intercept.enable": "Enable",
@@ -201,6 +248,7 @@
   "hiirosakura.config.gameplay.item_use_intercept.matcher": "Item Matcher",
   "hiirosakura.config.gameplay.item_use_intercept.matcher.comment": "Item Use Intercept matcher, items matching the criteria will not be usable",
   "hiirosakura.gameplay.item_use_intercept.toast": "Action blocked by Item Use Intercept -> %s",
+
   "hiirosakura.config.gameplay.item_drop_intercept": "Item Drop Interception",
   "hiirosakura.config.gameplay.item_drop_intercept.comment": "Prevent players from dropping specified items, §c but it cannot ensure that all drop actions will be successfully intercepted.",
   "hiirosakura.config.gameplay.item_drop_intercept.enable": "Enable",
@@ -208,6 +256,7 @@
   "hiirosakura.config.gameplay.item_drop_intercept.matcher": "Item Matcher",
   "hiirosakura.config.gameplay.item_drop_intercept.matcher.comment": "The item drop interception matcher, items that match will not be dropped",
   "hiirosakura.gameplay.item_drop_intercept.toast": "Action blocked by item drop interception -> %s",
+
   "hiirosakura.config.gameplay.gliding": "Gliding",
   "hiirosakura.config.gameplay.gliding.comment": "Settings related to gliding",
   "hiirosakura.config.gameplay.gliding.disable_firework_rocket_interaction_when_gliding": "Disable firework rocket interaction while gliding",
@@ -216,6 +265,7 @@
   "hiirosakura.config.gameplay.gliding.quick_use_firework_rocket__when_gliding.comment": "Keybind for quick use of firework rockets while gliding",
   "hiirosakura.config.gameplay.gliding.firework_matcher": "Firework",
   "hiirosakura.config.gameplay.gliding.firework_matcher.comment": "Item matcher for items that can accelerate gliding",
+
   "hiirosakura.config.gameplay.auto_switch_elytra": "Auto Switch Elytra",
   "hiirosakura.config.gameplay.auto_switch_elytra.comment": "Automatically switches between Elytra and other equipment",
   "hiirosakura.config.gameplay.auto_switch_elytra.enable": "Enable",
@@ -226,6 +276,7 @@
   "hiirosakura.config.gameplay.auto_switch_elytra.switchable_equip.comment": "Matcher for equipment that can be switched",
   "hiirosakura.config.gameplay.auto_switch_elytra.switchable_glider": "Switchable glider",
   "hiirosakura.config.gameplay.auto_switch_elytra.switchable_glider.comment": "Matcher for gliders that can be switched. Items with the 'minecraft:glider' component, by default only elytra",
+
   "hiirosakura.config.gameplay.auto_replant": "Auto Replant",
   "hiirosakura.config.gameplay.auto_replant.comment": "Automatically replants blocks, primarily designed for crops (might have other uses).\nThe mechanism works by simulating a right-click interaction on the top surface of the block below the broken block.\nDuring interaction, it will switch to the specified item in the inventory and switch back after the interaction is complete.",
   "hiirosakura.config.gameplay.auto_replant.enable": "Enable",
@@ -238,26 +289,31 @@
   "hiirosakura.config.gameplay.camera_switcher.shortcut_key.comment": "Pressing it will switch the camera to the target entity",
   "hiirosakura.config.gameplay.camera_switcher.block_player_actions": "Block Player Actions",
   "hiirosakura.config.gameplay.camera_switcher.block_player_actions.comment": "When enabled, player actions will be blocked when switching the camera",
+
   "hiirosakura.config.gameplay.sound_event_filter": "Sound Effect Filter",
   "hiirosakura.config.gameplay.sound_event_filter.comment": "Settings related to sound effect filtering",
   "hiirosakura.config.gameplay.sound_event_filter.enable": "Enable",
   "hiirosakura.config.gameplay.sound_event_filter.enable.comment": "Enable or disable sound effect filtering",
   "hiirosakura.config.gameplay.sound_event_filter.filter_mapping": "Sound Effect Filter Mapping",
   "hiirosakura.config.gameplay.sound_event_filter.filter_mapping.comment": "Sound effect filter mapping table. Fill in the registered IDs of the sound effects to filter them",
+
   "hiirosakura.config.chat": "Chat Messages",
   "hiirosakura.config.chat.comment": "Settings related to chat messages",
+
   "hiirosakura.config.chat.chat_inject": "Chat Message Injection",
   "hiirosakura.config.chat.chat_inject.comment": "Chat message injection when sending",
   "hiirosakura.config.chat.chat_inject.enable": "Enable",
   "hiirosakura.config.chat.chat_inject.enable.comment": "Whether to enable chat message injection",
   "hiirosakura.config.chat.chat_inject.inject_mapping": "Injection Mapping",
   "hiirosakura.config.chat.chat_inject.inject_mapping.comment": "Mapping for chat message injection. The format is filter (regular expression): message expression (${message} refers to the original message).\n Matches are processed from top to bottom. Upon the first successful match, the message expression is invoked, and further matches are skipped.\n Expressions that need higher priority should be placed at the top.",
+
   "hiirosakura.config.chat.chat_filter": "Chat Message Filter",
   "hiirosakura.config.chat.chat_filter.comment": "Chat Message Filtering",
   "hiirosakura.config.chat.chat_filter.enable": "Enable",
   "hiirosakura.config.chat.chat_filter.enable.comment": "Whether to enable chat message filtering",
   "hiirosakura.config.chat.chat_filter.filter_mapping": "Filter Mappings",
   "hiirosakura.config.chat.chat_filter.filter_mapping.comment": "Filter mappings using regular expressions; messages that match will be discarded",
+
   "hiirosakura.config.chat.chat_bubble": "Chat Bubble",
   "hiirosakura.config.chat.chat_bubble.comment": "Settings related to the chat bubble",
   "hiirosakura.config.chat.chat_bubble.enable": "Enable",
@@ -286,6 +342,7 @@
   "hiirosakura.config.chat.chat_bubble.server_chat_bubble_config.comment": "Corresponds to the config of the chat bubble matcher used by the server",
   "hiirosakura.config.chat.chat_bubble.match_mapping": "Match Mapping",
   "hiirosakura.config.chat.chat_bubble.match_mapping.comment": "Rules for matching chat bubble messages.\nFormat: Server match regex (#single represents single-player matching): message match expression (used to parse player name and message content).\nMessage matches must include groups \"name\" and \"message\".",
+
   "#hs.enum": "Enumeration",
   "enum.moe.forpleuvoir.hiirosakura.functional.task.HSTickTask$ExecuteOn.StartTick": "Client Tick Start",
   "enum.moe.forpleuvoir.hiirosakura.functional.task.HSTickTask$ExecuteOn.StartTick.comment": "Client Tick Start",
@@ -305,6 +362,7 @@
   "enum.moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber$ExecutorType$Script.Script.comment": "Execute a script",
   "enum.moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber$ExecutorType$TickTask.TickTask": "Tick Task",
   "enum.moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber$ExecutorType$TickTask.TickTask.comment": "Add a Tick Task",
+
   "#task": "Task",
   "hiirosakura.data.task_manager": "Task Manager Settings",
   "hiirosakura.data.task_manager.comment": "Task Manager Settings",
@@ -330,6 +388,7 @@
   "hiirosakura.data.task_manager.quick_tick_task_execute.gap_distance.comment": "Sets the gap distance between task icons to adjust their arrangement density",
   "hiirosakura.data.task_manager.quick_tick_task_execute.single_page_max_count": "Max Task Count Per Page",
   "hiirosakura.data.task_manager.quick_tick_task_execute.single_page_max_count.comment": "Defines the maximum number of tasks displayed per page to prevent overcrowding",
+
   "hiirosakura.task.execute": "Execute Task",
   "hiirosakura.task.manager": "Task Manager",
   "hiirosakura.task.running": "Running tasks",
@@ -347,10 +406,12 @@
   "hiirosakura.task.un_selected": "No task selected",
   "hiirosakura.task.re_bind_key": "Rebind ShortcutKey",
   "hiirosakura.task.re_bind_key.comment": "Rebind the keys and try to rebind them if the shortcut doesn't work.",
+
   "#hs.event": "Hiirosakura.Event",
   "hiirosakura.event.subscriber.manager": "Event Subscription Manager",
   "hiirosakura.event.subscriber.editor": "Event Subscription Editor",
   "hiirosakura.event.subscriber.name": "Event Subscription Name",
+
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.SoundPlayEvent": "Sound Play Event",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.SoundPlayEvent.comment": "Broadcast when a sound is played",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.CommandSendEvent": "Command Send Event",
@@ -379,11 +440,12 @@
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.PlayerUseEvent.comment": "Broadcast when a player uses an item or interacts with a block.",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.ServerJoinEvent": "Server Join Event",
   "event.moe.forpleuvoir.hiirosakura.functional.event.events.ServerJoinEvent.comment": "Broadcast when a player successfully connects to the server.",
-  "hiirosakura.sound_effect": "Sound Effect",
+
   "#hs.custom_data": "Custom Data",
   "hiirosakura.custom_data": "Custom Data",
   "hiirosakura.custom_data.key": "Key",
   "hiirosakura.custom_data.type": "Data Type",
+
   "#hs.Chat": "Chat",
   "hiirosakura.chat.inject.regex": "Regex",
   "hiirosakura.chat.inject.regex.comment": "When a chat message matches a regular expression, the corresponding message expression injection will be executed.",
@@ -401,7 +463,9 @@
   "hiirosakura.chat.bubble.server_config.enable_uuid.comment": "When enabled, it will attempt to match the player with the §6UUID§r corresponding to the message's §6UUID§r.\nHowever, on most servers, chat messages are sent as system messages and do not include a §6UUID§r.",
   "hiirosakura.chat.bubble.server_config.enable_profile": "Player Profile",
   "hiirosakura.chat.bubble.server_config.enable_profile.comment": "When enabled, it will attempt to match the player with the §6Player Profile§r attached to the message.\nHowever, on most servers, chat messages are sent as system messages and do not include a §6Player Profile§r.",
+
   "#hs.matcher": "Matcher",
+
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry$MatchMode.Include": "Include",
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry$MatchMode.Include.comment": "Include Matching",
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry$MatchMode.Exclude": "Exclude",
@@ -412,6 +476,7 @@
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher$MatchMode.NoneMatch.comment": "Pass if none of the options match",
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher$MatchMode.AllMatch": "AllMatch",
   "enum.moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher$MatchMode.AllMatch.comment": "Pass if all options match",
+
   "hiirosakura.tag": "Tag",
   "hiirosakura.item_component": "Item Component",
   "hiirosakura.get_from_handheld_item": "Select from Handheld Item",
@@ -429,6 +494,7 @@
   "hiirosakura.item_stack_matcher_entry.enchantment.level_range": "Enchantment level range",
   "hiirosakura.item_stack_matcher_entry.tag": "Matching Tag",
   "hiirosakura.item_stack_matcher_entry.data_component_type": "Matching Component",
+
   "hiirosakura.get_from_target_block": "Select from Target Block",
   "hiirosakura.block_property": "Block Property",
   "hiirosakura.block_info_matcher": "BlockInfo Matcher",
@@ -439,6 +505,7 @@
   "hiirosakura.block_info_matcher_entry.pos": "Matching Position",
   "hiirosakura.block_info_matcher_entry.tag": "Matching Tag",
   "hiirosakura.block_info_matcher_entry.property": "Matching Property",
+
   "#hs.auto_replant": "Hiiro Sakura. Auto Replant",
   "hiirosakura.auto_replant.map_entry.target_block": "Target Block",
   "hiirosakura.auto_replant.map_entry.replant_item": "Replant Item",
@@ -446,6 +513,7 @@
   "hiirosakura.auto_replant.map_entry.target_block.comment": "The target block that triggers automatic replanting when destroyed",
   "hiirosakura.auto_replant.map_entry.replant_item.comment": "The item to be planted when automatic replanting is triggered",
   "hiirosakura.auto_replant.map_entry.ground_block.comment": "The block below the target block\n Automatic replanting is only triggered if the ground block matches",
+
   "#hs.item_editor": "itemEditor",
   "hiirosakura.item_editor": "ItemEditor",
   "hiirosakura.item_editor.add_from_handheld_item": "Add from Handheld Item",

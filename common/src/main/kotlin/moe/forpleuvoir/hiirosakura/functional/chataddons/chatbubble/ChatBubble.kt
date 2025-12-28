@@ -24,7 +24,7 @@ import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.text.size
 import moe.forpleuvoir.ibukigourd.text.wrapToLines
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.client.gui.Font
 import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.SubmitNodeCollector
@@ -147,7 +147,7 @@ class ChatBubble(
             nodeCollector: SubmitNodeCollector,
             packedLight: Int
         ) {
-            val packedLight = (ChatBubbleHandler.useMaxLight || !useIrisCompatiblePipeline.value).pick(LightTexture.FULL_BRIGHT, packedLight)
+            val packedLight = (ChatBubbleHandler.useMaxLight || !useIrisCompatiblePipeline.value).either(LightTexture.FULL_BRIGHT, packedLight)
 
             poseStack.pushPose()
             val s = -0.025f * renderState.scale

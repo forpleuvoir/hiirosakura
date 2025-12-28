@@ -53,7 +53,7 @@ import moe.forpleuvoir.ibukigourd.util.textRenderer
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.ioLaunch
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner
@@ -346,7 +346,7 @@ private fun ContainerScope.MoveButton(
         round = 0,
         modifier = Modifier.hoverText(IGLang.moveUp).padding(1).active(index > 0)
     ) {
-        Icon(IconTextures.UP, modifier = Modifier, color = Colors.GRAY.alpha((index > 0).pick(1f, .25f)))
+        Icon(IconTextures.UP, modifier = Modifier, color = Colors.GRAY.alpha((index > 0).either(1f, .25f)))
 
         click {
             ItemStackManager.moveElement(index, (index - 1).coerceAtLeast(0))
@@ -362,7 +362,7 @@ private fun ContainerScope.MoveButton(
         Icon(
             IconTextures.DOWN,
             modifier = Modifier,
-            color = Colors.GRAY.alpha((index != ItemStackManager.lastIndex).pick(1f, .25f))
+            color = Colors.GRAY.alpha((index != ItemStackManager.lastIndex).either(1f, .25f))
         )
 
         click {

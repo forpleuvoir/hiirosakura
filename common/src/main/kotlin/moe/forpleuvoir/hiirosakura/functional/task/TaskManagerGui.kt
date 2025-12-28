@@ -44,7 +44,7 @@ import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.collection.notifiableList
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.world.item.Items
 import kotlin.time.Duration.Companion.seconds
 
@@ -361,7 +361,7 @@ fun ContainerScope.MoveButton(
         round = 0,
         modifier = Modifier.hoverText(IGLang.moveUp).padding(1).active(index > 0)
     ) {
-        Icon(IconTextures.UP, modifier = Modifier, color = Colors.GRAY.alpha((index > 0).pick(1f, .25f)))
+        Icon(IconTextures.UP, modifier = Modifier, color = Colors.GRAY.alpha((index > 0).either(1f, .25f)))
         click {
             moveUp()
         }
@@ -374,7 +374,7 @@ fun ContainerScope.MoveButton(
         Icon(
             IconTextures.DOWN,
             modifier = Modifier,
-            color = Colors.GRAY.alpha((index != lastIndex).pick(1f, .25f))
+            color = Colors.GRAY.alpha((index != lastIndex).either(1f, .25f))
         )
         click {
             moveDown()

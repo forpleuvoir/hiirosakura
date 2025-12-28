@@ -45,7 +45,7 @@ import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 
 /**
  * - Object
@@ -234,7 +234,7 @@ private fun ContainerScope.ObjectEntry(
             }
             RemoveButton { valueRemover() }
             Icon(
-                mutableStateOf(expanded) { it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN) },
+                mutableStateOf(expanded) { it.either(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN) },
                 modifier = Modifier.margin(right = 10f)
             )
         }
@@ -314,7 +314,7 @@ private fun ContainerScope.ArrayEntry(
             }
             RemoveButton { valueRemover() }
             Icon(
-                mutableStateOf(expanded) { it.pick(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN) },
+                mutableStateOf(expanded) { it.either(WidgetTextures.DROP_DOWN_MENU_ARROW_UP, WidgetTextures.DROP_DOWN_MENU_ARROW_DOWN) },
                 modifier = Modifier.margin(right = 10f)
             )
         }

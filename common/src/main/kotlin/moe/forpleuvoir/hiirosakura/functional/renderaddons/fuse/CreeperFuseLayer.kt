@@ -12,7 +12,7 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
-import moe.forpleuvoir.nebula.common.util.primitive.pick
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import moe.forpleuvoir.nebula.config.item.impl.boolean
 import moe.forpleuvoir.nebula.config.item.impl.enum
 import net.minecraft.client.gui.Font
@@ -60,7 +60,7 @@ class CreeperFuseLayer(
     ) {
         if (renderType == FuseRenderType.None) return
 
-        val packedLight = useMaxLight.pick(LightTexture.FULL_BRIGHT, packedLight)
+        val packedLight = useMaxLight.either(LightTexture.FULL_BRIGHT, packedLight)
         val fuse = state.swelling.coerceIn(0f..1f)
         val progress = (1f - (fuse / MAX_FUSE)).coerceIn(0f, 1f)
         val color = HSVColor(0f).lerp(HSVColor(120f), QuadEasing.easeIn(progress))

@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.gameplay
 
+import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainDoors
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
 

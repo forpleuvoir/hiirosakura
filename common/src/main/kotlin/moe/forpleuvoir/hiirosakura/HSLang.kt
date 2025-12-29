@@ -161,13 +161,31 @@ object HSLang {
     val autoReplantMapEntryGroundBlock get() = lang("auto_replant.map_entry.ground_block")
     val autoReplantMapEntryGroundBlockComment get() = lang("auto_replant.map_entry.ground_block.comment")
 
-    //------------ DoubleDoors ------------\\
+    //------------ ChainDoors ------------\\
 
-    val doubleDoorsClickedDoor get() = lang("double_doors.clicked_door")
-    val doubleDoorsClickedDoorComment get() = lang("double_doors.clicked_door.comment")
+    val chainDoorsOriginDoor get() = lang("chain_doors.origin_door")
+    val chainDoorsOriginDoorComment get() = lang("chain_doors.origin_door.comment")
 
-    val doubleDoorsLinkedDoor get() = lang("double_doors.linked_door")
-    val doubleDoorsLinkedDoorComment get() = lang("double_doors.linked_door.comment")
+    val chainDoorsChainDoor get() = lang("chain_doors.chain_door")
+    val chainDoorsChainDoorComment get() = lang("chain_doors.chain_door.comment")
+
+    val chainDoorsKeyKeyToggleMode get() = lang("chain_doors.key_toggle_mode")
+    val chainDoorsKeyKeyToggleModeComment get() = lang("chain_doors.key_toggle_mode.comment")
+
+    val chainDoorsStrategy get() = lang("chain_doors.strategy")
+    val chainDoorsStrategyComment get() = lang("chain_doors.strategy.comment")
+
+    val chainDoorsStrategyRadius get() = lang("chain_doors.strategy.radius").style { hover(chainDoorsStrategyRadiusComment) }
+    val chainDoorsStrategyRadiusComment get() = lang("chain_doors.strategy.radius.comment")
+    val chainDoorsStrategyShape get() = lang("chain_doors.strategy.shape").style { hover(chainDoorsStrategyShapeComment) }
+    val chainDoorsStrategyShapeComment get() = lang("chain_doors.strategy.shape.comment")
+    val chainDoorsStrategySameBlock get() = lang("chain_doors.strategy.same_block").style { hover(chainDoorsStrategySameBlockComment) }
+    val chainDoorsStrategySameBlockComment get() = lang("chain_doors.strategy.same_block.comment")
+    val chainDoorsStrategySyncState get() = lang("chain_doors.strategy.sync_state").style { hover(chainDoorsStrategySyncStateComment) }
+    val chainDoorsStrategySyncStateComment get() = lang("chain_doors.strategy.sync_state.comment")
+    val chainDoorsStrategyLimit get() = lang("chain_doors.strategy.limit").style { hover(chainDoorsStrategyLimitComment) }
+    val chainDoorsStrategyLimitComment get() = lang("chain_doors.strategy.limit.comment")
+
 
     //------------ ItemEditor ------------\\
 

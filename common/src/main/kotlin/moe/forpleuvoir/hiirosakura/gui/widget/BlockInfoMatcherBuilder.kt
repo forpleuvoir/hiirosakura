@@ -335,13 +335,13 @@ private fun TagMatchEntryBuilder(
     ) {
         var editor by lateInitValueOf<TextEditorWidget>()
         Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
-            Column(horizontalAlignment = Alignment.Left,verticalArrangement = Arrangement.spacedBy(5f)) {
+            Column(horizontalAlignment = Alignment.Left, verticalArrangement = Arrangement.spacedBy(5f)) {
                 if (!tags.isNullOrEmpty()) {
                     Text(HSLang.getFromTargetBlock, modifier = Modifier.height(20f))
                 }
                 Text(HSLang.tag, modifier = Modifier.height(20f))
             }
-            Column(horizontalAlignment = Alignment.Right,verticalArrangement = Arrangement.spacedBy(5f)) {
+            Column(horizontalAlignment = Alignment.Right, verticalArrangement = Arrangement.spacedBy(5f)) {
                 if (!tags.isNullOrEmpty()) {
                     Selector(
                         tags,
@@ -443,7 +443,7 @@ private fun PropertyMatchEntryBuilder(
 }
 
 
-//------------ ItemStackMatcherTableColumn ------------\\
+//------------ BlockInfoMatcherTableColumn ------------\\
 
 fun <T> TableScope<T>.BlockInfoMatcherTableColumn(
     consumer: (Int, T, BlockInfoMatcher) -> Unit,
@@ -557,10 +557,8 @@ fun ContainerScope.BlockInfoEntryScriptInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     ModeRect(entry)
-    Text(
-        mutableStateBy { blockInfoMatcherEntryScript.append(entry.asText) },
-        modifier = Modifier.maxWidth(180f)
-    )
+    Text(blockInfoMatcherEntryPos)
+    Text(mutableStateBy { entry.asText }, modifier = Modifier.maxWidth(180f))
 }
 
 fun ContainerScope.BlockInfoEntryPosInfo(
@@ -569,7 +567,8 @@ fun ContainerScope.BlockInfoEntryPosInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     ModeRect(entry)
-    Text(mutableStateBy { blockInfoMatcherEntryPos.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
+    Text(blockInfoMatcherEntryPos)
+    Text(mutableStateBy { entry.asText }, modifier = Modifier.maxWidth(180f))
 }
 
 fun ContainerScope.BlockInfoEntryTagInfo(
@@ -578,7 +577,8 @@ fun ContainerScope.BlockInfoEntryTagInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     ModeRect(entry)
-    Text(mutableStateBy { blockInfoMatcherEntryTag.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
+    Text(blockInfoMatcherEntryTag)
+    Text(mutableStateBy { entry.asText }, modifier = Modifier.maxWidth(180f))
 }
 
 fun ContainerScope.BlockInfoEntryPropertyInfo(
@@ -587,8 +587,6 @@ fun ContainerScope.BlockInfoEntryPropertyInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     ModeRect(entry)
-    Text(
-        mutableStateBy { blockInfoMatcherEntryProperty.append(entry.asText) },
-        modifier = Modifier.maxWidth(180f)
-    )
+    Text(blockInfoMatcherEntryProperty)
+    Text(mutableStateBy { entry.asText }, modifier = Modifier.maxWidth(180f))
 }

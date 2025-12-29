@@ -749,10 +749,8 @@ fun ContainerScope.ItemStackEntryNameInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     ModeRect(entry)
-    Text(
-        mutableStateBy { itemStackMatcherEntryScript.append(entry.asText) },
-        modifier = Modifier.maxWidth(180f)
-    )
+    Text(itemStackMatcherEntryScript)
+    Text(mutableStateBy { entry.asText }, modifier = Modifier.maxWidth(180f))
 }
 
 fun ContainerScope.ItemStackEntryScriptInfo(
@@ -761,10 +759,8 @@ fun ContainerScope.ItemStackEntryScriptInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     ModeRect(entry)
-    Text(
-        mutableStateBy { itemStackMatcherEntryScript.append(entry.asText) },
-        modifier = Modifier.maxWidth(180f)
-    )
+    Text(itemStackMatcherEntryScript)
+    Text(mutableStateBy { entry.asText }, modifier = Modifier.maxWidth(180f))
 }
 
 fun ContainerScope.ItemStackEntryCountInfo(
@@ -773,7 +769,8 @@ fun ContainerScope.ItemStackEntryCountInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     ModeRect(entry)
-    Text(mutableStateBy { itemStackMatcherEntryCount.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
+    Text(itemStackMatcherEntryCount)
+    Text(mutableStateBy { entry.asText }, modifier = Modifier.maxWidth(180f))
 }
 
 fun ContainerScope.ItemStackEntryRarityInfo(
@@ -782,7 +779,8 @@ fun ContainerScope.ItemStackEntryRarityInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     ModeRect(entry)
-    Text(mutableStateBy { itemStackMatcherEntryRarity.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
+    Text(itemStackMatcherEntryRarity)
+    Text(mutableStateBy { entry.asText }, modifier = Modifier.maxWidth(180f))
 }
 
 fun ContainerScope.ItemStackEntryEnchantmentInfo(
@@ -791,7 +789,8 @@ fun ContainerScope.ItemStackEntryEnchantmentInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     ModeRect(entry)
-    Text(mutableStateBy { itemStackMatcherEntryEnchantment.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
+    Text(itemStackMatcherEntryEnchantment)
+    Text(mutableStateBy { entry.asText }, modifier = Modifier.maxWidth(180f))
 }
 
 fun ContainerScope.ItemStackEntryTagInfo(
@@ -800,7 +799,8 @@ fun ContainerScope.ItemStackEntryTagInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     ModeRect(entry)
-    Text(mutableStateBy { itemStackMatcherEntryTag.append(entry.asText) }, modifier = Modifier.maxWidth(180f))
+    Text(itemStackMatcherEntryTag)
+    Text(mutableStateBy { entry.asText }, modifier = Modifier.maxWidth(180f))
 }
 
 fun ContainerScope.ItemStackEntryDataComponentTypeInfo(
@@ -809,8 +809,6 @@ fun ContainerScope.ItemStackEntryDataComponentTypeInfo(
     horizontalArrangement = Arrangement.spacedBy(2f, Alignment.Left)
 ) {
     ModeRect(entry)
-    Text(
-        mutableStateBy { itemStackMatcherEntryDataComponentType.append(entry.asText) },
-        modifier = Modifier.maxWidth(180f)
-    )
+    Text(itemStackMatcherEntryDataComponentType)
+    Text(mutableStateBy { entry.asText }, modifier = Modifier.maxWidth(180f))
 }

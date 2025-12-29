@@ -36,7 +36,7 @@ class ScriptExecutor(
             ScriptEngine(
                 mapOf(
                     "client" to mc,
-                    "common" to CommonApi
+                    "common" to CommonApi.INSTANCE
                 ),
                 permissions = JexlPermissions.parse(
                     "java.lang.*",

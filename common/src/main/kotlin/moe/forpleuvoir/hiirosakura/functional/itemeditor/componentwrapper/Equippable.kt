@@ -253,7 +253,7 @@ private fun AllowedEntitiesEditor(
         }
     }
 
-    TableWrapped(set, Modifier.width(260f), tableModifier = { Modifier.height(150f) }) {
+    TableWrapped(set, tableModifier = { Modifier.height(150f).width(260f) }) {
         recompose = { executeRecompose() }
         Header(1) {
             Text("entityType", setting = TextWidget.Setting(horizontalAlignment = Alignment.CenterHorizontally))

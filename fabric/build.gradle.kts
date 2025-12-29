@@ -32,8 +32,8 @@ dependencies {
 
     compileOnly(libs.nebula)
 
-    implementation(libs.jexl)
-    include(libs.jexl)
+    implementation(libs.bundles.jexl)
+    include(libs.bundles.jexl)
 
     modImplementation(libs.ibukigourd.fabric)
 }

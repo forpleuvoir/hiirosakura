@@ -94,8 +94,8 @@ dependencies {
     implementation(libs.forgeKotlin)
     compileOnly(libs.nebula)
 
-    implementation(libs.jexl)
-    jarJar(libs.jexl)
+    implementation(libs.bundles.jexl)
+    jarJar(libs.bundles.jexl)
 
     implementation(libs.ibukigourd.neoforge)
 }

@@ -25,7 +25,7 @@ dependencies {
     compileOnly(libs.minxinExtras.common)
     compileOnly(libs.nebula)
 
-    compileOnly(libs.jexl)
+    compileOnly(libs.bundles.jexl)
 
     annotationProcessor(libs.minxinExtras.common)
 

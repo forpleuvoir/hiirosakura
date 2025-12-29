@@ -14,6 +14,7 @@ object CommonScriptLoader : SimpleResourceReloaderListener<List<String>>() {
     private val log = logger()
 
     override fun prepare(sharedState: PreparableReloadListener.SharedState): List<String> {
+        CommonApi.INSTANCE
         return buildList {
             sharedState.resourceManager()
                 .listResources("script") { it.path.endsWith(".jexl") }

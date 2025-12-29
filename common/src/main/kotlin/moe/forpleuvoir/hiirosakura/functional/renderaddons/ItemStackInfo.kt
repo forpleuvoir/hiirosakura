@@ -47,9 +47,9 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
         }
     }
 
-    val name by boolean("name", false).setTranslatedText()
+    val name by boolean("name", true).setTranslatedText()
 
-    val count by boolean("count", false).setTranslatedText()
+    val count by boolean("count", true).setTranslatedText()
 
     val damage = boolean("damage", false).setTranslatedText()
 

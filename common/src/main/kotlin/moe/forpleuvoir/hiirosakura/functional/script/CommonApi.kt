@@ -26,11 +26,15 @@ import moe.forpleuvoir.nebula.config.ConfigValue
 @Suppress("unused")
 interface CommonApi {
 
-    companion object : CommonApi {
+    companion object {
+
+        val INSTANCE by lazy {
+            object : CommonApi {
+                override val logger: ModLogger by lazy { logger("CommonApi") }
+            }
+        }
 
         private val globalData = mutableMapOf<String, Any>()
-
-        override val logger = logger("CommonApi")
 
     }
 

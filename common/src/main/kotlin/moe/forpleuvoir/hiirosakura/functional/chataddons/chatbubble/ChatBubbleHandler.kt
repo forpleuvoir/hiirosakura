@@ -38,7 +38,7 @@ object ChatBubbleHandler : ModConfigContainer("chat_bubble") {
 
     val scale by vector2f("scale", Vector2f(1f, 1f), Vector2f(0.1f, 0.1f), Vector2f(10f, 10f))
 
-    val useMaxLight by boolean("use_max_light", true)
+    val useMaxLight by boolean("use_max_light", false)
 
     val maxWidth by float("max_width", 120f, 9f, 480f)
 

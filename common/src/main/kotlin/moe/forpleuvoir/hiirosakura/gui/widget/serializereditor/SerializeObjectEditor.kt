@@ -95,8 +95,8 @@ fun ContainerScope.SerializeObjectEditor(
                 }
             ) {
                 DeleteButton(
-                    { HSLang.deleteConfirm(key) },
-                    { recompose.getValue()() }
+                    confirmMessage = { HSLang.deleteConfirm(key) },
+                    recompose = { recompose.getValue()() }
                 ) {
                     serializeObject.remove(key)
                 }
@@ -224,8 +224,8 @@ fun ContainerScope.SerializeObjectEntryEditor(
                             }
                         ) {
                             DeleteButton(
-                                { HSLang.deleteConfirm(key) },
-                                { recompose.getValue()() }
+                                confirmMessage = { HSLang.deleteConfirm(key) },
+                                recompose = { recompose.getValue()() }
                             ) {
                                 serializeObject.remove(key)
                             }

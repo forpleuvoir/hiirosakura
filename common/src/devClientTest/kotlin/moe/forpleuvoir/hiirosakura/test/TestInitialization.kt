@@ -6,15 +6,18 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.gui.widget.BlockInfoMatcherBuilder
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemStackMatcherBuilder
-import moe.forpleuvoir.hiirosakura.gui.widget.RouletteSelector
+import moe.forpleuvoir.hiirosakura.gui.widget.radialmenu.NewRadialMenu
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager
 import moe.forpleuvoir.ibukigourd.event.events.IbukigourdInitializerEvent
 import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
+import moe.forpleuvoir.ibukigourd.gui.modifier.MousePosition
+import moe.forpleuvoir.ibukigourd.gui.modifier.debugInfo
 import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
@@ -57,6 +60,7 @@ object TestInitialization {
             register(Keyboard.KP_5) {
                 test5().open()
             }
+
         }
 
     }
@@ -82,7 +86,11 @@ fun test2() {
     }
 }
 
-fun test3() = BoxScreen {
+fun test3() = BoxScreen(
+    Modifier.debugInfo {
+        MousePosition()
+    }
+) {
     val items = listOf(
         ItemStack(Items.LAPIS_LAZULI),
         ItemStack(Items.QUARTZ),
@@ -116,9 +124,9 @@ fun test3() = BoxScreen {
     )
     val scale = 1.5f
     val (width, height) = 16f * scale to 16f * scale
-    RouletteSelector(
+    NewRadialMenu(
         items,
-        maxOptions = 8,
+        optionCount = 3,
         onLeftPressSelected = {
             Toast.showToast(text = "已选择${it?.hoverName?.string}")
         },

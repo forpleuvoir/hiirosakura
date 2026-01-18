@@ -1,4 +1,4 @@
-package moe.forpleuvoir.hiirosakura.gui.widget
+package moe.forpleuvoir.hiirosakura.gui.widget.radialmenu
 
 import moe.forpleuvoir.hiirosakura.gui.extensions.Quadrilateral
 import moe.forpleuvoir.hiirosakura.gui.extensions.pushQuad
@@ -23,7 +23,7 @@ import org.joml.Vector2fc
 import kotlin.math.cos
 import kotlin.math.sin
 
-fun <T> ContainerScope.RouletteSelector(
+fun <T> ContainerScope.RadialMenu(
     options: List<T>,
     innerRadius: Float = 60f,
     outerRadius: Float = 120f,
@@ -31,7 +31,7 @@ fun <T> ContainerScope.RouletteSelector(
     gapDistance: Float = 2f,
     maxOptions: Int = 8,// 单页最多选项数量
     selectedColor: State<ARGBColor> = stateOf(Colors.YELLOW),
-    unselectedColor: State<ARGBColor> = stateOf(Colors.BLACK.alpha(0.5f)),
+    idleColor: State<ARGBColor> = stateOf(Colors.BLACK.alpha(0.5f)),
     modifier: Modifier = Modifier,
     onLeftPressSelected: GuiWidget.(option: T?) -> Unit = {},
     onRightPressSelected: GuiWidget.(option: T?) -> Unit = {},
@@ -105,20 +105,24 @@ fun <T> ContainerScope.RouletteSelector(
                             selectedIndex = -1
                         }
                         if (index == selectedIndex)
+                            //渲染选中轮盘扇区
                             pushQuad(quad, selectedColor.getValue())
                         else
-                            pushQuad(quad, unselectedColor.getValue())
+                            //渲染轮盘扇区
+                            pushQuad(quad, idleColor.getValue())
                     }
                 }
             }
             .render { guiGraphics, x, y, delta ->
                 val page = getPage(options, currentOptions, currentPageIndex)
+                //渲染选中项,并不是轮盘部分而是渲染在中心
                 selectedRenderer(page.getOrNull(selectedIndex), guiGraphics, center, x, y, delta)
 
                 val angleStep = (2 * Math.PI).toFloat() / maxOptions
 
-                var startAngle = angleStep - (Math.PI / 2).toFloat() - if (maxOptions % 2 == 0) 0f else angleStep * 0.25f
+                var startAngle = -(Math.PI / 2).toFloat()  // 第一个选项的中心在顶部
 
+                //渲染选项
                 page.forEachIndexed { index, entry ->
                     optionRenderer(
                         entry,
@@ -131,7 +135,7 @@ fun <T> ContainerScope.RouletteSelector(
                     )
                     startAngle += angleStep
                 }
-
+                //渲染当前页面的横条
                 if (maxPage > 0) {
                     val box = Box(center.x() - 30f, center.y() + 15f, Size(60f, 2f))
                     val width = (box.width - maxPage + 1) / (maxPage + 1)
@@ -165,7 +169,8 @@ fun calculateQuadrilaterals(
 
     val quadrilaterals = mutableListOf<Quadrilateral>()
 
-    var startAngle = angleStep - (Math.PI / 2).toFloat() - if (options % 2 == 0) angleStep / 2 else angleStep * 0.75f
+//    var startAngle = angleStep - (Math.PI / 2).toFloat() - if (options % 2 == 0) angleStep / 2 else angleStep * 0.75f
+    var startAngle = -(Math.PI / 2).toFloat() - angleStep / 2
     var endAngle = startAngle + angleStep
 
     repeat(options) {

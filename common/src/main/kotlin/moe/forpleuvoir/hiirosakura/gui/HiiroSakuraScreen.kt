@@ -4,12 +4,11 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.common.HiiroSakuraDataManager
 import moe.forpleuvoir.hiirosakura.config.HSConfig
-import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
+import moe.forpleuvoir.hiirosakura.functional.customradialmenu.CustomRadialMenuManagerGui
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventManagerGui
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.ItemStackManager
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.ItemStackManagerGui
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManagerGui
-import moe.forpleuvoir.hiirosakura.gui.widget.TreeNodeEditor
 import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.config.translateText
@@ -62,6 +61,7 @@ fun HiiroSakuraScreen() = TabScreen(
         }
     },
     modifier = Modifier.onClose {
+        @Suppress("DeferredResultUnused")
         HSConfig.asyncSave()
         HiiroSakuraDataManager.asyncSave()
         registryAccess?.let {
@@ -78,8 +78,11 @@ fun HiiroSakuraScreen() = TabScreen(
     inactiveColor = stateOf(Color.ofRGB(0xB3F2FF))
 ) {
     HSTab(HSConfig.translateText) { ConfigManagerWrapper(HSConfig) }
-    HSTab(HSLang.customData) { TreeNodeEditor(CustomData.data, Modifier.fill(), listModifier = { Modifier.weight(1).fill() }) }
+//    HSTab(HSLang.customData) { TreeNodeEditor(CustomData.data, Modifier.fill(), listModifier = { Modifier.weight(1).fill() }) }
     HSTab(HSLang.taskManager) { TaskManagerGui() }
+    HSTab(HSLang.customRadialMenu) {
+        CustomRadialMenuManagerGui()
+    }
     HSTab(HSLang.eventSubscriberManager) { HSEventManagerGui() }
     registryAccess?.let { registryManager ->
         HSTab(

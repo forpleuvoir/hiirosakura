@@ -153,12 +153,12 @@ fun TooltipDisplayEditor(
                 Text(text = IGLang.remove)
             }.Column { index, _ ->
                 DeleteButton(
-                    {
+                    confirmMessage = {
                         HSLang.deleteConfirm(
                             hiddenComponents[index].keyOrUnknown(registryAccess!!)
                         )
                     },
-                    { recompose() }
+                    recompose = { recompose() }
                 ) {
                     hiddenComponents.removeAt(index)
                 }

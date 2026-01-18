@@ -6,11 +6,11 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import moe.forpleuvoir.nebula.serialization.extensions.toJavaMap
 
 object CustomData : HiiroSakuraData {
 
-    override val key: String
-        get() = "custom_data"
+    override val key: String = "custom_data"
 
     val data: LinkedHashMap<String, Any?> = LinkedHashMap()
 
@@ -21,7 +21,7 @@ object CustomData : HiiroSakuraData {
     override fun deserialization(serializeElement: SerializeElement) {
         serializeElement.checkType<SerializeObject, Unit> {
             runCatching {
-                it.toMap()
+                it.toJavaMap()
             }.getOrNull()?.let { map ->
                 data.clear()
                 data.putAll(map)

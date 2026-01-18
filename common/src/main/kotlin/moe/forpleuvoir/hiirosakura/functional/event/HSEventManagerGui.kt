@@ -133,7 +133,7 @@ fun ContainerScope.HSEventManagerGui(
                         eventSubscriber.eventType.translateText.withColor(Colors.DARK_GOLD),
                         Modifier.hoverText(eventSubscriber.eventType.translateComment)
                     )
-                    Text(Literal("=>").withColor(Colors.LIME))
+                    Text(Literal("→").withColor(Colors.LIME))
                     Text(InlineStyleText(eventSubscriber.name))
                 }
                 //enabled

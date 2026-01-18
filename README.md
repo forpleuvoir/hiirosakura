@@ -2,7 +2,7 @@
 
 <img src = "doc/img/logo.png" width ="256" alt="icon">
 
-![版本](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fforpleuvoir%2Fhiirosakura%2Frefs%2Fheads%2F1.21.4%2Fgradle%2Flibs.versions.toml&query=%24.versions.modVersion&label=%E7%89%88%E6%9C%AC)
+![Hiirosakura](https://img.shields.io/modrinth/v/hiirosakura?label=Version&color=FF69B4)
 
 **HiiroSakura** 是一个致力于提升 Minecraft 游戏体验的多功能模组，提供玩法增强、聊天功能扩展、渲染信息优化以及灵活的配置管理界面。
 
@@ -10,7 +10,7 @@
 
 <img src="https://github.com/forpleuvoir/ibuki_gourd/blob/dev/doc/logo.png?raw=true" width="16"/>[IbukiGourd](https://modrinth.com/mod/ibukigourd)
 
-![ibukigourd](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fforpleuvoir%2Fhiirosakura%2Frefs%2Fheads%2F1.21.4%2Fsrc%2Fmain%2Fresources%2Ffabric.mod.json&query=%24.depends.ibukigourd&label=ibukigourd)
+![ibukigourd](https://img.shields.io/modrinth/v/ibukigourd?label=Modrinth&color=8647B3)
 
 模组所有功能都为默认关闭
 
@@ -32,6 +32,7 @@
 
 ### **2. 游戏玩法增强**
 - 自动播种
+- 链式开门
 - 物品使用拦截
 - 方块破坏保护
 - 自动切换胸甲鞘翅
@@ -45,7 +46,7 @@
 - **聊天气泡**
 
 ## **🌟 自定义任务**
-- 支持发送消息,指令,以及编写`JavaScript`脚本自定义任务。
+- 支持发送消息,指令,以及编写`Jexl`脚本自定义任务。
 - 通过快捷键或者任务执行界面快速执行任务。
 
 ## **📌 事件订阅**
@@ -60,12 +61,3 @@
   - **执行自定义任务**
 
 ### 🌟 **享受更优雅的 Minecraft 游戏体验吧！**
-
-## 鸣谢
-
-> [IntelliJ IDEA](https://zh.wikipedia.org/zh-hans/IntelliJ_IDEA) 是一个在各个方面都最大程度地提高开发人员的生产力的
-> IDE，适用于 JVM 平台语言。
-
-特别感谢 [JetBrains](https://www.jetbrains.com)
-为开源项目提供免费的 [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=mirai) 等 IDE 的授权  
-[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="200"/>](https://www.jetbrains.com)

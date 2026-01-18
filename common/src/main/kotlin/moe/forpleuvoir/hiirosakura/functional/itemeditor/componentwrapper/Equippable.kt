@@ -267,8 +267,8 @@ private fun AllowedEntitiesEditor(
             Text(text = IGLang.remove, setting = TextWidget.Setting(horizontalAlignment = Alignment.CenterHorizontally))
         }.Column { index, _ ->
             DeleteButton(
-                { HSLang.deleteConfirm(set[index].description) },
-                { recompose() }
+                confirmMessage = { HSLang.deleteConfirm(set[index].description) },
+                recompose = { recompose() }
             ) {
                 set.removeAt(index)
             }

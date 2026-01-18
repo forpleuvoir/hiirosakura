@@ -90,8 +90,8 @@ fun ContainerScope.DataComponentWrapperRow(
     Row(Modifier, horizontalArrangement, verticalAlignment) {
         content()
         DeleteButton(
-            { HSLang.deleteConfirm(key) },
-            { }
+            confirmMessage = { HSLang.deleteConfirm(key) },
+            recompose = { }
         ) {
             removeAction()
             this@DataComponentWrapperRow.executeRecompose()

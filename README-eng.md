@@ -2,7 +2,7 @@
 
 <img src = "doc/img/logo.png" width ="256" alt="icon">
 
-![Version](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fforpleuvoir%2Fhiirosakura%2Frefs%2Fheads%2F1.21.4%2Fgradle%2Flibs.versions.toml&query=%24.versions.modVersion&label=Version)
+![Hiirosakura](https://img.shields.io/modrinth/v/hiirosakura?label=Version&color=FF69B4)
 
 **HiiroSakura** is a versatile mod dedicated to enhancing the Minecraft gaming experience. It offers gameplay enhancements, chat feature expansions, rendering optimizations, and a flexible configuration management interface.
 
@@ -10,7 +10,7 @@
 
 <img src="https://github.com/forpleuvoir/ibuki_gourd/blob/dev/doc/logo.png?raw=true" width="16"/>[IbukiGourd](https://modrinth.com/mod/ibukigourd)
 
-![ibukigourd](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fforpleuvoir%2Fhiirosakura%2Frefs%2Fheads%2F1.21.4%2Fsrc%2Fmain%2Fresources%2Ffabric.mod.json&query=%24.depends.ibukigourd&label=IbukiGourd)
+![ibukigourd](https://img.shields.io/modrinth/v/ibukigourd?label=Modrinth&color=8647B3)
 
 All features of the mod are disabled by default.
 
@@ -43,7 +43,7 @@ All features of the mod are disabled by default.
 - **Chat bubbles**.
 
 ## 🌟 **Custom Tasks**
-- Support sending messages, commands, or writing `JavaScript` for custom tasks.
+- Support sending messages, commands, or writing `Jexl` for custom tasks.
 - Execute tasks quickly via hotkeys or a Gui execution interface.
 
 ## 📌 **Event Subscription**
@@ -58,10 +58,3 @@ Events can trigger multiple actions:
 - **Trigger custom tasks**.
 
 ### 🌟 **Enjoy a More Elegant Minecraft Gaming Experience!**
-
-## Credits
-
-> [IntelliJ IDEA](https://en.wikipedia.org/wiki/IntelliJ_IDEA) is an IDE designed to maximize developer productivity in every aspect and is suited for JVM-based languages.
-
-Special thanks to [JetBrains](https://www.jetbrains.com) for providing free licenses for open-source projects, including [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=mirai) and other IDE tools.  
-[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="200"/>](https://www.jetbrains.com)

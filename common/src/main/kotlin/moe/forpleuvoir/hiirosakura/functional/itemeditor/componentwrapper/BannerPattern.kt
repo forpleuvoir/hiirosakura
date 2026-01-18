@@ -143,10 +143,8 @@ fun BannerPatternComponentEditor(
                 Text(text = IGLang.remove)
             }.Column { index, _ ->
                 DeleteButton(
-                    {
-                        HSLang.deleteConfirm(layers[index].description())
-                    },
-                    { recompose() }
+                    confirmMessage = { HSLang.deleteConfirm(layers[index].description()) },
+                    recompose = { recompose() }
                 ) {
                     layers.removeAt(index)
                     sizeChanged(layers.size)

@@ -154,8 +154,8 @@ fun ContainerScope.ConfigStringItemStackBlockInfoPairMapWrapper(
                 Text(IGLang.remove)
             }.Column { index, (key, _) ->
                 DeleteButton(
-                    { IGLang.removeConfirm(key) },
-                    { this@TableConfigMapWrappedButton.executeRecompose() }
+                    confirmMessage = { IGLang.removeConfirm(key) },
+                    recompose = { this@TableConfigMapWrappedButton.executeRecompose() }
                 ) {
                     config.remove(key)
                 }

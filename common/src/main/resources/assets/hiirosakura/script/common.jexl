@@ -1,4 +1,10 @@
+cmd = (cmd) -> common:sendCommand(cmd);
+
+msg = (msg) -> common:sendMessage(msg);
+
 toast = (msg) -> common:toast(msg);
+
+notify = (title, msg) -> common:notify(title, msg);
 
 state = (key) -> {
     var current = common:getGlobalData("_hs_" + key);
@@ -8,13 +14,13 @@ state = (key) -> {
 };
 
 move = (dir, duration) -> {
-    if (dir == "forward") {
+    if (dir == "forward" || dir == "w") {
         common:moveForward(duration);
-    } else if (dir == "back") {
+    } else if (dir == "back" || dir == "s") {
         common:moveBack(duration);
-    } else if (dir == "left") {
+    } else if (dir == "left" || dir == "a") {
         common:moveLeft(duration);
-    } else if (dir == "right") {
+    } else if (dir == "right" || dir == "d") {
         common:moveRight(duration);
     } else {
         common:toast("&{#FF0000}unknown direction " + dir);

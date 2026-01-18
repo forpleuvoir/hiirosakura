@@ -193,7 +193,7 @@ fun ItemEnchantmentsComponentEditor(
                 Text(text = IGLang.remove)
             }.Column { (index, _) ->
                 DeleteButton(
-                    {
+                    confirmMessage = {
                         HSLang.deleteConfirm(
                             "${enchantments[index].value().description.string} ${
                                 Translatable(
@@ -203,7 +203,7 @@ fun ItemEnchantmentsComponentEditor(
                             }"
                         )
                     },
-                    { recompose() }
+                    recompose = { recompose() }
                 ) {
                     enchantments.removeAt(index)
                     levels.removeAt(index)

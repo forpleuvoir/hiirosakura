@@ -23,5 +23,9 @@ object HSRenderPipeline {
             .build()
     )
 
+    val POSITION_COLOR_STRIP: RenderPipeline = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+        .withLocation(identifier("pipeline/position_color_strip"))
+        .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLE_STRIP)
+        .build()
 
 }

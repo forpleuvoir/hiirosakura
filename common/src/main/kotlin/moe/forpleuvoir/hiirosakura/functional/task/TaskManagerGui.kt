@@ -1,9 +1,11 @@
 package moe.forpleuvoir.hiirosakura.functional.task
 
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask.ExecutorType
 import moe.forpleuvoir.hiirosakura.functional.task.KeyBindTickTask.Companion.withKeyBind
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemSelector
+import moe.forpleuvoir.hiirosakura.gui.widget.TreeNodeEditor
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.gui.base.Transform
@@ -22,6 +24,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.ConfigsWrapper
 import moe.forpleuvoir.ibukigourd.gui.modifier.bgHoverHighlightBox
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
+import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.*
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.FlatButton
@@ -101,6 +104,14 @@ fun ContainerScope.TaskManagerGui(
                 }.onFailure {
                     Toast.showToast(it.message ?: "")
                 }
+            }
+        }
+        Button {
+            Text(HSLang.customData)
+            click {
+                BoxScreen {
+                    TreeNodeEditor(CustomData.data, Modifier.fill(), listModifier = { Modifier.weight(1).fill() })
+                }.open()
             }
         }
         Button {
@@ -224,7 +235,7 @@ fun TaskEditor(
     val executeOn = mutableStateOf(task.executeOn)
     val executorType = mutableStateOf(task.executorType)
     val icon = mutableStateOf(
-        if (task is KeyBindTickTask) {
+        if (task is IconTickTask) {
             task.icon
         } else Items.MELON
     )
@@ -271,7 +282,7 @@ fun TaskEditor(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(5f)
             ) {
-                if (task is KeyBindTickTask) {
+                if (task is IconTickTask) {
                     //icon
                     ItemSelector(
                         icon,
@@ -311,8 +322,39 @@ fun TaskEditor(
                         return@click
                     }
                     newTaskConsumer(
-                        if (task is KeyBindTickTask) {
-                            KeyBindTickTask(
+                        when (task) {
+                            is KeyBindTickTask -> {
+                                KeyBindTickTask(
+                                    name = name,
+                                    setting = TickTask.Setting(
+                                        delay = delay.getValue(),
+                                        period = period.getValue(),
+                                        times = times.getValue()
+                                    ),
+                                    executeOn = executeOn.getValue(),
+                                    executorType = executorType.getValue(),
+                                    icon = icon.getValue(),
+                                    keyBind = task.keyBind,
+                                    executor = executorType.getValue().fromString(executor)
+                                )
+                            }
+
+                            is IconTickTask    -> {
+                                IconTickTask(
+                                    name = name,
+                                    setting = TickTask.Setting(
+                                        delay = delay.getValue(),
+                                        period = period.getValue(),
+                                        times = times.getValue()
+                                    ),
+                                    executeOn = executeOn.getValue(),
+                                    executorType = executorType.getValue(),
+                                    executor = executorType.getValue().fromString(executor),
+                                    icon = icon.getValue()
+                                )
+                            }
+
+                            else               -> HSTickTask(
                                 name = name,
                                 setting = TickTask.Setting(
                                     delay = delay.getValue(),
@@ -321,22 +363,9 @@ fun TaskEditor(
                                 ),
                                 executeOn = executeOn.getValue(),
                                 executorType = executorType.getValue(),
-                                icon = icon.getValue(),
-                                keyBind = task.keyBind,
                                 executor = executorType.getValue().fromString(executor)
                             )
-                        } else
-                            HSTickTask(
-                                name = name,
-                                setting = TickTask.Setting(
-                                    delay = delay.getValue(),
-                                    period = period.getValue(),
-                                    times = times.getValue()
-                                ),
-                                executeOn = executeOn.getValue(),
-                                executorType = executorType.getValue(),
-                                executor = executorType.getValue().fromString(executor)
-                            )
+                        }
                     )
                     closeScreen()
                 }

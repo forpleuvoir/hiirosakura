@@ -140,7 +140,7 @@ fun ContainerScope.ConfigChainDoorsRuleListWrapper(
             Header {
                 Text(IGLang.remove)
             }.Column { index, entry ->
-                DeleteButton({ IGLang.removeConfirm("$index") }, recompose) {
+                DeleteButton(confirmMessage = { IGLang.removeConfirm("$index") }, recompose = recompose) {
                     config.removeAt(index)
                 }
             }

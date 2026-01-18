@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.script
 
+import com.mojang.blaze3d.platform.InputConstants
 import kotlinx.coroutines.delay
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
@@ -14,6 +15,8 @@ import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.config.translationKey
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
+import moe.forpleuvoir.ibukigourd.input.KeyCode
+import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.task.scheduleEndTick
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
 import moe.forpleuvoir.ibukigourd.text.Texts
@@ -62,6 +65,26 @@ interface CommonApi {
 
     fun toast(content: String) {
         Toast.showToast(text = Texts.inlineStyle(content))
+    }
+
+    fun onKey(keyCode: Int, scancode: Int, action: Int, modifiers: Int) {
+        InputSimulator.onKey(keyCode, scancode, action, modifiers)
+    }
+
+    fun keyPress(keyCode: Int, duration: Long) {
+        InputSimulator.keyPress(KeyCode.fromCode(keyCode), duration)
+    }
+
+    fun keyPress(key: String, duration: Long) {
+        InputSimulator.keyPress(KeyCode.fromCode(InputConstants.getKey(key).value), duration)
+    }
+
+    fun mousePress(mouseCode: Int, duration: Long) {
+        InputSimulator.mousePress(Mouse.fromCode(mouseCode), duration)
+    }
+
+    fun mousePress(mouse: String, duration: Long) {
+        InputSimulator.mousePress(Mouse.fromCode(InputConstants.getKey(mouse).value), duration)
     }
 
     fun attack(duration: Long = 1) {
@@ -120,11 +143,9 @@ interface CommonApi {
         return CustomData.data[key]
     }
 
-    fun delayLaunch(duration: Long, action: Runnable) {
-        defaultLaunch {
-            delay(duration)
-            action.run()
-        }
+    fun delayLaunch(duration: Long, action: Runnable) = defaultLaunch {
+        delay(duration)
+        action.run()
     }
 
     fun scheduleStartTick(delay: Int, runner: Runnable) {

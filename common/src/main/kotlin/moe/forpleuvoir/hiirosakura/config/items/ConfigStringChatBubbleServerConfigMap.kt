@@ -66,7 +66,7 @@ fun ContainerScope.ConfigStringChatBubbleServerConfigMapWrapper(
     ) {
         TableConfigMapWrappedButton(
             config,
-            title = config.translateTextWithParent(1, " -> "),
+            title = config.translateTextWithParent(1, " → "),
             newValue = {
                 var name = ServerMarker.name
                 if (config.getValue().containsKey(name)) {
@@ -134,8 +134,8 @@ fun ContainerScope.ConfigStringChatBubbleServerConfigMapWrapper(
                 Text(IGLang.remove)
             }.Column { index, (key, _) ->
                 DeleteButton(
-                    { IGLang.removeConfirm(key) },
-                    { this@TableConfigMapWrappedButton.executeRecompose() }
+                    confirmMessage = { IGLang.removeConfirm(key) },
+                    recompose = { this@TableConfigMapWrappedButton.executeRecompose() }
                 ) {
                     config.remove(key)
                 }

@@ -139,8 +139,8 @@ fun LoreComponentEditor(
                         }
 
                         DeleteButton(
-                            { HSLang.deleteConfirm(lines[index]) },
-                            { recompose() }
+                            confirmMessage = { HSLang.deleteConfirm(lines[index]) },
+                            recompose = { recompose() }
                         ) {
                             lines.removeAt(index)
                         }

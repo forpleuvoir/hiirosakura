@@ -84,8 +84,8 @@ fun ContainerScope.SerializeArrayEditor(
                 }
             ) {
                 DeleteButton(
-                    { HSLang.deleteConfirm(index) },
-                    { recompose() }
+                    confirmMessage = { HSLang.deleteConfirm(index) },
+                    recompose = { recompose() }
                 ) {
                     serializeArray.removeAt(index)
                 }
@@ -177,8 +177,8 @@ fun ContainerScope.SerializeArrayEntryEditor(
                             }
                         ) {
                             DeleteButton(
-                                { HSLang.deleteConfirm(index) },
-                                { recompose() }
+                                confirmMessage = { HSLang.deleteConfirm(index) },
+                                recompose = { recompose() }
                             ) {
                                 serializeArray.removeAt(index)
                             }

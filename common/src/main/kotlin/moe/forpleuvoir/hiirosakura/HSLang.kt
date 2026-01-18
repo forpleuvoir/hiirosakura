@@ -186,6 +186,14 @@ object HSLang {
     val chainDoorsStrategyLimit get() = lang("chain_doors.strategy.limit").style { hover(chainDoorsStrategyLimitComment) }
     val chainDoorsStrategyLimitComment get() = lang("chain_doors.strategy.limit.comment")
 
+    //------------ Custom Radial Menu ------------\\
+
+    val customRadialMenu get() = lang("custom_radial_menu")
+    val customRadialMenuAdd get() = lang("custom_radial_menu.add")
+    val customRadialMenuSetting get() = lang("custom_radial_menu.setting")
+    val customRadialMenuEditName get() = lang("custom_radial_menu.edit_name")
+    fun customRadialMenuExists(name: String) = lang("custom_radial_menu.exists",name)
+
 
     //------------ ItemEditor ------------\\
 

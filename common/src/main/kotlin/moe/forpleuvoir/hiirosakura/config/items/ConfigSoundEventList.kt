@@ -102,7 +102,7 @@ fun ContainerScope.SoundEventListWrapper(
             Header {
                 Text(IGLang.edit)
             }.Column { index, _ ->
-                DeleteButton({
+                DeleteButton(confirmMessage = {
                     IGLang.removeConfirm(
                         "[$index]${
                             Translatable(
@@ -111,7 +111,7 @@ fun ContainerScope.SoundEventListWrapper(
                             ).plainText
                         }"
                     )
-                }, recompose) {
+                }, recompose = recompose) {
                     config.removeAt(index)
                 }
             }

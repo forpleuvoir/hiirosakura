@@ -178,7 +178,7 @@ fun ToolEditor(
             Header {
                 Text(IGLang.remove, setting = TextWidget.Setting(horizontalAlignment = Alignment.CenterHorizontally))
             }.Column { index, _ ->
-                DeleteButton({ HSLang.deleteConfirm("rule[$index]") }, recompose) {
+                DeleteButton(confirmMessage = { HSLang.deleteConfirm("rule[$index]") }, recompose = recompose) {
                     rules.removeAt(index)
                 }
             }
@@ -284,7 +284,7 @@ fun BlockHolderSetEditor(
                         Header {
                             Text(IGLang.remove, setting = TextWidget.Setting(horizontalAlignment = Alignment.CenterHorizontally))
                         }.Column { index, _ ->
-                            DeleteButton({ HSLang.deleteConfirm(list[index].name) }, recompose) {
+                            DeleteButton(confirmMessage = { HSLang.deleteConfirm(list[index].name) }, recompose = recompose) {
                                 list.removeAt(index)
                             }
                         }

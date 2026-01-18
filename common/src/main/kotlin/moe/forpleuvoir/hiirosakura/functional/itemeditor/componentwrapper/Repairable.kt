@@ -176,7 +176,7 @@ fun RepairableEditor(
                         Header {
                             Text(IGLang.remove, setting = TextWidget.Setting(horizontalAlignment = Alignment.CenterHorizontally))
                         }.Column { index, _ ->
-                            DeleteButton({ HSLang.deleteConfirm(list[index].name) }, recompose) {
+                            DeleteButton(confirmMessage = { HSLang.deleteConfirm(list[index].name) }, recompose = recompose) {
                                 list.removeAt(index)
                             }
                         }

@@ -58,7 +58,7 @@ object HSEventManager : HiiroSakuraData {
 
     @Subscriber(greedy = true, priority = EventPriority.HIGHEST)
     fun onEvent(event: Event) {
-        subscribers.filter { it.eventType.isInstance(event) && it.enabled }
+        subscribers.filter { it.enabled && it.eventType.isInstance(event) }
             .forEach { it.onEvent(event) }
     }
 

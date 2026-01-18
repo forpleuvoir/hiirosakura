@@ -1,11 +1,10 @@
-package moe.forpleuvoir.hiirosakura.functional.task
+package moe.forpleuvoir.hiirosakura.functional.customradialmenu
 
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.functional.task.KeyBindTickTask.Companion.withKeyBind
+import moe.forpleuvoir.hiirosakura.functional.task.IconTickTask
+import moe.forpleuvoir.hiirosakura.functional.task.TaskEditor
 import moe.forpleuvoir.hiirosakura.gui.widget.radialmenu.RadialMenu
 import moe.forpleuvoir.ibukigourd.IGLang
-import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
-import moe.forpleuvoir.ibukigourd.config.item.impl.keyBind
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.keyPress
@@ -30,41 +29,55 @@ import moe.forpleuvoir.ibukigourd.text.size
 import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
-import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.config.item.impl.color
-import moe.forpleuvoir.nebula.config.item.impl.float
-import moe.forpleuvoir.nebula.config.item.impl.int
+import moe.forpleuvoir.nebula.serialization.Deserializer
+import moe.forpleuvoir.nebula.serialization.Serializable
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.extensions.checkType
+import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.world.item.Items
 
-object QuickTickTaskExecuteScreen : ModConfigContainer("quick_tick_task_execute") {
+class CustomRadialMenu(
+    shortcuts: KeyBind = KeyBind(
+        defaultSetting = KeyBindSetting {
+            nextAction = NextAction.Continue
+            exactMatch = false
+            triggerMode = KeyTriggerMode.OnPress
+        }
+    ),
+    var setting: RadialMenuSetting = RadialMenuSetting(),
+    tasks: List<IconTickTask>
+) : Serializable {
 
-    val keyBind by keyBind(
-        "key_bind", KeyBind(
-            defaultSetting = KeyBindSetting {
-                nextAction = NextAction.Continue
-                exactMatch = false
-                triggerMode = KeyTriggerMode.OnPress
-            }
-        ) {
-            screen().open()
-        })
+    companion object : Deserializer<CustomRadialMenu> {
+        override fun deserialization(serializeElement: SerializeElement): CustomRadialMenu =
+            serializeElement.checkType<SerializeObject, CustomRadialMenu> {
+                CustomRadialMenu(
+                    KeyBind(
+                        defaultSetting = KeyBindSetting {
+                            nextAction = NextAction.Continue
+                            exactMatch = false
+                            triggerMode = KeyTriggerMode.OnPress
+                        }
+                    ).apply { deserialization(it["shortcuts"]!!) },
+                    RadialMenuSetting.deserialization(it["setting"]!!),
+                    it["tasks"]!!.asArray.map { task -> IconTickTask.deserialization(task) }
+                )
+            }.getOrThrow()
+    }
 
-    val rouletteColor by color("roulette_color", Color.ofARGB(0x80000000))
+    val shortcuts: KeyBind = shortcuts.apply { action = { screen().open() } }
 
-    val rouletteSelectedColor by color("roulette_selected_color", Color.ofRGB(0xD4FF00))
+    val tasks: ArrayList<IconTickTask> = ArrayList(tasks)
 
-    val iconScale by float("icon_scale", 1f, 0.2f, 2f)
+    fun onLoad() {
+        InputHandler.register(shortcuts)
+    }
 
-    val innerRadius by float("inner_radius", 60f, 40f, 100f)
-
-    val outerRadius by float("outer_radius", 120f, 100f, 200f)
-
-    val optionRadius by float("option_radius", 85f, 50f, 190f)
-
-    val gapDistance by float("gap_distance", 2f, 0.5f, 5f)
-
-    val singlePageMaxCount by int("single_page_max_count", 8, 4, 12)
+    fun onUnload() {
+        InputHandler.unregister(shortcuts)
+    }
 
     fun screen(modifier: Modifier = Modifier) = BoxScreen(
         modifier.attachLeft {
@@ -82,24 +95,24 @@ object QuickTickTaskExecuteScreen : ModConfigContainer("quick_tick_task_execute"
             }
         }
     ) {
-        val scale = iconScale
+        val scale = setting.iconScale
         val (width, height) = 16f * scale to 16f * scale
         RadialMenu(
-            TaskManager.taskList,
-            idleColor = stateOf(rouletteColor),
-            selectedColor = stateOf(rouletteSelectedColor),
-            innerRadius = innerRadius,
-            outerRadius = outerRadius,
-            optionRadius = optionRadius,
-            gapDistance = gapDistance,
-            maxOptions = singlePageMaxCount,
+            tasks,
+            idleColor = stateOf(setting.color),
+            selectedColor = stateOf(setting.selectedColor),
+            innerRadius = setting.innerRadius,
+            outerRadius = setting.outerRadius,
+            optionRadius = setting.optionRadius,
+            gapDistance = setting.gap,
+            maxOptions = setting.pageSize,
             onLeftPressSelected = {
                 it?.let {
                     closeScreen()
                     it.execute()
                 } ?: run {
-                    TaskEditor(KeyBindTickTask.empty, screenModifier = Modifier.renderParent(false)) { task ->
-                        TaskManager.add(task.withKeyBind())
+                    TaskEditor(IconTickTask.empty, screenModifier = Modifier.renderParent(false)) { task ->
+                        tasks.add(task as IconTickTask)
                         parent()?.let { p ->
                             if (p is GuiWidgetContainer) p.executeRecompose()
                         }
@@ -118,7 +131,7 @@ object QuickTickTaskExecuteScreen : ModConfigContainer("quick_tick_task_execute"
                     ConfirmDialog(
                         stateOf(IGLang.remove),
                         onConfirm = {
-                            TaskManager.remove(task)
+                            tasks.remove(task)
                             parent()?.let { p ->
                                 if (p is GuiWidgetContainer) p.executeRecompose()
                             }
@@ -151,5 +164,11 @@ object QuickTickTaskExecuteScreen : ModConfigContainer("quick_tick_task_execute"
             }
         }
     }
-}
 
+    override fun serialization(): SerializeElement = serializeObject {
+        "shortcuts" to shortcuts
+        "setting" to setting
+        "tasks" to tasks
+    }
+
+}

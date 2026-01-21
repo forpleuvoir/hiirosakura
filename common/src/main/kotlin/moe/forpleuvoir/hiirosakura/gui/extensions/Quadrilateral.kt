@@ -74,7 +74,7 @@ fun IGGuiGraphics.pushQuad(
 ) = getGuiRenderState().submitGuiElement(
     QuadrilateralRenderState(
         quad.p1, quad.p2, quad.p3, quad.p4,
-        _applyModulatedColor(color), _applyModulatedColor(color), _applyModulatedColor(color), _applyModulatedColor(color),
+        applyModulatedColor(color), applyModulatedColor(color), applyModulatedColor(color), applyModulatedColor(color),
         pose, pipeline,
         scissorBox?.asScreenRectangle
     )
@@ -82,7 +82,7 @@ fun IGGuiGraphics.pushQuad(
 
 private val transparent = Color(0, 0, 0, 0)
 
-private fun IGGuiGraphics._applyModulatedColor(color: ARGBColor): ARGBColor {
+private fun IGGuiGraphics.applyModulatedColor(color: ARGBColor): ARGBColor {
     return if (colorModulator.argb == -1) color
     else if (colorModulator.alpha == 0) transparent
     else color * colorModulator

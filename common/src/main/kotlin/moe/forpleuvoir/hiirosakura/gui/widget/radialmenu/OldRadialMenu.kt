@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.gui.widget.radialmenu
 
-import moe.forpleuvoir.hiirosakura.gui.widget.radialmenu.RadialSectorRenderState.Companion.pushRadialSector
+import moe.forpleuvoir.hiirosakura.gui.extensions.Quadrilateral
+import moe.forpleuvoir.hiirosakura.gui.extensions.pushQuad
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
@@ -17,18 +18,25 @@ import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.util.primitive.either
 import org.joml.Vector2f
 import org.joml.Vector2fc
+import kotlin.math.cos
+import kotlin.math.sin
 
-fun <T> ContainerScope.NewRadialMenu(
+@Deprecated(
+    "this Widget is deprecated",
+    replaceWith = ReplaceWith(
+        expression = "RadialMenu",
+        imports = ["moe.forpleuvoir.hiirosakura.gui.widget.radialmenu.RadialMenu"]
+    )
+)
+fun <T> ContainerScope.OldRadialMenu(
     options: List<T>,
     innerRadius: Float = 60f,
     outerRadius: Float = 120f,
     optionRadius: Float = 85f,
-    startAngleDegree: Float = 0f,
-    gapAngleDegree: Float = 2f,
-    optionCount: Int = 8,// 单页最多选项数量
+    gapDistance: Float = 2f,
+    maxOptions: Int = 8,// 单页最多选项数量
     selectedColor: State<ARGBColor> = stateOf(Colors.YELLOW),
     idleColor: State<ARGBColor> = stateOf(Colors.BLACK.alpha(0.5f)),
     modifier: Modifier = Modifier,
@@ -49,9 +57,9 @@ fun <T> ContainerScope.NewRadialMenu(
         return all.subList(startIndex, endIndex)
     }
 
-    val currentOptions = options.size.coerceIn(3, optionCount)
+    val currentOptions = options.size.coerceIn(3, maxOptions)
 
-    val sectors = calculateAnnularSectors(startAngleDegree, gapAngleDegree, optionCount)
+    val quads = mutableListOf<Quadrilateral>()
 
     var center: Vector2fc = Vector2f()
 
@@ -69,7 +77,9 @@ fun <T> ContainerScope.NewRadialMenu(
     return Widget(modifier.attachLeft {
         size(outerRadius * 2, outerRadius * 2)
             .placeCompletion {
+                quads.clear()
                 center = this.transform.worldCenter
+                quads.addAll(calculateQuadrilaterals(center.x(), center.y(), innerRadius, outerRadius, maxOptions, gapDistance))
             }
             .mouseScrolling { event ->
                 event.tryUse(transform.isMouseOvered(event.position)).onSuccess {
@@ -93,45 +103,20 @@ fun <T> ContainerScope.NewRadialMenu(
             }
             .renderBackground { guiGraphics, x, y, delta ->
                 guiGraphics {
-                    selectedIndex = (Vector2f(x, y).distance(center) in innerRadius..outerRadius) //是否在环形区域内
-                        .either(
-                            { getSelectedSector(sectors, center, x, y) },
-                            { -1 }
-                        )
-
-                    sectors.forEachIndexed { index, sector ->
-                        if (index == 0) {
-                            pushRadialSector(
-                                center,
-                                sector.start,
-                                sector.arch,
-                                innerRadius,
-                                outerRadius,
-                                idleColor.getValue(),
-                                idleColor.getValue()
-                            )
+                    quads.forEachIndexed { index, quad ->
+                        if (Vector2f(x, y).distance(center) in innerRadius..outerRadius) {
+                            if (Vector2f(x, y) in quad) {
+                                selectedIndex = index
+                            }
+                        } else {
+                            selectedIndex = -1
                         }
-//                        if (index == selectedIndex) {
-//                            pushRadialSector(
-//                                center,
-//                                sector.start,
-//                                sector.arch,
-//                                innerRadius,
-//                                outerRadius,
-//                                Color.ofARGB(selectedColor.getValue().argb).opacity(0.5f),
-//                                selectedColor.getValue()
-//                            )
-//                        } else {
-//                            pushRadialSector(
-//                                center,
-//                                sector.start,
-//                                sector.arch,
-//                                innerRadius,
-//                                outerRadius,
-//                                idleColor.getValue(),
-//                                idleColor.getValue()
-//                            )
-//                        }
+                        if (index == selectedIndex)
+                        //渲染选中轮盘扇区
+                            pushQuad(quad, selectedColor.getValue())
+                        else
+                        //渲染轮盘扇区
+                            pushQuad(quad, idleColor.getValue())
                     }
                 }
             }
@@ -140,9 +125,9 @@ fun <T> ContainerScope.NewRadialMenu(
                 //渲染选中项,并不是轮盘部分而是渲染在中心
                 selectedRenderer(page.getOrNull(selectedIndex), guiGraphics, center, x, y, delta)
 
-                val angleStep = (2 * Math.PI).toFloat() / optionCount
+                val angleStep = (2 * Math.PI).toFloat() / maxOptions
 
-                var startAngle = startAngleDegree
+                var startAngle = -(Math.PI / 2).toFloat()  // 第一个选项的中心在顶部
 
                 //渲染选项
                 page.forEachIndexed { index, entry ->
@@ -180,66 +165,74 @@ fun <T> ContainerScope.NewRadialMenu(
 
 }
 
-data class Sector(val start: Float, val end: Float) {
-    val centerAngle: Float get() = (start + end) / 2f
-    val arch: Float get() = (end - start).let { if (it < 0) it + 360f else it }
+fun calculateQuadrilaterals(
+    centerX: Float, centerY: Float,
+    rInner: Float, rOuter: Float,
+    options: Int, gapDistance: Float
+): List<Quadrilateral> {
+    require(options >= 3) { "A minimum of 3 options is required." }
+
+    val angleStep = (2 * Math.PI).toFloat() / options // 每个四边形的有效弧度
+
+    val quadrilaterals = mutableListOf<Quadrilateral>()
+
+    var startAngle = -(Math.PI / 2).toFloat() - angleStep / 2
+    var endAngle = startAngle + angleStep
+
+    repeat(options) {
+        // 当前四边形起始角度和结束角度
+        val p1 = calculateNormalLinePoints(centerX, centerY, endAngle, rInner, gapDistance, false)
+
+        val p2 = calculateNormalLinePoints(centerX, centerY, endAngle, rOuter, gapDistance, false)
+
+        val p3 = calculateNormalLinePoints(centerX, centerY, startAngle, rOuter, gapDistance, true)
+
+        val p4 = calculateNormalLinePoints(centerX, centerY, startAngle, rInner, gapDistance, true)
+
+        // 顺时针排列顶点（p1 -> p2 -> p3 -> p4）
+        quadrilaterals.add(Quadrilateral(p1, p2, p3, p4))
+        startAngle += angleStep
+        endAngle += angleStep
+
+    }
+    return quadrilaterals
 }
 
-/**
- * 计算轮盘扇形的角度数据（0-360度）
- *
- * @param startAngleDegree 第一个扇区的中心点角度（度，0为正上方）
- * @param gapAngleDegree 间隔角度（度）
- * @param optionCount 选项数量
- * @return Array<Sector> 包含每个扇区的起始和结束角度（度）
- */
-private fun calculateAnnularSectors(
-    startAngleDegree: Float = 0f,
-    gapAngleDegree: Float,
-    optionCount: Int
-): Array<Sector> {
-    if (optionCount <= 0) return emptyArray()
 
-    val angleStep = 360f / optionCount
-    val sectorWidth = angleStep - gapAngleDegree
+fun calculatePointPosition(centerX: Float, centerY: Float, angle: Float, radius: Float): Vector2f {
+    val x = centerX + radius * cos(angle) // 计算 x 坐标
+    val y = centerY + radius * sin(angle) // 计算 y 坐标
+    return Vector2f(x, y) // 返回计算出的点
+}
 
-    // 计算第一个扇区的起始边缘角度
-    val firstSectorStart = startAngleDegree - (sectorWidth / 2f)
+fun calculateNormalLinePoints(
+    centerX: Float, centerY: Float, // 圆心坐标
+    angle: Float,                  // 线段与圆心的角度（弧度制）
+    r: Float,                      // 距离圆心 R 的点
+    length: Float,                  // 垂直线段的长度
+    up: Boolean
+): Vector2fc {
+    // 计算距离圆心 R 的点（R 点）
+    val rPointX = centerX + r * cos(angle)
+    val rPointY = centerY + r * sin(angle)
 
-    return Array(optionCount) { i ->
-        val start = firstSectorStart + i * angleStep
-        val end = start + sectorWidth
-        // 保持在 0-360 范围内以便调试
-        Sector(normalizeDegree(start), normalizeDegree(end))
+    // 计算垂直线段的两个顶点
+    val halfLength = length / 2
+
+    // 垂直方向的单位向量 (-sin(θ), cos(θ))
+    val perpX = -sin(angle)
+    val perpY = cos(angle)
+
+    // 顶点 1 和顶点 2
+    return if (up) {
+        Vector2f(
+            rPointX + halfLength * perpX,
+            rPointY + halfLength * perpY
+        )
+    } else {
+        Vector2f(
+            rPointX - halfLength * perpX,
+            rPointY - halfLength * perpY
+        )
     }
 }
-
-private fun normalizeDegree(degree: Float): Float = (degree % 360f + 360f) % 360f
-
-/**
- * 获取选中的扇区索引
- * @param sectors 扇形数据
- * @param center 轮盘中心位置（判定角度需要相对于中心点）
- * @param mouse 鼠标当前位置
- * @return 选中的扇区索引，如果没有选中的扇区，则返回-1
- */
-private fun getSelectedSector(sectors: Array<Sector>, center: Vector2fc, mouseX: Float, mouseY: Float): Int {
-    val dx = mouseX - center.x()
-    val dy = mouseY - center.y()
-
-    // atan2 得到的是：右=0, 下=90, 左=180, 上=-90
-    // 我们加上 90 度，使其变为：上=0, 右=90, 下=180, 左=270
-    var mouseDeg = Math.toDegrees(Math.atan2(dy.toDouble(), dx.toDouble())).toFloat() + 90f
-    mouseDeg = normalizeDegree(mouseDeg)
-
-    sectors.forEachIndexed { index, sector ->
-        var m = mouseDeg
-        // 处理跨越 360° 边界的循环判定（例如扇区在 350~10 度）
-        while (m < sector.start) m += 360f
-        while (m >= sector.start + 360f) m -= 360f
-
-        if (m >= sector.start && m <= sector.end) return index
-    }
-    return -1
-}
-

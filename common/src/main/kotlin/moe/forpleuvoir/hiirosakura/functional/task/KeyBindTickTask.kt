@@ -4,7 +4,6 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask.ExecuteOn.StartTick
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
 import moe.forpleuvoir.ibukigourd.input.KeyBind
-import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.task.TaskExecutor
 import moe.forpleuvoir.ibukigourd.task.TickTask
 import moe.forpleuvoir.ibukigourd.text.appendLiteral
@@ -40,9 +39,6 @@ class KeyBindTickTask(
                 Items.AIR,
                 KeyBind()
             )
-
-        fun HSTickTask.withKeyBind(vararg keyCode: KeyCode) =
-            KeyBindTickTask(name, setting, executeOn, executorType, executor, if (this is KeyBindTickTask) this.icon else Items.MELON, KeyBind(*keyCode))
 
         override fun deserialization(serializeElement: SerializeElement): KeyBindTickTask {
             return serializeElement.checkType<SerializeObject, KeyBindTickTask> {

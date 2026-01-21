@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.gui.widget.radialmenu
 
 import moe.forpleuvoir.hiirosakura.gui.extensions.Quadrilateral
-import moe.forpleuvoir.hiirosakura.gui.extensions.pushQuad
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
@@ -13,13 +12,15 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.widget.Widget
-import moe.forpleuvoir.ibukigourd.input.Mouse.*
+import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import org.joml.Vector2f
 import org.joml.Vector2fc
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -28,14 +29,15 @@ fun <T> ContainerScope.RadialMenu(
     innerRadius: Float = 60f,
     outerRadius: Float = 120f,
     optionRadius: Float = 85f,
-    gapDistance: Float = 2f,
-    maxOptions: Int = 8,// 单页最多选项数量
-    selectedColor: State<ARGBColor> = stateOf(Colors.YELLOW),
-    idleColor: State<ARGBColor> = stateOf(Colors.BLACK.alpha(0.5f)),
+    startAngleDegree: Float = -90f,
+    gap: Float = 2f,
+    optionCount: Int = 8,// 单页最多选项数量
+    selectedOuterColor: State<ARGBColor> = stateOf(Colors.YELLOW),
+    selectedInnerColor: State<ARGBColor> = stateOf(Colors.YELLOW.alpha(.25f)),
+    idleOuterColor: State<ARGBColor> = stateOf(Colors.BLACK.alpha(0.5f)),
+    idleInnerColor: State<ARGBColor> = stateOf(Colors.BLACK.alpha(0.15f)),
     modifier: Modifier = Modifier,
-    onLeftPressSelected: GuiWidget.(option: T?) -> Unit = {},
-    onRightPressSelected: GuiWidget.(option: T?) -> Unit = {},
-    onMiddlePressSelected: GuiWidget.(option: T?) -> Unit = {},
+    onMousePress: GuiWidget.(mouse: Mouse, option: T?) -> Unit = { _, _ -> },
     selectedRenderer: (option: T?, context: IGGuiGraphics, position: Vector2fc, mouseX: Float, mouseY: Float, delta: Float) -> Unit,
     optionRenderer: (option: T, context: IGGuiGraphics, selected: Boolean, position: Vector2fc, mouseX: Float, mouseY: Float, delta: Float) -> Unit,
 ): GuiWidgetImpl {
@@ -50,9 +52,11 @@ fun <T> ContainerScope.RadialMenu(
         return all.subList(startIndex, endIndex)
     }
 
-    val currentOptions = options.size.coerceIn(3, maxOptions)
+    val currentOptions = options.size.coerceIn(3, optionCount)
 
-    val quads = mutableListOf<Quadrilateral>()
+    val sectors = calculateAnnularSectors(startAngleDegree, optionCount)
+
+    var quads: List<List<Quadrilateral>> = emptyList()
 
     var center: Vector2fc = Vector2f()
 
@@ -70,9 +74,16 @@ fun <T> ContainerScope.RadialMenu(
     return Widget(modifier.attachLeft {
         size(outerRadius * 2, outerRadius * 2)
             .placeCompletion {
-                quads.clear()
                 center = this.transform.worldCenter
-                quads.addAll(calculateQuadrilaterals(center.x(), center.y(), innerRadius, outerRadius, maxOptions, gapDistance))
+                quads = sectors.map { sector ->
+                    getRadialSectorQuads(
+                        center,
+                        sector,
+                        innerRadius,
+                        outerRadius,
+                        gap
+                    )
+                }
             }
             .mouseScrolling { event ->
                 event.tryUse(transform.isMouseOvered(event.position)).onSuccess {
@@ -81,35 +92,24 @@ fun <T> ContainerScope.RadialMenu(
                 onMouseScrolling(event)
             }
             .mousePress { event ->
-                event.tryUse(Vector2f(event.x, event.y).distance(center) in innerRadius..outerRadius && event.button in listOf(LEFT, RIGHT, MIDDLE))
+                event.tryUse(Vector2f(event.x, event.y).distance(center) in innerRadius..outerRadius)
                     .onSuccess {
-                        val selected = getPage(options, currentOptions, currentPageIndex).getOrNull(selectedIndex)
-                        when (event.button) {
-                            LEFT   -> onLeftPressSelected(selected)
-                            RIGHT  -> onRightPressSelected(selected)
-                            MIDDLE -> onMiddlePressSelected(selected)
-                            else   -> Unit
-                        }
+                        onMousePress(event.button, getPage(options, currentOptions, currentPageIndex).getOrNull(selectedIndex))
                     }
-
                 onMousePress(event)
             }
             .renderBackground { guiGraphics, x, y, delta ->
-                guiGraphics{
-                    quads.forEachIndexed { index, quad ->
-                        if (Vector2f(x, y).distance(center) in innerRadius..outerRadius) {
-                            if (Vector2f(x, y) in quad) {
-                                selectedIndex = index
-                            }
-                        } else {
-                            selectedIndex = -1
-                        }
-                        if (index == selectedIndex)
-                            //渲染选中轮盘扇区
-                            pushQuad(quad, selectedColor.getValue())
-                        else
-                            //渲染轮盘扇区
-                            pushQuad(quad, idleColor.getValue())
+                guiGraphics {
+                    selectedIndex = (Vector2f(x, y).distance(center) in innerRadius..outerRadius) //是否在环形区域内
+                        .either(
+                            { getSelectedSector(sectors, center, x, y) },
+                            { -1 }
+                        )
+
+                    quads.forEachIndexed { index, quads ->
+                        val innerColor = if (index == selectedIndex) selectedInnerColor.getValue() else idleInnerColor.getValue()
+                        val outerColor = if (index == selectedIndex) selectedOuterColor.getValue() else idleOuterColor.getValue()
+                        pushRadialSectorQuads(quads.asIterable(), innerColor, outerColor)
                     }
                 }
             }
@@ -118,9 +118,9 @@ fun <T> ContainerScope.RadialMenu(
                 //渲染选中项,并不是轮盘部分而是渲染在中心
                 selectedRenderer(page.getOrNull(selectedIndex), guiGraphics, center, x, y, delta)
 
-                val angleStep = (2 * Math.PI).toFloat() / maxOptions
+                val angleStep = (2 * Math.PI).toFloat() / optionCount
 
-                var startAngle = -(Math.PI / 2).toFloat()  // 第一个选项的中心在顶部
+                var startAngle = startAngleDegree
 
                 //渲染选项
                 page.forEachIndexed { index, entry ->
@@ -128,7 +128,7 @@ fun <T> ContainerScope.RadialMenu(
                         entry,
                         guiGraphics,
                         index == selectedIndex,
-                        calculatePointPosition(center.x(), center.y(), startAngle, optionRadius),
+                        calculatePointPosition(center, optionRadius, sectors[index].centerAngle),
                         x,
                         y,
                         delta
@@ -158,75 +158,85 @@ fun <T> ContainerScope.RadialMenu(
 
 }
 
-fun calculateQuadrilaterals(
-    centerX: Float, centerY: Float,
-    rInner: Float, rOuter: Float,
-    options: Int, gapDistance: Float
-): List<Quadrilateral> {
-    require(options >= 3) { "A minimum of 3 options is required." }
+data class Sector(val start: Float, val end: Float) {
 
-    val angleStep = (2 * Math.PI).toFloat() / options // 每个四边形的有效弧度
-
-    val quadrilaterals = mutableListOf<Quadrilateral>()
-
-//    var startAngle = angleStep - (Math.PI / 2).toFloat() - if (options % 2 == 0) angleStep / 2 else angleStep * 0.75f
-    var startAngle = -(Math.PI / 2).toFloat() - angleStep / 2
-    var endAngle = startAngle + angleStep
-
-    repeat(options) {
-        // 当前四边形起始角度和结束角度
-        val p1 = calculateNormalLinePoints(centerX, centerY, endAngle, rInner, gapDistance, false)
-
-        val p2 = calculateNormalLinePoints(centerX, centerY, endAngle, rOuter, gapDistance, false)
-
-        val p3 = calculateNormalLinePoints(centerX, centerY, startAngle, rOuter, gapDistance, true)
-
-        val p4 = calculateNormalLinePoints(centerX, centerY, startAngle, rInner, gapDistance, true)
-
-        // 顺时针排列顶点（p1 -> p2 -> p3 -> p4）
-        quadrilaterals.add(Quadrilateral(p1, p2, p3, p4))
-        startAngle += angleStep
-        endAngle += angleStep
-
+    companion object {
+        fun calculateArchAngle(start: Float, end: Float): Float {
+            return (end - start).let { if (it < 0) it + 360f else it }
+        }
     }
-    return quadrilaterals
-}
 
+    val centerAngle: Float
+            by lazy(LazyThreadSafetyMode.NONE) { normalizeDegree(start + arch * 0.5f) }
 
-fun calculatePointPosition(centerX: Float, centerY: Float, angle: Float, radius: Float): Vector2f {
-    val x = centerX + radius * cos(angle) // 计算 x 坐标
-    val y = centerY + radius * sin(angle) // 计算 y 坐标
-    return Vector2f(x, y) // 返回计算出的点
-}
+    val arch: Float
+            by lazy(LazyThreadSafetyMode.NONE) { calculateArchAngle(start, end) }
 
-fun calculateNormalLinePoints(
-    centerX: Float, centerY: Float, // 圆心坐标
-    angle: Float,                  // 线段与圆心的角度（弧度制）
-    r: Float,                      // 距离圆心 R 的点
-    length: Float,                  // 垂直线段的长度
-    up: Boolean
-): Vector2fc {
-    // 计算距离圆心 R 的点（R 点）
-    val rPointX = centerX + r * cos(angle)
-    val rPointY = centerY + r * sin(angle)
-
-    // 计算垂直线段的两个顶点
-    val halfLength = length / 2
-
-    // 垂直方向的单位向量 (-sin(θ), cos(θ))
-    val perpX = -sin(angle)
-    val perpY = cos(angle)
-
-    // 顶点 1 和顶点 2
-    return if (up) {
-        Vector2f(
-            rPointX + halfLength * perpX,
-            rPointY + halfLength * perpY
-        )
-    } else {
-        Vector2f(
-            rPointX - halfLength * perpX,
-            rPointY - halfLength * perpY
-        )
+    operator fun contains(angle: Float): Boolean {
+        // 处理普通情况（不跨越360°边界）
+        if (start <= end) {
+            return angle in start..end
+        }
+        // 处理跨越360°边界的情况（例如 350° -> 10°）
+        return angle >= start || angle <= end
     }
 }
+
+/**
+ * 计算轮盘扇形的角度数据（0-360度）
+ *
+ * @param startAngleDegree 第一个扇区的中心点角度
+ * @param optionCount 选项数量
+ * @return Array<Sector> 包含每个扇区的起始和结束角度（度）
+ */
+private fun calculateAnnularSectors(
+    startAngleDegree: Float,
+    optionCount: Int
+): Array<Sector> {
+    if (optionCount <= 0) return emptyArray()
+
+    val angleStep = 360f / optionCount
+
+    // 计算第一个扇区的起始边缘角度
+    val firstSectorStart = startAngleDegree - (angleStep / 2f)
+
+    return Array(optionCount) { i ->
+        val start = firstSectorStart + i * angleStep
+        val end = start + angleStep
+        // 保持在 0-360 范围内以便调试
+        Sector(normalizeDegree(start), normalizeDegree(end))
+    }
+}
+
+private fun calculatePointPosition(center: Vector2fc, radius: Float, angle: Float): Vector2f {
+    val rad = Math.toRadians(angle.toDouble()).toFloat()
+    val x = radius * cos(rad)
+    val y = radius * sin(rad)
+    return Vector2f(center.x() + x, center.y() + y)
+}
+
+private fun normalizeDegree(degree: Float): Float = (degree % 360f + 360f) % 360f
+
+/**
+ * 获取选中的扇区索引
+ * @param sectors 扇形数据
+ * @param center 轮盘中心位置（判定角度需要相对于中心点）
+ * @param mouseX 鼠标当前X位置
+ * @param mouseY 鼠标当前Y位置
+ * @return 选中的扇区索引，如果没有选中的扇区，则返回-1
+ */
+private fun getSelectedSector(sectors: Array<Sector>, center: Vector2fc, mouseX: Float, mouseY: Float): Int {
+    val dx = mouseX - center.x()
+    val dy = mouseY - center.y()
+
+    val angle = normalizeDegree(Math.toDegrees(atan2(dy, dx).toDouble()).toFloat())
+
+    sectors.forEachIndexed { index, sector ->
+        if (angle in sector) {
+            return index
+        }
+    }
+
+    return -1
+}
+

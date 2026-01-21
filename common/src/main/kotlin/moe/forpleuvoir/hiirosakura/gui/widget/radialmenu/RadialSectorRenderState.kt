@@ -56,12 +56,6 @@ class RadialSectorRenderState(
             )
         }
 
-        private data class ArcCacheKey(
-            val radius: Float,
-            val startAngle: Float,
-            val arcAngle: Float
-        )
-
         private val VERTEX_CACHE = object : HashMap<ArcCacheKey, List<Vector2fc>>(5 * 2) {
             override fun put(key: ArcCacheKey, value: List<Vector2fc>): List<Vector2fc>? {
                 if (this.size > 100) this.remove(this.keys.random())

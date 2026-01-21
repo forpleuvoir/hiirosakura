@@ -20,7 +20,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
 import moe.forpleuvoir.ibukigourd.gui.widget.ConfirmDialog
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
-import moe.forpleuvoir.ibukigourd.input.*
+import moe.forpleuvoir.ibukigourd.input.InputHandler
+import moe.forpleuvoir.ibukigourd.input.KeyBind
+import moe.forpleuvoir.ibukigourd.input.KeyBindSetting
+import moe.forpleuvoir.ibukigourd.input.KeyTriggerMode
+import moe.forpleuvoir.ibukigourd.input.Mouse.*
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.PopupScreen.enableReturnHotkey
 import moe.forpleuvoir.ibukigourd.mod.config.GuiConfig.PopupScreen.returnHotkeyKeycode
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
@@ -30,6 +34,7 @@ import moe.forpleuvoir.ibukigourd.util.NextAction
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.nebula.common.util.primitive.either
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -83,10 +88,9 @@ class CustomRadialMenu(
         modifier.attachLeft {
             mousePress {
                 onMousePress(it)
-                it.tryUse(it.button == Mouse.RIGHT || (enableReturnHotkey && InputHandler.wasKeyPressed(returnHotkeyKeycode))).onSuccess {
+                it.tryUse(it.button == RIGHT || (enableReturnHotkey && InputHandler.wasKeyPressed(returnHotkeyKeycode))).onSuccess {
                     mc.scheduleStartTick(1) { _, _ -> closeScreen() }
                 }
-
             }.keyPress {
                 onKeyPress(it)
                 it.tryUse(enableReturnHotkey && InputHandler.wasKeyPressed(returnHotkeyKeycode)).onSuccess {
@@ -99,47 +103,51 @@ class CustomRadialMenu(
         val (width, height) = 16f * scale to 16f * scale
         RadialMenu(
             tasks,
-            idleColor = stateOf(setting.color),
-            selectedColor = stateOf(setting.selectedColor),
+            idleInnerColor = stateOf(setting.innerColor),
+            idleOuterColor = stateOf(setting.outerColor),
+            selectedInnerColor = stateOf(setting.innerSelectedColor),
+            selectedOuterColor = stateOf(setting.outerSelectedColor),
             innerRadius = setting.innerRadius,
             outerRadius = setting.outerRadius,
             optionRadius = setting.optionRadius,
-            gapDistance = setting.gap,
-            maxOptions = setting.pageSize,
-            onLeftPressSelected = {
-                it?.let {
-                    closeScreen()
-                    it.execute()
-                } ?: run {
-                    TaskEditor(IconTickTask.empty, screenModifier = Modifier.renderParent(false)) { task ->
-                        tasks.add(task as IconTickTask)
-                        parent()?.let { p ->
-                            if (p is GuiWidgetContainer) p.executeRecompose()
-                        }
-                    }.open()
-                }
-            },
-            onRightPressSelected = {
-                it?.let { task ->
-                    TaskEditor(task, screenModifier = Modifier.renderParent(false)) { tickTask ->
-                        task.fromTask(tickTask)
-                    }.open()
-                }
-            },
-            onMiddlePressSelected = {
-                it?.let { task ->
-                    ConfirmDialog(
-                        stateOf(IGLang.remove),
-                        onConfirm = {
-                            tasks.remove(task)
+            gap = setting.gap,
+            optionCount = setting.pageSize,
+            onMousePress = { mouse, task ->
+                when (mouse) {
+                    LEFT   -> task?.let {
+                        closeScreen()
+                        task.execute()
+                    } ?: run {
+                        TaskEditor(IconTickTask.empty, screenModifier = Modifier.renderParent(false)) { task ->
+                            tasks.add(task as IconTickTask)
                             parent()?.let { p ->
                                 if (p is GuiWidgetContainer) p.executeRecompose()
                             }
-                            closeScreen()
-                        }
-                    ) {
-                        Text(InlineStyleText(task.name), Modifier.minWidth(120f))
-                    }.open()
+                        }.open()
+                    }
+
+                    RIGHT  -> task?.let {
+                        TaskEditor(task, screenModifier = Modifier.renderParent(false)) { tickTask ->
+                            task.fromTask(tickTask)
+                        }.open()
+                    }
+
+                    MIDDLE -> task?.let { task ->
+                        ConfirmDialog(
+                            stateOf(IGLang.remove),
+                            onConfirm = {
+                                tasks.remove(task)
+                                parent()?.let { p ->
+                                    if (p is GuiWidgetContainer) p.executeRecompose()
+                                }
+                                closeScreen()
+                            }
+                        ) {
+                            Text(InlineStyleText(task.name), Modifier.minWidth(120f))
+                        }.open()
+                    }
+
+                    else   -> Unit
                 }
             },
             selectedRenderer = { task, guiGraphics, position, _, _, _ ->
@@ -149,10 +157,11 @@ class CustomRadialMenu(
                     color = Colors.WHITE
                 )
             },
-        ) { task, guiGraphics, _, position, _, _, _ ->
+        ) { task, guiGraphics, selected, position, _, _, _ ->
             guiGraphics {
                 if (task.icon != Items.AIR) {
-                    pushItem(task.iconStack, (position.x() - width / 2f), position.y() - height / 2f, scale)
+                    val s = selected.either(1.2f, 1f)
+                    pushItem(task.iconStack, (position.x() - (width * s) / 2f), position.y() - (height * s) / 2f, scale * s)
                 } else {
                     val size = task.nameAsInlineStyleText.size
                     pushAlignmentText(

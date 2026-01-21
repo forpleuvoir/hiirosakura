@@ -264,8 +264,10 @@ fun RadialMenuSettingDialog(
     screenModifier: Modifier = Modifier,
     consumer: (RadialMenuSetting) -> Unit
 ) = ConfirmDialog(HSLang.customRadialMenuSetting, modifier, screenModifier) {
-    val color = setting.color.asMutableState
-    val selectedColor = setting.selectedColor.asMutableState
+    val innerColor = setting.innerColor.asMutableState
+    val outerColor = setting.outerColor.asMutableState
+    val innerSelectedColor = setting.innerSelectedColor.asMutableState
+    val outerSelectedColor = setting.outerSelectedColor.asMutableState
     val iconScale = setting.iconScale.asMutableState
     val innerRadius = setting.innerRadius.asMutableState
     val outerRadius = setting.outerRadius.asMutableState
@@ -276,8 +278,10 @@ fun RadialMenuSettingDialog(
     onConfirm = {
         consumer(
             RadialMenuSetting(
-                color = color.getValue(),
-                selectedColor = selectedColor.getValue(),
+                innerColor = innerColor.getValue(),
+                outerColor = outerColor.getValue(),
+                innerSelectedColor = innerSelectedColor.getValue(),
+                outerSelectedColor = outerSelectedColor.getValue(),
                 iconScale = iconScale.getValue(),
                 innerRadius = innerRadius.getValue(),
                 outerRadius = outerRadius.getValue(),
@@ -288,40 +292,46 @@ fun RadialMenuSettingDialog(
         )
         closeScreen()
     }
-    DialogContent {
-        Column(Modifier.width(300f), verticalArrangement = Arrangement.spacedBy(5f)) {
-            Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Color")
-                ColorSettingButton(color = color, Modifier.minWidth(80f))
-            }
-            Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("selectedColor")
-                ColorSettingButton(color = selectedColor, Modifier.minWidth(80f))
-            }
-            Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("iconScale")
-                SwitchableFloatEditor(iconScale, 0.2f..2f, width = 80f)
-            }
-            Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("innerRadius")
-                SwitchableFloatEditor(innerRadius, 40f..100f, width = 80f)
-            }
-            Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("outerRadius")
-                SwitchableFloatEditor(outerRadius, 100f..200f, width = 80f)
-            }
-            Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("optionRadius")
-                SwitchableFloatEditor(optionRadius, 50f..190f, width = 80f)
-            }
-            Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("gap")
-                SwitchableFloatEditor(gap, 0.5f..5f, width = 80f)
-            }
-            Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("pageSize")
-                SwitchableIntEditor(pageSize, 4..12, width = 80f)
-            }
+    ColumnListWrapped(spacing = 5f, listModifier = { Modifier.width(300f) }) {
+        Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(HSLang.customRadialMenuSettingInnerColor)
+            ColorSettingButton(color = innerColor, Modifier.minWidth(80f))
+        }
+        Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(HSLang.customRadialMenuSettingOuterColor)
+            ColorSettingButton(color = outerColor, Modifier.minWidth(80f))
+        }
+        Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(HSLang.customRadialMenuSettingInnerSelectedColor)
+            ColorSettingButton(color = innerSelectedColor, Modifier.minWidth(80f))
+        }
+        Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(HSLang.customRadialMenuSettingOuterSelectedColor)
+            ColorSettingButton(color = outerSelectedColor, Modifier.minWidth(80f))
+        }
+        Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(HSLang.customRadialMenuSettingIconScale)
+            SwitchableFloatEditor(iconScale, 0.2f..2f, width = 80f)
+        }
+        Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(HSLang.customRadialMenuSettingInnerRadius)
+            SwitchableFloatEditor(innerRadius, 40f..100f, width = 80f)
+        }
+        Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(HSLang.customRadialMenuSettingOuterRadius)
+            SwitchableFloatEditor(outerRadius, 100f..200f, width = 80f)
+        }
+        Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(HSLang.customRadialMenuSettingOptionRadius)
+            SwitchableFloatEditor(optionRadius, 50f..190f, width = 80f)
+        }
+        Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(HSLang.customRadialMenuSettingGap)
+            SwitchableFloatEditor(gap, 0f..5f, width = 80f)
+        }
+        Row(Modifier.fill(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(HSLang.customRadialMenuSettingPageSize)
+            SwitchableIntEditor(pageSize, 4..12, width = 80f)
         }
     }
 }

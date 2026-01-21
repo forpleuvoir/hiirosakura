@@ -6,11 +6,10 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.gui.widget.BlockInfoMatcherBuilder
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemStackMatcherBuilder
-import moe.forpleuvoir.hiirosakura.gui.widget.radialmenu.NewRadialMenu
+import moe.forpleuvoir.hiirosakura.gui.widget.radialmenu.RadialMenu
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.event.IbukiGourdEventManager
 import moe.forpleuvoir.ibukigourd.event.events.IbukigourdInitializerEvent
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.render.Size
 import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
@@ -21,7 +20,9 @@ import moe.forpleuvoir.ibukigourd.gui.modifier.debugInfo
 import moe.forpleuvoir.ibukigourd.gui.screen.BoxScreen
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.ibukigourd.input.Mouse
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.size
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.logger
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -124,20 +125,25 @@ fun test3() = BoxScreen(
     )
     val scale = 1.5f
     val (width, height) = 16f * scale to 16f * scale
-    NewRadialMenu(
+    RadialMenu(
         items,
-        optionCount = 3,
-        onLeftPressSelected = {
-            Toast.showToast(text = "已选择${it?.hoverName?.string}")
+        optionCount = 8,
+        onMousePress = { mouse, item ->
+            if (mouse == Mouse.LEFT) Toast.showToast(text = "已选择${item?.hoverName?.string}")
         },
         selectedRenderer = { item, context, position, mouseX, mouseY, delta ->
             context.pushAlignmentText(item?.hoverName ?: Literal("未选择"), Box(position.x() - 40f, position.y() - 20f, Size(80f, 40f)), color = Colors.WHITE)
         }
     ) { item, guiGraphics, selected, position, mouseX, mouseY, delta ->
-        guiGraphics.useMatrixStack {
+        guiGraphics {
             pushItem(item, position.x() - width / 2f, position.y() - height / 2f, scale)
+            val size = item.hoverName.size
+            pushAlignmentText(
+                item.hoverName,
+                Box(position.x() - size.halfWidth, position.y() - size.halfHeight, size),
+                color = Colors.WHITE
+            )
         }
-        guiGraphics.pushText(item.hoverName, x = position.x(), y = position.y())
     }
 
 }

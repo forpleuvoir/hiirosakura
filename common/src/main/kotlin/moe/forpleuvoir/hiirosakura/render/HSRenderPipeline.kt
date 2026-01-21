@@ -28,4 +28,9 @@ object HSRenderPipeline {
         .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLE_STRIP)
         .build()
 
+    val POSITION_COLOR_QUADS: RenderPipeline = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+        .withLocation(identifier("pipeline/position_color_quads"))
+        .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+        .build()
+
 }

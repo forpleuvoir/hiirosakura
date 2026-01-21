@@ -194,6 +194,38 @@ object HSLang {
     val customRadialMenuEditName get() = lang("custom_radial_menu.edit_name")
     fun customRadialMenuExists(name: String) = lang("custom_radial_menu.exists",name)
 
+    val customRadialMenuSettingInnerColor get() = lang("custom_radial_menu.setting.inner_color").style {
+        hover(lang("custom_radial_menu.setting.inner_color.comment"))
+    }
+    val customRadialMenuSettingOuterColor get() = lang("custom_radial_menu.setting.outer_color").style{
+        hover(lang("custom_radial_menu.setting.outer_color.comment"))
+    }
+    val customRadialMenuSettingInnerSelectedColor get() = lang("custom_radial_menu.setting.inner_selected_color").style {
+        hover(lang("custom_radial_menu.setting.inner_selected_color.comment"))
+    }
+    val customRadialMenuSettingOuterSelectedColor get() = lang("custom_radial_menu.setting.outer_selected_color").style {
+        hover(lang("custom_radial_menu.setting.outer_selected_color.comment"))
+    }
+    val customRadialMenuSettingIconScale get() = lang("custom_radial_menu.setting.icon_scale").style {
+        hover(lang("custom_radial_menu.setting.icon_scale.comment"))
+    }
+    val customRadialMenuSettingInnerRadius get() = lang("custom_radial_menu.setting.inner_radius").style {
+        hover(lang("custom_radial_menu.setting.inner_radius.comment"))
+    }
+    val customRadialMenuSettingOuterRadius get() = lang("custom_radial_menu.setting.outer_radius").style {
+        hover(lang("custom_radial_menu.setting.outer_radius.comment"))
+    }
+    val customRadialMenuSettingOptionRadius get() = lang("custom_radial_menu.setting.option_radius").style {
+        hover(lang("custom_radial_menu.setting.option_radius.comment"))
+    }
+    val customRadialMenuSettingGap get() = lang("custom_radial_menu.setting.gap").style {
+        hover(lang("custom_radial_menu.setting.gap.comment"))
+    }
+    val customRadialMenuSettingPageSize get() = lang("custom_radial_menu.setting.page_size").style {
+        hover(lang("custom_radial_menu.setting.page_size.comment"))
+    }
+
+
 
     //------------ ItemEditor ------------\\
 

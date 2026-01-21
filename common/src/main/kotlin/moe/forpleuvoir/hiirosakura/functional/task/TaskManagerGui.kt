@@ -3,7 +3,6 @@ package moe.forpleuvoir.hiirosakura.functional.task
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask.ExecutorType
-import moe.forpleuvoir.hiirosakura.functional.task.KeyBindTickTask.Companion.withKeyBind
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemSelector
 import moe.forpleuvoir.hiirosakura.gui.widget.TreeNodeEditor
 import moe.forpleuvoir.ibukigourd.IGLang
@@ -89,7 +88,7 @@ fun ContainerScope.TaskManagerGui(
             Text(IGLang.add)
             click {
                 TaskEditor(KeyBindTickTask.empty) {
-                    TaskManager.add(it.withKeyBind())
+                    TaskManager.add(it as KeyBindTickTask)
                     onChanged()
                 }.open()
             }

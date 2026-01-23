@@ -152,8 +152,6 @@ private fun getSectorVertices(innerRadius: Float, outerRadius: Float, sector: Se
     val endInnerPoint = calculateNormalLinePoints(0f, 0f, endRadians, innerRadius, gap, false)
     val endOuterPoint = calculateNormalLinePoints(0f, 0f, endRadians, outerRadius, gap, false)
 
-
-    // 注意：atan2 的参数顺序通常是 (y, x)
     val innerStartAngle = atan2(startInnerPoint.y(), startInnerPoint.x()).toDegrees
     val innerEndAngle = atan2(endInnerPoint.y(), endInnerPoint.x()).toDegrees
     val outerStartAngle = atan2(startOuterPoint.y(), startOuterPoint.x()).toDegrees

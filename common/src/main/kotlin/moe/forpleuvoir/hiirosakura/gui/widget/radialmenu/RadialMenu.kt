@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.gui.widget.radialmenu
 
 import moe.forpleuvoir.hiirosakura.gui.extensions.Quadrilateral
+import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
@@ -13,9 +14,11 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidget
 import moe.forpleuvoir.ibukigourd.gui.base.widget.GuiWidgetImpl
 import moe.forpleuvoir.ibukigourd.gui.widget.Widget
 import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.util.page
 import moe.forpleuvoir.ibukigourd.util.state.State
 import moe.forpleuvoir.ibukigourd.util.state.stateOf
 import moe.forpleuvoir.nebula.common.color.ARGBColor
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.either
 import org.joml.Vector2f
@@ -24,6 +27,7 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
+@Suppress("DuplicatedCode")
 fun <T> ContainerScope.RadialMenu(
     options: List<T>,
     innerRadius: Float = 60f,
@@ -32,103 +36,96 @@ fun <T> ContainerScope.RadialMenu(
     startAngleDegree: Float = -90f,
     gap: Float = 2f,
     optionCount: Int = 8,// 单页最多选项数量
-    selectedOuterColor: State<ARGBColor> = stateOf(Colors.YELLOW),
-    selectedInnerColor: State<ARGBColor> = stateOf(Colors.YELLOW.alpha(.25f)),
-    idleOuterColor: State<ARGBColor> = stateOf(Colors.BLACK.alpha(0.5f)),
-    idleInnerColor: State<ARGBColor> = stateOf(Colors.BLACK.alpha(0.15f)),
+    idleOuterColor: State<ARGBColor> = stateOf(Color.ofARGB(0x33000000)),
+    idleInnerColor: State<ARGBColor> = stateOf(Color.ofARGB(0x7F000000)),
+    selectedOuterColor: State<ARGBColor> = stateOf(Color.ofARGB(0x33FF8899)),
+    selectedInnerColor: State<ARGBColor> = stateOf(Color.ofARGB(0xFFFF8899)),
     modifier: Modifier = Modifier,
     onMousePress: GuiWidget.(mouse: Mouse, option: T?) -> Unit = { _, _ -> },
     selectedRenderer: (option: T?, context: IGGuiGraphics, position: Vector2fc, mouseX: Float, mouseY: Float, delta: Float) -> Unit,
     optionRenderer: (option: T, context: IGGuiGraphics, selected: Boolean, position: Vector2fc, mouseX: Float, mouseY: Float, delta: Float) -> Unit,
 ): GuiWidgetImpl {
-    fun getPage(
-        all: List<T>,
-        pageSize: Int,
-        currentPageIndex: Int,
-    ): List<T> {
-        val startIndex = (currentPageIndex) * pageSize
-        val endIndex = minOf(startIndex + pageSize, all.size)
-        if (startIndex >= endIndex) return emptyList()
-        return all.subList(startIndex, endIndex)
-    }
-
-    val currentOptions = options.size.coerceIn(3, optionCount)
 
     val sectors = calculateAnnularSectors(startAngleDegree, optionCount)
 
-    var quads: List<List<Quadrilateral>> = emptyList()
+    val quads: List<List<Quadrilateral>> = sectors.map { sector -> getRadialSectorQuads(Vector2f(), sector, innerRadius, outerRadius, gap) }
+
+//    var outerQuads: List<List<Quadrilateral>> = sectors.map { sector -> getRadialSectorQuads(Vector2f(), sector, outerRadius + 1, outerRadius + 1 + 2, gap) }
+//    var innerQuads: List<List<Quadrilateral>> =sectors.map { sector -> getRadialSectorQuads(Vector2f(), sector, innerRadius - 1 - 2, innerRadius - 1, gap) }
 
     var center: Vector2fc = Vector2f()
 
+    val optionsPosition = Array(optionCount) { Vector2f() }
+
     var selectedIndex = 0
 
-    val maxPage = if (options.size % currentOptions > 0) {
-        (options.size / currentOptions)
+    val maxPage = if (options.size % optionCount > 0) {
+        (options.size / optionCount)
     } else {
-        (options.size / currentOptions) - 1
+        (options.size / optionCount) - 1
     }
 
     var currentPageIndex = 0
 
+    var currentPage: List<T> = options.asSequence().page(currentPageIndex + 1, optionCount).toList()
 
     return Widget(modifier.attachLeft {
         size(outerRadius * 2, outerRadius * 2)
             .placeCompletion {
                 center = this.transform.worldCenter
-                quads = sectors.map { sector ->
-                    getRadialSectorQuads(
-                        center,
-                        sector,
-                        innerRadius,
-                        outerRadius,
-                        gap
-                    )
+                repeat(optionCount) { index ->
+                    optionsPosition[index] = calculatePointPosition(center, optionRadius, sectors[index].centerAngle)
                 }
             }
             .mouseScrolling { event ->
                 event.tryUse(transform.isMouseOvered(event.position)).onSuccess {
                     currentPageIndex = (currentPageIndex - event.verticalAmount.toInt().coerceIn(-1..1)).coerceIn(0, maxPage)
+                    currentPage = options.asSequence().page(currentPageIndex + 1, optionCount).toList()
                 }
                 onMouseScrolling(event)
             }
             .mousePress { event ->
                 event.tryUse(Vector2f(event.x, event.y).distance(center) in innerRadius..outerRadius)
                     .onSuccess {
-                        onMousePress(event.button, getPage(options, currentOptions, currentPageIndex).getOrNull(selectedIndex))
+                        onMousePress(event.button, currentPage.getOrNull(selectedIndex))
                     }
                 onMousePress(event)
             }
-            .renderBackground { guiGraphics, x, y, delta ->
-                guiGraphics {
+            .renderBackground { guiGraphics, x, y, _ ->
+                guiGraphics.useMatrixStack {
                     selectedIndex = (Vector2f(x, y).distance(center) in innerRadius..outerRadius) //是否在环形区域内
                         .either(
                             { getSelectedSector(sectors, center, x, y) },
                             { -1 }
                         )
-
+                    it.translate(center)
                     quads.forEachIndexed { index, quads ->
-                        val innerColor = if (index == selectedIndex) selectedInnerColor.getValue() else idleInnerColor.getValue()
-                        val outerColor = if (index == selectedIndex) selectedOuterColor.getValue() else idleOuterColor.getValue()
-                        pushRadialSectorQuads(quads.asIterable(), innerColor, outerColor)
+                        val isSelected = index == selectedIndex
+                        val innerColor = if (isSelected) selectedInnerColor.getValue() else idleInnerColor.getValue()
+                        val outerColor = if (isSelected) selectedOuterColor.getValue() else idleOuterColor.getValue()
+                        pushRadialSectorQuads(quads, innerColor, outerColor)
+//                        if (isSelected) {
+//                            pushRadialSectorQuads(innerQuads[index], Colors.WHITE.alpha(0.5f), Colors.WHITE.alpha(0.5f))
+//                            pushRadialSectorQuads(outerQuads[index], Colors.WHITE.alpha(0.5f), Colors.WHITE.alpha(0.5f))
+//                        }
                     }
                 }
             }
             .render { guiGraphics, x, y, delta ->
-                val page = getPage(options, currentOptions, currentPageIndex)
                 //渲染选中项,并不是轮盘部分而是渲染在中心
-                selectedRenderer(page.getOrNull(selectedIndex), guiGraphics, center, x, y, delta)
+                selectedRenderer(currentPage.getOrNull(selectedIndex), guiGraphics, center, x, y, delta)
 
                 val angleStep = (2 * Math.PI).toFloat() / optionCount
 
                 var startAngle = startAngleDegree
 
                 //渲染选项
-                page.forEachIndexed { index, entry ->
+                currentPage.forEachIndexed { index, entry ->
                     optionRenderer(
                         entry,
                         guiGraphics,
                         index == selectedIndex,
-                        calculatePointPosition(center, optionRadius, sectors[index].centerAngle),
+                        optionsPosition[index],
                         x,
                         y,
                         delta
@@ -145,7 +142,7 @@ fun <T> ContainerScope.RadialMenu(
                         }
                     })
                     guiGraphics {
-                        xs.forEachIndexed { index, x ->
+                        xs.forEachIndexed { index, _ ->
                             pushBox(
                                 box.copy(x = box.left + xs[index], width = width),
                                 if (index == currentPageIndex) Colors.WHITE else Colors.WHITE.alpha(.35f)

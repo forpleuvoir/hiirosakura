@@ -51,7 +51,7 @@ fun <T> ContainerScope.RadialMenu(
     val quads: List<List<Quadrilateral>> = sectors.map { sector -> getRadialSectorQuads(Vector2f(), sector, innerRadius, outerRadius, gap) }
 
 //    var outerQuads: List<List<Quadrilateral>> = sectors.map { sector -> getRadialSectorQuads(Vector2f(), sector, outerRadius + 1, outerRadius + 1 + 2, gap) }
-//    var innerQuads: List<List<Quadrilateral>> =sectors.map { sector -> getRadialSectorQuads(Vector2f(), sector, innerRadius - 1 - 2, innerRadius - 1, gap) }
+    val innerQuads: List<List<Quadrilateral>> = sectors.map { sector -> getRadialSectorQuads(Vector2f(), sector, innerRadius - 2, innerRadius, gap) }
 
     var center: Vector2fc = Vector2f()
 
@@ -68,7 +68,7 @@ fun <T> ContainerScope.RadialMenu(
     var currentPageIndex = 0
 
     var currentPage: List<T> = options.asSequence().page(currentPageIndex + 1, optionCount).toList()
-
+    val innerQuadsColor = Colors.WHITE
     return Widget(modifier.attachLeft {
         size(outerRadius * 2, outerRadius * 2)
             .placeCompletion {
@@ -104,10 +104,10 @@ fun <T> ContainerScope.RadialMenu(
                         val innerColor = if (isSelected) selectedInnerColor.getValue() else idleInnerColor.getValue()
                         val outerColor = if (isSelected) selectedOuterColor.getValue() else idleOuterColor.getValue()
                         pushRadialSectorQuads(quads, innerColor, outerColor)
-//                        if (isSelected) {
-//                            pushRadialSectorQuads(innerQuads[index], Colors.WHITE.alpha(0.5f), Colors.WHITE.alpha(0.5f))
+                        if (isSelected) {
+                            pushRadialSectorQuads(innerQuads[index], innerQuadsColor, innerQuadsColor)
 //                            pushRadialSectorQuads(outerQuads[index], Colors.WHITE.alpha(0.5f), Colors.WHITE.alpha(0.5f))
-//                        }
+                        }
                     }
                 }
             }

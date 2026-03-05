@@ -7,6 +7,8 @@ import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
+import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.hoverText
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.minHeight
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
@@ -21,13 +23,16 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
+import moe.forpleuvoir.ibukigourd.gui.widget.text.TextWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextWidgetScope
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.style.style
 import moe.forpleuvoir.ibukigourd.util.state.asState
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.ChatFormatting
+import net.minecraft.locale.Language
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import net.minecraft.resources.Identifier
@@ -38,11 +43,22 @@ private val logger = logger("ComponentWrapper:Base")
 
 fun ContainerScope.IdentifierText(
     key: Identifier,
-    style: Style = Style.EMPTY,
+    style: Style? = Style.EMPTY,
     modifier: Modifier = Modifier,
     setting: TextSetting = TextSetting(),
     scope: TextWidgetScope.() -> Unit = {}
-) = Text(key.asTranslateText().setStyle(style), modifier, setting, true, scope)
+): TextWidget {
+    val text = key.asTranslateText().apply {
+        if (style != null) setStyle(style)
+    }
+    val commentKey = "${key.toLanguageKey()}.comment"
+    if (Language.getInstance().has(commentKey)) {
+        modifier.attachLeft {
+            hoverText(Translatable(commentKey))
+        }
+    }
+    return Text(text, modifier, setting, true, scope)
+}
 
 
 fun <C : Any> DataComponentEditor(

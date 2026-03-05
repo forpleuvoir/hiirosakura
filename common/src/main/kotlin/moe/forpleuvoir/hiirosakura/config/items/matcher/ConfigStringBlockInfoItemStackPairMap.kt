@@ -71,7 +71,7 @@ fun ContainerScope.ConfigStringBlockInfoItemStackPairMapWrapper(
     ) {
         TableConfigMapWrappedButton(
             config,
-            title = config.translateTextWithParent(1, " -> "),
+            title = config.translateTextWithParent(1, " → "),
             newValue = { mapEntry("block to item matcher ${(it.count())}", targetBlockMatcher to handheldItemMatcher) },
             hoverTableScope = {},
             hoverContent = {

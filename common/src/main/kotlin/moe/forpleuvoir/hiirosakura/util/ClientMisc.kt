@@ -66,14 +66,14 @@ fun sendNotification(title: String, message: String) {
 private fun sendPowerShellNotification(title: String, message: String) {
     defaultLaunch {
         runCatching {
-            val command = """
+            val command = $$"""
             powershell -Command "
                 [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null;
-                ${'$'}template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02);
-                ${'$'}template.GetElementsByTagName('text').Item(0).AppendChild(${'$'}template.CreateTextNode('$title')) | Out-Null;
-                ${'$'}template.GetElementsByTagName('text').Item(1).AppendChild(${'$'}template.CreateTextNode('$message')) | Out-Null;
-                ${'$'}toast = [Windows.UI.Notifications.ToastNotification]::new(${'$'}template);
-                [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('${HiiroSakura.MOD_NAME}').Show(${'$'}toast);
+                $template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02);
+                $template.GetElementsByTagName('text').Item(0).AppendChild($template.CreateTextNode('$$title')) | Out-Null;
+                $template.GetElementsByTagName('text').Item(1).AppendChild($template.CreateTextNode('$$message')) | Out-Null;
+                $toast = [Windows.UI.Notifications.ToastNotification]::new($template);
+                [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('$${HiiroSakura.MOD_NAME}').Show($toast);
             "
         """.trimIndent()
             ProcessBuilder().command(command).start()

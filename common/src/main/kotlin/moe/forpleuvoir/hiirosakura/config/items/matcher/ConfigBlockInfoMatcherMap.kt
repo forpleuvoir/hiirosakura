@@ -58,7 +58,7 @@ fun ContainerScope.BlockInfoMatcherMapWrapper(
     ) {
         TableConfigMapWrappedButton(
             config,
-            title = config.translateTextWithParent(1, " -> "),
+            title = config.translateTextWithParent(1, " → "),
             newValue = {
                 mapEntry("${HSLang.blockInfoMatcher.plainText} ${(it.count())}", targetBlockMatcher)
             },

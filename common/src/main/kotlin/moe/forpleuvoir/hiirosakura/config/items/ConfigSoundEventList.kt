@@ -72,7 +72,7 @@ fun ContainerScope.SoundEventListWrapper(
 
         TableConfigListWrappedButton(
             config,
-            title = config.translateTextWithParent(1, " -> "),
+            title = config.translateTextWithParent(1, " → "),
             newValue = { SoundEvents.COPPER_PLACE },
             hoverTableScope = {
                 ColumnBuilder {

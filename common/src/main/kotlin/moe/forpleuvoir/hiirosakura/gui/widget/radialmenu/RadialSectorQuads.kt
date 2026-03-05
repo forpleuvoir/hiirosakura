@@ -8,7 +8,10 @@ import net.minecraft.client.renderer.RenderPipelines
 import org.joml.Matrix3x2f
 import org.joml.Vector2f
 import org.joml.Vector2fc
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 fun IGGuiGraphics.pushRadialSectorQuads(
     center: Vector2fc,
@@ -140,22 +143,22 @@ private class VertexCache(private val maxCapacity: Int) {
 
 private val VERTEX_CACHE = VertexCache(100)
 
-private val Float.toDegrees get() = (this * 180.0 / PI).toFloat().let { if (it < 0) it + 360 else it }
-private val Float.toRadians get() = (this * PI / 180.0f).toFloat()
+private val Float.toDegrees get() = (this * 57.29577951308232).let { if (it < 0) it + 360 else it }
+private val Float.toRadians get() = this * 0.017453292519943295
 
 private fun getSectorVertices(innerRadius: Float, outerRadius: Float, sector: Sector, gap: Float): Pair<List<Vector2fc>, List<Vector2fc>> {
-    val startRadians = sector.start.toRadians
-    val endRadians = sector.end.toRadians
+    val startRadians = sector.start.toRadians.toFloat()
+    val endRadians = sector.end.toRadians.toFloat()
     //首先计算出四个关键点
     val startInnerPoint = calculateNormalLinePoints(0f, 0f, startRadians, innerRadius, gap, true)
     val startOuterPoint = calculateNormalLinePoints(0f, 0f, startRadians, outerRadius, gap, true)
     val endInnerPoint = calculateNormalLinePoints(0f, 0f, endRadians, innerRadius, gap, false)
     val endOuterPoint = calculateNormalLinePoints(0f, 0f, endRadians, outerRadius, gap, false)
 
-    val innerStartAngle = atan2(startInnerPoint.y(), startInnerPoint.x()).toDegrees
-    val innerEndAngle = atan2(endInnerPoint.y(), endInnerPoint.x()).toDegrees
-    val outerStartAngle = atan2(startOuterPoint.y(), startOuterPoint.x()).toDegrees
-    val outerEndAngle = atan2(endOuterPoint.y(), endOuterPoint.x()).toDegrees
+    val innerStartAngle = atan2(startInnerPoint.y(), startInnerPoint.x()).toDegrees.toFloat()
+    val innerEndAngle = atan2(endInnerPoint.y(), endInnerPoint.x()).toDegrees.toFloat()
+    val outerStartAngle = atan2(startOuterPoint.y(), startOuterPoint.x()).toDegrees.toFloat()
+    val outerEndAngle = atan2(endOuterPoint.y(), endOuterPoint.x()).toDegrees.toFloat()
 
     val innerVertices = getSectorVertices(innerRadius, innerStartAngle, Sector.calculateArchAngle(innerStartAngle, innerEndAngle))
     val outerVectors = getSectorVertices(outerRadius, outerStartAngle, Sector.calculateArchAngle(outerStartAngle, outerEndAngle))

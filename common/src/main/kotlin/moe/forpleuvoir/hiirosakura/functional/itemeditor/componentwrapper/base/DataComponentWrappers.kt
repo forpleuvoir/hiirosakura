@@ -198,7 +198,7 @@ object DataComponentWrappers : Initializable {
             DamageResistantComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
         //------------ Equippable ------------\\
-        register(EQUIPPABLE, { Items.SADDLE.components().get(EQUIPPABLE)?: Equippable.harness(DyeColor.PINK) }) { key, c, m, rm, consumer ->
+        register(EQUIPPABLE, { Items.SADDLE.components().get(EQUIPPABLE) ?: Equippable.harness(DyeColor.PINK) }) { key, c, m, rm, consumer ->
             EquippableComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
         //------------ Repairable ------------\\
@@ -229,6 +229,13 @@ object DataComponentWrappers : Initializable {
         register(DAMAGE_TYPE, { EitherHolder(DamageTypes.SPEAR) }) { key, c, m, rm, consumer ->
             DamageTypeComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
+        //------------ Consumable ------------\\
+//        register(
+//            CONSUMABLE,
+//            { Consumable(1.6f, ItemUseAnimation.EAT, SoundEvents.GENERIC_EAT, true, ArrayList<ConsumeEffect>()) }
+//        ) { key, c, m, rm, consumer ->
+//            ConsumableComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+//        }
         //------------ KineticWeapon ------------\\
 //        register(KINETIC_WEAPON, KineticWeapon) { key, c, m, rm, consumer ->
 //            DamageTypeComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)

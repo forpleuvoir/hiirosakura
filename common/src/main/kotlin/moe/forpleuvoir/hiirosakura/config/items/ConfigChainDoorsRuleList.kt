@@ -65,7 +65,7 @@ fun ContainerScope.ConfigChainDoorsRuleListWrapper(
     ) {
         TableConfigListWrappedButton(
             config,
-            title = config.translateTextWithParent(1, " -> "),
+            title = config.translateTextWithParent(1, " → "),
             newValue = { ChainDoorsRule.MOB_INTERACTABLE_DOORS },
             hoverTableScope = {
                 Header {

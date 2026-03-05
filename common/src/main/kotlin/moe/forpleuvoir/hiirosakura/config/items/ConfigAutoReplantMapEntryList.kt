@@ -55,7 +55,7 @@ fun ContainerScope.AutoReplantMapEntryListWrapper(
     ) {
         TableConfigListWrappedButton(
             config,
-            title = config.translateTextWithParent(1, " -> "),
+            title = config.translateTextWithParent(1, " → "),
             newValue = { AutoReplant.MapEntry() },
             hoverTableScope = {
                 Header {

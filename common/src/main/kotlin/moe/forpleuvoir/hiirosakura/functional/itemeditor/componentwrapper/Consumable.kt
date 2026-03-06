@@ -24,12 +24,12 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.FloatEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.component.Consumable
 
 //region Wrapper
 fun ContainerScope.ConsumableComponentWrapper(
-    key: Identifier,
+    key: ResourceLocation,
     component: Consumable,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,

@@ -10,8 +10,6 @@ import moe.forpleuvoir.nebula.event.Subscriber
 import net.minecraft.client.KeyboardHandler
 import net.minecraft.client.Minecraft
 import net.minecraft.client.MouseHandler
-import net.minecraft.client.input.KeyEvent
-import net.minecraft.client.input.MouseButtonInfo
 import org.lwjgl.glfw.GLFW
 
 @EventSubscriber
@@ -19,7 +17,7 @@ object InputSimulator {
 
     private val client: Minecraft get() = Minecraft.getInstance()
 
-    private val windowsHandler: Long get() = client.window.handle()
+    private val windowsHandler: Long get() = client.window.window
 
     private val keyBoard: KeyboardHandler get() = client.keyboardHandler
 
@@ -69,7 +67,7 @@ object InputSimulator {
     }
 
     fun onKey(keyCode: Int, scancode: Int, action: Int, modifiers: Int) {
-        mc.execute { keyBoard.keyPress(windowsHandler, action, KeyEvent(keyCode, scancode, modifiers)) }
+        mc.execute { keyBoard.keyPress(windowsHandler, keyCode, scancode, action, modifiers) }
     }
 
     fun keyPress(keyCode: KeyCode, duration: Long = 1) {
@@ -77,7 +75,7 @@ object InputSimulator {
     }
 
     fun onMouseButton(button: Int, action: Int, mods: Int) {
-        mc.execute { mouse.onButton(windowsHandler, MouseButtonInfo(button, mods), action) }
+        mc.execute { mouse.onPress(windowsHandler, button, action, mods) }
     }
 
     fun mousePress(button: Mouse, duration: Long = 1) {

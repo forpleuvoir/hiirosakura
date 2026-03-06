@@ -25,12 +25,12 @@ import moe.forpleuvoir.ibukigourd.util.state.MutableState
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import net.minecraft.core.registries.Registries
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.damagesource.DamageType
 import net.minecraft.world.item.EitherHolder
 
 fun ContainerScope.DamageTypeComponentWrapper(
-    key: Identifier,
+    key: ResourceLocation,
     component: EitherHolder<DamageType>,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
@@ -56,24 +56,24 @@ fun ContainerScope.DamageTypeSelector(
     selectedColor: ARGBColor = defaultSelectedColor,
     selectedWrapper: DropDownMenuScope.(EitherHolder<DamageType>) -> GuiWidget = {
         Text(
-            it.key().get().identifier().asTranslateText(),
+            it.key().get().location().asTranslateText(),
             modifier = Modifier.weight(1)
                 .hoverText(it.contents().left().get().value().translatableText)
         )
     },
     optionWrapper: ButtonScope.(EitherHolder<DamageType>) -> GuiWidget = {
         Text(
-            it.key().get().identifier().asTranslateText(),
+            it.key().get().location().asTranslateText(),
             modifier = Modifier.weight(1)
                 .hoverText(it.contents().left().get().value().translatableText)
         )
     },
     modifier: Modifier = Modifier.width(280f),
     searchBarModifier: ColumnScope.() -> Modifier = {
-        Modifier.width(damageTypes.map { it.key().get().identifier().asTranslateText() }.maxWidth + 12f)
+        Modifier.width(damageTypes.map { it.key().get().location().asTranslateText() }.maxWidth + 12f)
     },
     listWrapperModifier: ColumnScope.() -> Modifier = {
-        Modifier.width(damageTypes.map { it.key().get().identifier().asTranslateText() }.maxWidth + 12f).maxHeight(160f)
+        Modifier.width(damageTypes.map { it.key().get().location().asTranslateText() }.maxWidth + 12f).maxHeight(160f)
     },
     listModifier: RowScope.() -> Modifier = { Modifier.weight(1) },
     optionsDirection: List<Direction> = Direction.bottomTopRightLeft,
@@ -82,7 +82,7 @@ fun ContainerScope.DamageTypeSelector(
     options = damageTypes,
     selected = damageType,
     predicate = { tag, str ->
-        tag.key().get().identifier().asTranslateText().plainText.contains(str)
+        tag.key().get().location().asTranslateText().plainText.contains(str)
     },
     onSelected = onSelected,
     selectedColor = selectedColor,

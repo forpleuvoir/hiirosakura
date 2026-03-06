@@ -96,7 +96,7 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
 
     val dyedColor = boolean("dyed_color", false).setTranslatedText()
 
-    val profile = boolean("profile", false).setTranslatedText()
+//    val profile = boolean("profile", false).setTranslatedText()
 
     val lore = boolean("lore", false).setTranslatedText()
 
@@ -110,7 +110,7 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
 
     val blockState = boolean("block_state", false).setTranslatedText()
 
-    val entityData = boolean("entity_data", false).setTranslatedText()
+//    val entityData = boolean("entity_data", false).setTranslatedText()
 
     val blockEntityData = boolean("block_entity_data", false).setTranslatedText()
 
@@ -210,7 +210,7 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
         itemStack.addTooltip(state, storedEnchantments, DataComponents.STORED_ENCHANTMENTS, context, display, tooltipFlag, adder)
         itemStack.addTooltip(state, enchantments, DataComponents.ENCHANTMENTS, context, display, tooltipFlag, adder)
         itemStack.addTooltip(state, dyedColor, DataComponents.DYED_COLOR, context, display, tooltipFlag, adder)
-        itemStack.addTooltip(state, profile, DataComponents.PROFILE, context, display, tooltipFlag, adder)
+//        itemStack.addTooltip(state, profile, DataComponents.PROFILE, context, display, tooltipFlag, adder)
         itemStack.addTooltip(state, lore, DataComponents.LORE, context, display, tooltipFlag, adder)
 
         if (isEnabled(state, "attribute_modifiers", attributeModifiers.getValue()))
@@ -226,7 +226,7 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
         itemStack.addTooltip(state, ominousBottleAmplifier, DataComponents.OMINOUS_BOTTLE_AMPLIFIER, context, display, tooltipFlag, adder)
         itemStack.addTooltip(state, suspiciousStewEffects, DataComponents.SUSPICIOUS_STEW_EFFECTS, context, display, TooltipFlag.Default(true, true), adder)
         itemStack.addTooltip(state, blockState, DataComponents.BLOCK_STATE, context, display, tooltipFlag, adder)
-        itemStack.addTooltip(state, entityData, DataComponents.ENTITY_DATA, context, display, tooltipFlag, adder)
+//        itemStack.addTooltip(state, entityData, DataComponents.ENTITY_DATA, context, display, tooltipFlag, adder)
 
         if (isEnabled(
                 state,

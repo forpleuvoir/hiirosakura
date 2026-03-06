@@ -8,10 +8,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.gui.widget.EnumSelector
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 
 fun <E : Enum<E>> ContainerScope.EnumComponentWrapper(
-    key: Identifier,
+    key: ResourceLocation,
     component: E,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,

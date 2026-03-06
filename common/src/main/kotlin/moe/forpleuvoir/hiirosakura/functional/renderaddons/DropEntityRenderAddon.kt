@@ -17,16 +17,15 @@ import moe.forpleuvoir.nebula.common.util.primitive.either
 import moe.forpleuvoir.nebula.config.item.impl.*
 import net.minecraft.client.gui.Font
 import net.minecraft.client.renderer.LightTexture
-import net.minecraft.client.renderer.SubmitNodeCollector
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher
 import net.minecraft.client.renderer.entity.state.EntityRenderState
 import net.minecraft.client.renderer.entity.state.ExperienceOrbRenderState
 import net.minecraft.client.renderer.entity.state.ItemEntityRenderState
-import net.minecraft.client.renderer.state.CameraRenderState
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.ExperienceOrb
 import net.minecraft.world.entity.item.ItemEntity
 import org.joml.Vector3f
-import kotlin.math.atan2
 
 object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
 
@@ -44,9 +43,9 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
 
     val textBackgroundColor by color("background_color", Color.ofARGB(0x66000000))
 
-    val invertOutlineColor by boolean("invert_outline_color", false)
+//    val invertOutlineColor by boolean("invert_outline_color", false)
 
-    val textOutlineColor by color("text_outline_color", Color.ofARGB(0))
+//    val textOutlineColor by color("text_outline_color", Color.ofARGB(0))
 
     val displayMode: Font.DisplayMode by enum("display_mode", Font.DisplayMode.NORMAL)
 
@@ -60,9 +59,10 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
     fun renderItemEntityInfo(
         entity: ItemEntity,
         renderState: ItemEntityRenderState,
-        cameraRenderState: CameraRenderState,
+        entityRenderDispatcher: EntityRenderDispatcher,
+        packedLight: Int,
         poseStack: PoseStack,
-        nodeCollector: SubmitNodeCollector
+        multiBufferSource: MultiBufferSource
     ) {
         if (!enable.value || distance <= 0) return
         if (renderState.distanceToCameraSq > distance) return
@@ -71,11 +71,11 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
             renderEntityMultiText(
                 renderState.boundingBoxHeight,
                 texts,
-                renderState.lightCoords,
+                packedLight,
                 renderState,
-                cameraRenderState,
+                entityRenderDispatcher,
                 poseStack,
-                nodeCollector
+                multiBufferSource
             )
         }
     }
@@ -85,9 +85,10 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
         color: ARGBColor,
         entity: ExperienceOrb,
         renderState: ExperienceOrbRenderState,
-        cameraRenderState: CameraRenderState,
+        entityRenderDispatcher: EntityRenderDispatcher,
+        packedLight: Int,
         poseStack: PoseStack,
-        nodeCollector: SubmitNodeCollector
+        multiBufferSource: MultiBufferSource
     ) {
         if (!enable.value || !experienceOrbValue.value || distance <= 0) return
         if (renderState.distanceToCameraSq > distance) return
@@ -96,11 +97,11 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
             renderState.boundingBoxHeight,
             -0.5,
             text,
-            renderState.lightCoords,
+            packedLight,
             renderState,
-            cameraRenderState,
+            entityRenderDispatcher,
             poseStack,
-            nodeCollector
+            multiBufferSource
         )
     }
 
@@ -110,9 +111,9 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
         text: Component,
         packedLight: Int,
         entityRenderState: EntityRenderState,
-        cameraRenderState: CameraRenderState,
+        entityRenderDispatcher: EntityRenderDispatcher,
         poseStack: PoseStack,
-        nodeCollector: SubmitNodeCollector
+        multiBufferSource: MultiBufferSource
     ) {
         val light = useMaxLight.either(LightTexture.FULL_BRIGHT, packedLight)
 
@@ -121,24 +122,16 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
         poseStack.translate(offset.x() * 0.01f, offset.y() * 0.01f + (height + 0.7f + textHeight).toFloat(), offset.z() * 0.01f)
 
         if (onlyYRotation) {
-            val dx = cameraRenderState.pos.x - entityRenderState.x
-            val dz = cameraRenderState.pos.z - entityRenderState.z
-            val yaw = (Math.toDegrees(atan2(-dx, dz))).toFloat()
-            // 获取相机的完整旋转信息
-            val vector3f = Vector3f()
-            mc.gameRenderer.mainCamera.rotation().getEulerAnglesXYZ(vector3f)
-
-            // 组合Y轴朝向和Z轴旋转
-            poseStack.mulPose(Axis.YP.rotationDegrees(-yaw))
+            poseStack.mulPose(Axis.YP.rotation(entityRenderDispatcher.cameraOrientation().getEulerAnglesYXZ(Vector3f()).y()))
         } else
-            poseStack.mulPose(cameraRenderState.orientation)
+            poseStack.mulPose(entityRenderDispatcher.cameraOrientation())
 
         poseStack.scale(0.025f, -0.025f, 0.025f)
 
-        val outlineColor = text.style.color?.let {
-            Color.ofRGB(it.value).reverse()
-        } ?: textDefaultColor.reverse()
-        nodeCollector.pushText(
+//        val outlineColor = text.style.color?.let {
+//            Color.ofRGB(it.value).reverse()
+//        } ?: textDefaultColor.reverse()
+        mc.font.pushText(
             text,
             (-text.width / 2),
             0f,
@@ -147,8 +140,9 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
             light,
             textDefaultColor,
             if (text.string.isEmpty()) Color.ofARGB(0) else textBackgroundColor,
-            if (invertOutlineColor) outlineColor else textOutlineColor,
-            poseStack
+//            if (invertOutlineColor) outlineColor else textOutlineColor,
+            poseStack,
+            multiBufferSource
         )
         poseStack.popPose()
     }
@@ -158,15 +152,15 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
         text: List<Component>,
         packedLight: Int,
         entityRenderState: EntityRenderState,
-        cameraRenderState: CameraRenderState,
+        entityRenderDispatcher: EntityRenderDispatcher,
         poseStack: PoseStack,
-        nodeCollector: SubmitNodeCollector
+        bufferSource: MultiBufferSource
     ) {
         val textRows = text.size
         var textHeight = (textRows * (0.25f + (spacing * 0.05f))).toDouble()
         for (item in text) {
             textHeight -= 0.25 + spacing * 0.05f
-            renderEntityText(height, textHeight, item, packedLight, entityRenderState, cameraRenderState, poseStack, nodeCollector)
+            renderEntityText(height, textHeight, item, packedLight, entityRenderState, entityRenderDispatcher, poseStack, bufferSource)
         }
     }
 

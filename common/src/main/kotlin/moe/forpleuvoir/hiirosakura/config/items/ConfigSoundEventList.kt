@@ -26,7 +26,7 @@ import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents
 
@@ -54,7 +54,7 @@ fun SoundEvent.serialization(): SerializeElement =
 object SoundEventDeserializer : Deserializer<SoundEvent> {
     override fun deserialization(serializeElement: SerializeElement): SoundEvent {
         return serializeElement.checkType<SerializePrimitive, SoundEvent> {
-            SoundEvent.createVariableRangeEvent(Identifier.parse(it.asString))
+            SoundEvent.createVariableRangeEvent(ResourceLocation.parse(it.asString))
         }.getOrThrow()
     }
 

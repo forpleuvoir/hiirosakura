@@ -11,7 +11,7 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import net.minecraft.client.Minecraft
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -48,7 +48,7 @@ open class IconTickTask(
                     executeOn = ExecuteOn.valueOf(it["execute_on"]!!.asString),
                     executorType = type,
                     executor = type.deserialization(it["executor"]!!),
-                    icon = BuiltInRegistries.ITEM.get(Identifier.parse(it["icon"]!!.asString)).get().value(),
+                    icon = BuiltInRegistries.ITEM.get(ResourceLocation.parse(it["icon"]!!.asString)).get().value(),
                 )
             }.getOrThrow()
         }

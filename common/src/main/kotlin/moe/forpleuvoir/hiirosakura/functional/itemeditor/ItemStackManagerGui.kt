@@ -54,6 +54,7 @@ import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.ioLaunch
 import moe.forpleuvoir.nebula.common.util.primitive.either
+import net.minecraft.Util
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner
@@ -61,7 +62,6 @@ import net.minecraft.core.RegistryAccess
 import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.component.DataComponents
 import net.minecraft.nbt.*
-import net.minecraft.util.Util
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import java.util.Map

@@ -27,9 +27,9 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.client.gui.Font
 import net.minecraft.client.renderer.LightTexture
-import net.minecraft.client.renderer.SubmitNodeCollector
-import net.minecraft.client.renderer.entity.state.AvatarRenderState
-import net.minecraft.client.renderer.rendertype.RenderTypes
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.entity.state.PlayerRenderState
 import org.joml.Quaternionf
 import org.joml.Vector2fc
 import org.joml.times
@@ -58,7 +58,7 @@ class ChatBubble(
 
         private val VANILLA_RENDER_TYPE = HSRenderType.POSITION_TEX_COLOR.apply(TEXTURE.texture)
 
-        private val IRIS_RENDER_TYPE = RenderTypes.entityTranslucent(TEXTURE.texture)
+        private val IRIS_RENDER_TYPE = RenderType.entityTranslucent(TEXTURE.texture)
 
         private const val LINE_SPACING = 4f
 
@@ -143,8 +143,8 @@ class ChatBubble(
             poseStack: PoseStack,
             offset: Vector2fc,
             scale: Vector2fc,
-            renderState: AvatarRenderState,
-            nodeCollector: SubmitNodeCollector,
+            renderState: PlayerRenderState,
+            multiBufferSource: MultiBufferSource,
             packedLight: Int
         ) {
             val packedLight = (ChatBubbleHandler.useMaxLight || !useIrisCompatiblePipeline.value).either(LightTexture.FULL_BRIGHT, packedLight)
@@ -158,14 +158,14 @@ class ChatBubble(
             poseStack.translate(scaledOffset.x(), scaledOffset.y(), 0f)
 
             val camera = mc.gameRenderer.mainCamera
-            val cameraYaw = camera.yRot()
-            val cameraPitch = camera.xRot()
+            val cameraYaw = camera.yRot
+            val cameraPitch = camera.xRot
             poseStack.mulPose(Quaternionf().rotateY(-cameraYaw * (Math.PI.toFloat() / 180F)))// 水平旋转
             if (!ChatBubbleHandler.onlyYRotation)
                 poseStack.mulPose(Quaternionf().rotateX(cameraPitch * (Math.PI.toFloat() / 180F))) // 垂直旋转
 
             poseStack.scale(scale.x() * s, scale.y() * s, -s)
-            nodeCollector.pushSpeechBubbleTexture(
+            multiBufferSource.pushSpeechBubbleTexture(
                 bubbleBox,
                 BUBBLE,
                 arrowBox,
@@ -176,16 +176,17 @@ class ChatBubble(
                 poseStack,
                 RENDER_TYPE
             )
-            nodeCollector.pushStringLines(
-                lines,
-                textBox,
-                Alignment.Left,
-                Arrangement.spacedBy(LINE_SPACING),
+            mc.font.pushStringLines(
+                lines = lines,
+                box = textBox,
+                horizontalAlignment = Alignment.Left,
+                verticalArrangement = Arrangement.spacedBy(LINE_SPACING),
                 displayMode = Font.DisplayMode.POLYGON_OFFSET,
                 dropShadow = false,
                 defaultColor = ChatBubbleHandler.textColor.alpha(alpha),
                 packedLight = packedLight,
-                poseStack = poseStack
+                poseStack = poseStack,
+                bufferSource = multiBufferSource
             )
 
             poseStack.popPose()
@@ -235,9 +236,9 @@ class ChatBubble(
 
     fun render(
         packedLight: Int,
-        renderState: AvatarRenderState,
+        renderState: PlayerRenderState,
         poseStack: PoseStack,
-        nodeCollector: SubmitNodeCollector,
+        multiBufferSource: MultiBufferSource,
         scale: Vector2fc = ChatBubbleHandler.scale,
         offset: Vector2fc = ChatBubbleHandler.offset
     ) {
@@ -247,7 +248,7 @@ class ChatBubble(
             fadeOutDuration,
             timeMark
         ).coerceIn(0.05f, 1f)
-        renderBubble(bubbleBox, arrowBox, textBox, lines, alpha, poseStack, offset, scale, renderState, nodeCollector, packedLight)
+        renderBubble(bubbleBox, arrowBox, textBox, lines, alpha, poseStack, offset, scale, renderState, multiBufferSource, packedLight)
     }
 
     fun renderInGui(guiGraphics: IGGuiGraphics, box: Box) {

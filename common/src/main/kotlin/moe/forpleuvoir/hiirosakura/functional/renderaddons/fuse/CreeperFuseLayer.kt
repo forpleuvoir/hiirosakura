@@ -16,9 +16,9 @@ import moe.forpleuvoir.nebula.common.util.primitive.either
 import moe.forpleuvoir.nebula.config.item.impl.boolean
 import moe.forpleuvoir.nebula.config.item.impl.enum
 import net.minecraft.client.gui.Font
-import net.minecraft.client.model.monster.creeper.CreeperModel
+import net.minecraft.client.model.CreeperModel
 import net.minecraft.client.renderer.LightTexture
-import net.minecraft.client.renderer.SubmitNodeCollector
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.entity.RenderLayerParent
 import net.minecraft.client.renderer.entity.layers.RenderLayer
 import net.minecraft.client.renderer.entity.state.CreeperRenderState
@@ -40,22 +40,15 @@ class CreeperFuseLayer(
 
     }
 
-    override fun submit(
-        poseStack: PoseStack,
-        nodeCollector: SubmitNodeCollector,
-        packedLight: Int,
-        renderState: CreeperRenderState,
-        yRot: Float,
-        xRot: Float
-    ) {
+    override fun render(poseStack: PoseStack, bufferSource: MultiBufferSource, packedLight: Int, renderState: CreeperRenderState, yRot: Float, xRot: Float) {
         if (renderType == FuseRenderType.None || renderState.swelling <= 0) return
-        renderCreeperFuse(renderState, poseStack.restPoseStackKeepTranslation(), nodeCollector, packedLight)
+        renderCreeperFuse(renderState, poseStack.restPoseStackKeepTranslation(), bufferSource, packedLight)
     }
 
     private fun renderCreeperFuse(
         state: CreeperRenderState,
         poseStack: PoseStack,
-        nodeCollector: SubmitNodeCollector,
+        bufferSource: MultiBufferSource,
         packedLight: Int
     ) {
         if (renderType == FuseRenderType.None) return
@@ -66,9 +59,9 @@ class CreeperFuseLayer(
         val color = HSVColor(0f).lerp(HSVColor(120f), QuadEasing.easeIn(progress))
 
         val camera = mc.gameRenderer.mainCamera
-        val cameraYaw = camera.yRot()
-        val cameraPitch = camera.xRot()
-        val h =  state.boundingBoxHeight * 0.35f
+        val cameraYaw = camera.yRot
+        val cameraPitch = camera.xRot
+        val h = state.boundingBoxHeight * 0.35f
         if (renderType == FuseRenderType.ProgressBar) {
             poseStack.pushPose()
             poseStack.translate(0f, h, 0f)
@@ -80,7 +73,7 @@ class CreeperFuseLayer(
             val width = 40f
             val height = 8f
             val box = Box(x = -width / 2, y = -4f, Size(width, height))
-            FuseRenderType.renderBox(poseStack, nodeCollector, progress, box, Colors.WHITE, color, packedLight)
+            FuseRenderType.renderBox(poseStack, bufferSource, progress, box, Colors.WHITE, color, packedLight)
             poseStack.popPose()
         } else if (renderType == FuseRenderType.Text) {
             poseStack.pushPose()
@@ -91,7 +84,7 @@ class CreeperFuseLayer(
             poseStack.scale(-0.025f, -0.025f, 0.025f)
             val text = "%.2f".format((MAX_FUSE - fuse) * 100)
             val width = text.width
-            nodeCollector.pushText(
+            mc.font.pushText(
                 text,
                 -width / 2f,
                 -4.5f,
@@ -100,8 +93,8 @@ class CreeperFuseLayer(
                 packedLight,
                 color,
                 Color.ofARGB(0),
-                Colors.GRAY,
-                poseStack
+                poseStack,
+                bufferSource
             )
             poseStack.popPose()
         }

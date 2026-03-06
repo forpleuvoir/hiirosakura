@@ -45,7 +45,7 @@ import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.HSVColor
-import net.minecraft.util.Util
+import net.minecraft.Util
 import net.minecraft.world.level.block.Blocks
 import org.joml.Vector3i
 import kotlin.jvm.optionals.getOrNull

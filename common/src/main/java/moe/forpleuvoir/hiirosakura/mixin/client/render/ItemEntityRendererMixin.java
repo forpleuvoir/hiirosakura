@@ -3,12 +3,11 @@ package moe.forpleuvoir.hiirosakura.mixin.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.DropEntityRenderAddon;
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.ItemEntityRenderStateAccessor;
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemEntityRenderer;
 import net.minecraft.client.renderer.entity.state.ItemEntityRenderState;
-import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.world.entity.item.ItemEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,17 +27,17 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity,
     }
 
     @Inject(
-            method = "submit(Lnet/minecraft/client/renderer/entity/state/ItemEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
+            method = "render(Lnet/minecraft/client/renderer/entity/state/ItemEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V",
                     shift = At.Shift.AFTER
             )
     )
-    public void submit(ItemEntityRenderState renderState, PoseStack poseStack, SubmitNodeCollector nodeCollector, CameraRenderState cameraRenderState, CallbackInfo ci) {
+    public void render(ItemEntityRenderState renderState, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, CallbackInfo ci) {
         var currentItemEntity = ((ItemEntityRenderStateAccessor) renderState).hiirosakura$getItemEntity();
         if (currentItemEntity != null) {
-            DropEntityRenderAddon.renderItemEntityInfo(currentItemEntity, renderState, cameraRenderState, poseStack, nodeCollector);
+            DropEntityRenderAddon.renderItemEntityInfo(currentItemEntity, renderState, this.entityRenderDispatcher, packedLight, poseStack, bufferSource);
         }
     }
 }

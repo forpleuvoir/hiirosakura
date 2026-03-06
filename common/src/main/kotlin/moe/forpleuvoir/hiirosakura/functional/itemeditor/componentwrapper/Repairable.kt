@@ -36,14 +36,14 @@ import net.minecraft.core.HolderSet
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.enchantment.Repairable
 
 fun ContainerScope.RepairableComponentWrapper(
-    key: Identifier,
+    key: ResourceLocation,
     component: Repairable,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,

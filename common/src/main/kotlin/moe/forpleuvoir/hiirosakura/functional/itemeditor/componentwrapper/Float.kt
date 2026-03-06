@@ -24,13 +24,13 @@ import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.ibukigourd.util.state.switch
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val WIDTH = 115f
 
 fun ContainerScope.FloatComponentWrapper(
-    key: Identifier,
+    key: ResourceLocation,
     component: Float,
     valueRange: ClosedFloatingPointRange<Float>,
     textMapper: (Float) -> MutableText = { Literal("%.2f".format(it)) },

@@ -33,11 +33,11 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.extensions.toSerializeElement
 import net.minecraft.core.component.DataComponentType
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 
 @Suppress("UNCHECKED_CAST")
 fun <C : Any> ContainerScope.DefaultComponentWrapper(
-    key: Identifier,
+    key: ResourceLocation,
     componentType: DataComponentType<C>,
     component: Any?,
     removeAction: () -> Unit,
@@ -91,7 +91,7 @@ fun <C : Any> ContainerScope.DefaultComponentWrapper(
 
 
 fun <C : Any> DefaultComponentBuilder(
-    key: Identifier,
+    key: ResourceLocation,
     componentType: DataComponentType<C>,
     onValueChange: (C, Boolean) -> Unit,
 ): IGScreenImpl {

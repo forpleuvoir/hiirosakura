@@ -3,8 +3,8 @@ package moe.forpleuvoir.hiirosakura.functional.script.deobfuscation
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Color
+import net.minecraft.Util
 import net.minecraft.core.BlockPos
-import net.minecraft.util.Util
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.CropBlock
 import net.minecraft.world.level.block.LiquidBlock

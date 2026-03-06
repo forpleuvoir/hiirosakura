@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import kotlin.reflect.KClass
 
 internal fun logger(name: String): ModLogger = ModLogger(name, HiiroSakura.MOD_NAME)
@@ -19,7 +19,7 @@ internal fun logger(clazz: KClass<*>): ModLogger = ModLogger(clazz, HiiroSakura.
 
 internal fun Any.logger(): ModLogger = ModLogger(this::class, HiiroSakura.MOD_NAME)
 
-internal fun identifier(path: String): Identifier = identifier(HiiroSakura.MOD_ID, path)
+internal fun identifier(path: String): ResourceLocation = identifier(HiiroSakura.MOD_ID, path)
 
 fun <T : Comparable<T>> ClosedRange<T>.serialization(): SerializeElement {
     return SerializePrimitive("${this.start}..${this.endInclusive}")

@@ -24,11 +24,11 @@ import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.inlinestyletext.InlineStyleTextParser
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import kotlin.time.Duration.Companion.milliseconds
 
 fun ContainerScope.TextComponentWrapper(
-    key: Identifier,
+    key: ResourceLocation,
     component: Text,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,

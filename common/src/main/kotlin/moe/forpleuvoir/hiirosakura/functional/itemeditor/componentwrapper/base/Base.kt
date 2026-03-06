@@ -35,14 +35,14 @@ import net.minecraft.ChatFormatting
 import net.minecraft.locale.Language
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 
 val unknownComponentType = identifier("unknown_component_type")
 
 private val logger = logger("ComponentWrapper:Base")
 
 fun ContainerScope.IdentifierText(
-    key: Identifier,
+    key: ResourceLocation,
     style: Style? = Style.EMPTY,
     modifier: Modifier = Modifier,
     setting: TextSetting = TextSetting(),
@@ -91,7 +91,7 @@ fun <C : Any> DataComponentEditor(
 }
 
 fun ContainerScope.DataComponentWrapperRow(
-    key: Identifier,
+    key: ResourceLocation,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f, Alignment.Right),

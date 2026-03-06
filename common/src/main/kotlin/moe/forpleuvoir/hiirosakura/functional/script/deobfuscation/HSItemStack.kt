@@ -6,7 +6,7 @@ import moe.forpleuvoir.hiirosakura.util.tooltipFlag
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.*
 
 /**
@@ -32,7 +32,7 @@ class HSItemStack(internal val stack: ItemStack) {
 
     fun isStackable() = stack.isStackable
 
-    fun hasComponent(componentType: String): Boolean = stack.has(BuiltInRegistries.DATA_COMPONENT_TYPE.get(Identifier.parse(componentType)).get().value())
+    fun hasComponent(componentType: String): Boolean = stack.has(BuiltInRegistries.DATA_COMPONENT_TYPE.get(ResourceLocation.parse(componentType)).get().value())
 
     /**
      * 获取当前物品的唯一标识符，并将其转换为字符串形式。

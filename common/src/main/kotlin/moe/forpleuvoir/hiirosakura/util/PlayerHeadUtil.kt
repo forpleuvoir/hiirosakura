@@ -12,7 +12,7 @@ object PlayerHeadUtil {
     @JvmStatic
     fun getPlayerHead(player: Player): ItemStack {
         val stack = ItemStack(Items.PLAYER_HEAD)
-        stack.set(DataComponents.PROFILE, ResolvableProfile.createResolved(player.gameProfile))
+        stack.set(DataComponents.PROFILE, ResolvableProfile(player.gameProfile))
         return stack
     }
 

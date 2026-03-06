@@ -36,6 +36,7 @@ dependencies {
     include(libs.bundles.jexl)
 
     modImplementation(libs.ibukigourd.fabric)
+    include(libs.ibukigourd.fabric)
 }
 
 sourceSets {

@@ -10,23 +10,23 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.render.color
 import moe.forpleuvoir.ibukigourd.render.uv
-import moe.forpleuvoir.ibukigourd.text.*
+import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.text.width
+import moe.forpleuvoir.ibukigourd.text.wrapToLines
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gui.Font
 import net.minecraft.client.renderer.LightTexture
-import net.minecraft.client.renderer.OrderedSubmitNodeCollector
-import net.minecraft.client.renderer.rendertype.RenderType
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.locale.Language
-import net.minecraft.network.chat.FormattedText
 import kotlin.math.absoluteValue
 
 //------------ Texture ------------\\
 
-fun OrderedSubmitNodeCollector.pushTexture(
+fun MultiBufferSource.pushTexture(
     box: Box,
     widgetTexture: WidgetTexture,
     packedLight: Int,
@@ -35,7 +35,7 @@ fun OrderedSubmitNodeCollector.pushTexture(
     renderType: RenderType
 ) = pushTexture(box.x, box.y, box.width, box.height, widgetTexture, packedLight, color, poseStack, renderType)
 
-fun OrderedSubmitNodeCollector.pushTexture(
+fun MultiBufferSource.pushTexture(
     x: Float,
     y: Float,
     width: Float,
@@ -46,9 +46,7 @@ fun OrderedSubmitNodeCollector.pushTexture(
     poseStack: PoseStack,
     renderType: RenderType
 ) {
-    submitCustomGeometry(poseStack, renderType) { pose, consumer ->
-        pushNineSlicedTexture(x, y, width, height, color, widgetTexture, packedLight, pose, consumer)
-    }
+    pushNineSlicedTexture(x, y, width, height, color, widgetTexture, packedLight, poseStack.last(), this.getBuffer(renderType))
 }
 
 private fun VertexConsumer.vertex(pose: PoseStack.Pose, x: Float, y: Float): VertexConsumer =
@@ -220,7 +218,7 @@ private fun pushNineSlicedTexture(
     pushTexture(rightX, bottomY, cr, cb, rightU, bottomV, rightUS, bottomVS, packedLight, color, tw, th, pose, vertexConsumer)
 }
 
-fun OrderedSubmitNodeCollector.pushSpeechBubbleTexture(
+fun MultiBufferSource.pushSpeechBubbleTexture(
     bubbleBox: Box,
     bubble: WidgetTexture,
     arrowBox: Box,
@@ -234,9 +232,7 @@ fun OrderedSubmitNodeCollector.pushSpeechBubbleTexture(
     poseStack: PoseStack,
     renderType: RenderType
 ) {
-    submitCustomGeometry(poseStack, renderType) { pose, consumer ->
-        pushSpeechBubbleTexture(bubbleBox, bubble, arrowBox, arrow, arrowDirection, color, packedLight, pose, consumer)
-    }
+    pushSpeechBubbleTexture(bubbleBox, bubble, arrowBox, arrow, arrowDirection, color, packedLight, poseStack.last(), this.getBuffer(renderType))
 }
 
 fun pushSpeechBubbleTexture(
@@ -375,10 +371,9 @@ fun pushSpeechBubbleTexture(
 //------------ Box ------------\\
 
 
-//------------ Text ------------\\
-
-fun OrderedSubmitNodeCollector.pushText(
-    string: Text,
+//region Text
+fun Font.pushText(
+    text: Text,
     x: Float,
     y: Float,
     dropShadow: Boolean,
@@ -386,125 +381,30 @@ fun OrderedSubmitNodeCollector.pushText(
     packedLight: Int,
     color: ARGBColor,
     backgroundColor: ARGBColor,
-    outlineColor: ARGBColor,
-    poseStack: PoseStack
-) = submitText(poseStack, x, y, string.visualOrderText, dropShadow, displayMode, packedLight, color.argb, backgroundColor.argb, outlineColor.argb)
-
-fun OrderedSubmitNodeCollector.pushText(
-    string: String,
-    x: Float,
-    y: Float,
-    dropShadow: Boolean,
-    displayMode: Font.DisplayMode,
-    packedLight: Int,
-    color: ARGBColor,
-    backgroundColor: ARGBColor,
-    outlineColor: ARGBColor,
-    poseStack: PoseStack
-) = submitText(
-    poseStack,
-    x,
-    y,
-    Language.getInstance().getVisualOrder(FormattedText.of(string)),
-    dropShadow,
-    displayMode,
-    packedLight,
-    color.argb,
-    backgroundColor.argb,
-    outlineColor.argb
+    poseStack: PoseStack,
+    bufferSource: MultiBufferSource
+) = drawInBatch(
+    text, x, y, color.argb, dropShadow, poseStack.last().pose(), bufferSource, displayMode, backgroundColor.argb, packedLight
 )
 
-fun OrderedSubmitNodeCollector.pusAlignmentText(
-    string: Text,
-    box: Box,
-    alignment: Alignment = Alignment.Center,
+
+fun Font.pushText(
+    string: String,
+    x: Float,
+    y: Float,
     dropShadow: Boolean,
     displayMode: Font.DisplayMode,
     packedLight: Int,
     color: ARGBColor,
     backgroundColor: ARGBColor,
-    outlineColor: ARGBColor,
-    poseStack: PoseStack
-) {
-    alignment.align(box, string.size).apply {
-        pushText(string, x(), y(), dropShadow, displayMode, packedLight, color, backgroundColor, outlineColor, poseStack)
-    }
-}
+    poseStack: PoseStack,
+    bufferSource: MultiBufferSource
+) = drawInBatch(
+    string, x, y, color.argb, dropShadow, poseStack.last().pose(), bufferSource, displayMode, backgroundColor.argb, packedLight
+)
 
-fun OrderedSubmitNodeCollector.pusAlignmentText(
-    string: String,
-    box: Box,
-    alignment: Alignment = Alignment.Center,
-    dropShadow: Boolean,
-    displayMode: Font.DisplayMode = Font.DisplayMode.NORMAL,
-    packedLight: Int = LightTexture.FULL_BRIGHT,
-    color: ARGBColor,
-    backgroundColor: ARGBColor,
-    outlineColor: ARGBColor,
-    poseStack: PoseStack
-) {
-    alignment.align(box, string.size).apply {
-        pushText(string, x(), y(), dropShadow, displayMode, packedLight, color, backgroundColor, outlineColor, poseStack)
-    }
-}
 
-fun OrderedSubmitNodeCollector.pushTextLines(
-    lines: List<Text>,
-    box: Box,
-    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-    verticalArrangement: Arrangement.Vertical = Arrangement.Center,
-    dropShadow: Boolean = false,
-    displayMode: Font.DisplayMode = Font.DisplayMode.NORMAL,
-    defaultColor: ARGBColor = Colors.BLACK,
-    backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
-    outlineColor: ARGBColor,
-    packedLight: Int = LightTexture.FULL_BRIGHT,
-    poseStack: PoseStack
-) {
-    textLines(
-        verticalArrangement,
-        box,
-        lines.wrapToTextLines(box.width),
-        horizontalAlignment,
-        dropShadow,
-        displayMode,
-        packedLight,
-        defaultColor,
-        backgroundColor,
-        outlineColor,
-        poseStack
-    )
-}
-
-fun OrderedSubmitNodeCollector.pushTextLines(
-    lines: Text,
-    box: Box,
-    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-    verticalArrangement: Arrangement.Vertical = Arrangement.Center,
-    dropShadow: Boolean = false,
-    displayMode: Font.DisplayMode = Font.DisplayMode.NORMAL,
-    defaultColor: ARGBColor = Colors.BLACK,
-    backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
-    outlineColor: ARGBColor,
-    packedLight: Int = LightTexture.FULL_BRIGHT,
-    poseStack: PoseStack
-) {
-    textLines(
-        verticalArrangement,
-        box,
-        lines.wrapToTextLines(box.width),
-        horizontalAlignment,
-        dropShadow,
-        displayMode,
-        packedLight,
-        defaultColor,
-        backgroundColor,
-        outlineColor,
-        poseStack
-    )
-}
-
-fun OrderedSubmitNodeCollector.pushStringLines(
+fun Font.pushStringLines(
     lines: List<String>,
     box: Box,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
@@ -513,9 +413,9 @@ fun OrderedSubmitNodeCollector.pushStringLines(
     displayMode: Font.DisplayMode = Font.DisplayMode.NORMAL,
     defaultColor: ARGBColor = Colors.BLACK,
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
-    outlineColor: ARGBColor = Colors.BLACK.alpha(0),
     packedLight: Int = LightTexture.FULL_BRIGHT,
-    poseStack: PoseStack
+    poseStack: PoseStack,
+    bufferSource: MultiBufferSource
 ) {
     textLines(
         verticalArrangement,
@@ -527,12 +427,12 @@ fun OrderedSubmitNodeCollector.pushStringLines(
         packedLight,
         defaultColor,
         backgroundColor,
-        outlineColor,
-        poseStack
+        poseStack,
+        bufferSource
     )
 }
 
-fun OrderedSubmitNodeCollector.pushStringLines(
+fun Font.pushStringLines(
     lines: String,
     box: Box,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
@@ -541,9 +441,9 @@ fun OrderedSubmitNodeCollector.pushStringLines(
     displayMode: Font.DisplayMode = Font.DisplayMode.NORMAL,
     defaultColor: ARGBColor = Colors.BLACK,
     backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
-    outlineColor: ARGBColor,
     packedLight: Int = LightTexture.FULL_BRIGHT,
-    poseStack: PoseStack
+    poseStack: PoseStack,
+    bufferSource: MultiBufferSource
 ) {
     textLines(
         verticalArrangement,
@@ -555,13 +455,13 @@ fun OrderedSubmitNodeCollector.pushStringLines(
         packedLight,
         defaultColor,
         backgroundColor,
-        outlineColor,
-        poseStack
+        poseStack,
+        bufferSource
     )
 }
 
 @JvmName("textStringLines")
-private fun OrderedSubmitNodeCollector.textLines(
+private fun Font.textLines(
     verticalArrangement: Arrangement.Vertical,
     box: Box,
     texts: List<String>,
@@ -571,19 +471,19 @@ private fun OrderedSubmitNodeCollector.textLines(
     packedLight: Int,
     defaultColor: ARGBColor,
     backgroundColor: ARGBColor,
-    outlineColor: ARGBColor,
-    poseStack: PoseStack
+    poseStack: PoseStack,
+    bufferSource: MultiBufferSource
 ) {
     val verticalOffsets = verticalArrangement.arrange(box.height, List(texts.size) { mc.font.lineHeight.toFloat() })
     val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, it.width) }
     horizontalOffsets.zip(verticalOffsets) { x, y ->
         Vector2f(box.x + x, box.y + y)
     }.forEachIndexed { index, offset ->
-        pushText(texts[index], offset.x, offset.y, dropShadow, displayMode, packedLight, defaultColor, backgroundColor, outlineColor, poseStack)
+        pushText(texts[index], offset.x, offset.y, dropShadow, displayMode, packedLight, defaultColor, backgroundColor, poseStack, bufferSource)
     }
 }
 
-private fun OrderedSubmitNodeCollector.textLines(
+private fun Font.textLines(
     verticalArrangement: Arrangement.Vertical,
     box: Box,
     texts: List<Text>,
@@ -593,14 +493,15 @@ private fun OrderedSubmitNodeCollector.textLines(
     packedLight: Int,
     defaultColor: ARGBColor,
     backgroundColor: ARGBColor,
-    outlineColor: ARGBColor,
-    poseStack: PoseStack
+    poseStack: PoseStack,
+    bufferSource: MultiBufferSource
 ) {
     val verticalOffsets = verticalArrangement.arrange(box.height, List(texts.size) { mc.font.lineHeight.toFloat() })
     val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, it.width) }
     horizontalOffsets.zip(verticalOffsets) { x, y ->
         Vector2f(box.x + x, box.y + y)
     }.forEachIndexed { index, offset ->
-        pushText(texts[index], offset.x, offset.y, dropShadow, displayMode, packedLight, defaultColor, backgroundColor, outlineColor, poseStack)
+        pushText(texts[index], offset.x, offset.y, dropShadow, displayMode, packedLight, defaultColor, backgroundColor, poseStack, bufferSource)
     }
 }
+//endregion

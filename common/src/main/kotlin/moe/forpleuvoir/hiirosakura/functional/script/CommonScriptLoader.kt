@@ -4,7 +4,8 @@ import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
 import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.util.SimpleResourceReloaderListener
-import net.minecraft.server.packs.resources.PreparableReloadListener
+import net.minecraft.server.packs.resources.ResourceManager
+import net.minecraft.util.profiling.ProfilerFiller
 import org.apache.commons.jexl3.MapContext
 
 object CommonScriptLoader : SimpleResourceReloaderListener<List<String>>() {
@@ -13,10 +14,10 @@ object CommonScriptLoader : SimpleResourceReloaderListener<List<String>>() {
 
     private val log = logger()
 
-    override fun prepare(sharedState: PreparableReloadListener.SharedState): List<String> {
+    override fun prepare(resourceManager: ResourceManager, profiler: ProfilerFiller): List<String> {
         CommonApi.INSTANCE
         return buildList {
-            sharedState.resourceManager()
+            resourceManager
                 .listResources("script") { it.path.endsWith(".jexl") }
                 .forEach { (path, resource) ->
                     runCatching {
@@ -33,7 +34,7 @@ object CommonScriptLoader : SimpleResourceReloaderListener<List<String>>() {
 
     private val commonScripts = mutableListOf<String>()
 
-    override fun apply(prepared: List<String>, sharedState: PreparableReloadListener.SharedState) {
+    override fun apply(prepared: List<String>, resourceManager: ResourceManager, profiler: ProfilerFiller) {
         commonScripts.forEach {
             ScriptExecutor.scriptEngine.remove(it)
         }

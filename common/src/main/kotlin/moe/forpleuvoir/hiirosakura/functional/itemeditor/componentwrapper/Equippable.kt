@@ -49,8 +49,8 @@ import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.core.HolderSet
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.item.equipment.EquipmentAsset
@@ -61,7 +61,7 @@ import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.seconds
 
 fun ContainerScope.EquippableComponentWrapper(
-    key: Identifier,
+    key: ResourceLocation,
     component: Equippable,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
@@ -128,7 +128,7 @@ fun EquippableEditor(
                             Modifier.hoverText(IGLang.edit).weight(1)
                         ) {
                             val value = assetId.getValue()
-                            Text(assetId.getValue()?.identifier()?.asTranslateText() ?: Literal("null"))
+                            Text(assetId.getValue()?.location()?.asTranslateText() ?: Literal("null"))
                             click {
                                 EquipmentAssetEdiotr(assetId.getValue() ?: EquipmentAssets.GOLD) {
                                     assetId.setValue(it)
@@ -280,7 +280,6 @@ private fun AllowedEntitiesEditor(
 val vanillaEquipmentAssets by lazy {
     buildList {
         add(EquipmentAssets.LEATHER)
-        add(EquipmentAssets.COPPER)
         add(EquipmentAssets.CHAINMAIL)
         add(EquipmentAssets.IRON)
         add(EquipmentAssets.GOLD)
@@ -308,12 +307,12 @@ fun EquipmentAssetEdiotr(
     modifier,
     screenModifier.onClose { TipHandler.popTip(TIP) }
 ) {
-    val namespaceState = value.identifier().namespace.asMutableState
+    val namespaceState = value.location().namespace.asMutableState
     var namespaceEditor: (() -> Transform)? = null
-    val pathState = value.identifier().path.asMutableState
+    val pathState = value.location().path.asMutableState
     var pathEditor: (() -> Transform)? = null
     onConfirm = {
-        val namespaceValid = Identifier.isValidNamespace(namespaceState.getValue())
+        val namespaceValid = ResourceLocation.isValidNamespace(namespaceState.getValue())
         if (!namespaceValid) {
             namespaceEditor?.let {
                 TipHandler.popTip(TIP)
@@ -325,7 +324,7 @@ fun EquipmentAssetEdiotr(
                 })
             }
         }
-        val pathValid = Identifier.isValidPath(pathState.getValue())
+        val pathValid = ResourceLocation.isValidPath(pathState.getValue())
         if (!pathValid) {
             pathEditor?.let {
                 TipHandler.popTip(TIP)
@@ -338,7 +337,7 @@ fun EquipmentAssetEdiotr(
             }
         }
         if (namespaceValid && pathValid) {
-            onValueChange(ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(namespaceState.getValue(), pathState.getValue())))
+            onValueChange(ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(namespaceState.getValue(), pathState.getValue())))
             closeScreen()
         }
     }
@@ -362,17 +361,17 @@ fun EquipmentAssetEdiotr(
                 Text("Form Vanilla")
                 Selector(
                     vanillaEquipmentAssets,
-                    (vanillaEquipmentAssets.find { it.identifier() == value.identifier() } ?: vanillaEquipmentAssets.first()).asMutableState,
+                    (vanillaEquipmentAssets.find { it.location() == value.location() } ?: vanillaEquipmentAssets.first()).asMutableState,
                     modifier = Modifier.width(180f),
                     selectedWrapper = {
-                        Text(it.identifier().toString(), modifier = Modifier.weight(1))
+                        Text(it.location().toString(), modifier = Modifier.weight(1))
                     },
                     optionWrapper = {
-                        Text(it.identifier().toString(), modifier = Modifier.width(vanillaEquipmentAssets.map { it.identifier().toString() }.maxWidth))
+                        Text(it.location().toString(), modifier = Modifier.width(vanillaEquipmentAssets.map { it.location().toString() }.maxWidth))
                     },
                     onSelected = {
-                        namespaceState.setValue(it.identifier().namespace)
-                        pathState.setValue(it.identifier().path)
+                        namespaceState.setValue(it.location().namespace)
+                        pathState.setValue(it.location().path)
                     },
                     optionsDirection = listOf(Direction.Bottom, Direction.Top),
                     amountStep = 15f

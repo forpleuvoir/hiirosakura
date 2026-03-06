@@ -20,8 +20,8 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.client.player.AbstractClientPlayer
-import net.minecraft.client.renderer.SubmitNodeCollector
-import net.minecraft.client.renderer.entity.state.AvatarRenderState
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.entity.state.PlayerRenderState
 import org.joml.Vector2f
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -75,16 +75,16 @@ object ChatBubbleHandler : ModConfigContainer("chat_bubble") {
     fun render(
         player: AbstractClientPlayer,
         packedLight: Int,
-        renderState: AvatarRenderState,
+        renderState: PlayerRenderState,
         poseStack: PoseStack,
-        nodeCollector: SubmitNodeCollector
+        multiBufferSource: MultiBufferSource
     ) {
         bubbleQueue.filter { it.bubble.shouldRemove }
             .let { bubbleQueue.removeAll(it) }
 
         bubbleQueue.findLast {
             it.matcher.match(player)
-        }?.bubble?.render(packedLight, renderState, poseStack, nodeCollector)
+        }?.bubble?.render(packedLight, renderState, poseStack, multiBufferSource)
     }
 
 }

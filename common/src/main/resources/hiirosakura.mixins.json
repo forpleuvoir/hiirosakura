@@ -18,8 +18,6 @@
     "client.MinecraftMixin",
     "client.MultiPlayerGameModeMixin",
     "client.SoundEngineMixin",
-    "client.render.AvatarRendererMixin",
-    "client.render.AvatarRenderStateMixin",
     "client.render.ClientLevelMixin",
     "client.render.CreeperRendererMixin",
     "client.render.ExperienceOrbRendererMixin",
@@ -27,6 +25,8 @@
     "client.render.ItemEntityRendererMixin",
     "client.render.ItemEntityRenderStateMixin",
     "client.render.LightTextureMixin",
+    "client.render.PlayerRendererMixin",
+    "client.render.PlayerRenderStateMixin",
     "client.render.TntRendererMixin"
   ],
   "injectors": {

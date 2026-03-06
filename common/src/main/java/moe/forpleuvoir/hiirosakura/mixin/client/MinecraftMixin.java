@@ -84,7 +84,7 @@ public abstract class MinecraftMixin {
         }
     }
 
-    @Inject(method = "pickBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;hasControlDown()Z"), cancellable = true)
+    @Inject(method = "pickBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;hasControlDown()Z"), cancellable = true)
     public void pickBlock(CallbackInfo callbackInfo) {
         assert hitResult != null;
         var event = new PlayerPickEvent(HSHitResult.fromHitResult(hitResult));

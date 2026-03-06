@@ -45,13 +45,13 @@ import moe.forpleuvoir.nebula.common.color.Color
 import net.minecraft.client.renderer.Sheets
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.level.block.entity.BannerPattern
 import net.minecraft.world.level.block.entity.BannerPatternLayers
 
 fun ContainerScope.BannerPatternComponentWrapper(
-    key: Identifier,
+    key: ResourceLocation,
     component: BannerPatternLayers,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
@@ -273,7 +273,7 @@ fun ContainerScope.BannerPattern(
         guiGraphics {
             pose().pushMatrix()
             pose().translate(transform.worldCenter.x - 2.5f, transform.worldCenter.y - 5)
-            val sprite = getSprite(Sheets.getBannerMaterial(bannerPattern.getValue()))
+            val sprite = Sheets.getBannerMaterial(bannerPattern.getValue()).sprite()
             val u0 = sprite.u0
             val u1 = u0 + (sprite.u1 - sprite.u0) * 21.0f / 64.0f
             val vSize = sprite.v1 - sprite.v0

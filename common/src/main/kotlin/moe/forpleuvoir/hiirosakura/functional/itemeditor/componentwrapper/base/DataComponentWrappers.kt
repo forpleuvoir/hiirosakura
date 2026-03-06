@@ -11,13 +11,11 @@ import moe.forpleuvoir.nebula.common.api.Initializable
 import net.minecraft.core.HolderSet
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents.*
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.tags.DamageTypeTags
-import net.minecraft.world.damagesource.DamageTypes
 import net.minecraft.world.food.Foods
 import net.minecraft.world.item.DyeColor
-import net.minecraft.world.item.EitherHolder
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.Rarity
 import net.minecraft.world.item.component.*
@@ -29,7 +27,7 @@ import net.minecraft.world.level.block.entity.BannerPatternLayers
 
 fun interface DataComponentWrapper<C> {
     fun ContainerScope.wrapper(
-        key: Identifier,
+        key: ResourceLocation,
         component: C,
         modifier: Modifier,
         removeAction: () -> Unit,
@@ -44,14 +42,14 @@ object DataComponentWrappers : Initializable {
 
     private val componentWrappers = mutableMapOf<DataComponentType<*>, DataComponentWrapper<Any>>()
     private val componentDefaultValues = mutableMapOf<DataComponentType<*>, () -> Any>()
-    private val componentIds = mutableMapOf<DataComponentType<*>, Identifier>()
+    private val componentIds = mutableMapOf<DataComponentType<*>, ResourceLocation>()
     private val adaptedComponent = mutableListOf<DataComponentType<*>>()
 
     fun isAdaptedComponent(type: DataComponentType<*>): Boolean {
         return adaptedComponent.contains(type)
     }
 
-    fun isAdaptedComponent(key: Identifier): Boolean {
+    fun isAdaptedComponent(key: ResourceLocation): Boolean {
         return adaptedComponent.any { it.key == key }
     }
 
@@ -62,7 +60,7 @@ object DataComponentWrappers : Initializable {
     fun <C : Any> register(
         type: DataComponentType<C>,
         defaultValue: () -> C,
-        key: Identifier = type.keyOrUnknown,
+        key: ResourceLocation = type.keyOrUnknown,
         wrapper: DataComponentWrapper<C>
     ) {
         componentWrappers[type] = wrapper as DataComponentWrapper<Any>
@@ -117,9 +115,9 @@ object DataComponentWrappers : Initializable {
         register(POTION_DURATION_SCALE, { 1f }) { key, c, m, rm, consumer ->
             FloatComponentWrapper(key, c, 0f..Float.MAX_VALUE, modifier = m, removeAction = rm, onValueChange = consumer)
         }
-        register(MINIMUM_ATTACK_CHARGE, { 1f }) { key, c, m, rm, consumer ->
-            FloatComponentWrapper(key, c, 0f..1f, modifier = m, removeAction = rm, onValueChange = consumer)
-        }
+//        register(MINIMUM_ATTACK_CHARGE, { 1f }) { key, c, m, rm, consumer ->
+//            FloatComponentWrapper(key, c, 0f..1f, modifier = m, removeAction = rm, onValueChange = consumer)
+//        }
         //------------ Boolean ------------\\
         register(ENCHANTMENT_GLINT_OVERRIDE, { true }) { key, c, m, rm, consumer ->
             BooleanComponentWrapper(key, c, modifier = m, removeAction = rm, onValueChange = consumer)
@@ -132,13 +130,13 @@ object DataComponentWrappers : Initializable {
             TextComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
         //------------ Identifier ------------\\
-        register(ITEM_MODEL, { Identifier.parse("minecraft:item_model") }) { key, c, m, rm, consumer ->
+        register(ITEM_MODEL, { ResourceLocation.parse("minecraft:item_model") }) { key, c, m, rm, consumer ->
             IdentifierComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
-        register(TOOLTIP_STYLE, { Identifier.parse("minecraft:tooltip_style") }) { key, c, m, rm, consumer ->
+        register(TOOLTIP_STYLE, { ResourceLocation.parse("minecraft:tooltip_style") }) { key, c, m, rm, consumer ->
             IdentifierComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
-        register(NOTE_BLOCK_SOUND, { Identifier.parse("minecraft:note_block_sound") }) { key, c, m, rm, consumer ->
+        register(NOTE_BLOCK_SOUND, { ResourceLocation.parse("minecraft:note_block_sound") }) { key, c, m, rm, consumer ->
             IdentifierComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
         //------------ Lore ------------\\
@@ -214,21 +212,21 @@ object DataComponentWrappers : Initializable {
             WeaponComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
         //------------ SwingAnimation ------------\\
-        register(SWING_ANIMATION, { SwingAnimation.DEFAULT }) { key, c, m, rm, consumer ->
-            SwingAnimationComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-        }
+//        register(SWING_ANIMATION, { SwingAnimation.DEFAULT }) { key, c, m, rm, consumer ->
+//            SwingAnimationComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+//        }
         //------------ UseEffects ------------\\
-        register(USE_EFFECTS, { UseEffects.DEFAULT }) { key, c, m, rm, consumer ->
-            UseEffectsComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-        }
+//        register(USE_EFFECTS, { UseEffects.DEFAULT }) { key, c, m, rm, consumer ->
+//            UseEffectsComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+//        }
         //------------ AttackRange ------------\\
-        register(ATTACK_RANGE, { AttackRange(0f, 3f, 0f, 5f, 0.3f, 1f) }) { key, c, m, rm, consumer ->
-            AttackRangeComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-        }
+//        register(ATTACK_RANGE, { AttackRange(0f, 3f, 0f, 5f, 0.3f, 1f) }) { key, c, m, rm, consumer ->
+//            AttackRangeComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+//        }
         //------------ DamageType ------------\\
-        register(DAMAGE_TYPE, { EitherHolder(DamageTypes.SPEAR) }) { key, c, m, rm, consumer ->
-            DamageTypeComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-        }
+//        register(DAMAGE_TYPE, { EitherHolder(DamageTypes.SPEAR) }) { key, c, m, rm, consumer ->
+//            DamageTypeComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+//        }
         //------------ Consumable ------------\\
 //        register(
 //            CONSUMABLE,

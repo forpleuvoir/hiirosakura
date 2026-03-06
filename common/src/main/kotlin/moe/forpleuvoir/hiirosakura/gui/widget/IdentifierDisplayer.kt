@@ -12,10 +12,10 @@ import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.BoxScope
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 
 fun ContainerScope.IdentifierDisplayer(
-    resource: Identifier,
+    resource: ResourceLocation,
     modifier: Modifier = Modifier.width(115f)
 ) = WrappedBox(modifier) {
     Text(resource.asTranslateText())

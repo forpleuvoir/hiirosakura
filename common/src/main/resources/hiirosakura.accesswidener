@@ -7,7 +7,7 @@ accessible field net/minecraft/world/item/ItemStack OP_NBT_WARNING Ljava/util/Li
 accessible field net/minecraft/world/item/ItemStack DISABLED_ITEM_TOOLTIP Lnet/minecraft/network/chat/Component;
 
 #MouseHandler
-accessible method net/minecraft/client/MouseHandler onButton (JLnet/minecraft/client/input/MouseButtonInfo;I)V
+accessible method net/minecraft/client/MouseHandler onPress (JIII)V
 accessible method net/minecraft/client/MouseHandler onScroll (JDD)V
 #KeyboardHandler
 accessible method net/minecraft/client/KeyboardHandler keyPress (JILnet/minecraft/client/input/KeyEvent;)V
@@ -15,13 +15,13 @@ accessible method net/minecraft/client/KeyboardHandler keyPress (JILnet/minecraf
 accessible field net/minecraft/client/KeyMapping key Lcom/mojang/blaze3d/platform/InputConstants$Key;
 
 #Style
-accessible method net/minecraft/network/chat/Style <init> (Lnet/minecraft/network/chat/TextColor;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Lnet/minecraft/network/chat/ClickEvent;Lnet/minecraft/network/chat/HoverEvent;Ljava/lang/String;Lnet/minecraft/network/chat/FontDescription;)V
+accessible method net/minecraft/network/chat/Style <init> (Lnet/minecraft/network/chat/TextColor;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Lnet/minecraft/network/chat/ClickEvent;Lnet/minecraft/network/chat/HoverEvent;Ljava/lang/String;Lnet/minecraft/resources/ResourceLocation;)V
 accessible field net/minecraft/network/chat/Style bold Ljava/lang/Boolean;
 accessible field net/minecraft/network/chat/Style italic Ljava/lang/Boolean;
 accessible field net/minecraft/network/chat/Style underlined Ljava/lang/Boolean;
 accessible field net/minecraft/network/chat/Style strikethrough Ljava/lang/Boolean;
 accessible field net/minecraft/network/chat/Style obfuscated Ljava/lang/Boolean;
-accessible field net/minecraft/network/chat/Style font Lnet/minecraft/util/Identifier;
+accessible field net/minecraft/network/chat/Style font Lnet/minecraft/resources/ResourceLocation;
 
 ##Misc
 accessible field net/minecraft/client/multiplayer/chat/ChatListener CHAT_VALIDATION_ERROR Lnet/minecraft/network/chat/Component;
@@ -44,4 +44,17 @@ accessible field net/minecraft/client/renderer/RenderPipelines DEBUG_FILLED_SNIP
 accessible method net/minecraft/client/renderer/RenderPipelines register (Lcom/mojang/blaze3d/pipeline/RenderPipeline;)Lcom/mojang/blaze3d/pipeline/RenderPipeline;
 
 #RenderType
-accessible method net/minecraft/client/renderer/rendertype/RenderType create (Ljava/lang/String;Lnet/minecraft/client/renderer/rendertype/RenderSetup;)Lnet/minecraft/client/renderer/rendertype/RenderType;
+accessible field net/minecraft/client/renderer/RenderStateShard LIGHTMAP Lnet/minecraft/client/renderer/RenderStateShard$LightmapStateShard;
+accessible field net/minecraft/client/renderer/RenderStateShard OVERLAY Lnet/minecraft/client/renderer/RenderStateShard$OverlayStateShard;
+accessible class net/minecraft/client/renderer/RenderStateShard$TextureStateShard
+accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;IZZLcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
+accessible class net/minecraft/client/renderer/RenderType$CompositeState
+accessible method net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder setTextureState (Lnet/minecraft/client/renderer/RenderStateShard$EmptyTextureStateShard;)Lnet/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder;
+accessible method net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder setLightmapState (Lnet/minecraft/client/renderer/RenderStateShard$LightmapStateShard;)Lnet/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder;
+accessible method net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder setOverlayState (Lnet/minecraft/client/renderer/RenderStateShard$OverlayStateShard;)Lnet/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder;
+accessible method net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder setLayeringState (Lnet/minecraft/client/renderer/RenderStateShard$LayeringStateShard;)Lnet/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder;
+accessible method net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder setOutputState (Lnet/minecraft/client/renderer/RenderStateShard$OutputStateShard;)Lnet/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder;
+accessible method net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder setTexturingState (Lnet/minecraft/client/renderer/RenderStateShard$TexturingStateShard;)Lnet/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder;
+accessible method net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder setLineState (Lnet/minecraft/client/renderer/RenderStateShard$LineStateShard;)Lnet/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder;
+accessible method net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder createCompositeState (Z)Lnet/minecraft/client/renderer/RenderType$CompositeState;
+accessible method net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder createCompositeState (Lnet/minecraft/client/renderer/RenderType$OutlineProperty;)Lnet/minecraft/client/renderer/RenderType$CompositeState;

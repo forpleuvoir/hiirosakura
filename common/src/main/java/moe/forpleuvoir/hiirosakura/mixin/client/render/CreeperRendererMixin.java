@@ -1,7 +1,7 @@
 package moe.forpleuvoir.hiirosakura.mixin.client.render;
 
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.CreeperFuseLayer;
-import net.minecraft.client.model.monster.creeper.CreeperModel;
+import net.minecraft.client.model.CreeperModel;
 import net.minecraft.client.renderer.entity.CreeperRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;

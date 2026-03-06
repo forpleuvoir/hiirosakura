@@ -23,11 +23,11 @@ import moe.forpleuvoir.ibukigourd.gui.widget.text.IntEditor
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.component.Weapon
 
 fun ContainerScope.WeaponComponentWrapper(
-    key: Identifier,
+    key: ResourceLocation,
     component: Weapon,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,

@@ -3,22 +3,22 @@ package moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble
 import com.mojang.blaze3d.vertex.PoseStack
 import moe.forpleuvoir.hiirosakura.util.restPoseStackKeepTranslation
 import moe.forpleuvoir.ibukigourd.util.mc
-import net.minecraft.client.model.player.PlayerModel
-import net.minecraft.client.renderer.SubmitNodeCollector
+import net.minecraft.client.model.PlayerModel
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.entity.RenderLayerParent
 import net.minecraft.client.renderer.entity.layers.RenderLayer
-import net.minecraft.client.renderer.entity.state.AvatarRenderState
+import net.minecraft.client.renderer.entity.state.PlayerRenderState
 
 class ChatBubbleLayer(
-    renderer: RenderLayerParent<AvatarRenderState, PlayerModel>
-) : RenderLayer<AvatarRenderState, PlayerModel>(renderer) {
+    renderer: RenderLayerParent<PlayerRenderState, PlayerModel>
+) : RenderLayer<PlayerRenderState, PlayerModel>(renderer) {
 
-    override fun submit(poseStack: PoseStack, nodeCollector: SubmitNodeCollector, packedLight: Int, renderState: AvatarRenderState, yRot: Float, xRot: Float) {
+    override fun render(poseStack: PoseStack, bufferSource: MultiBufferSource, packedLight: Int, renderState: PlayerRenderState, yRot: Float, xRot: Float) {
         if (!ChatBubbleHandler.enabled) return
         mc.level?.players()
-            ?.find { player -> player.gameProfile.name == (renderState as AvatarRenderStateAccessor).`hiirosakura$getName`() && !player.isInvisible }
+            ?.find { player-> player.gameProfile.name == (renderState as AvatarRenderStateAccessor).`hiirosakura$getName`() && !player.isInvisible }
             ?.let { player ->
-                ChatBubbleHandler.render(player, packedLight, renderState, poseStack.restPoseStackKeepTranslation(), nodeCollector)
+                ChatBubbleHandler.render(player, packedLight, renderState, poseStack.restPoseStackKeepTranslation(), bufferSource)
             }
     }
 

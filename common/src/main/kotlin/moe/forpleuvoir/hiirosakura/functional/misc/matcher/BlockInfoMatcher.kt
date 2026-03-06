@@ -26,10 +26,10 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.extensions.SerializeObjectBuilder
 import moe.forpleuvoir.nebula.serialization.extensions.checkType
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import net.minecraft.Util
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
-import net.minecraft.util.Util
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.BlockHitResult

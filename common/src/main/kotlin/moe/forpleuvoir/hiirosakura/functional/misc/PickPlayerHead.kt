@@ -18,13 +18,13 @@ object PickPlayerHead {
             if (this.isCreative) {
                 swapSlotWithHotbar {
                     it.item == Items.PLAYER_HEAD
-                            && it.components.get(DataComponents.PROFILE)?.partialProfile()?.id == entity.uuid
+                            && it.components.get(DataComponents.PROFILE)?.gameProfile()?.id == entity.uuid
                 }.let {
                     if (it == -1) {
                         inventory.add(PlayerHeadUtil.getPlayerHead(entity))
                         swapSlotWithHotbar { item ->
                             item.item == Items.PLAYER_HEAD
-                                    && item.components.get(DataComponents.PROFILE)?.partialProfile()?.id == entity.uuid
+                                    && item.components.get(DataComponents.PROFILE)?.gameProfile()?.id == entity.uuid
                         }
                     }
                 }

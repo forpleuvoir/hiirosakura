@@ -5,7 +5,11 @@ import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.RGBColor
-import net.minecraft.network.chat.*
+import net.minecraft.network.chat.ClickEvent
+import net.minecraft.network.chat.HoverEvent
+import net.minecraft.network.chat.Style
+import net.minecraft.network.chat.TextColor
+import net.minecraft.resources.ResourceLocation
 
 data class TextSlice(
     val range: IntRange,
@@ -28,7 +32,7 @@ data class TextSlice(
         val clickEvent: ClickEvent? = null,
         val hoverEvent: HoverEvent? = null,
         val insertion: String? = null,
-        val font: FontDescription? = null
+        val font: ResourceLocation? = null
     ) {
 
         companion object {

@@ -15,12 +15,12 @@ import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.enchantment.Enchantable
 import kotlin.time.Duration.Companion.milliseconds
 
 fun ContainerScope.EnchantableComponentWrapper(
-    key: Identifier,
+    key: ResourceLocation,
     component: Enchantable,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,

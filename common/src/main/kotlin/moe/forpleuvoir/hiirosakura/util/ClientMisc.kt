@@ -11,7 +11,7 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.util.defaultLaunch
 import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.client.Minecraft
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.TooltipFlag
 import org.joml.Vector3f
 import java.awt.SystemTray
@@ -44,7 +44,7 @@ fun PoseStack.clearRotation(): PoseStack {
     return newPose
 }
 
-fun Identifier.asTranslateText(prefix: String? = null, suffix: String? = null): MutableText {
+fun ResourceLocation.asTranslateText(prefix: String? = null, suffix: String? = null): MutableText {
     return if (prefix != null && suffix != null)
         Translatable(this.toLanguageKey(prefix, suffix), this.toString())
     else if (prefix != null)
@@ -55,7 +55,7 @@ fun Identifier.asTranslateText(prefix: String? = null, suffix: String? = null): 
         Translatable(this.toLanguageKey(), this.toString())
 }
 
-fun Identifier.asText(): MutableText = Literal(this.toString())
+fun ResourceLocation.asText(): MutableText = Literal(this.toString())
 
 fun sendNotification(title: String, message: String) {
     if (!sendAWTNotification(title, message)) {

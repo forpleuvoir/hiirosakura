@@ -35,12 +35,12 @@ import moe.forpleuvoir.ibukigourd.text.inlinestyletext.InlineStyleTextParser
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
 import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
 import moe.forpleuvoir.nebula.common.color.Color
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.component.ItemLore
 import kotlin.time.Duration.Companion.milliseconds
 
 fun ContainerScope.LoreComponentWrapper(
-    key: Identifier,
+    key: ResourceLocation,
     component: ItemLore,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,

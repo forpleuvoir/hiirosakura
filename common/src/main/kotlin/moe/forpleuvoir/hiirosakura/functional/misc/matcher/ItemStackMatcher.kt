@@ -19,7 +19,7 @@ import moe.forpleuvoir.nebula.serialization.extensions.deserialization
 import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.core.component.DataComponentType as McDataComponentType
@@ -424,7 +424,7 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             override fun deserialization(serializeElement: SerializeElement): DataComponentType {
                 return serializeElement.checkType<SerializeObject, DataComponentType> {
                     DataComponentType(
-                        componentType = BuiltInRegistries.DATA_COMPONENT_TYPE.get(Identifier.parse(it["component_type"]!!.asString)).get().value(),
+                        componentType = BuiltInRegistries.DATA_COMPONENT_TYPE.get(ResourceLocation.parse(it["component_type"]!!.asString)).get().value(),
                         mode = getMode(it)
                     )
                 }.getOrThrow()

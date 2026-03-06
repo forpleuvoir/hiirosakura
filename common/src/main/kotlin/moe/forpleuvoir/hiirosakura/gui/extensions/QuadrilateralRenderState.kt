@@ -57,10 +57,10 @@ class QuadrilateralRenderState(
 
     override fun bounds(): ScreenRectangle? = bounds
 
-    override fun buildVertices(consumer: VertexConsumer) {
-        consumer.vertex(pose, p1.x(), p1.y()).color(col1)
-        consumer.vertex(pose, p2.x(), p2.y()).color(col2)
-        consumer.vertex(pose, p3.x(), p3.y()).color(col3)
-        consumer.vertex(pose, p4.x(), p4.y()).color(col4)
+    override fun buildVertices(consumer: VertexConsumer, z: Float) {
+        consumer.vertex(pose, p1.x(), p1.y(), z).color(col1)
+        consumer.vertex(pose, p2.x(), p2.y(), z).color(col2)
+        consumer.vertex(pose, p3.x(), p3.y(), z).color(col3)
+        consumer.vertex(pose, p4.x(), p4.y(), z).color(col4)
     }
 }

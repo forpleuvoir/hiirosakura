@@ -5,12 +5,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.DropEntityRenderAddon;
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.ExperienceOrbRenderStateAccessor;
 import moe.forpleuvoir.nebula.common.color.Color;
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ExperienceOrbRenderer;
 import net.minecraft.client.renderer.entity.state.ExperienceOrbRenderState;
-import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.world.entity.ExperienceOrb;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,15 +29,15 @@ public abstract class ExperienceOrbRendererMixin extends EntityRenderer<Experien
     }
 
     @Inject(
-            method = "submit(Lnet/minecraft/client/renderer/entity/state/ExperienceOrbRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
+            method = "render(Lnet/minecraft/client/renderer/entity/state/ExperienceOrbRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             at = @At("RETURN")
     )
     public void submit(
-            ExperienceOrbRenderState renderState, PoseStack poseStack, SubmitNodeCollector nodeCollector, CameraRenderState cameraRenderState, CallbackInfo ci, @Local(ordinal = 1) int red, @Local(ordinal = 3) int blue
+            ExperienceOrbRenderState renderState, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, CallbackInfo ci, @Local(ordinal = 1) int red, @Local(ordinal = 3) int blue
     ) {
         var orb = ((ExperienceOrbRenderStateAccessor) renderState).hiirosakura$getExperienceOrb();
         if (orb != null) {
-            DropEntityRenderAddon.renderExperienceOrbValue(new Color(red, 255, blue, 255, false), orb, renderState, cameraRenderState, poseStack, nodeCollector);
+            DropEntityRenderAddon.renderExperienceOrbValue(new Color(red, 255, blue, 255, false), orb, renderState, this.entityRenderDispatcher, packedLight, poseStack, bufferSource);
         }
     }
 

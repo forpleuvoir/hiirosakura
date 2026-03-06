@@ -143,7 +143,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 表示当前实体所在世界的唯一标识符字符串。
      */
-    fun getWorld() = entity.level().dimension().identifier().toString()
+    fun getWorld() = entity.level().dimension().location().toString()
 
     /**
      * 判断实体是否具有免疫火焰伤害的属性。

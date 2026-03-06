@@ -32,19 +32,19 @@ import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.withColor
 import moe.forpleuvoir.ibukigourd.util.state.asMutableState
 import moe.forpleuvoir.nebula.common.color.Colors
-import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceLocation
 import kotlin.time.Duration.Companion.seconds
 
 private var IDENTIFIER_COMPONENT_WRAPPER: Tip? = null
 
 fun ContainerScope.IdentifierComponentWrapper(
-    key: Identifier,
-    component: Identifier,
+    key: ResourceLocation,
+    component: ResourceLocation,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(5f, Alignment.Right),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    onValueChange: (Identifier, Boolean) -> Unit,
+    onValueChange: (ResourceLocation, Boolean) -> Unit,
 ) = DataComponentWrapperRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     var component = component
     WrappedBox(Modifier.width(115f)) {
@@ -68,10 +68,10 @@ fun ContainerScope.IdentifierComponentWrapper(
 
 fun IdentifierEditor(
     title: Text,
-    identifier: Identifier,
+    identifier: ResourceLocation,
     modifier: Modifier = Modifier,
     screenModifier: Modifier = Modifier,
-    onValueChange: (Identifier, Boolean) -> Unit,
+    onValueChange: (ResourceLocation, Boolean) -> Unit,
 ): IGScreenImpl {
     val namespaceState = identifier.namespace.asMutableState
     var namespaceEditor: (() -> Transform)? = null
@@ -81,12 +81,12 @@ fun IdentifierEditor(
 
     return DataComponentEditor(
         title,
-        { Identifier.fromNamespaceAndPath(namespaceState.getValue(), pathState.getValue()) to true },
+        { ResourceLocation.fromNamespaceAndPath(namespaceState.getValue(), pathState.getValue()) to true },
         onValueChange,
         modifier,
         screenModifier.attachLeft { onClose { TipHandler.popTip(IDENTIFIER_COMPONENT_WRAPPER) } },
         {
-            val namespaceValid = Identifier.isValidNamespace(namespaceState.getValue())
+            val namespaceValid = ResourceLocation.isValidNamespace(namespaceState.getValue())
             if (!namespaceValid) {
                 namespaceEditor?.let {
                     TipHandler.popTip(IDENTIFIER_COMPONENT_WRAPPER)
@@ -98,7 +98,7 @@ fun IdentifierEditor(
                     })
                 }
             }
-            val pathValid = Identifier.isValidPath(pathState.getValue())
+            val pathValid = ResourceLocation.isValidPath(pathState.getValue())
             if (!pathValid) {
                 pathEditor?.let {
                     TipHandler.popTip(IDENTIFIER_COMPONENT_WRAPPER)

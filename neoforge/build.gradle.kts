@@ -86,7 +86,7 @@ sourceSets.configureEach {
     }
 }
 
-repositories{
+repositories {
     maven { url = uri("https://maven.forpleuvoir.moe/snapshots") }
 }
 
@@ -98,4 +98,5 @@ dependencies {
     jarJar(libs.bundles.jexl)
 
     implementation(libs.ibukigourd.neoforge)
+    jarJar(libs.ibukigourd.neoforge)
 }

@@ -12,7 +12,7 @@ class NeoforgePlatformHelper: PlatformHelper {
 
     override fun isModLoaded(modId: String): Boolean = ModList.get().isLoaded(modId)
 
-    override fun isDevEnvironment(): Boolean = !FMLLoader.getCurrent().isProduction
+    override fun isDevEnvironment(): Boolean = !FMLLoader.isProduction()
 
     override fun getConfigDir(): File = FMLPaths.CONFIGDIR.get().toFile()
 }

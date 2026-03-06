@@ -10,8 +10,8 @@ import moe.forpleuvoir.ibukigourd.gui.base.render.texture.Corner
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
 import moe.forpleuvoir.nebula.common.color.ARGBColor
-import net.minecraft.client.renderer.SubmitNodeCollector
-import net.minecraft.client.renderer.rendertype.RenderTypes
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.RenderType
 
 enum class FuseRenderType {
     Text, ProgressBar, None;
@@ -28,19 +28,19 @@ enum class FuseRenderType {
 
         private val VANILLA_RENDER_TYPE = HSRenderType.POSITION_TEX_COLOR.apply(TEXTURE.texture)
 
-        private val IRIS_RENDER_TYPE = RenderTypes.entityTranslucent(TEXTURE.texture)
+        private val IRIS_RENDER_TYPE = RenderType.entityTranslucent(TEXTURE.texture)
 
         fun renderBox(
             poseStack: PoseStack,
-            nodeCollector: SubmitNodeCollector,
+            bufferSource: MultiBufferSource,
             progress: Float,
             box: Box,
             borderColor: ARGBColor,
             contentColor: ARGBColor,
             packedLight: Int
         ) {
-            nodeCollector.pushTexture(box, BORDER, packedLight, borderColor, poseStack, RENDER_TYPE)
-            nodeCollector.pushTexture(box.copy(width = box.width * progress), CONTENT, packedLight, contentColor, poseStack, RENDER_TYPE)
+            bufferSource.pushTexture(box, BORDER, packedLight, borderColor, poseStack, RENDER_TYPE)
+            bufferSource.pushTexture(box.copy(width = box.width * progress), CONTENT, packedLight, contentColor, poseStack, RENDER_TYPE)
         }
 
     }

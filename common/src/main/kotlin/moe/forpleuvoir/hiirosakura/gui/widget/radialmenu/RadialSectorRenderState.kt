@@ -115,13 +115,13 @@ class RadialSectorRenderState(
 
     override fun bounds(): ScreenRectangle = bounds
 
-    override fun buildVertices(consumer: VertexConsumer) {
+    override fun buildVertices(consumer: VertexConsumer, z: Float) {
         for (i in innerVertices.indices) {
             var point: Vector2fc = outerVertices[i]
-            consumer.addVertexWith2DPose(pose, point.x() + center.x(), point.y() + center.y()).color(outerColor)
+            consumer.addVertexWith2DPose(pose, point.x() + center.x(), point.y() + center.y(), z).color(outerColor)
 
             point = innerVertices[i]
-            consumer.addVertexWith2DPose(pose, point.x() + center.x(), point.y() + center.y()).color(innerColor)
+            consumer.addVertexWith2DPose(pose, point.x() + center.x(), point.y() + center.y(), z).color(innerColor)
         }
 
     }

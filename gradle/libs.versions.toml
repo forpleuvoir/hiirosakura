@@ -7,7 +7,7 @@ minecraft = "1.21.11"
 minecraftRange = "[1.21.11,1.22)"
 
 #Ibukigourd
-ibukigourd = "0.10.3+beta"
+ibukigourd = "0.10.4+beta"
 
 #Fabric checks these on https://fabricmc.net/versions.html
 fabricApi = "0.141.1+1.21.11"

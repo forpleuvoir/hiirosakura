@@ -4,7 +4,6 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrapperRow
 import moe.forpleuvoir.hiirosakura.gui.widget.EntiryAttributeSelector
 import moe.forpleuvoir.hiirosakura.gui.widget.REGISTERED_ATTRIBUTE
-import moe.forpleuvoir.hiirosakura.gui.widget.RemoveButton
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.IGLang
 import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
@@ -25,6 +24,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.EnumSelector
 import moe.forpleuvoir.ibukigourd.gui.widget.SwitchableProxy
 import moe.forpleuvoir.ibukigourd.gui.widget.Widget
 import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
+import moe.forpleuvoir.ibukigourd.gui.widget.button.DeleteButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
@@ -135,7 +135,7 @@ fun AttributeModifiersComponentEditor(
             })
 
         ColumnListWrapped(
-            spacing = 2f, modifier = Modifier, listModifier = { Modifier.height(170f) }
+            spacing = 2f, modifier = Modifier, listModifier = { Modifier.height(220f) }
         ) {
             amountStep(15f)
             if (modifiers.isEmpty()) Text(IGLang.hasNothing, modifier = Modifier.width(300f))
@@ -176,7 +176,9 @@ fun ContainerScope.AttributeModifiersComponentEntryWrapper(
             .padding(0)
     ) {
         Text(title)
-        RemoveButton { onRemove() }
+        DeleteButton(confirmMessage = {
+            IGLang.removeConfirm(title.string)
+        }, recompose = {}) { onRemove() }
         click { expanded.switch() }
     }
     SwitchableProxy(

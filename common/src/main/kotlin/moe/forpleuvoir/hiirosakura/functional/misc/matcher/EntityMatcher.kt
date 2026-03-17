@@ -260,7 +260,9 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
         override val asText: Component = Literal(name)
 
         override fun match(obj: Entity): Boolean {
-            return name.toRegex().matches(obj.name.string)
+            return runCatching {
+                name.toRegex().matches(obj.name.string)
+            }.getOrDefault(false)
         }
 
         override fun SerializeObjectBuilder.entrySerialization() {

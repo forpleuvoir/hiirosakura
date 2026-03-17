@@ -65,7 +65,7 @@ class KeyBindTickTask(
     }
 
     private fun updateKeyBindName() {
-        keyBind.name(HSLang.taskManager.appendLiteral("→").appendLiteral(name))
+        keyBind.name(HSLang.taskManager.appendLiteral(" → ").appendLiteral(name))
 
     }
 

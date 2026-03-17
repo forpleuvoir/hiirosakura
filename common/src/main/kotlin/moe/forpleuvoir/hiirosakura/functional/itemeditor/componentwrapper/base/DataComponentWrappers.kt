@@ -16,11 +16,9 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.tags.DamageTypeTags
 import net.minecraft.world.damagesource.DamageTypes
 import net.minecraft.world.food.Foods
-import net.minecraft.world.item.DyeColor
-import net.minecraft.world.item.EitherHolder
-import net.minecraft.world.item.Items
-import net.minecraft.world.item.Rarity
+import net.minecraft.world.item.*
 import net.minecraft.world.item.component.*
+import net.minecraft.world.item.consume_effects.ConsumeEffect
 import net.minecraft.world.item.enchantment.Enchantable
 import net.minecraft.world.item.enchantment.ItemEnchantments
 import net.minecraft.world.item.enchantment.Repairable
@@ -230,12 +228,12 @@ object DataComponentWrappers : Initializable {
             DamageTypeComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
         //------------ Consumable ------------\\
-//        register(
-//            CONSUMABLE,
-//            { Consumable(1.6f, ItemUseAnimation.EAT, SoundEvents.GENERIC_EAT, true, ArrayList<ConsumeEffect>()) }
-//        ) { key, c, m, rm, consumer ->
-//            ConsumableComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
+        register(
+            CONSUMABLE,
+            { Consumable(1.6f, ItemUseAnimation.EAT, SoundEvents.GENERIC_EAT, true, ArrayList<ConsumeEffect>()) }
+        ) { key, c, m, rm, consumer ->
+            ConsumableComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
         //------------ KineticWeapon ------------\\
 //        register(KINETIC_WEAPON, KineticWeapon) { key, c, m, rm, consumer ->
 //            DamageTypeComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)

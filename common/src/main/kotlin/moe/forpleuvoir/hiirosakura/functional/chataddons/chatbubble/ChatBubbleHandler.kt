@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile
 import com.mojang.blaze3d.vertex.PoseStack
 import moe.forpleuvoir.hiirosakura.config.items.stringChatBubbleServerConfigMap
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.EntityMatcher
+import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.config.item.vector2f
 import moe.forpleuvoir.ibukigourd.config.userdata.setGuiWrapper
@@ -29,6 +30,8 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 object ChatBubbleHandler : ModConfigContainer("chat_bubble") {
+
+    private val logger = logger()
 
     val enabled by boolean("enable", false)
 
@@ -80,7 +83,7 @@ object ChatBubbleHandler : ModConfigContainer("chat_bubble") {
         nodeCollector: SubmitNodeCollector
     ) {
         bubbleQueue.filter { it.bubble.shouldRemove }
-            .let { bubbleQueue.removeAll(it) }
+            .let { bubbleQueue.removeAll(it.toSet()) }
 
         bubbleQueue.findLast {
             it.matcher.match(player)

@@ -8,10 +8,12 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.nebula.common.api.Initializable
+import net.minecraft.core.Holder
 import net.minecraft.core.HolderSet
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents.*
 import net.minecraft.resources.Identifier
+import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.tags.DamageTypeTags
 import net.minecraft.world.damagesource.DamageTypes
@@ -24,6 +26,7 @@ import net.minecraft.world.item.enchantment.ItemEnchantments
 import net.minecraft.world.item.enchantment.Repairable
 import net.minecraft.world.item.equipment.Equippable
 import net.minecraft.world.level.block.entity.BannerPatternLayers
+import java.util.*
 
 fun interface DataComponentWrapper<C> {
     fun ContainerScope.wrapper(
@@ -235,9 +238,22 @@ object DataComponentWrappers : Initializable {
             ConsumableComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
         //------------ KineticWeapon ------------\\
-//        register(KINETIC_WEAPON, KineticWeapon) { key, c, m, rm, consumer ->
-//            DamageTypeComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
+        register(
+            KINETIC_WEAPON, {
+                KineticWeapon(
+                    10,
+                    0,
+                    Optional<KineticWeapon.Condition>.ofNullable(null),
+                    Optional<KineticWeapon.Condition>.ofNullable(null),
+                    Optional<KineticWeapon.Condition>.ofNullable(null),
+                    0f,
+                    1f,
+                    Optional<Holder<SoundEvent>>.ofNullable(SoundEvents.SPEAR_USE),
+                    Optional<Holder<SoundEvent>>.ofNullable(SoundEvents.SPEAR_HIT)
+                )
+            }) { key, c, m, rm, consumer ->
+            KineticWeaponComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
     }
 
 }

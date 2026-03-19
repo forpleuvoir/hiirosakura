@@ -26,7 +26,6 @@ import moe.forpleuvoir.ibukigourd.gui.widget.button.Button
 import moe.forpleuvoir.ibukigourd.gui.widget.button.DeleteButton
 import moe.forpleuvoir.ibukigourd.gui.widget.button.SwitchButton
 import moe.forpleuvoir.ibukigourd.gui.widget.icon.Icon
-import moe.forpleuvoir.ibukigourd.gui.widget.icon.IconTextures
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Box
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.ColumnWidget
@@ -64,9 +63,9 @@ fun ContainerScope.ConsumableComponentWrapper(
     onValueChange: (Consumable, Boolean) -> Unit,
 ) = DataComponentWrapperRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     Button(
-        Modifier.hoverText(IGLang.edit)
+        Modifier.hoverText(IGLang.edit).width(140f),
     ) {
-        Icon(IconTextures.EDIT)
+        Text(IGLang.edit)
         click {
             ConsumableEditor(
                 key.asTranslateText(),
@@ -77,7 +76,6 @@ fun ContainerScope.ConsumableComponentWrapper(
             ).open()
         }
     }
-
 }
 //endregion
 
@@ -114,34 +112,35 @@ fun ConsumableEditor(
         modifier = modifier,
         screenModifier = screenModifier
     ) {
-        Column(Modifier.fill()) {
+        Column(Modifier.fill(), verticalArrangement = Arrangement.spacedBy(2f)) {
+            val w = 85f
             Row(horizontalArrangement = Arrangement.spacedBy(10f)) {
                 Row(Modifier.weight(1), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("consume_seconds")
-                    FloatEditor(consumeSeconds, 0f..Float.MAX_VALUE, editorModifier = { Modifier.width(60f) })
+                    Text("consume_seconds", modifier = Modifier.priority(-1))
+                    FloatEditor(consumeSeconds, 0f..Float.MAX_VALUE, modifier = Modifier.width(w), editorModifier = { Modifier.weight(1) })
                 }
                 Row(Modifier.weight(1), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("animation")
-                    EnumSelector(animation, ItemUseAnimation.entries, modifier = Modifier.width(100f))
+                    Text("animation", modifier = Modifier.priority(-1))
+                    EnumSelector(animation, ItemUseAnimation.entries, modifier = Modifier.width(w))
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(10f)) {
                 Row(Modifier.weight(1), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("sound")
-                    HolderSoundEventSelector(sound, modifier = Modifier.width(73f))
+                    Text("sound", modifier = Modifier.priority(-1))
+                    HolderSoundEventSelector(sound, modifier = Modifier.width(w))
                 }
                 Row(Modifier.weight(1), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("has_consume_particles")
+                    Text("has_consume_particles", modifier = Modifier.priority(-1))
                     SwitchButton(hasConsumeParticles)
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(10f)) {
                 Row(Modifier.weight(1), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("on_consume_effects")
+                    Text("on_consume_effects", modifier = Modifier.priority(-1))
                     Selector(
                         options = ConsumeEffectTypes.entries,
                         selected = ConsumeEffectTypes.entries.first().asMutableState,
-                        modifier = Modifier.width(73f),
+                        modifier = Modifier.width(w),
                         selectedWrapper = {
                             Text(IGLang.add)
                         },
@@ -154,7 +153,7 @@ fun ConsumableEditor(
                         }
                     )
                 }
-                Box(Modifier.weight(1)) {  }
+                Box(Modifier.weight(1)) { }
             }
         }
         ColumnListWrapped(Modifier.height(250f).fill(), spacing = 2f, listModifier = { Modifier.weight(1).fill() }) {
@@ -278,8 +277,8 @@ fun ContainerScope.ApplyStatusEffectsWrapper(
                             },
                             onSelected = {
                                 closeScreen()
-                                MobEffectInstanceEditor(MobEffectInstance(it)) {
-                                    effects.add(it)
+                                MobEffectInstanceEditor(MobEffectInstance(it)) { instance ->
+                                    effects.add(instance)
                                     listRecompose()
                                 }.open()
                             }
@@ -290,7 +289,6 @@ fun ContainerScope.ApplyStatusEffectsWrapper(
                         effects.forEachIndexed { index, instance ->
                             MobEffectInstanceEntryWrapper(instance, index, {
                                 effects.removeAt(index)
-                                effect
                                 listRecompose()
                             }) {
                                 effects[index] = instance
@@ -380,7 +378,7 @@ fun ContainerScope.MobEffectInstanceEntryWrapper(
 //        Text(title)
         //effect
         Row(
-            modifier = Modifier.padding(2f).weight(1).bgHoverHighlightBox(),
+            modifier = Modifier.padding(2f).weight(1),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text("effect:$index")

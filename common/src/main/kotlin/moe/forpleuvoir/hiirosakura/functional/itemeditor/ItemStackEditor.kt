@@ -6,6 +6,7 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DefaultComponentBuilder
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.gui.widget.ItemSelector
+import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
 import moe.forpleuvoir.hiirosakura.util.registryAccess
@@ -177,9 +178,14 @@ private fun RowScope.ComponentAdder(
     val selected = components.first().asMutableState
     Text(HSLang.itemEditorItemAddComponent)
     var toggle by lateInitValueOf {}
-    Selector(
+    SelectorWithSearcher(
         options = components,
         selected = selected,
+        predicate = { component, str ->
+            val id = component.keyOrUnknown(registryManager)
+            id.toString().contains(str) ||
+                    id.asTranslateText().string.contains(str)
+        },
         optionWrapper = {
             val isAdapted = DataComponentWrappers.isAdaptedComponent(it)
             Text(
@@ -217,6 +223,9 @@ private fun RowScope.ComponentAdder(
                 Toast.showToast(Literal(it.message ?: "unknown error").withColor(Colors.RED))
                 DataComponentWrappers.log.error(it)
             }
+        },
+        searchBarModifier = {
+            Modifier.width((components.map { it.keyOrUnknown.toString() }.maxWidth + 12f).coerceAtLeast(210f)).maxHeight(180f)
         },
         listWrapperModifier = {
             Modifier.width((components.map { it.keyOrUnknown.toString() }.maxWidth + 12f).coerceAtLeast(210f)).maxHeight(180f)

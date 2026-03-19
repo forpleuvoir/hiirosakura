@@ -76,7 +76,7 @@ fun testScreen() = ItemStackEditor { stack ->
 fun test2() {
     runCatching {
         ItemStackMatcher.handheldItemStack?.let { item ->
-            ItemStack.CODEC.encodeStart(registryAccess!!.createSerializationContext(NebulaOps), item)
+            ItemStack.STRICT_CODEC.encodeStart(registryAccess!!.createSerializationContext(NebulaOps), item)
                 .orThrow
                 .let {
                     TestInitialization.log.info(it.dumpAsJson(true))

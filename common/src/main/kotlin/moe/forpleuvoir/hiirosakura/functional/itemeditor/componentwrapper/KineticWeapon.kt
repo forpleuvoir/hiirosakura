@@ -150,6 +150,7 @@ fun KineticWeaponEditor(
                             }
                             HolderSoundEventSelector(state, modifier = Modifier.weight(1).priority(-1))
                         } ?: run {
+                            Widget(Modifier.weight(1).height(18f))
                             AddButton {
                                 sound = SoundEvents.SPEAR_USE
                                 this@r.executeRecompose()
@@ -173,6 +174,7 @@ fun KineticWeaponEditor(
                             }
                             HolderSoundEventSelector(state, modifier = Modifier.weight(1).priority(-1))
                         } ?: run {
+                            Widget(Modifier.weight(1).height(18f))
                             AddButton {
                                 hitSound = SoundEvents.SPEAR_USE
                                 this@r.executeRecompose()

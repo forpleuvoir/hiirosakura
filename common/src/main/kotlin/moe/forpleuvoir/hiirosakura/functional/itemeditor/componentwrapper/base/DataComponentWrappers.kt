@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base
 
+import it.unimi.dsi.fastutil.ints.IntList
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.*
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
@@ -253,6 +254,46 @@ object DataComponentWrappers : Initializable {
                 )
             }) { key, c, m, rm, consumer ->
             KineticWeaponComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        //------------ PiercingWeapon ------------\\
+        register(
+            PIERCING_WEAPON,
+            {
+                PiercingWeapon(
+                    true,
+                    false,
+                    Optional<Holder<SoundEvent>>.ofNullable(SoundEvents.SPEAR_USE),
+                    Optional<Holder<SoundEvent>>.ofNullable(SoundEvents.SPEAR_HIT)
+                )
+            }
+        ) { key, c, m, rm, consumer ->
+            PiercingWeaponComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        //------------ FireworksComponentWrapper ------------\\
+        register(
+            FIREWORKS,
+            {
+                Fireworks(
+                    0,
+                    mutableListOf()
+                )
+            }
+        ) { key, c, m, rm, consumer ->
+            FireworksComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        register(
+            FIREWORK_EXPLOSION,
+            {
+                FireworkExplosion(
+                    FireworkExplosion.Shape.SMALL_BALL,
+                    IntList.of(),
+                    IntList.of(),
+                    false,
+                    false
+                )
+            }
+        ) { key, c, m, rm, consumer ->
+            FireworkExplosionComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
     }
 

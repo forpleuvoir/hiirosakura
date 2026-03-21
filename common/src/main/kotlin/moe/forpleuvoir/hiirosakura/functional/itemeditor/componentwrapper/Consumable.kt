@@ -166,7 +166,7 @@ fun ConsumableEditor(
                 ConsumeEffectWrapper(
                     effect,
                     Modifier.fill().bgHoverHighlightBox(),
-                    listRecompose,
+                    { listRecompose() },
                     {
                         onConsumeEffects.removeAt(index)
                     },

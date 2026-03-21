@@ -77,6 +77,7 @@ fun ContainerScope.SerializeObjectEditor(
         spacing,
         horizontalAlignment,
         barThickness,
+        { recompose.setValue { this.executeRecompose() } },
         listModifier
     ) {
         amountStep(15f)
@@ -102,8 +103,6 @@ fun ContainerScope.SerializeObjectEditor(
                 }
             }
         }
-    }.apply {
-        recompose.setValue { this.executeRecompose() }
     }
 }
 

@@ -88,7 +88,8 @@ fun ContainerScope.CustomRadialMenuManagerGui(
         ColumnListWrapped(
             modifier = Modifier.fill(),
             listModifier = { Modifier.fill() },
-            spacing = 1f
+            spacing = 1f,
+            onCreate = { menuListRecompose = { executeRecompose() } }
         ) {
             val hoveredColor = Colors.CYAN.alpha(0.25f).asState
             val pressedColor = Colors.CYAN.alpha(0.5f).asState
@@ -131,7 +132,7 @@ fun ContainerScope.CustomRadialMenuManagerGui(
                 }
             }
 
-        }.apply { menuListRecompose = { executeRecompose() } }
+        }
     }
 
 
@@ -197,7 +198,8 @@ fun ContainerScope.CustomRadialMenuManagerGui(
         ColumnListWrapped(
             modifier = Modifier.fill(),
             listModifier = { Modifier.fill() },
-            spacing = 2f
+            spacing = 2f,
+            onCreate = { taskListRecompose = { executeRecompose() } }
         ) {
             currentMenu.tasks.forEach { task ->
                 Row(
@@ -251,8 +253,6 @@ fun ContainerScope.CustomRadialMenuManagerGui(
                     }
                 }
             }
-        }.apply {
-            taskListRecompose = { executeRecompose() }
         }
     }
 

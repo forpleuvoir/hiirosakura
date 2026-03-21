@@ -146,6 +146,11 @@ fun ContainerScope.TaskManagerGui(
     ColumnListWrapped(
         modifier = Modifier.fill().weight(1),
         listModifier = { Modifier.weight(1).fill() },
+        onCreate = {
+            filterList.subscribe {
+                executeRecompose()
+            }
+        }
     ) {
         if (filterList.isEmpty()) Text(IGLang.hasNothing)
         filterList.forEachIndexed { index, task ->
@@ -210,11 +215,6 @@ fun ContainerScope.TaskManagerGui(
                     Icon(IconTextures.DELETE, HSVColor(0f, .1f, .25f), modifier = Modifier.size(12f, 12f))
                 }
             }
-        }
-
-    }.apply {
-        filterList.subscribe {
-            executeRecompose()
         }
     }
 }

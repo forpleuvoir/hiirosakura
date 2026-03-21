@@ -64,6 +64,7 @@ fun ContainerScope.SerializeArrayEditor(
         spacing,
         horizontalAlignment,
         barThickness,
+        { recompose = { this.executeRecompose() } },
         listModifier
     ) {
         if (serializeArray.isEmpty()) Text(IGLang.hasNothing, Modifier.fill())
@@ -91,8 +92,6 @@ fun ContainerScope.SerializeArrayEditor(
                 }
             }
         }
-    }.apply {
-        recompose = { this.executeRecompose() }
     }
 }
 

@@ -135,7 +135,7 @@ fun AttributeModifiersComponentEditor(
             })
 
         ColumnListWrapped(
-            spacing = 2f, modifier = Modifier, listModifier = { Modifier.height(220f) }
+            spacing = 2f, modifier = Modifier, listModifier = { Modifier.height(220f) }, onCreate = { recompose = { this.executeRecompose() } }
         ) {
             amountStep(15f)
             if (modifiers.isEmpty()) Text(IGLang.hasNothing, modifier = Modifier.width(300f))
@@ -147,8 +147,6 @@ fun AttributeModifiersComponentEditor(
                     modifiers[index] = it
                 }
             }
-        }.apply {
-            recompose = { this.executeRecompose() }
         }
     }
 }

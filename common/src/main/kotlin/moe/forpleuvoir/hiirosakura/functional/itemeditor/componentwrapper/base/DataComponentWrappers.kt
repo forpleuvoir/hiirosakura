@@ -104,7 +104,7 @@ object DataComponentWrappers : Initializable {
     override fun init() {
         //------------ Int ------------\\
         register(MAX_STACK_SIZE, { 64 }) { key, c, m, rm, consumer ->
-            IntComponentWrapper(key, c, 1..99, modifier = m, removeAction = rm, onValueChange = consumer)
+            IntComponentWrapper(key, c, 1..Item.ABSOLUTE_MAX_STACK_SIZE, modifier = m, removeAction = rm, onValueChange = consumer)
         }
         register(MAX_DAMAGE, { 233 }) { key, c, m, rm, consumer ->
             IntComponentWrapper(key, c, 1..Int.MAX_VALUE, modifier = m, removeAction = rm, onValueChange = consumer)
@@ -114,6 +114,11 @@ object DataComponentWrappers : Initializable {
         }
         register(REPAIR_COST, { 0 }) { key, c, m, rm, consumer ->
             IntComponentWrapper(key, c, 0..Int.MAX_VALUE, modifier = m, removeAction = rm, onValueChange = consumer)
+        }
+        register(OMINOUS_BOTTLE_AMPLIFIER, { OminousBottleAmplifier(0) }) { key, c, m, rm, consumer ->
+            IntComponentWrapper(key, c.value(), 0..4, modifier = m, removeAction = rm, onValueChange = { value, changed ->
+                consumer(OminousBottleAmplifier(value), changed)
+            })
         }
         //------------ Float ------------\\
         register(POTION_DURATION_SCALE, { 1f }) { key, c, m, rm, consumer ->
@@ -269,7 +274,7 @@ object DataComponentWrappers : Initializable {
         ) { key, c, m, rm, consumer ->
             PiercingWeaponComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
-        //------------ FireworksComponentWrapper ------------\\
+        //------------ Fireworks ------------\\
         register(
             FIREWORKS,
             {
@@ -281,6 +286,7 @@ object DataComponentWrappers : Initializable {
         ) { key, c, m, rm, consumer ->
             FireworksComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
+        //------------ FireworkExplosion ------------\\
         register(
             FIREWORK_EXPLOSION,
             {
@@ -295,6 +301,33 @@ object DataComponentWrappers : Initializable {
         ) { key, c, m, rm, consumer ->
             FireworkExplosionComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
         }
+        //------------ DyeColor ------------\\
+        register(BASE_COLOR, { DyeColor.CYAN }) { key, c, m, rm, consumer ->
+            EnumComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        register(WOLF_COLLAR, { DyeColor.CYAN }) { key, c, m, rm, consumer ->
+            EnumComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        register(TROPICAL_FISH_BASE_COLOR, { DyeColor.CYAN }) { key, c, m, rm, consumer ->
+            EnumComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        register(TROPICAL_FISH_PATTERN_COLOR, { DyeColor.CYAN }) { key, c, m, rm, consumer ->
+            EnumComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        register(CAT_COLLAR, { DyeColor.CYAN }) { key, c, m, rm, consumer ->
+            EnumComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        register(SHEEP_COLOR, { DyeColor.CYAN }) { key, c, m, rm, consumer ->
+            EnumComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        register(SHULKER_COLOR, { DyeColor.CYAN }) { key, c, m, rm, consumer ->
+            EnumComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+        //------------  ------------\\
+        register(LODESTONE_TRACKER, { LodestoneTracker(Optional.ofNullable(null), true) }) { key, c, m, rm, consumer ->
+            LodestoneTrackerComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
+        }
+//      CONTAINER
     }
 
 }

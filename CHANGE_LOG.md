@@ -1,6 +1,6 @@
 v3.5.3+beta
- - 修改了轮盘菜单的渲染方式,由原来地渲染四边形改为圆形
- - 物品编辑器新增对`Consumable`,`KineticWeapon`组件的适配
+ - 修复了聊天气泡匹配玩家时可能导致的崩溃问题
+ - 物品编辑器新增对`Consumable`,`KineticWeapon`,`PiercingWeapon`,`Fireworks`,`FireworkExplosion`,`LodestoneTracker`,`DyeColor`组件的适配
 
 v3.5.2+beta
  - 修改了轮盘菜单的渲染方式,由原来地渲染四边形改为圆形

@@ -131,7 +131,12 @@ fun FireworksEditor(
                 )
             }
         }
-        ColumnListWrapped(Modifier.fill().weight(1), spacing = 2f, listModifier = { Modifier.weight(1).fill() }) {
+        ColumnListWrapped(
+            Modifier.fill().weight(1),
+            spacing = 2f,
+            listModifier = { Modifier.weight(1).fill() },
+            onCreate = { listRecompose = { this.executeRecompose() } }
+        ) {
             explosions.forEachIndexed { index, explosion ->
                 FireworkExplosionEntryWrapper(
                     explosions[index],
@@ -143,11 +148,9 @@ fun FireworksEditor(
                     onValueChange = {
                         explosions[index] = it
                     },
-                    modifier= Modifier.unlockConstraint()
+                    modifier = Modifier.unlockConstraint()
                 )
             }
-        }.apply {
-            listRecompose = { this.executeRecompose() }
         }
     }
 }

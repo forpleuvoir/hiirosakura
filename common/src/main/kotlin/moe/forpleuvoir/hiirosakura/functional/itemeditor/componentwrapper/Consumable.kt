@@ -156,8 +156,12 @@ fun ConsumableEditor(
                 Box(Modifier.weight(1)) { }
             }
         }
-        ColumnListWrapped(Modifier.height(250f).fill(), spacing = 2f, listModifier = { Modifier.weight(1).fill() }) {
-            listRecompose = { this.executeRecompose() }
+        ColumnListWrapped(
+            Modifier.height(250f).fill(),
+            spacing = 2f,
+            listModifier = { Modifier.weight(1).fill() },
+            onCreate = { listRecompose = { this.executeRecompose() } }
+        ) {
             onConsumeEffects.forEachIndexed { index, effect ->
                 ConsumeEffectWrapper(
                     effect,
@@ -284,8 +288,11 @@ fun ContainerScope.ApplyStatusEffectsWrapper(
                             }
                         )
                     }
-                    ColumnListWrapped(Modifier.width(320f).weight(1), listModifier = { Modifier.fill() }) {
-                        listRecompose = { this.executeRecompose() }
+                    ColumnListWrapped(
+                        Modifier.width(320f).weight(1),
+                        listModifier = { Modifier.fill() },
+                        onCreate = { listRecompose = { this.executeRecompose() } }
+                    ) {
                         effects.forEachIndexed { index, instance ->
                             MobEffectInstanceEntryWrapper(instance, index, {
                                 effects.removeAt(index)

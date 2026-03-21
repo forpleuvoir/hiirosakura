@@ -38,6 +38,7 @@ import moe.forpleuvoir.ibukigourd.gui.widget.layout.Column
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.RowScope
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListScope
+import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWidget
 import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
 import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
 import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
@@ -92,12 +93,9 @@ fun ContainerScope.ItemStackManagerGui(
         deferred,
         regex,
         mutableStateOf(false),
-        modifier = Modifier.fill()
-    ).apply {
-        recompose = {
-            this.executeRecompose()
-        }
-    }
+        modifier = Modifier.fill(),
+        onCreate = { recompose = { this.executeRecompose() } }
+    )
 }
 
 
@@ -141,6 +139,7 @@ private fun ContainerScope.ItemStackList(
     spacing: Float = 2f,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     barThickness: Float = 9f,
+    onCreate: ColumnListWidget.() -> Unit = {},
     listModifier: RowScope.() -> Modifier = { Modifier.fill().weight(1) },
     scrollerModifier: BoxScope.() -> Modifier = { Modifier },
 ) = ColumnListWrapped(
@@ -149,6 +148,7 @@ private fun ContainerScope.ItemStackList(
     spacing,
     horizontalAlignment,
     barThickness,
+    onCreate,
     listModifier,
     scrollerModifier
 ) {

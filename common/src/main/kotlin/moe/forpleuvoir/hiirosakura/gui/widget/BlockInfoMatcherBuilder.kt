@@ -114,6 +114,7 @@ fun BlockInfoMatcherBuilder(
                 ColumnListWrapped(
                     modifier = Modifier.height(180f).weight(1),
                     listModifier = { Modifier.weight(1).fill() },
+                    onCreate = { onChanged = { this.executeRecompose() } }
                 ) {
                     if (matcher.entries.isEmpty()) {
                         Text(IGLang.hasNothing)
@@ -132,10 +133,7 @@ fun BlockInfoMatcherBuilder(
                             Modifier.fill()
                         )
                     }
-                }.apply {
-                    onChanged = { this.executeRecompose() }
                 }
-
                 Column(
                     modifier = Modifier.height(180f),
                     verticalArrangement = Arrangement.spacedBy(2f),

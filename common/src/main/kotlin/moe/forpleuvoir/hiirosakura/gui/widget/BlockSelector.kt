@@ -169,7 +169,12 @@ fun ContainerScope.BlockSelector(
                 }
             }
         },
-        listModifier = listModifier
+        listModifier = listModifier,
+        onCreate = {
+            showList.subscribe {
+                executeRecompose()
+            }
+        }
     ) {
         if (showList.isEmpty()) {
             Text(IGLang.hasNothing)
@@ -191,10 +196,6 @@ fun ContainerScope.BlockSelector(
                     }
                 }
             }
-        }
-    }.apply {
-        showList.subscribe {
-            executeRecompose()
         }
     }
 }

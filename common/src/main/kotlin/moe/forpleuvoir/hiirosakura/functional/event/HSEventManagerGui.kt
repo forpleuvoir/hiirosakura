@@ -107,6 +107,11 @@ fun ContainerScope.HSEventManagerGui(
     ColumnListWrapped(
         modifier = Modifier.fill().weight(1),
         listModifier = { Modifier.weight(1).fill() },
+        onCreate = {
+            filterList.subscribe {
+                executeRecompose()
+            }
+        }
     ) {
         if (filterList.isEmpty()) Text(IGLang.hasNothing)
         filterList.forEachIndexed { index, eventSubscriber ->
@@ -151,10 +156,6 @@ fun ContainerScope.HSEventManagerGui(
                     onChanged()
                 }
             }
-        }
-    }.apply {
-        filterList.subscribe {
-            executeRecompose()
         }
     }
 }

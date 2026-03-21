@@ -239,35 +239,38 @@ private fun RowScope.ComponentAdder(
 private fun ColumnScope.Components(
     components: PatchedDataComponentMap,
     onComponentChange: (DataComponentType<*>, Any?) -> Unit
-) = ColumnListWrapped(
-    Modifier.matchSibling().minHeight(140f).maxHeight(180f),
-    spacing = 2f,
-    horizontalAlignment = Alignment.Left,
-    listModifier = {
-        Modifier.weight(1).fill()
-    }
-) {
-    components.keySet().sortedBy {
-        it.key(registryAccess!!)
-    }.forEach { type ->
-        components[type]?.let { c ->
-            DataComponentWrapper(
-                type, c,
-                removeAction = {
-                    components.remove(type)
-                    onComponentChange(type, null)
-                    this.executeRecompose()
+): () -> Unit {
+    var recompose by lateInitValueOf<()-> Unit>()
+    ColumnListWrapped(
+        Modifier.matchSibling().minHeight(140f).maxHeight(180f),
+        spacing = 2f,
+        horizontalAlignment = Alignment.Left,
+        listModifier = {
+            Modifier.weight(1).fill()
+        },
+        onCreate = {
+            recompose = { this.executeRecompose() }
+        }
+    ) {
+        components.keySet().sortedBy {
+            it.key(registryAccess!!)
+        }.forEach { type ->
+            components[type]?.let { c ->
+                DataComponentWrapper(
+                    type, c,
+                    removeAction = {
+                        components.remove(type)
+                        onComponentChange(type, null)
+                        this.executeRecompose()
+                    }
+                ) { component, recompose ->
+                    components[type as DataComponentType<Any>] = component
+                    onComponentChange(type, component)
+                    if (recompose) this.executeRecompose()
                 }
-            ) { component, recompose ->
-                components[type as DataComponentType<Any>] = component
-                onComponentChange(type, component)
-                if (recompose) this.executeRecompose()
             }
         }
     }
-}.run {
-    { this.executeRecompose() }
+    return recompose
 }
-
-
 

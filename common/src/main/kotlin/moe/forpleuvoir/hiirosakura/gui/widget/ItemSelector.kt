@@ -182,7 +182,12 @@ fun ContainerScope.ItemSelector(
                 }
             }
         },
-        listModifier = listModifier
+        listModifier = listModifier,
+        onCreate = {
+            showList.subscribe {
+                executeRecompose()
+            }
+        }
     ) {
         amountStep?.let(::amountStep)
         if (showList.isEmpty()) {
@@ -205,10 +210,6 @@ fun ContainerScope.ItemSelector(
                     }
                 }
             }
-        }
-    }.apply {
-        showList.subscribe {
-            executeRecompose()
         }
     }
 }

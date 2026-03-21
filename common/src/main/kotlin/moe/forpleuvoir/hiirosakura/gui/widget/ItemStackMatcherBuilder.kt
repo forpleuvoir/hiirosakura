@@ -140,6 +140,9 @@ fun ItemStackMatcherBuilder(
                 ColumnListWrapped(
                     modifier = Modifier.matchSibling().weight(1),
                     listModifier = { Modifier.weight(1).fill() },
+                    onCreate = {
+                        onChanged = { this.executeRecompose() }
+                    }
                 ) {
                     if (matcher.entries.isEmpty()) {
                         Text(IGLang.hasNothing)
@@ -158,8 +161,6 @@ fun ItemStackMatcherBuilder(
                             Modifier.fill()
                         )
                     }
-                }.apply {
-                    onChanged = { this.executeRecompose() }
                 }
 
                 Column(

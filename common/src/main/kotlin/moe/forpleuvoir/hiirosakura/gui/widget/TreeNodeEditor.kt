@@ -11,7 +11,6 @@ import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.attachLeft
 import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.*
 import moe.forpleuvoir.ibukigourd.gui.base.scope.ContainerScope
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.screen.closeScreen
@@ -86,7 +85,8 @@ fun ContainerScope.TreeNodeEditor(
     }
     ColumnListWrapped(
         modifier,
-        listModifier = listModifier
+        listModifier = listModifier,
+        onCreate = { recompose = { executeRecompose() } }
     ) {
         if (data.isEmpty()) Text(IGLang.hasNothing)
         data.forEach { (key, _) ->
@@ -105,7 +105,6 @@ fun ContainerScope.TreeNodeEditor(
                 Modifier.unlockConstraint()
             )
         }
-        recompose = { executeRecompose() }
     }
 }
 
@@ -137,7 +136,8 @@ fun ContainerScope.ListNodeEditor(
     }
     ColumnListWrapped(
         modifier,
-        listModifier = listModifier
+        listModifier = listModifier,
+        onCreate = { recompose = { executeRecompose() } }
     ) {
         if (list.isEmpty()) Text(IGLang.hasNothing)
         list.forEachIndexed { index, value ->
@@ -155,7 +155,6 @@ fun ContainerScope.ListNodeEditor(
                 Modifier.unlockConstraint()
             )
         }
-        recompose = { executeRecompose() }
     }
 }
 

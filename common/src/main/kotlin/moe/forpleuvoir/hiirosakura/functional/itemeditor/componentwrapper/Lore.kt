@@ -15,6 +15,7 @@ import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecom
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl
 import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
 import moe.forpleuvoir.ibukigourd.gui.base.widget.WidgetTextures
+import moe.forpleuvoir.ibukigourd.gui.base.widget.executeRecompose
 import moe.forpleuvoir.ibukigourd.gui.configwrapper.MoveButton
 import moe.forpleuvoir.ibukigourd.gui.modifier.disableRenderBackground
 import moe.forpleuvoir.ibukigourd.gui.widget.DialogContent
@@ -98,9 +99,11 @@ fun LoreComponentEditor(
         ) {
             ColumnListWrapped(
                 modifier = Modifier.disableRenderBackground().padding(0).minWidth(280f),
-                listModifier = { Modifier.height(160f) }
+                listModifier = { Modifier.height(160f) },
+                onCreate = {
+                    recompose = { this.executeRecompose() }
+                }
             ) {
-                recompose = { this.executeRecompose() }
                 if (lines.isEmpty()) Text(IGLang.hasNothing)
                 lines.forEachIndexed { index, entry ->
                     Row(Modifier, horizontalArrangement = Arrangement.spacedBy(2f)) {

@@ -252,11 +252,7 @@ fun ContainerScope.ApplyStatusEffectsWrapper(
                     title = Identifier.parse("minecraft:apply_effects").asTranslateText(),
                     screenModifier = Modifier.padding(20f)
                 ) {
-                    val effects = mutableListOf<MobEffectInstance>().apply {
-                        effect.effects.forEach {
-                            add(it)
-                        }
-                    }
+                    val effects = ArrayList(effect.effects)
                     val probability = effect.probability.asMutableState
                     onConfirm = {
                         effect = ApplyStatusEffectsConsumeEffect(effects, probability.getValue())
@@ -298,7 +294,7 @@ fun ContainerScope.ApplyStatusEffectsWrapper(
                                 effects.removeAt(index)
                                 listRecompose()
                             }) {
-                                effects[index] = instance
+                                effects[index] = it
                             }
                         }
                     }

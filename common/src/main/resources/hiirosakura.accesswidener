@@ -21,7 +21,7 @@ accessible field net/minecraft/network/chat/Style italic Ljava/lang/Boolean;
 accessible field net/minecraft/network/chat/Style underlined Ljava/lang/Boolean;
 accessible field net/minecraft/network/chat/Style strikethrough Ljava/lang/Boolean;
 accessible field net/minecraft/network/chat/Style obfuscated Ljava/lang/Boolean;
-accessible field net/minecraft/network/chat/Style font Lnet/minecraft/util/Identifier;
+accessible field net/minecraft/network/chat/Style font Lnet/minecraft/network/chat/FontDescription;
 
 ##Misc
 accessible field net/minecraft/client/multiplayer/chat/ChatListener CHAT_VALIDATION_ERROR Lnet/minecraft/network/chat/Component;

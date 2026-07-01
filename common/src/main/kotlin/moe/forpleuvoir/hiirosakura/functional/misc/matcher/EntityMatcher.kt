@@ -3,33 +3,35 @@ package moe.forpleuvoir.hiirosakura.functional.misc.matcher
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSEntity
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
-import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.appendLiteral
 import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
-import moe.forpleuvoir.nebula.serialization.Deserializable
-import moe.forpleuvoir.nebula.serialization.Deserializer
+import moe.forpleuvoir.nebula.common.util.checkType
+import moe.forpleuvoir.nebula.common.util.requireKey
+import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.SerializeObjectBuilder
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
-import net.minecraft.core.registries.BuiltInRegistries
+import moe.forpleuvoir.nebula.serialization.base.builder.build
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.codec.serialization
+import moe.forpleuvoir.nebula.serialization.extensions.requireString
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
+import java.util.concurrent.atomic.AtomicBoolean
+import moe.forpleuvoir.hiirosakura.util.codec.entityType
+import moe.forpleuvoir.hiirosakura.util.codec.uuid
 
-class EntityMatcher(override var mode: CompositeMatcher.MatchMode, entries: List<EntityMatchEntry>) : CompositeMatcher<Entity>, Deserializable {
+class EntityMatcher(override var mode: CompositeMatcher.MatchMode, entries: List<EntityMatchEntry>) : CompositeMatcher<Entity> {
 
     constructor(mode: CompositeMatcher.MatchMode, vararg entries: EntityMatchEntry) : this(mode, entries.toList())
 
-    companion object : Deserializer<EntityMatcher> {
+    companion object : Codec<EntityMatcher> {
 
         val targetEntityMatcher: EntityMatcher
             get() {
@@ -58,20 +60,6 @@ class EntityMatcher(override var mode: CompositeMatcher.MatchMode, entries: List
                 )
             )
 
-        override fun deserialization(serializeElement: SerializeElement): EntityMatcher {
-            return serializeElement.checkType<SerializeObject, EntityMatcher> { obj ->
-                val entries = obj["entries"]!!.checkType<SerializeArray, List<EntityMatchEntry>> { array ->
-                    array.map { element ->
-                        EntityMatchEntry.deserialization(element)
-                    }
-                }.getOrThrow()
-                EntityMatcher(
-                    mode = CompositeMatcher.MatchMode.deserialization(obj["mode"]!!),
-                    entries = entries
-                )
-            }.getOrThrow()
-        }
-
         fun isAnyMatcher(matcher: CompositeMatcher<Entity>): Boolean {
             val mode = matcher.mode == CompositeMatcher.MatchMode.AnyMatch
             if (!mode) return false
@@ -83,17 +71,40 @@ class EntityMatcher(override var mode: CompositeMatcher.MatchMode, entries: List
                 }
             }
         }
+
+        override fun deserialization(data: SerializeElement): Result<EntityMatcher> = DeserializationException.runCatching {
+            data.checkType<SerializeObject, EntityMatcher> { obj ->
+                val entries = obj.requireKey("entries").checkType<SerializeArray, List<EntityMatchEntry>> { array ->
+                    array.map { element ->
+                        EntityMatchEntry.deserialization(element).getOrThrow()
+                    }
+                }
+                EntityMatcher(
+                    mode = CompositeMatcher.MatchMode.deserialization(obj.requireKey("mode")).getOrThrow(),
+                    entries = entries
+                )
+            }
+        }
+
+        override fun serialization(target: EntityMatcher): SerializeObject = SerializeObject.build {
+            context(CompositeMatcher.MatchMode, EntityMatchEntry) {
+                "mode" to target.mode
+                "entries" arr {
+                    target.entries.forEach { add(it.serialization) }
+                }
+            }
+        }
     }
 
     override val entries: List<EntityMatchEntry> = entries.toMutableList()
 
     val simpleText
         get() = when (entries.size) {
-            0    -> IGLang.hasNothing
+            0    -> IGLang.Misc.hasNothing
             1    -> entries[0].asText
             else -> if (isAnyMatcher(this)) {
                 CompositeMatcher.MatchMode.AnyMatch.translateText
-            } else mode.translateText.appendLiteral(":").append(IGLang.listConfigWrapperText(entries.size))
+            } else mode.translateText.appendLiteral(":").append(IGLang.ConfigWrapper.listConfigWrapperText(entries.size))
         }
 
     override fun clone(): EntityMatcher {
@@ -120,36 +131,6 @@ class EntityMatcher(override var mode: CompositeMatcher.MatchMode, entries: List
         (this.entries as MutableList).clear()
     }
 
-    override fun deserialization(serializeElement: SerializeElement) {
-        clear()
-        serializeElement.checkType<SerializeObject, Unit> { obj ->
-            mode = CompositeMatcher.MatchMode.deserialization(obj["mode"]!!)
-            obj["entries"]!!.checkType<SerializeArray, Unit> { array ->
-                array.forEach { element ->
-                    addEntry(EntityMatchEntry.deserialization(element))
-                }
-            }
-        }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as EntityMatcher
-
-        if (mode != other.mode) return false
-        if (entries != other.entries) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = mode.hashCode()
-        result = 31 * result + entries.hashCode()
-        return result
-    }
-
 }
 
 sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type: String) : MatchEntry<Entity> {
@@ -160,235 +141,160 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
 
     abstract val asText: Component
 
-    override fun serialization(): SerializeElement = serializeObject {
-        "type" to type
-        "mode" to mode
-        entrySerialization()
-    }
+    companion object : Codec<EntityMatchEntry> {
 
-    abstract fun SerializeObjectBuilder.entrySerialization()
+        private const val MATCHER_TYPE = "matcher"
+        private const val ENTITY_TYPE_TYPE = "entity_type"
+        private const val NAME_TYPE = "name"
+        private const val DISPLAY_NAME_TYPE = "display_name"
+        private const val SCRIPT_TYPE = "script"
+        private const val UUID_TYPE = "uuid"
+        private const val ALIVE_TYPE = "alive"
 
-    companion object : Deserializer<EntityMatchEntry> {
+        private inline fun <reified T : EntityMatchEntry> codec(type: String, defaultMode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) =
+            Codec.create<T>()
+                .field<String>("type").getter(EntityMatchEntry::type).default(type).codec(Codec.string)
+                .field<MatchEntry.MatchMode>("mode").getter(EntityMatchEntry::mode).default(defaultMode).codec(MatchEntry.MatchMode)
 
-        val desMapping = mutableMapOf<String, (SerializeElement) -> EntityMatchEntry>(
-            Matcher.TYPE to { Matcher.deserialization(it) },
-            Type.TYPE to { Type.deserialization(it) },
-            Name.TYPE to { Name.deserialization(it) },
-            DisplayName.TYPE to { DisplayName.deserialization(it) },
-            Script.TYPE to { Script.deserialization(it) },
-            UUID.TYPE to { UUID.deserialization(it) },
-            Alive.TYPE to { Alive.deserialization(it) },
+        val desMapping = mutableMapOf<String, (SerializeElement) -> Result<EntityMatchEntry>>(
+            MATCHER_TYPE to { Matcher.deserialization(it) },
+            ENTITY_TYPE_TYPE to { Type.deserialization(it) },
+            NAME_TYPE to { Name.deserialization(it) },
+            DISPLAY_NAME_TYPE to { DisplayName.deserialization(it) },
+            SCRIPT_TYPE to { Script.deserialization(it) },
+            UUID_TYPE to { UUID.deserialization(it) },
+            ALIVE_TYPE to { Alive.deserialization(it) },
         )
 
-        override fun deserialization(serializeElement: SerializeElement): EntityMatchEntry {
-            return serializeElement.checkType<SerializeObject, EntityMatchEntry> {
-                desMapping[it["type"]!!.asString]?.invoke(it) ?: throw IllegalArgumentException("Unsupported type ${it["type"]}")
-            }.getOrThrow()
+        override fun deserialization(data: SerializeElement): Result<EntityMatchEntry> = DeserializationException.runCatching {
+            data.checkType<SerializeObject, EntityMatchEntry> {
+                desMapping[it.requireString("type")]?.invoke(it)?.getOrThrow() ?: throw IllegalArgumentException("Unsupported type ${it["type"]}")
+            }
         }
 
-        private fun getMode(serializeObject: SerializeObject): MatchEntry.MatchMode =
-            MatchEntry.MatchMode.deserialization(serializeObject["mode"]!!)
+        override fun serialization(target: EntityMatchEntry): SerializeElement = when (target) {
+            is Matcher     -> Matcher.serialization(target)
+            is Type        -> Type.serialization(target)
+            is Name        -> Name.serialization(target)
+            is DisplayName -> DisplayName.serialization(target)
+            is Script      -> Script.serialization(target)
+            is UUID        -> UUID.serialization(target)
+            is Alive       -> Alive.serialization(target)
+        }
 
     }
 
-    class Matcher(val matcher: EntityMatcher, mode: MatchEntry.MatchMode) : EntityMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<Matcher> {
-            const val TYPE = "matcher"
-            override fun deserialization(serializeElement: SerializeElement): Matcher {
-                return serializeElement.checkType<SerializeObject, Matcher> {
-                    Matcher(
-                        matcher = EntityMatcher.deserialization(it["matcher"]!!),
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-        }
+    //region Matcher
+    class Matcher(val matcher: EntityMatcher, mode: MatchEntry.MatchMode) : EntityMatchEntry(mode, MATCHER_TYPE) {
+        companion object : Codec<Matcher> by codec<Matcher>(MATCHER_TYPE)
+            .field<EntityMatcher>("matcher").getter(Matcher::matcher).codec(EntityMatcher)
+            .build({ _, mode, matcher -> Matcher(matcher, mode) })
 
         override val asText: Component get() = matcher.simpleText
 
         override fun match(obj: Entity): Boolean = matcher.match(obj)
 
-        override fun SerializeObjectBuilder.entrySerialization() {
-            "matcher" to matcher.serialization()
-        }
-
     }
+    //endregion
 
-    class Type(val entityType: EntityType<*>, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<Type> {
-            const val TYPE = "entity_type"
-            override fun deserialization(serializeElement: SerializeElement): Type {
-                return serializeElement.checkType<SerializeObject, Type> {
-                    Type(
-                        entityType = BuiltInRegistries.ENTITY_TYPE.get(Identifier.parse(it["entity_type"]!!.asString)).get().value(),
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-
-        }
+    //region Type
+    class Type(val entityType: EntityType<*>, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, ENTITY_TYPE_TYPE) {
+        companion object : Codec<Type> by codec<Type>(ENTITY_TYPE_TYPE)
+            .field<EntityType<*>>("entity_type").getter(Type::entityType).codec(Codec.entityType)
+            .build({ _, mode, entityType -> Type(entityType, mode) })
 
         override val asText: Component = Translatable(entityType.descriptionId)
 
-        override fun match(obj: Entity): Boolean {
-            return obj.type == entityType
-        }
-
-        override fun SerializeObjectBuilder.entrySerialization() {
-            "entity_type" to BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString()
-        }
+        override fun match(obj: Entity): Boolean = obj.type == entityType
 
     }
+    //endregion
 
-    class Name(val name: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<Name> {
-            const val TYPE = "name"
-            override fun deserialization(serializeElement: SerializeElement): Name {
-                return serializeElement.checkType<SerializeObject, Name> {
-                    Name(
-                        name = it["name"]!!.asString,
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-
-        }
+    //region Name
+    class Name(val name: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, NAME_TYPE) {
+        companion object : Codec<Name> by codec<Name>(NAME_TYPE)
+            .field<String>("name").getter(Name::name).codec(Codec.string)
+            .build({ _, mode, name -> Name(name, mode) })
 
         override val asText: Component = Literal(name)
 
-        override fun match(obj: Entity): Boolean {
-            return runCatching {
-                name.toRegex().matches(obj.name.string)
-            }.getOrDefault(false)
-        }
-
-        override fun SerializeObjectBuilder.entrySerialization() {
-            "name" to name
-        }
+        override fun match(obj: Entity): Boolean = runCatching {
+            name.toRegex().matches(obj.name.string)
+        }.getOrDefault(false)
 
     }
+    //endregion
 
-    class DisplayName(val displayName: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<DisplayName> {
-            const val TYPE = "display_name"
-            override fun deserialization(serializeElement: SerializeElement): DisplayName {
-                return serializeElement.checkType<SerializeObject, DisplayName> {
-                    DisplayName(
-                        displayName = it["display_name"]!!.asString,
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-
-        }
+    //region DisplayName
+    class DisplayName(val displayName: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, DISPLAY_NAME_TYPE) {
+        companion object : Codec<DisplayName> by codec<DisplayName>(DISPLAY_NAME_TYPE)
+            .field<String>("display_name").getter(DisplayName::displayName).codec(Codec.string)
+            .build({ _, mode, displayName -> DisplayName(displayName, mode) })
 
         override val asText: Component = Literal(displayName)
 
-        override fun match(obj: Entity): Boolean {
-            return displayName.toRegex().matches(obj.displayName?.string ?: "")
-        }
-
-        override fun SerializeObjectBuilder.entrySerialization() {
-            "display_name" to displayName
-        }
+        override fun match(obj: Entity): Boolean = displayName.toRegex().matches(obj.displayName.string)
 
     }
+    //endregion
 
-    class Script(val script: String = defaultScript, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<Script> {
-            const val TYPE = "script"
-            override fun deserialization(serializeElement: SerializeElement): Script {
-                return serializeElement.checkType<SerializeObject, Script> {
-                    Script(
-                        script = it["script"]!!.asString,
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-
+    //region Script
+    class Script(val script: String = defaultScript, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, SCRIPT_TYPE) {
+        companion object : Codec<Script> {
             val defaultScript = """
                 // The variable entity represents a wrapped Entity object [HSEntity].
                 // To indicate a successful match, set the return value by calling:
-                // result.setValue(true);
+                // result.set(true);
             """.trimIndent()
+
+            private val codec = codec<Script>(SCRIPT_TYPE)
+                .field<String>("script").getter(Script::script).default(defaultScript).codec(Codec.string)
+                .build { _, mode, script -> Script(script, mode) }
+
+            override fun serialization(target: Script): SerializeElement = codec.serialization(target)
+            override fun deserialization(data: SerializeElement): Result<Script> = codec.deserialization(data)
         }
 
         override val asText: Component = Literal("Script Matcher")
 
         override fun match(obj: Entity): Boolean {
-            val result = mutableStateOf(false)
+            val result = AtomicBoolean(false)
             ScriptExecutor(
                 script, mutableMapOf(
                     "entity" to HSEntity(obj),
                     "result" to result
                 )
             ).execute()
-            return result.getValue()
-        }
-
-        override fun SerializeObjectBuilder.entrySerialization() {
-            "script" to script
+            return result.get()
         }
 
     }
+    //endregion
 
-    class UUID(val uuid: java.util.UUID, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<UUID> {
-            const val TYPE = "uuid"
-            override fun deserialization(serializeElement: SerializeElement): UUID {
-                return serializeElement.checkType<SerializeObject, UUID> {
-                    UUID(
-                        uuid = java.util.UUID.fromString(it["uuid"]!!.asString),
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-
-        }
+    //region UUID
+    class UUID(val uuid: java.util.UUID, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, UUID_TYPE) {
+        companion object : Codec<UUID> by codec<UUID>(UUID_TYPE)
+            .field<java.util.UUID>("uuid").getter(UUID::uuid).codec(Codec.uuid)
+            .build({ _, mode, uuid -> UUID(uuid, mode) })
 
         override val asText: Component = Literal(uuid.toString())
 
-        override fun match(obj: Entity): Boolean {
-            return obj.uuid == uuid
-        }
-
-        override fun SerializeObjectBuilder.entrySerialization() {
-            "uuid" to uuid.toString()
-        }
+        override fun match(obj: Entity): Boolean = obj.uuid == uuid
 
     }
+    //endregion
 
-    class Alive(val alive: Boolean = true, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<Alive> {
-            const val TYPE = "alive"
-            override fun deserialization(serializeElement: SerializeElement): Alive {
-                return serializeElement.checkType<SerializeObject, Alive> {
-                    Alive(
-                        alive = it["alive"]!!.asBoolean,
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-
-        }
+    //region Alive
+    class Alive(val alive: Boolean = true, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, ALIVE_TYPE) {
+        companion object : Codec<Alive> by codec<Alive>(ALIVE_TYPE)
+            .field<Boolean>("alive").getter(Alive::alive).default(true).codec(Codec.boolean)
+            .build({ _, mode, alive -> Alive(alive, mode) })
 
         override val asText: Component = (if (alive) CommonComponents.GUI_YES else CommonComponents.GUI_NO)
 
-        override fun match(obj: Entity): Boolean {
-            return obj.isAlive == alive
-        }
-
-        override fun SerializeObjectBuilder.entrySerialization() {
-            "alive" to alive
-        }
+        override fun match(obj: Entity): Boolean = obj.isAlive == alive
 
     }
+    //endregion
 
 }

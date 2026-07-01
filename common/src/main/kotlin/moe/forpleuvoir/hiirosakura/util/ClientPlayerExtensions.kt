@@ -3,7 +3,7 @@ package moe.forpleuvoir.hiirosakura.util
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.client.player.LocalPlayer
-import net.minecraft.world.inventory.ClickType
+import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.item.ItemStack
 
 fun LocalPlayer.swapSlotWithHotbar(predicate: (ItemStack) -> Boolean): Int {
@@ -14,7 +14,7 @@ fun LocalPlayer.swapSlotWithHotbar(predicate: (ItemStack) -> Boolean): Int {
         ?.let { item ->
             val index = inv.nonEquipmentItems.indexOf(item)
             if (index >= 9) {
-                interactionManager.handleInventoryMouseClick(this.inventoryMenu.containerId, index, inv.selectedSlot, ClickType.SWAP, this)
+                interactionManager.handleContainerInput(this.inventoryMenu.containerId, index, inv.selectedSlot, ContainerInput.SWAP, this)
                 return index
             } else {
                 val old = inv.selectedSlot
@@ -33,6 +33,6 @@ fun LocalPlayer.swapSlotWithHotbar(index: Int) {
     val inv = this.inventory
     val interactionManager = mc.gameMode!!
     if (index >= 9)
-        interactionManager.handleInventoryMouseClick(this.inventoryMenu.containerId, index, inv.selectedSlot, ClickType.SWAP, this)
+        interactionManager.handleContainerInput(this.inventoryMenu.containerId, index, inv.selectedSlot, ContainerInput.SWAP, this)
     else inv.selectedSlot = index
 }

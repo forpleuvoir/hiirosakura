@@ -14,10 +14,10 @@ import net.minecraft.world.phys.HitResult
  *
  * 该类提供了访问命中位置以及命中类型的基本方法，支持不同类型的命中结果（例如方块命中和实体命中）的进一步扩展。
  *
- * @property result 内部封装的 Minecraft 命中结果 (HitResult) 对象。
+ * @property vanilla 内部封装的 Minecraft 命中结果 (HitResult) 对象。
  * @constructor 接受一个类型为 `HitResult` 的参数，用于初始化命中结果。
  */
-open class HSHitResult(internal open val result: HitResult) {
+open class HSHitResult(open val vanilla: HitResult) {
 
     companion object {
         /**
@@ -57,7 +57,7 @@ open class HSHitResult(internal open val result: HitResult) {
      *
      * @return 表示命中位置的 `Vector3dc` 对象。
      */
-    fun getPos() = result.location.toVector()
+    fun getPos() = vanilla.location.toVector()
 
     /**
      * 判断当前命中对象是否为实体。
@@ -79,9 +79,9 @@ open class HSHitResult(internal open val result: HitResult) {
  * 表示一个实体命中的结果。
  * 此类继承自 HSHitResult，用于封装 Minecraft 中与实体相关的命中结果。
  *
- * @property result 被包装的原始 EntityHitResult 对象。
+ * @property vanilla 被包装的原始 EntityHitResult 对象。
  */
-class HSEntityHitResult(override val result: EntityHitResult) : HSHitResult(result) {
+class HSEntityHitResult(override val vanilla: EntityHitResult) : HSHitResult(vanilla) {
 
     /**
      * 检查当前命中结果是否是实体类型。
@@ -95,13 +95,13 @@ class HSEntityHitResult(override val result: EntityHitResult) : HSHitResult(resu
      *
      * @return 命中结果类型的字符串表示形式。
      */
-    override fun getType(): String = result.type.name
+    override fun getType(): String = vanilla.type.name
 
     /**
      * 表示命中的实体对象。
      * 将传入的实体命中结果中的实体封装为 HSEntity 类型。
      */
-    private val entity = HSEntity(result.entity)
+    private val entity = HSEntity(vanilla.entity)
 
     /**
      * 返回一个封装的实体（Entity）的实例。
@@ -119,7 +119,7 @@ class HSEntityHitResult(override val result: EntityHitResult) : HSHitResult(resu
  *
  * 构造该类时需要传入原始的 BlockHitResult 实例，并通过拓展功能进一步处理 Minecraft 中方块的交互与属性访问。
  */
-class HSBlockHitResult(override val result: BlockHitResult) : HSHitResult(result) {
+class HSBlockHitResult(override val vanilla: BlockHitResult) : HSHitResult(vanilla) {
 
     /**
      * 判断当前命中结果是否为方块。
@@ -133,35 +133,35 @@ class HSBlockHitResult(override val result: BlockHitResult) : HSHitResult(result
      *
      * @return 三维整型向量，表示命中的方块位置。
      */
-    fun getBlockPos() = result.blockPos.toVector()
+    fun getBlockPos() = vanilla.blockPos.toVector()
 
     /**
      * 获取当前方块交互的面（如顶部、底部、侧面等）的名称。
      *
      * @return 一个字符串，表示方块交互面（例如：UP、DOWN、NORTH、SOUTH、WEST、EAST）。
      */
-    fun getSide(): String = result.direction.name
+    fun getSide(): String = vanilla.direction.name
 
     /**
      * 返回命中结果的类型名称。
      *
      * @return 表示命中结果类型的字符串，例如 "BLOCK" 或其他可能的类型名称。
      */
-    override fun getType(): String = result.type.name
+    override fun getType(): String = vanilla.type.name
 
     /**
      * 检查当前方块是否位于方块内的逻辑。
      *
      * @return 如果当前方块位于方块内，返回 `true`；否则返回 `false`。
      */
-    fun isInside() = result.isInside
+    fun isInside() = vanilla.isInside
 
     /**
      * 判断命中方块是否靠近世界边界。
      *
      * @return 如果命中方块靠近世界边界，则返回 `true`，否则返回 `false`。
      */
-    fun isWorldBorderHit() = result.isWorldBorderHit
+    fun isWorldBorderHit() = vanilla.isWorldBorderHit
 
     /**
      * 获取当前命中结果所对应位置的方块状态。
@@ -171,7 +171,7 @@ class HSBlockHitResult(override val result: BlockHitResult) : HSHitResult(result
      *
      * @return 表示方块状态的 HSBlockState 对象，或 `null` 如果无法获取。
      */
-    fun getBlockState() = mc.level?.getBlockState(result.blockPos)?.let { HSBlockState(it) }
+    fun getBlockState() = mc.level?.getBlockState(vanilla.blockPos)?.let { HSBlockState(it) }
 
     /**
      * 返回与当前命中结果位置相关联的方块实例。
@@ -192,7 +192,7 @@ class HSBlockHitResult(override val result: BlockHitResult) : HSHitResult(result
      * @return 表示目标方块状态的 BlockState 对象。
      */
     fun offset(direction: String, i: Int): HSBlockState {
-        return HSBlockState(mc.level!!.getBlockState(result.blockPos.relative(Direction.byName(direction.lowercase())!!)))
+        return HSBlockState(mc.level!!.getBlockState(vanilla.blockPos.relative(Direction.byName(direction.lowercase())!!)))
     }
 
 }

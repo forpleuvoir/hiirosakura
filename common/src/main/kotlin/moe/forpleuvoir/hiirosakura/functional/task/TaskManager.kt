@@ -2,22 +2,24 @@ package moe.forpleuvoir.hiirosakura.functional.task
 
 import moe.forpleuvoir.hiirosakura.common.HiiroSakuraData
 import moe.forpleuvoir.hiirosakura.util.logger
-import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.input.InputHandler
-import moe.forpleuvoir.nebula.config.item.impl.string
+import moe.forpleuvoir.nebula.common.util.checkType
+import moe.forpleuvoir.nebula.common.util.requireKey
+import moe.forpleuvoir.nebula.config.ConfigGroup
+import moe.forpleuvoir.nebula.config.item.configString
+import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import moe.forpleuvoir.nebula.serialization.base.builder.build
 import java.util.*
 
 object TaskManager : HiiroSakuraData {
 
     private val log = logger()
 
-    object Config : ModConfigContainer("hiirosakura.data.task_manager") {
+    object Config : ConfigGroup("hiirosakura.data.task_manager") {
 
-        val scriptCommonLib by string("script_common_lib", "")
+        val scriptCommonLib by configString("script_common_lib", "")
 
         init {
             addConfig(QuickTickTaskExecuteScreen)
@@ -38,77 +40,70 @@ object TaskManager : HiiroSakuraData {
 
     fun add(task: KeyBindTickTask) {
         tasks.add(task)
-        InputHandler.register(task.keyBind)
-    }
-
-    operator fun set(index: Int, task: KeyBindTickTask) {
-        tasks[index] = task
-    }
-
-    fun replace(origin: KeyBindTickTask, new: KeyBindTickTask) {
-        tasks.indexOf(origin).let {
-            tasks[it] = new
-        }
+        InputHandler.register(task.keybind)
     }
 
     fun remove(task: KeyBindTickTask) {
+        tasks.indexOf(task)
         tasks.remove(task)
-        InputHandler.unregister(task.keyBind)
+        InputHandler.unregister(task.keybind)
     }
 
     fun remove(index: Int) {
-        tasks.removeAt(index).let { InputHandler.unregister(it.keyBind) }
+        tasks.removeAt(index).let { InputHandler.unregister(it.keybind) }
     }
 
     fun clear() {
         tasks.forEach {
-            InputHandler.unregister(it.keyBind)
+            InputHandler.unregister(it.keybind)
         }
         tasks.clear()
     }
 
     fun moveUp(index: Int) {
-        if (index - 1 in 0..tasks.lastIndex) {
+        if (index - 1 in tasks.indices) {
             Collections.swap(tasks, index, index - 1)
         }
     }
 
     fun moveDown(index: Int) {
-        if (index + 1 in 0..tasks.lastIndex) {
+        if (index + 1 in tasks.indices) {
             Collections.swap(tasks, index, index + 1)
         }
     }
 
     fun reBindKey() {
         tasks.forEach {
-            InputHandler.unregister(it.keyBind)
-            InputHandler.register(it.keyBind)
+            InputHandler.unregister(it.keybind)
+            InputHandler.register(it.keybind)
         }
     }
 
-    override fun serialization(): SerializeObject = serializeObject {
+    override fun serialization(): SerializeObject = SerializeObject.build {
         "config" to Config.serialization()
-        "tasks" to tasks
+        "tasks" arr {
+            tasks.forEach { add(it.serialization()) }
+        }
     }
 
-    override fun deserialization(serializeElement: SerializeElement) {
-        serializeElement.checkType {
-            check<SerializeObject> { obj ->
-                clear()
-                runCatching {
-                    Config.deserialization(obj["config"]!!)
-                }.onFailure {
-                    log.warn(it)
-                }
-                obj["tasks"]!!.asArray.forEach {
+    override fun deserialization(data: SerializeElement) {
+        data.checkType<SerializeObject, Unit> {
+            clear()
+            runCatching {
+                Config.deserialization(it.requireKey("config"))
+            }.onFailure {
+                log.warn(it)
+            }
+            it.requireKey("tasks").checkType<SerializeArray, Unit> { array ->
+                array.forEach { element ->
                     runCatching {
-                        add(KeyBindTickTask.deserialization(it))
-                    }.onFailure {
-                        log.warn(it)
+                        add(KeyBindTickTask.deserialization(element).getOrThrow())
+                    }.onFailure { throwable ->
+                        log.warn(throwable)
                     }
                 }
             }
-        }.getOrThrow()
+        }
     }
 
 }

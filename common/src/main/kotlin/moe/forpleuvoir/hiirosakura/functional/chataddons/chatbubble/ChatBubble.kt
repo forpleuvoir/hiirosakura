@@ -1,5 +1,12 @@
 package moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.roundToIntRect
 import com.mojang.authlib.GameProfile
 import com.mojang.blaze3d.vertex.PoseStack
 import moe.forpleuvoir.hiirosakura.functional.misc.ServerMarker
@@ -10,26 +17,24 @@ import moe.forpleuvoir.hiirosakura.functional.renderaddons.RenderInfoAddon.useIr
 import moe.forpleuvoir.hiirosakura.render.HSRenderType
 import moe.forpleuvoir.hiirosakura.render.pushSpeechBubbleTexture
 import moe.forpleuvoir.hiirosakura.render.pushStringLines
+import moe.forpleuvoir.hiirosakura.util.expandEdges
 import moe.forpleuvoir.hiirosakura.util.identifier
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
-import moe.forpleuvoir.ibukigourd.gui.base.render.Size
-import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.Corner
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.TextureInfo
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
-import moe.forpleuvoir.ibukigourd.gui.util.Direction
+import moe.forpleuvoir.ibukigourd.render.extension.AnchorPosition
+import moe.forpleuvoir.ibukigourd.render.extension.pushSpeechBubbleTexture
+import moe.forpleuvoir.ibukigourd.render.extension.pushStringLines
+import moe.forpleuvoir.ibukigourd.render.extension.texture.Corner
+import moe.forpleuvoir.ibukigourd.render.extension.texture.IGTexture
+import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.text.size
 import moe.forpleuvoir.ibukigourd.text.wrapToLines
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.util.primitive.either
 import net.minecraft.client.gui.Font
-import net.minecraft.client.renderer.LightTexture
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.renderer.SubmitNodeCollector
 import net.minecraft.client.renderer.entity.state.AvatarRenderState
 import net.minecraft.client.renderer.rendertype.RenderTypes
+import net.minecraft.util.LightCoordsUtil
 import org.joml.Quaternionf
 import org.joml.Vector2fc
 import org.joml.times
@@ -50,15 +55,15 @@ class ChatBubble(
 
         internal val TEXTURE = TextureInfo(16, 16, identifier("texture/gui/chat/bubble.png"))
 
-        private val BUBBLE = WidgetTexture(Corner(4), 0, 0, 16, 9, TEXTURE)
+        private val BUBBLE = IGTexture(Corner(4), 0, 0, 16, 9, TEXTURE)
 
-        private val ARROW = WidgetTexture(Corner(top = -4), 5, 13, 12, 16, TEXTURE)
+        private val ARROW = IGTexture(Corner(top = -4), 5, 13, 12, 16, TEXTURE)
 
-        private val RENDER_TYPE get() = if (useIrisCompatiblePipeline.value) IRIS_RENDER_TYPE else VANILLA_RENDER_TYPE
+        private val RENDER_TYPE get() = if (useIrisCompatiblePipeline.enabled) IRIS_RENDER_TYPE else VANILLA_RENDER_TYPE
 
-        private val VANILLA_RENDER_TYPE = HSRenderType.POSITION_TEX_COLOR.apply(TEXTURE.texture)
+        private val VANILLA_RENDER_TYPE = HSRenderType.POSITION_TEX_COLOR.apply(TEXTURE.textureId)
 
-        private val IRIS_RENDER_TYPE = RenderTypes.entityTranslucent(TEXTURE.texture)
+        private val IRIS_RENDER_TYPE = RenderTypes.entityTranslucent(TEXTURE.textureId)
 
         private const val LINE_SPACING = 4f
 
@@ -135,9 +140,9 @@ class ChatBubble(
         }
 
         private fun renderBubble(
-            bubbleBox: Box,
-            arrowBox: Box,
-            textBox: Box,
+            bubbleArea: Rect,
+            arrowArea: Rect,
+            textArea: Rect,
             lines: List<String>,
             alpha: Float,
             poseStack: PoseStack,
@@ -147,14 +152,14 @@ class ChatBubble(
             nodeCollector: SubmitNodeCollector,
             packedLight: Int
         ) {
-            val packedLight = (ChatBubbleHandler.useMaxLight || !useIrisCompatiblePipeline.value).either(LightTexture.FULL_BRIGHT, packedLight)
+            val packedLight = (ChatBubbleHandler.useMaxLight || !useIrisCompatiblePipeline.enabled).either(LightCoordsUtil.FULL_BRIGHT, packedLight)
 
             poseStack.pushPose()
             val s = -0.025f * renderState.scale
             val height = renderState.boundingBoxHeight * 0.5f
             val scaledOffset = offset * 0.25f
 
-            poseStack.translate(0f, height + arrowBox.bottom * -s, 0f)
+            poseStack.translate(0f, height + arrowArea.bottom * -s, 0f)
             poseStack.translate(scaledOffset.x(), scaledOffset.y(), 0f)
 
             val camera = mc.gameRenderer.mainCamera
@@ -166,11 +171,11 @@ class ChatBubble(
 
             poseStack.scale(scale.x() * s, scale.y() * s, -s)
             nodeCollector.pushSpeechBubbleTexture(
-                bubbleBox,
+                bubbleArea,
                 BUBBLE,
-                arrowBox,
+                arrowArea,
                 ARROW,
-                Direction.Bottom,
+                AnchorPosition.Below,
                 packedLight,
                 ChatBubbleHandler.textureColor.alpha(alpha),
                 poseStack,
@@ -178,9 +183,9 @@ class ChatBubble(
             )
             nodeCollector.pushStringLines(
                 lines,
-                textBox,
-                Alignment.Left,
-                Arrangement.spacedBy(LINE_SPACING),
+                textArea.roundToIntRect(),
+                Alignment.Start,
+                Arrangement.spacedBy(LINE_SPACING.dp),
                 displayMode = Font.DisplayMode.POLYGON_OFFSET,
                 dropShadow = false,
                 defaultColor = ChatBubbleHandler.textColor.alpha(alpha),
@@ -192,43 +197,49 @@ class ChatBubble(
         }
 
         private fun renderBubbleInGui(
-            box: Box,
-            bubbleBox: Box,
-            arrowBox: Box,
-            textBox: Box,
+            area: Rect,
+            bubbleArea: Rect,
+            arrowArea: Rect,
+            textArea: Rect,
             lines: List<String>,
             alpha: Float,
             offset: Vector2fc,
             scale: Vector2fc,
-            guiGraphics: IGGuiGraphics,
+            guiGraphics: GuiGraphicsExtractor,
         ) {
-            guiGraphics.useMatrixStack {
-                it.translation(box.center.x(), box.top - textBox.halfHeight)
+            guiGraphics.apply {
+                pose().popMatrix()
+                pose().translation(area.center.x, area.top - textArea.center.y)
                 val offsetMul = 5f
-                it.translate(offset.x() * offsetMul, -offset.y() * offsetMul)
-                it.scale(scale)
-                pushSpeechBubbleTexture(bubbleBox, BUBBLE, arrowBox, ARROW, Direction.Bottom, ChatBubbleHandler.textureColor.alpha(alpha))
-                pushStringLines(lines, textBox, Alignment.Left, Arrangement.spacedBy(LINE_SPACING), defaultColor = ChatBubbleHandler.textColor.alpha(alpha))
+                pose().translate(offset.x() * offsetMul, -offset.y() * offsetMul)
+                pose().scale(scale)
+                pushSpeechBubbleTexture(bubbleArea, BUBBLE, arrowArea, ARROW, AnchorPosition.Above, ChatBubbleHandler.textureColor.alpha(alpha))
+                pushStringLines(
+                    lines,
+                    textArea.roundToIntRect(),
+                    Alignment.Start,
+                    Arrangement.spacedBy(LINE_SPACING.dp),
+                    defaultColor = ChatBubbleHandler.textColor.alpha(alpha)
+                )
             }
-
         }
 
     }
 
     private val lines: List<String> = message.wrapToLines(ChatBubbleHandler.maxWidth)
 
-    private val textBox: Box
+    private val textArea: Rect
 
-    private val bubbleBox: Box
+    private val bubbleArea: Rect
 
-    private val arrowBox: Box
+    private val arrowArea: Rect
 
     init {
         val (width, height) = lines.size(LINE_SPACING)
         val maxWidth = width.coerceAtLeast(7f)
-        textBox = Box(x = -maxWidth / 2f, y = -height - 5f - ARROW.height, maxWidth, height)
-        bubbleBox = textBox.expandEdges(5f, 4f, 5f, 5f)
-        arrowBox = Box(textBox.center.x() - ARROW.width / 2f, bubbleBox.bottom, Size(ARROW.width, ARROW.height))
+        textArea = Rect(Offset(x = -maxWidth / 2f, y = -height - 5f - ARROW.height), Size(maxWidth, height))
+        bubbleArea = textArea.expandEdges(5f, 4f, 5f, 5f)
+        arrowArea = Rect(Offset(textArea.center.x - ARROW.width / 2f, bubbleArea.bottom), Size(ARROW.width.toFloat(), ARROW.height.toFloat()))
     }
 
     val shouldRemove: Boolean get() = timeMark.elapsedNow() > duration
@@ -247,17 +258,17 @@ class ChatBubble(
             fadeOutDuration,
             timeMark
         ).coerceIn(0.05f, 1f)
-        renderBubble(bubbleBox, arrowBox, textBox, lines, alpha, poseStack, offset, scale, renderState, nodeCollector, packedLight)
+        renderBubble(bubbleArea, arrowArea, textArea, lines, alpha, poseStack, offset, scale, renderState, nodeCollector, packedLight)
     }
 
-    fun renderInGui(guiGraphics: IGGuiGraphics, box: Box) {
+    fun renderInGui(guiGraphics: GuiGraphicsExtractor, area: Rect) {
         val alpha = calculateAlpha(
             duration,
             fadeInDuration,
             fadeOutDuration,
             timeMark
         ).coerceIn(0.05f, 1f)
-        renderBubbleInGui(box, bubbleBox, arrowBox, textBox, lines, alpha, ChatBubbleHandler.offset, ChatBubbleHandler.scale, guiGraphics)
+        renderBubbleInGui(area, bubbleArea, arrowArea, textArea, lines, alpha, ChatBubbleHandler.offset, ChatBubbleHandler.scale, guiGraphics)
     }
 
 }

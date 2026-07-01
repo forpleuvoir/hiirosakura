@@ -5,15 +5,15 @@ import moe.forpleuvoir.hiirosakura.platform.PLATFORM
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.nebula.common.util.ioAsync
+import moe.forpleuvoir.nebula.common.util.requireKey
+import moe.forpleuvoir.nebula.common.util.requireType
+import moe.forpleuvoir.nebula.common.util.requireTypeOrNull
 import moe.forpleuvoir.nebula.config.util.ConfigUtil
+import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.toSerializeElement
-import moe.forpleuvoir.nebula.serialization.gson.jsonStringToObject
-import moe.forpleuvoir.nebula.serialization.gson.toJsonString
+import moe.forpleuvoir.nebula.serialization.base.builder.build
+import moe.forpleuvoir.nebula.serialization.json.JsonDialect
 import net.minecraft.core.RegistryAccess
 import net.minecraft.world.item.ItemStack
 import java.io.File
@@ -81,7 +81,7 @@ object ItemStackManager {
             ConfigUtil.run {
                 val file = configFile("${KEY}.json", dataPath)
                 val json = readFileToString(file)
-                deserialization(registryAccess, json.jsonStringToObject())
+                deserialization(registryAccess, JsonDialect.decode(json).getOrThrow())
             }
         }.onFailure {
 //            saveDataAsync(registryManager)
@@ -94,8 +94,7 @@ object ItemStackManager {
             runCatching {
                 ConfigUtil.run {
                     val file = configFile("${KEY}.json", dataPath)
-                    val str = (serialization(registryAccess) as SerializeObject).toJsonString()
-                    writeToFile(str, file)
+                    writeToFile(JsonDialect.encode(serialization(registryAccess)), file)
                 }
             }.onFailure {
                 log.warn(it)
@@ -106,14 +105,14 @@ object ItemStackManager {
         return@ioAsync false
     }
 
-    fun serialization(registryAccess: RegistryAccess): SerializeElement = serializeObject {
-        "items" to serializeArray().apply {
+    fun serialization(registryAccess: RegistryAccess): SerializeElement = SerializeObject.build {
+        "items" arr {
             _items.forEach { itemStack ->
                 runCatching {
                     ItemStack.CODEC.encodeStart(registryAccess.createSerializationContext(NebulaOps), itemStack)
                         .orThrow
                         .let {
-                            add(it.toSerializeElement())
+                            add(it)
                         }
                 }.onFailure {
                     log.error("serialize item stack error: $it")
@@ -125,19 +124,17 @@ object ItemStackManager {
 
     fun deserialization(registryAccess: RegistryAccess, serializeElement: SerializeElement) {
         val temp = buildList {
-            serializeElement.checkType {
-                check<SerializeObject> { obj ->
-                    obj["items"]!!.asArray.forEach { serializeElement ->
-                        runCatching {
-                            ItemStack.CODEC.parse(registryAccess.createSerializationContext(NebulaOps), serializeElement)
-                                .orThrow
-                                .let { itemStack ->
-                                    this@buildList.add(itemStack)
-                                }
-                        }.onFailure {
-                            log.error("deserialize item stack error: $it")
-                            log.error(it)
-                        }
+            serializeElement.requireTypeOrNull<SerializeObject>()?.let { obj ->
+                obj.requireKey("items").requireType<SerializeArray>().forEach {
+                    runCatching {
+                        ItemStack.CODEC.parse(registryAccess.createSerializationContext(NebulaOps), it)
+                            .orThrow
+                            .let { itemStack ->
+                                this@buildList.add(itemStack)
+                            }
+                    }.onFailure { throwable ->
+                        log.error("deserialize item stack error: $throwable")
+                        log.error(throwable)
                     }
                 }
             }

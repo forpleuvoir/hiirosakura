@@ -2,7 +2,7 @@ package moe.forpleuvoir.hiirosakura.mixin.client;
 
 
 import com.mojang.authlib.GameProfile;
-import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerDeathEvent;
+import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerDeathContext;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.AutoSwitchElytra;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.GamePlay;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.ItemDropIntercept;
@@ -26,12 +26,12 @@ public abstract class LocalPlayerMixin extends Player {
 
     @Inject(method = "shouldShowDeathScreen", at = @At("HEAD"), cancellable = true)
     public void shouldShowDeathScreen(CallbackInfoReturnable<Boolean> cir) {
-        cir.setReturnValue(!GamePlay.INSTANCE.getAutoRebirth().getValue());
+        cir.setReturnValue(!GamePlay.INSTANCE.getAutoRebirth().getEnabled());
     }
 
     @Inject(method = "tick", at = @At("RETURN"))
     public void tick(CallbackInfo callbackInfo) {
-        PlayerDeathEvent.setDead(isDeadOrDying());
+        PlayerDeathContext.setDead(isDeadOrDying());
     }
 
     @Redirect(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;tryToStartFallFlying()Z"))
@@ -53,7 +53,7 @@ public abstract class LocalPlayerMixin extends Player {
     }
 
     @Inject(method = "drop", at = @At(value = "HEAD"), cancellable = true)
-    public void drop(boolean entireStack, CallbackInfoReturnable<Boolean> cir) {
+    public void drop(boolean all, CallbackInfoReturnable<Boolean> cir) {
         ItemStack itemStack = this.getMainHandItem();
         if (!ItemDropIntercept.canDrop(itemStack)) {
             cir.setReturnValue(false);

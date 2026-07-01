@@ -7,6 +7,7 @@ import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.ibukigourd.util.ModLogger
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.identifier
+import moe.forpleuvoir.nebula.common.util.requireType
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import net.minecraft.resources.Identifier
@@ -27,7 +28,7 @@ fun <T : Comparable<T>> ClosedRange<T>.serialization(): SerializeElement {
 
 fun <T : Comparable<T>> deserialization(serializeElement: SerializeElement, supplier: (String) -> T): ClosedRange<T> {
     serializeElement as SerializePrimitive
-    serializeElement.asString.let {
+    serializeElement.value.requireType<String>().let {
         val pair = it.split("..")
         return supplier(pair[0])..supplier(pair[1])
     }

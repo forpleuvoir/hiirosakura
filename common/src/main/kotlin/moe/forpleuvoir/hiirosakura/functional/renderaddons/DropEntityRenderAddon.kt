@@ -3,56 +3,55 @@ package moe.forpleuvoir.hiirosakura.functional.renderaddons
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import moe.forpleuvoir.hiirosakura.render.pushText
-import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
-import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
-import moe.forpleuvoir.ibukigourd.config.item.vector3f
+import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
+import moe.forpleuvoir.ibukigourd.config.item.configVector3f
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.width
 import moe.forpleuvoir.ibukigourd.text.withColor
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.common.color.ARGBColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.primitive.either
-import moe.forpleuvoir.nebula.config.item.impl.*
+import moe.forpleuvoir.nebula.config.ConfigGroup
+import moe.forpleuvoir.nebula.config.item.*
 import net.minecraft.client.gui.Font
-import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.SubmitNodeCollector
 import net.minecraft.client.renderer.entity.state.EntityRenderState
 import net.minecraft.client.renderer.entity.state.ExperienceOrbRenderState
 import net.minecraft.client.renderer.entity.state.ItemEntityRenderState
-import net.minecraft.client.renderer.state.CameraRenderState
+import net.minecraft.client.renderer.state.level.CameraRenderState
 import net.minecraft.network.chat.Component
+import net.minecraft.util.LightCoordsUtil
 import net.minecraft.world.entity.ExperienceOrb
 import net.minecraft.world.entity.item.ItemEntity
 import org.joml.Vector3f
 import kotlin.math.atan2
 
-object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
+object DropEntityRenderAddon : ConfigGroup("drop_entity") {
 
-    val enable by keyBindBoolean("enable", value = false)
+    val enable by configToggleKeybind("enable", false)
 
-    val distance by double("distance", 233.0, 0.0, 2333.0)
+    val distance by configDouble("distance", 233.0, 0.0, 2333.0)
 
-    val useMaxLight by boolean("use_max_light", false)
+    val useMaxLight by configBoolean("use_max_light", false)
 
-    val offset by vector3f("offset", Vector3f(0f, 0f, 0f), Vector3f(-200f, -200f, -200f), Vector3f(200f, 200f, 200f))
+    val offset by configVector3f("offset", Vector3f(0f, 0f, 0f), Vector3f(-200f, -200f, -200f), Vector3f(200f, 200f, 200f))
 
-    val spacing by float("spacing", 0f, 0f, 10f)
+    val spacing by configFloat("spacing", 0f, 0f, 10f)
 
-    val textDefaultColor by color("default_color", Colors.WHITE)
+    val textDefaultColor by configColor("default_color", Colors.WHITE)
 
-    val textBackgroundColor by color("background_color", Color.ofARGB(0x66000000))
+    val textBackgroundColor by configColor("background_color", Color.fromARGB(0x66000000))
 
-    val invertOutlineColor by boolean("invert_outline_color", false)
+    val invertOutlineColor by configBoolean("invert_outline_color", false)
 
-    val textOutlineColor by color("text_outline_color", Color.ofARGB(0))
+    val textOutlineColor by configColor("text_outline_color", Colors.TRANSPARENT)
 
-    val displayMode: Font.DisplayMode by enum("display_mode", Font.DisplayMode.NORMAL)
+    val displayMode: Font.DisplayMode by configEnum("display_mode", Font.DisplayMode.NORMAL)
 
-    val onlyYRotation by boolean("only_y_rotation", false)
+    val onlyYRotation by configBoolean("only_y_rotation", false)
 
-    val experienceOrbValue by keyBindBoolean("experience_orb_value", value = false)
+    val experienceOrbValue by configToggleKeybind("experience_orb_value", false)
 
     val itemStackInfo = addConfig(ItemStackInfo(enableScript = true))
 
@@ -64,7 +63,7 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
         poseStack: PoseStack,
         nodeCollector: SubmitNodeCollector
     ) {
-        if (!enable.value || distance <= 0) return
+        if (!enable.enabled || distance <= 0) return
         if (renderState.distanceToCameraSq > distance) return
         val texts = itemStackInfo.getItemStackInfo(entity.item, mc.player)
         if (texts.isNotEmpty()) {
@@ -82,14 +81,14 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
 
     @JvmStatic
     fun renderExperienceOrbValue(
-        color: ARGBColor,
+        color: Int,
         entity: ExperienceOrb,
         renderState: ExperienceOrbRenderState,
         cameraRenderState: CameraRenderState,
         poseStack: PoseStack,
         nodeCollector: SubmitNodeCollector
     ) {
-        if (!enable.value || !experienceOrbValue.value || distance <= 0) return
+        if (!enable.enabled || !experienceOrbValue.enabled || distance <= 0) return
         if (renderState.distanceToCameraSq > distance) return
         val text = Literal(entity.value.toString()).withColor(color)
         renderEntityText(
@@ -114,7 +113,7 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
         poseStack: PoseStack,
         nodeCollector: SubmitNodeCollector
     ) {
-        val light = useMaxLight.either(LightTexture.FULL_BRIGHT, packedLight)
+        val light = useMaxLight.either(LightCoordsUtil.FULL_BRIGHT, packedLight)
 
         poseStack.pushPose()
 
@@ -136,7 +135,7 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
         poseStack.scale(0.025f, -0.025f, 0.025f)
 
         val outlineColor = text.style.color?.let {
-            Color.ofRGB(it.value).reverse()
+            Color.fromRGB(it.value).reverse()
         } ?: textDefaultColor.reverse()
         nodeCollector.pushText(
             text,
@@ -146,7 +145,7 @@ object DropEntityRenderAddon : ModConfigContainer("drop_entity") {
             displayMode,
             light,
             textDefaultColor,
-            if (text.string.isEmpty()) Color.ofARGB(0) else textBackgroundColor,
+            if (text.string.isEmpty()) Colors.TRANSPARENT else textBackgroundColor,
             if (invertOutlineColor) outlineColor else textOutlineColor,
             poseStack
         )

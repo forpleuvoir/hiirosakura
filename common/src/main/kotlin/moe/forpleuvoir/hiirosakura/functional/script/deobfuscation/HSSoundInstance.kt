@@ -3,35 +3,35 @@ package moe.forpleuvoir.hiirosakura.functional.script.deobfuscation
 import net.minecraft.client.resources.sounds.SoundInstance
 import org.joml.Vector3d
 
-class HSSoundInstance(internal val soundInstance: SoundInstance) {
+class HSSoundInstance(@JvmField val vanilla: SoundInstance) {
 
-    fun getId() = soundInstance.identifier.toString()
+    fun getId() = vanilla.identifier.toString()
 
-    fun getCategory() = soundInstance.source.name
+    fun getCategory() = vanilla.source.name
 
-    fun isLooping() = soundInstance.isLooping
+    fun isLooping() = vanilla.isLooping
 
-    fun isRelative() = soundInstance.isRelative
+    fun isRelative() = vanilla.isRelative
 
-    fun getDelay() = soundInstance.delay
+    fun getDelay() = vanilla.delay
 
-    fun getVolume() = soundInstance.volume
+    fun getVolume() = vanilla.volume
 
-    fun getPitch() = soundInstance.pitch
+    fun getPitch() = vanilla.pitch
 
-    fun getX() = soundInstance.x
+    fun getX() = vanilla.x
 
-    fun getY() = soundInstance.y
+    fun getY() = vanilla.y
 
-    fun getZ() = soundInstance.z
+    fun getZ() = vanilla.z
 
     fun getPos() = Vector3d(getX(), getY(), getZ())
 
-    fun getAttenuation() = soundInstance.attenuation.name
+    fun getAttenuation() = vanilla.attenuation.name
 
-    fun canStartSilent() = soundInstance.canStartSilent()
+    fun canStartSilent() = vanilla.canStartSilent()
 
-    fun canplay() = soundInstance.canPlaySound()
+    fun canplay() = vanilla.canPlaySound()
 
 
 }

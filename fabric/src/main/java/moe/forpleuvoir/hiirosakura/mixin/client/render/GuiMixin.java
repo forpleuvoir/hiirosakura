@@ -4,10 +4,9 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.HeldItemRenderAddon;
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.RenderInfoAddon;
-import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.scores.Objective;
@@ -25,28 +24,28 @@ public abstract class GuiMixin {
     private ItemStack lastToolHighlight;
 
     @Redirect(
-            method = "renderSelectedItemName",
+            method = "extractSelectedItemName",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/GuiGraphics;drawStringWithBackdrop(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIII)V"
+                    target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;textWithBackdrop(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIII)V"
             )
     )
-    public void renderSelectedItemName(GuiGraphics guiGraphics, Font font, Component text, int x, int y, int width, int color, @Local(ordinal = 3) int alpha) {
-        if (!HeldItemRenderAddon.INSTANCE.getEnable().getValue()) {
-            guiGraphics.drawStringWithBackdrop(font, text, x, y, width, color);
+    public void renderSelectedItemName(GuiGraphicsExtractor guiGraphics, Font font, Component str, int textX, int textY, int textWidth, int textColor, @Local(name = "alpha") int alpha) {
+        if (!HeldItemRenderAddon.INSTANCE.getEnable().getEnabled()) {
+            guiGraphics.textWithBackdrop(font, str, textX, textY, textWidth, textColor);
         } else {
-            HeldItemRenderAddon.render(IGGuiGraphics.Companion.toIGGUIGraphics(guiGraphics), font, y, alpha, lastToolHighlight);
+            HeldItemRenderAddon.render(guiGraphics, font, textY, alpha, lastToolHighlight);
         }
     }
 
     @ModifyExpressionValue(method = "tick()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z", ordinal = 1))
-    public boolean tick(boolean original, @Local(ordinal = 0) ItemStack stack) {
-        return original || HeldItemRenderAddon.shouldRender(stack, lastToolHighlight);
+    public boolean tick(boolean original, @Local(name = "selected") ItemStack selected) {
+        return original || HeldItemRenderAddon.shouldRender(selected, lastToolHighlight);
     }
 
     @Inject(method = "displayScoreboardSidebar", at = @At("HEAD"), cancellable = true)
-    public void displayScoreboardSidebar(GuiGraphics guiGraphics, Objective objective, CallbackInfo ci) {
-        if (RenderInfoAddon.INSTANCE.getDisableScoreboardSidebarRender().getValue()) ci.cancel();
+    public void displayScoreboardSidebar(GuiGraphicsExtractor graphics, Objective objective, CallbackInfo ci) {
+        if (RenderInfoAddon.INSTANCE.getDisableScoreboardSidebarRender().getEnabled()) ci.cancel();
     }
 
 }

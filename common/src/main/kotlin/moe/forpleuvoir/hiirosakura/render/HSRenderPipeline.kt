@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.render
 
 import com.mojang.blaze3d.pipeline.BlendFunction
+import com.mojang.blaze3d.pipeline.ColorTargetState
 import com.mojang.blaze3d.pipeline.RenderPipeline
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.VertexFormat
@@ -19,7 +20,7 @@ object HSRenderPipeline {
     val TEXTURE: RenderPipeline = RenderPipelines.register(
         RenderPipeline.builder(POSITION_TEX_COLOR)
             .withLocation(identifier("pipeline/texture"))
-            .withBlend(BlendFunction.TRANSLUCENT)
+            .withColorTargetState(ColorTargetState(BlendFunction.TRANSLUCENT))
             .build()
     )
 

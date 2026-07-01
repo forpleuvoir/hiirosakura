@@ -26,7 +26,7 @@
     "client.render.ExperienceOrbRenderStateMixin",
     "client.render.ItemEntityRendererMixin",
     "client.render.ItemEntityRenderStateMixin",
-    "client.render.LightTextureMixin",
+    "client.render.LightmapRenderStateExtractorMixin",
     "client.render.TntRendererMixin"
   ],
   "injectors": {

@@ -2,7 +2,7 @@ package moe.forpeluvoir.hiirosakura
 
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.HiiroSakuraClient
-import moe.forpleuvoir.hiirosakura.gui.HiiroSakuraScreen
+import moe.forpleuvoir.hiirosakura.ui.HiiroSakuraScreen
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.fml.ModContainer

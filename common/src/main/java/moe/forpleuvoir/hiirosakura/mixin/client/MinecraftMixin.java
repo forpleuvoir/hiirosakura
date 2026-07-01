@@ -2,10 +2,7 @@ package moe.forpleuvoir.hiirosakura.mixin.client;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import moe.forpleuvoir.hiirosakura.config.HSConfig;
-import moe.forpleuvoir.hiirosakura.functional.event.events.GameExitEvent;
-import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerAttackEvent;
-import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerPickEvent;
-import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerUseEvent;
+import moe.forpleuvoir.hiirosakura.functional.event.events.*;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.CameraSwitcher;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.Gliding;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.ItemUseIntercept;
@@ -15,7 +12,6 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfo;
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSHitResult;
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSItemStack;
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTaskScheduler;
-import moe.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.main.GameConfig;
@@ -65,53 +61,51 @@ public abstract class MinecraftMixin {
     }
 
     @Inject(method = "disconnect*", at = @At("HEAD"))
-    public void disconnect(Screen nextScreen, boolean keepResourcePacks, CallbackInfo ci) {
-        EventBus.Companion
-            .broadcast(
-                new GameExitEvent(ServerMarker.getName(), ServerMarker.getAddress())
-            );
+    public void disconnect(Screen screen, boolean keepResourcePacks, CallbackInfo ci) {
+        var context = new GameExitContext(ServerMarker.getName(), ServerMarker.getAddress());
+        HSEvents.GameExit.invoker().invoke(context);
         ServerMarker.clear();
     }
 
     @Inject(method = "startAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"), cancellable = true)
     public void startAttack(CallbackInfoReturnable<Boolean> cir) {
         assert hitResult != null;
-        var event = new PlayerAttackEvent(HSHitResult.fromHitResult(hitResult));
-        EventBus.Companion.broadcast(event);
-        if (event.getCanceled() || CameraSwitcher.getShouldBlockActions()) {
+        var context = new PlayerAttackContext(HSHitResult.fromHitResult(hitResult));
+        HSEvents.PlayerAttack.invoker().invoke(context);
+        if (context.isCancelled() || CameraSwitcher.getShouldBlockActions()) {
             cir.setReturnValue(false);
             cir.cancel();
         }
     }
 
-    @Inject(method = "pickBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;hasControlDown()Z"), cancellable = true)
+    @Inject(method = "pickBlockOrEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;hasControlDown()Z"), cancellable = true)
     public void pickBlock(CallbackInfo callbackInfo) {
         assert hitResult != null;
-        var event = new PlayerPickEvent(HSHitResult.fromHitResult(hitResult));
-        EventBus.Companion.broadcast(event);
-        if (event.getCanceled() || CameraSwitcher.getShouldBlockActions()) callbackInfo.cancel();
+        var context = new PlayerPickContext(HSHitResult.fromHitResult(hitResult));
+        HSEvents.PlayerPick.invoker().invoke(context);
+        if (context.isCancelled() || CameraSwitcher.getShouldBlockActions()) callbackInfo.cancel();
     }
 
     @Inject(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isItemEnabled(Lnet/minecraft/world/flag/FeatureFlagSet;)Z"), cancellable = true)
-    public void startUseItem(CallbackInfo callbackInfo, @Local(ordinal = 0) InteractionHand hand, @Local(ordinal = 0) ItemStack stack) {
+    public void startUseItem(CallbackInfo callbackInfo, @Local(name = "hand") InteractionHand hand, @Local(name = "heldItem") ItemStack heldItem) {
         assert hitResult != null;
-        if (!ItemUseIntercept.canUse(BlockInfo.getTargetBlockInfoOrEmpty(), stack)) {
+        if (!ItemUseIntercept.canUse(BlockInfo.getTargetBlockInfoOrEmpty(), heldItem)) {
             callbackInfo.cancel();
             return;
         }
-        var event = new PlayerUseEvent(HSHitResult.fromHitResult(hitResult), new HSItemStack(stack));
-        EventBus.Companion.broadcast(event);
+        var context = new PlayerUseContext(HSHitResult.fromHitResult(hitResult), new HSItemStack(heldItem));
+        HSEvents.PlayerUse.invoker().invoke(context);
         assert player != null;
-        var cancelFireworkRocket = Gliding.fireworkRocketInteractionWhenGliding(player, hand, stack);
+        var cancelFireworkRocket = Gliding.fireworkRocketInteractionWhenGliding(player, hand, heldItem);
 
-        if (event.getCanceled() || CameraSwitcher.getShouldBlockActions() || cancelFireworkRocket)
+        if (context.isCancelled() || CameraSwitcher.getShouldBlockActions() || cancelFireworkRocket)
             callbackInfo.cancel();
     }
 
 
-    @Inject(method = "pickBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;handlePickItemFromEntity(Lnet/minecraft/world/entity/Entity;Z)V"))
-    public void pickPlayerHead(CallbackInfo ci, @Local(ordinal = 0) EntityHitResult result) {
-        PickPlayerHead.pickPlayerHead(result.getEntity());
+    @Inject(method = "pickBlockOrEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;handlePickItemFromEntity(Lnet/minecraft/world/entity/Entity;Z)V"))
+    public void pickPlayerHead(CallbackInfo ci, @Local(name = "entityHitResult") EntityHitResult entityHitResult) {
+        PickPlayerHead.pickPlayerHead(entityHitResult.getEntity());
     }
 
 }

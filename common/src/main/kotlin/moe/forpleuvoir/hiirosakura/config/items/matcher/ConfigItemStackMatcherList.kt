@@ -1,24 +1,10 @@
 package moe.forpleuvoir.hiirosakura.config.items.matcher
 
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
-import moe.forpleuvoir.nebula.config.container.ConfigContainer
-import moe.forpleuvoir.nebula.config.item.impl.ConfigList
+import moe.forpleuvoir.nebula.config.ConfigGroup
+import moe.forpleuvoir.nebula.config.item.configList
 
-class ConfigItemStackMatcherList(
-    key: String,
-    defaultValue: List<ItemStackMatcher> = emptyList()
-) : ConfigList<ItemStackMatcher>(
-    key,
-    defaultValue,
-    {
-        it.serialization()
-    },
-    {
-        ItemStackMatcher.deserialization(it)
-    }
-)
+context(group: ConfigGroup)
+fun configItemStackMatcherList(name: String, defaultValue: List<ItemStackMatcher>) =
+    configList(name, defaultValue, ItemStackMatcher)
 
-fun ConfigContainer.itemStackMatcherList(
-    key: String,
-    defaultValue: List<ItemStackMatcher> = emptyList()
-) = addConfig(ConfigItemStackMatcherList(key, defaultValue))

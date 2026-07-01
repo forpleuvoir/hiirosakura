@@ -2,29 +2,32 @@ package moe.forpleuvoir.hiirosakura.functional.renderaddons
 
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.CreeperFuseLayer
 import moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse.TntFuseRenderer
-import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
-import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
-import moe.forpleuvoir.ibukigourd.input.KeyBind
-import moe.forpleuvoir.ibukigourd.input.KeyBindSetting
-import moe.forpleuvoir.ibukigourd.input.KeyTriggerMode
-import moe.forpleuvoir.ibukigourd.util.NextAction
-import moe.forpleuvoir.nebula.config.item.impl.boolean
-import moe.forpleuvoir.nebula.config.item.impl.float
+import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
+import moe.forpleuvoir.ibukigourd.input.KeyTriggerTiming
+import moe.forpleuvoir.ibukigourd.input.Keybind
+import moe.forpleuvoir.ibukigourd.input.KeybindSetting
+import moe.forpleuvoir.nebula.config.ConfigGroup
+import moe.forpleuvoir.nebula.config.item.configBoolean
+import moe.forpleuvoir.nebula.config.item.configFloat
 
-object RenderInfoAddon : ModConfigContainer("render_info_addon") {
+object RenderInfoAddon : ConfigGroup("render_info_addon") {
 
-    val useIrisCompatiblePipeline by keyBindBoolean("use_iris_compatible_pipeline", false, KeyBind(defaultSetting = KeyBindSetting {
-        nextAction = NextAction.Continue
-        triggerMode = KeyTriggerMode.OnPress
-    }))
+    val useIrisCompatiblePipeline by configToggleKeybind(
+        "use_iris_compatible_pipeline", false, Keybind(
+            defaultSetting = KeybindSetting(
+                passthrough = true,
+                trigger = KeyTriggerTiming.Press
+            )
+        )
+    )
 
-    val alwaysRenderBarrier by keyBindBoolean("always_render_barrier", value = false)
+    val alwaysRenderBarrier by configToggleKeybind("always_render_barrier", false, Keybind())
 
-    val alwaysRenderLight by keyBindBoolean("always_render_light", value = false)
+    val alwaysRenderLight by configToggleKeybind("always_render_light", false, Keybind())
 
-    val disableTextObfuscationRender by boolean("disable_text_obfuscation_render", false)
+    val disableTextObfuscationRender by configBoolean("disable_text_obfuscation_render", false)
 
-    val disableScoreboardSidebarRender by keyBindBoolean("disable_scoreboard_sidebar_render", value = false)
+    val disableScoreboardSidebarRender by configToggleKeybind("disable_scoreboard_sidebar_render", false, Keybind())
 
     init {
         addConfig(GammaOverride)
@@ -36,10 +39,10 @@ object RenderInfoAddon : ModConfigContainer("render_info_addon") {
 
 }
 
-object GammaOverride : ModConfigContainer("gamma_override") {
+object GammaOverride : ConfigGroup("gamma_override") {
 
-    val enable by keyBindBoolean("enable", value = false)
+    val enable by configToggleKeybind("enable", false, Keybind())
 
-    val gamma by float("gamma", 1.0f, 0.0f, 30f)
+    val gamma by configFloat("gamma", 1.0f, 0.0f, 30f)
 
 }

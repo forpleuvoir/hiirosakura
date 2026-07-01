@@ -19,9 +19,9 @@ import java.util.function.Predicate
  * HSEntity 类是对 Minecraft 实体对象的封装，为实体对象提供一系列访问方法和属性。
  * 如果需要处理不同类型的实体，该类及其子类提供了扩展和区分的方法。
  *
- * @property entity 被封装的 Minecraft 实体对象。
+ * @property vanilla 被封装的 Minecraft 实体对象。
  */
-open class HSEntity(internal open val entity: Entity) {
+open class HSEntity(open val vanilla: Entity) {
 
     companion object {
         @JvmStatic
@@ -38,7 +38,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 表示实体名称的字符串。
      */
-    fun getName(): String = entity.name.string
+    fun getName(): String = vanilla.name.string
 
     /**
      * 获取实体的显示名。
@@ -47,7 +47,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 表示实体显示名的字符串，或者当没有自定义显示名时返回 null。
      */
-    fun getDisplayName(): String? = entity.displayName?.string
+    fun getDisplayName(): String = vanilla.displayName.string
 
     /**
      * 获取实体的位置。
@@ -57,7 +57,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 当前实体位置的三维向量表示。
      */
-    fun getPos() = entity.position().toVector()
+    fun getPos() = vanilla.position().toVector()
 
     /**
      * 获取实体客户端视角的旋转角度。
@@ -70,7 +70,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 表示实体旋转角度的二维向量 (Vector2fc)，包含俯仰角和偏航角。
      */
-    fun getRotation() = entity.rotationVector.toVector()
+    fun getRotation() = vanilla.rotationVector.toVector()
 
     /**
      * 获取实体的俯仰角度 (pitch)。
@@ -78,7 +78,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 实体的俯仰角度，以浮点值表示。
      */
-    fun getPitch() = entity.xRot
+    fun getPitch() = vanilla.xRot
 
     /**
      * 获取实体的偏航角（Yaw）。
@@ -88,7 +88,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 实体的当前偏航角。
      */
-    fun getYaw() = entity.yRot
+    fun getYaw() = vanilla.yRot
 
     /**
      * 获取实体的眼睛位置并返回一个三维向量。
@@ -98,7 +98,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 实体眼睛位置的三维向量表示。
      */
-    fun getEyePos() = entity.eyePosition.toVector()
+    fun getEyePos() = vanilla.eyePosition.toVector()
 
     /**
      * 获取实体的速度。
@@ -108,7 +108,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 实体的速度值。
      */
-    fun getSpeed() = entity.flyDist
+    fun getSpeed() = vanilla.flyDist
 
     /**
      * 获取实体对象的 UUID 的字符串形式。
@@ -116,7 +116,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 实体对象的 UUID 的字符串表示。
      */
-    fun getUuid(): String = entity.stringUUID
+    fun getUuid(): String = vanilla.stringUUID
 
     /**
      * 获取实体的唯一标识符 (ID)。
@@ -124,7 +124,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 实体的唯一标识符。
      */
-    fun getId() = entity.id
+    fun getId() = vanilla.id
 
     /**
      * 获取实体类型的字符串表示形式。
@@ -134,7 +134,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 当前实体类型的字符串表示形式。
      */
-    fun getType() = BuiltInRegistries.ENTITY_TYPE.getId(entity.type).toString()
+    fun getType() = BuiltInRegistries.ENTITY_TYPE.getId(vanilla.type).toString()
 
     /**
      * 获取当前实体所在世界的唯一标识符。
@@ -143,7 +143,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 表示当前实体所在世界的唯一标识符字符串。
      */
-    fun getWorld() = entity.level().dimension().identifier().toString()
+    fun getWorld() = vanilla.level().dimension().identifier().toString()
 
     /**
      * 判断实体是否具有免疫火焰伤害的属性。
@@ -152,14 +152,14 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 如果实体免疫火焰伤害，返回 `true`，否则返回 `false`。
      */
-    fun isFireImmune() = entity.fireImmune()
+    fun isFireImmune() = vanilla.fireImmune()
 
     /**
      * 检查实体是否处于燃烧状态。
      *
      * @return 如果实体当前正处于燃烧状态，返回 `true`，否则返回 `false`。
      */
-    fun isOnFire() = entity.isOnFire
+    fun isOnFire() = vanilla.isOnFire
 
     /**
      * 检查当前实体是否正在接触水或正在被雨淋。
@@ -170,14 +170,14 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 如果实体正在接触水或雨，返回 `true`；否则返回 `false`。
      */
-    fun isTouchingWaterOrRain() = entity.isInWaterOrRain
+    fun isTouchingWaterOrRain() = vanilla.isInWaterOrRain
 
     /**
      * 判断当前实体是否处于潜行状态。
      *
      * @return 如果实体正在潜行，返回 `true`；否则返回 `false`。
      */
-    fun isSneaking() = entity.isShiftKeyDown
+    fun isSneaking() = vanilla.isShiftKeyDown
 
     /**
      * 检查实体是否正在游泳。
@@ -187,7 +187,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 如果实体正在游泳，返回 `true`，否则返回 `false`。
      */
-    fun isSwimming() = entity.isSwimming
+    fun isSwimming() = vanilla.isSwimming
 
     /**
      * 判断当前实体是否存活。
@@ -196,7 +196,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 一个布尔值，表示实体的存活状态。
      */
-    fun isAlive() = entity.isAlive
+    fun isAlive() = vanilla.isAlive
 
     /**
      * 检查实体是否处于不可见状态。
@@ -207,7 +207,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 如果实体为隐形，则返回 `true`；否则返回 `false`。
      */
-    fun sInvisible() = entity.isInvisible
+    fun sInvisible() = vanilla.isInvisible
 
     /**
      * 判断实体是否处于无敌状态。
@@ -216,7 +216,7 @@ open class HSEntity(internal open val entity: Entity) {
      *
      * @return 如果实体为无敌状态，返回 `true`，否则返回 `false`。
      */
-    fun isInvulnerable() = entity.isInvulnerable
+    fun isInvulnerable() = vanilla.isInvulnerable
 
 }
 
@@ -226,7 +226,7 @@ open class HSEntity(internal open val entity: Entity) {
  * 此类继承自 `HSEntity`，用于扩展 `HSEntity` 的功能，专门处理活体实体的相关属性和操作。
  * 提供了一些实用方法来访问活体实体的健康状态、手持物品以及其他特有属性。
  */
-open class HSLivingEntity(override val entity: LivingEntity) : HSEntity(entity) {
+open class HSLivingEntity(override val vanilla: LivingEntity) : HSEntity(vanilla) {
 
     /**
      * 获取实体的最大生命值。
@@ -235,7 +235,7 @@ open class HSLivingEntity(override val entity: LivingEntity) : HSEntity(entity) 
      *
      * @return 当前实体的最大生命值。
      */
-    fun getMaxHealth() = entity.maxHealth
+    fun getMaxHealth() = vanilla.maxHealth
 
     /**
      * 获取实体当前的生命值。
@@ -244,7 +244,7 @@ open class HSLivingEntity(override val entity: LivingEntity) : HSEntity(entity) 
      *
      * @return 实体当前的生命值，通常以浮点数形式表示。
      */
-    fun getHealth() = entity.health
+    fun getHealth() = vanilla.health
 
     /**
      * 计算当前实体的生命值百分比。
@@ -254,7 +254,7 @@ open class HSLivingEntity(override val entity: LivingEntity) : HSEntity(entity) 
      * @return 一个浮点值，表示当前实体生命值占最大生命值的比例。
      *         值的范围为 0.0 到 1.0，其中 1.0 代表满生命值，0.0 代表实体没有生命值。
      */
-    fun getHealthPercent() = entity.health / entity.maxHealth
+    fun getHealthPercent() = vanilla.health / vanilla.maxHealth
 
     /**
      * 获取实体当前主手持有物品堆的封装对象。
@@ -263,7 +263,7 @@ open class HSLivingEntity(override val entity: LivingEntity) : HSEntity(entity) 
      *
      * @return 表示主手持有物品堆的 `HSItemStack` 对象。
      */
-    fun getMainHandStack() = HSItemStack(entity.mainHandItem)
+    fun getMainHandStack() = HSItemStack(vanilla.mainHandItem)
 
     /**
      * 获取当前实体副手中的物品堆。
@@ -273,7 +273,7 @@ open class HSLivingEntity(override val entity: LivingEntity) : HSEntity(entity) 
      *
      * @return 表示副手物品堆的 `HSItemStack` 实例。
      */
-    fun getOffHandStack() = HSItemStack(entity.offhandItem)
+    fun getOffHandStack() = HSItemStack(vanilla.offhandItem)
 
     /**
      * 判断实体是否为幼体。
@@ -282,7 +282,7 @@ open class HSLivingEntity(override val entity: LivingEntity) : HSEntity(entity) 
      *
      * @return 如果实体为幼体，返回 `true`；否则返回 `false`。
      */
-    fun isBaby() = entity.isBaby
+    fun isBaby() = vanilla.isBaby
 
 }
 
@@ -292,9 +292,9 @@ open class HSLivingEntity(override val entity: LivingEntity) : HSEntity(entity) 
  * 此类继承自 `HSLivingEntity`，用于处理与 Minecraft 玩家实体相关的属性与方法。
  * 提供了一些实用方法来访问玩家的创造模式、旁观者模式状态以及与经验相关的属性。
  *
- * @param entity 玩家实体对象的封装。
+ * @param vanilla 玩家实体对象的封装。
  */
-open class HSPlayerEntity(override val entity: Player) : HSLivingEntity(entity) {
+open class HSPlayerEntity(override val vanilla: Player) : HSLivingEntity(vanilla) {
 
     /**
      * 检查玩家是否处于创造模式。
@@ -303,7 +303,7 @@ open class HSPlayerEntity(override val entity: Player) : HSLivingEntity(entity) 
      *
      * @return 如果玩家处于创造模式，返回 `true`，否则返回 `false`。
      */
-    fun isCreative() = entity.isCreative
+    fun isCreative() = vanilla.isCreative
 
     /**
      * 检查玩家是否处于旁观者模式。
@@ -312,7 +312,7 @@ open class HSPlayerEntity(override val entity: Player) : HSLivingEntity(entity) 
      *
      * @return 如果玩家处于旁观者模式，返回 `true`；否则返回 `false`。
      */
-    fun isSpectator() = entity.isSpectator
+    fun isSpectator() = vanilla.isSpectator
 
     /**
      * 获取玩家当前的经验等级。
@@ -322,7 +322,7 @@ open class HSPlayerEntity(override val entity: Player) : HSLivingEntity(entity) 
      *
      * @return 玩家当前的经验等级，表示为整数值。
      */
-    fun getExperienceLevel() = entity.experienceLevel
+    fun getExperienceLevel() = vanilla.experienceLevel
 
     /**
      * 获取玩家当前总经验值。
@@ -332,7 +332,7 @@ open class HSPlayerEntity(override val entity: Player) : HSLivingEntity(entity) 
      *
      * @return 当前玩家的总经验值，为一个整数值。
      */
-    fun getTotalExperience() = entity.totalExperience
+    fun getTotalExperience() = vanilla.totalExperience
 
     /**
      * 获取玩家当前的经验进度。
@@ -342,7 +342,7 @@ open class HSPlayerEntity(override val entity: Player) : HSLivingEntity(entity) 
      *
      * @return 玩家当前经验进度的浮点值，范围为 [0.0, 1.0]。
      */
-    fun getExperienceProgress() = entity.experienceProgress
+    fun getExperienceProgress() = vanilla.experienceProgress
 
 }
 
@@ -352,9 +352,9 @@ open class HSPlayerEntity(override val entity: Player) : HSLivingEntity(entity) 
  * `MainPlayer` 提供了一系列用于操作和获取与玩家相关的游戏信息的功能。
  * 包括获取玩家准星命中的目标、方块或实体，以及根据条件函数交换玩家当前选择的物品。
  *
- * @param entity 表示当前客户端玩家实体的封装对象。
+ * @param vanilla 表示当前客户端玩家实体的封装对象。
  */
-class MainPlayer(override val entity: LocalPlayer) : HSPlayerEntity(entity) {
+class MainPlayer(override val vanilla: LocalPlayer) : HSPlayerEntity(vanilla) {
 
     /**
      * 获取当前玩家准星所指向的目标对象，并将其转换为 `HSHitResult` 实例。
@@ -403,7 +403,7 @@ class MainPlayer(override val entity: LocalPlayer) : HSPlayerEntity(entity) {
      * @param predicate 条件函数，用于判断哪些物品需要被选中交换，接收一个 `HSItemStack` 并返回 `true` 或 `false`。
      */
     fun swapItem(predicate: Predicate<HSItemStack>) {
-        entity.swapSlotWithHotbar {
+        vanilla.swapSlotWithHotbar {
             predicate.test(HSItemStack(it))
         }
     }

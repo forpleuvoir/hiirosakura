@@ -8,16 +8,13 @@ import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.util.renameKey
 import moe.forpleuvoir.nebula.common.api.ExperimentalApi
+import moe.forpleuvoir.nebula.common.api.Initializable
 import moe.forpleuvoir.nebula.config.util.ConfigUtil
-import moe.forpleuvoir.nebula.event.EventSubscriber
-import moe.forpleuvoir.nebula.event.Subscriber
-import moe.forpleuvoir.nebula.serialization.gson.jsonStringToObject
-import moe.forpleuvoir.nebula.serialization.json.JsonSerializer.Companion.dumpAsJson
+import moe.forpleuvoir.nebula.serialization.json.JsonDialect
 import java.io.File
 
 
-@EventSubscriber
-object CustomRadialMenuManager {
+object CustomRadialMenuManager : Initializable {
 
     private const val KEY = "custom_radial_menu"
 
@@ -31,20 +28,22 @@ object CustomRadialMenuManager {
 
     fun rename(oldName: String, newName: String) {
         customRadialMenus.renameKey(oldName, newName)
-        customRadialMenus[newName]?.shortcuts?.name(InlineStyleText(newName))
+        customRadialMenus[newName]?.shortcuts?.name = InlineStyleText(newName)
     }
 
-    @Subscriber
-    fun init(@Suppress("unused") event: ClientLifecycleEvent.ClientStartingEvent) {
+    override fun init() {
+        ClientLifecycleEvent.Starting.register { load() }
+        ClientLifecycleEvent.Stopping.register { save() }
+    }
+
+    fun load() {
         runBlocking {
             logger.info("Loading Custom Radial Menu...")
             asyncLoad()
-
         }
     }
 
-    @Subscriber
-    fun onSave(@Suppress("unused") event: ClientLifecycleEvent.ClientStopEvent) {
+    fun save() {
         runBlocking {
             asyncSave()
         }
@@ -57,7 +56,7 @@ object CustomRadialMenuManager {
                 return
             }
             customRadialMenus.forEach { (_, menu) ->
-                menu.onUnload()
+                menu.unload()
             }
             customRadialMenus.clear()
             path.listFiles { file ->
@@ -66,13 +65,11 @@ object CustomRadialMenuManager {
                 val name = file.name.removeSuffix(".json")
                 runCatching {
                     logger.info("Loading $name...")
-                    customRadialMenus[name] = ConfigUtil.readFileToString(file)
-                        .jsonStringToObject()
-                        .let {
-                            CustomRadialMenu.deserialization(it)
-                        }.apply {
-                            shortcuts.name(InlineStyleText(name))
-                            onLoad()
+                    JsonDialect.decode(ConfigUtil.readFileToString(file))
+                        .let { CustomRadialMenu.deserialization(it.getOrThrow()).getOrThrow() }
+                        .apply {
+                            shortcuts.name = InlineStyleText(name)
+                            this.load()
                         }
                 }.onFailure {
                     logger.warn(it)
@@ -101,7 +98,7 @@ object CustomRadialMenuManager {
             }
             //保存新的配置文件
             customRadialMenus.forEach { (key, menu) ->
-                ConfigUtil.writeToFile(menu.serialization().dumpAsJson(true), File(path, "$key.json"))
+                ConfigUtil.writeToFile(JsonDialect.encode(CustomRadialMenu.serialization(menu)), File(path, "$key.json"))
             }
         }.onFailure {
             logger.warn(it)

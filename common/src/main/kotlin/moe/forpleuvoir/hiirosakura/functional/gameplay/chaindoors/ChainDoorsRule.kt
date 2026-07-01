@@ -4,12 +4,7 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
-import moe.forpleuvoir.nebula.serialization.Deserializer
-import moe.forpleuvoir.nebula.serialization.Serializable
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import moe.forpleuvoir.nebula.serialization.codec.Codec
 import net.minecraft.world.level.block.Blocks
 
 data class ChainDoorsRule(
@@ -17,9 +12,14 @@ data class ChainDoorsRule(
     val chainDoor: BlockInfoMatcher,
     val keyToggleMode: Boolean,
     val strategy: ChainStrategy
-) : Serializable {
+) {
 
-    companion object : Deserializer<ChainDoorsRule> {
+    companion object : Codec<ChainDoorsRule> by Codec.create<ChainDoorsRule>()
+        .field<BlockInfoMatcher>("origin_door").getter(ChainDoorsRule::originDoor).codec(BlockInfoMatcher)
+        .field<BlockInfoMatcher>("chain_door").getter(ChainDoorsRule::chainDoor).codec(BlockInfoMatcher)
+        .field<Boolean>("key_toggle_mode").getter(ChainDoorsRule::keyToggleMode).codec(Codec.boolean)
+        .field<ChainStrategy>("strategy").getter(ChainDoorsRule::strategy).codec(ChainStrategy)
+        .build(::ChainDoorsRule) {
 
         val MOB_INTERACTABLE_DOORS = ChainDoorsRule(
             BlockInfoMatcher(CompositeMatcher.MatchMode.AllMatch, BlockInfoMatchEntry.Tag("minecraft:mob_interactable_doors")),
@@ -43,22 +43,6 @@ data class ChainDoorsRule(
             ChainStrategy.Recursive.DEFAULT
         )
 
-        override fun deserialization(serializeElement: SerializeElement): ChainDoorsRule =
-            serializeElement.checkType<SerializeObject, ChainDoorsRule> {
-                ChainDoorsRule(
-                    originDoor = BlockInfoMatcher.deserialization(it["origin_door"]!!),
-                    chainDoor = BlockInfoMatcher.deserialization(it["chain_door"]!!),
-                    keyToggleMode = it["key_toggle_mode"]!!.asBoolean,
-                    strategy = ChainStrategy.deserialization(it["strategy"]!!),
-                )
-            }.getOrThrow()
-    }
-
-    override fun serialization(): SerializeElement = serializeObject {
-        "origin_door" to originDoor.serialization()
-        "chain_door" to chainDoor.serialization()
-        "key_toggle_mode" to keyToggleMode
-        "strategy" to strategy.serialization()
     }
 
 }

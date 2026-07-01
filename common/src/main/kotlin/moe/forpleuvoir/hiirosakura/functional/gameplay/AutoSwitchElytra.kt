@@ -1,14 +1,14 @@
 package moe.forpleuvoir.hiirosakura.functional.gameplay
 
-import moe.forpleuvoir.hiirosakura.config.items.matcher.itemStackMatcher
+import moe.forpleuvoir.hiirosakura.config.items.matcher.configItemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.util.swapSlotWithHotbar
-import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
-import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
+import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.config.item.impl.enum
+import moe.forpleuvoir.nebula.config.ConfigGroup
+import moe.forpleuvoir.nebula.config.item.configEnum
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.component.DataComponents
 import net.minecraft.util.Unit
@@ -16,13 +16,13 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.item.Items
 
-object AutoSwitchElytra : ModConfigContainer("auto_switch_elytra") {
+object AutoSwitchElytra : ConfigGroup("auto_switch_elytra") {
 
-    val enable by keyBindBoolean("enable", false)
+    val enable by configToggleKeybind("enable", false)
 
-    val slot: EquipmentSlot by enum("slot", EquipmentSlot.CHEST)
+    val slot: EquipmentSlot by configEnum("slot", EquipmentSlot.CHEST)
 
-    val switchableEquip by itemStackMatcher(
+    val switchableEquip by configItemStackMatcher(
         "switchable_equip",
         ItemStackMatcher(
             CompositeMatcher.MatchMode.AnyMatch,
@@ -35,7 +35,7 @@ object AutoSwitchElytra : ModConfigContainer("auto_switch_elytra") {
         )
     )
 
-    val switchableGlider by itemStackMatcher(
+    val switchableGlider by configItemStackMatcher(
         "switchable_glider",
         ItemStackMatcher(
             CompositeMatcher.MatchMode.AnyMatch,
@@ -46,7 +46,7 @@ object AutoSwitchElytra : ModConfigContainer("auto_switch_elytra") {
 
     @JvmStatic
     fun trySwitchElytra(player: LocalPlayer) {
-        if (!enable.value) return
+        if (!enable.enabled) return
 
         val interaction = mc.gameMode!!
 
@@ -71,7 +71,7 @@ object AutoSwitchElytra : ModConfigContainer("auto_switch_elytra") {
 
     @JvmStatic
     fun trySwitchChestplate(player: LocalPlayer) {
-        if (!enable.value) return
+        if (!enable.enabled) return
 
         player.inventory.equipment.items.values.find {
             it.get(DataComponents.GLIDER) == Unit.INSTANCE

@@ -3,34 +3,39 @@ package moe.forpleuvoir.hiirosakura.functional.misc.matcher
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSItemStack
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
-import moe.forpleuvoir.hiirosakura.util.*
-import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.hiirosakura.util.allEnchantments
+import moe.forpleuvoir.hiirosakura.util.codec.dataComponentType
+import moe.forpleuvoir.hiirosakura.util.codec.item
+import moe.forpleuvoir.hiirosakura.util.hasTag
+import moe.forpleuvoir.hiirosakura.util.key
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
-import moe.forpleuvoir.nebula.serialization.Deserializable
-import moe.forpleuvoir.nebula.serialization.Deserializer
+import moe.forpleuvoir.nebula.common.util.checkType
+import moe.forpleuvoir.nebula.common.util.requireKey
+import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.SerializeObjectBuilder
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.deserialization
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
-import net.minecraft.core.registries.BuiltInRegistries
+import moe.forpleuvoir.nebula.serialization.base.builder.build
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.codec.enum
+import moe.forpleuvoir.nebula.serialization.codec.intRange
+import moe.forpleuvoir.nebula.serialization.codec.serialization
+import moe.forpleuvoir.nebula.serialization.extensions.requireString
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+import java.util.concurrent.atomic.AtomicBoolean
 import net.minecraft.core.component.DataComponentType as McDataComponentType
 import net.minecraft.world.item.Item as McItem
 import net.minecraft.world.item.Rarity as McRarity
 
-class ItemStackMatcher(override var mode: CompositeMatcher.MatchMode, entries: List<ItemStackMatchEntry>) : CompositeMatcher<ItemStack>, Deserializable {
+class ItemStackMatcher(override var mode: CompositeMatcher.MatchMode, entries: List<ItemStackMatchEntry>) : CompositeMatcher<ItemStack> {
 
     constructor(mode: CompositeMatcher.MatchMode, vararg entries: ItemStackMatchEntry) : this(mode, entries.toList())
 
-    companion object : Deserializer<ItemStackMatcher> {
+    companion object : Codec<ItemStackMatcher> {
 
         val handheldItemMatcher: ItemStackMatcher
             get() {
@@ -64,20 +69,6 @@ class ItemStackMatcher(override var mode: CompositeMatcher.MatchMode, entries: L
                 ItemStackMatchEntry.Item(Items.AIR, mode = MatchEntry.MatchMode.Exclude)
             )
 
-        override fun deserialization(serializeElement: SerializeElement): ItemStackMatcher {
-            return serializeElement.checkType<SerializeObject, ItemStackMatcher> { obj ->
-                val entries = obj["entries"]!!.checkType<SerializeArray, List<ItemStackMatchEntry>> { array ->
-                    array.map { element ->
-                        ItemStackMatchEntry.deserialization(element)
-                    }
-                }.getOrThrow()
-                ItemStackMatcher(
-                    mode = CompositeMatcher.MatchMode.deserialization(obj["mode"]!!),
-                    entries = entries
-                )
-            }.getOrThrow()
-        }
-
         fun isAnyMatcher(matcher: CompositeMatcher<ItemStack>): Boolean {
             val mode = matcher.mode == CompositeMatcher.MatchMode.AnyMatch
             if (!mode) return false
@@ -89,17 +80,41 @@ class ItemStackMatcher(override var mode: CompositeMatcher.MatchMode, entries: L
                 }
             }
         }
+
+        override fun deserialization(data: SerializeElement): Result<ItemStackMatcher> = DeserializationException.runCatching {
+            data.checkType<SerializeObject, ItemStackMatcher> { obj ->
+                val entries = obj.requireKey("entries").checkType<SerializeArray, List<ItemStackMatchEntry>> { array ->
+                    array.map { element ->
+                        ItemStackMatchEntry.deserialization(element).getOrThrow()
+                    }
+                }
+                ItemStackMatcher(
+                    mode = CompositeMatcher.MatchMode.deserialization(obj.requireKey("mode")).getOrThrow(),
+                    entries = entries
+                )
+            }
+        }
+
+        override fun serialization(target: ItemStackMatcher): SerializeObject = SerializeObject.build {
+            context(CompositeMatcher.MatchMode, ItemStackMatchEntry) {
+                "mode" to target.mode
+                "entries" arr {
+                    target.entries.forEach { add(it.serialization) }
+                }
+            }
+        }
+
     }
 
     override val entries: List<ItemStackMatchEntry> = entries.toMutableList()
 
     val simpleText
         get() = when (entries.size) {
-            0    -> IGLang.hasNothing
+            0    -> IGLang.Misc.hasNothing
             1    -> entries[0].asText
             else -> if (isAnyMatcher(this)) {
                 CompositeMatcher.MatchMode.AnyMatch.translateText
-            } else mode.translateText.appendLiteral(":").append(IGLang.listConfigWrapperText(entries.size))
+            } else mode.translateText.appendLiteral(":").append(IGLang.ConfigWrapper.listConfigWrapperText(entries.size))
         }
 
     override fun clone(): ItemStackMatcher {
@@ -124,19 +139,6 @@ class ItemStackMatcher(override var mode: CompositeMatcher.MatchMode, entries: L
 
     private fun clear() {
         (this.entries as MutableList).clear()
-    }
-
-
-    override fun deserialization(serializeElement: SerializeElement) {
-        clear()
-        serializeElement.checkType<SerializeObject, Unit> { obj ->
-            mode = CompositeMatcher.MatchMode.deserialization(obj["mode"]!!)
-            obj["entries"]!!.checkType<SerializeArray, Unit> { array ->
-                array.forEach { element ->
-                    addEntry(ItemStackMatchEntry.deserialization(element))
-                }
-            }
-        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -167,212 +169,164 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     abstract val asText: Component
 
-    fun entrySerialization(scope: SerializeObjectBuilder.() -> Unit) = serializeObject {
-        "type" to type
-        "mode" to mode
-        scope()
-    }
+    companion object : Codec<ItemStackMatchEntry> {
 
-    companion object : Deserializer<ItemStackMatchEntry> {
+        private const val MATCHER_TYPE = "matcher"
+        private const val ITEM_TYPE = "item"
+        private const val NAME_TYPE = "name"
+        private const val SCRIPT_TYPE = "script"
+        private const val COUNT_TYPE = "count"
+        private const val RARITY_TYPE = "rarity"
+        private const val ENCHANTMENT_TYPE = "enchantment"
+        private const val TAG_TYPE = "tag"
+        private const val DATA_COMPONENT_TYPE_TYPE = "data_component_type"
 
-        val desMapping = mutableMapOf<String, (SerializeElement) -> ItemStackMatchEntry>(
-            Matcher.TYPE to { Matcher.deserialization(it) },
-            Item.TYPE to { Item.deserialization(it) },
-            Name.TYPE to { Name.deserialization(it) },
-            Script.TYPE to { Script.deserialization(it) },
-            Count.TYPE to { Count.deserialization(it) },
-            Rarity.TYPE to { Rarity.deserialization(it) },
-            Enchantment.TYPE to { Enchantment.deserialization(it) },
-            Tag.TYPE to { Tag.deserialization(it) },
-            DataComponentType.TYPE to { DataComponentType.deserialization(it) },
+        private inline fun <reified T : ItemStackMatchEntry> codec(type: String, defaultMode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) =
+            Codec.create<T>()
+                .field<String>("type").getter(ItemStackMatchEntry::type).default(type).codec(Codec.string)
+                .field<MatchEntry.MatchMode>("mode").getter(ItemStackMatchEntry::mode).default(defaultMode).codec(MatchEntry.MatchMode)
+
+        val desMapping = mutableMapOf<String, (SerializeElement) -> Result<ItemStackMatchEntry>>(
+            MATCHER_TYPE to { Matcher.deserialization(it) },
+            ITEM_TYPE to { Item.deserialization(it) },
+            NAME_TYPE to { Name.deserialization(it) },
+            SCRIPT_TYPE to { Script.deserialization(it) },
+            COUNT_TYPE to { Count.deserialization(it) },
+            RARITY_TYPE to { Rarity.deserialization(it) },
+            ENCHANTMENT_TYPE to { Enchantment.deserialization(it) },
+            TAG_TYPE to { Tag.deserialization(it) },
+            DATA_COMPONENT_TYPE_TYPE to { DataComponentType.deserialization(it) },
         )
 
-        override fun deserialization(serializeElement: SerializeElement): ItemStackMatchEntry {
-            return serializeElement.checkType<SerializeObject, ItemStackMatchEntry> {
-                desMapping[it["type"]!!.asString]?.invoke(it) ?: throw IllegalArgumentException("Unsupported type ${it["type"]}")
-            }.getOrThrow()
+        override fun deserialization(data: SerializeElement): Result<ItemStackMatchEntry> = DeserializationException.runCatching {
+            data.checkType<SerializeObject, ItemStackMatchEntry> {
+                desMapping[it.requireString("type")]?.invoke(it)?.getOrThrow() ?: throw IllegalArgumentException("Unsupported type ${it["type"]}")
+            }
         }
 
-        private fun getMode(serializeObject: SerializeObject): MatchEntry.MatchMode =
-            MatchEntry.MatchMode.deserialization(serializeObject["mode"]!!)
+        override fun serialization(target: ItemStackMatchEntry): SerializeElement = when (target) {
+            is Matcher           -> Matcher.serialization(target)
+            is Item              -> Item.serialization(target)
+            is Name              -> Name.serialization(target)
+            is Script            -> Script.serialization(target)
+            is Count             -> Count.serialization(target)
+            is Rarity            -> Rarity.serialization(target)
+            is Enchantment       -> Enchantment.serialization(target)
+            is Tag               -> Tag.serialization(target)
+            is DataComponentType -> DataComponentType.serialization(target)
+        }
 
     }
 
-    class Matcher(val matcher: ItemStackMatcher, mode: MatchEntry.MatchMode) : ItemStackMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<Matcher> {
-            const val TYPE = "matcher"
-            override fun deserialization(serializeElement: SerializeElement): Matcher {
-                return serializeElement.checkType<SerializeObject, Matcher> {
-                    Matcher(
-                        matcher = ItemStackMatcher.deserialization(it["matcher"]!!),
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-        }
+    //region Matcher
+    class Matcher(val matcher: ItemStackMatcher, mode: MatchEntry.MatchMode) : ItemStackMatchEntry(mode, MATCHER_TYPE) {
+        companion object : Codec<Matcher> by codec<Matcher>(MATCHER_TYPE)
+            .field<ItemStackMatcher>("matcher").getter(Matcher::matcher).codec(ItemStackMatcher)
+            .build({ _, mode, matcher -> Matcher(matcher, mode) })
 
         override val asText: Component get() = matcher.simpleText
 
         override fun match(obj: ItemStack): Boolean = matcher.match(obj)
 
-        override fun serialization(): SerializeElement = entrySerialization { "matcher" to matcher.serialization() }
-
     }
+    //endregion
 
-    class Item(val item: McItem, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, TYPE) {
+    //region Item
+    class Item(val item: McItem, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, ITEM_TYPE) {
+        companion object : Codec<Item> by codec<Item>(ITEM_TYPE)
+            .field<McItem>("item").getter(Item::item).codec(Codec.item)
+            .build({ _, mode, item -> Item(item, mode) })
 
-        companion object : Deserializer<Item> {
-            const val TYPE = "item"
-            override fun deserialization(serializeElement: SerializeElement): Item {
-                return serializeElement.checkType<SerializeObject, Item> {
-                    Item(
-                        item = it["item"]!!.asItem,
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-        }
-
-        override val asText: Component = item.name
+        override val asText: Component by lazy { item.getName(ItemStack(item)) }
 
         override fun match(obj: ItemStack): Boolean = obj.item == item
 
-        override fun serialization(): SerializeElement = entrySerialization {
-            "item" to item.serialization
-        }
-
     }
+    //endregion
 
-    class Name(val name: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, TYPE) {
-        companion object : Deserializer<Name> {
-            const val TYPE = "name"
-            override fun deserialization(serializeElement: SerializeElement): Name {
-                return serializeElement.checkType<SerializeObject, Name> {
-                    Name(
-                        name = it["name"]!!.asString,
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-        }
+    //region Name
+    class Name(val name: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, NAME_TYPE) {
+        companion object : Codec<Name> by codec<Name>(NAME_TYPE)
+            .field<String>("name").getter(Name::name).codec(Codec.string)
+            .build({ _, mode, name -> Name(name, mode) })
 
         override val asText: Component = Literal(name)
 
         override fun match(obj: ItemStack): Boolean =
-            name.toRegex().matches(obj.item.name.string)
+            name.toRegex().matches(obj.itemName.string)
 
-        override fun serialization(): SerializeElement = entrySerialization {
-            "name" to name
-        }
     }
+    //endregion
 
-    class Script(val script: String = defaultScript, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<Script> {
-            const val TYPE = "script"
-            override fun deserialization(serializeElement: SerializeElement): Script {
-                return serializeElement.checkType<SerializeObject, Script> {
-                    Script(
-                        script = it["script"]!!.asString,
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-
+    //region Script
+    class Script(val script: String = defaultScript, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, SCRIPT_TYPE) {
+        companion object : Codec<Script> {
             val defaultScript = """
                 // The variable itemStack represents a wrapped ItemStack object [HSItemStack].
                 // To indicate a successful match, set the return value by calling:
-                // result.setValue(true);
+                // result.set(true);
             """.trimIndent()
+
+            private val codec = codec<Script>(SCRIPT_TYPE)
+                .field<String>("script").getter(Script::script).default(defaultScript).codec(Codec.string)
+                .build { _, mode, script -> Script(script, mode) }
+
+            override fun serialization(target: Script): SerializeElement = codec.serialization(target)
+            override fun deserialization(data: SerializeElement): Result<Script> = codec.deserialization(data)
         }
 
         override val asText: Component = Literal("Script Matcher")
 
         override fun match(obj: ItemStack): Boolean {
-            val result = mutableStateOf(false)
+            val result = AtomicBoolean(false)
             ScriptExecutor(
                 script, mutableMapOf(
                     "itemStack" to HSItemStack(obj),
                     "result" to result
                 )
             ).execute()
-            return result.getValue()
-        }
-
-        override fun serialization(): SerializeElement = entrySerialization {
-            "script" to script
+            return result.get()
         }
 
     }
+    //endregion
 
-    class Count(val count: IntRange, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<Count> {
-            const val TYPE = "count"
-            override fun deserialization(serializeElement: SerializeElement): Count {
-                return serializeElement.checkType<SerializeObject, Count> {
-                    Count(
-                        count = IntRange.deserialization(it["count"]!!),
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-        }
+    //region Count
+    class Count(val count: IntRange, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, COUNT_TYPE) {
+        companion object : Codec<Count> by codec<Count>(COUNT_TYPE)
+            .field<IntRange>("count").getter(Count::count).codec(Codec.intRange)
+            .build({ _, mode, count -> Count(count, mode) })
 
         override val asText: Component = Literal(if (count.first == count.last) "x${count.first}" else "x${count.first}..${count.last}")
 
         override fun match(obj: ItemStack): Boolean = obj.count in count
 
-        override fun serialization(): SerializeElement = entrySerialization {
-            "count" to count.serialization()
-        }
-
     }
+    //endregion
 
-    class Rarity(val rarity: McRarity, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<Rarity> {
-            const val TYPE = "rarity"
-            override fun deserialization(serializeElement: SerializeElement): Rarity {
-                return serializeElement.checkType<SerializeObject, Rarity> {
-                    Rarity(
-                        rarity = McRarity.valueOf(it["rarity"]!!.asString),
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-        }
+    //region Rarity
+    class Rarity(val rarity: McRarity, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, RARITY_TYPE) {
+        companion object : Codec<Rarity> by codec<Rarity>(RARITY_TYPE)
+            .field<McRarity>("rarity").getter(Rarity::rarity).codec(Codec.enum<McRarity>())
+            .build({ _, mode, rarity -> Rarity(rarity, mode) })
 
         override val asText: Component = Literal(rarity.name)
 
         override fun match(obj: ItemStack): Boolean = obj.rarity == rarity
 
-        override fun serialization(): SerializeElement = entrySerialization {
-            "rarity" to rarity
-        }
-
     }
+    //endregion
 
+    //region Enchantment
     class Enchantment(
         val enchantment: String,
         val level: IntRange,
         mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
-    ) : ItemStackMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<Enchantment> {
-            const val TYPE = "enchantment"
-            override fun deserialization(serializeElement: SerializeElement): Enchantment {
-                return serializeElement.checkType<SerializeObject, Enchantment> {
-                    Enchantment(
-                        enchantment = it["enchantment"]!!.asString,
-                        level = IntRange.deserialization(it["level"]!!),
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-
-        }
+    ) : ItemStackMatchEntry(mode, ENCHANTMENT_TYPE) {
+        companion object : Codec<Enchantment> by codec<Enchantment>(ENCHANTMENT_TYPE)
+            .field<String>("enchantment").getter(Enchantment::enchantment).codec(Codec.string)
+            .field<IntRange>("level").getter(Enchantment::level).codec(Codec.intRange)
+            .build({ _, mode, enchantment, level -> Enchantment(enchantment, level, mode) })
 
         override val asText: Component = Literal(enchantment)
             .appendLiteral(" ")
@@ -385,60 +339,34 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             return lv in level
         }
 
-        override fun serialization(): SerializeElement = entrySerialization {
-            "enchantment" to enchantment
-            "level" to level.serialization()
-        }
-
     }
+    //endregion
 
-    class Tag(val tag: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<Tag> {
-            const val TYPE = "tag"
-            override fun deserialization(serializeElement: SerializeElement): Tag {
-                return serializeElement.checkType<SerializeObject, Tag> {
-                    Tag(
-                        tag = it["tag"]!!.asString,
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-        }
+    //region Tag
+    class Tag(val tag: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, TAG_TYPE) {
+        companion object : Codec<Tag> by codec<Tag>(TAG_TYPE)
+            .field<String>("tag").getter(Tag::tag).codec(Codec.string)
+            .build({ _, mode, tag -> Tag(tag, mode) })
 
         override val asText: Component = Literal("#$tag")
 
         override fun match(obj: ItemStack): Boolean = obj.hasTag(tag)
 
-        override fun serialization(): SerializeElement = entrySerialization {
-            "tag" to tag
-        }
-
     }
+    //endregion
 
+    //region DataComponentType
     class DataComponentType(val componentType: McDataComponentType<*>, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) :
-        ItemStackMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<DataComponentType> {
-            const val TYPE = "data_component_type"
-            override fun deserialization(serializeElement: SerializeElement): DataComponentType {
-                return serializeElement.checkType<SerializeObject, DataComponentType> {
-                    DataComponentType(
-                        componentType = BuiltInRegistries.DATA_COMPONENT_TYPE.get(Identifier.parse(it["component_type"]!!.asString)).get().value(),
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-        }
+        ItemStackMatchEntry(mode, DATA_COMPONENT_TYPE_TYPE) {
+        companion object : Codec<DataComponentType> by codec<DataComponentType>(DATA_COMPONENT_TYPE_TYPE)
+            .field<McDataComponentType<*>>("component_type").getter(DataComponentType::componentType).codec(Codec.dataComponentType)
+            .build({ _, mode, componentType -> DataComponentType(componentType, mode) })
 
         override val asText: Component = Literal(componentType.key.toString())
 
         override fun match(obj: ItemStack): Boolean = obj.components.has(componentType)
 
-        override fun serialization(): SerializeElement = entrySerialization {
-            "component_type" to componentType.key.toString()
-        }
-
     }
+    //endregion
 
 }

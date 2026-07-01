@@ -10,8 +10,8 @@ plugins {
 val modId: String = project.properties["mod_id"].toString()
 
 sourceSets {
-    create("devClientTest") {
-        val test = project(":common").sourceSets["devClientTest"]
+    create("devOnly") {
+        val test = project(":common").sourceSets["devOnly"]
         compileClasspath += main.get().compileClasspath + main.get().output + test.compileClasspath + test.output
         runtimeClasspath += main.get().runtimeClasspath + main.get().output + test.runtimeClasspath + test.output
     }
@@ -24,10 +24,6 @@ neoForge {
     if (at.exists()) {
         accessTransformers.from(at.absolutePath)
     }
-    parchment {
-        minecraftVersion = libs.versions.parchmentMinecraft
-        mappingsVersion = libs.versions.parchment
-    }
     runs {
         configureEach {
             systemProperty("neoforge.enabledGameTestNamespaces", modId)
@@ -38,8 +34,9 @@ neoForge {
             val name: String = System.getenv("mcName") ?: "Dev${Random.nextInt(1000)}"
             val uuid: String = System.getenv("mcUUID") ?: UUID.randomUUID().toString()
             programArguments.addAll("--username", name, "--uuid", uuid)
+            gameDirectory = file("runs/client")
             //好像并没有作用
-//            sourceSet = sourceSets["devClientTest"]
+//            sourceSet = sourceSets["devOnly"]
         }
         register("data") {
             clientData()
@@ -55,6 +52,7 @@ neoForge {
         }
         register("server") {
             server()
+            gameDirectory = file("runs/server")
         }
     }
     mods {
@@ -68,7 +66,7 @@ sourceSets.main.get().resources { srcDir("src/generated/resources") }
 
 val loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)
 
-listOf("apiElements", "runtimeElements", "sourcesElements", "javadocElements").forEach {
+listOf("apiElements", "runtimeElements", "sourcesElements").forEach {
     configurations.named(it) {
         attributes {
             attribute(loaderAttribute, "neoforge")
@@ -86,16 +84,13 @@ sourceSets.configureEach {
     }
 }
 
-repositories{
-    maven { url = uri("https://maven.forpleuvoir.moe/snapshots") }
-}
-
 dependencies {
     implementation(libs.forgeKotlin)
-    compileOnly(libs.nebula)
 
-    implementation(libs.bundles.jexl)
-    jarJar(libs.bundles.jexl)
+    libs.bundles.jexl.let {
+        implementation(it)
+        jarJar(it)
+    }
 
     implementation(libs.ibukigourd.neoforge)
 }

@@ -1,25 +1,35 @@
 package moe.forpleuvoir.hiirosakura.functional.chataddons
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
-import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
-import moe.forpleuvoir.ibukigourd.config.userdata.setGuiWrapper
-import moe.forpleuvoir.ibukigourd.gui.configwrapper.StringListConfigWrapper
+import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.nebula.config.item.impl.stringList
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.StringListConfigWrapper
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
+import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
+import moe.forpleuvoir.nebula.config.ConfigGroup
+import moe.forpleuvoir.nebula.config.item.configList
+import moe.forpleuvoir.nebula.serialization.codec.Codec
 
-object ChatFilterHandler : ModConfigContainer("chat_filter") {
+object ChatFilterHandler : ConfigGroup("chat_filter") {
 
-    val enabled by keyBindBoolean("enable", false)
+    val enabled by configToggleKeybind("enable", false)
 
-    val filterMapping by stringList("filter_mapping", emptyList())
-        .setGuiWrapper { config, modifier ->
-            StringListConfigWrapper(config, modifier, HSLang.chatFilterExp)
+    val filterMapping by configList("filter_mapping", emptyList(), Codec.string)
+        .uiWrapper { config ->
+            StringListConfigWrapper(config, {
+                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    Text(HSLang.chatFilterExp)
+                }
+            })
         }
 
     @JvmStatic
     fun shouldFilter(message: Text): Boolean {
-        if (!enabled.value) return false
+        if (!enabled.enabled) return false
         val string = message.string
         filterMapping.map { it.toRegex() }.forEach { regex ->
             if (string.matches(regex)) {

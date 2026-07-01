@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ChatListener.class)
 public abstract class ChatListenerMixin {
 
-    @Inject(method = "handleSystemMessage", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;addMessage(Lnet/minecraft/network/chat/Component;)V"))
-    public void handleSystemMessage(Component message, boolean isOverlay, CallbackInfo ci) {
+    @Inject(method = "handleSystemMessage", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;addClientSystemMessage(Lnet/minecraft/network/chat/Component;)V"))
+    public void handleSystemMessage(Component message, boolean remote, CallbackInfo ci) {
         if (!ChatFilterHandler.shouldFilter(message)) {
             ChatBubbleHandler.addChatBubble(message, null, null);
         }

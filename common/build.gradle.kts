@@ -9,31 +9,22 @@ neoForge {
     if (at.exists()) {
         accessTransformers.from(at.absolutePath)
     }
-    parchment {
-        minecraftVersion = libs.versions.parchmentMinecraft
-        mappingsVersion = libs.versions.parchment
-    }
-}
-
-repositories{
-    maven { url = uri("https://maven.forpleuvoir.moe/snapshots") }
 }
 
 dependencies {
     compileOnly(libs.bundles.kotlin)
+
     compileOnly(libs.mixin)
-    compileOnly(libs.minxinExtras.common)
-    compileOnly(libs.nebula)
+    compileOnly(libs.mixinExtras.common)
+    annotationProcessor(libs.mixinExtras.common)
 
     compileOnly(libs.bundles.jexl)
-
-    annotationProcessor(libs.minxinExtras.common)
 
     implementation(libs.ibukigourd.common)
 }
 
 sourceSets {
-    create("devClientTest") {
+    create("devOnly") {
         compileClasspath += main.get().compileClasspath + main.get().output
     }
 }
@@ -56,5 +47,27 @@ configurations {
 artifacts {
     add("commonJava", sourceSets.main.get().java.sourceDirectories.singleFile)
     add("commonKotlin", sourceSets.main.get().kotlin.sourceDirectories.filter { !it.name.endsWith("java") }.singleFile)
-    add("commonResources", sourceSets.main.get().resources.sourceDirectories.singleFile)
+//    add("commonResources", sourceSets.main.get().resources.sourceDirectories.singleFile)
+    add("commonResources", file("src/main/resources"))
+}
+
+val loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)
+listOf<String>(
+    "apiElements", "runtimeElements", "sourcesElements"
+).forEach {
+    configurations.named(it) {
+        attributes {
+            attribute(loaderAttribute, "common")
+        }
+    }
+}
+
+sourceSets.configureEach {
+    listOf(compileClasspathConfigurationName, runtimeClasspathConfigurationName).forEach {
+        configurations.named(it) {
+            attributes {
+                attribute(loaderAttribute, "common")
+            }
+        }
+    }
 }

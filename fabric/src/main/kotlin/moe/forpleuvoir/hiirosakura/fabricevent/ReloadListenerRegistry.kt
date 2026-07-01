@@ -13,11 +13,12 @@ object ReloadListenerRegistry {
     }
 
     private fun registerClientResource(id: Identifier, listener: PreparableReloadListener) {
-        ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id, listener)
+
+        ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(id, listener)
     }
 
     private fun registerServerData(id: Identifier, listener: PreparableReloadListener) {
-        ResourceLoader.get(PackType.SERVER_DATA).registerReloader(id, listener)
+        ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(id, listener)
     }
 
 }

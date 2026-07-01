@@ -3,15 +3,17 @@ package moe.forpleuvoir.hiirosakura.functional.renderaddons
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSItemStack
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
 import moe.forpleuvoir.hiirosakura.util.tooltipFlag
-import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.config.ConfigSerializable
-import moe.forpleuvoir.nebula.config.item.impl.ConfigBoolean
-import moe.forpleuvoir.nebula.config.item.impl.ConfigString
-import moe.forpleuvoir.nebula.config.item.impl.boolean
+import moe.forpleuvoir.nebula.config.ConfigGroup
+import moe.forpleuvoir.nebula.config.ConfigItem
+import moe.forpleuvoir.nebula.config.ConfigNode
+import moe.forpleuvoir.nebula.config.ConfigSerde
+import moe.forpleuvoir.nebula.config.item.ConfigBoolean
+import moe.forpleuvoir.nebula.config.item.configBoolean
+import moe.forpleuvoir.nebula.serialization.codec.Codec
 import net.minecraft.ChatFormatting
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents
@@ -26,101 +28,101 @@ import net.minecraft.world.level.Spawner
 import org.apache.commons.jexl3.MapContext
 import java.util.function.Consumer
 
-class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) : ModConfigContainer(key) {
+class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) : ConfigGroup(key) {
 
-    private fun <T : ConfigSerializable> T.setTranslatedText(): T {
-        this.setUserData("#translate_text", Translatable("hiirosakura.config.render_info_addon.item_stack_info.${this.key}", fallback = this.key))
-        this.setUserData("#comment", Translatable("hiirosakura.config.render_info_addon.item_stack_info.${this.key}.comment", fallback = this.key))
+    private fun <T : ConfigNode> T.setTranslatedText(): T {
+        this.setMetadata("#translate_text", Translatable("hiirosakura.config.render_info_addon.item_stack_info.${this.name}", fallback = this.name))
+        this.setMetadata("#comment", Translatable("hiirosakura.config.render_info_addon.item_stack_info.${this.name}.comment", fallback = this.name))
         return this
     }
 
-    val script = ConfigString(
+    val script = ConfigItem(
         "script",
         """
         //example
         //if(itemStack.getCount()<16){
         //  renderState["count"] = false;
         //}
-    """.trimIndent()
+    """.trimIndent(), serde = ConfigSerde.of(Codec.string)
     ).setTranslatedText().apply {
         if (enableScript) {
             addConfig(this)
         }
     }
 
-    val name by boolean("name", true).setTranslatedText()
+    val _name by configBoolean("name", true).setTranslatedText()
 
-    val count by boolean("count", true).setTranslatedText()
+    val count by configBoolean("count", true).setTranslatedText()
 
-    val damage = boolean("damage", false).setTranslatedText()
+    val damage = configBoolean("damage", false).setTranslatedText()
 
-    val itemId = boolean("item_id", false).setTranslatedText()
+    val itemId = configBoolean("item_id", false).setTranslatedText()
 
-    val componentCount = boolean("component_count", false).setTranslatedText()
+    val componentCount = configBoolean("component_count", false).setTranslatedText()
 
-    val tooltipDisplay = boolean("tooltip_display", true).setTranslatedText()
+    val tooltipDisplay = configBoolean("tooltip_display", true).setTranslatedText()
 
-    val tropicalFishPattern = boolean("tropical_fish/pattern", false).setTranslatedText()
+    val tropicalFishPattern = configBoolean("tropical_fish/pattern", false).setTranslatedText()
 
-    val instrument = boolean("instrument", false).setTranslatedText()
+    val instrument = configBoolean("instrument", false).setTranslatedText()
 
-    val mapId = boolean("map_id", false).setTranslatedText()
+    val mapId = configBoolean("map_id", false).setTranslatedText()
 
-    val bees = boolean("bees", false).setTranslatedText()
+    val bees = configBoolean("bees", false).setTranslatedText()
 
-    val containerLoot = boolean("container_loot", false).setTranslatedText()
+    val containerLoot = configBoolean("container_loot", false).setTranslatedText()
 
-    val container = boolean("container", false).setTranslatedText()
+    val container = configBoolean("container", false).setTranslatedText()
 
-    val bannerPatterns = boolean("banner_patterns", false).setTranslatedText()
+    val bannerPatterns = configBoolean("banner_patterns", false).setTranslatedText()
 
-    val potDecorations = boolean("pot_decorations", false).setTranslatedText()
+    val potDecorations = configBoolean("pot_decorations", false).setTranslatedText()
 
-    val writtenBookContent = boolean("written_book_content", false).setTranslatedText()
+    val writtenBookContent = configBoolean("written_book_content", false).setTranslatedText()
 
-    val chargedProjectiles = boolean("charged_projectiles", false).setTranslatedText()
+    val chargedProjectiles = configBoolean("charged_projectiles", false).setTranslatedText()
 
-    val fireworks = boolean("fireworks", false).setTranslatedText()
+    val fireworks = configBoolean("fireworks", false).setTranslatedText()
 
-    val fireworkExplosion = boolean("firework_explosion", false).setTranslatedText()
+    val fireworkExplosion = configBoolean("firework_explosion", false).setTranslatedText()
 
-    val potionContents = boolean("potion_contents", false).setTranslatedText()
+    val potionContents = configBoolean("potion_contents", false).setTranslatedText()
 
-    val jukeboxPlayable = boolean("jukebox_playable", false).setTranslatedText()
+    val jukeboxPlayable = configBoolean("jukebox_playable", false).setTranslatedText()
 
-    val trim = boolean("trim", false).setTranslatedText()
+    val trim = configBoolean("trim", false).setTranslatedText()
 
-    val storedEnchantments = boolean("stored_enchantments", false).setTranslatedText()
+    val storedEnchantments = configBoolean("stored_enchantments", false).setTranslatedText()
 
-    val enchantments = boolean("enchantments", false).setTranslatedText()
+    val enchantments = configBoolean("enchantments", false).setTranslatedText()
 
-    val dyedColor = boolean("dyed_color", false).setTranslatedText()
+    val dyedColor = configBoolean("dyed_color", false).setTranslatedText()
 
-    val profile = boolean("profile", false).setTranslatedText()
+    val profile = configBoolean("profile", false).setTranslatedText()
 
-    val lore = boolean("lore", false).setTranslatedText()
+    val lore = configBoolean("lore", false).setTranslatedText()
 
-    val attributeModifiers = boolean("attribute_modifiers", false).setTranslatedText()
+    val attributeModifiers = configBoolean("attribute_modifiers", false).setTranslatedText()
 
-    val unbreakable = boolean("unbreakable", false).setTranslatedText()
+    val unbreakable = configBoolean("unbreakable", false).setTranslatedText()
 
-    val ominousBottleAmplifier = boolean("ominous_bottle_amplifier", false).setTranslatedText()
+    val ominousBottleAmplifier = configBoolean("ominous_bottle_amplifier", false).setTranslatedText()
 
-    val suspiciousStewEffects = boolean("suspicious_stew_effects", false).setTranslatedText()
+    val suspiciousStewEffects = configBoolean("suspicious_stew_effects", false).setTranslatedText()
 
-    val blockState = boolean("block_state", false).setTranslatedText()
+    val blockState = configBoolean("block_state", false).setTranslatedText()
 
-    val entityData = boolean("entity_data", false).setTranslatedText()
+    val entityData = configBoolean("entity_data", false).setTranslatedText()
 
-    val blockEntityData = boolean("block_entity_data", false).setTranslatedText()
+    val blockEntityData = configBoolean("block_entity_data", false).setTranslatedText()
 
-    val canBreak = boolean("can_break", false).setTranslatedText()
+    val canBreak = configBoolean("can_break", false).setTranslatedText()
 
-    val canPlaceOn = boolean("can_place_on", false).setTranslatedText()
+    val canPlaceOn = configBoolean("can_place_on", false).setTranslatedText()
 
-    val disabledItemTooltip = boolean("disabled_item_tooltip", false).setTranslatedText()
+    val disabledItemTooltip = configBoolean("disabled_item_tooltip", false).setTranslatedText()
 
-    val opNbtWarning = boolean("op_nbt_warning", false).setTranslatedText()
+    val opNbtWarning = configBoolean("op_nbt_warning", false).setTranslatedText()
 
     private fun getRenderState(itemStack: ItemStack): Map<String, Boolean?> {
         if (!enableScript) return emptyMap()
@@ -155,7 +157,7 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
         tooltipFlag: TooltipFlag,
         adder: Consumer<Component>
     ) {
-        if (isEnabled(renderState, config.key, config.getValue())) {
+        if (isEnabled(renderState, config.name, config.getValue())) {
             addToTooltip(component, context, tooltipDisplay, adder, tooltipFlag)
         }
     }
@@ -171,7 +173,7 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
         // 名称和数量
         val nameAndCount = Text.empty()
         //名称
-        if (isEnabled(state, "name", name)) {
+        if (isEnabled(state, "name", _name)) {
             itemStack.styledHoverName.let { nameAndCount.append(it) }
         }
         //数量

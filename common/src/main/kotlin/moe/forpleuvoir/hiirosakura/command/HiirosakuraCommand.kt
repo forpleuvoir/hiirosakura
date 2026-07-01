@@ -2,16 +2,13 @@ package moe.forpleuvoir.hiirosakura.command
 
 import moe.forpleuvoir.hiirosakura.functional.gameplay.CameraSwitcher.CameraSwitchCommand
 import moe.forpleuvoir.hiirosakura.functional.script.ScriptCommand
-import moe.forpleuvoir.ibukigourd.event.events.client.ClientCommandRegisterEvent
-import moe.forpleuvoir.nebula.event.EventSubscriber
-import moe.forpleuvoir.nebula.event.Subscriber
+import moe.forpleuvoir.ibukigourd.event.events.client.ClientCommandRegistrationEvent
+import moe.forpleuvoir.nebula.common.api.Initializable
 
-@EventSubscriber
-object HiirosakuraCommand {
+object HiirosakuraCommand : Initializable {
 
-    @Subscriber
-    fun register(event: ClientCommandRegisterEvent) {
-        event.dispatcher.apply {
+    override fun init() {
+        ClientCommandRegistrationEvent.register {
             ScriptCommand()
             CameraSwitchCommand()
         }

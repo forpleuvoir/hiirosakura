@@ -1,52 +1,55 @@
 package moe.forpleuvoir.hiirosakura.functional.gameplay
 
-import moe.forpleuvoir.hiirosakura.config.items.matcher.itemStackMatcher
+import moe.forpleuvoir.hiirosakura.config.items.matcher.configItemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.util.swapSlotWithHotbar
-import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
-import moe.forpleuvoir.ibukigourd.config.item.impl.keyBind
-import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
-import moe.forpleuvoir.ibukigourd.input.KeyBind
-import moe.forpleuvoir.ibukigourd.input.KeyBindSetting
-import moe.forpleuvoir.ibukigourd.input.KeyTriggerMode
+import moe.forpleuvoir.ibukigourd.config.item.configKeybind
+import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
+import moe.forpleuvoir.ibukigourd.input.KeyTriggerTiming
+import moe.forpleuvoir.ibukigourd.input.Keybind
+import moe.forpleuvoir.ibukigourd.input.KeybindSetting
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.config.ConfigGroup
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 
-object Gliding : ModConfigContainer("gliding") {
+object Gliding : ConfigGroup("gliding") {
 
-    val disableFireworkRocketInteractionWhenGliding by keyBindBoolean("disable_firework_rocket_interaction_when_gliding", false)
+    val disableFireworkRocketInteractionWhenGliding by configToggleKeybind("disable_firework_rocket_interaction_when_gliding", false)
 
-    val quickUseFireworkRocketWhenGliding by keyBind("quick_use_firework_rocket__when_gliding", KeyBind(defaultSetting = KeyBindSetting {
-        triggerMode = KeyTriggerMode.OnPress
-        exactMatch = false
-    }) {
-        mc.player?.let { player ->
-            val interaction = mc.gameMode!!
-            if (player.isFallFlying) {
-                if (fireworkMatcher.match(player.mainHandItem)) {
+    val quickUseFireworkRocketWhenGliding by configKeybind(
+        "quick_use_firework_rocket__when_gliding", Keybind(
+            defaultSetting = KeybindSetting(
+                trigger = KeyTriggerTiming.Press,
+                strict = false
+            )
+        ) {
+            mc.player?.let { player ->
+                val interaction = mc.gameMode!!
+                if (player.isFallFlying) {
+                    if (fireworkMatcher.match(player.mainHandItem)) {
+                        interaction.useItem(player, InteractionHand.MAIN_HAND)
+                        return@Keybind
+                    }
+                    if (fireworkMatcher.match(player.offhandItem)) {
+                        interaction.useItem(player, InteractionHand.OFF_HAND)
+                        return@Keybind
+                    }
+
+                    val index = player.swapSlotWithHotbar { fireworkMatcher.match(it) }
+                    if (index < 0) return@Keybind
                     interaction.useItem(player, InteractionHand.MAIN_HAND)
-                    return@KeyBind
+                    player.swapSlotWithHotbar(index)
                 }
-                if (fireworkMatcher.match(player.offhandItem)) {
-                    interaction.useItem(player, InteractionHand.OFF_HAND)
-                    return@KeyBind
-                }
-
-                val index = player.swapSlotWithHotbar { fireworkMatcher.match(it) }
-                if (index < 0) return@KeyBind
-                interaction.useItem(player, InteractionHand.MAIN_HAND)
-                player.swapSlotWithHotbar(index)
             }
-        }
-    })
+        })
 
-    val fireworkMatcher by itemStackMatcher(
+    val fireworkMatcher by configItemStackMatcher(
         "firework_matcher", ItemStackMatcher(
             CompositeMatcher.MatchMode.AnyMatch,
             ItemStackMatchEntry.Item(Items.FIREWORK_ROCKET)
@@ -55,7 +58,7 @@ object Gliding : ModConfigContainer("gliding") {
 
     @JvmStatic
     fun fireworkRocketInteractionWhenGliding(player: LocalPlayer, hand: InteractionHand, itemStack: ItemStack): Boolean {
-        if (!disableFireworkRocketInteractionWhenGliding.value) return false
+        if (!disableFireworkRocketInteractionWhenGliding.enabled) return false
 
         if (player.isFallFlying && itemStack.item == Items.FIREWORK_ROCKET) {
             val result = mc.gameMode!!.useItem(player, hand)

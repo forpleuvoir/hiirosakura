@@ -1,35 +1,38 @@
 package moe.forpleuvoir.hiirosakura.functional.renderaddons.fuse
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import com.mojang.blaze3d.vertex.PoseStack
 import moe.forpleuvoir.hiirosakura.render.pushText
-import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
-import moe.forpleuvoir.ibukigourd.gui.base.render.Size
-import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
 import moe.forpleuvoir.ibukigourd.text.width
-import moe.forpleuvoir.ibukigourd.util.math.bezier.QuadEasing
+import moe.forpleuvoir.ibukigourd.util.math.easing.QuadEasing
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.common.color.HSVColor
 import moe.forpleuvoir.nebula.common.util.primitive.either
-import moe.forpleuvoir.nebula.config.item.impl.boolean
-import moe.forpleuvoir.nebula.config.item.impl.enum
+import moe.forpleuvoir.nebula.config.ConfigGroup
+import moe.forpleuvoir.nebula.config.item.configBoolean
+import moe.forpleuvoir.nebula.config.item.configEnum
 import net.minecraft.client.gui.Font
-import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.SubmitNodeCollector
 import net.minecraft.client.renderer.entity.state.TntRenderState
-import net.minecraft.client.renderer.state.CameraRenderState
+import net.minecraft.client.renderer.state.level.CameraRenderState
+import net.minecraft.util.LightCoordsUtil
 import org.joml.Quaternionf
 
-object TntFuseRenderer : ModConfigContainer("tnt") {
+object TntFuseRenderer : ConfigGroup("tnt") {
 
-    val renderType by enum("tnt_fuse", FuseRenderType.None)
+    val renderType by configEnum("tnt_fuse", FuseRenderType.None)
 
-    val onlyYRotation by boolean("only_y_rotation", false)
+    val onlyYRotation by configBoolean("only_y_rotation", false)
 
-    val useMaxLight by boolean("use_max_light", true)
+    val useMaxLight by configBoolean("use_max_light", true)
 
-    private const val maxFuse = 80f
+    private const val MAX_FUSE = 80f
+
+    private val dangerColor = Color.fromHSV(0f, 1f, 1f)
+    private val safeColor = Color.fromHSV(120f / 360f, 1f, 1f)
 
     @JvmStatic
     fun renderTntFuse(
@@ -40,11 +43,11 @@ object TntFuseRenderer : ModConfigContainer("tnt") {
     ) {
         if (renderType == FuseRenderType.None) return
 
-        val packedLight = useMaxLight.either(LightTexture.FULL_BRIGHT, tntRenderState.lightCoords)
+        val packedLight = useMaxLight.either(LightCoordsUtil.FULL_BRIGHT, tntRenderState.lightCoords)
 
         val fuse = tntRenderState.fuseRemainingInTicks
-        val progress = (fuse / maxFuse).coerceIn(0f, 1f)
-        val color = HSVColor(0f).lerp(HSVColor(120f), QuadEasing.easeIn(progress))
+        val progress = (fuse / MAX_FUSE).coerceIn(0f, 1f)
+        val color = dangerColor.hsvLerp(safeColor, QuadEasing.easeIn(progress))
 
         val camera = mc.gameRenderer.mainCamera
         val cameraYaw = camera.yRot()
@@ -60,8 +63,8 @@ object TntFuseRenderer : ModConfigContainer("tnt") {
             poseStack.scale(-0.025f, -0.025f, 0.025f)
             val width = 40f
             val height = 8f
-            val box = Box(x = -width / 2, y = -4f, Size(width, height))
-            FuseRenderType.renderBox(poseStack, nodeCollector, progress, box, Colors.WHITE, color, packedLight)
+            val area = Rect(Offset(x = -width / 2, y = -4f), Size(width, height))
+            FuseRenderType.renderArea(poseStack, nodeCollector, progress, area, Colors.WHITE, color, packedLight)
             poseStack.popPose()
         } else if (renderType == FuseRenderType.Text) {
             poseStack.pushPose()
@@ -78,7 +81,7 @@ object TntFuseRenderer : ModConfigContainer("tnt") {
                 y = -4.5f,
                 dropShadow = false,
                 color = color,
-                backgroundColor = Color.ofARGB(0),
+                backgroundColor = Colors.TRANSPARENT,
                 outlineColor = Colors.GRAY,
                 displayMode = Font.DisplayMode.NORMAL,
                 packedLight = packedLight,

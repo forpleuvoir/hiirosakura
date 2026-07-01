@@ -10,8 +10,8 @@ object BlockMarkerRenderAddon {
     @JvmStatic
     fun getShowBlockMarker(): Block? {
         return when {
-            alwaysRenderBarrier.value -> Block.byItem(Items.BARRIER)
-            alwaysRenderLight.value   -> Block.byItem(Items.LIGHT)
+            alwaysRenderBarrier.enabled -> Block.byItem(Items.BARRIER)
+            alwaysRenderLight.enabled   -> Block.byItem(Items.LIGHT)
             else                                      -> null
         }
     }

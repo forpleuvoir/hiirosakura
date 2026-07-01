@@ -1,6 +1,6 @@
 package moe.forpleuvoir.hiirosakura
 
-import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.Translatable
@@ -43,7 +43,7 @@ object HSLang {
 
     fun setConfigFailNotFound(key: String) = lang("script.set_config.not_found", key)
 
-    fun enableEvent(name: String, enabled: Boolean) = lang("event.enable.success", name).append(IGLang.coloredSwitch(enabled))
+    fun enableEvent(name: String, enabled: Boolean) = lang("event.enable.success", name).append(IGLang.Misc.coloredSwitch(enabled))
 
     fun enableEventNotFound(name: String) = lang("event.enable.not_found", name)
 

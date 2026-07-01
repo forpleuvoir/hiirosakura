@@ -15,9 +15,9 @@ import org.joml.Vector3ic
 /**
  * HSBlock 类用于封装 Minecraft 方块对象，并提供相关的辅助方法。
  *
- * @property block 被封装的 Minecraft 方块对象。
+ * @property vanilla 被封装的 Minecraft 方块对象。
  */
-class HSBlock(internal val block: Block) {
+class HSBlock(@JvmField val vanilla: Block) {
 
     /**
      * 获取方块类型的字符串表示形式。
@@ -26,29 +26,29 @@ class HSBlock(internal val block: Block) {
      *
      * @return 当前方块类型的字符串表示形式。
      */
-    fun getType() = block.key.toString()
+    fun getType() = vanilla.key.toString()
 
-    fun isWaterlogged() = block is SimpleWaterloggedBlock
+    fun isWaterlogged() = vanilla is SimpleWaterloggedBlock
 
-    fun isCrop() = block is CropBlock
+    fun isCrop() = vanilla is CropBlock
 
-    fun isFluid() = block is LiquidBlock
+    fun isFluid() = vanilla is LiquidBlock
 
 }
 
 /**
  * HSBlockState 类用于封装 Minecraft 方块状态 (BlockState) 对象，提供对方块状态相关属性与方法的访问。
  *
- * @property blockState 被封装的方块状态对象。
+ * @property vanilla 被封装的方块状态对象。
  */
-class HSBlockState(internal val blockState: BlockState) {
+class HSBlockState(@JvmField val vanilla: BlockState) {
 
     /**
      * 获取封装在 HSBlock 实例中的方块对象。
      *
      * @return 表示方块对象的 HSBlock 实例。
      */
-    fun getBlock() = HSBlock(blockState.block)
+    fun getBlock() = HSBlock(vanilla.block)
 
     /**
      * @see HSBlock.getType
@@ -64,8 +64,8 @@ class HSBlockState(internal val blockState: BlockState) {
      * @return 表示方块状态属性的键值对映射。
      */
     fun getProperty() = buildMap<String, String> {
-        blockState.values.forEach {
-            put(it.key.name, Util.getPropertyName(it.key, it.value))
+        vanilla.values.forEach {
+            put(it.property.name, Util.getPropertyName(it.property, it.value))
         }
     }
 
@@ -86,7 +86,7 @@ class HSBlockState(internal val blockState: BlockState) {
      *
      * @return 表示标签的字符串列表。
      */
-    fun getTags(): List<String> = blockState.tags.map { it.location.toString() }.toList()
+    fun getTags(): List<String> = vanilla.tags().map { it.location.toString() }.toList()
 
     /**
      * 检查当前方块状态是否包含指定的标签。
@@ -94,49 +94,49 @@ class HSBlockState(internal val blockState: BlockState) {
      * @param tag 待检查的标签字符串。
      * @return 如果当前方块状态包含指定标签，返回 `true`；否则返回 `false`。
      */
-    fun hasTags(tag: String): Boolean = blockState.tags.anyMatch { it.location.toString() == tag }
+    fun hasTags(tag: String): Boolean = vanilla.tags().anyMatch { it.location.toString() == tag }
 
     /**
      * 获取方块的亮度等级（表示方块发出的光强度）。
      *
      * @return 表示方块亮度的整数值。
      */
-    fun getLight() = blockState.lightEmission
+    fun getLight() = vanilla.lightEmission
 
     /**
      * 检查方块是否具有侧面透明属性，这决定了方块与光照和可视性的交互方式。
      *
      * @return 如果方块具有侧面透明属性，返回 `true`，否则返回 `false`。
      */
-    fun hasSidedTransparency() = blockState.useShapeForLightOcclusion()
+    fun hasSidedTransparency() = vanilla.useShapeForLightOcclusion()
 
     /**
      * 判断方块是否被视为空气类型。
      *
      * @return 如果方块是空气类型，返回 `true`，否则返回 `false`。
      */
-    fun isAir() = blockState.isAir
+    fun isAir() = vanilla.isAir
 
     /**
      * 判断方块是否可燃或可以被点燃。
      *
      * @return 如果方块是可燃的，返回 `true`，否则返回 `false`。
      */
-    fun isBurnable() = blockState.ignitedByLava()
+    fun isBurnable() = vanilla.ignitedByLava()
 
     /**
      * 判断方块是否是液体类型（例如水或熔岩）。
      *
      * @return 如果方块是液体，返回 `true`，否则返回 `false`。
      */
-    fun isLiquid() = blockState.liquid()
+    fun isLiquid() = vanilla.liquid()
 
     /**
      * 检查方块是否为实心，这意味着它是不透明且无法穿过的。
      *
      * @return 如果方块是实心的，返回 `true`，否则返回 `false`。
      */
-    fun isSolid() = blockState.isSolid
+    fun isSolid() = vanilla.isSolid
 
     /**
      * 获取指定坐标处方块的地图颜色。
@@ -146,7 +146,7 @@ class HSBlockState(internal val blockState: BlockState) {
      * @param z 方块的 z 坐标。
      * @return 表示地图颜色的 Color 对象。
      */
-    fun getMapColor(x: Int, y: Int, z: Int) = Color.ofRGB(blockState.getMapColor(mc.level!!, BlockPos(x, y, z)).col)
+    fun getMapColor(x: Int, y: Int, z: Int) = Color.fromARGB(vanilla.getMapColor(mc.level!!, BlockPos(x, y, z)).col)
 
     /**
      * 获取指定 `Vector3ic` 指定位置的方块地图颜色。
@@ -161,26 +161,26 @@ class HSBlockState(internal val blockState: BlockState) {
      *
      * @return 表示方块硬度的浮点值。
      */
-    fun getHardness() = blockState.getDestroySpeed(mc.level!!, BlockPos.ZERO)
+    fun getHardness() = vanilla.getDestroySpeed(mc.level!!, BlockPos.ZERO)
 
     /**
      * 检查是否需要工具来有效地采集或破坏该方块。
      *
      * @return 如果需要工具，返回 `true`，否则返回 `false`。
      */
-    fun isToolRequired() = blockState.requiresCorrectToolForDrops()
+    fun isToolRequired() = vanilla.requiresCorrectToolForDrops()
 
     /**
      * 判断方块是否为不透明，这表示光线不能通过方块。
      *
      * @return 如果方块是不透明的，返回 `true`，否则返回 `false`。
      */
-    fun isOpaque() = blockState.canOcclude()
+    fun isOpaque() = vanilla.canOcclude()
 
     /**
      * 获取方块的不透明度等级，用于显示该方块阻挡光线的程度。
      *
      * @return 表示方块不透明度的整数值。
      */
-    fun getOpacity() = blockState.lightBlock
+    fun getOpacity() = vanilla.lightDampening
 }

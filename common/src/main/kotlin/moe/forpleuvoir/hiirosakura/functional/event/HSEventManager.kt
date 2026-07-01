@@ -1,23 +1,12 @@
 package moe.forpleuvoir.hiirosakura.functional.event
 
 import moe.forpleuvoir.hiirosakura.common.HiiroSakuraData
-import moe.forpleuvoir.hiirosakura.functional.event.events.*
 import moe.forpleuvoir.hiirosakura.util.logger
-import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
-import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent
-import moe.forpleuvoir.ibukigourd.event.events.client.input.KeyboardEvent
-import moe.forpleuvoir.ibukigourd.event.events.client.input.MouseEvent
-import moe.forpleuvoir.nebula.event.Event
-import moe.forpleuvoir.nebula.event.EventPriority
-import moe.forpleuvoir.nebula.event.EventSubscriber
-import moe.forpleuvoir.nebula.event.Subscriber
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
-import java.util.*
+import moe.forpleuvoir.nebula.serialization.base.builder.build
+import moe.forpleuvoir.nebula.common.util.checkType
 
-@EventSubscriber
 object HSEventManager : HiiroSakuraData {
 
     private val log = logger()
@@ -26,91 +15,67 @@ object HSEventManager : HiiroSakuraData {
 
     private val subscribers = mutableListOf<HSEventSubscriber>()
 
-    val subscribableEvents = listOf(
-        ServerJoinEvent::class,
-        GameJoinEvent::class,
-        GameExitEvent::class,
-        DisconnectEvent::class,
-        SoundPlayEvent::class,
-        CommandSendEvent::class,
-        MessageSendEvent::class,
-        MessageReceiveEvent::class,
-        BreakBlockEvent::class,
-        PlayerAttackEvent::class,
-        PlayerPickEvent::class,
-        PlayerUseEvent::class,
-        PlayerDeathEvent::class,
-        PlayerRespawnEvent::class,
-        KeyboardEvent.KeyPressEvent::class,
-        KeyboardEvent.KeyReleaseEvent::class,
-        MouseEvent.MousePressEvent::class,
-        MouseEvent.MouseReleaseEvent::class,
-        MouseEvent.MouseScrollEvent::class,
-        MouseEvent.MouseMoveEvent::class,
-        MouseEvent.MouseDraggingEvent::class,
-        ClientLifecycleEvent.ClientStartingEvent::class,
-        ClientLifecycleEvent.ClientStopEvent::class,
-        ClientTickEvent.ClientTickEndEvent::class,
-        ClientTickEvent.ClientTickStartEvent::class
-    )
+    /** 对外数据访问点(下拉框用),返回当前可订阅事件类型 id 列表。 */
+    val subscribableEvents: List<String> get() = EventTypes.ids
 
     val subscriberList: List<HSEventSubscriber> get() = subscribers.toList()
 
-    @Subscriber(greedy = true, priority = EventPriority.HIGHEST)
-    fun onEvent(event: Event) {
-        subscribers.filter { it.enabled && it.eventType.isInstance(event) }
-            .forEach { it.onEvent(event) }
-    }
-
     fun add(eventSubscriber: HSEventSubscriber) {
+        eventSubscriber.unsubscribe()
         subscribers.add(eventSubscriber)
+        eventSubscriber.subscribe()
     }
 
     operator fun set(index: Int, task: HSEventSubscriber) {
+        subscribers[index].unsubscribe()
         subscribers[index] = task
+        task.subscribe()
     }
 
     fun replace(origin: HSEventSubscriber, new: HSEventSubscriber) {
+        origin.unsubscribe()
         subscribers.indexOf(origin).let {
             subscribers[it] = new
         }
+        new.subscribe()
     }
 
     fun remove(task: HSEventSubscriber) {
+        task.unsubscribe()
         subscribers.remove(task)
     }
 
     fun remove(index: Int) {
+        subscribers[index].unsubscribe()
         subscribers.removeAt(index)
     }
 
-    fun moveUp(index: Int) {
-        if (index - 1 in 0..subscribers.lastIndex) {
-            Collections.swap(subscribers, index, index - 1)
+    fun subscribeAll() {
+        subscribers.forEach { it.subscribe() }
+    }
+
+    fun unsubscribeAll() {
+        subscribers.forEach { it.unsubscribe() }
+    }
+
+    override fun serialization(): SerializeElement = SerializeObject.build {
+        "subscribers" arr {
+            subscribers.forEach { HSEventSubscriber.serialization(it) }
         }
     }
 
-    fun moveDown(index: Int) {
-        if (index + 1 in 0..subscribers.lastIndex) {
-            Collections.swap(subscribers, index, index + 1)
-        }
-    }
-
-    override fun serialization(): SerializeElement = serializeObject {
-        "subscribers" to subscribers
-    }
-
-    override fun deserialization(serializeElement: SerializeElement) {
-        serializeElement.checkType<SerializeObject, Unit> {
+    override fun deserialization(data: SerializeElement) {
+        data.checkType<SerializeObject, Unit> {
+            unsubscribeAll()
             subscribers.clear()
-            it["subscribers"]!!.asArray.forEach { subscriber ->
+            it["subscribers"]!!.asArray!!.forEach { subscriber ->
                 runCatching {
-                    subscribers.add(HSEventSubscriber.deserialization(subscriber))
+                    subscribers.add(HSEventSubscriber.deserialization(subscriber).getOrThrow().also { s -> s.subscribe() })
                 }.onFailure {
                     log.warn(it)
                 }
             }
-        }.getOrThrow()
+        }
     }
 
 }

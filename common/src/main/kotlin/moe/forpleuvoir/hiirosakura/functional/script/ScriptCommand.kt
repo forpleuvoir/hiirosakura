@@ -7,16 +7,16 @@ import moe.forpleuvoir.ibukigourd.command.clientSource
 import moe.forpleuvoir.ibukigourd.command.dsl.registerCommand
 import net.minecraft.commands.SharedSuggestionProvider
 
-fun CommandDispatcher<out SharedSuggestionProvider>.ScriptCommand() =
-    registerCommand("hs:eval") {
-        argument("script", StringArgumentType.string()) {
-            execute {
-                val script = StringArgumentType.getString(this, "script")
-                this.source.clientSource.client.executeIfPossible {
-                    ScriptExecutor(script).execute()
-                }
+context(context: CommandDispatcher<out SharedSuggestionProvider>)
+fun ScriptCommand() = registerCommand("hs:eval") {
+    argument("script", StringArgumentType.string()) {
+        execute {
+            val script = StringArgumentType.getString(this, "script")
+            this.source.clientSource.client.executeIfPossible {
+                ScriptExecutor(script).execute()
             }
         }
     }
+}
 
 

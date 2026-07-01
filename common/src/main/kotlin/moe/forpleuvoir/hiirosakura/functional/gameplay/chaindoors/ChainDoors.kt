@@ -4,12 +4,12 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import moe.forpleuvoir.hiirosakura.config.items.configChainDoorsRuleList
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfo
 import moe.forpleuvoir.hiirosakura.util.logger
-import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
-import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
-import moe.forpleuvoir.ibukigourd.config.item.impl.keyCode
+import moe.forpleuvoir.ibukigourd.config.item.configKeyCode
+import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.nebula.common.util.primitive.onFalse
+import moe.forpleuvoir.nebula.config.ConfigGroup
 import net.minecraft.client.multiplayer.MultiPlayerGameMode
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.BlockPos
@@ -21,13 +21,13 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf
 import net.minecraft.world.phys.BlockHitResult
 import kotlin.jvm.optionals.getOrNull
 
-object ChainDoors : ModConfigContainer("chain_doors") {
+object ChainDoors : ConfigGroup("chain_doors") {
 
     private val logger = logger()
 
-    val enabled by keyBindBoolean("enable", false)
+    val enabled by configToggleKeybind("enable", false)
 
-    val activationKey by keyCode("activation_key", Keyboard.LEFT_SHIFT)
+    val activationKey by configKeyCode("activation_key", Keyboard.LEFT_SHIFT)
 
     val rules by configChainDoorsRuleList(
         "rules", listOf(
@@ -50,7 +50,7 @@ object ChainDoors : ModConfigContainer("chain_doors") {
         gameMode: MultiPlayerGameMode
     ) {
         // 基础状态检查
-        if (!enabled.value || clicking) return
+        if (!enabled.enabled || clicking) return
 
         try {
             clicking = true

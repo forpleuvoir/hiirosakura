@@ -1,29 +1,26 @@
 package moe.forpleuvoir.hiirosakura.functional.task
 
+import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask.ExecuteOn.EndTick
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask.ExecuteOn.StartTick
-import moe.forpleuvoir.hiirosakura.gui.widget.RemoveButton
-import moe.forpleuvoir.ibukigourd.IGLang
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.Modifier
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.height
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.padding
-import moe.forpleuvoir.ibukigourd.gui.base.modifier.impl.width
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.executeRecompose
-import moe.forpleuvoir.ibukigourd.gui.base.scope.GuiScope.Companion.launch
-import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
-import moe.forpleuvoir.ibukigourd.gui.widget.Dialog
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.Row
-import moe.forpleuvoir.ibukigourd.gui.widget.layout.list.ColumnListWrapped
-import moe.forpleuvoir.ibukigourd.gui.widget.text.Text
-import moe.forpleuvoir.ibukigourd.gui.widget.text.TextSetting
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.task.TickTask
 import moe.forpleuvoir.ibukigourd.task.TickTaskScheduler
-import moe.forpleuvoir.ibukigourd.util.state.mutableStateBy
-import moe.forpleuvoir.ibukigourd.util.state.stateOf
+import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
+import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import net.minecraft.client.Minecraft
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.time.Duration.Companion.milliseconds
@@ -51,41 +48,65 @@ object HSTickTaskScheduler : TickTaskScheduler<Minecraft>() {
         hsTasks.removeIf { it.first == task }
     }
 
-    fun openScreen() = Dialog(
-        Modifier
-    ) {
-        Text(stateOf(HSLang.taskRunning))
-        ColumnListWrapped(
-            listModifier = { Modifier.width(360f).height(200f) }
-        ) {
-            if (hsTasks.isEmpty()) Text(IGLang.hasNothing)
-            hsTasks.forEach { (tickTask, task) ->
-                Row(
-                    Modifier.padding(horizontal = 2f),
-                    horizontalArrangement = Arrangement.spacedBy(5f, Alignment.CenterHorizontally)
-                ) {
-                    Text(task.name + "@" + tickTask.hashCode(), modifier = Modifier.weight(1))
-                    Text(HSLang.taskRunningPeriod(tickTask.period))
-                    Text(mutableStateBy {
-                        val counter = tickTask.times - tickTask.counter
-                        if (counter <= 0) {
-                            launch {
-                                delay(50)
-                                this@ColumnListWrapped.executeRecompose()
+    //运行中的 任务列表
+    @Composable
+    fun RunningTaskDialog(close: () -> Unit) {
+        AlertDialog(
+            close,
+            title = { Text(HSLang.taskRunning) },
+            confirmButton = {
+                TextButton(onClick = close) {
+                    Text(IGLang.Misc.confirm)
+                }
+            },
+            text = {
+                Box {
+                    val tasks by produceState(initialValue = emptyList<Pair<TickTask<Minecraft>, HSTickTask>>()) {
+                        var previousSnapshot = emptyList<Pair<TickTask<Minecraft>, HSTickTask>>()
+
+                        while (true) {
+                            val currentSnapshot = hsTasks.toList()
+                            if (currentSnapshot != previousSnapshot) {
+                                value = currentSnapshot
+                                previousSnapshot = currentSnapshot
                             }
-                        }
-                        HSLang.taskRunningRemainingTimes(counter)
-                    }, setting = TextSetting(textLabelUpdateInterval = 50.milliseconds))
-                    RemoveButton {
-                        remove(tickTask)
-                        launch {
-                            delay(50)
-                            this@ColumnListWrapped.executeRecompose()
+                            delay(50.milliseconds)
                         }
                     }
+                    val scrollState = rememberScrollState()
+                    LazyColumn(Modifier.fillMaxSize()) {
+                        tasks.forEach { (tickTask, task) ->
+                            item {
+                                RunningTask(tickTask, task, { remove(tickTask) })
+                            }
+                        }
+                    }
+                    VerticalScrollbar(rememberScrollbarAdapter(scrollState), Modifier.align(Alignment.CenterEnd))
                 }
             }
+        )
+    }
+
+    @Composable
+    private fun RunningTask(tickTask: TickTask<Minecraft>, task: HSTickTask, remove: () -> Unit) {
+        Row(
+            Modifier.padding(horizontal = 2.dp),
+            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
+        ) {
+            var counter by remember { mutableIntStateOf(tickTask.times - tickTask.counter) }
+            LaunchedEffect(tickTask) {
+                while (isActive) {
+                    delay(16.milliseconds)
+                    counter = tickTask.times - tickTask.counter
+                }
+            }
+            Text(task.name + "@" + tickTask.hashCode(), modifier = Modifier.weight(1f))
+            Text(HSLang.taskRunningPeriod(tickTask.period))
+            Text(HSLang.taskRunningRemainingTimes(counter))
+            IconButton(remove) {
+                Icon(Icons.Delete, null)
+            }
         }
-    }.open()
+    }
 
 }

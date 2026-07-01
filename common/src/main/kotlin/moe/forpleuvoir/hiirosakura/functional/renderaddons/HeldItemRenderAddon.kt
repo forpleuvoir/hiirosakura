@@ -1,38 +1,47 @@
 package moe.forpleuvoir.hiirosakura.functional.renderaddons
 
-import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
-import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
-import moe.forpleuvoir.ibukigourd.config.item.vector2f
-import moe.forpleuvoir.ibukigourd.gui.base.extensions.guigraphics.useMatrixStack
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.render.IGGuiGraphics
-import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastRoundToInt
+import moe.forpleuvoir.hiirosakura.util.expandEdges
+import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
+import moe.forpleuvoir.ibukigourd.config.item.configVector2f
+import moe.forpleuvoir.ibukigourd.render.extension.pushRoundRect
+import moe.forpleuvoir.ibukigourd.render.extension.pushText
 import moe.forpleuvoir.ibukigourd.text.maxWidth
 import moe.forpleuvoir.ibukigourd.text.width
 import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.nebula.config.item.impl.boolean
-import moe.forpleuvoir.nebula.config.item.impl.color
-import moe.forpleuvoir.nebula.config.item.impl.float
+import moe.forpleuvoir.nebula.config.ConfigGroup
+import moe.forpleuvoir.nebula.config.item.configBoolean
+import moe.forpleuvoir.nebula.config.item.configColor
+import moe.forpleuvoir.nebula.config.item.configFloat
 import net.minecraft.client.gui.Font
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.world.item.ItemStack
 
-object HeldItemRenderAddon : ModConfigContainer("held_item") {
+object HeldItemRenderAddon : ConfigGroup("held_item") {
 
-    val enable by keyBindBoolean("enable", value = false)
+    val enable by configToggleKeybind("enable", false)
 
-    val offset by vector2f("offset", Vector2f(0f, 0f), Vector2f(-200f, -200f), Vector2f(200f, 200f))
+    val offset by configVector2f("offset", Vector2f(0f, 0f), Vector2f(-200f, -200f), Vector2f(200f, 200f))
 
-    val spacing by float("spacing", 1f, 0f, 10f)
+    val spacing by configFloat("spacing", 1f, 0f, 10f)
 
-    val shadow by boolean("shadow", true)
+    val shadow by configBoolean("shadow", true)
 
-    val textBackground by color("text_background", Colors.BLACK.alpha(0f))
+    val textBackground by configColor("text_background", Colors.TRANSPARENT)
 
-    val overallBackground by color("overall_background", Colors.BLACK.alpha(0f))
+    val overallBackground by configColor("overall_background", Colors.TRANSPARENT)
 
     val itemStackInfo = addConfig(ItemStackInfo(enableScript = true))
 
@@ -48,43 +57,53 @@ object HeldItemRenderAddon : ModConfigContainer("held_item") {
             new.damageValue = 1
             origin.damageValue = 1
         }
-        return enable.value && !ItemStack.matches(new, origin)
+        return enable.enabled && !ItemStack.matches(new, origin)
     }
 
+    private val density = Density(1f)
+
     @JvmStatic
-    fun render(guiGraphics: IGGuiGraphics, font: Font, y: Int, alpha: Int, itemStack: ItemStack) {
+    fun render(guiGraphics: GuiGraphicsExtractor, font: Font, y: Int, alpha: Int, itemStack: ItemStack) {
         val texts = itemStackInfo.getItemStackInfo(itemStack, mc.player)
         if (texts.isEmpty()) return
         val maxHeight = texts.size * (font.lineHeight + spacing) - spacing
         val maxWidth = texts.maxWidth
-        val box = Box(
-            x = (guiGraphics.guiWidth() - maxWidth) / 2f,
-            y = y.toFloat() - maxHeight,
-            width = maxWidth,
-            height = maxHeight
+        val area = Rect(
+            Offset(
+                x = (guiGraphics.guiWidth() - maxWidth) / 2f,
+                y = y.toFloat() - maxHeight,
+            ),
+            Size(
+                width = maxWidth,
+                height = maxHeight
+            )
         )
-        guiGraphics.useMatrixStack {
-            it.translate(offset.x(), offset.y())
+        guiGraphics.apply {
+            pose().popMatrix()
+            pose().translate(offset.x(), offset.y())
             if (overallBackground.alpha > 5) {
-                pushRoundBox(box.expandEdges(4f), overallBackground.opacity(alpha), 2)
+                pushRoundRect(area.expandEdges(4f), overallBackground.opacity(alpha), 2)
             }
-            val verticalOffsets = Arrangement.spacedBy(spacing).arrange(box.width, List(texts.size) { font.lineHeight.toFloat() })
-            val horizontalOffsets = texts.map { text -> Alignment.CenterHorizontally.align(box.width, text.width) }
-            horizontalOffsets.zip(verticalOffsets) { x, y ->
-                Vector2f(box.x + x, box.y + y)
-            }.forEachIndexed { index, offset ->
-                val text = texts[index]
+            val verticalOffsets = IntArray(texts.size)
+            Arrangement.spacedBy(spacing.dp).run {
+                density.arrange(area.height.fastRoundToInt(), IntArray(texts.size) { font.lineHeight }, verticalOffsets)
+            }
+            val horizontalOffsets = texts.map { Alignment.CenterHorizontally.align(it.width.toInt(), area.width.fastRoundToInt(), LayoutDirection.Ltr) }
+
+            verticalOffsets.zip(horizontalOffsets).fastForEachIndexed { idx, (y, x) ->
+                val text = texts[idx]
                 pushText(
                     text,
-                    offset.x,
-                    offset.y,
-                    color = Color.ofRGB(text.style.color?.value ?: 0xAAAAAA).alpha(alpha.coerceIn(0, 255)),
-                    if (text.string.isEmpty()) Colors.BLACK.alpha(0) else textBackground.opacity(alpha.coerceIn(0, 255)),
+                    area.left + x.toFloat(),
+                    area.top + y.toFloat(),
+                    color = Color.fromRGB(text.style.color?.value ?: 0xAAAAAA).alpha(alpha),
+                    backgroundColor = if (text.string.isEmpty()) Colors.TRANSPARENT else textBackground.opacity(alpha),
                     shadow = shadow
                 )
             }
-        }
 
+            pose().popMatrix()
+        }
     }
 
 }

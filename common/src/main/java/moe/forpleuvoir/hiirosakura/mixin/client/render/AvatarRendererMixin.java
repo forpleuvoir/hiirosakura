@@ -9,11 +9,13 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.world.entity.Avatar;
+import org.jspecify.annotations.NullMarked;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+@NullMarked
 @Mixin(AvatarRenderer.class)
 public abstract class AvatarRendererMixin<T extends Avatar & ClientAvatarEntity> extends LivingEntityRenderer<T, AvatarRenderState, PlayerModel> {
 
@@ -22,12 +24,12 @@ public abstract class AvatarRendererMixin<T extends Avatar & ClientAvatarEntity>
     }
 
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;F)V", at = @At("HEAD"))
-    public void extractRenderState(T entity, AvatarRenderState reusedState, float partialTick, CallbackInfo ci) {
-        ((AvatarRenderStateAccessor) reusedState).hiirosakura$setName(entity.getName().getString());
+    public void extractRenderState(T entity, AvatarRenderState state, float partialTicks, CallbackInfo ci) {
+        ((AvatarRenderStateAccessor) state).hiirosakura$setName(entity.getName().getString());
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    public void init(EntityRendererProvider.Context context, boolean slim, CallbackInfo ci) {
+    public void init(EntityRendererProvider.Context context, boolean slimSteve, CallbackInfo ci) {
         addLayer(new ChatBubbleLayer(this));
     }
 

@@ -1,26 +1,29 @@
 package moe.forpleuvoir.hiirosakura.functional.chataddons
 
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
-import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
-import moe.forpleuvoir.ibukigourd.config.item.stringPairList
-import moe.forpleuvoir.ibukigourd.config.userdata.setGuiWrapper
-import moe.forpleuvoir.ibukigourd.gui.configwrapper.StringPairListConfigWrapper
+import moe.forpleuvoir.ibukigourd.config.item.configPairList
+import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.StringPairListConfigWrapper
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
+import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.nebula.config.ConfigGroup
+import moe.forpleuvoir.nebula.config.ConfigSerde
+import moe.forpleuvoir.nebula.serialization.codec.Codec
 
-object ChatInjectHandler : ModConfigContainer("chat_inject") {
+object ChatInjectHandler : ConfigGroup("chat_inject") {
 
-    val enabled by keyBindBoolean("enable", false)
+    val enabled by configToggleKeybind("enable", false)
 
-    val injectMapping by stringPairList("inject_mapping", listOf(".*" to "#{message}"))
-        .setGuiWrapper { config, modifier ->
-            StringPairListConfigWrapper(config, modifier, HSLang.chatInjectRegex, HSLang.chatInjectExp)
+    val injectMapping by configPairList("inject_mapping", listOf(".*" to "#{message}"), ConfigSerde.of(Codec.string), ConfigSerde.of(Codec.string))
+        .uiWrapper { config ->
+            StringPairListConfigWrapper(config, { Text(HSLang.chatInjectRegex) }, { Text(HSLang.chatInjectExp) })
         }
 
     private const val PLACEHOLDERS = "#{message}"
 
     @JvmStatic
     fun handle(message: String): String {
-        if (!enabled.value) return message
+        if (!enabled.enabled) return message
         injectMapping.map { it.first.toRegex() to it.second }
             .forEach { (regex, exp) ->
                 if (message.matches(regex)) {

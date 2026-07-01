@@ -7,24 +7,22 @@ import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.config.HSConfig
 import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventManager
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.ItemStackEditor
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.asCommand
 import moe.forpleuvoir.hiirosakura.input.InputSimulator
-import moe.forpleuvoir.hiirosakura.util.flat
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.config.translationKey
-import moe.forpleuvoir.ibukigourd.gui.base.screen.IGScreenImpl.Companion.open
-import moe.forpleuvoir.ibukigourd.gui.base.toast.Toast
 import moe.forpleuvoir.ibukigourd.input.KeyCode
-import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.input.MouseButton
 import moe.forpleuvoir.ibukigourd.task.scheduleEndTick
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
 import moe.forpleuvoir.ibukigourd.text.Texts
+import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.util.ModLogger
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.sendMessage
 import moe.forpleuvoir.nebula.common.util.defaultLaunch
-import moe.forpleuvoir.nebula.config.ConfigValue
+import moe.forpleuvoir.nebula.config.Config
+import moe.forpleuvoir.nebula.config.flat
 
 @Suppress("unused")
 interface CommonApi {
@@ -64,7 +62,7 @@ interface CommonApi {
     }
 
     fun toast(content: String) {
-        Toast.showToast(text = Texts.inlineStyle(content))
+        ToastHandler.showContent { Text(Texts.inlineStyle(content)) }
     }
 
     fun onKey(keyCode: Int, scancode: Int, action: Int, modifiers: Int) {
@@ -80,11 +78,11 @@ interface CommonApi {
     }
 
     fun mousePress(mouseCode: Int, duration: Long) {
-        InputSimulator.mousePress(Mouse.fromCode(mouseCode), duration)
+        InputSimulator.mousePress(MouseButton.fromCode(mouseCode), duration)
     }
 
     fun mousePress(mouse: String, duration: Long) {
-        InputSimulator.mousePress(Mouse.fromCode(InputConstants.getKey(mouse).value), duration)
+        InputSimulator.mousePress(MouseButton.fromCode(InputConstants.getKey(mouse).value), duration)
     }
 
     fun attack(duration: Long = 1) {
@@ -158,44 +156,44 @@ interface CommonApi {
 
     @Suppress("UNCHECKED_CAST")
     fun setConfig(key: String, value: Any) {
-        HSConfig.flat { it is ConfigValue<*> }
-            .find { it.translationKey() == key }
+        HSConfig.flat
+            .find { it is Config<*> && it.translationKey() == key }
             ?.let {
                 runCatching {
-                    (it as? ConfigValue<Any>)?.setValue(value)
+                    (it as? Config<Any>)?.setValue(value)
                 }.onSuccess {
-                    Toast.showToast(HSLang.setConfigSuccess(key, value.toString()))
+                    ToastHandler.showContent { Text(HSLang.setConfigSuccess(key, value.toString())) }
                 }.onFailure { t ->
-                    Toast.showToast(HSLang.setConfigFail(key, value.toString(), t.message))
+                    ToastHandler.showContent { Text(HSLang.setConfigFail(key, value.toString(), t.message)) }
                     logger.warn(t)
                 }
-            } ?: Toast.showToast(HSLang.setConfigFailNotFound(key))
+            } ?: ToastHandler.showContent { Text(HSLang.setConfigFailNotFound(key)) }
     }
 
     fun getConfig(key: String): Any? {
-        return HSConfig.flat { it is ConfigValue<*> }
-            .find { it.translationKey() == key }
+        return HSConfig.flat.find { it is Config<*> && it.translationKey() == key }
     }
 
     fun enableEvent(name: String, enable: Boolean) {
         HSEventManager.subscriberList.find { it.name == name }?.let {
             it.enabled = enable
-            Toast.showToast(HSLang.enableEvent(name, enable))
-        } ?: Toast.showToast(HSLang.enableEventNotFound(name))
+            ToastHandler.showContent { Text(HSLang.enableEvent(name, enable)) }
+        } ?: ToastHandler.showContent { Text(HSLang.enableEventNotFound(name)) }
+
     }
 
     fun editItem() {
-        mc.player?.let { player ->
-            if (!player.mainHandItem.isEmpty) {
-                ItemStackEditor { stack ->
-                    if (player.isCreative) player.inventory.selectedItem = stack
-                    else {
-                        mc.keyboardHandler.clipboard = stack.asCommand()
-                        Toast.showToast(HSLang.itemEditorCopyToCommand)
-                    }
-                }.open()
-            }
-        }
+//        mc.player?.let { player ->
+//            if (!player.mainHandItem.isEmpty) {
+//                ItemStackEditor { stack ->
+//                    if (player.isCreative) player.inventory.selectedItem = stack
+//                    else {
+//                        mc.keyboardHandler.clipboard = stack.asCommand()
+//                        Toast.showToast(HSLang.itemEditorCopyToCommand)
+//                    }
+//                }.open()
+//            }
+//        }
     }
 
 }

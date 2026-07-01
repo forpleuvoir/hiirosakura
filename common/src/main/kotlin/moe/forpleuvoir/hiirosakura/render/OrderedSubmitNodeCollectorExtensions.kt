@@ -1,53 +1,57 @@
 package moe.forpleuvoir.hiirosakura.render
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.toIntSize
+import androidx.compose.ui.util.fastForEachIndexed
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Alignment
-import moe.forpleuvoir.ibukigourd.gui.base.layout.arrange.Arrangement
-import moe.forpleuvoir.ibukigourd.gui.base.render.shape.box.Box
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.Corner
-import moe.forpleuvoir.ibukigourd.gui.base.render.texture.WidgetTexture
-import moe.forpleuvoir.ibukigourd.gui.util.Direction
 import moe.forpleuvoir.ibukigourd.render.color
+import moe.forpleuvoir.ibukigourd.render.extension.AnchorPosition
+import moe.forpleuvoir.ibukigourd.render.extension.texture.Corner
+import moe.forpleuvoir.ibukigourd.render.extension.texture.IGTexture
 import moe.forpleuvoir.ibukigourd.render.uv
 import moe.forpleuvoir.ibukigourd.text.*
-import moe.forpleuvoir.ibukigourd.util.math.Vector2f
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.common.color.ARGBColor
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.client.gui.Font
-import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector
 import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.locale.Language
 import net.minecraft.network.chat.FormattedText
+import net.minecraft.util.LightCoordsUtil
 import kotlin.math.absoluteValue
 
 //------------ Texture ------------\\
 
 fun OrderedSubmitNodeCollector.pushTexture(
-    box: Box,
-    widgetTexture: WidgetTexture,
+    area: Rect,
+    texture: IGTexture,
     packedLight: Int,
-    color: ARGBColor = Colors.WHITE,
+    color: Color = Colors.WHITE,
     poseStack: PoseStack,
     renderType: RenderType
-) = pushTexture(box.x, box.y, box.width, box.height, widgetTexture, packedLight, color, poseStack, renderType)
+) = pushTexture(area.left, area.top, area.width, area.height, texture, packedLight, color, poseStack, renderType)
 
 fun OrderedSubmitNodeCollector.pushTexture(
     x: Float,
     y: Float,
     width: Float,
     height: Float,
-    widgetTexture: WidgetTexture,
+    texture: IGTexture,
     packedLight: Int,
-    color: ARGBColor = Colors.WHITE,
+    color: Color = Colors.WHITE,
     poseStack: PoseStack,
     renderType: RenderType
 ) {
     submitCustomGeometry(poseStack, renderType) { pose, consumer ->
-        pushNineSlicedTexture(x, y, width, height, color, widgetTexture, packedLight, pose, consumer)
+        pushNineSlicedTexture(x, y, width, height, color, texture, packedLight, pose, consumer)
     }
 }
 
@@ -62,9 +66,9 @@ private fun pushTexture(
     y: Float,
     width: Float,
     height: Float,
-    widgetTexture: WidgetTexture,
+    texture: IGTexture,
     packedLight: Int,
-    color: ARGBColor = Colors.WHITE,
+    color: Color = Colors.WHITE,
     pose: PoseStack.Pose,
     vertexConsumer: VertexConsumer
 ) {
@@ -72,10 +76,10 @@ private fun pushTexture(
     val y0 = y
     val x1 = x + width
     val y1 = y + height
-    val u0 = widgetTexture.u0
-    val v0 = widgetTexture.v0
-    val u1 = widgetTexture.u1
-    val v1 = widgetTexture.v1
+    val u0 = texture.u0
+    val v0 = texture.v0
+    val u1 = texture.u1
+    val v1 = texture.v1
     setVertex(vertexConsumer, pose, x0, y0, x1, y1, u0, v0, u1, v1, color, packedLight)
 }
 
@@ -89,7 +93,7 @@ private fun pushTexture(
     uSize: Int,
     vSize: Int,
     packedLight: Int,
-    color: ARGBColor = Colors.WHITE,
+    color: Color = Colors.WHITE,
     textureWidth: Int = 256,
     textureHeight: Int = 256,
     pose: PoseStack.Pose,
@@ -117,7 +121,7 @@ private fun setVertex(
     v0: Float,
     u1: Float,
     v1: Float,
-    color: ARGBColor,
+    color: Color,
     packedLight: Int
 ) {
     if (x1 - x0 <= 0f || y1 - y0 <= 0f || color.alpha == 0) return
@@ -134,26 +138,26 @@ private fun pushNineSlicedTexture(
     y: Float,
     width: Float,
     height: Float,
-    color: ARGBColor = Colors.WHITE,
-    widgetTexture: WidgetTexture,
+    color: Color = Colors.WHITE,
+    texture: IGTexture,
     packedLight: Int,
     pose: PoseStack.Pose,
     vertexConsumer: VertexConsumer
 ) {
 
-    val corner = widgetTexture.corner
+    val corner = texture.corner
 
-    if (widgetTexture.corner == Corner.Unspecified) {
-        pushTexture(x, y, width, height, widgetTexture, packedLight, color, pose, vertexConsumer)
+    if (texture.corner == Corner.Unspecified) {
+        pushTexture(x, y, width, height, texture, packedLight, color, pose, vertexConsumer)
         return
     }
 
-    val tw = widgetTexture.textureInfo.width
-    val th = widgetTexture.textureInfo.height
-    val u = widgetTexture.uStart
-    val v = widgetTexture.vStart
-    val uSize = widgetTexture.uSize
-    val vSize = widgetTexture.vSize
+    val tw = texture.textureInfo.width
+    val th = texture.textureInfo.height
+    val u = texture.uStart
+    val v = texture.vStart
+    val uSize = texture.uSize
+    val vSize = texture.vSize
 
     //corner.left
     val cl = corner.left.absoluteValue.toFloat()
@@ -221,63 +225,62 @@ private fun pushNineSlicedTexture(
 }
 
 fun OrderedSubmitNodeCollector.pushSpeechBubbleTexture(
-    bubbleBox: Box,
-    bubble: WidgetTexture,
-    arrowBox: Box,
-    arrow: WidgetTexture,
+    bubbleArea: Rect,
+    bubbleTexture: IGTexture,
+    arrowArea: Rect,
+    arrowTexture: IGTexture,
     /**
      * 箭头所在的方向
      */
-    arrowDirection: Direction,
+    arrowAnchorPosition: AnchorPosition,
     packedLight: Int,
-    color: ARGBColor = Colors.WHITE,
+    color: Color = Colors.WHITE,
     poseStack: PoseStack,
     renderType: RenderType
 ) {
     submitCustomGeometry(poseStack, renderType) { pose, consumer ->
-        pushSpeechBubbleTexture(bubbleBox, bubble, arrowBox, arrow, arrowDirection, color, packedLight, pose, consumer)
+        pushSpeechBubbleTexture(bubbleArea, bubbleTexture, arrowArea, arrowTexture, arrowAnchorPosition, color, packedLight, pose, consumer)
     }
 }
 
 fun pushSpeechBubbleTexture(
-    bubbleBox: Box,
-    bubble: WidgetTexture,
-    arrowBox: Box,
-    arrow: WidgetTexture,
+    bubbleArea: Rect,
+    bubbleTexture: IGTexture,
+    arrowArea: Rect,
+    arrowTexture: IGTexture,
     /**
      * 箭头所在的方向
      */
-    arrowDirection: Direction,
-    color: ARGBColor = Colors.WHITE,
+    arrowAnchorPosition: AnchorPosition,
+    color: Color = Colors.WHITE,
     packedLight: Int,
     pose: PoseStack.Pose,
     vertexConsumer: VertexConsumer
 ) {
-    pushNineSlicedTexture(arrowBox.x, arrowBox.y, arrowBox.width, arrowBox.height, color, arrow, packedLight, pose, vertexConsumer)
-    val corner = bubble.corner
-    if (!bubble.corner.isSpecified) {
-        pushTexture(bubbleBox.x, bubbleBox.y, bubbleBox.width, bubbleBox.height, bubble, packedLight, color, pose, vertexConsumer)
+    pushNineSlicedTexture(arrowArea.left, arrowArea.top, arrowArea.width, arrowArea.height, color, arrowTexture, packedLight, pose, vertexConsumer)
+    val corner = bubbleTexture.corner
+    if (!bubbleTexture.corner.isSpecified) {
+        pushTexture(bubbleArea.left, bubbleArea.top, bubbleArea.width, bubbleArea.height, bubbleTexture, packedLight, color, pose, vertexConsumer)
         return
     }
 
-    val aw = arrowBox.width
-    val ah = arrowBox.height
-    val ax = arrowBox.x
-    val ax2 = arrowBox.right
-    val ay = arrowBox.y
-    val ay2 = arrowBox.bottom
+    val aw = arrowArea.width
+    val ah = arrowArea.height
+    val ax = arrowArea.left
+    val ax2 = arrowArea.right
+    val ay = arrowArea.top
+    val ay2 = arrowArea.bottom
 
-    val texture = bubble.textureSetup
-    val x = bubbleBox.x
-    val y = bubbleBox.y
-    val width = bubbleBox.width
-    val height = bubbleBox.height
-    val u0 = bubble.uStart
-    val v0 = bubble.vStart
-    val u1 = bubble.uSize
-    val v1 = bubble.vSize
-    val tw = bubble.textureInfo.width
-    val th = bubble.textureInfo.height
+    val x = bubbleArea.left
+    val y = bubbleArea.top
+    val width = bubbleArea.width
+    val height = bubbleArea.height
+    val u0 = bubbleTexture.uStart
+    val v0 = bubbleTexture.vStart
+    val u1 = bubbleTexture.uSize
+    val v1 = bubbleTexture.vSize
+    val tw = bubbleTexture.textureInfo.width
+    val th = bubbleTexture.textureInfo.height
 
     //corner.left
     val cl = corner.left.absoluteValue.toFloat()
@@ -325,7 +328,7 @@ fun pushSpeechBubbleTexture(
     //top left
     pushTexture(leftX, topY, cl, ct, leftU, topV, leftUS, topVS, packedLight, color, tw, th, pose, vertexConsumer)
     //top center
-    if (arrowDirection == Direction.Top) {
+    if (arrowAnchorPosition == AnchorPosition.Above) {
         if (cw - aw > 0) {
             pushTexture(centerX, topY, ax - centerX, ct, centerU, topV, centerUS, topVS, packedLight, color, tw, th, pose, vertexConsumer)
             pushTexture(ax2, topY, rightX - ax2, ct, centerU, topV, centerUS, topVS, packedLight, color, tw, th, pose, vertexConsumer)
@@ -337,7 +340,7 @@ fun pushSpeechBubbleTexture(
     pushTexture(rightX, topY, cr, ct, rightU, topV, rightUS, topVS, packedLight, color, tw, th, pose, vertexConsumer)
 
     //center left
-    if (arrowDirection == Direction.Left) {
+    if (arrowAnchorPosition == AnchorPosition.Left) {
         if (ch - ah > 0) {
             pushTexture(leftX, centerY, cl, ay - centerY, leftU, centerV, leftUS, centerVS, packedLight, color, tw, th, pose, vertexConsumer)
             pushTexture(leftX, ay2, cl, bottomY - ay2, leftU, centerV, leftUS, centerVS, packedLight, color, tw, th, pose, vertexConsumer)
@@ -348,7 +351,7 @@ fun pushSpeechBubbleTexture(
     //center
     pushTexture(centerX, centerY, cw, ch, centerU, centerV, centerUS, centerVS, packedLight, color, tw, th, pose, vertexConsumer)
     //center right
-    if (arrowDirection == Direction.Right) {
+    if (arrowAnchorPosition == AnchorPosition.Right) {
         if (ch - ah > 0) {
             pushTexture(rightX, centerY, cr, ay - centerY, rightU, centerV, rightUS, centerVS, packedLight, color, tw, th, pose, vertexConsumer)
             pushTexture(rightX, ay2, cr, bottomY - ay2, rightU, centerV, rightUS, centerVS, packedLight, color, tw, th, pose, vertexConsumer)
@@ -360,7 +363,7 @@ fun pushSpeechBubbleTexture(
     //bottom left
     pushTexture(leftX, bottomY, cl, cb, leftU, bottomV, leftUS, bottomVS, packedLight, color, tw, th, pose, vertexConsumer)
     //bottom center
-    if (arrowDirection == Direction.Bottom) {
+    if (arrowAnchorPosition == AnchorPosition.Below) {
         if (cw - aw > 0) {
             pushTexture(centerX, bottomY, ax - centerX, cb, centerU, bottomV, centerUS, bottomVS, packedLight, color, tw, th, pose, vertexConsumer)
             pushTexture(ax2, bottomY, rightX - ax2, cb, centerU, bottomV, centerUS, bottomVS, packedLight, color, tw, th, pose, vertexConsumer)
@@ -372,7 +375,7 @@ fun pushSpeechBubbleTexture(
     pushTexture(rightX, bottomY, cr, cb, rightU, bottomV, rightUS, bottomVS, packedLight, color, tw, th, pose, vertexConsumer)
 }
 
-//------------ Box ------------\\
+//------------ Rect ------------\\
 
 
 //------------ Text ------------\\
@@ -384,9 +387,9 @@ fun OrderedSubmitNodeCollector.pushText(
     dropShadow: Boolean,
     displayMode: Font.DisplayMode,
     packedLight: Int,
-    color: ARGBColor,
-    backgroundColor: ARGBColor,
-    outlineColor: ARGBColor,
+    color: Color,
+    backgroundColor: Color,
+    outlineColor: Color,
     poseStack: PoseStack
 ) = submitText(poseStack, x, y, string.visualOrderText, dropShadow, displayMode, packedLight, color.argb, backgroundColor.argb, outlineColor.argb)
 
@@ -397,9 +400,9 @@ fun OrderedSubmitNodeCollector.pushText(
     dropShadow: Boolean,
     displayMode: Font.DisplayMode,
     packedLight: Int,
-    color: ARGBColor,
-    backgroundColor: ARGBColor,
-    outlineColor: ARGBColor,
+    color: Color,
+    backgroundColor: Color,
+    outlineColor: Color,
     poseStack: PoseStack
 ) = submitText(
     poseStack,
@@ -416,55 +419,77 @@ fun OrderedSubmitNodeCollector.pushText(
 
 fun OrderedSubmitNodeCollector.pusAlignmentText(
     string: Text,
-    box: Box,
+    area: IntRect,
     alignment: Alignment = Alignment.Center,
     dropShadow: Boolean,
     displayMode: Font.DisplayMode,
     packedLight: Int,
-    color: ARGBColor,
-    backgroundColor: ARGBColor,
-    outlineColor: ARGBColor,
+    color: Color,
+    backgroundColor: Color,
+    outlineColor: Color,
     poseStack: PoseStack
 ) {
-    alignment.align(box, string.size).apply {
-        pushText(string, x(), y(), dropShadow, displayMode, packedLight, color, backgroundColor, outlineColor, poseStack)
+    alignment.align(string.size.toIntSize(), area.size, LayoutDirection.Ltr).apply {
+        pushText(
+            string,
+            (area.left + x).toFloat(),
+            (area.top + y).toFloat(),
+            dropShadow,
+            displayMode,
+            packedLight,
+            color,
+            backgroundColor,
+            outlineColor,
+            poseStack
+        )
     }
 }
 
 fun OrderedSubmitNodeCollector.pusAlignmentText(
     string: String,
-    box: Box,
+    area: IntRect,
     alignment: Alignment = Alignment.Center,
     dropShadow: Boolean,
     displayMode: Font.DisplayMode = Font.DisplayMode.NORMAL,
-    packedLight: Int = LightTexture.FULL_BRIGHT,
-    color: ARGBColor,
-    backgroundColor: ARGBColor,
-    outlineColor: ARGBColor,
+    packedLight: Int = LightCoordsUtil.FULL_BRIGHT,
+    color: Color,
+    backgroundColor: Color,
+    outlineColor: Color,
     poseStack: PoseStack
 ) {
-    alignment.align(box, string.size).apply {
-        pushText(string, x(), y(), dropShadow, displayMode, packedLight, color, backgroundColor, outlineColor, poseStack)
+    alignment.align(string.size.toIntSize(), area.size, LayoutDirection.Ltr).apply {
+        pushText(
+            string,
+            (area.left + x).toFloat(),
+            (area.top + y).toFloat(),
+            dropShadow,
+            displayMode,
+            packedLight,
+            color,
+            backgroundColor,
+            outlineColor,
+            poseStack
+        )
     }
 }
 
 fun OrderedSubmitNodeCollector.pushTextLines(
     lines: List<Text>,
-    box: Box,
+    area: IntRect,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     dropShadow: Boolean = false,
     displayMode: Font.DisplayMode = Font.DisplayMode.NORMAL,
-    defaultColor: ARGBColor = Colors.BLACK,
-    backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
-    outlineColor: ARGBColor,
-    packedLight: Int = LightTexture.FULL_BRIGHT,
+    defaultColor: Color = Colors.BLACK,
+    backgroundColor: Color = Colors.BLACK.alpha(0),
+    outlineColor: Color,
+    packedLight: Int = LightCoordsUtil.FULL_BRIGHT,
     poseStack: PoseStack
 ) {
     textLines(
         verticalArrangement,
-        box,
-        lines.wrapToTextLines(box.width),
+        area,
+        lines.wrapToTextLines(area.width.toFloat()),
         horizontalAlignment,
         dropShadow,
         displayMode,
@@ -478,21 +503,21 @@ fun OrderedSubmitNodeCollector.pushTextLines(
 
 fun OrderedSubmitNodeCollector.pushTextLines(
     lines: Text,
-    box: Box,
+    area: IntRect,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     dropShadow: Boolean = false,
     displayMode: Font.DisplayMode = Font.DisplayMode.NORMAL,
-    defaultColor: ARGBColor = Colors.BLACK,
-    backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
-    outlineColor: ARGBColor,
-    packedLight: Int = LightTexture.FULL_BRIGHT,
+    defaultColor: Color = Colors.BLACK,
+    backgroundColor: Color = Colors.BLACK.alpha(0),
+    outlineColor: Color,
+    packedLight: Int = LightCoordsUtil.FULL_BRIGHT,
     poseStack: PoseStack
 ) {
     textLines(
         verticalArrangement,
-        box,
-        lines.wrapToTextLines(box.width),
+        area,
+        lines.wrapToTextLines(area.width.toFloat()),
         horizontalAlignment,
         dropShadow,
         displayMode,
@@ -506,21 +531,21 @@ fun OrderedSubmitNodeCollector.pushTextLines(
 
 fun OrderedSubmitNodeCollector.pushStringLines(
     lines: List<String>,
-    box: Box,
+    area: IntRect,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     dropShadow: Boolean = false,
     displayMode: Font.DisplayMode = Font.DisplayMode.NORMAL,
-    defaultColor: ARGBColor = Colors.BLACK,
-    backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
-    outlineColor: ARGBColor = Colors.BLACK.alpha(0),
-    packedLight: Int = LightTexture.FULL_BRIGHT,
+    defaultColor: Color = Colors.BLACK,
+    backgroundColor: Color = Colors.BLACK.alpha(0),
+    outlineColor: Color = Colors.BLACK.alpha(0),
+    packedLight: Int = LightCoordsUtil.FULL_BRIGHT,
     poseStack: PoseStack
 ) {
     textLines(
         verticalArrangement,
-        box,
-        lines.wrapToLines(box.width),
+        area,
+        lines.wrapToLines(area.width.toFloat()),
         horizontalAlignment,
         dropShadow,
         displayMode,
@@ -534,21 +559,21 @@ fun OrderedSubmitNodeCollector.pushStringLines(
 
 fun OrderedSubmitNodeCollector.pushStringLines(
     lines: String,
-    box: Box,
+    area: IntRect,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     dropShadow: Boolean = false,
     displayMode: Font.DisplayMode = Font.DisplayMode.NORMAL,
-    defaultColor: ARGBColor = Colors.BLACK,
-    backgroundColor: ARGBColor = Colors.BLACK.alpha(0),
-    outlineColor: ARGBColor,
-    packedLight: Int = LightTexture.FULL_BRIGHT,
+    defaultColor: Color = Colors.BLACK,
+    backgroundColor: Color = Colors.BLACK.alpha(0),
+    outlineColor: Color,
+    packedLight: Int = LightCoordsUtil.FULL_BRIGHT,
     poseStack: PoseStack
 ) {
     textLines(
         verticalArrangement,
-        box,
-        lines.wrapToLines(box.width),
+        area,
+        lines.wrapToLines(area.width.toFloat()),
         horizontalAlignment,
         dropShadow,
         displayMode,
@@ -560,47 +585,55 @@ fun OrderedSubmitNodeCollector.pushStringLines(
     )
 }
 
+private val density = Density(1f)
+
 @JvmName("textStringLines")
 private fun OrderedSubmitNodeCollector.textLines(
     verticalArrangement: Arrangement.Vertical,
-    box: Box,
+    area: IntRect,
     texts: List<String>,
     horizontalAlignment: Alignment.Horizontal,
     dropShadow: Boolean,
     displayMode: Font.DisplayMode,
     packedLight: Int,
-    defaultColor: ARGBColor,
-    backgroundColor: ARGBColor,
-    outlineColor: ARGBColor,
+    defaultColor: Color,
+    backgroundColor: Color,
+    outlineColor: Color,
     poseStack: PoseStack
 ) {
-    val verticalOffsets = verticalArrangement.arrange(box.height, List(texts.size) { mc.font.lineHeight.toFloat() })
-    val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, it.width) }
-    horizontalOffsets.zip(verticalOffsets) { x, y ->
-        Vector2f(box.x + x, box.y + y)
-    }.forEachIndexed { index, offset ->
-        pushText(texts[index], offset.x, offset.y, dropShadow, displayMode, packedLight, defaultColor, backgroundColor, outlineColor, poseStack)
+    val verticalOffsets = IntArray(texts.size)
+    verticalArrangement.run {
+        density.arrange(area.height, IntArray(texts.size) { mc.font.lineHeight }, verticalOffsets)
+    }
+
+    val horizontalOffsets = texts.map { horizontalAlignment.align(it.width.toInt(), area.width, LayoutDirection.Ltr) }
+
+    verticalOffsets.zip(horizontalOffsets).fastForEachIndexed { idx, (y, x) ->
+        pushText(texts[idx], area.left + x.toFloat(), area.top + y.toFloat(), dropShadow, displayMode, packedLight, defaultColor, backgroundColor, outlineColor, poseStack)
     }
 }
 
 private fun OrderedSubmitNodeCollector.textLines(
     verticalArrangement: Arrangement.Vertical,
-    box: Box,
+    area: IntRect,
     texts: List<Text>,
     horizontalAlignment: Alignment.Horizontal,
     dropShadow: Boolean,
     displayMode: Font.DisplayMode,
     packedLight: Int,
-    defaultColor: ARGBColor,
-    backgroundColor: ARGBColor,
-    outlineColor: ARGBColor,
+    defaultColor: Color,
+    backgroundColor: Color,
+    outlineColor: Color,
     poseStack: PoseStack
 ) {
-    val verticalOffsets = verticalArrangement.arrange(box.height, List(texts.size) { mc.font.lineHeight.toFloat() })
-    val horizontalOffsets = texts.map { horizontalAlignment.align(box.width, it.width) }
-    horizontalOffsets.zip(verticalOffsets) { x, y ->
-        Vector2f(box.x + x, box.y + y)
-    }.forEachIndexed { index, offset ->
-        pushText(texts[index], offset.x, offset.y, dropShadow, displayMode, packedLight, defaultColor, backgroundColor, outlineColor, poseStack)
+    val verticalOffsets = IntArray(texts.size)
+    verticalArrangement.run {
+        density.arrange(area.height, IntArray(texts.size) { mc.font.lineHeight }, verticalOffsets)
+    }
+
+    val horizontalOffsets = texts.map { horizontalAlignment.align(it.width.toInt(), area.width, LayoutDirection.Ltr) }
+
+    verticalOffsets.zip(horizontalOffsets).fastForEachIndexed { idx, (y, x) ->
+        pushText(texts[idx], area.left + x.toFloat(), area.top + y.toFloat(), dropShadow, displayMode, packedLight, defaultColor, backgroundColor, outlineColor, poseStack)
     }
 }

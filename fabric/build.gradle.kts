@@ -15,39 +15,36 @@ repositories {
         name = "Terraformers"
         url = uri("https://maven.terraformersmc.com/")
     }
-    maven { url = uri("https://maven.forpleuvoir.moe/snapshots") }
 }
 
 dependencies {
     minecraft(libs.minecraft)
-    mappings(loom.layered {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${libs.versions.parchmentMinecraft.get()}:${libs.versions.parchment.get()}@zip")
-    })
-    modImplementation(libs.fabricLoader)
-    modImplementation(libs.fabricApi)
 
-    modImplementation(libs.fabricKotlin)
-    modImplementation(libs.modMenu)
+    //Fabric
+    implementation(libs.fabricLoader)
+    implementation(libs.fabricApi)
 
-    compileOnly(libs.nebula)
+    implementation(libs.fabricKotlin)
+    implementation(libs.modMenu)
 
-    implementation(libs.bundles.jexl)
-    include(libs.bundles.jexl)
+    libs.bundles.jexl.let {
+        implementation(it)
+        include(it)
+    }
 
-    modImplementation(libs.ibukigourd.fabric)
+    implementation(libs.ibukigourd.fabric)
 }
 
 sourceSets {
-    create("devClientTest") {
-        val test = project(":common").sourceSets["devClientTest"]
+    create("devOnly") {
+        val test = project(":common").sourceSets["devOnly"]
         compileClasspath += main.get().compileClasspath + main.get().output + test.compileClasspath + test.output
         runtimeClasspath += main.get().runtimeClasspath + main.get().output + test.runtimeClasspath + test.output
     }
 }
 
 loom {
-    val aw = project(":common").file("src/main/resources/${modId}.accesswidener")
+    val aw = project(":common").file("src/main/resources/${modId}.classtweaker")
     if (aw.exists()) {
         accessWidenerPath.set(aw)
     }
@@ -64,13 +61,34 @@ loom {
             val name: String = System.getenv("mcName") ?: "Dev${Random.nextInt(1000)}"
             val uuid: String = System.getenv("mcUUID") ?: UUID.randomUUID().toString()
             programArgs("--username", name, "--uuid", uuid)
-            source(sourceSets["devClientTest"])
+            source(sourceSets["devOnly"])
         }
         named("server") {
             server()
             configName = "Fabric Server"
             ideConfigGenerated(true)
             runDir("runs/server")
+        }
+    }
+}
+
+val loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)
+listOf<String>(
+    "apiElements", "runtimeElements", "sourcesElements", "includeInternal", "modCompileClasspath"
+).forEach {
+    configurations.named(it) {
+        attributes {
+            attribute(loaderAttribute, "fabric")
+        }
+    }
+}
+
+sourceSets.configureEach {
+    listOf(compileClasspathConfigurationName, runtimeClasspathConfigurationName).forEach {
+        configurations.named(it) {
+            attributes {
+                attribute(loaderAttribute, "fabric")
+            }
         }
     }
 }

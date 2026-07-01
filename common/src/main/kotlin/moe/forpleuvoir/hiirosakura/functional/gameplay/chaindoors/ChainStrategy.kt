@@ -5,13 +5,13 @@ import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainStrategy.Neighborhood.Shape.CUBE
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainStrategy.Neighborhood.Shape.SPHERE
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.nebula.serialization.Deserializer
-import moe.forpleuvoir.nebula.serialization.Serializable
+import moe.forpleuvoir.nebula.common.util.checkType
+import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.SerializeObjectBuilder
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.codec.enum
+import moe.forpleuvoir.nebula.serialization.extensions.requireString
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.world.level.Level
@@ -26,31 +26,35 @@ sealed class ChainStrategy(
     val sameBlock: Boolean,
     val syncState: Boolean,
     limit: Int
-) : Serializable {
+) {
 
     val limit: Int = limit.coerceIn(1, MAX_LIMIT)
 
-    companion object : Deserializer<ChainStrategy> {
+    companion object : Codec<ChainStrategy> {
+
         const val MAX_LIMIT = 32
-        override fun deserialization(serializeElement: SerializeElement): ChainStrategy =
-            serializeElement.checkType<SerializeObject, ChainStrategy> {
-                when (it["type"]!!.asString) {
-                    Neighborhood.TYPE -> Neighborhood.deserialization(serializeElement)
-                    Recursive.TYPE    -> Recursive.deserialization(serializeElement)
+
+        const val MAX_RADIUS = 5
+
+        const val NEIGHBORHOOD_TYPE = "neighborhood"
+
+        const val RECURSIVE_TYPE = "recursive"
+
+        override fun deserialization(data: SerializeElement): Result<ChainStrategy> = DeserializationException.runCatching {
+            data.checkType<SerializeObject, ChainStrategy> {
+                when (it.requireString("type")) {
+                    NEIGHBORHOOD_TYPE -> Neighborhood.deserialization(data).getOrThrow()
+                    RECURSIVE_TYPE    -> Recursive.deserialization(data).getOrThrow()
                     else              -> throw IllegalArgumentException("Invalid chain strategy type: ${it["type"]}")
                 }
-            }.getOrThrow()
+            }
+        }
 
-    }
+        override fun serialization(target: ChainStrategy): SerializeElement = when (target) {
+            is Neighborhood -> Neighborhood.serialization(target)
+            is Recursive    -> Recursive.serialization(target)
+        }
 
-    abstract fun SerializeObjectBuilder.strategySerialization()
-
-    override fun serialization(): SerializeElement = serializeObject {
-        "type" to type
-        "same_block" to sameBlock
-        "sync_state" to syncState
-        "limit" to limit
-        strategySerialization()
     }
 
     abstract fun collect(origin: BlockPos, level: Level, predicate: (BlockPos) -> Boolean): Sequence<BlockPos>
@@ -61,20 +65,23 @@ sealed class ChainStrategy(
         sameBlock: Boolean,
         syncState: Boolean,
         limit: Int
-    ) : ChainStrategy(TYPE, sameBlock, syncState, limit) {
+    ) : ChainStrategy(NEIGHBORHOOD_TYPE, sameBlock, syncState, limit) {
         val radius: Int = radius.coerceIn(1, MAX_RADIUS)
 
-        companion object : Deserializer<Neighborhood> {
+        companion object : Codec<Neighborhood> by Codec.create<Neighborhood>()
+            .field<String>("type").getter(Neighborhood::type).default(NEIGHBORHOOD_TYPE).codec(Codec.string)
+            .field<Int>("radius").getter(Neighborhood::radius).default(1).codec(Codec.int(1..MAX_RADIUS))
+            .field<Shape>("shape").getter(Neighborhood::shape).default(CUBE).codec(Codec.enum())
+            .field<Boolean>("same_block").getter(Neighborhood::sameBlock).default(true).codec(Codec.boolean)
+            .field<Boolean>("sync_state").getter(Neighborhood::syncState).default(true).codec(Codec.boolean)
+            .field<Int>("limit").getter(Neighborhood::limit).default(1).codec(Codec.int(1..MAX_LIMIT))
+            .build({ _, radius, shape, sameBlock, syncState, limit -> Neighborhood(radius, shape, sameBlock, syncState, limit) }) {
 
             val DEFAULT = Neighborhood(1, CUBE, true, syncState = true, limit = 1)
 
-            const val TYPE = "neighborhood"
+            val text: Text get() = Text.translatable("${HiiroSakura.MOD_ID}.chain_doors.strategy.type.$NEIGHBORHOOD_TYPE")
 
-            val text: Text get() = Text.translatable("${HiiroSakura.MOD_ID}.chain_doors.strategy.type.$TYPE")
-
-            val hoverText: Text get() = Text.translatable("${HiiroSakura.MOD_ID}.chain_doors.strategy.type.$TYPE.comment")
-
-            const val MAX_RADIUS = 5
+            val hoverText: Text get() = Text.translatable("${HiiroSakura.MOD_ID}.chain_doors.strategy.type.$NEIGHBORHOOD_TYPE.comment")
 
             private val OFFSET_CACHE: List<BlockPos> = run {
                 val offsets = ArrayList<BlockPos>((MAX_RADIUS * 2 + 1.0).pow(3).toInt()) // (5*2+1)^3 = 1331
@@ -89,19 +96,13 @@ sealed class ChainStrategy(
                 offsets.sortedBy { it.x * it.x + it.y * it.y + it.z * it.z }
             }
 
-            override fun deserialization(serializeElement: SerializeElement): Neighborhood =
-                serializeElement.checkType<SerializeObject, Neighborhood> {
-                    Neighborhood(
-                        it["radius"]!!.asInt,
-                        Shape.valueOf(it["shape"]!!.asString),
-                        it["same_block"]!!.asBoolean,
-                        it["sync_state"]!!.asBoolean,
-                        it["limit"]!!.asInt,
-                    )
-                }.getOrThrow()
         }
 
-        enum class Shape { SPHERE, CUBE }
+        enum class Shape {
+            SPHERE, CUBE;
+
+            companion object : Codec<Shape> by Codec.enum()
+        }
 
         override fun collect(origin: BlockPos, level: Level, predicate: (BlockPos) -> Boolean): Sequence<BlockPos> {
             val dSqLimit = (radius * radius).toDouble()
@@ -128,36 +129,27 @@ sealed class ChainStrategy(
                 .take(limit)
         }
 
-        override fun SerializeObjectBuilder.strategySerialization() {
-            "radius" to radius
-            "shape" to shape
-        }
-
     }
 
     class Recursive(
         sameBlock: Boolean,
         syncState: Boolean,
         limit: Int
-    ) : ChainStrategy(TYPE, sameBlock, syncState, limit) {
-        companion object : Deserializer<Recursive> {
+    ) : ChainStrategy(RECURSIVE_TYPE, sameBlock, syncState, limit) {
+
+        companion object : Codec<Recursive> by Codec.create<Recursive>()
+            .field<String>("type").getter(Recursive::type).default("neighborhood").codec(Codec.string)
+            .field<Boolean>("same_block").getter(Recursive::sameBlock).default(true).codec(Codec.boolean)
+            .field<Boolean>("sync_state").getter(Recursive::syncState).default(true).codec(Codec.boolean)
+            .field<Int>("limit").getter(Recursive::limit).default(8).codec(Codec.int(1..MAX_LIMIT))
+            .build({ _, sameBlock, syncState, limit -> Recursive(sameBlock, syncState, limit) }) {
 
             val DEFAULT = Recursive(sameBlock = true, syncState = true, limit = 8)
 
-            const val TYPE = "recursive"
+            val text: Text get() = Text.translatable("${HiiroSakura.MOD_ID}.chain_doors.strategy.type.$RECURSIVE_TYPE")
 
-            val text: Text get() = Text.translatable("${HiiroSakura.MOD_ID}.chain_doors.strategy.type.$TYPE")
+            val hoverText: Text get() = Text.translatable("${HiiroSakura.MOD_ID}.chain_doors.strategy.type.$RECURSIVE_TYPE.comment")
 
-            val hoverText: Text get() = Text.translatable("${HiiroSakura.MOD_ID}.chain_doors.strategy.type.$TYPE.comment")
-
-            override fun deserialization(serializeElement: SerializeElement): Recursive =
-                serializeElement.checkType<SerializeObject, Recursive> {
-                    Recursive(
-                        it["same_block"]!!.asBoolean,
-                        it["sync_state"]!!.asBoolean,
-                        it["limit"]!!.asInt
-                    )
-                }.getOrThrow()
         }
 
         override fun collect(origin: BlockPos, level: Level, predicate: (BlockPos) -> Boolean): Sequence<BlockPos> = sequence {
@@ -202,8 +194,6 @@ sealed class ChainStrategy(
                 }
             }
         }
-
-        override fun SerializeObjectBuilder.strategySerialization() {}
 
     }
 }

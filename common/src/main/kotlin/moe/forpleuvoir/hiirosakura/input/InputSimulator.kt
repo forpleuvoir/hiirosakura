@@ -3,10 +3,9 @@ package moe.forpleuvoir.hiirosakura.input
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keyboard
-import moe.forpleuvoir.ibukigourd.input.Mouse
+import moe.forpleuvoir.ibukigourd.input.MouseButton
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.event.EventSubscriber
-import moe.forpleuvoir.nebula.event.Subscriber
+import moe.forpleuvoir.nebula.common.api.Initializable
 import net.minecraft.client.KeyboardHandler
 import net.minecraft.client.Minecraft
 import net.minecraft.client.MouseHandler
@@ -14,8 +13,7 @@ import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonInfo
 import org.lwjgl.glfw.GLFW
 
-@EventSubscriber
-object InputSimulator {
+object InputSimulator : Initializable {
 
     private val client: Minecraft get() = Minecraft.getInstance()
 
@@ -27,10 +25,13 @@ object InputSimulator {
 
     private val keyPressed: MutableMap<KeyCode, Pair<Long, Long>> = mutableMapOf()
 
-    private val mousePressed: MutableMap<Mouse, Pair<Long, Long>> = mutableMapOf()
+    private val mousePressed: MutableMap<MouseButton, Pair<Long, Long>> = mutableMapOf()
 
-    @Subscriber
-    fun tick(event: ClientTickEvent.ClientTickEndEvent) {
+    override fun init() {
+        ClientTickEvent.TickEnd.register { tick() }
+    }
+
+    private fun tick() {
         val keyRemoveList = mutableListOf<KeyCode>()
         keyPressed.forEach { (keyCode, value) ->
             val (duration, lastDuration) = value
@@ -80,20 +81,20 @@ object InputSimulator {
         mc.execute { mouse.onButton(windowsHandler, MouseButtonInfo(button, mods), action) }
     }
 
-    fun mousePress(button: Mouse, duration: Long = 1) {
+    fun mousePress(button: MouseButton, duration: Long = 1) {
         mousePressed[button] = duration.coerceAtLeast(1) to duration.coerceAtLeast(1)
     }
 
     fun attack(duration: Long = 1) {
-        mousePress(Mouse.fromCode(client.options.keyAttack.key.value), duration)
+        mousePress(MouseButton.fromCode(client.options.keyAttack.key.value), duration)
     }
 
     fun use(duration: Long = 1) {
-        mousePress(Mouse.fromCode(client.options.keyUse.key.value), duration)
+        mousePress(MouseButton.fromCode(client.options.keyUse.key.value), duration)
     }
 
     fun pickItem(duration: Long = 1) {
-        mousePress(Mouse.fromCode(client.options.keyPickItem.key.value), duration)
+        mousePress(MouseButton.fromCode(client.options.keyPickItem.key.value), duration)
     }
 
     fun moveForward(duration: Long = 1) {
@@ -123,5 +124,6 @@ object InputSimulator {
     fun sprint(duration: Long = 1) {
         keyPress(Keyboard.fromCode(client.options.keySprint.key.value), duration)
     }
+
 
 }

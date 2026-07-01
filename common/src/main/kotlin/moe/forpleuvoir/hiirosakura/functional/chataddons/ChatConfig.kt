@@ -1,9 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.chataddons
 
 import moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble.ChatBubbleHandler
-import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
+import moe.forpleuvoir.nebula.config.ConfigGroup
 
-object ChatConfig : ModConfigContainer("chat") {
+object ChatConfig : ConfigGroup("chat") {
 
     init {
         addConfig(ChatInjectHandler)

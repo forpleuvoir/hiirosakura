@@ -10,17 +10,13 @@ import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.hiirosakura.platform.PLATFORM
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
+import moe.forpleuvoir.nebula.common.api.Initializable
 import moe.forpleuvoir.nebula.common.util.ioLaunch
 import moe.forpleuvoir.nebula.config.util.ConfigUtil
-import moe.forpleuvoir.nebula.event.EventSubscriber
-import moe.forpleuvoir.nebula.event.Subscriber
-import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.gson.jsonStringToObject
-import moe.forpleuvoir.nebula.serialization.gson.toJsonString
+import moe.forpleuvoir.nebula.serialization.json.JsonDialect
 import java.io.File
 
-@EventSubscriber
-object HiiroSakuraDataManager {
+object HiiroSakuraDataManager : Initializable {
 
     private val log = logger()
 
@@ -32,8 +28,16 @@ object HiiroSakuraDataManager {
 
     private val dataPath = File(PLATFORM.getConfigDir(), "${HiiroSakura.MOD_ID}/data").toPath()
 
-    @Subscriber
-    fun init(event: ClientLifecycleEvent.ClientStartingEvent) {
+    override fun init() {
+        ClientLifecycleEvent.Starting.register {
+            clientStart()
+        }
+        ClientLifecycleEvent.Stopping.register {
+            onSave()
+        }
+    }
+
+    fun clientStart() {
         runBlocking {
             log.info("Loading data...")
             data.forEach { data ->
@@ -43,8 +47,7 @@ object HiiroSakuraDataManager {
         }
     }
 
-    @Subscriber
-    fun onSave(event: ClientLifecycleEvent.ClientStopEvent) {
+    fun onSave() {
         runBlocking {
             data.forEach {
                 saveData(it)
@@ -61,10 +64,9 @@ object HiiroSakuraDataManager {
     private suspend fun loadData(data: HiiroSakuraData) = withContext(Dispatchers.IO) {
         runCatching {
             ConfigUtil.run {
-                //todo 换成Reader
                 val file = configFile("${data.key}.json", dataPath)
                 val json = readFileToString(file)
-                data.deserialization(json.jsonStringToObject())
+                data.deserialization(JsonDialect.decode(json).getOrThrow())
             }
         }.onFailure {
             saveData(data)
@@ -81,9 +83,8 @@ object HiiroSakuraDataManager {
     private suspend fun saveData(data: HiiroSakuraData) = withContext(Dispatchers.IO) {
         runCatching {
             ConfigUtil.run {
-                //todo 换成Reader
                 val file = configFile("${data.key}.json", dataPath)
-                val str = (data.serialization() as SerializeObject).toJsonString()
+                val str =JsonDialect.encode(data.serialization())
                 writeToFile(str, file)
             }
         }.onFailure {

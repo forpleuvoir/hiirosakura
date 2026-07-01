@@ -1,8 +1,8 @@
 package moe.forpleuvoir.hiirosakura.mixin.client;
 
-import moe.forpleuvoir.hiirosakura.functional.event.events.DisconnectEvent;
+import moe.forpleuvoir.hiirosakura.functional.event.events.DisconnectContext;
+import moe.forpleuvoir.hiirosakura.functional.event.events.HSEvents;
 import moe.forpleuvoir.hiirosakura.functional.misc.ServerMarker;
-import moe.forpleuvoir.nebula.event.EventBus;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -17,8 +17,8 @@ public abstract class DisconnectedScreenMixin {
     @Inject(method = "<init>(Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;)V", at = @At("RETURN"))
     public void init(Screen parent, Component title, Component reason, CallbackInfo ci) {
         ServerMarker.clear();
-        EventBus.Companion.broadcast(
-            new DisconnectEvent(
+        HSEvents.Disconnect.invoker().invoke(
+            new DisconnectContext(
                 ServerMarker.getLastServerName(),
                 ServerMarker.getLastServerAddress(),
                 title.getString(),

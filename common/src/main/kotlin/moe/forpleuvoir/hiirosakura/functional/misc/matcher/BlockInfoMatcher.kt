@@ -4,28 +4,29 @@ import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSBlockHitResult
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSBlockState
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
-import moe.forpleuvoir.hiirosakura.util.asBlock
+import moe.forpleuvoir.hiirosakura.util.codec.block
 import moe.forpleuvoir.hiirosakura.util.hasTag
-import moe.forpleuvoir.hiirosakura.util.math.Vector3icDeserializer
-import moe.forpleuvoir.hiirosakura.util.math.serialization
 import moe.forpleuvoir.hiirosakura.util.math.toVector
-import moe.forpleuvoir.hiirosakura.util.serialization
 import moe.forpleuvoir.hiirosakura.util.targetBlock
-import moe.forpleuvoir.ibukigourd.IGLang
+import moe.forpleuvoir.ibukigourd.config.item.pair
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.appendLiteral
 import moe.forpleuvoir.ibukigourd.text.translateText
+import moe.forpleuvoir.ibukigourd.util.math.vector3ic
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.state.mutableStateOf
-import moe.forpleuvoir.nebula.serialization.Deserializable
-import moe.forpleuvoir.nebula.serialization.Deserializer
+import moe.forpleuvoir.nebula.common.util.checkType
+import moe.forpleuvoir.nebula.common.util.requireKey
+import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.extensions.SerializeObjectBuilder
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import moe.forpleuvoir.nebula.serialization.base.builder.SerializeObjectBuilder
+import moe.forpleuvoir.nebula.serialization.base.builder.build
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.codec.serialization
+import moe.forpleuvoir.nebula.serialization.extensions.requireString
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
@@ -35,9 +36,12 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
 import org.joml.Vector3ic
+import java.util.concurrent.atomic.AtomicBoolean
 import net.minecraft.world.level.block.Block as McBlock
 
-
+/**
+ * 辅助用的数据类
+ */
 data class BlockInfo(
     val state: BlockState,
     val pos: Vector3ic,
@@ -65,14 +69,14 @@ data class BlockInfo(
 class BlockInfoMatcher(
     override var mode: CompositeMatcher.MatchMode,
     entries: List<BlockInfoMatchEntry>
-) : CompositeMatcher<BlockInfo>, Deserializable {
+) : CompositeMatcher<BlockInfo> {
 
     constructor(
         mode: CompositeMatcher.MatchMode,
         vararg entries: BlockInfoMatchEntry
     ) : this(mode, entries.toList())
 
-    companion object : Deserializer<BlockInfoMatcher> {
+    companion object : Codec<BlockInfoMatcher> {
 
         val targetBlockMatcher: BlockInfoMatcher
             get() {
@@ -85,20 +89,6 @@ class BlockInfoMatcher(
                     anyMatcher
                 }
             }
-
-        override fun deserialization(serializeElement: SerializeElement): BlockInfoMatcher {
-            return serializeElement.checkType<SerializeObject, BlockInfoMatcher> { obj ->
-                val entries = obj["entries"]!!.checkType<SerializeArray, List<BlockInfoMatchEntry>> { array ->
-                    array.map { element ->
-                        BlockInfoMatchEntry.deserialization(element)
-                    }
-                }.getOrThrow()
-                BlockInfoMatcher(
-                    mode = CompositeMatcher.MatchMode.deserialization(obj["mode"]!!),
-                    entries = entries
-                )
-            }.getOrThrow()
-        }
 
         val anyMatcher
             get() = BlockInfoMatcher(
@@ -118,17 +108,40 @@ class BlockInfoMatcher(
                 }
             }
         }
+
+        override fun deserialization(data: SerializeElement): Result<BlockInfoMatcher> = DeserializationException.runCatching {
+            data.checkType<SerializeObject, BlockInfoMatcher> { obj ->
+                val entries = obj.requireKey("entries").checkType<SerializeArray, List<BlockInfoMatchEntry>> { array ->
+                    array.map { element ->
+                        BlockInfoMatchEntry.deserialization(element).getOrThrow()
+                    }
+                }
+                BlockInfoMatcher(
+                    mode = CompositeMatcher.MatchMode.deserialization(obj.requireKey("mode")).getOrThrow(),
+                    entries = entries
+                )
+            }
+        }
+
+        override fun serialization(target: BlockInfoMatcher): SerializeObject = SerializeObject.build {
+            context(CompositeMatcher.MatchMode, BlockInfoMatchEntry) {
+                "mode" to target.mode
+                "entries" arr {
+                    target.entries.forEach { add(it.serialization) }
+                }
+            }
+        }
     }
 
     override val entries: List<BlockInfoMatchEntry> = entries.toMutableList()
 
     val simpleText
         get() = when (entries.size) {
-            0    -> IGLang.hasNothing
+            0    -> IGLang.Misc.hasNothing
             1    -> entries[0].asText
             else -> if (isAnyMatcher(this)) {
                 CompositeMatcher.MatchMode.AnyMatch.translateText
-            } else mode.translateText.appendLiteral(":").append(IGLang.listConfigWrapperText(entries.size))
+            } else mode.translateText.appendLiteral(":").append(IGLang.ConfigWrapper.listConfigWrapperText(entries.size))
         }
 
     override fun clone(): BlockInfoMatcher {
@@ -155,18 +168,6 @@ class BlockInfoMatcher(
         (this.entries as MutableList).clear()
     }
 
-    override fun deserialization(serializeElement: SerializeElement) {
-        clear()
-        serializeElement.checkType<SerializeObject, Unit> { obj ->
-            mode = CompositeMatcher.MatchMode.deserialization(obj["mode"]!!)
-            obj["entries"]!!.checkType<SerializeArray, Unit> { array ->
-                array.forEach { element ->
-                    addEntry(BlockInfoMatchEntry.deserialization(element))
-                }
-            }
-        }.getOrThrow()
-    }
-
 }
 
 
@@ -178,106 +179,101 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     abstract val asText: Component
 
-    fun entrySerialization(scope: SerializeObjectBuilder.() -> Unit) = serializeObject {
+    fun entrySerialization(scope: SerializeObjectBuilder.() -> Unit) = SerializeObject.build {
         "type" to type
         "mode" to mode
         scope()
     }
 
-    companion object : Deserializer<BlockInfoMatchEntry> {
+    companion object : Codec<BlockInfoMatchEntry> {
 
-        val desMapping = mutableMapOf<String, (SerializeElement) -> BlockInfoMatchEntry>(
-            Matcher.TYPE to { Matcher.deserialization(it) },
-            Block.TYPE to { Block.deserialization(it) },
-            Script.TYPE to { Script.deserialization(it) },
-            Pos.TYPE to { Pos.deserialization(it) },
-            Tag.TYPE to { Tag.deserialization(it) },
-            Property.TYPE to { Property.deserialization(it) },
+        private const val MATCHER_TYPE = "matcher"
+        private const val BLOCK_TYPE = "block"
+        private const val SCRIPT_TYPE = "script"
+        private const val POS_TYPE = "pos"
+        private const val TAG_TYPE = "tag"
+        private const val PROPERTY_TYPE = "property"
+
+        private inline fun <reified T : BlockInfoMatchEntry> codec(type: String, defaultMode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) =
+            Codec.create<T>()
+                .field<String>("type").getter(BlockInfoMatchEntry::type).default(type).codec(Codec.string)
+                .field<MatchEntry.MatchMode>("mode").getter(BlockInfoMatchEntry::mode).default(defaultMode).codec(MatchEntry.MatchMode)
+
+        val desMapping = mutableMapOf<String, (SerializeElement) -> Result<BlockInfoMatchEntry>>(
+            MATCHER_TYPE to { Matcher.deserialization(it) },
+            BLOCK_TYPE to { Block.deserialization(it) },
+            SCRIPT_TYPE to { Script.deserialization(it) },
+            POS_TYPE to { Pos.deserialization(it) },
+            TAG_TYPE to { Tag.deserialization(it) },
+            PROPERTY_TYPE to { Property.deserialization(it) },
         )
 
-        override fun deserialization(serializeElement: SerializeElement): BlockInfoMatchEntry {
-            return serializeElement.checkType<SerializeObject, BlockInfoMatchEntry> {
-                desMapping[it["type"]!!.asString]?.invoke(it) ?: throw IllegalArgumentException("Unsupported type ${it["type"]}")
-            }.getOrThrow()
+        override fun deserialization(data: SerializeElement): Result<BlockInfoMatchEntry> = DeserializationException.runCatching {
+            data.checkType<SerializeObject, BlockInfoMatchEntry> {
+                desMapping[it.requireString("type")]?.invoke(it)?.getOrThrow() ?: throw IllegalArgumentException("Unsupported type ${it["type"]}")
+            }
         }
 
-        private fun getMode(serializeObject: SerializeObject): MatchEntry.MatchMode =
-            MatchEntry.MatchMode.deserialization(serializeObject["mode"]!!)
+        override fun serialization(target: BlockInfoMatchEntry): SerializeElement = when (target) {
+            is Matcher  -> Matcher.serialization(target)
+            is Block    -> Block.serialization(target)
+            is Script   -> Script.serialization(target)
+            is Pos      -> Pos.serialization(target)
+            is Tag      -> Tag.serialization(target)
+            is Property -> Property.serialization(target)
+        }
 
     }
 
-    class Matcher(val matcher: BlockInfoMatcher, mode: MatchEntry.MatchMode) : BlockInfoMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<Matcher> {
-            const val TYPE = "matcher"
-            override fun deserialization(serializeElement: SerializeElement): Matcher {
-                return serializeElement.checkType<SerializeObject, Matcher> {
-                    Matcher(
-                        matcher = BlockInfoMatcher.deserialization(it["matcher"]!!),
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-        }
+    //region Matcher
+    class Matcher(val matcher: BlockInfoMatcher, mode: MatchEntry.MatchMode) : BlockInfoMatchEntry(mode, MATCHER_TYPE) {
+        companion object : Codec<Matcher> by codec<Matcher>(MATCHER_TYPE)
+            .field<BlockInfoMatcher>("matcher").getter(Matcher::matcher).codec(BlockInfoMatcher)
+            .build({ _, mode, matcher -> Matcher(matcher, mode) })
 
         override val asText: Component get() = matcher.simpleText
 
         override fun match(obj: BlockInfo): Boolean = matcher.match(obj)
 
-        override fun serialization(): SerializeElement = entrySerialization { "matcher" to matcher.serialization() }
-
     }
+    //endregion
 
 
-    class Block(val block: McBlock, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<Block> {
-            const val TYPE = "block"
-            override fun deserialization(serializeElement: SerializeElement): Block {
-                return serializeElement.checkType<SerializeObject, Block> {
-                    Block(
-                        block = it["block"]!!.asBlock,
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-        }
+    //region Block
+    class Block(val block: McBlock, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, BLOCK_TYPE) {
+        companion object : Codec<Block> by codec<Block>(BLOCK_TYPE)
+            .field<McBlock>("block").getter(Block::block).codec(Codec.block)
+            .build({ _, mode, block -> Block(block, mode) })
 
         override val asText: Component = block.name
 
         override fun match(obj: BlockInfo): Boolean = obj.state.block == this.block
-
-        override fun serialization(): SerializeElement = entrySerialization {
-            "block" to block.serialization
-        }
     }
+    //endregion
 
-    class Script(val script: String = defaultScript, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<Script> {
-            const val TYPE = "script"
-            override fun deserialization(serializeElement: SerializeElement): Script {
-                return serializeElement.checkType<SerializeObject, Script> {
-                    Script(
-                        script = it["script"]!!.asString,
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-
+    //region Script
+    class Script(val script: String = defaultScript, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, SCRIPT_TYPE) {
+        companion object : Codec<Script> {
             val defaultScript = """
                 // The variable blockResult represents a wrapped BlockHitResult object [HSBlockHitResult].
                 // The variable blockState represents a wrapped BlockState object [HSBlockState].
                 // The variable blockPos represents a Vector3ic object.
                 // To indicate a successful match, set the return value by calling:
-                // result.setValue(true);
+                // result.set(true);
             """.trimIndent()
+
+            private val codec = codec<Script>(SCRIPT_TYPE)
+                .field<String>("script").getter(Script::script).default(defaultScript).codec(Codec.string)
+                .build { _, mode, script -> Script(script, mode) }
+
+            override fun serialization(target: Script): SerializeElement = codec.serialization(target)
+            override fun deserialization(data: SerializeElement): Result<Script> = codec.deserialization(data)
         }
 
         override val asText: Component = Literal("Script Matcher")
 
         override fun match(obj: BlockInfo): Boolean {
-            val result = mutableStateOf(false)
+            val result = AtomicBoolean(false)
             ScriptExecutor(
                 script,
                 mutableMapOf(
@@ -287,29 +283,18 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
                     "result" to result
                 )
             ).execute()
-            return result.getValue()
+            return result.get()
         }
-
-        override fun serialization(): SerializeElement = entrySerialization {
-            "script" to script
-        }
-
     }
+    //endregion
 
-    class Pos(val min: Vector3ic, val max: Vector3ic, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, TYPE) {
+    //region Pos
+    class Pos(val min: Vector3ic, val max: Vector3ic, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, POS_TYPE) {
 
-        companion object : Deserializer<Pos> {
-            const val TYPE = "pos"
-            override fun deserialization(serializeElement: SerializeElement): Pos {
-                return serializeElement.checkType<SerializeObject, Pos> {
-                    Pos(
-                        min = Vector3icDeserializer.deserialization(it["min"]!!),
-                        max = Vector3icDeserializer.deserialization(it["max"]!!),
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-        }
+        companion object : Codec<Pos> by codec<Pos>(POS_TYPE)
+            .field<Vector3ic>("min").getter(Pos::min).codec(Codec.vector3ic)
+            .field<Vector3ic>("max").getter(Pos::max).codec(Codec.vector3ic)
+            .build({ _, mode, min, max -> Pos(min, max, mode) })
 
         override val asText: Component = Literal("[x:${min.x()},y:${min.y()},z:${min.z()}]..[x:${max.x()},y:${max.y()},z:${max.z()}]")
 
@@ -319,64 +304,35 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
                     && it.z() in min.z()..max.z()
         }
 
-        override fun serialization(): SerializeElement = entrySerialization {
-            "min" to min.serialization()
-            "max" to max.serialization()
-        }
-
     }
+    //endregion
 
-    class Tag(val tag: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, TYPE) {
+    //region Tag
+    class Tag(val tag: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, TAG_TYPE) {
 
-        companion object : Deserializer<Tag> {
-            const val TYPE = "tag"
-            override fun deserialization(serializeElement: SerializeElement): Tag {
-                return serializeElement.checkType<SerializeObject, Tag> {
-                    Tag(
-                        tag = it["tag"]!!.asString,
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-        }
+        companion object : Codec<Tag> by codec<Tag>(TAG_TYPE)
+            .field<String>("tag").getter(Tag::tag).codec(Codec.string)
+            .build({ _, mode, tag -> Tag(tag, mode) })
 
         override val asText: Component = Literal("#$tag")
 
         override fun match(obj: BlockInfo): Boolean = obj.state.hasTag(tag)
 
-        override fun serialization(): SerializeElement = entrySerialization {
-            "tag" to tag
-        }
-
     }
+    //endregion
 
-    class Property(val property: Pair<String, String>, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, TYPE) {
-
-        companion object : Deserializer<Property> {
-            const val TYPE = "property"
-            override fun deserialization(serializeElement: SerializeElement): Property {
-                return serializeElement.checkType<SerializeObject, Property> {
-                    Property(
-                        property = it["property"]!!.asString.let { str ->
-                            val strings = str.split(" = ")
-                            strings[0] to strings[1]
-                        },
-                        mode = getMode(it)
-                    )
-                }.getOrThrow()
-            }
-        }
+    //region Property
+    class Property(val property: Pair<String, String>, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, PROPERTY_TYPE) {
+        companion object : Codec<Property> by codec<Property>(PROPERTY_TYPE)
+            .field<Pair<String, String>>("property").getter(Property::property).codec(Codec.pair(Codec.string, Codec.string))
+            .build({ _, mode, property -> Property(property, mode) })
 
         override val asText: Component = Literal(property.first + " = " + property.second)
 
-        override fun match(obj: BlockInfo): Boolean = obj.state.values.any {
-            it.key.name == property.first && property.second == Util.getPropertyName(it.key, it.value)
+        override fun match(obj: BlockInfo): Boolean = obj.state.values.anyMatch {
+            it.property.name == property.first && property.second == Util.getPropertyName(it.property, it.value)
         }
-
-        override fun serialization(): SerializeElement = entrySerialization {
-            "property" to "${property.first} = ${property.second}"
-        }
-
     }
+    //endregion
 
 }

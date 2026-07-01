@@ -1,12 +1,12 @@
 package moe.forpleuvoir.hiirosakura.functional.gameplay
 
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainDoors
-import moe.forpleuvoir.ibukigourd.config.ModConfigContainer
-import moe.forpleuvoir.ibukigourd.config.item.impl.keyBindBoolean
+import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
+import moe.forpleuvoir.nebula.config.ConfigGroup
 
-object GamePlay : ModConfigContainer("gameplay") {
+object GamePlay : ConfigGroup("gameplay") {
 
-    val autoRebirth by keyBindBoolean("auto_rebirth", false)
+    val autoRebirth by configToggleKeybind("auto_rebirth", false)
 
     //TODO (不知道为什么添加的需求暂时不考虑实现)槽位锁定物品,优先将指定物品移动到指定槽位,不匹配的物品默认不占用指定槽位,只在物品栏已满的情况下占用,或者给开关强制不允许占用,多余的物品直接丢出
     //TODO 方块放置辅助,tweakeroo已有的功能,仅提供快捷访问的方式

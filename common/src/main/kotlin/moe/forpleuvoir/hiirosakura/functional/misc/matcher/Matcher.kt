@@ -1,26 +1,27 @@
 package moe.forpleuvoir.hiirosakura.functional.misc.matcher
 
-import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
+import moe.forpleuvoir.nebula.serialization.Serializer
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeArray
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
+import moe.forpleuvoir.nebula.serialization.base.SerializeObject
+import moe.forpleuvoir.nebula.serialization.base.builder.build
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.codec.enum
+import kotlin.to
 
-interface Matcher<T> : Serializable {
+interface Matcher<T> {
 
     fun match(obj: T): Boolean
 
 }
 
-interface MatchEntry<T> : Matcher<T>, Serializable {
+interface MatchEntry<T> : Matcher<T> {
 
     val mode: MatchMode
 
     fun matchWithMode(obj: T): Boolean = mode.handleResult(match(obj))
 
-    enum class MatchMode(private val value: Boolean) : Serializable {
+    enum class MatchMode(private val value: Boolean) {
         /**
          * 表示匹配模式中的包含模式，用于确定匹配的项目是否应包含在结果内。
          */
@@ -31,12 +32,7 @@ interface MatchEntry<T> : Matcher<T>, Serializable {
          */
         Exclude(false);
 
-        companion object : Deserializer<MatchMode> {
-            override fun deserialization(serializeElement: SerializeElement): MatchMode {
-                return serializeElement.checkType<SerializePrimitive, MatchMode> {
-                    if (it.asBoolean) Include else Exclude
-                }.getOrThrow()
-            }
+        companion object : Codec<MatchMode> by Codec.enum() {
 
             fun fromBoolean(value: Boolean): MatchMode = if (value) Include else Exclude
         }
@@ -45,7 +41,6 @@ interface MatchEntry<T> : Matcher<T>, Serializable {
 
         fun handleResult(result: Boolean): Boolean = if (value) result else !result
 
-        override fun serialization(): SerializeElement = SerializePrimitive(value)
     }
 }
 
@@ -66,13 +61,7 @@ interface CompositeMatcher<T> : Matcher<T>, Cloneable {
         }
     }
 
-    override fun serialization(): SerializeElement =
-        serializeObject {
-            "mode" to mode
-            "entries" to serializeArray(entries)
-        }
-
-    enum class MatchMode : Serializable {
+    enum class MatchMode {
         /**
          *
          * 在任意匹配模式下，只要存在一个匹配项符合条件，则整个匹配规则被视为通过。
@@ -92,15 +81,7 @@ interface CompositeMatcher<T> : Matcher<T>, Cloneable {
          */
         AllMatch;
 
-        companion object : Deserializer<MatchMode> {
-            override fun deserialization(serializeElement: SerializeElement): MatchMode {
-                return MatchMode.entries
-                    .find { it.name == serializeElement.asString }
-                    ?: throw IllegalArgumentException("Unsupported mode ${serializeElement.asString}")
-            }
-        }
-
-        override fun serialization(): SerializeElement = SerializePrimitive(name)
+        companion object : Codec<MatchMode> by Codec.enum()
 
     }
 

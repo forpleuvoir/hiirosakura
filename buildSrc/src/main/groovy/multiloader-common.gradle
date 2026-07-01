@@ -2,6 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id "org.jetbrains.kotlin.jvm"
+    id "org.jetbrains.kotlin.plugin.compose"
 }
 
 base {
@@ -11,19 +12,23 @@ base {
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
     withSourcesJar()
-    withJavadocJar()
+//    withJavadocJar()
 }
 
+def javaVersion = libs.versions.java.get()
+
 kotlin {
-    jvmToolchain(Integer.parseInt(libs.versions.java.get()))
+    jvmToolchain(Integer.parseInt(javaVersion))
     compilerOptions {
         freeCompilerArgs.add('-Xjvm-default=all')
+        freeCompilerArgs.add('-Xcontext-parameters')
     }
 }
 
 repositories {
     mavenCentral()
     mavenLocal()
+    google()
     // https://docs.gradle.org/current/userguide/declaring_repositories.html#declaring_content_exclusively_found_in_one_repository
     exclusiveContent {
         forRepository {
@@ -33,19 +38,6 @@ repositories {
             }
         }
         filter { includeGroupAndSubgroups('org.spongepowered') }
-    }
-    exclusiveContent {
-        forRepositories(
-                maven {
-                    name = 'ParchmentMC'
-                    url = 'https://maven.parchmentmc.org/'
-                },
-                maven {
-                    name = "NeoForge"
-                    url = 'https://maven.neoforged.net/releases'
-                }
-        )
-        filter { includeGroup('org.parchmentmc.data') }
     }
     maven {
         name = 'BlameJared'
@@ -60,31 +52,18 @@ repositories {
     maven {url = "https://api.modrinth.com/maven"}
 }
 
-// Declare capabilities on the outgoing configurations.
-// Read more about capabilities here: https://docs.gradle.org/current/userguide/component_capabilities.html#sec:declaring-additional-capabilities-for-a-local-component
-['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
-    configurations."$variant".outgoing {
-//        capability("$group:${project.name}:$version")
-        capability("$group:${base.archivesName.get()}:$version")
-        capability("$group:$mod_id-${project.name}-${libs.versions.minecraft.get()}:$version")
-        capability("$group:$mod_id:$version")
-    }
-    publishing.publications.configureEach {
-        suppressPomMetadataWarningsFor(variant)
-    }
-}
-
 sourcesJar {
     from(rootProject.file('LICENSE')) {
         rename { "${it}_${mod_name}" }
     }
+    from(rootProject.file('NOTICE.md'))
 }
 
 jar {
     from(rootProject.file('LICENSE')) {
         rename { "${it}_${mod_name}" }
     }
-
+    from(rootProject.file('NOTICE.md'))
     manifest {
         attributes([
                 'Specification-Title'   : mod_name,
@@ -138,8 +117,8 @@ processResources {
 
 publishing {
     publications {
-        register('mavenJava', MavenPublication) {
-            artifactId base.archivesName.get()
+        "mod"(MavenPublication) {
+            artifactId = base.archivesName.get()
             from components.java
         }
     }

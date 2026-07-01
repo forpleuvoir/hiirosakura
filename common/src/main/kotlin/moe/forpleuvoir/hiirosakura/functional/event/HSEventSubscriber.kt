@@ -5,52 +5,59 @@ import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.executor.CommandExecutor
 import moe.forpleuvoir.hiirosakura.functional.task.executor.MessageExecutor
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
-import moe.forpleuvoir.nebula.event.Event
-import moe.forpleuvoir.nebula.event.eventName
+import moe.forpleuvoir.hiirosakura.util.logger
+import moe.forpleuvoir.nebula.common.util.checkType
+import moe.forpleuvoir.nebula.common.util.requireKey
+import moe.forpleuvoir.nebula.common.util.requireType
+import moe.forpleuvoir.nebula.event.Registration
+import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.Deserializer
 import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
-import moe.forpleuvoir.nebula.serialization.extensions.checkType
-import moe.forpleuvoir.nebula.serialization.extensions.serializeObject
-import kotlin.reflect.KClass
+import moe.forpleuvoir.nebula.serialization.base.builder.build
+import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.nebula.serialization.extensions.requireBoolean
+import moe.forpleuvoir.nebula.serialization.extensions.requireString
 
 class HSEventSubscriber(
     var name: String,
     var enabled: Boolean,
-    var eventType: KClass<out Event>,
+    var eventTypeId: String,
     var executorType: ExecutorType,
     var executor: Executor
-) : Serializable {
+) {
+
+    private var registration: Registration? = null
 
     enum class ExecutorType {
         Command {
             override fun deserialization(serializeElement: SerializeElement): CommandExecutor =
-                serializeElement.checkType<SerializePrimitive, CommandExecutor> { CommandExecutor(it.asString) }.getOrThrow()
+                serializeElement.checkType<SerializePrimitive, CommandExecutor> { CommandExecutor(it.value.requireType()) }
         },
         Message {
             override fun deserialization(serializeElement: SerializeElement): MessageExecutor =
-                serializeElement.checkType<SerializePrimitive, MessageExecutor> { MessageExecutor(it.asString) }.getOrThrow()
+                serializeElement.checkType<SerializePrimitive, MessageExecutor> { MessageExecutor(it.value.requireType()) }
         },
         Script {
             override fun deserialization(serializeElement: SerializeElement): ScriptExecutor =
-                serializeElement.checkType<SerializePrimitive, ScriptExecutor> { ScriptExecutor(it.asString) }.getOrThrow()
+                serializeElement.checkType<SerializePrimitive, ScriptExecutor> { ScriptExecutor(it.value.requireType()) }
         },
         TickTask {
             override fun deserialization(serializeElement: SerializeElement): HSTickTask =
-                HSTickTask.deserialization(serializeElement)
+                HSTickTask.deserialization(serializeElement).getOrThrow()
         };
 
         abstract fun deserialization(serializeElement: SerializeElement): Executor
     }
 
-    fun onEvent(event: Event) {
+    fun onEvent(eventContext: Any) {
         when (executorType) {
             ExecutorType.Message, ExecutorType.Command -> executor.execute()
             ExecutorType.Script                        -> {
                 (executor as ScriptExecutor).let {
-                    it["event"] = event
+                    it["eventContext"] = eventContext
                     executor.execute()
                 }
             }
@@ -59,7 +66,7 @@ class HSEventSubscriber(
                 (executor as HSTickTask).let { task ->
                     if (task.executorType == HSTickTask.ExecutorType.Script) {
                         (task.executor as ScriptExecutor).let {
-                            it["event"] = event
+                            it["eventContext"] = eventContext
                         }
                     }
                     task.execute()
@@ -69,40 +76,52 @@ class HSEventSubscriber(
 
     }
 
-    fun fromEventSubscriber(eventSubscriber: HSEventSubscriber) {
-        this.name = eventSubscriber.name
-        this.enabled = eventSubscriber.enabled
-        this.eventType = eventSubscriber.eventType
-        this.executorType = eventSubscriber.executorType
-        this.executor = eventSubscriber.executor
+    fun subscribe() {
+        unsubscribe()
+        if (!enabled) return
+        val type = EventTypes[eventTypeId]
+        if (type == null) {
+            log.warn("未知事件类型: {}", eventTypeId)
+            return
+        }
+        registration = type.subscribe { onEvent(it) }
     }
 
-    companion object : Deserializer<HSEventSubscriber> {
+    fun unsubscribe() {
+        registration?.unregister()
+        registration = null
+    }
 
-        val empty get() = HSEventSubscriber("", true, HSEventManager.subscribableEvents.first(), ExecutorType.Script, ScriptExecutor(""))
+    companion object : Codec<HSEventSubscriber> {
 
+        private val log = logger()
 
-        override fun deserialization(serializeElement: SerializeElement): HSEventSubscriber =
-            serializeElement.checkType<SerializeObject, HSEventSubscriber> {
-                val type = ExecutorType.valueOf(it["executor_type"]!!.asString)
+        val empty get() = HSEventSubscriber("", true, EventTypes.ids.first(), ExecutorType.Script, ScriptExecutor(""))
+
+        private fun resolveEventTypeId(raw: String): String =
+            EventTypes[raw]?.let { raw } ?: EventTypes.ids.first().also {
+                logger().warn("配置中存在未知事件类型 '{}', 回退至 '{}'", raw, it)
+            }
+
+        override fun deserialization(data: SerializeElement): Result<HSEventSubscriber> = DeserializationException.runCatching {
+            data.checkType<SerializeObject, HSEventSubscriber> {
+                val type = ExecutorType.valueOf(it.requireString("executor_type"))
                 HSEventSubscriber(
-                    name = it["name"]!!.asString,
-                    enabled = it["enabled"]!!.asBoolean,
-                    eventType = HSEventManager.subscribableEvents.first { event -> event.eventName == it["event_type"]!!.asString },
-                    executorType = ExecutorType.valueOf(it["executor_type"]!!.asString),
-                    executor = type.deserialization(it["executor"]!!)
+                    name = it.requireString("name"),
+                    enabled = it.requireBoolean("enabled"),
+                    eventTypeId = resolveEventTypeId(it.requireString("event_type")),
+                    executorType = type,
+                    executor = type.deserialization(it.requireKey("executor"))
                 )
-            }.getOrThrow()
+            }
+        }
 
+        override fun serialization(target: HSEventSubscriber): SerializeElement = SerializeObject.build {
+            "name" to target.name
+            "enabled" to target.enabled
+            "event_type" to target.eventTypeId
+            "executor_type" to target.executorType.name
+            "executor" to target.executor.serialization()
+        }
     }
-
-    override fun serialization(): SerializeElement = serializeObject {
-        "name" to name
-        "enabled" to enabled
-        "event_type" to eventType.eventName
-        "executor_type" to executorType.name
-        "executor" to executor.serialization()
-    }
-
 }
-

@@ -165,12 +165,6 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     abstract val asText: Component
 
-    fun entrySerialization(scope: SerializeObjectBuilder.() -> Unit) = SerializeObject.build {
-        "type" to type
-        "mode" to mode
-        scope()
-    }
-
     abstract fun copyWithMode(mode: MatchEntry.MatchMode): BlockInfoMatchEntry
 
     companion object : Codec<BlockInfoMatchEntry> {
@@ -316,7 +310,9 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
             .field<Vector3ic>("min").getter(Pos::min).codec(Codec.vector3ic)
             .field<Vector3ic>("max").getter(Pos::max).codec(Codec.vector3ic)
             .build({ _, mode, min, max -> Pos(min, max, mode) }) {
+
             inline val title get() = HSLang.BlockInfoMatcher.Entry.pos
+
             val default get() = mc.targetBlock?.let { Pos(it.pos, it.pos) } ?: Pos(Vector3i(), Vector3i())
         }
 
@@ -352,7 +348,9 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
         companion object : Codec<Tag> by codec<Tag>(TAG_TYPE)
             .field<String>("tag").getter(Tag::tag).codec(Codec.string)
             .build({ _, mode, tag -> Tag(tag, mode) }) {
+
             inline val title get() = HSLang.BlockInfoMatcher.Entry.tag
+
             val default
                 get() = mc.targetBlock?.let {
                     Tag(it.state.tags().findFirst().getOrNull()?.location?.toString() ?: "")
@@ -376,7 +374,9 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
         companion object : Codec<Property> by codec<Property>(PROPERTY_TYPE)
             .field<Pair<String, String>>("property").getter(Property::property).codec(Codec.pair(Codec.string, Codec.string))
             .build({ _, mode, property -> Property(property, mode) }) {
+
             inline val title get() = HSLang.BlockInfoMatcher.Entry.property
+
             val default
                 get() = Property(
                     mc.targetBlock?.state?.values?.findFirst()?.getOrNull()?.run {

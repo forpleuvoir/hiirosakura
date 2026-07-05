@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -9,15 +8,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
-import moe.forpleuvoir.hiirosakura.ui.icon.default.EditLocationAlt
 import moe.forpleuvoir.hiirosakura.ui.icon.default.EditSquare
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Equal
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
 import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
@@ -88,42 +86,11 @@ internal fun BasicBlockInfoMatchEntryPropertyEditor(
     ) {
         Column(Modifier.fillMaxWidth()) {
             Text(value.translateText)
-            val keyState = rememberTextFieldState(value.property.first)
-            val valueState = rememberTextFieldState(value.property.second)
+
+            val keyState = rememberTextFieldStateBinding(value.property.first) { onValueChange(value.copy(property = it to value.property.second)) }
+            val valueState = rememberTextFieldStateBinding(value.property.second) { onValueChange(value.copy(property = value.property.first to it)) }
+
             Spacer(Modifier.height(16.dp))
-            LaunchedEffect(value.property.first) {
-                if (keyState.text.toString() != value.property.first) {
-                    keyState.edit {
-                        replace(0, length, value.property.first)
-                    }
-                }
-            }
-
-            LaunchedEffect(value.property.second) {
-                if (valueState.text.toString() != value.property.second) {
-                    valueState.edit {
-                        replace(0, length, value.property.second)
-                    }
-                }
-            }
-
-            LaunchedEffect(keyState) {
-                snapshotFlow { keyState.text.toString() }
-                    .collect { text ->
-                        if (text != value.property.first) {
-                            onValueChange(value.copy(property = text to value.property.second))
-                        }
-                    }
-            }
-
-            LaunchedEffect(valueState) {
-                snapshotFlow { keyState.text.toString() }
-                    .collect { text ->
-                        if (text != value.property.first) {
-                            onValueChange(value.copy(property = text to value.property.second))
-                        }
-                    }
-            }
             val properties = remember {
                 mc.targetBlock?.state?.values?.map {
                     it.property.name to Util.getPropertyName(it.property, it.value)

@@ -1,4 +1,4 @@
-package moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo
+package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
@@ -10,10 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
-import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
@@ -21,15 +21,14 @@ import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.StringSelector
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.util.mc
 
 /**
- * Entry 在Row中简单信息展示
+ * Entry 在 Row 中简单信息展示
  */
 @Composable
-internal fun BlockInfoMatchEntryTagRow(
-    entry: BlockInfoMatchEntry.Tag,
-    onChange: (BlockInfoMatchEntry) -> Unit,
+internal fun ItemStackMatchEntryTagRow(
+    entry: ItemStackMatchEntry.Tag,
+    onChange: (ItemStackMatchEntry) -> Unit,
     modifier: Modifier = Modifier
 ) = Row(modifier, verticalAlignment = Alignment.CenterVertically) {
     Text(entry.asText, Modifier.weight(1f, false), overflow = TextOverflow.Ellipsis)
@@ -39,7 +38,7 @@ internal fun BlockInfoMatchEntryTagRow(
         Icon(Icons.EditNote, "${IGLang.Misc.edit} ${entry.translateText.plainText}")
     }
     if (showEditor) {
-        BlockInfoMatchEntryTagEditorDialog(
+        ItemStackMatchEntryTagEditorDialog(
             { showEditor = false },
             entry,
             onChange,
@@ -47,19 +46,18 @@ internal fun BlockInfoMatchEntryTagRow(
     }
 }
 
-
 @Composable
-internal fun BlockInfoMatchEntryTagEditorDialog(
+internal fun ItemStackMatchEntryTagEditorDialog(
     onDismissRequest: () -> Unit,
-    value: BlockInfoMatchEntry.Tag,
-    onValueChange: (BlockInfoMatchEntry) -> Unit,
+    value: ItemStackMatchEntry.Tag,
+    onValueChange: (ItemStackMatchEntry) -> Unit,
 ) {
     var editingEntry by remember(value) { mutableStateOf(value) }
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(editingEntry.translateText) },
         content = {
-            BasicBlockInfoMatchEntryTagEditor(
+            BasicItemStackMatchEntryTagEditor(
                 value = editingEntry,
                 onValueChange = { editingEntry = it },
                 modifier = Modifier.width(480.dp)
@@ -73,44 +71,41 @@ internal fun BlockInfoMatchEntryTagEditorDialog(
 }
 
 @Composable
-internal fun BasicBlockInfoMatchEntryTagEditor(
-    value: BlockInfoMatchEntry.Tag,
+internal fun BasicItemStackMatchEntryTagEditor(
+    value: ItemStackMatchEntry.Tag,
     modifier: Modifier = Modifier,
-    onValueChange: (BlockInfoMatchEntry.Tag) -> Unit,
+    onValueChange: (ItemStackMatchEntry.Tag) -> Unit,
 ) {
     BasicMatchEntryEditor(
         mode = value.mode,
         onModeChange = { onValueChange(value.copy(mode = it)) },
         modifier = modifier,
     ) {
-        Column(Modifier.fillMaxWidth()) {
-            val state = rememberTextFieldStateBinding(value.tag) { onValueChange(value.copy(tag = it)) }
-            val tags = remember {
-                mc.targetBlock?.state
-                    ?.tags()
-                    ?.toList()
-                    ?.map { tag -> tag.location.toString() }
-            }
-
-            if (!tags.isNullOrEmpty()) {
-                StringSelector(
-                    HSLang.Common.getFromTargetBlock.plainText,
-                    { selectedTag ->
-                        if (state.text.toString() != selectedTag) {
-                            state.edit { replace(0, length, selectedTag) }
-                        }
-                    },
-                    items = tags,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(Modifier.height(8.dp))
-            }
-            OutlinedTextField(
-                state = state,
-                modifier = Modifier.fillMaxWidth().height(120.dp),
-                label = { Text(value.translateText) }
-            )
+        val state = rememberTextFieldStateBinding(value.tag) { onValueChange(value.copy(tag = it)) }
+        val tags = remember {
+            ItemStackMatcher.handheldItemStack
+                ?.tags()
+                ?.toList()
+                ?.map { tag -> tag.location.toString() }
         }
 
+        if (!tags.isNullOrEmpty()) {
+            StringSelector(
+                HSLang.Common.getFromHandItem.plainText,
+                { selectedTag ->
+                    if (state.text.toString() != selectedTag) {
+                        state.edit { replace(0, length, selectedTag) }
+                    }
+                },
+                items = tags,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(8.dp))
+        }
+        OutlinedTextField(
+            state = state,
+            modifier = Modifier.fillMaxWidth().height(120.dp),
+            label = { Text(value.translateText) }
+        )
     }
 }

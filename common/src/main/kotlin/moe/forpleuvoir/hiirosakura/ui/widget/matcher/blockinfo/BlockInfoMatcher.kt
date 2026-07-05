@@ -16,7 +16,9 @@ import moe.forpleuvoir.hiirosakura.ui.widget.FormatExportButton
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportButton
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.*
 import moe.forpleuvoir.hiirosakura.util.targetBlock
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -42,14 +44,15 @@ fun BasicBlockInfoMatcherEditor(
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 mc.targetBlock?.let { targetBlock ->
                     TestButton(
+                        HSLang.BlockInfoMatcher.testButton.plainText,
                         HSLang.BlockInfoMatcher.testSuccess.plainText,
                         HSLang.BlockInfoMatcher.testFailed.plainText
                     ) {
                         value.match(targetBlock)
                     }
                 }
-                FormatExportButton(HSLang.Common.success.plainText) {
-                    it.encode(BlockInfoMatcher.serialization(value))
+                FormatExportButton(IGLang.Misc.copySuccess(HSLang.BlockInfoMatcher.title).plainText) {
+                    MinecraftClipboard.setClipboardText(it.encode(BlockInfoMatcher.serialization(value)))
                 }
                 FormatImportButton(HSLang.BlockInfoMatcher.title.plainText, HSLang.Common.success.plainText) {
                     BlockInfoMatcher.deserialization(it)

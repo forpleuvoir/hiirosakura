@@ -1,54 +1,43 @@
-package moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo
+package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
-import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicScriptEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
 
 /**
- * Entry 在Row中简单信息展示
+ * Entry 在 Row 中简单信息展示
  */
 @Composable
-internal fun BlockInfoMatchEntryScriptRow(
-    entry: BlockInfoMatchEntry.Script,
-    onChange: (BlockInfoMatchEntry) -> Unit,
+internal fun ItemStackMatchEntryNameRow(
+    entry: ItemStackMatchEntry.Name,
+    onChange: (ItemStackMatchEntry) -> Unit,
     modifier: Modifier = Modifier
 ) = Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-
-    val lines = entry.script.lineSequence().toList()
-    val displayText = if (lines.size <= 5) {
-        entry.script
-    } else {
-        lines.take(5).joinToString("\n") + "..."
-    }
-
-    TipBox({
-        Text(displayText)
-    }) {
-        Text(entry.asText, Modifier.weight(1f, false), overflow = TextOverflow.Ellipsis)
-    }
+    Text(entry.asText, Modifier.weight(1f, false), overflow = TextOverflow.Ellipsis)
     Spacer(Modifier.width(6.dp))
     var showEditor by remember { mutableStateOf(false) }
     IconButton({ showEditor = true }) {
         Icon(Icons.EditNote, "${IGLang.Misc.edit} ${entry.translateText.plainText}")
     }
     if (showEditor) {
-        BlockInfoMatchEntryScriptEditorDialog(
+        ItemStackMatchEntryNameEditorDialog(
             { showEditor = false },
             entry,
             onChange,
@@ -56,23 +45,20 @@ internal fun BlockInfoMatchEntryScriptRow(
     }
 }
 
-
 @Composable
-internal fun BlockInfoMatchEntryScriptEditorDialog(
+internal fun ItemStackMatchEntryNameEditorDialog(
     onDismissRequest: () -> Unit,
-    value: BlockInfoMatchEntry.Script,
-    onValueChange: (BlockInfoMatchEntry) -> Unit,
+    value: ItemStackMatchEntry.Name,
+    onValueChange: (ItemStackMatchEntry) -> Unit,
 ) {
     var editingEntry by remember(value) { mutableStateOf(value) }
     FlexibleDialog(
-        modifier = Modifier.padding(24.dp).heightIn(480.dp).fillMaxHeight(0.85f).widthIn(720.dp).fillMaxWidth(0.65f),
         onDismissRequest = onDismissRequest,
         title = { Text(editingEntry.translateText) },
         content = {
-            BasicBlockInfoMatchEntryScriptEditor(
+            BasicItemStackMatchEntryNameEditor(
                 value = editingEntry,
                 onValueChange = { editingEntry = it },
-                modifier = Modifier.fillMaxSize()
             )
         },
         onConfirmRequest = {
@@ -83,16 +69,22 @@ internal fun BlockInfoMatchEntryScriptEditorDialog(
 }
 
 @Composable
-internal fun BasicBlockInfoMatchEntryScriptEditor(
-    value: BlockInfoMatchEntry.Script,
+internal fun BasicItemStackMatchEntryNameEditor(
+    value: ItemStackMatchEntry.Name,
     modifier: Modifier = Modifier,
-    onValueChange: (BlockInfoMatchEntry.Script) -> Unit,
+    onValueChange: (ItemStackMatchEntry.Name) -> Unit,
 ) {
     BasicMatchEntryEditor(
         mode = value.mode,
         onModeChange = { onValueChange(value.copy(mode = it)) },
         modifier = modifier,
     ) {
-        BasicScriptEditor(value.script, { onValueChange(value.copy(script = it)) })
+        val state = rememberTextFieldStateBinding(value.name) { onValueChange(value.copy(name = it)) }
+        OutlinedTextField(
+            state = state,
+            modifier = Modifier.width(300.dp)
+        )
     }
 }
+
+

@@ -50,8 +50,8 @@ object CommonLang {
 
     inline val itemInitFailure get() = lang("item_init_failure")
 
-    inline val exportAsJson get() = MatcherLang.lang("export_as_json")
+    inline val exportAsFormat get() = MatcherLang.lang("export_as_format")
 
-    inline val importFromJson get() = MatcherLang.lang("import_from_json")
+    inline val importFromFormat get() = MatcherLang.lang("import_from_format")
 
 }

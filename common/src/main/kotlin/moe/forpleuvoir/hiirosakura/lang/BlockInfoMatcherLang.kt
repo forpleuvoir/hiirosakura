@@ -15,6 +15,8 @@ object BlockInfoMatcherLang {
 
     inline val targetBlock get() = lang("target_block")
 
+    inline val testButton get() = lang("test_button")
+
     inline val testSuccess get() = lang("test_success")
 
     inline val testFailed get() = lang("test_failed")

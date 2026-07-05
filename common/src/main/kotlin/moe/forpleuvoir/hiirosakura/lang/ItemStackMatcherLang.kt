@@ -15,6 +15,12 @@ object ItemStackMatcherLang {
 
     inline val handheldItem get() = lang("handheld_item")
 
+    inline val testButton get() = lang("test_button")
+
+    inline val testSuccess get() = lang("test_success")
+
+    inline val testFailed get() = lang("test_failed")
+
     val Entry = EntryLang
 
     @Suppress("NOTHING_TO_INLINE")

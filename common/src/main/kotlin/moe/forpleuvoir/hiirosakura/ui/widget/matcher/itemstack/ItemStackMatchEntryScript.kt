@@ -1,15 +1,14 @@
-package moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo
+package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicScriptEditor
 import moe.forpleuvoir.ibukigourd.lang.IGLang
@@ -21,12 +20,12 @@ import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
 
 /**
- * Entry 在Row中简单信息展示
+ * Entry 在 Row 中简单信息展示
  */
 @Composable
-internal fun BlockInfoMatchEntryScriptRow(
-    entry: BlockInfoMatchEntry.Script,
-    onChange: (BlockInfoMatchEntry) -> Unit,
+internal fun ItemStackMatchEntryScriptRow(
+    entry: ItemStackMatchEntry.Script,
+    onChange: (ItemStackMatchEntry) -> Unit,
     modifier: Modifier = Modifier
 ) = Row(modifier, verticalAlignment = Alignment.CenterVertically) {
 
@@ -38,7 +37,7 @@ internal fun BlockInfoMatchEntryScriptRow(
     }
 
     TipBox({
-        Text(displayText)
+        Text(displayText.let { moe.forpleuvoir.ibukigourd.text.Literal(it) })
     }) {
         Text(entry.asText, Modifier.weight(1f, false), overflow = TextOverflow.Ellipsis)
     }
@@ -48,7 +47,7 @@ internal fun BlockInfoMatchEntryScriptRow(
         Icon(Icons.EditNote, "${IGLang.Misc.edit} ${entry.translateText.plainText}")
     }
     if (showEditor) {
-        BlockInfoMatchEntryScriptEditorDialog(
+        ItemStackMatchEntryScriptEditorDialog(
             { showEditor = false },
             entry,
             onChange,
@@ -56,12 +55,11 @@ internal fun BlockInfoMatchEntryScriptRow(
     }
 }
 
-
 @Composable
-internal fun BlockInfoMatchEntryScriptEditorDialog(
+internal fun ItemStackMatchEntryScriptEditorDialog(
     onDismissRequest: () -> Unit,
-    value: BlockInfoMatchEntry.Script,
-    onValueChange: (BlockInfoMatchEntry) -> Unit,
+    value: ItemStackMatchEntry.Script,
+    onValueChange: (ItemStackMatchEntry) -> Unit,
 ) {
     var editingEntry by remember(value) { mutableStateOf(value) }
     FlexibleDialog(
@@ -69,7 +67,7 @@ internal fun BlockInfoMatchEntryScriptEditorDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(editingEntry.translateText) },
         content = {
-            BasicBlockInfoMatchEntryScriptEditor(
+            BasicItemStackMatchEntryScriptEditor(
                 value = editingEntry,
                 onValueChange = { editingEntry = it },
                 modifier = Modifier.fillMaxSize()
@@ -83,10 +81,10 @@ internal fun BlockInfoMatchEntryScriptEditorDialog(
 }
 
 @Composable
-internal fun BasicBlockInfoMatchEntryScriptEditor(
-    value: BlockInfoMatchEntry.Script,
+internal fun BasicItemStackMatchEntryScriptEditor(
+    value: ItemStackMatchEntry.Script,
     modifier: Modifier = Modifier,
-    onValueChange: (BlockInfoMatchEntry.Script) -> Unit,
+    onValueChange: (ItemStackMatchEntry.Script) -> Unit,
 ) {
     BasicMatchEntryEditor(
         mode = value.mode,
@@ -96,3 +94,5 @@ internal fun BasicBlockInfoMatchEntryScriptEditor(
         BasicScriptEditor(value.script, { onValueChange(value.copy(script = it)) })
     }
 }
+
+

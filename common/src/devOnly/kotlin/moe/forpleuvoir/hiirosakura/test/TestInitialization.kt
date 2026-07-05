@@ -23,6 +23,13 @@ class TestInitialization : ModInitialization {
             ) {
                 openBlockMacherEditor()
             }
+            register(
+                Keyboard.KP_3, defaultSetting = KeybindSetting(
+                    env = KeyEnvironment.Any
+                )
+            ) {
+                openItemMacherEditor()
+            }
 
 
         }

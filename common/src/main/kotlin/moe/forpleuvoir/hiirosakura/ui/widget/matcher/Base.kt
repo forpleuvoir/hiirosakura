@@ -7,6 +7,8 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,8 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
@@ -279,12 +284,13 @@ internal fun CompositeMatcherModeSelector(
 
 @Composable
 internal fun TestButton(
+    tip: String,
     successMsg: String,
     failedMsg: String,
     test: () -> Boolean
 ) {
     TipBox({
-        Text(HSLang.Common.exportAsJson)
+        Text(tip)
     }) {
         IconButton({
             if (test()) {
@@ -299,3 +305,52 @@ internal fun TestButton(
 }
 
 //endregion
+
+@Composable
+internal fun BasicScriptEditor(
+    script: String,
+    onValueChange: (String) -> Unit
+) {
+    val state = rememberTextFieldStateBinding(script, onValueChange)
+    Box {
+        val scrollState = rememberScrollState()
+        OutlinedTextField(
+            state = state,
+            scrollState = scrollState,
+            textStyle = TextStyle(
+                fontFamily = FontFamily.Monospace,
+                fontSize = 14.sp
+            ),
+            modifier = Modifier.fillMaxSize()
+        )
+
+        VerticalScrollbar(
+            modifier = Modifier.align(Alignment.CenterEnd),
+            adapter = rememberScrollbarAdapter(scrollState)
+        )
+    }
+}
+
+@Composable
+fun rememberTextFieldStateBinding(
+    value: String,
+    onValueChange: (String) -> Unit
+): TextFieldState {
+    val state = rememberTextFieldState(value)
+    LaunchedEffect(value) {
+        if (state.text.toString() != value) {
+            state.edit {
+                replace(0, length, value)
+            }
+        }
+    }
+    LaunchedEffect(state) {
+        snapshotFlow { state.text.toString() }
+            .collect { text ->
+                if (text != value) {
+                    onValueChange(text)
+                }
+            }
+    }
+    return state
+}

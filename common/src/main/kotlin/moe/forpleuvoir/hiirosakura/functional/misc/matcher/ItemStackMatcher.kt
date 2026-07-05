@@ -1,8 +1,12 @@
 package moe.forpleuvoir.hiirosakura.functional.misc.matcher
 
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.EntityMatchEntry.Matcher
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry.Script.Companion.defaultScript
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSItemStack
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
+import moe.forpleuvoir.hiirosakura.ui.widget.EnchatmentHelper
 import moe.forpleuvoir.hiirosakura.util.allEnchantments
 import moe.forpleuvoir.hiirosakura.util.codec.dataComponentType
 import moe.forpleuvoir.hiirosakura.util.codec.item
@@ -23,10 +27,12 @@ import moe.forpleuvoir.nebula.serialization.codec.enum
 import moe.forpleuvoir.nebula.serialization.codec.intRange
 import moe.forpleuvoir.nebula.serialization.codec.serialization
 import moe.forpleuvoir.nebula.serialization.extensions.requireString
+import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.jvm.optionals.getOrNull
 import net.minecraft.core.component.DataComponentType as McDataComponentType
 import net.minecraft.world.item.Item as McItem
 import net.minecraft.world.item.Rarity as McRarity
@@ -130,6 +136,8 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     abstract val asText: Component
 
+    abstract fun copyWithMode(mode: MatchEntry.MatchMode): ItemStackMatchEntry
+
     companion object : Codec<ItemStackMatchEntry> {
 
         private const val MATCHER_TYPE = "matcher"
@@ -180,12 +188,22 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
     }
 
     //region Matcher
-    class Matcher(val matcher: ItemStackMatcher, mode: MatchEntry.MatchMode) : ItemStackMatchEntry(mode, MATCHER_TYPE) {
+    data class Matcher(
+        val matcher: ItemStackMatcher,
+        override val mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+    ) : ItemStackMatchEntry(mode, MATCHER_TYPE) {
         companion object : Codec<Matcher> by codec<Matcher>(MATCHER_TYPE)
             .field<ItemStackMatcher>("matcher").getter(Matcher::matcher).codec(ItemStackMatcher)
-            .build({ _, mode, matcher -> Matcher(matcher, mode) })
+            .build({ _, mode, matcher -> Matcher(matcher, mode) }) {
+
+            inline val title get() = HSLang.ItemStackMatcher.Entry.matcher
+
+            val default get() = Matcher(ItemStackMatcher.handheldItemMatcher)
+        }
 
         override val asText: Component get() = matcher.simpleText
+
+        override fun copyWithMode(mode: MatchEntry.MatchMode): ItemStackMatchEntry = this.copy(mode = mode)
 
         override fun match(obj: ItemStack): Boolean = matcher.match(obj)
 
@@ -193,12 +211,22 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
     //endregion
 
     //region Item
-    class Item(val item: McItem, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, ITEM_TYPE) {
+    data class Item(
+        val item: McItem,
+        override val mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+    ) : ItemStackMatchEntry(mode, ITEM_TYPE) {
         companion object : Codec<Item> by codec<Item>(ITEM_TYPE)
             .field<McItem>("item").getter(Item::item).codec(Codec.item)
-            .build({ _, mode, item -> Item(item, mode) })
+            .build({ _, mode, item -> Item(item, mode) }) {
+
+            inline val title get() = HSLang.ItemStackMatcher.Entry.item
+
+            val default get() = Item(ItemStackMatcher.handheldItemStack?.item ?: Items.MELON)
+        }
 
         override val asText: Component by lazy { item.getName(ItemStack(item)) }
+
+        override fun copyWithMode(mode: MatchEntry.MatchMode): ItemStackMatchEntry = this.copy(mode = mode)
 
         override fun match(obj: ItemStack): Boolean = obj.item == item
 
@@ -206,12 +234,23 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
     //endregion
 
     //region Name
-    class Name(val name: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, NAME_TYPE) {
+    data class Name(
+        val name: String,
+        override val mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+    ) : ItemStackMatchEntry(mode, NAME_TYPE) {
         companion object : Codec<Name> by codec<Name>(NAME_TYPE)
             .field<String>("name").getter(Name::name).codec(Codec.string)
-            .build({ _, mode, name -> Name(name, mode) })
+            .build({ _, mode, name -> Name(name, mode) }) {
+
+            inline val title get() = HSLang.ItemStackMatcher.Entry.name
+
+            val default get() = Name(ItemStackMatcher.handheldItemStack?.itemName?.plainText ?: "")
+
+        }
 
         override val asText: Component = Literal(name)
+
+        override fun copyWithMode(mode: MatchEntry.MatchMode): ItemStackMatchEntry = this.copy(mode = mode)
 
         override fun match(obj: ItemStack): Boolean =
             name.toRegex().matches(obj.itemName.string)
@@ -220,13 +259,20 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
     //endregion
 
     //region Script
-    class Script(val script: String = defaultScript, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, SCRIPT_TYPE) {
+    data class Script(
+        val script: String = defaultScript,
+        override val mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+    ) : ItemStackMatchEntry(mode, SCRIPT_TYPE) {
         companion object : Codec<Script> {
             val defaultScript = """
                 // The variable itemStack represents a wrapped ItemStack object [HSItemStack].
                 // To indicate a successful match, set the return value by calling:
                 // result.set(true);
             """.trimIndent()
+
+            inline val title get() = HSLang.ItemStackMatcher.Entry.script
+
+            val default get() = Script(defaultScript)
 
             private val codec = codec<Script>(SCRIPT_TYPE)
                 .field<String>("script").getter(Script::script).default(defaultScript).codec(Codec.string)
@@ -237,6 +283,8 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
         }
 
         override val asText: Component = Literal("Script Matcher")
+
+        override fun copyWithMode(mode: MatchEntry.MatchMode): ItemStackMatchEntry = this.copy(mode = mode)
 
         override fun match(obj: ItemStack): Boolean {
             val result = AtomicBoolean(false)
@@ -253,12 +301,22 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
     //endregion
 
     //region Count
-    class Count(val count: IntRange, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, COUNT_TYPE) {
+    data class Count(
+        val count: IntRange,
+        override val mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+    ) : ItemStackMatchEntry(mode, COUNT_TYPE) {
         companion object : Codec<Count> by codec<Count>(COUNT_TYPE)
             .field<IntRange>("count").getter(Count::count).codec(Codec.intRange)
-            .build({ _, mode, count -> Count(count, mode) })
+            .build({ _, mode, count -> Count(count, mode) }) {
+
+            inline val title get() = HSLang.ItemStackMatcher.Entry.count
+
+            val default get() = Count(ItemStackMatcher.handheldItemStack?.count?.let { it..it } ?: 1..64)
+        }
 
         override val asText: Component = Literal(if (count.first == count.last) "x${count.first}" else "x${count.first}..${count.last}")
+
+        override fun copyWithMode(mode: MatchEntry.MatchMode): ItemStackMatchEntry = this.copy(mode = mode)
 
         override fun match(obj: ItemStack): Boolean = obj.count in count
 
@@ -266,12 +324,22 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
     //endregion
 
     //region Rarity
-    class Rarity(val rarity: McRarity, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, RARITY_TYPE) {
+    data class Rarity(
+        val rarity: McRarity,
+        override val mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+    ) : ItemStackMatchEntry(mode, RARITY_TYPE) {
         companion object : Codec<Rarity> by codec<Rarity>(RARITY_TYPE)
             .field<McRarity>("rarity").getter(Rarity::rarity).codec(Codec.enum<McRarity>())
-            .build({ _, mode, rarity -> Rarity(rarity, mode) })
+            .build({ _, mode, rarity -> Rarity(rarity, mode) }) {
 
-        override val asText: Component = Literal(rarity.name)
+            inline val title get() = HSLang.ItemStackMatcher.Entry.rarity
+
+            val default get() = Rarity(ItemStackMatcher.handheldItemStack?.rarity ?: McRarity.COMMON)
+        }
+
+        override val asText: Component = rarity.translateText.withStyle(rarity.color())
+
+        override fun copyWithMode(mode: MatchEntry.MatchMode): ItemStackMatchEntry = this.copy(mode = mode)
 
         override fun match(obj: ItemStack): Boolean = obj.rarity == rarity
 
@@ -279,21 +347,33 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
     //endregion
 
     //region Enchantment
-    class Enchantment(
+    data class Enchantment(
         val enchantment: String,
         val level: IntRange,
-        mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+        override val mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
     ) : ItemStackMatchEntry(mode, ENCHANTMENT_TYPE) {
         companion object : Codec<Enchantment> by codec<Enchantment>(ENCHANTMENT_TYPE)
             .field<String>("enchantment").getter(Enchantment::enchantment).codec(Codec.string)
             .field<IntRange>("level").getter(Enchantment::level).codec(Codec.intRange)
-            .build({ _, mode, enchantment, level -> Enchantment(enchantment, level, mode) })
+            .build({ _, mode, enchantment, level -> Enchantment(enchantment, level, mode) }) {
 
-        override val asText: Component = Literal(enchantment)
+            inline val title get() = HSLang.ItemStackMatcher.Entry.enchantment
+
+            val default
+                get() = Enchantment(
+                    ItemStackMatcher.handheldItemStack?.allEnchantments?.keys?.firstOrNull()?.registeredName
+                        ?: "minecraft:aqua_affinity",
+                    1..255,
+                )
+        }
+
+        override val asText: Component = EnchatmentHelper.enchantmentDescription(enchantment).copy()
             .appendLiteral(" ")
             .appendTranslate("enchantment.level.${level.first}", level.first.toString())
             .appendLiteral("..")
             .appendTranslate("enchantment.level.${level.last}", level.last.toString())
+
+        override fun copyWithMode(mode: MatchEntry.MatchMode): ItemStackMatchEntry = this.copy(mode = mode)
 
         override fun match(obj: ItemStack): Boolean {
             val lv = obj.allEnchantments.entries.find { it.key.registeredName == enchantment }?.value
@@ -304,12 +384,22 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
     //endregion
 
     //region Tag
-    class Tag(val tag: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : ItemStackMatchEntry(mode, TAG_TYPE) {
+    data class Tag(
+        val tag: String,
+        override val mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+    ) : ItemStackMatchEntry(mode, TAG_TYPE) {
         companion object : Codec<Tag> by codec<Tag>(TAG_TYPE)
             .field<String>("tag").getter(Tag::tag).codec(Codec.string)
-            .build({ _, mode, tag -> Tag(tag, mode) })
+            .build({ _, mode, tag -> Tag(tag, mode) }) {
+
+            inline val title get() = HSLang.ItemStackMatcher.Entry.tag
+
+            val default get() = Tag(ItemStackMatcher.handheldItemStack?.tags()?.findFirst()?.getOrNull()?.location()?.toString() ?: "")
+        }
 
         override val asText: Component = Literal("#$tag")
+
+        override fun copyWithMode(mode: MatchEntry.MatchMode): ItemStackMatchEntry = this.copy(mode = mode)
 
         override fun match(obj: ItemStack): Boolean = obj.hasTag(tag)
 
@@ -317,13 +407,23 @@ sealed class ItemStackMatchEntry(override val mode: MatchEntry.MatchMode, val ty
     //endregion
 
     //region DataComponentType
-    class DataComponentType(val componentType: McDataComponentType<*>, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) :
-        ItemStackMatchEntry(mode, DATA_COMPONENT_TYPE_TYPE) {
+    data class DataComponentType(
+        val componentType: McDataComponentType<*>,
+        override val mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+    ) : ItemStackMatchEntry(mode, DATA_COMPONENT_TYPE_TYPE) {
         companion object : Codec<DataComponentType> by codec<DataComponentType>(DATA_COMPONENT_TYPE_TYPE)
             .field<McDataComponentType<*>>("component_type").getter(DataComponentType::componentType).codec(Codec.dataComponentType)
-            .build({ _, mode, componentType -> DataComponentType(componentType, mode) })
+            .build({ _, mode, componentType -> DataComponentType(componentType, mode) }) {
+
+            inline val title get() = HSLang.ItemStackMatcher.Entry.dataComponentType
+
+            val default get() = DataComponentType(ItemStackMatcher.handheldItemStack?.components?.keySet()?.firstOrNull() ?: DataComponents.FOOD)
+
+        }
 
         override val asText: Component = Literal(componentType.key.toString())
+
+        override fun copyWithMode(mode: MatchEntry.MatchMode): ItemStackMatchEntry = this.copy(mode = mode)
 
         override fun match(obj: ItemStack): Boolean = obj.components.has(componentType)
 

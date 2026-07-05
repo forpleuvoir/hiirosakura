@@ -162,7 +162,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
     }
 
     //region Matcher
-    class Matcher(val matcher: EntityMatcher, mode: MatchEntry.MatchMode) : EntityMatchEntry(mode, MATCHER_TYPE) {
+    class Matcher(val matcher: EntityMatcher, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, MATCHER_TYPE) {
         companion object : Codec<Matcher> by codec<Matcher>(MATCHER_TYPE)
             .field<EntityMatcher>("matcher").getter(Matcher::matcher).codec(EntityMatcher)
             .build({ _, mode, matcher -> Matcher(matcher, mode) })
@@ -191,7 +191,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
     class Name(val name: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : EntityMatchEntry(mode, NAME_TYPE) {
         companion object : Codec<Name> by codec<Name>(NAME_TYPE)
             .field<String>("name").getter(Name::name).codec(Codec.string)
-            .build({ _, mode, name -> Name(name, mode) })
+            .build({ _, mode, name -> Name(name, mode) }) 
 
         override val asText: Component = Literal(name)
 

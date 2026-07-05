@@ -1,13 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.misc.matcher
 
-import moe.forpleuvoir.nebula.serialization.Serializable
-import moe.forpleuvoir.nebula.serialization.Serializer
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
-import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.base.builder.build
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 import moe.forpleuvoir.nebula.serialization.codec.enum
-import kotlin.to
 
 interface Matcher<T> {
 
@@ -45,13 +39,11 @@ interface MatchEntry<T> : Matcher<T> {
 }
 
 
-interface CompositeMatcher<T> : Matcher<T>, Cloneable {
+interface CompositeMatcher<T> : Matcher<T> {
 
-    val entries: List<MatchEntry<T>>
+    val entries: Iterable<MatchEntry<T>>
 
     val mode: MatchMode
-
-    public override fun clone(): CompositeMatcher<T>
 
     override fun match(obj: T): Boolean {
         return when (mode) {

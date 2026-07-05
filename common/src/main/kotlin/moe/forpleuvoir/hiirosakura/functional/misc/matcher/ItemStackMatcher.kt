@@ -31,7 +31,10 @@ import net.minecraft.core.component.DataComponentType as McDataComponentType
 import net.minecraft.world.item.Item as McItem
 import net.minecraft.world.item.Rarity as McRarity
 
-class ItemStackMatcher(override var mode: CompositeMatcher.MatchMode, entries: List<ItemStackMatchEntry>) : CompositeMatcher<ItemStack> {
+data class ItemStackMatcher(
+    override val mode: CompositeMatcher.MatchMode,
+    override val entries: List<ItemStackMatchEntry>
+) : CompositeMatcher<ItemStack> {
 
     constructor(mode: CompositeMatcher.MatchMode, vararg entries: ItemStackMatchEntry) : this(mode, entries.toList())
 
@@ -41,9 +44,10 @@ class ItemStackMatcher(override var mode: CompositeMatcher.MatchMode, entries: L
             get() {
                 val handleItem = handheldItemStack
                 return if (handleItem != null) {
-                    ItemStackMatcher(CompositeMatcher.MatchMode.AllMatch).apply {
-                        addEntry(ItemStackMatchEntry.Item(handleItem.item))
-                    }
+                    ItemStackMatcher(
+                        CompositeMatcher.MatchMode.AllMatch,
+                        ItemStackMatchEntry.Item(handleItem.item)
+                    )
                 } else {
                     anyMatcher
                 }
@@ -106,57 +110,14 @@ class ItemStackMatcher(override var mode: CompositeMatcher.MatchMode, entries: L
 
     }
 
-    override val entries: List<ItemStackMatchEntry> = entries.toMutableList()
-
-    val simpleText
-        get() = when (entries.size) {
+    val simpleText by lazy {
+        when (entries.size) {
             0    -> IGLang.Misc.hasNothing
             1    -> entries[0].asText
             else -> if (isAnyMatcher(this)) {
                 CompositeMatcher.MatchMode.AnyMatch.translateText
             } else mode.translateText.appendLiteral(":").append(IGLang.ConfigWrapper.listConfigWrapperText(entries.size))
         }
-
-    override fun clone(): ItemStackMatcher {
-        return ItemStackMatcher(mode, ArrayList(entries))
-    }
-
-    fun addEntry(entry: ItemStackMatchEntry) {
-        (this.entries as MutableList).add(entry)
-    }
-
-    fun setEntry(index: Int, entry: ItemStackMatchEntry) {
-        (this.entries as MutableList)[index] = entry
-    }
-
-    fun removeEntry(index: Int) {
-        (this.entries as MutableList).removeAt(index)
-    }
-
-    fun removeEntry(entry: ItemStackMatchEntry) {
-        (this.entries as MutableList).remove(entry)
-    }
-
-    private fun clear() {
-        (this.entries as MutableList).clear()
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as ItemStackMatcher
-
-        if (mode != other.mode) return false
-        if (entries != other.entries) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = mode.hashCode()
-        result = 31 * result + entries.hashCode()
-        return result
     }
 
 }

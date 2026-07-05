@@ -3,8 +3,9 @@ package moe.forpleuvoir.hiirosakura.functional.renderaddons
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSItemStack
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
 import moe.forpleuvoir.hiirosakura.util.tooltipFlag
+import moe.forpleuvoir.ibukigourd.config.translateCommentKey
+import moe.forpleuvoir.ibukigourd.config.translationKey
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.config.ConfigGroup
@@ -31,8 +32,8 @@ import java.util.function.Consumer
 class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) : ConfigGroup(key) {
 
     private fun <T : ConfigNode> T.setTranslatedText(): T {
-        this.setMetadata("#translate_text", Translatable("hiirosakura.config.render_info_addon.item_stack_info.${this.name}", fallback = this.name))
-        this.setMetadata("#comment", Translatable("hiirosakura.config.render_info_addon.item_stack_info.${this.name}.comment", fallback = this.name))
+        translationKey = "hiirosakura.config.render_info_addon.item_stack_info.${this.name}"
+        translateCommentKey = "hiirosakura.config.render_info_addon.item_stack_info.${this.name}.comment"
         return this
     }
 

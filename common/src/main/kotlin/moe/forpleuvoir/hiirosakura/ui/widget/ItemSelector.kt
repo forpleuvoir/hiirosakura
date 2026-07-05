@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.ui.widget
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -12,20 +13,30 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
+import com.skydoves.cloudy.liquidGlass
+import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.ui.util.rememberScrollFabProgress
 import moe.forpleuvoir.hiirosakura.util.ItemRegistryHelper
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.name
+import moe.forpleuvoir.ibukigourd.event.events.client.input.KeyboardEvent
+import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.closeScreen
@@ -33,9 +44,12 @@ import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Close
 import moe.forpleuvoir.ibukigourd.ui.openComposePopupScreen
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
-import moe.forpleuvoir.ibukigourd.ui.preset.*
-import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
-import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.ibukigourd.ui.preset.ItemIcon
+import moe.forpleuvoir.ibukigourd.ui.preset.LocalItemIconVanillaSize
+import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
+import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
+import moe.forpleuvoir.nebula.event.invoke
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceKey
 import net.minecraft.world.item.*
@@ -73,7 +87,9 @@ fun BlockSelector(
         openItemBrowserScreen(
             itemDisplay = {
                 ItemBrowserDefaults.ItemWrapper(it) { selected ->
-                    if (selected is Block) {
+                    if (selected is BlockItem) {
+                        onValueChange(selected.block)
+                    } else if (selected is Block) {
                         onValueChange(selected)
                     }
                     closeScreen()
@@ -217,43 +233,10 @@ fun ItemBrowser(
                         LaunchedEffect(textFieldState.text.toString()) {
                             searchQuery = textFieldState.text.toString()
                         }
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                                .background(MaterialTheme.colorScheme.surfaceContainer, MaterialTheme.shapes.extraLarge)
-                                .padding(horizontal = 24.dp)
-                        ) {
-                            Column(Modifier.fillMaxWidth(1f)) {
-                                Box(Modifier.fillMaxWidth().height(48.dp), contentAlignment = Alignment.CenterStart) {
-                                    if (textFieldState.text.isEmpty()) {
-                                        Text(
-                                            IGLang.Misc.search,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            style = MaterialTheme.typography.bodyLarge,
-                                        )
-                                    }
-                                    BasicTextField(
-                                        state = textFieldState,
-                                        lineLimits = TextFieldLineLimits.SingleLine,
-                                        textStyle = MaterialTheme.typography.bodyLarge.copy(
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                        ),
-                                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                                        modifier = Modifier.fillMaxWidth(),
-                                    )
-                                }
-                            }
-                            if (textFieldState.text.isNotEmpty()) {
-                                IconButton(onClick = { textFieldState.edit { replace(0, length, "") } }) {
-                                    Icon(Icons.Close, null)
-                                }
-                            }
-                        }
-                        Spacer(Modifier.height(4.dp))
                     }
 
                     Box(modifier = Modifier.fillMaxSize()) {
+
                         LazyVerticalGrid(
                             state = gridState,
                             columns = GridCells.Adaptive(gridCellSize),
@@ -267,10 +250,48 @@ fun ItemBrowser(
                             }
                         }
 
+                        val adapter = rememberScrollbarAdapter(gridState)
                         VerticalScrollbar(
                             modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
                             adapter = rememberScrollbarAdapter(gridState)
                         )
+
+                        if (selectedTabIndex == 0) {
+                            val progress = rememberScrollFabProgress(adapter)
+
+                            var isAltPressed by remember { mutableStateOf(false) }
+                            val pressDisposable = KeyboardEvent.Pressed.register {
+                                if (it.keyCode == Keyboard.LEFT_ALT) isAltPressed = true
+                            }
+                            val releaseDisposable = KeyboardEvent.Released.register {
+                                if (it.keyCode == Keyboard.LEFT_ALT) isAltPressed = false
+                            }
+                            DisposableEffect(Unit) {
+                                onDispose {
+                                    pressDisposable()
+                                    releaseDisposable()
+                                }
+                            }
+                            val altMultiplier by animateFloatAsState(
+                                targetValue = if (isAltPressed) 0f else 1f,
+                                animationSpec = tween(200),
+                                label = "altMultiplier"
+                            )
+                            val displayProgress = progress * altMultiplier
+                            SearchBar(
+                                textFieldState = textFieldState,
+                                modifier = Modifier
+                                    .align(BiasAlignment(0f, 0.85f))
+                                    .padding(horizontal = 24.dp, vertical = 8.dp)
+                                    .width(320.dp)
+                                    .graphicsLayer {
+                                        alpha = displayProgress
+                                        translationY = (1f - displayProgress) * 40f
+                                        scaleX = displayProgress
+                                        scaleY = displayProgress
+                                    }
+                            )
+                        }
                     }
                 }
             }
@@ -278,6 +299,61 @@ fun ItemBrowser(
     }
 }
 
+
+@Composable
+fun SearchBar(
+    textFieldState: TextFieldState,
+    modifier: Modifier = Modifier,
+) {
+    val density = LocalDensity.current
+    val radius = density.run { 28.dp.toPx() }
+    var lensCenter by remember { mutableStateOf(Offset.Zero) }
+    var lensSize by remember { mutableStateOf(Size(10f, 10f)) }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .onGloballyPositioned { coordinates ->
+                val size = coordinates.size
+                lensSize = Size(size.width.toFloat(), size.height.toFloat())
+                lensCenter = Offset(size.width / 2f, size.height / 2f)
+            }
+            .background(
+                MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.75f),
+                MaterialTheme.shapes.extraLarge
+            )
+            .liquidGlass(
+                lensCenter = lensCenter,
+                lensSize = lensSize,
+                cornerRadius = radius,
+                edge = 0.4f
+            )
+            .padding(horizontal = 24.dp)
+    ) {
+        Box(Modifier.fillMaxWidth().height(48.dp), contentAlignment = Alignment.CenterStart) {
+            if (textFieldState.text.isEmpty()) {
+                Text(
+                    IGLang.Misc.search,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
+            BasicTextField(
+                state = textFieldState,
+                lineLimits = TextFieldLineLimits.SingleLine,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                ),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        if (textFieldState.text.isNotEmpty()) {
+            IconButton(onClick = { textFieldState.edit { replace(0, length, "") } }) {
+                Icon(Icons.Close, null)
+            }
+        }
+    }
+}
 
 object ItemBrowserDefaults {
 
@@ -315,25 +391,28 @@ object ItemBrowserDefaults {
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                val icon = ItemStack(item)
+                val icon = runCatching {
+                    ItemStack(item)
+                }.onFailure {
+                    closeScreen()
+                    ToastHandler.showContent { Text(HSLang.Common.itemInitFailure) }
+                }.getOrThrow()
                 if (icon.item != Items.AIR) {
                     ItemIcon(
                         icon,
                         modifier = Modifier.size(42.dp),
-                        imageSize = if (icon.item is BlockItem) IntSize(128, 128) else IntSize(64, 64),
+                        imageSize = if (icon.item is BlockItem) IntSize(256, 256) else IntSize(128, 128),
                         showTooltip = false,
                         scaleOnHover = scaleOnHover
                     )
                 } else {
                     Canvas(Modifier.size(42.dp)) {
-                        val tileSize = (42 / 2).dp.toPx()
-                        val cols = (size.width / tileSize).toInt()
-                        val rows = (size.height / tileSize).toInt()
-                        for (row in 0 until rows) for (col in 0 until cols) {
+                        val tileSize = size / 2f
+                        for (row in 0 until 2) for (col in 0 until 2) {
                             drawRect(
-                                color = if ((row + col) % 2 == 0) Colors.PURPLE.toComposeColor else Colors.BLACK.toComposeColor,
-                                topLeft = Offset(col * tileSize, row * tileSize),
-                                size = Size(tileSize, tileSize)
+                                color = if ((row + col) % 2 == 0) Color(128, 0, 128) else Color(0XFF000000),
+                                topLeft = Offset(col * tileSize.width, row * tileSize.height),
+                                size = tileSize
                             )
                         }
                     }

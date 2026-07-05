@@ -22,7 +22,7 @@ object ChatFilterHandler : ConfigGroup("chat_filter") {
         .uiWrapper { config ->
             StringListConfigWrapper(config, {
                 Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    Text(HSLang.chatFilterExp)
+                    Text(HSLang.Chat.filterExp)
                 }
             })
         }

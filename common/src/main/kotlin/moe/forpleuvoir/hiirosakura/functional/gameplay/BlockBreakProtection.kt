@@ -36,7 +36,7 @@ object BlockBreakProtection : ConfigGroup("block_break_protection") {
         if (!enabled.enabled) return true
         return !matcher.any {
             (it.value.block.match(blockInfo) && it.value.item.match(itemStack)).apply {
-                ToastHandler.showContent { Text(InlineStyleText(HSLang.blockBreakProtection(it.key).plainText)) }
+                ToastHandler.showContent { Text(InlineStyleText(HSLang.Gameplay.blockBreakProtection(it.key).plainText)) }
             }
         }
     }

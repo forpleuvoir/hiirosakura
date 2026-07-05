@@ -69,7 +69,7 @@ class KeyBindTickTask(
     }
 
     private fun updateKeyBindName() {
-        keybind.name = HSLang.taskManager.appendLiteral(" → ").appendLiteral(name)
+        keybind.name = HSLang.Task.manager.appendLiteral(" → ").appendLiteral(name)
 
     }
 

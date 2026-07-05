@@ -1,6 +1,8 @@
 package moe.forpleuvoir.hiirosakura.functional.misc.matcher
 
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry.Script.Companion.defaultScript
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSBlockHitResult
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSBlockState
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
@@ -11,11 +13,15 @@ import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.config.item.pair
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.TextBuilder
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.appendLiteral
+import moe.forpleuvoir.ibukigourd.text.buildText
 import moe.forpleuvoir.ibukigourd.text.translateText
+import moe.forpleuvoir.ibukigourd.util.math.Vector3i
 import moe.forpleuvoir.ibukigourd.util.math.vector3ic
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.util.checkType
 import moe.forpleuvoir.nebula.common.util.requireKey
 import moe.forpleuvoir.nebula.serialization.DeserializationException
@@ -35,8 +41,11 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
+import org.joml.Vector3i
 import org.joml.Vector3ic
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.jvm.optionals.getOrElse
+import kotlin.jvm.optionals.getOrNull
 import net.minecraft.world.level.block.Block as McBlock
 
 /**
@@ -49,6 +58,7 @@ data class BlockInfo(
 ) {
     constructor(state: BlockState, blockPos: BlockPos, side: Direction) : this(state, blockPos.toVector(), side)
 
+    @Deprecated("use Minecraft.targetBlock")
     constructor(hitResult: BlockHitResult) : this(mc.level!!.getBlockState(hitResult.blockPos), hitResult.blockPos, hitResult.direction)
 
     val asHitResult: BlockHitResult by lazy {
@@ -66,9 +76,9 @@ data class BlockInfo(
     }
 }
 
-class BlockInfoMatcher(
-    override var mode: CompositeMatcher.MatchMode,
-    entries: List<BlockInfoMatchEntry>
+data class BlockInfoMatcher(
+    override val mode: CompositeMatcher.MatchMode,
+    override val entries: List<BlockInfoMatchEntry>
 ) : CompositeMatcher<BlockInfo> {
 
     constructor(
@@ -82,9 +92,10 @@ class BlockInfoMatcher(
             get() {
                 val targetBlock = mc.targetBlock
                 return if (targetBlock != null) {
-                    BlockInfoMatcher(CompositeMatcher.MatchMode.AllMatch).apply {
-                        addEntry(BlockInfoMatchEntry.Block(targetBlock.state.block))
-                    }
+                    BlockInfoMatcher(
+                        mode = CompositeMatcher.MatchMode.AllMatch,
+                        BlockInfoMatchEntry.Block(targetBlock.state.block)
+                    )
                 } else {
                     anyMatcher
                 }
@@ -133,39 +144,14 @@ class BlockInfoMatcher(
         }
     }
 
-    override val entries: List<BlockInfoMatchEntry> = entries.toMutableList()
-
-    val simpleText
-        get() = when (entries.size) {
+    val simpleText by lazy {
+        when (entries.size) {
             0    -> IGLang.Misc.hasNothing
-            1    -> entries[0].asText
+            1    -> entries.first().asText
             else -> if (isAnyMatcher(this)) {
                 CompositeMatcher.MatchMode.AnyMatch.translateText
             } else mode.translateText.appendLiteral(":").append(IGLang.ConfigWrapper.listConfigWrapperText(entries.size))
         }
-
-    override fun clone(): BlockInfoMatcher {
-        return BlockInfoMatcher(mode, ArrayList(entries))
-    }
-
-    fun addEntry(entry: BlockInfoMatchEntry) {
-        (this.entries as MutableList).add(entry)
-    }
-
-    fun setEntry(index: Int, entry: BlockInfoMatchEntry) {
-        (this.entries as MutableList)[index] = entry
-    }
-
-    fun removeEntry(index: Int) {
-        (this.entries as MutableList).removeAt(index)
-    }
-
-    fun removeEntry(entry: BlockInfoMatchEntry) {
-        (this.entries as MutableList).remove(entry)
-    }
-
-    private fun clear() {
-        (this.entries as MutableList).clear()
     }
 
 }
@@ -175,7 +161,7 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
     val translateKey: String = "${HiiroSakura.MOD_ID}.block_info_matcher_entry.$type"
 
-    val translateText = Translatable(translateKey)
+    val translateText by lazy { Translatable(translateKey) }
 
     abstract val asText: Component
 
@@ -184,6 +170,8 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
         "mode" to mode
         scope()
     }
+
+    abstract fun copyWithMode(mode: MatchEntry.MatchMode): BlockInfoMatchEntry
 
     companion object : Codec<BlockInfoMatchEntry> {
 
@@ -226,34 +214,61 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
     }
 
     //region Matcher
-    class Matcher(val matcher: BlockInfoMatcher, mode: MatchEntry.MatchMode) : BlockInfoMatchEntry(mode, MATCHER_TYPE) {
+    data class Matcher(
+        val matcher: BlockInfoMatcher,
+        override val mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+    ) : BlockInfoMatchEntry(mode, MATCHER_TYPE) {
         companion object : Codec<Matcher> by codec<Matcher>(MATCHER_TYPE)
             .field<BlockInfoMatcher>("matcher").getter(Matcher::matcher).codec(BlockInfoMatcher)
-            .build({ _, mode, matcher -> Matcher(matcher, mode) })
+            .build({ _, mode, matcher -> Matcher(matcher, mode) }) {
+
+            inline val title get() = HSLang.BlockInfoMatcher.Entry.matcher
+
+            val default get() = Matcher(BlockInfoMatcher.targetBlockMatcher)
+        }
 
         override val asText: Component get() = matcher.simpleText
 
+        override fun copyWithMode(mode: MatchEntry.MatchMode): Matcher = this.copy(mode = mode)
+
         override fun match(obj: BlockInfo): Boolean = matcher.match(obj)
+
 
     }
     //endregion
 
 
     //region Block
-    class Block(val block: McBlock, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, BLOCK_TYPE) {
+    data class Block(
+        val block: McBlock,
+        override val mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+    ) : BlockInfoMatchEntry(mode, BLOCK_TYPE) {
         companion object : Codec<Block> by codec<Block>(BLOCK_TYPE)
             .field<McBlock>("block").getter(Block::block).codec(Codec.block)
-            .build({ _, mode, block -> Block(block, mode) })
+            .build({ _, mode, block -> Block(block, mode) }) {
+            inline val title get() = HSLang.BlockInfoMatcher.Entry.block
+
+            val default get() = Block(mc.targetBlock?.state?.block ?: Blocks.MELON, MatchEntry.MatchMode.Include)
+        }
 
         override val asText: Component = block.name
+
+        override fun copyWithMode(mode: MatchEntry.MatchMode): Block = this.copy(mode = mode)
 
         override fun match(obj: BlockInfo): Boolean = obj.state.block == this.block
     }
     //endregion
 
     //region Script
-    class Script(val script: String = defaultScript, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, SCRIPT_TYPE) {
+    data class Script(
+        val script: String = defaultScript,
+        override val mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+    ) : BlockInfoMatchEntry(mode, SCRIPT_TYPE) {
         companion object : Codec<Script> {
+            inline val title get() = HSLang.BlockInfoMatcher.Entry.script
+
+            val default get() = Script(defaultScript)
+
             val defaultScript = """
                 // The variable blockResult represents a wrapped BlockHitResult object [HSBlockHitResult].
                 // The variable blockState represents a wrapped BlockState object [HSBlockState].
@@ -272,6 +287,8 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
 
         override val asText: Component = Literal("Script Matcher")
 
+        override fun copyWithMode(mode: MatchEntry.MatchMode): Script = this.copy(mode = mode)
+
         override fun match(obj: BlockInfo): Boolean {
             val result = AtomicBoolean(false)
             ScriptExecutor(
@@ -289,14 +306,33 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
     //endregion
 
     //region Pos
-    class Pos(val min: Vector3ic, val max: Vector3ic, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, POS_TYPE) {
+    data class Pos(
+        val min: Vector3ic,
+        val max: Vector3ic,
+        override val mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+    ) : BlockInfoMatchEntry(mode, POS_TYPE) {
 
         companion object : Codec<Pos> by codec<Pos>(POS_TYPE)
             .field<Vector3ic>("min").getter(Pos::min).codec(Codec.vector3ic)
             .field<Vector3ic>("max").getter(Pos::max).codec(Codec.vector3ic)
-            .build({ _, mode, min, max -> Pos(min, max, mode) })
+            .build({ _, mode, min, max -> Pos(min, max, mode) }) {
+            inline val title get() = HSLang.BlockInfoMatcher.Entry.pos
+            val default get() = mc.targetBlock?.let { Pos(it.pos, it.pos) } ?: Pos(Vector3i(), Vector3i())
+        }
 
-        override val asText: Component = Literal("[x:${min.x()},y:${min.y()},z:${min.z()}]..[x:${max.x()},y:${max.y()},z:${max.z()}]")
+        override val asText: Component = Literal("[x: ${min.x()}, y: ${min.y()}, z: ${min.z()}]..[x: ${max.x()}, y: ${max.y()}, z: ${max.z()}]")
+
+        private fun TextBuilder.vec(vec: Vector3ic) {
+            literal("[")
+            literal("x") { style { color(Colors.RED) } }
+            literal(": ${vec.x()}, ")
+            literal("y") { style { color(Colors.LIME) } }
+            literal(": ${vec.y()}, ")
+            literal("z") { style { color(Colors.BLUE) } }
+            literal(": ${vec.z()}]")
+        }
+
+        override fun copyWithMode(mode: MatchEntry.MatchMode): Pos = this.copy(mode = mode)
 
         override fun match(obj: BlockInfo): Boolean = obj.pos.let {
             it.x() in min.x()..max.x()
@@ -308,13 +344,24 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
     //endregion
 
     //region Tag
-    class Tag(val tag: String, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, TAG_TYPE) {
+    data class Tag(
+        val tag: String,
+        override val mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+    ) : BlockInfoMatchEntry(mode, TAG_TYPE) {
 
         companion object : Codec<Tag> by codec<Tag>(TAG_TYPE)
             .field<String>("tag").getter(Tag::tag).codec(Codec.string)
-            .build({ _, mode, tag -> Tag(tag, mode) })
+            .build({ _, mode, tag -> Tag(tag, mode) }) {
+            inline val title get() = HSLang.BlockInfoMatcher.Entry.tag
+            val default
+                get() = mc.targetBlock?.let {
+                    Tag(it.state.tags().findFirst().getOrNull()?.location?.toString() ?: "")
+                } ?: Tag("")
+        }
 
         override val asText: Component = Literal("#$tag")
+
+        override fun copyWithMode(mode: MatchEntry.MatchMode): Tag = this.copy(mode = mode)
 
         override fun match(obj: BlockInfo): Boolean = obj.state.hasTag(tag)
 
@@ -322,12 +369,25 @@ sealed class BlockInfoMatchEntry(override val mode: MatchEntry.MatchMode, val ty
     //endregion
 
     //region Property
-    class Property(val property: Pair<String, String>, mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include) : BlockInfoMatchEntry(mode, PROPERTY_TYPE) {
+    data class Property(
+        val property: Pair<String, String>,
+        override val mode: MatchEntry.MatchMode = MatchEntry.MatchMode.Include
+    ) : BlockInfoMatchEntry(mode, PROPERTY_TYPE) {
         companion object : Codec<Property> by codec<Property>(PROPERTY_TYPE)
             .field<Pair<String, String>>("property").getter(Property::property).codec(Codec.pair(Codec.string, Codec.string))
-            .build({ _, mode, property -> Property(property, mode) })
+            .build({ _, mode, property -> Property(property, mode) }) {
+            inline val title get() = HSLang.BlockInfoMatcher.Entry.property
+            val default
+                get() = Property(
+                    mc.targetBlock?.state?.values?.findFirst()?.getOrNull()?.run {
+                        property.name to Util.getPropertyName(property, value)
+                    } ?: ("" to "")
+                )
+        }
 
         override val asText: Component = Literal(property.first + " = " + property.second)
+
+        override fun copyWithMode(mode: MatchEntry.MatchMode): Property = this.copy(mode = mode)
 
         override fun match(obj: BlockInfo): Boolean = obj.state.values.anyMatch {
             it.property.name == property.first && property.second == Util.getPropertyName(it.property, it.value)

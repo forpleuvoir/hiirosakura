@@ -16,7 +16,10 @@ val Block.key get() = BuiltInRegistries.BLOCK.getKey(this)
 val Block.serialization get() = SerializePrimitive(key.toString())
 
 val Minecraft.targetBlock: BlockInfo?
-    get() = hitBlock?.let { BlockInfo(it) }
+    get() = hitBlock?.let { result -> level?.let {
+        @Suppress("DEPRECATION")
+        BlockInfo(result)
+    } }
 
 val SerializeElement.asBlock: Block
     get() = this.checkType<SerializePrimitive, Block> {

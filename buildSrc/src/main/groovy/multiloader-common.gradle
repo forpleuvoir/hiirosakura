@@ -20,7 +20,7 @@ def javaVersion = libs.versions.java.get()
 kotlin {
     jvmToolchain(Integer.parseInt(javaVersion))
     compilerOptions {
-        freeCompilerArgs.add('-Xjvm-default=all')
+        freeCompilerArgs.add('-jvm-default=enable')
         freeCompilerArgs.add('-Xcontext-parameters')
     }
 }

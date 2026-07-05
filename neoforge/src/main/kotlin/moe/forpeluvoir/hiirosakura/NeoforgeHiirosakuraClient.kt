@@ -16,7 +16,7 @@ class NeoforgeHiirosakuraClient(eventBus: IEventBus, modContainer: ModContainer)
         //模组菜单配置接口
         modContainer.registerExtensionPoint(
             IConfigScreenFactory::class.java,
-            IConfigScreenFactory { _, modListScreen -> HiiroSakuraScreen().apply { parentScreen = modListScreen } }
+            IConfigScreenFactory { _, modListScreen -> HiiroSakuraScreen(parentScreen = modListScreen) }
         )
         eventBus.addListener(::setup)
     }

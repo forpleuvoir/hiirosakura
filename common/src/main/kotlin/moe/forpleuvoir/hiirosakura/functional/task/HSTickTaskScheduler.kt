@@ -53,7 +53,7 @@ object HSTickTaskScheduler : TickTaskScheduler<Minecraft>() {
     fun RunningTaskDialog(close: () -> Unit) {
         AlertDialog(
             close,
-            title = { Text(HSLang.taskRunning) },
+            title = { Text(HSLang.Task.running) },
             confirmButton = {
                 TextButton(onClick = close) {
                     Text(IGLang.Misc.confirm)
@@ -101,8 +101,8 @@ object HSTickTaskScheduler : TickTaskScheduler<Minecraft>() {
                 }
             }
             Text(task.name + "@" + tickTask.hashCode(), modifier = Modifier.weight(1f))
-            Text(HSLang.taskRunningPeriod(tickTask.period))
-            Text(HSLang.taskRunningRemainingTimes(counter))
+            Text(HSLang.Task.runningPeriod(tickTask.period))
+            Text(HSLang.Task.runningRemainingTimes(counter))
             IconButton(remove) {
                 Icon(Icons.Delete, null)
             }

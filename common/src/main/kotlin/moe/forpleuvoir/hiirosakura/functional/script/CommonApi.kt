@@ -9,7 +9,6 @@ import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventManager
 import moe.forpleuvoir.hiirosakura.input.InputSimulator
 import moe.forpleuvoir.hiirosakura.util.logger
-import moe.forpleuvoir.ibukigourd.config.translationKey
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.MouseButton
 import moe.forpleuvoir.ibukigourd.task.scheduleEndTick
@@ -23,6 +22,8 @@ import moe.forpleuvoir.ibukigourd.util.sendMessage
 import moe.forpleuvoir.nebula.common.util.defaultLaunch
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.flat
+import moe.forpleuvoir.nebula.config.path
+import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("unused")
 interface CommonApi {
@@ -142,7 +143,7 @@ interface CommonApi {
     }
 
     fun delayLaunch(duration: Long, action: Runnable) = defaultLaunch {
-        delay(duration)
+        delay(duration.milliseconds)
         action.run()
     }
 
@@ -157,28 +158,28 @@ interface CommonApi {
     @Suppress("UNCHECKED_CAST")
     fun setConfig(key: String, value: Any) {
         HSConfig.flat
-            .find { it is Config<*> && it.translationKey() == key }
+            .find { it is Config<*> && it.path == key }
             ?.let {
                 runCatching {
                     (it as? Config<Any>)?.setValue(value)
                 }.onSuccess {
-                    ToastHandler.showContent { Text(HSLang.setConfigSuccess(key, value.toString())) }
+                    ToastHandler.showContent { Text(HSLang.Script.setConfigSuccess(key, value.toString())) }
                 }.onFailure { t ->
-                    ToastHandler.showContent { Text(HSLang.setConfigFail(key, value.toString(), t.message)) }
+                    ToastHandler.showContent { Text(HSLang.Script.setConfigFail(key, value.toString(), t.message)) }
                     logger.warn(t)
                 }
-            } ?: ToastHandler.showContent { Text(HSLang.setConfigFailNotFound(key)) }
+            } ?: ToastHandler.showContent { Text(HSLang.Script.setConfigFailNotFound(key)) }
     }
 
     fun getConfig(key: String): Any? {
-        return HSConfig.flat.find { it is Config<*> && it.translationKey() == key }
+        return HSConfig.flat.find { it is Config<*> && it.path == key }
     }
 
     fun enableEvent(name: String, enable: Boolean) {
         HSEventManager.subscriberList.find { it.name == name }?.let {
             it.enabled = enable
-            ToastHandler.showContent { Text(HSLang.enableEvent(name, enable)) }
-        } ?: ToastHandler.showContent { Text(HSLang.enableEventNotFound(name)) }
+            ToastHandler.showContent { Text(HSLang.Event.enableEvent(name, enable)) }
+        } ?: ToastHandler.showContent { Text(HSLang.Event.enableEventNotFound(name)) }
 
     }
 

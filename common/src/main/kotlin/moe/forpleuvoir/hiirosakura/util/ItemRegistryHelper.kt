@@ -23,7 +23,7 @@ object ItemRegistryHelper {
     fun initialize(
         enabledFeatures: FeatureFlagSet = mc.player?.connection?.enabledFeatures() ?: FeatureFlags.VANILLA_SET,
         hasPermissions: Boolean = true,
-        lookup: HolderLookup.Provider = registryAccess!!,
+        lookup: HolderLookup.Provider,
     ) {
         CreativeModeTabs.tryRebuildTabContents(enabledFeatures, hasPermissions, lookup)
     }
@@ -44,22 +44,24 @@ object ItemRegistryHelper {
      * 获取所有分类（仅 CATEGORY 类型）
      */
     fun getAllTabs(): List<ResourceKey<CreativeModeTab>> {
-        initialize()
-        return BuiltInRegistries.CREATIVE_MODE_TAB.registryKeySet()
-            .filter { tabKey ->
-                val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValueOrThrow(tabKey)
-                tab.type == CreativeModeTab.Type.CATEGORY
-            }
-            .sortedWith(compareBy({ tabKey ->
-                // 原版 (minecraft) 优先，模组在后
-                if (tabKey.isVanilla()) 0 else 1
-            }, { tabKey ->
-                val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValueOrThrow(tabKey)
-                tab.row().ordinal  // TOP=0, BOTTOM=1
-            }, { tabKey ->
-                val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValueOrThrow(tabKey)
-                tab.column()       // 同一行内从左到右
-            }))
+        return registryAccess?.let { access ->
+            initialize(lookup = access)
+            BuiltInRegistries.CREATIVE_MODE_TAB.registryKeySet()
+                .filter { tabKey ->
+                    val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValueOrThrow(tabKey)
+                    tab.type == CreativeModeTab.Type.CATEGORY
+                }
+                .sortedWith(compareBy({ tabKey ->
+                    // 原版 (minecraft) 优先，模组在后
+                    if (tabKey.isVanilla()) 0 else 1
+                }, { tabKey ->
+                    val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValueOrThrow(tabKey)
+                    tab.row().ordinal  // TOP=0, BOTTOM=1
+                }, { tabKey ->
+                    val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValueOrThrow(tabKey)
+                    tab.column()       // 同一行内从左到右
+                }))
+        } ?: emptyList()
     }
 
     /**

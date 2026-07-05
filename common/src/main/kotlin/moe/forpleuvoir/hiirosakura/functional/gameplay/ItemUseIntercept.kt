@@ -33,7 +33,7 @@ object ItemUseIntercept : ConfigGroup("item_use_intercept") {
         if (!enabled.enabled) return true
         return !matcher.any {
             (it.value.block.match(blockInfo) && it.value.item.match(itemStack)).apply {
-                ToastHandler.showContent { Text(InlineStyleText(HSLang.itemUseIntercepted(it.key).plainText)) }
+                ToastHandler.showContent { Text(InlineStyleText(HSLang.Gameplay.itemUseIntercepted(it.key).plainText)) }
             }
         }
     }

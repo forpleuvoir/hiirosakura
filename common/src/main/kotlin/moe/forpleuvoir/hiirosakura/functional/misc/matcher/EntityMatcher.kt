@@ -3,6 +3,8 @@ package moe.forpleuvoir.hiirosakura.functional.misc.matcher
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSEntity
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
+import moe.forpleuvoir.hiirosakura.util.codec.entityType
+import moe.forpleuvoir.hiirosakura.util.codec.uuid
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Translatable
@@ -24,10 +26,11 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import java.util.concurrent.atomic.AtomicBoolean
-import moe.forpleuvoir.hiirosakura.util.codec.entityType
-import moe.forpleuvoir.hiirosakura.util.codec.uuid
 
-class EntityMatcher(override var mode: CompositeMatcher.MatchMode, entries: List<EntityMatchEntry>) : CompositeMatcher<Entity> {
+data class EntityMatcher(
+    override val mode: CompositeMatcher.MatchMode,
+    override val entries: List<EntityMatchEntry>
+) : CompositeMatcher<Entity> {
 
     constructor(mode: CompositeMatcher.MatchMode, vararg entries: EntityMatchEntry) : this(mode, entries.toList())
 
@@ -37,9 +40,10 @@ class EntityMatcher(override var mode: CompositeMatcher.MatchMode, entries: List
             get() {
                 val targetEntity = targetEntity
                 return if (targetEntity != null) {
-                    EntityMatcher(CompositeMatcher.MatchMode.AllMatch).apply {
-                        addEntry(EntityMatchEntry.Type(targetEntity.type))
-                    }
+                    EntityMatcher(
+                        CompositeMatcher.MatchMode.AllMatch,
+                        EntityMatchEntry.Type(targetEntity.type)
+                    )
                 } else {
                     anyMatcher
                 }
@@ -54,10 +58,8 @@ class EntityMatcher(override var mode: CompositeMatcher.MatchMode, entries: List
         val anyMatcher
             get() = EntityMatcher(
                 mode = CompositeMatcher.MatchMode.AnyMatch,
-                listOf(
-                    EntityMatchEntry.Type(EntityType.CREEPER, MatchEntry.MatchMode.Include),
-                    EntityMatchEntry.Type(EntityType.CREEPER, MatchEntry.MatchMode.Exclude)
-                )
+                EntityMatchEntry.Type(EntityType.CREEPER, MatchEntry.MatchMode.Include),
+                EntityMatchEntry.Type(EntityType.CREEPER, MatchEntry.MatchMode.Exclude)
             )
 
         fun isAnyMatcher(matcher: CompositeMatcher<Entity>): Boolean {
@@ -96,39 +98,14 @@ class EntityMatcher(override var mode: CompositeMatcher.MatchMode, entries: List
         }
     }
 
-    override val entries: List<EntityMatchEntry> = entries.toMutableList()
-
-    val simpleText
-        get() = when (entries.size) {
+    val simpleText by lazy {
+        when (entries.size) {
             0    -> IGLang.Misc.hasNothing
             1    -> entries[0].asText
             else -> if (isAnyMatcher(this)) {
                 CompositeMatcher.MatchMode.AnyMatch.translateText
             } else mode.translateText.appendLiteral(":").append(IGLang.ConfigWrapper.listConfigWrapperText(entries.size))
         }
-
-    override fun clone(): EntityMatcher {
-        return EntityMatcher(mode, ArrayList(entries))
-    }
-
-    fun addEntry(entry: EntityMatchEntry) {
-        (this.entries as MutableList).add(entry)
-    }
-
-    fun setEntry(index: Int, entry: EntityMatchEntry) {
-        (this.entries as MutableList)[index] = entry
-    }
-
-    fun removeEntry(index: Int) {
-        (this.entries as MutableList).removeAt(index)
-    }
-
-    fun removeEntry(entry: EntityMatchEntry) {
-        (this.entries as MutableList).remove(entry)
-    }
-
-    private fun clear() {
-        (this.entries as MutableList).clear()
     }
 
 }
@@ -137,7 +114,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
 
     val translateKey: String = "${HiiroSakura.MOD_ID}.entity_match_entry.$type"
 
-    val translateText = Translatable(translateKey)
+    val translateText by lazy { Translatable(translateKey) }
 
     abstract val asText: Component
 

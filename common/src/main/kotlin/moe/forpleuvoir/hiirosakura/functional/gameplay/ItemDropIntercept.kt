@@ -30,7 +30,7 @@ object ItemDropIntercept : ConfigGroup("item_drop_intercept") {
         if (!enabled.enabled) return true
         return !matcher.any { (key, matcher) ->
             matcher.match(itemStack).apply {
-                ToastHandler.showContent { Text(InlineStyleText(HSLang.itemDropIntercepted(key).plainText)) }
+                ToastHandler.showContent { Text(InlineStyleText(HSLang.Gameplay.itemDropIntercepted(key).plainText)) }
             }
         }
     }

@@ -8,6 +8,7 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.ui.HiiroSakuraScreenContent
 import moe.forpleuvoir.hiirosakura.ui.configwrapper.HSConfigWrapper
 import moe.forpleuvoir.hiirosakura.input.InputSimulator
+import moe.forpleuvoir.hiirosakura.util.DataComponentPreBinder
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.ui.ComposeSceneWarmup
@@ -27,6 +28,7 @@ object HiiroSakuraClient {
         inits.forEach(Initializable::init)
         ClientLifecycleEvent.Starting.register {
             ComposeSceneWarmup.warmUp { HiiroSakuraScreenContent() }
+            DataComponentPreBinder.bind()
         }
         ClientModConfigHandler.register(HSConfig)
         DataComponentWrappers.init()

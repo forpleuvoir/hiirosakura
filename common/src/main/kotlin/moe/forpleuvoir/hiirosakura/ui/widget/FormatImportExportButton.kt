@@ -26,12 +26,12 @@ import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.cu
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.preset.StringSelector
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
+import moe.forpleuvoir.ibukigourd.ui.preset.state.isQuickAction
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.serialization.ast.SyntaxDialect
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -104,15 +104,28 @@ fun FormatExportButton(
     encode: suspend (SyntaxDialect) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     TipBox({ Text(HSLang.Common.exportAsFormat) }) {
         IconButton(onClick = {
-            expanded = true
+            if (isQuickAction) {
+                scope.launch {
+                    withContext(Dispatchers.IO) {
+                        runCatching {
+                            encode(currentFormatDialect)
+                        }.onFailure {
+                            showErrorToast(it.localizedMessage)
+                        }.onSuccess {
+                            showSuccessToast(successMsg)
+                            expanded = false
+                        }
+                    }
+                }
+            } else expanded = true
         }) {
             Icon(Icons.Upload, null)
         }
     }
     if (expanded) {
-        val scope = rememberCoroutineScope()
         FormatSelectorDialog(
             { expanded = false }
         ) {
@@ -145,7 +158,7 @@ fun FormatImportButton(
         var expanded by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
         IconButton({
-            if (InputHandler.wasKeyPressed(Keyboard.LEFT_ALT)) {
+            if (isQuickAction) {
                 scope.launch {
                     runCatching {
                         decode(JsonDialect.decode(mc.keyboardHandler.clipboard).getOrThrow())

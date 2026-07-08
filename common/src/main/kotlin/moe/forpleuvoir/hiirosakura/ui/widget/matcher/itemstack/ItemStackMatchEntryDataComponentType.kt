@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,7 @@ import moe.forpleuvoir.hiirosakura.ui.widget.DataComponentTypeSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.EnchatmentHelper
 import moe.forpleuvoir.hiirosakura.ui.widget.EnchatmentSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
 import moe.forpleuvoir.hiirosakura.util.allEnchantments
 import moe.forpleuvoir.hiirosakura.util.key
@@ -40,6 +42,17 @@ import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
 import net.minecraft.core.Holder
 import net.minecraft.world.item.enchantment.Enchantment
+
+@Composable
+fun ItemStackMatchEntryDataComponentTypeInfo(entry: ItemStackMatchEntry.DataComponentType) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(IntrinsicSize.Min)) {
+        MatchEntryModeDisplayer(entry.mode)
+        Spacer(Modifier.width(8.dp))
+        Text(ItemStackMatchEntry.DataComponentType.title)
+        Spacer(Modifier.width(8.dp))
+        Text(entry.asText)
+    }
+}
 
 /**
  * Entry 在 Row 中简单信息展示

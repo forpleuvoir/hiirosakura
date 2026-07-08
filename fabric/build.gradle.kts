@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.fabricLoom)
 }
 
-val modId: String = project.properties["mod_id"].toString()
+val modId: String = project.findProperty("mod_id").toString()
 
 repositories {
     maven {

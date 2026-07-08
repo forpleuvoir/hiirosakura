@@ -15,7 +15,7 @@ interface MatchEntry<T> : Matcher<T> {
 
     fun matchWithMode(obj: T): Boolean = mode.handleResult(match(obj))
 
-    enum class MatchMode(private val value: Boolean) {
+    enum class MatchMode(@PublishedApi internal val value: Boolean) {
         /**
          * 表示匹配模式中的包含模式，用于确定匹配的项目是否应包含在结果内。
          */
@@ -31,7 +31,7 @@ interface MatchEntry<T> : Matcher<T> {
             fun fromBoolean(value: Boolean): MatchMode = if (value) Include else Exclude
         }
 
-        fun toBoolean(): Boolean = value
+        inline val asBoolean: Boolean get() = value
 
         fun handleResult(result: Boolean): Boolean = if (value) result else !result
 

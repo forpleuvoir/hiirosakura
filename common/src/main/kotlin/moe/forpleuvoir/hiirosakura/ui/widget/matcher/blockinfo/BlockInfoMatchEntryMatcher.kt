@@ -1,7 +1,9 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo
 
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
@@ -16,6 +18,7 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatcherDialogContentSize
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
@@ -23,6 +26,17 @@ import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
+
+@Composable
+fun BlockInfoMatchEntryMatcherInfo(entry: BlockInfoMatchEntry.Matcher) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(IntrinsicSize.Min)) {
+        MatchEntryModeDisplayer(entry.mode)
+        Spacer(Modifier.width(8.dp))
+        Text(BlockInfoMatchEntry.Matcher.title)
+        Spacer(Modifier.width(8.dp))
+        BlockInfoMatcherSimpleInfo(entry.matcher)
+    }
+}
 
 /**
  * Entry 在Row中简单信息展示

@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.ui.widget
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -22,21 +21,23 @@ import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
-import com.skydoves.cloudy.liquidGlass
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.drawBackdrop
+import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.lens
+import com.kyant.backdrop.effects.vibrancy
+import com.kyant.backdrop.highlight.Highlight
+import com.kyant.backdrop.highlight.HighlightStyle
+import com.kyant.backdrop.shadow.Shadow
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.ui.util.rememberScrollFabProgress
 import moe.forpleuvoir.hiirosakura.util.ItemRegistryHelper
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.name
-import moe.forpleuvoir.ibukigourd.event.events.client.input.KeyboardEvent
-import moe.forpleuvoir.ibukigourd.input.Keyboard
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.closeScreen
@@ -48,8 +49,10 @@ import moe.forpleuvoir.ibukigourd.ui.preset.ItemIcon
 import moe.forpleuvoir.ibukigourd.ui.preset.LocalItemIconVanillaSize
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberScrollFabVisibilityProgress
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
-import moe.forpleuvoir.nebula.event.invoke
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceKey
 import net.minecraft.world.item.*
@@ -149,9 +152,11 @@ fun ItemBrowser(
     }
     var selectedTabIndex by remember { mutableStateOf(if (tabList.size > 1) 1 else 0) }
 
+    val colors = CardDefaults.cardColors()
     Card(
-        modifier = modifier.fillMaxSize(),
-        colors = CardDefaults.cardColors()
+        modifier = modifier
+            .fillMaxSize(),
+        colors = colors
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(12.dp)
@@ -236,11 +241,16 @@ fun ItemBrowser(
                     }
 
                     Box(modifier = Modifier.fillMaxSize()) {
-
+                        val backdrop = rememberLayerBackdrop {
+                            drawRect(colors.containerColor)
+                            drawContent()
+                        }
                         LazyVerticalGrid(
                             state = gridState,
                             columns = GridCells.Adaptive(gridCellSize),
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .layerBackdrop(backdrop)
+                                .fillMaxSize(),
                             horizontalArrangement = Arrangement.spacedBy(2.dp),
                             verticalArrangement = Arrangement.spacedBy(2.dp),
                             contentPadding = PaddingValues(4.dp)
@@ -257,39 +267,14 @@ fun ItemBrowser(
                         )
 
                         if (selectedTabIndex == 0) {
-                            val progress = rememberScrollFabProgress(adapter)
-
-                            var isAltPressed by remember { mutableStateOf(false) }
-                            val pressDisposable = KeyboardEvent.Pressed.register {
-                                if (it.keyCode == Keyboard.LEFT_ALT) isAltPressed = true
-                            }
-                            val releaseDisposable = KeyboardEvent.Released.register {
-                                if (it.keyCode == Keyboard.LEFT_ALT) isAltPressed = false
-                            }
-                            DisposableEffect(Unit) {
-                                onDispose {
-                                    pressDisposable()
-                                    releaseDisposable()
-                                }
-                            }
-                            val altMultiplier by animateFloatAsState(
-                                targetValue = if (isAltPressed) 0f else 1f,
-                                animationSpec = tween(200),
-                                label = "altMultiplier"
-                            )
-                            val displayProgress = progress * altMultiplier
                             SearchBar(
                                 textFieldState = textFieldState,
+                                backdrop = backdrop,
                                 modifier = Modifier
                                     .align(BiasAlignment(0f, 0.85f))
                                     .padding(horizontal = 24.dp, vertical = 8.dp)
                                     .width(320.dp)
-                                    .graphicsLayer {
-                                        alpha = displayProgress
-                                        translationY = (1f - displayProgress) * 40f
-                                        scaleX = displayProgress
-                                        scaleY = displayProgress
-                                    }
+                                    .fabVisibilityAnimation(rememberScrollFabVisibilityProgress(adapter))
                             )
                         }
                     }
@@ -301,31 +286,30 @@ fun ItemBrowser(
 
 
 @Composable
-fun SearchBar(
+private fun SearchBar(
     textFieldState: TextFieldState,
+    backdrop: LayerBackdrop,
     modifier: Modifier = Modifier,
 ) {
-    val density = LocalDensity.current
-    val radius = density.run { 28.dp.toPx() }
-    var lensCenter by remember { mutableStateOf(Offset.Zero) }
-    var lensSize by remember { mutableStateOf(Size(10f, 10f)) }
+    val shape = MaterialTheme.shapes.extraLarge
+    val color = MaterialTheme.colorScheme.onSurface.copy(0.25f)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .onGloballyPositioned { coordinates ->
-                val size = coordinates.size
-                lensSize = Size(size.width.toFloat(), size.height.toFloat())
-                lensCenter = Offset(size.width / 2f, size.height / 2f)
-            }
-            .background(
-                MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.75f),
-                MaterialTheme.shapes.extraLarge
-            )
-            .liquidGlass(
-                lensCenter = lensCenter,
-                lensSize = lensSize,
-                cornerRadius = radius,
-                edge = 0.4f
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { shape },
+                shadow = {
+                    Shadow.Default.copy(radius = 8.dp, offset = DpOffset(4.dp, 4.dp), color = Color.Black.copy(alpha = 0.25f))
+                },
+                effects = {
+                    vibrancy()
+                    blur(16f)
+                    lens(8.dp.toPx(), 32.dp.toPx(), depthEffect = true, chromaticAberration = true)
+                },
+                onDrawSurface = {
+                    drawRect(color)
+                }
             )
             .padding(horizontal = 24.dp)
     ) {
@@ -334,14 +318,20 @@ fun SearchBar(
                 Text(
                     IGLang.Misc.search,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = LocalTextStyle.current.merge(
+                        MaterialTheme.typography.bodyLarge.copy(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
+                    )
                 )
             }
             BasicTextField(
                 state = textFieldState,
                 lineLimits = TextFieldLineLimits.SingleLine,
-                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
+                textStyle = LocalTextStyle.current.merge(
+                    MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
                 ),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 modifier = Modifier.fillMaxWidth(),
@@ -362,62 +352,74 @@ object ItemBrowserDefaults {
         (wrapperSize.width + contentPadding.calculateLeftPadding(LayoutDirection.Ltr) + contentPadding.calculateRightPadding(LayoutDirection.Ltr))
             .coerceAtMost(wrapperSize.height + contentPadding.calculateTopPadding() + contentPadding.calculateBottomPadding())
 
+    val LocalItemIconSize = compositionLocalOf {
+        42.dp
+    }
+
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun ItemWrapper(item: ItemLike, border: Boolean = true, scaleOnHover: Float = 1.1f, modifier: Modifier = Modifier, onCLick: (ItemLike) -> Unit = {}) {
+    fun ItemWrapper(
+        item: ItemLike,
+        border: Boolean = true,
+        scaleOnHover: Float = 1.1f,
+        modifier: Modifier = Modifier,
+        showTooltip: Boolean = true,
+        onCLick: (ItemLike) -> Unit = {}
+    ) {
         val interactionSource = remember { MutableInteractionSource() }
         val isHovered by interactionSource.collectIsHoveredAsState()
-        TipBox({
-            Column {
-                if (item is Item) {
-                    Text(item.asItem().name)
-                    Spacer(Modifier.height(4.dp))
-                    Text(item.asItem().key.toString(), color = MaterialTheme.colorScheme.primaryContainer)
-                } else if (item is Block) {
-                    Text(item.name)
-                    Spacer(Modifier.height(4.dp))
-                    Text(item.key.toString(), color = MaterialTheme.colorScheme.primaryContainer)
-                }
-            }
-        }) {
-            Box(
-                modifier = modifier
-                    .aspectRatio(1f)
-                    .hoverable(interactionSource)
-                    .onClick { onCLick(item) }
-                    .then(
-                        if (isHovered && border) Modifier.border(1.dp, MaterialTheme.colorScheme.outline, shape = MaterialTheme.shapes.extraSmall)
-                        else Modifier
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                val icon = runCatching {
-                    ItemStack(item)
-                }.onFailure {
-                    closeScreen()
-                    ToastHandler.showContent { Text(HSLang.Common.itemInitFailure) }
-                }.getOrThrow()
-                if (icon.item != Items.AIR) {
-                    ItemIcon(
-                        icon,
-                        modifier = Modifier.size(42.dp),
-                        imageSize = if (icon.item is BlockItem) IntSize(256, 256) else IntSize(128, 128),
-                        showTooltip = false,
-                        scaleOnHover = scaleOnHover
-                    )
-                } else {
-                    Canvas(Modifier.size(42.dp)) {
-                        val tileSize = size / 2f
-                        for (row in 0 until 2) for (col in 0 until 2) {
-                            drawRect(
-                                color = if ((row + col) % 2 == 0) Color(128, 0, 128) else Color(0XFF000000),
-                                topLeft = Offset(col * tileSize.width, row * tileSize.height),
-                                size = tileSize
-                            )
+        Box(
+            modifier = modifier
+                .aspectRatio(1f)
+                .hoverable(interactionSource)
+                .onClick { onCLick(item) }
+                .then(
+                    if (isHovered && border) Modifier.border(1.dp, MaterialTheme.colorScheme.outline, shape = MaterialTheme.shapes.extraSmall)
+                    else Modifier
+                ).then(
+                    if (showTooltip) Modifier.plainTooltip {
+                        Column {
+                            if (item is Item) {
+                                Text(item.asItem().name)
+                                Spacer(Modifier.height(4.dp))
+                                Text(item.asItem().key.toString(), color = MaterialTheme.colorScheme.primaryContainer)
+                            } else if (item is Block) {
+                                Text(item.name)
+                                Spacer(Modifier.height(4.dp))
+                                Text(item.key.toString(), color = MaterialTheme.colorScheme.primaryContainer)
+                            }
                         }
                     }
-
+                    else Modifier
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            val icon = runCatching {
+                ItemStack(item)
+            }.onFailure {
+                closeScreen()
+                ToastHandler.showContent { Text(HSLang.Common.itemInitFailure) }
+            }.getOrThrow()
+            if (icon.item != Items.AIR) {
+                ItemIcon(
+                    icon,
+                    modifier = Modifier.size(LocalItemIconSize.current),
+                    imageSize = if (icon.item is BlockItem) IntSize(256, 256) else IntSize(128, 128),
+                    showTooltip = false,
+                    scaleOnHover = scaleOnHover
+                )
+            } else {
+                Canvas(Modifier.size(LocalItemIconSize.current)) {
+                    val tileSize = size / 2f
+                    for (row in 0 until 2) for (col in 0 until 2) {
+                        drawRect(
+                            color = if ((row + col) % 2 == 0) Color(128, 0, 128) else Color(0XFF000000),
+                            topLeft = Offset(col * tileSize.width, row * tileSize.height),
+                            size = tileSize
+                        )
+                    }
                 }
+
             }
         }
     }

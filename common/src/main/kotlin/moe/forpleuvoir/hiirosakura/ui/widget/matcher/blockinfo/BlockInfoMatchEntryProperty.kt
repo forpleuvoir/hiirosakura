@@ -15,6 +15,7 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
 import moe.forpleuvoir.hiirosakura.ui.icon.default.EditSquare
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Equal
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
 import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.lang.IGLang
@@ -23,6 +24,17 @@ import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.util.Util
+
+@Composable
+fun BlockInfoMatchEntryPropertyInfo(entry: BlockInfoMatchEntry.Property) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(IntrinsicSize.Min)) {
+        MatchEntryModeDisplayer(entry.mode)
+        Spacer(Modifier.width(8.dp))
+        Text(BlockInfoMatchEntry.Property.title)
+        Spacer(Modifier.width(8.dp))
+        Text(entry.asText)
+    }
+}
 
 /**
  * Entry 在Row中简单信息展示

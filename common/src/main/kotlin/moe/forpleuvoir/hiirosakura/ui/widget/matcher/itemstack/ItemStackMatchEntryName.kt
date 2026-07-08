@@ -1,7 +1,9 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -13,13 +15,27 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.preset.ItemIcon
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import net.minecraft.world.item.ItemStack
+
+@Composable
+fun ItemStackMatchEntryNameInfo(entry: ItemStackMatchEntry.Name) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(IntrinsicSize.Min)) {
+        MatchEntryModeDisplayer(entry.mode)
+        Spacer(Modifier.width(8.dp))
+        Text(ItemStackMatchEntry.Name.title)
+        Spacer(Modifier.width(8.dp))
+        Text(entry.asText)
+    }
+}
 
 /**
  * Entry 在 Row 中简单信息展示

@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
 import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.lang.IGLang
@@ -22,6 +23,17 @@ import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.StringSelector
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.util.mc
+
+@Composable
+fun BlockInfoMatchEntryTagInfo(entry: BlockInfoMatchEntry.Tag) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(IntrinsicSize.Min)) {
+        MatchEntryModeDisplayer(entry.mode)
+        Spacer(Modifier.width(8.dp))
+        Text(BlockInfoMatchEntry.Tag.title)
+        Spacer(Modifier.width(8.dp))
+        Text(entry.asText)
+    }
+}
 
 /**
  * Entry 在Row中简单信息展示

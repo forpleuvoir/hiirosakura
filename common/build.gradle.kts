@@ -47,7 +47,6 @@ configurations {
 artifacts {
     add("commonJava", sourceSets.main.get().java.sourceDirectories.singleFile)
     add("commonKotlin", sourceSets.main.get().kotlin.sourceDirectories.filter { !it.name.endsWith("java") }.singleFile)
-//    add("commonResources", sourceSets.main.get().resources.sourceDirectories.singleFile)
     add("commonResources", file("src/main/resources"))
 }
 

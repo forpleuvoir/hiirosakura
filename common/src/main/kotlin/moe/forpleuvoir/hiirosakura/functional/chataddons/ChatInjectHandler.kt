@@ -16,7 +16,13 @@ object ChatInjectHandler : ConfigGroup("chat_inject") {
 
     val injectMapping by configPairList("inject_mapping", listOf(".*" to "#{message}"), ConfigSerde.of(Codec.string), ConfigSerde.of(Codec.string))
         .uiWrapper { config ->
-            StringPairListConfigWrapper(config, { Text(HSLang.Chat.injectRegex) }, { Text(HSLang.Chat.injectExp) })
+            StringPairListConfigWrapper(
+                config,
+                firstHead = { Text(HSLang.Chat.injectExp) },
+                addFirstLabel = { Text(HSLang.Chat.injectExp) },
+                secondHead = { Text(HSLang.Chat.injectRegex) },
+                addSecondLabel = { Text(HSLang.Chat.injectRegex) },
+            )
         }
 
     private const val PLACEHOLDERS = "#{message}"

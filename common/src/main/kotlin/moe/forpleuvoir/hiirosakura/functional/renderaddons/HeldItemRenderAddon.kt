@@ -79,7 +79,7 @@ object HeldItemRenderAddon : ConfigGroup("held_item") {
             )
         )
         guiGraphics.apply {
-            pose().popMatrix()
+            pose().pushMatrix()
             pose().translate(offset.x(), offset.y())
             if (overallBackground.alpha > 5) {
                 pushRoundRect(area.expandEdges(4f), overallBackground.opacity(alpha), 2)

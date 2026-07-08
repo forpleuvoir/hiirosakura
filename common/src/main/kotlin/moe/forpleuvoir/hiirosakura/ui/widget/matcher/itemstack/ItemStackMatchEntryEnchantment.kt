@@ -18,6 +18,7 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.ui.widget.EnchatmentHelper
 import moe.forpleuvoir.hiirosakura.ui.widget.EnchatmentSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
 import moe.forpleuvoir.hiirosakura.util.allEnchantments
 import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
@@ -33,6 +34,17 @@ import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
 import net.minecraft.core.Holder
 import net.minecraft.world.item.enchantment.Enchantment
+
+@Composable
+fun ItemStackMatchEntryEnchantmentInfo(entry: ItemStackMatchEntry.Enchantment) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(IntrinsicSize.Min)) {
+        MatchEntryModeDisplayer(entry.mode)
+        Spacer(Modifier.width(8.dp))
+        Text(ItemStackMatchEntry.Enchantment.title)
+        Spacer(Modifier.width(8.dp))
+        Text(entry.asText)
+    }
+}
 
 /**
  * Entry 在 Row 中简单信息展示

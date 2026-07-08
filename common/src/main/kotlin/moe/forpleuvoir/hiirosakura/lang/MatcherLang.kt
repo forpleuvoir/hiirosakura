@@ -11,8 +11,6 @@ object MatcherLang {
     internal inline fun lang(key: String, vararg args: Any): MutableText =
         Translatable("${HiiroSakura.MOD_ID}.matcher.$key", args = args)
 
-    inline val export get() = lang("export")
-
-    inline val import get() = lang("import")
+    inline fun entries(size: Int) = lang("entries", size)
 
 }

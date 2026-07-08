@@ -17,15 +17,15 @@ val gitHash: Provider<String> by lazy {
 
 val versionWithGitHashAndBuildTime: String = "v$version.$gitHash.$time"
 
-run{
+run {
     //只是为了生成一个toml方便https://shields.io/读取
     val outputDir: File = project.rootDir
 
     outputDir.mkdirs()
     val tomlContent = """
     [mod_info]
-    name = "${project.properties["mod_name"]}"
-    id = "${project.properties["mod_id"]}"
+    name = "${project.findProperty("mod_name")}"
+    id = "${project.findProperty("mod_id")}"
     version = "$version"
     minecraft_version = "${libs.versions.minecraft.get()}"
 """.trimIndent()

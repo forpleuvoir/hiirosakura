@@ -15,31 +15,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
 import moe.forpleuvoir.hiirosakura.ui.icon.default.PlayArrow
-import moe.forpleuvoir.hiirosakura.ui.util.rememberScrollFabProgress
 import moe.forpleuvoir.hiirosakura.ui.util.showErrorToast
 import moe.forpleuvoir.hiirosakura.ui.util.showSuccessToast
-import moe.forpleuvoir.ibukigourd.event.events.client.input.KeyboardEvent
-import moe.forpleuvoir.ibukigourd.input.Keyboard
-import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateComment
 import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
+import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
-import moe.forpleuvoir.nebula.event.invoke
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
+import moe.forpleuvoir.ibukigourd.ui.preset.state.isQuickAction
+import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberScrollFabVisibilityProgress
+import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
+import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.network.chat.Component
 
 internal val LocalMatchEntryRowHeight = staticCompositionLocalOf {
@@ -96,9 +95,7 @@ internal fun <T : MatchEntry<*>> MatchEntryRow(
             Box(Modifier.weight(1f, fill = false).padding(start = 8.dp)) {
                 content()
             }
-            IconButton(onClick = onRemove) {
-                Icon(Icons.Delete, "${IGLang.Misc.remove} ${title.plainText}")
-            }
+            RemoveConfirmButton(title.plainText, onRemove)
         }
     }
 
@@ -130,6 +127,7 @@ fun interface EntryEditor<T : MatchEntry<*>> {
 
 data class AddMenuOption<T : MatchEntry<*>>(
     val title: Component,
+    val defaultValue: () -> T,
     val editor: EntryEditor<T>
 )
 
@@ -145,48 +143,24 @@ fun <T : MatchEntry<*>> FloatingEntryAddButton(
 
     var activeEditor: EntryEditor<T>? by remember { mutableStateOf(null) }
 
-    val progress = rememberScrollFabProgress(scrollState)
-
-    var isAltPressed by remember { mutableStateOf(false) }
-    val pressDisposable = KeyboardEvent.Pressed.register {
-        if (it.keyCode == Keyboard.LEFT_ALT) isAltPressed = true
-    }
-    val releaseDisposable = KeyboardEvent.Released.register {
-        if (it.keyCode == Keyboard.LEFT_ALT) isAltPressed = false
-    }
-    DisposableEffect(Unit) {
-        onDispose {
-            pressDisposable()
-            releaseDisposable()
-        }
-    }
-    val altMultiplier by animateFloatAsState(
-        targetValue = if (isAltPressed) 0f else 1f,
-        animationSpec = tween(200),
-        label = "altMultiplier"
-    )
-    val displayProgress = progress * altMultiplier
-
     FloatingActionButtonMenu(
         expanded = expanded,
-        modifier = modifier.graphicsLayer {
-            if (scrollState != null && !expanded) {
-                alpha = displayProgress
-                translationY = (1f - displayProgress) * 60f
-                scaleX = displayProgress
-                scaleY = displayProgress
-            }
-        },
+        modifier = modifier
+            .then(
+                if (scrollState != null && !expanded)
+                    Modifier.fabVisibilityAnimation(rememberScrollFabVisibilityProgress(scrollState))
+                else Modifier
+            ),
         button = {
-            ToggleFloatingActionButton(
-                checked = expanded,
-                onCheckedChange = { expanded = !expanded }
+            FloatingActionButton(
+                modifier = Modifier.size(50.dp),
+                shape = MaterialTheme.shapes.extraLarge,
+                onClick = { expanded = !expanded },
             ) {
                 val rotation by animateFloatAsState(
                     targetValue = if (expanded) 45f else 0f,
                     animationSpec = tween(150)
                 )
-
                 Icon(
                     imageVector = Icons.Add,
                     contentDescription = "Add",
@@ -195,13 +169,15 @@ fun <T : MatchEntry<*>> FloatingEntryAddButton(
             }
         }
     ) {
-
         addMenuOptions.forEach { option ->
-
             FloatingActionButtonMenuItem(
                 onClick = {
+                    if (isQuickAction) {
+                        addAction(option.defaultValue())
+                    } else {
+                        activeEditor = option.editor
+                    }
                     expanded = false
-                    activeEditor = option.editor
                 },
                 text = { Text(option.title) },
                 icon = {}
@@ -215,6 +191,20 @@ fun <T : MatchEntry<*>> FloatingEntryAddButton(
     )
 }
 //endregion
+
+@Composable
+internal fun MatchEntryModeDisplayer(
+    mode: MatchEntry.MatchMode,
+    modifier: Modifier = Modifier.width(4.dp).padding(vertical = 4.dp).fillMaxHeight()
+) {
+    Spacer(
+        modifier.background(
+            color = if (mode.asBoolean) Colors.LIME_MINT_GREEN.toComposeColor
+            else Colors.ORANGERED.toComposeColor,
+            shape = MaterialTheme.shapes.small
+        ).border(width = 0.5.dp, color = Color.White, MaterialTheme.shapes.small)
+    )
+}
 
 @Composable
 internal fun MatchEntryModeSelector(

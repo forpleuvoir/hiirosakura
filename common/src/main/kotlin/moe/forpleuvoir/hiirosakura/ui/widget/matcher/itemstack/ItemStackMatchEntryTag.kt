@@ -13,6 +13,7 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
 import moe.forpleuvoir.ibukigourd.lang.IGLang
@@ -25,12 +26,12 @@ import moe.forpleuvoir.ibukigourd.ui.preset.Text
 
 @Composable
 fun ItemStackMatchEntryTagInfo(entry: ItemStackMatchEntry.Tag) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(IntrinsicSize.Min)) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(LocalMatchEntryInfoHeight.current)) {
         MatchEntryModeDisplayer(entry.mode)
         Spacer(Modifier.width(8.dp))
-        Text(ItemStackMatchEntry.Tag.title)
+        Text(ItemStackMatchEntry.Tag.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Spacer(Modifier.width(8.dp))
-        Text(entry.asText)
+        Text(entry.asText, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 

@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicScriptEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
@@ -22,12 +23,12 @@ import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
 
 @Composable
 fun ItemStackMatchEntryScriptInfo(entry: ItemStackMatchEntry.Script) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(IntrinsicSize.Min)) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(LocalMatchEntryInfoHeight.current)) {
         MatchEntryModeDisplayer(entry.mode)
         Spacer(Modifier.width(8.dp))
-        Text(ItemStackMatchEntry.Script.title)
+        Text(ItemStackMatchEntry.Script.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Spacer(Modifier.width(8.dp))
-        Text(entry.asText)
+        Text(entry.asText, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 

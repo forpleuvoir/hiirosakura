@@ -1,6 +1,5 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -9,11 +8,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.hiirosakura.util.name
 import moe.forpleuvoir.ibukigourd.ui.preset.ItemIcon
@@ -23,14 +24,14 @@ import net.minecraft.world.item.ItemStack
 
 @Composable
 fun ItemStackMatchEntryItemInfo(entry: ItemStackMatchEntry.Item) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(IntrinsicSize.Min)) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(LocalMatchEntryInfoHeight.current)) {
         MatchEntryModeDisplayer(entry.mode)
         Spacer(Modifier.width(8.dp))
-        Text(ItemStackMatchEntry.Item.title)
+        Text(ItemStackMatchEntry.Item.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Spacer(Modifier.width(8.dp))
         ItemBrowserDefaults.ItemWrapper(entry.item, showTooltip = false, scaleOnHover = 1f, border = false, modifier = Modifier.size(32.dp))
         Spacer(Modifier.width(8.dp))
-        Text(entry.asText)
+        Text(entry.asText, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 

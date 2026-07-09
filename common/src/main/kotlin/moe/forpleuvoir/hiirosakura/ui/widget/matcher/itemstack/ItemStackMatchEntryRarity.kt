@@ -1,25 +1,28 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.ui.widget.RaritySelector
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 
 @Composable
 fun ItemStackMatchEntryRarityInfo(entry: ItemStackMatchEntry.Rarity) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(IntrinsicSize.Min)) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(LocalMatchEntryInfoHeight.current)) {
         MatchEntryModeDisplayer(entry.mode)
         Spacer(Modifier.width(8.dp))
-        Text(ItemStackMatchEntry.Rarity.title)
+        Text(ItemStackMatchEntry.Rarity.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Spacer(Modifier.width(8.dp))
-        Text(entry.asText)
+        Text(entry.asText, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -35,7 +38,8 @@ internal fun ItemStackMatchEntryRarityRow(
     RaritySelector(
         entry.rarity,
         { onChange(entry.copy(rarity = it)) },
-        modifier = Modifier.width(160.dp)
+        contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 10.dp, bottom = 10.dp),
+        modifier = Modifier.width(200.dp),
     )
 }
 

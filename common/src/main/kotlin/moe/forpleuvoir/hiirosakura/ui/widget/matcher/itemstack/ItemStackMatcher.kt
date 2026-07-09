@@ -1,17 +1,28 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.background
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -29,6 +40,7 @@ import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.ibukigourd.ui.icon.default.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
@@ -36,7 +48,14 @@ import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.PlainTooltip
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fadeScaleTooltip
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.tooltip
+import moe.forpleuvoir.ibukigourd.ui.util.Keyed
+import moe.forpleuvoir.ibukigourd.ui.util.copyValue
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
+import moe.forpleuvoir.ibukigourd.ui.util.values
+import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.world.item.ItemStack
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 //region Displayer
 
@@ -137,7 +156,7 @@ fun ItemStackMatcherInfo(
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(4.dp),
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
 ) = Column(modifier, verticalArrangement, horizontalAlignment) {
-    Text(value.mode.translateText, textAlign = TextAlign.Center, modifier = Modifier.align(Alignment.CenterHorizontally))
+    Text(value.mode.translateText, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.align(Alignment.CenterHorizontally))
     HorizontalDivider()
     value.entries.take(10).forEach { entry ->
         ItemStackMatchEntryInfo(entry)
@@ -155,7 +174,7 @@ fun ItemStackMatcherSimpleInfo(
 ) {
     val entries = value.entries
     when (entries.size) {
-        0    -> Text(IGLang.Misc.hasNothing)
+        0    -> Text(IGLang.Misc.hasNothing, maxLines = 1, overflow = TextOverflow.Ellipsis)
         1    -> ItemStackMatchEntryInfo(entries.first())
         else -> {
             if (ItemStackMatcher.isAnyMatcher(value)) {
@@ -188,8 +207,9 @@ fun ItemStackMatchEntryInfo(entry: MatchEntry<ItemStack>) {
 
 @Composable
 fun BasicItemStackMatcherEditor(
-    value: ItemStackMatcher,
-    onValueChange: (ItemStackMatcher) -> Unit,
+    mode: CompositeMatcher.MatchMode,
+    onModeChange: (CompositeMatcher.MatchMode) -> Unit,
+    entries: SnapshotStateList<Keyed<ItemStackMatchEntry>>,
     isNested: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -199,10 +219,8 @@ fun BasicItemStackMatcherEditor(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CompositeMatcherModeSelector(
-                value.mode,
-                { onValueChange(value.copy(mode = it)) }
-            )
+            CompositeMatcherModeSelector(mode, onModeChange)
+
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 ItemStackMatcher.handheldItemStack?.let { itemStack ->
                     TestButton(
@@ -210,47 +228,89 @@ fun BasicItemStackMatcherEditor(
                         HSLang.ItemStackMatcher.testSuccess.plainText,
                         HSLang.ItemStackMatcher.testFailed.plainText
                     ) {
-                        value.match(itemStack)
+                        ItemStackMatcher(mode, entries.values()).match(itemStack)
                     }
                 }
                 FormatExportButton(IGLang.Misc.copySuccess(HSLang.ItemStackMatcher.title).plainText) {
-                    MinecraftClipboard.setClipboardText(it.encode(ItemStackMatcher.serialization(value)))
+                    MinecraftClipboard.setClipboardText(it.encode(ItemStackMatcher.serialization(ItemStackMatcher(mode, entries.values()))))
                 }
                 FormatImportButton(HSLang.ItemStackMatcher.title.plainText, HSLang.Common.success.plainText) {
                     ItemStackMatcher.deserialization(it)
                         .getOrThrow()
-                        .let { onValueChange(it) }
+                        .let { result ->
+                            onModeChange(result.mode)
+                            entries.clear()
+                            entries.addAll(result.entries.mapIndexed { index, entry -> Keyed(index.toLong(), entry) })
+                        }
                 }
             }
         }
         Spacer(Modifier.height(16.dp))
         Box(Modifier.fillMaxSize()) {
-            val scrollState = rememberScrollState()
-            Column(Modifier.verticalScroll(scrollState).fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                value.entries.forEachIndexed { index, entry ->
-                    ItemStackMatchEntryRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        entry = entry,
-                        onChange = { newEntry ->
-                            onValueChange(value.copy(entries = value.entries.map { if (it === entry) newEntry else it }))
-                        },
-                        onRemove = {
-                            onValueChange(value.copy(entries = value.entries - entry))
-                        }
-                    )
+
+            val lazyListState = rememberLazyListState()
+            val hapticFeedback = LocalHapticFeedback.current
+            val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+                entries.moveElement(from.index, to.index)
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+            }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                state = lazyListState
+            ) {
+                itemsIndexed(entries, key = { _, keyed -> keyed.key }) { index, (key, entry) ->
+                    ReorderableItem(reorderableLazyListState, key = key) { isDragging ->
+                        val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
+                        val handleInteraction = remember { MutableInteractionSource() }
+                        val handleHovered by handleInteraction.collectIsHoveredAsState()
+                        ItemStackMatchEntryRow(
+                            modifier = Modifier.fillMaxWidth().scale(scale),
+                            entry = entry,
+                            onChange = { newEntry ->
+                                entries[index] = entries[index].copyValue(newEntry)
+                            },
+                            onRemove = {
+                                entries.removeAt(index)
+                            },
+                            moveHandler = {
+                                Box(
+                                    Modifier
+                                        .draggableHandle(
+                                            onDragStarted = {
+                                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                                            },
+                                            onDragStopped = {
+                                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
+                                            },
+                                        )
+                                        .hoverable(handleInteraction)
+                                        .pointerHoverIcon(PointerIcon.Hand)
+                                        .background(
+                                            if (handleHovered || isDragging) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                                            CircleShape,
+                                        ).padding(4.dp)
+                                ) {
+                                    Icon(Icons.DragHandle, contentDescription = null)
+                                }
+                            }
+                        )
+                    }
+
                 }
             }
             VerticalScrollbar(
-                adapter = rememberScrollbarAdapter(scrollState),
+                adapter = rememberScrollbarAdapter(lazyListState),
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
+
             FloatingEntryAddButton(
                 modifier = Modifier
                     .align(Alignment.BottomEnd),
-                scrollState = scrollState,
+                scrollState = lazyListState,
                 addMenuOptions = if (isNested) nestedAddMenuOptions else addMenuOptions
             ) { newEntry ->
-                onValueChange(value.copy(entries = value.entries + newEntry))
+                entries.add(Keyed(entries.size.toLong(), newEntry))
             }
         }
     }
@@ -262,19 +322,21 @@ fun ItemStackMatcherEditorDialog(
     value: ItemStackMatcher,
     onValueChange: (ItemStackMatcher) -> Unit,
 ) {
-    var editingMatcher by remember(value) { mutableStateOf(value) }
+    var editingMode by remember(value) { mutableStateOf(value.mode) }
+    val editingEntries = rememberKeyedList(value.entries)
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(HSLang.ItemStackMatcher.title) },
         content = {
             BasicItemStackMatcherEditor(
-                editingMatcher,
-                { editingMatcher = it },
+                editingMode,
+                { editingMode = it },
+                editingEntries,
                 modifier = Modifier.size(LocalMatcherDialogContentSize.current)
             )
         },
         onConfirmRequest = {
-            onValueChange(editingMatcher)
+            onValueChange(ItemStackMatcher(editingMode, editingEntries.values()))
             true
         }
     )
@@ -287,11 +349,13 @@ private fun ItemStackMatchEntryRow(
     entry: ItemStackMatchEntry,
     onChange: (ItemStackMatchEntry) -> Unit,
     onRemove: () -> Unit,
+    moveHandler: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) = MatchEntryRow(
     title = entry.translateText,
     entry = entry,
     entryCopyWithMode = { e, m -> e.copyWithMode(m) },
+    moveHandler = moveHandler,
     onChange = onChange,
     onRemove = onRemove,
     modifier = modifier

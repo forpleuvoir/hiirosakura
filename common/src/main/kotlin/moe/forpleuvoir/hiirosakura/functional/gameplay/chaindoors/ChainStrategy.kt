@@ -1,5 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors
 
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainStrategy.Neighborhood.Shape.CUBE
@@ -21,6 +23,7 @@ import kotlin.jvm.optionals.getOrNull
 import kotlin.math.abs
 import kotlin.math.pow
 
+@Immutable
 sealed class ChainStrategy(
     val type: String,
     val sameBlock: Boolean,
@@ -59,6 +62,7 @@ sealed class ChainStrategy(
 
     abstract fun collect(origin: BlockPos, level: Level, predicate: (BlockPos) -> Boolean): Sequence<BlockPos>
 
+    @Immutable
     class Neighborhood(
         radius: Int,
         val shape: Shape,
@@ -104,6 +108,14 @@ sealed class ChainStrategy(
             companion object : Codec<Shape> by Codec.enum()
         }
 
+        fun copy(
+            radius: Int = this.radius,
+            shape: Shape = this.shape,
+            sameBlock: Boolean = this.sameBlock,
+            syncState: Boolean = this.syncState,
+            limit: Int = this.limit
+        ): Neighborhood = Neighborhood(radius, shape, sameBlock, syncState, limit)
+
         override fun collect(origin: BlockPos, level: Level, predicate: (BlockPos) -> Boolean): Sequence<BlockPos> {
             val dSqLimit = (radius * radius).toDouble()
             val originState = level.getBlockState(origin)
@@ -131,6 +143,7 @@ sealed class ChainStrategy(
 
     }
 
+    @Immutable
     class Recursive(
         sameBlock: Boolean,
         syncState: Boolean,
@@ -151,6 +164,12 @@ sealed class ChainStrategy(
             val hoverText: Text get() = Text.translatable("${HiiroSakura.MOD_ID}.chain_doors.strategy.type.$RECURSIVE_TYPE.comment")
 
         }
+
+        fun copy(
+            sameBlock: Boolean = this.sameBlock,
+            syncState: Boolean = this.syncState,
+            limit: Int = this.limit
+        ) = Recursive(sameBlock, syncState, limit)
 
         override fun collect(origin: BlockPos, level: Level, predicate: (BlockPos) -> Boolean): Sequence<BlockPos> = sequence {
             val visited = ObjectOpenHashSet<BlockPos>(limit * 2)

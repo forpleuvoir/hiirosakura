@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
 import moe.forpleuvoir.hiirosakura.util.targetBlock
@@ -26,12 +27,12 @@ import moe.forpleuvoir.ibukigourd.util.mc
 
 @Composable
 fun BlockInfoMatchEntryTagInfo(entry: BlockInfoMatchEntry.Tag) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(IntrinsicSize.Min)) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(LocalMatchEntryInfoHeight.current)) {
         MatchEntryModeDisplayer(entry.mode)
         Spacer(Modifier.width(8.dp))
-        Text(BlockInfoMatchEntry.Tag.title)
+        Text(BlockInfoMatchEntry.Tag.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Spacer(Modifier.width(8.dp))
-        Text(entry.asText)
+        Text(entry.asText, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 

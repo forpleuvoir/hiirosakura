@@ -7,6 +7,8 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.*
@@ -16,6 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.DpSize
@@ -29,14 +34,16 @@ import moe.forpleuvoir.hiirosakura.ui.util.showSuccessToast
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateComment
 import moe.forpleuvoir.ibukigourd.text.translateText
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ListConfigWrapperDefaults.MoveColumn
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Add
+import moe.forpleuvoir.ibukigourd.ui.icon.default.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
 import moe.forpleuvoir.ibukigourd.ui.preset.state.isQuickAction
-import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberScrollFabVisibilityProgress
+import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberFabVisibilityByScroll
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.network.chat.Component
@@ -46,11 +53,15 @@ internal val LocalMatchEntryRowHeight = staticCompositionLocalOf {
 }
 
 internal val LocalMatchEntryRowPadding = staticCompositionLocalOf {
-    PaddingValues(20.dp, 12.dp, 12.dp, 12.dp)
+    PaddingValues(12.dp)
 }
 
 internal val LocalMatcherDialogContentSize = staticCompositionLocalOf {
-    DpSize(820.dp, 600.dp)
+    DpSize(900.dp, 620.dp)
+}
+
+internal val LocalMatchEntryInfoHeight = staticCompositionLocalOf {
+    32.dp
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -62,6 +73,7 @@ internal fun <T : MatchEntry<*>> MatchEntryRow(
     onChange: (T) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
+    moveHandler: @Composable (() -> Unit)? = null,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween,
     onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit
@@ -86,7 +98,12 @@ internal fun <T : MatchEntry<*>> MatchEntryRow(
         horizontalArrangement = horizontalArrangement,
         verticalAlignment = Alignment.CenterVertically,
     ) {
+
         Row(verticalAlignment = Alignment.CenterVertically) {
+            moveHandler?.let {
+                it()
+                Spacer(Modifier.width(8.dp))
+            }
             Text(title)
             Spacer(Modifier.width(16.dp))
             MatchEntryModeSelector(entry.mode) { onChange(entryCopyWithMode(entry, it)) }
@@ -135,7 +152,7 @@ data class AddMenuOption<T : MatchEntry<*>>(
 @Composable
 fun <T : MatchEntry<*>> FloatingEntryAddButton(
     modifier: Modifier = Modifier,
-    scrollState: ScrollState? = null,
+    scrollState: LazyListState? = null,
     addMenuOptions: List<AddMenuOption<T>>,
     addAction: (T) -> Unit
 ) {
@@ -148,7 +165,7 @@ fun <T : MatchEntry<*>> FloatingEntryAddButton(
         modifier = modifier
             .then(
                 if (scrollState != null && !expanded)
-                    Modifier.fabVisibilityAnimation(rememberScrollFabVisibilityProgress(scrollState))
+                    Modifier.fabVisibilityAnimation(rememberFabVisibilityByScroll(scrollState))
                 else Modifier
             ),
         button = {

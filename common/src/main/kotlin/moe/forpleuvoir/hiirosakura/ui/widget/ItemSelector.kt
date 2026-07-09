@@ -48,10 +48,9 @@ import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.ui.preset.ItemIcon
 import moe.forpleuvoir.ibukigourd.ui.preset.LocalItemIconVanillaSize
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
-import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberScrollFabVisibilityProgress
+import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberFabVisibilityByScroll
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceKey
@@ -274,7 +273,7 @@ fun ItemBrowser(
                                     .align(BiasAlignment(0f, 0.85f))
                                     .padding(horizontal = 24.dp, vertical = 8.dp)
                                     .width(320.dp)
-                                    .fabVisibilityAnimation(rememberScrollFabVisibilityProgress(adapter))
+                                    .fabVisibilityAnimation(rememberFabVisibilityByScroll(adapter))
                             )
                         }
                     }

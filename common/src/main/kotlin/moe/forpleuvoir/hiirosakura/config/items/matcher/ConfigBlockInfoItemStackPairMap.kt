@@ -41,8 +41,10 @@ import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.MapConfigWrapperDefaults
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.MapEntry
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.ConfigMap
 import moe.forpleuvoir.nebula.config.item.configMap
@@ -132,7 +134,7 @@ fun BlockInfoItemStackPairMapWrapper(
                     },
                     addDialog = { onDismissRequest ->
                         val newKey = rememberTextFieldState("")
-                        val isDuplicate = remember(newKey.text.toString()) { data.any { it.second.first == newKey.text.toString() } }
+                        val isDuplicate = remember(newKey.text.toString()) { data.any { it.value.key == newKey.text.toString() } }
                         var newItem by remember { mutableStateOf(ItemStackMatcher.handheldItemMatcher) }
                         var newBlock by remember { mutableStateOf(BlockInfoMatcher.targetBlockMatcher) }
                         AlertDialog(
@@ -186,7 +188,7 @@ fun BlockInfoItemStackPairMapWrapper(
                                     onClick = {
                                         if (!isDuplicate) {
                                             val value = newBlock to newItem
-                                            data.add(nextKey++ to (newKey.text.toString() to value))
+                                            data.add(Keyed(nextKey++, MapEntry(newKey.text.toString(), value)))
                                             onDismissRequest()
                                         }
                                     },

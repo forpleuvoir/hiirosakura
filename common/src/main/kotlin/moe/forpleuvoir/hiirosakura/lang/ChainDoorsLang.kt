@@ -12,19 +12,27 @@ object ChainDoorsLang {
     internal inline fun lang(key: String, vararg args: Any): MutableText =
         Translatable("${HiiroSakura.MOD_ID}.chain_doors.$key", args = args)
 
-    inline val originDoor get() = lang("origin_door")
+    inline val originDoor get() = lang("origin_door").style {
+        hover(originDoorComment)
+    }
 
     inline val originDoorComment get() = lang("origin_door.comment")
 
-    inline val chainDoor get() = lang("chain_door")
+    inline val chainDoor get() = lang("chain_door").style {
+        hover(chainDoorComment)
+    }
 
     inline val chainDoorComment get() = lang("chain_door.comment")
 
-    inline val keyToggleMode get() = lang("key_toggle_mode")
+    inline val keyToggleMode get() = lang("key_toggle_mode").style {
+        hover(keyToggleModeComment)
+    }
 
     inline val keyToggleModeComment get() = lang("key_toggle_mode.comment")
 
-    inline val strategy get() = lang("strategy")
+    inline val strategy get() = lang("strategy").style {
+        hover(strategyComment)
+    }
 
     inline val strategyComment get() = lang("strategy.comment")
 

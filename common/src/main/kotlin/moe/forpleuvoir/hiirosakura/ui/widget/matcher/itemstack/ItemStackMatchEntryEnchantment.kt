@@ -108,6 +108,9 @@ internal fun BasicItemStackMatchEntryEnchantmentEditor(
     ) {
         val state = rememberTextFieldStateBinding(value.enchantment) { onValueChange(value.copy(enchantment = it)) }
         var levelRange by remember(value.level) { mutableStateOf(value.level) }
+        LaunchedEffect(levelRange) {
+            onValueChange(value.copy(level = levelRange))
+        }
 
         //从手中物品获取
         val width = remember { 360.dp }
@@ -142,7 +145,6 @@ internal fun BasicItemStackMatchEntryEnchantmentEditor(
                 },
                 items = EnchatmentHelper.REGISTERED_ENCHANTMENT,
                 modifier = Modifier.width(width),
-                enabledSearch = true,
                 searchFilter = { s, e ->
                     s in e.registeredName || s in EnchatmentHelper.enchantmentDescription(e).plainText
                 }

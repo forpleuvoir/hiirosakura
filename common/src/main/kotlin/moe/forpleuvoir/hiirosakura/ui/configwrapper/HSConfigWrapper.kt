@@ -2,6 +2,7 @@ package moe.forpleuvoir.hiirosakura.ui.configwrapper
 
 import moe.forpleuvoir.hiirosakura.config.items.AutoReplantEntryListConfigWrapper
 import moe.forpleuvoir.hiirosakura.config.items.ChainDoorsRuleListConfigWrapper
+import moe.forpleuvoir.hiirosakura.config.items.SoundEventListConfigWrapper
 import moe.forpleuvoir.hiirosakura.config.items.matcher.*
 import moe.forpleuvoir.hiirosakura.functional.gameplay.AutoReplant
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainDoorsRule
@@ -13,6 +14,7 @@ import moe.forpleuvoir.ibukigourd.ui.configwrapper.UIWrappers
 import moe.forpleuvoir.nebula.common.api.Initializable
 import moe.forpleuvoir.nebula.config.item.ConfigList
 import moe.forpleuvoir.nebula.config.item.ConfigMap
+import net.minecraft.sounds.SoundEvent
 
 object HSConfigWrapper : Initializable {
 
@@ -30,6 +32,7 @@ object HSConfigWrapper : Initializable {
 
         registerList<ChainDoorsRule> { ChainDoorsRuleListConfigWrapper(it) }
         registerList<AutoReplant.Entry> { AutoReplantEntryListConfigWrapper(it) }
+        registerList<SoundEvent> { SoundEventListConfigWrapper(it) }
 
 //        register<ConfigSoundEventList> { c, m -> SoundEventListWrapper(c, m) }
 //

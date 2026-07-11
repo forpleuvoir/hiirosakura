@@ -21,7 +21,8 @@ kotlin {
     jvmToolchain(Integer.parseInt(javaVersion))
     compilerOptions {
         freeCompilerArgs.add('-jvm-default=enable')
-        freeCompilerArgs.add('-Xcontext-parameters')
+        freeCompilerArgs.add('-Xcollection-literals')
+        freeCompilerArgs.add('-Xexplicit-context-arguments')
     }
 }
 

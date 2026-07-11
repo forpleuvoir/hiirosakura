@@ -28,8 +28,7 @@ fun DataComponentTypeSelector(
         Text(item.keyOrUnknown.toString())
     },
     enabled: Boolean = true,
-    enabledSearch: Boolean = false,
-    searchFilter: ((String, DataComponentType<*>) -> Boolean) = { _, _ -> true },
+    searchFilter: ((String, DataComponentType<*>) -> Boolean)? = null,
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (DataComponentType<*>) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (DataComponentType<*>) -> Unit)?)? = null,
@@ -48,7 +47,6 @@ fun DataComponentTypeSelector(
     label = label,
     itemContent = itemContent,
     enabled = enabled,
-    enabledSearch = enabledSearch,
     searchFilter = searchFilter,
     modifier = modifier,
     itemLeadingIcon = itemLeadingIcon,

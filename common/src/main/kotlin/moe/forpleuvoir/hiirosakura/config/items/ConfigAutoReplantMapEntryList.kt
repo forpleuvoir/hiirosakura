@@ -35,7 +35,11 @@ import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ListConfigWrapperDefaults
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
+import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.util.Keyed
+import moe.forpleuvoir.ibukigourd.ui.util.copyValue
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.ConfigList
 import moe.forpleuvoir.nebula.config.item.configList
@@ -65,9 +69,7 @@ fun AutoReplantEntryListConfigWrapper(
             modifier = modifier
         ) { showEditDialog = true }
         if (showEditDialog) {
-            val editingValue = remember {
-                config.mapIndexed { index, value -> index.toLong() to value }.toMutableStateList()
-            }
+            val editingValue = rememberKeyedList(config)
             var nextKey by remember { mutableLongStateOf(editingValue.size.toLong()) }
             EditDialog(
                 config = config,
@@ -102,63 +104,51 @@ fun AutoReplantEntryListConfigWrapper(
                     },
                     addDialog = { onDismissRequest ->
                         var entry by remember { mutableStateOf(AutoReplant.Entry()) }
-                        AlertDialog(
+                        SimpleAlertDialog(
                             onDismissRequest = onDismissRequest,
                             title = { Text(IGLang.Misc.add) },
-                            text = {
-                                IGCompositionLocalProvider {
-                                    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                        BlockInfoMatcherDisplayerInnerEditor(
-                                            entry.targetBlock,
-                                            { entry = entry.copy(targetBlock = it) },
-                                            modifier = Modifier.fillMaxWidth(),
-                                            leadingIcon = {
-                                                Text(HSLang.AutoReplant.mapEntryTargetBlock)
-                                            }
-                                        )
-                                        ItemStackMatcherDisplayerInnerEditor(
-                                            entry.replantItem,
-                                            { entry = entry.copy(replantItem = it) },
-                                            modifier = Modifier.fillMaxWidth(),
-                                            leadingIcon = {
-                                                Text(HSLang.AutoReplant.mapEntryReplantItem)
-                                            }
-                                        )
-                                        BlockInfoMatcherDisplayerInnerEditor(
-                                            entry.groundBlock,
-                                            { entry = entry.copy(groundBlock = it) },
-                                            modifier = Modifier.fillMaxWidth(),
-                                            leadingIcon = {
-                                                Text(HSLang.AutoReplant.mapEntryGroundBlock)
-                                            }
-                                        )
-                                    }
-                                }
+                            onConfirmRequest = {
+                                editingValue.add(Keyed(nextKey++, entry))
+                                true
                             },
-                            confirmButton = {
-                                TextButton(
-                                    onClick = {
-                                        editingValue.add(nextKey++ to entry)
-                                        onDismissRequest()
-                                    }
-                                ) {
-                                    Text(IGLang.Misc.confirm)
+                            content = {
+                                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    BlockInfoMatcherDisplayerInnerEditor(
+                                        entry.targetBlock,
+                                        { entry = entry.copy(targetBlock = it) },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        leadingIcon = {
+                                            Text(HSLang.AutoReplant.mapEntryTargetBlock)
+                                        }
+                                    )
+                                    ItemStackMatcherDisplayerInnerEditor(
+                                        entry.replantItem,
+                                        { entry = entry.copy(replantItem = it) },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        leadingIcon = {
+                                            Text(HSLang.AutoReplant.mapEntryReplantItem)
+                                        }
+                                    )
+                                    BlockInfoMatcherDisplayerInnerEditor(
+                                        entry.groundBlock,
+                                        { entry = entry.copy(groundBlock = it) },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        leadingIcon = {
+                                            Text(HSLang.AutoReplant.mapEntryGroundBlock)
+                                        }
+                                    )
                                 }
-                            },
-                            dismissButton = {
-                                TextButton(onClick = onDismissRequest) {
-                                    Text(IGLang.Misc.cancel)
-                                }
-                            },
+                            }
                         )
                     }
                 ) { lazyListState ->
                     EditDialogContentList(
                         data = editingValue,
-                        key = { it.first },
+                        key = { it.key },
                         modifier = Modifier,
                         lazyListState = lazyListState
-                    ) { (key, value), onValueChange ->
+                    ) { keyed, onValueChange ->
+                        val value = keyed.value
                         Row(
                             Modifier.weight(1f),
                             horizontalArrangement = Arrangement.spacedBy(LocalColumnSpacing.current),
@@ -167,19 +157,19 @@ fun AutoReplantEntryListConfigWrapper(
                             //targetBlock
                             BlockInfoMatcherDisplayerInnerEditor(
                                 value.targetBlock,
-                                { onValueChange(key to value.copy(targetBlock = it)) },
+                                { onValueChange(keyed.copyValue(value.copy(targetBlock = it))) },
                                 modifier = Modifier.weight(1f),
                             )
                             //replantItem
                             ItemStackMatcherDisplayerInnerEditor(
                                 value.replantItem,
-                                { onValueChange(key to value.copy(replantItem = it)) },
+                                { onValueChange(keyed.copyValue(value.copy(replantItem = it))) },
                                 modifier = Modifier.weight(1f),
                             )
                             //groundBlock
                             BlockInfoMatcherDisplayerInnerEditor(
                                 value.groundBlock,
-                                { onValueChange(key to value.copy(groundBlock = it)) },
+                                { onValueChange(keyed.copyValue(value.copy(groundBlock = it))) },
                                 modifier = Modifier.weight(1f),
                             )
                         }

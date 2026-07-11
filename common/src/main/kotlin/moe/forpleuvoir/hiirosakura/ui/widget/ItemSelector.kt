@@ -31,8 +31,6 @@ import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
-import com.kyant.backdrop.highlight.Highlight
-import com.kyant.backdrop.highlight.HighlightStyle
 import com.kyant.backdrop.shadow.Shadow
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.util.ItemRegistryHelper
@@ -45,6 +43,7 @@ import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Close
 import moe.forpleuvoir.ibukigourd.ui.openComposePopupScreen
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
+import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.ItemIcon
 import moe.forpleuvoir.ibukigourd.ui.preset.LocalItemIconVanillaSize
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
@@ -65,15 +64,27 @@ fun ItemSelector(
     onValueChange: (Item) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var showDialog by remember { mutableStateOf(false) }
     ItemBrowserDefaults.ItemWrapper(value, false, 1f, modifier.size(LocalItemIconVanillaSize.current)) {
-        openItemBrowserScreen(
-            itemDisplay = {
-                ItemBrowserDefaults.ItemWrapper(it) { selected ->
-                    onValueChange(selected.asItem())
-                    closeScreen()
-                }
+        showDialog = true
+    }
+    if (showDialog) {
+        FlexibleDialog(
+            onDismissRequest = { showDialog = false },
+            onConfirmRequest = { true },
+            content = {
+                ItemBrowser(
+                    itemDisplay = {
+                        ItemBrowserDefaults.ItemWrapper(it) { selected ->
+                            onValueChange(selected.asItem())
+                            showDialog = false
+                        }
+                    },
+                    modifier = Modifier.size(680.dp, 520.dp)
+                )
             },
-            modifier = Modifier.fillMaxWidth(0.45f).fillMaxHeight(0.55f)
+            confirmButton = {},
+            dismissButton = {}
         )
     }
 }
@@ -85,50 +96,36 @@ fun BlockSelector(
     onValueChange: (Block) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var showDialog by remember { mutableStateOf(false) }
     ItemBrowserDefaults.ItemWrapper(value, false, 1f, modifier.size(LocalItemIconVanillaSize.current)) {
-        openItemBrowserScreen(
-            itemDisplay = {
-                ItemBrowserDefaults.ItemWrapper(it) { selected ->
-                    if (selected is BlockItem) {
-                        onValueChange(selected.block)
-                    } else if (selected is Block) {
-                        onValueChange(selected)
-                    }
-                    closeScreen()
-                }
-            },
-            filter = {
-                it is BlockItem || it is Block
-            },
-            searchItems = ItemRegistryHelper.allBlock.toList(),
-            modifier = Modifier.fillMaxWidth(0.45f).fillMaxHeight(0.55f)
-        )
+        showDialog = true
     }
-}
-
-
-fun openItemBrowserScreen(
-    itemGroups: List<ResourceKey<CreativeModeTab>> = ItemRegistryHelper.getAllTabs(),
-    itemDisplay: @Composable (ItemLike) -> Unit = ItemBrowserDefaults::ItemWrapper,
-    filter: (ItemLike) -> Boolean = { true },
-    searchItems: List<ItemLike> = ItemRegistryHelper.allItem.toList(),
-    contentPadding: PaddingValues = PaddingValues(4.dp),
-    gridCellSize: Dp? = null,
-    modifier: Modifier = Modifier
-) {
-    openComposePopupScreen {
-        val gridCellSize = gridCellSize ?: ItemBrowserDefaults.gridCellSize(contentPadding = contentPadding)
-        IbukiGourdTheme {
-            ItemBrowser(
-                itemGroups,
-                itemDisplay,
-                filter,
-                searchItems,
-                contentPadding,
-                gridCellSize,
-                modifier
-            )
-        }
+    if (showDialog) {
+        FlexibleDialog(
+            onDismissRequest = { showDialog = false },
+            onConfirmRequest = { true },
+            content = {
+                ItemBrowser(
+                    itemDisplay = {
+                        ItemBrowserDefaults.ItemWrapper(it) { selected ->
+                            if (selected is BlockItem) {
+                                onValueChange(selected.block)
+                            } else if (selected is Block) {
+                                onValueChange(selected)
+                            }
+                            showDialog = false
+                        }
+                    },
+                    filter = {
+                        it is BlockItem || it is Block
+                    },
+                    searchItems = ItemRegistryHelper.allBlock.toList(),
+                    modifier = Modifier.size(680.dp, 520.dp)
+                )
+            },
+            confirmButton = {},
+            dismissButton = {}
+        )
     }
 }
 
@@ -138,8 +135,8 @@ fun ItemBrowser(
     itemDisplay: @Composable (ItemLike) -> Unit = ItemBrowserDefaults::ItemWrapper,
     filter: (ItemLike) -> Boolean = { true },
     searchItems: List<ItemLike> = ItemRegistryHelper.allItem.toList(),
-    contentPadding: PaddingValues = PaddingValues(4.dp),
-    gridCellSize: Dp = ItemBrowserDefaults.gridCellSize(contentPadding = contentPadding),
+    gridCellSize: Dp = ItemBrowserDefaults.gridCellSize(contentPadding = PaddingValues(4.dp)),
+    searchBarBackgroundColor: Color = AlertDialogDefaults.containerColor,
     modifier: Modifier = Modifier
 ) {
     val tabList = remember(itemGroups) {
@@ -151,131 +148,123 @@ fun ItemBrowser(
     }
     var selectedTabIndex by remember { mutableStateOf(if (tabList.size > 1) 1 else 0) }
 
-    val colors = CardDefaults.cardColors()
-    Card(
-        modifier = modifier
-            .fillMaxSize(),
-        colors = colors
+    Column(
+        modifier = modifier.fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(12.dp)
+        PrimaryScrollableTabRow(
+            selectedTabIndex = selectedTabIndex,
+            modifier = Modifier.fillMaxWidth(),
+            containerColor = Color.Transparent
         ) {
-            PrimaryScrollableTabRow(
-                selectedTabIndex = selectedTabIndex,
-                modifier = Modifier.fillMaxWidth(),
-                containerColor = Color.Transparent
-            ) {
-                tabList.forEachIndexed { index, tabKey ->
-                    Tab(
-                        modifier = Modifier.padding(bottom = 6.dp, start = 4.dp, end = 4.dp).clip(MaterialTheme.shapes.medium),
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        icon = {
-                            ItemIcon(
-                                tabKey.first,
-                                modifier = Modifier.size(32.dp),
-                                showTooltip = false,
-                                scaleOnHover = 1f,
-                            )
-                        },
-                        text = { Text(tabKey.second) }
+            tabList.forEachIndexed { index, tabKey ->
+                Tab(
+                    modifier = Modifier.padding(bottom = 6.dp, start = 4.dp, end = 4.dp).clip(MaterialTheme.shapes.medium),
+                    selected = selectedTabIndex == index,
+                    onClick = { selectedTabIndex = index },
+                    icon = {
+                        ItemIcon(
+                            tabKey.first,
+                            modifier = Modifier.size(32.dp),
+                            showTooltip = false,
+                            scaleOnHover = 1f,
+                        )
+                    },
+                    text = { Text(tabKey.second) }
+                )
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        AnimatedContent(
+            targetState = selectedTabIndex,
+            transitionSpec = {
+                val currentIdx = initialState
+                val targetIdx = targetState
+                val direction = if (targetIdx > currentIdx) 1 else -1
+                (slideInHorizontally(tween(150)) { width -> direction * width } + fadeIn(tween(150))) togetherWith
+                        (slideOutHorizontally(tween(150)) { width -> -direction * width } + fadeOut(tween(150)))
+            },
+            label = "ItemBrowserTabContent"
+        ) {
+            Column {
+
+                val gridState = rememberLazyGridState()
+                val textFieldState = rememberTextFieldState()
+
+                val items by remember(selectedTabIndex) {
+                    mutableStateOf(
+                        if (selectedTabIndex != 0)
+                            ItemRegistryHelper.getItemsByTab(itemGroups[selectedTabIndex - 1])
+                                .filter { filter(it.item) }
+                                .map { it.item }
+                                .distinctBy { it.key }
+                        else searchItems.filter { filter(it) }.distinctBy {
+                            when (it) {
+                                is Item  -> it.key
+                                is Block -> it.key
+                                else     -> it
+                            }
+                        }
                     )
                 }
-            }
-            Spacer(Modifier.height(8.dp))
-            AnimatedContent(
-                targetState = selectedTabIndex,
-                transitionSpec = {
-                    val currentIdx = initialState
-                    val targetIdx = targetState
-                    val direction = if (targetIdx > currentIdx) 1 else -1
-                    (slideInHorizontally(tween(150)) { width -> direction * width } + fadeIn(tween(150))) togetherWith
-                            (slideOutHorizontally(tween(150)) { width -> -direction * width } + fadeOut(tween(150)))
-                },
-                label = "ItemBrowserTabContent"
-            ) {
-                Column {
 
-                    val gridState = rememberLazyGridState()
-                    val textFieldState = rememberTextFieldState()
+                var searchQuery by remember { mutableStateOf("") }
+                val displayItems by remember(items, searchQuery) {
+                    mutableStateOf(
+                        if (searchQuery.isBlank()) items
+                        else items.filter {
+                            when (it) {
+                                is Item  -> it.name.plainText.contains(searchQuery, ignoreCase = true)
+                                        || it.key.toString().contains(searchQuery, ignoreCase = true)
 
-                    val items by remember(selectedTabIndex) {
-                        mutableStateOf(
-                            if (selectedTabIndex != 0)
-                                ItemRegistryHelper.getItemsByTab(itemGroups[selectedTabIndex - 1])
-                                    .filter { filter(it.item) }
-                                    .map { it.item }
-                                    .distinctBy { it.key }
-                            else searchItems.filter { filter(it) }.distinctBy {
-                                when (it) {
-                                    is Item  -> it.key
-                                    is Block -> it.key
-                                    else     -> it
-                                }
+                                is Block -> it.name.plainText.contains(searchQuery, ignoreCase = true)
+                                        || it.key.toString().contains(searchQuery, ignoreCase = true)
+
+                                else     -> false
                             }
-                        )
+                        }
+                    )
+                }
+                if (selectedTabIndex == 0) {
+                    LaunchedEffect(textFieldState.text.toString()) {
+                        searchQuery = textFieldState.text.toString()
+                    }
+                }
+                Box(modifier = Modifier.fillMaxSize()) {
+                    val backdrop = rememberLayerBackdrop {
+                        drawRect(searchBarBackgroundColor)
+                        drawContent()
+                    }
+                    LazyVerticalGrid(
+                        state = gridState,
+                        columns = GridCells.Adaptive(gridCellSize),
+                        modifier = Modifier
+                            .layerBackdrop(backdrop)
+                            .fillMaxSize(),
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                        contentPadding = PaddingValues(4.dp)
+                    ) {
+                        items(displayItems) { itemStack ->
+                            itemDisplay(itemStack)
+                        }
                     }
 
-                    var searchQuery by remember { mutableStateOf("") }
-                    val displayItems by remember(items, searchQuery) {
-                        mutableStateOf(
-                            if (searchQuery.isBlank()) items
-                            else items.filter {
-                                when (it) {
-                                    is Item  -> it.name.plainText.contains(searchQuery, ignoreCase = true)
-                                            || it.key.toString().contains(searchQuery, ignoreCase = true)
+                    val adapter = rememberScrollbarAdapter(gridState)
+                    VerticalScrollbar(
+                        modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                        adapter = rememberScrollbarAdapter(gridState)
+                    )
 
-                                    is Block -> it.name.plainText.contains(searchQuery, ignoreCase = true)
-                                            || it.key.toString().contains(searchQuery, ignoreCase = true)
-
-                                    else     -> false
-                                }
-                            }
-                        )
-                    }
                     if (selectedTabIndex == 0) {
-                        LaunchedEffect(textFieldState.text.toString()) {
-                            searchQuery = textFieldState.text.toString()
-                        }
-                    }
-
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        val backdrop = rememberLayerBackdrop {
-                            drawRect(colors.containerColor)
-                            drawContent()
-                        }
-                        LazyVerticalGrid(
-                            state = gridState,
-                            columns = GridCells.Adaptive(gridCellSize),
+                        SearchBar(
+                            textFieldState = textFieldState,
+                            backdrop = backdrop,
                             modifier = Modifier
-                                .layerBackdrop(backdrop)
-                                .fillMaxSize(),
-                            horizontalArrangement = Arrangement.spacedBy(2.dp),
-                            verticalArrangement = Arrangement.spacedBy(2.dp),
-                            contentPadding = PaddingValues(4.dp)
-                        ) {
-                            items(displayItems) { itemStack ->
-                                itemDisplay(itemStack)
-                            }
-                        }
-
-                        val adapter = rememberScrollbarAdapter(gridState)
-                        VerticalScrollbar(
-                            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                            adapter = rememberScrollbarAdapter(gridState)
+                                .align(BiasAlignment(0f, 0.85f))
+                                .padding(horizontal = 24.dp, vertical = 8.dp)
+                                .width(320.dp)
+                                .fabVisibilityAnimation(rememberFabVisibilityByScroll(adapter))
                         )
-
-                        if (selectedTabIndex == 0) {
-                            SearchBar(
-                                textFieldState = textFieldState,
-                                backdrop = backdrop,
-                                modifier = Modifier
-                                    .align(BiasAlignment(0f, 0.85f))
-                                    .padding(horizontal = 24.dp, vertical = 8.dp)
-                                    .width(320.dp)
-                                    .fabVisibilityAnimation(rememberFabVisibilityByScroll(adapter))
-                            )
-                        }
                     }
                 }
             }

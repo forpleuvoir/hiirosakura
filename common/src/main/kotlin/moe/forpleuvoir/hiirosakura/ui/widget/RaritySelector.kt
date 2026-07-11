@@ -30,8 +30,7 @@ fun RaritySelector(
         Text(item.translateText.withStyle(item.color()))
     },
     enabled: Boolean = true,
-    enabledSearch: Boolean = false,
-    searchFilter: ((String, Rarity) -> Boolean) = { _, _ -> true },
+    searchFilter: ((String, Rarity) -> Boolean)? = null,
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (Rarity) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (Rarity) -> Unit)?)? = null,
@@ -50,7 +49,6 @@ fun RaritySelector(
     label = label,
     itemContent = itemContent,
     enabled = enabled,
-    enabledSearch = enabledSearch,
     searchFilter = searchFilter,
     modifier = modifier,
     itemLeadingIcon = itemLeadingIcon,

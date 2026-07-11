@@ -1,7 +1,7 @@
 [versions]
 java = "25"
 #kotlin
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 kotlinxCoroutines = "1.11.0"
 kotlinxSerialization = "1.11.0"
 
@@ -25,7 +25,7 @@ fabricApi = "0.146.1+26.1.2"
 fabricLoader = "0.19.2"
 fabricLoom = "1.16-SNAPSHOT"
 
-fabricKotlin = "1.13.11+kotlin.2.3.21"
+fabricKotlin = "1.13.12+kotlin.2.4.0"
 modMenu = "18.0.0-beta.1"
 
 # NeoForge, see https://projects.neoforged.net/ for new versions
@@ -34,8 +34,8 @@ neoForm = "26.1.2-1"
 neoforge = "26.1.2.22-beta"
 neoforgeRange = "[4,)"
 
-forgeKotlin = "6.2.0"
-forgeKotlinRange = "[6.2.0,)"
+forgeKotlin = "6.3.0"
+forgeKotlinRange = "[6.3.0,)"
 
 [libraries]
 #Minecraft

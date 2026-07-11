@@ -136,7 +136,6 @@ internal fun BasicItemStackMatchEntryDataComponentTypeEditor(
                 value.componentType,
                 { onValueChange(value.copy(componentType = it)) },
                 modifier = Modifier.width(width),
-                enabledSearch = true,
                 searchFilter = { s, c ->
                     s in c.keyOrUnknown.toString()
                 }

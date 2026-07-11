@@ -62,8 +62,7 @@ fun EnchatmentSelector(
         Text(EnchatmentHelper.enchantmentDescription(item))
     },
     enabled: Boolean = true,
-    enabledSearch: Boolean = false,
-    searchFilter: ((String, Holder<Enchantment>) -> Boolean) = { _, _ -> true },
+    searchFilter: ((String, Holder<Enchantment>) -> Boolean)? = null,
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (Holder<Enchantment>) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (Holder<Enchantment>) -> Unit)?)? = null,
@@ -82,7 +81,6 @@ fun EnchatmentSelector(
     label = label,
     itemContent = itemContent,
     enabled = enabled,
-    enabledSearch = enabledSearch,
     searchFilter = searchFilter,
     modifier = modifier,
     itemLeadingIcon = itemLeadingIcon,

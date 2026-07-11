@@ -74,7 +74,7 @@ class ChatBubble(
         private const val MESSAGE_GROUP = "message"
 
         fun fromChatMessage(message: String, uuid: UUID?, profile: GameProfile?): ChatBubblePair? {
-            val message = message.replace("(§.)", "")
+            val message = message.replace("(§.)".toRegex(), "")
             //有配置
             val config = ChatBubbleHandler.serverChatBubbleConfig.asSequence().firstOrNull { (serverName, _) ->
                 //单人游戏                   多人游戏

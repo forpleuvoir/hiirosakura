@@ -2,8 +2,10 @@ package moe.forpleuvoir.hiirosakura.ui.configwrapper
 
 import moe.forpleuvoir.hiirosakura.config.items.AutoReplantEntryListConfigWrapper
 import moe.forpleuvoir.hiirosakura.config.items.ChainDoorsRuleListConfigWrapper
+import moe.forpleuvoir.hiirosakura.config.items.ChatBubbleServerConfigMapConfigWrapper
 import moe.forpleuvoir.hiirosakura.config.items.SoundEventListConfigWrapper
 import moe.forpleuvoir.hiirosakura.config.items.matcher.*
+import moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble.ChatBubbleServerConfig
 import moe.forpleuvoir.hiirosakura.functional.gameplay.AutoReplant
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainDoorsRule
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
@@ -37,7 +39,7 @@ object HSConfigWrapper : Initializable {
 //        register<ConfigSoundEventList> { c, m -> SoundEventListWrapper(c, m) }
 //
 //        register<ConfigStringItemStackBlockInfoPairMap> { c, m -> ConfigStringItemStackBlockInfoPairMapWrapper(c, m) }
-//        register<ConfigStringChatBubbleServerConfigMap> { c, m -> ConfigStringChatBubbleServerConfigMapWrapper(c, m) }
+        registerMap<ChatBubbleServerConfig> { ChatBubbleServerConfigMapConfigWrapper(it) }
 //
 //        register<ConfigBlockInfoMatcher> { c, m -> BlockInfoMatcherWrapper(c, m) }
 //        register<ConfigBlockInfoMatcherMap> { c, m -> BlockInfoMatcherMapWrapper(c, m) }

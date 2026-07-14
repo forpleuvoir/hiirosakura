@@ -31,8 +31,8 @@ fun openItemBrowser() {
                 var block by remember { mutableStateOf(mc.targetBlock?.state?.block ?: Blocks.MELON) }
                 Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
                     Row {
-                        ItemSelector(item, { item = it }, Modifier)
-                        BlockSelector(block, { block = it }, Modifier)
+                        ItemSelector(item, { item = it })
+                        BlockSelector(block, { block = it })
                     }
                     Spacer(Modifier.height(16.dp))
                     Button(onClick = {

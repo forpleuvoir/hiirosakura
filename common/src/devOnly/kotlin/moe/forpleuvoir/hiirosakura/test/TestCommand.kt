@@ -3,6 +3,7 @@ package moe.forpleuvoir.hiirosakura.test
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType
 import moe.forpleuvoir.hiirosakura.config.HSConfig
+import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.ibukigourd.command.clientSource
 import moe.forpleuvoir.ibukigourd.command.dsl.registerCommand
 import moe.forpleuvoir.ibukigourd.config.exportTranslateKeys
@@ -30,6 +31,17 @@ object TestCommand : Initializable {
                 recorder.categorizer = { "config" }
                 recorder.addFilter { true }
                 HSConfig.exportTranslateKeys().forEach {
+                    recorder.record(it)
+                }
+                recorder.dump(Path("../../../common/src/devOnly/lang"))
+            }
+        }
+        "config_keys_task" {
+            execute {
+                val recorder = TranslationRecorder(false, keepExisting = true)
+                recorder.categorizer = { "task_config" }
+                recorder.addFilter { true }
+                TaskManager.Config.exportTranslateKeys().forEach {
                     recorder.record(it)
                 }
                 recorder.dump(Path("../../../common/src/devOnly/lang"))

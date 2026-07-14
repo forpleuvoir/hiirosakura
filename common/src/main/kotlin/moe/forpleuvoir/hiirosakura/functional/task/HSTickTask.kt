@@ -25,10 +25,10 @@ import net.minecraft.client.Minecraft
 
 open class HSTickTask(
     name: String,
-    var setting: TickTask.Setting,
-    var executeOn: ExecuteOn,
-    var executorType: ExecutorType,
-    var executor: TaskExecutor<Minecraft>
+    val setting: TickTask.Setting,
+    val executeOn: ExecuteOn,
+    val executorType: ExecutorType,
+    val executor: TaskExecutor<Minecraft>
 ) : Executor {
 
     enum class ExecutorType {
@@ -94,14 +94,6 @@ open class HSTickTask(
         "execute_on" to Codec.enum<ExecuteOn>().serialization(executeOn)
         "executor_type" to executorType.name
         "executor" to executor.serialization()
-    }
-
-    open fun fromTask(task: HSTickTask) {
-        this.name = task.name
-        this.setting = task.setting
-        this.executeOn = task.executeOn
-        this.executorType = task.executorType
-        this.executor = task.executor
     }
 
     fun asTickTask() = TickTask(setting, executor)

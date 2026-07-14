@@ -26,7 +26,7 @@ open class IconTickTask(
     executeOn: ExecuteOn,
     executorType: ExecutorType,
     executor: TaskExecutor<Minecraft>,
-    icon: Item,
+    val icon: Item,
 ) : HSTickTask(name, setting, executeOn, executorType, executor) {
 
     companion object : Deserializer<IconTickTask> {
@@ -38,7 +38,7 @@ open class IconTickTask(
                 StartTick,
                 ExecutorType.Script,
                 ScriptExecutor(""),
-                Items.AIR,
+                Items.WRITTEN_BOOK,
             )
 
         fun HSTickTask.withIcon(icon: Item) = IconTickTask(name, setting, executeOn, executorType, executor, icon)
@@ -57,20 +57,6 @@ open class IconTickTask(
             }
         }
 
-    }
-
-    var iconStack = ItemStack(icon)
-        private set
-
-    var icon: Item = icon
-        set(value) {
-            field = value
-            iconStack = ItemStack(value)
-        }
-
-    override fun fromTask(task: HSTickTask) {
-        super.fromTask(task)
-        if (task is IconTickTask) this.icon = task.icon
     }
 
     override fun setting(delay: Int, period: Int, times: Int): IconTickTask =

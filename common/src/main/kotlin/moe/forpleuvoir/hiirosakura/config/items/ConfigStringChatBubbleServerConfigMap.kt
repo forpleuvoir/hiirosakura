@@ -22,7 +22,6 @@ import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBindi
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Texts
-import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.MapConfigWrapperDefaults
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.MapEntry
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons

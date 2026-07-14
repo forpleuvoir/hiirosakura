@@ -1,8 +1,12 @@
 package moe.forpleuvoir.hiirosakura.functional.task
 
+import androidx.compose.runtime.mutableStateListOf
 import moe.forpleuvoir.hiirosakura.common.HiiroSakuraData
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.input.InputHandler
+import moe.forpleuvoir.ibukigourd.ui.util.Keyed
+import moe.forpleuvoir.ibukigourd.ui.util.copyValue
+import moe.forpleuvoir.ibukigourd.util.moveElement
 import moe.forpleuvoir.nebula.common.util.checkType
 import moe.forpleuvoir.nebula.common.util.requireKey
 import moe.forpleuvoir.nebula.config.ConfigGroup
@@ -11,7 +15,6 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.builder.build
-import java.util.*
 
 object TaskManager : HiiroSakuraData {
 
@@ -31,58 +34,61 @@ object TaskManager : HiiroSakuraData {
         Config.init()
     }
 
-    override val key: String
-        get() = "task_manager"
+    override val key: String = "task_manager"
 
-    private val tasks = mutableListOf<KeyBindTickTask>()
+    private var nextKey: Long = 0
 
-    val taskList: List<KeyBindTickTask> get() = tasks
+    val taskList: List<Keyed<KeybindTickTask>>
+        field = mutableStateListOf()
 
-    fun add(task: KeyBindTickTask) {
-        tasks.add(task)
+    fun add(task: KeybindTickTask) {
+        taskList.add(Keyed(nextKey++, task))
         InputHandler.register(task.keybind)
     }
 
-    fun remove(task: KeyBindTickTask) {
-        tasks.indexOf(task)
-        tasks.remove(task)
-        InputHandler.unregister(task.keybind)
+    fun add(index: Int, task: Keyed<KeybindTickTask>) {
+        taskList.add(index, task)
+        InputHandler.register(task.value.keybind)
     }
 
-    fun remove(index: Int) {
-        tasks.removeAt(index).let { InputHandler.unregister(it.keybind) }
+    fun add(index: Int, task: KeybindTickTask) {
+        taskList.add(index, Keyed(nextKey++, task))
+        InputHandler.register(task.keybind)
     }
+
+    fun update(index: Int, task: KeybindTickTask) {
+        taskList.getOrNull(index)?.let {
+            InputHandler.unregister(it.value.keybind)
+            taskList[index] = it.copyValue(task)
+        } ?: add(index, task)
+    }
+
+    fun moveElement(fromIndex: Int, toIndex: Int) {
+        if (fromIndex == toIndex) return
+        taskList.moveElement(fromIndex, toIndex)
+    }
+
+    fun removeAt(index: Int): Keyed<KeybindTickTask> =
+        taskList.removeAt(index).apply { InputHandler.unregister(value.keybind) }
 
     fun clear() {
-        tasks.forEach {
-            InputHandler.unregister(it.keybind)
+        taskList.forEach {
+            InputHandler.unregister(it.value.keybind)
         }
-        tasks.clear()
-    }
-
-    fun moveUp(index: Int) {
-        if (index - 1 in tasks.indices) {
-            Collections.swap(tasks, index, index - 1)
-        }
-    }
-
-    fun moveDown(index: Int) {
-        if (index + 1 in tasks.indices) {
-            Collections.swap(tasks, index, index + 1)
-        }
+        taskList.clear()
     }
 
     fun reBindKey() {
-        tasks.forEach {
-            InputHandler.unregister(it.keybind)
-            InputHandler.register(it.keybind)
+        taskList.forEach {
+            InputHandler.unregister(it.value.keybind)
+            InputHandler.register(it.value.keybind)
         }
     }
 
     override fun serialization(): SerializeObject = SerializeObject.build {
-        "config" to Config.serialization()
+        "config"(Config)
         "tasks" arr {
-            tasks.forEach { add(it.serialization()) }
+            taskList.forEach { add(it.value) }
         }
     }
 
@@ -97,7 +103,7 @@ object TaskManager : HiiroSakuraData {
             it.requireKey("tasks").checkType<SerializeArray, Unit> { array ->
                 array.forEach { element ->
                     runCatching {
-                        add(KeyBindTickTask.deserialization(element).getOrThrow())
+                        add(KeybindTickTask.deserialization(element).getOrThrow())
                     }.onFailure { throwable ->
                         log.warn(throwable)
                     }

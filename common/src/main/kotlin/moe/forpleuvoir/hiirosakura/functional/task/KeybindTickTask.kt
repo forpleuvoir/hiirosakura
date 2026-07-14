@@ -21,7 +21,7 @@ import net.minecraft.resources.Identifier
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Items
 
-class KeyBindTickTask(
+class KeybindTickTask(
     name: String,
     setting: TickTask.Setting,
     executeOn: ExecuteOn,
@@ -31,30 +31,30 @@ class KeyBindTickTask(
     val keybind: Keybind,
 ) : IconTickTask(name, setting, executeOn, executorType, executor, icon) {
 
-    companion object : Deserializer<KeyBindTickTask> {
+    companion object : Deserializer<KeybindTickTask> {
 
-        val empty: KeyBindTickTask
-            get() = KeyBindTickTask(
+        val empty: KeybindTickTask
+            get() = KeybindTickTask(
                 "",
                 TickTask.Setting(0, 1, 1),
                 StartTick,
                 ExecutorType.Script,
                 ScriptExecutor(""),
-                Items.AIR,
+                Items.WRITTEN_BOOK,
                 Keybind()
             )
 
-        override fun deserialization(data: SerializeElement): Result<KeyBindTickTask> = DeserializationException.runCatching {
-            data.checkType<SerializeObject, KeyBindTickTask> {
+        override fun deserialization(data: SerializeElement): Result<KeybindTickTask> = DeserializationException.runCatching {
+            data.checkType<SerializeObject, KeybindTickTask> {
                 val type = ExecutorType.valueOf(it.requireString("executor_type"))
-                KeyBindTickTask(
+                KeybindTickTask(
                     name = it.requireString("name"),
                     setting = TickTask.Setting.deserialization(it.requireKey("setting")).getOrThrow(),
                     executeOn = ExecuteOn.valueOf(it.requireString("execute_on")),
                     executorType = type,
                     executor = type.deserialization(it.requireKey("executor")),
                     icon = BuiltInRegistries.ITEM.get(Identifier.parse(it.requireString("icon"))).get().value(),
-                    keybind = Keybind().apply { deserialization(it["key_bind"]!!) }
+                    keybind = Keybind().apply { deserialization(it["keybind"]!!) }
                 )
             }
         }
@@ -68,20 +68,24 @@ class KeyBindTickTask(
         updateKeyBindName()
     }
 
+    fun copy(
+        name: String = this.name,
+        setting: TickTask.Setting = this.setting,
+        executeOn: ExecuteOn = this.executeOn,
+        executorType: ExecutorType = this.executorType,
+        executor: TaskExecutor<Minecraft> = this.executor,
+        icon: Item = this.icon,
+        keybind: Keybind = this.keybind
+    ): KeybindTickTask = KeybindTickTask(name, setting, executeOn, executorType, executor, icon, keybind)
+
     private fun updateKeyBindName() {
         keybind.name = HSLang.Task.manager.appendLiteral(" → ").appendLiteral(name)
-
     }
 
-    override fun fromTask(task: HSTickTask) {
-        super.fromTask(task)
-        updateKeyBindName()
-    }
-
-    override fun setting(delay: Int, period: Int, times: Int): KeyBindTickTask =
-        KeyBindTickTask(name, TickTask.Setting(delay, period, times), executeOn, executorType, executor, icon, keybind)
+    override fun setting(delay: Int, period: Int, times: Int): KeybindTickTask =
+        KeybindTickTask(name, TickTask.Setting(delay, period, times), executeOn, executorType, executor, icon, keybind)
 
     override fun serialization(): SerializeElement = super.serialization().apply {
-        requireType<SerializeObject>()["key_bind"] = keybind.serialization()
+        requireType<SerializeObject>()["keybind"] = keybind.serialization()
     }
 }

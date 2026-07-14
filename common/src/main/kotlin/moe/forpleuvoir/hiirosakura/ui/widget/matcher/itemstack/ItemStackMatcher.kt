@@ -43,6 +43,7 @@ import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
+import moe.forpleuvoir.ibukigourd.ui.preset.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.PlainTooltip
@@ -274,25 +275,12 @@ fun BasicItemStackMatcherEditor(
                                 entries.removeAt(index)
                             },
                             moveHandler = {
-                                Box(
-                                    Modifier
-                                        .draggableHandle(
-                                            onDragStarted = {
-                                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-                                            },
-                                            onDragStopped = {
-                                                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
-                                            },
-                                        )
-                                        .hoverable(handleInteraction)
-                                        .pointerHoverIcon(PointerIcon.Hand)
-                                        .background(
-                                            if (handleHovered || isDragging) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
-                                            CircleShape,
-                                        ).padding(4.dp)
-                                ) {
-                                    Icon(Icons.DragHandle, contentDescription = null)
-                                }
+                                DragHandle(
+                                    hapticFeedback,
+                                    handleInteraction,
+                                    handleHovered,
+                                    isDragging
+                                )
                             }
                         )
                     }

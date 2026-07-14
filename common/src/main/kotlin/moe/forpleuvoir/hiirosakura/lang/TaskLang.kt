@@ -21,8 +21,6 @@ object TaskLang {
 
     inline val manager get() = lang("manager")
 
-    inline val running get() = lang("running")
-
     inline fun runningPeriod(period: Int) = lang("running.period", period)
 
     inline fun runningRemainingTimes(times: Int) = lang("running.remaining_times", times)
@@ -44,4 +42,13 @@ object TaskLang {
     inline val icon get() = lang("icon")
 
     inline val executor get() = lang("executor")
+
+    inline val tasks get() = lang("tasks")
+    inline val runningTasks get() = lang("running_tasks")
+    inline val settings get() = lang("settings")
+    inline val newTask get() = lang("new_task")
+    inline val editTask get() = lang("edit_task")
+    inline val save get() = lang("save")
+    inline val cancel get() = lang("cancel")
+
 }

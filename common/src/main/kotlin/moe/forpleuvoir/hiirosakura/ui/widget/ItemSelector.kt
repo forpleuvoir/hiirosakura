@@ -62,10 +62,11 @@ import net.minecraft.world.level.block.Block
 fun ItemSelector(
     value: Item,
     onValueChange: (Item) -> Unit,
+    showTooltip: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    ItemBrowserDefaults.ItemWrapper(value, false, 1f, modifier.size(LocalItemIconVanillaSize.current)) {
+    ItemBrowserDefaults.ItemWrapper(value, false, 1f, modifier.size(LocalItemIconVanillaSize.current), showTooltip) {
         showDialog = true
     }
     if (showDialog) {
@@ -94,10 +95,11 @@ fun ItemSelector(
 fun BlockSelector(
     value: Block,
     onValueChange: (Block) -> Unit,
+    showTooltip: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    ItemBrowserDefaults.ItemWrapper(value, false, 1f, modifier.size(LocalItemIconVanillaSize.current)) {
+    ItemBrowserDefaults.ItemWrapper(value, false, 1f, modifier.size(LocalItemIconVanillaSize.current), showTooltip) {
         showDialog = true
     }
     if (showDialog) {

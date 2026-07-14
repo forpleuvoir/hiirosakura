@@ -5,7 +5,6 @@ import kotlinx.coroutines.delay
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.config.HSConfig
-import moe.forpleuvoir.hiirosakura.functional.customdata.CustomData
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventManager
 import moe.forpleuvoir.hiirosakura.input.InputSimulator
 import moe.forpleuvoir.hiirosakura.util.logger
@@ -132,14 +131,6 @@ interface CommonApi {
 
     fun setGlobalData(key: String, value: Any) {
         globalData[key] = value
-    }
-
-    fun setCustomData(key: String, value: Any) {
-        CustomData.data[key] = value
-    }
-
-    fun getCustomData(key: String): Any? {
-        return CustomData.data[key]
     }
 
     fun delayLaunch(duration: Long, action: Runnable) = defaultLaunch {

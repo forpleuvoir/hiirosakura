@@ -64,7 +64,6 @@ object TaskManager : HiiroSakuraData {
     }
 
     fun moveElement(fromIndex: Int, toIndex: Int) {
-        if (fromIndex == toIndex) return
         taskList.moveElement(fromIndex, toIndex)
     }
 

@@ -30,7 +30,13 @@ class TestInitialization : ModInitialization {
             ) {
                 openItemMacherEditor()
             }
-
+            register(
+                Keyboard.KP_4, defaultSetting = KeybindSetting(
+                    env = KeyEnvironment.Any
+                )
+            ) {
+                openRadialMenuTest()
+            }
 
         }
     }

@@ -50,5 +50,6 @@ object TaskLang {
     inline val editTask get() = lang("edit_task")
     inline val save get() = lang("save")
     inline val cancel get() = lang("cancel")
+    inline val quickExecuteHint get() = lang("quick_execute_hint")
 
 }

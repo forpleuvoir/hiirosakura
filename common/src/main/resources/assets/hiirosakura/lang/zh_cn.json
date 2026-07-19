@@ -76,6 +76,7 @@
   "hiirosakura.task.edit_task": "编辑任务",
   "hiirosakura.task.save": "保存",
   "hiirosakura.task.cancel": "取消",
+  "hiirosakura.task.quick_execute_hint": "左键:执行 中键:删除 右键:编辑/新建 选项外右键:关闭",
   "#hs.AutoReplant": "自动补种",
   "hiirosakura.auto_replant.map_entry.target_block": "目标方块",
   "hiirosakura.auto_replant.map_entry.target_block.comment": "被破坏时触发自动补种的目标方块",
@@ -545,6 +546,10 @@
   "hiirosakura.data.task_manager.quick_tick_task_execute.option_radius.comment": "设置选项的渲染半径，即每个选项与中心的距离",
   "hiirosakura.data.task_manager.quick_tick_task_execute.gap_distance": "间距",
   "hiirosakura.data.task_manager.quick_tick_task_execute.gap_distance.comment": "轮盘选项(每个扇区)之间的间距",
+  "hiirosakura.data.task_manager.quick_tick_task_execute.corner_radius": "圆角半径",
+  "hiirosakura.data.task_manager.quick_tick_task_execute.corner_radius.comment": "设置轮盘选项扇区的圆角大小",
+  "hiirosakura.data.task_manager.quick_tick_task_execute.border_width": "边框宽度",
+  "hiirosakura.data.task_manager.quick_tick_task_execute.border_width.comment": "设置轮盘选项扇区的边框宽度",
   "hiirosakura.data.task_manager.quick_tick_task_execute.single_page_max_count": "每页最大任务数量",
   "hiirosakura.data.task_manager.quick_tick_task_execute.single_page_max_count.comment": "定义每页最多可显示的任务数量，避免页面过于拥挤"
 }

@@ -17,43 +17,40 @@ import androidx.compose.ui.unit.dp
 
 object RadialMenuDefaults {
 
-    val InnerRadius: Dp = 60.dp
-    val OuterRadius: Dp = 120.dp
-    val OptionRadius: Dp = 90.dp
+    val InnerRadius: Dp = 150.dp
+    val OuterRadius: Dp = 330.dp
+    val OptionRadius: Dp = 240.dp
     const val START_ANGLE_DEGREE: Float = -90f
-    const val GAP: Float = 8f
+    const val GAP: Float = 12f
+    val CornerRadius: Dp = 4.dp
+    val BorderWidth: Dp = 2.dp
     const val OPTIONS_PRE_PAGE: Int = 8
-    val OptionContentSize: Dp = 32.dp
+    val OptionContentSize: Dp = 72.dp
     val IndicatorHeight: Dp = 6.dp
     val IndicatorSpacing: Dp = 2.dp
 
     val IdleOuterColor: Color = Color(0x7F000000)
     val IdleInnerColor: Color = Color(0x33000000)
+    val IdleBorderColor: Color = Color(0x33FFFFFF)
     val SelectedOuterColor: Color = Color(0xFFFF8899)
     val SelectedInnerColor: Color = Color(0x33FF8899)
+    val SelectedBorderColor: Color = Color(0xFFFF8899)
     val IndicatorActiveColor: Color = Color.White
     val IndicatorInactiveColor: Color = Color.White.copy(alpha = 0.35f)
+
+    /** 默认的扇区动画参数（共享实例，保证默认参数相等性） */
+    val Animation: RadialMenuAnimation = RadialMenuAnimation()
 }
 
 internal fun DrawScope.drawRadialGradientSector(
-    quads: List<SectorQuad>,
+    path: Path,
     center: Offset,
     innerRadius: Float,
     outerRadius: Float,
     innerColor: Color,
     outerColor: Color,
 ) {
-    if (quads.isEmpty()) return
-    val path = Path()
-    quads.forEach { quad ->
-        path.apply {
-            moveTo(quad.p1.x, quad.p1.y)
-            lineTo(quad.p2.x, quad.p2.y)
-            lineTo(quad.p3.x, quad.p3.y)
-            lineTo(quad.p4.x, quad.p4.y)
-            close()
-        }
-    }
+    if (path.isEmpty) return
     val fraction = (innerRadius / outerRadius).coerceIn(0f, 0.99f)
     val brush = Brush.radialGradient(
         colorStops = arrayOf(

@@ -26,6 +26,7 @@ object Gliding : ConfigGroup("gliding") {
         "quick_use_firework_rocket__when_gliding", Keybind(
             defaultSetting = KeybindSetting(
                 trigger = KeyTriggerTiming.Press,
+                passthrough = true,
                 strict = false
             )
         ) {

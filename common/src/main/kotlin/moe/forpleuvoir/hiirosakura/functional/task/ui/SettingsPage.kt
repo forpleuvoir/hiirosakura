@@ -18,7 +18,7 @@ import moe.forpleuvoir.ibukigourd.ui.configwrapper.LocalAutoExpandConfigGroupLim
 @Composable
 internal fun SettingsPage(modifier: Modifier) {
     Box(modifier.fillMaxSize()) {
-        CompositionLocalProvider(LocalAutoExpandConfigGroupLimit provides 15) {
+        CompositionLocalProvider(LocalAutoExpandConfigGroupLimit provides 25) {
             val state = rememberScrollState()
             ConfigsWrapper(TaskManager.Config.children, Modifier.verticalScroll(state).padding(12.dp))
 

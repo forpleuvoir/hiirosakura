@@ -84,8 +84,7 @@ object QuickTickTaskExecuteScreen : ConfigGroup("quick_tick_task_execute") {
 
     private val hitAlignment = BiasAlignment(0f, 0.85f)
 
-    /**
-     * 打开快捷任务执行轮盘。
+    /** 打开快捷任务执行轮盘。
      *
      * 菜单内容为 [TaskManager.taskList] 中的任务，只有悬浮在扇区上才会触发动作：
      * 左键直接执行并关闭屏幕；中键删除（需确认）；右键选项编辑，右键空选区新建；

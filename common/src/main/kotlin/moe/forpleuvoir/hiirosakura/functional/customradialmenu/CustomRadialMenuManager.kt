@@ -61,7 +61,7 @@ object CustomRadialMenuManager : Initializable {
             customRadialMenus.clear()
             path.listFiles { file ->
                 file.name.endsWith(".json")
-            }.forEach { file ->
+            }!!.forEach { file ->
                 val name = file.name.removeSuffix(".json")
                 runCatching {
                     logger.info("Loading $name...")
@@ -80,14 +80,13 @@ object CustomRadialMenuManager : Initializable {
         }
     }
 
-    @OptIn(ExperimentalApi::class)
     suspend fun asyncSave() {
         if (editing) return
         runCatching {
             //删除所有json文件
             path.listFiles { file ->
                 file.name.endsWith(".json")
-            }.forEach { file ->
+            }!!.forEach { file ->
                 try {
                     if (file.exists() && !file.delete()) {
                         logger.warn("Failed to delete file: ${file.absolutePath}")

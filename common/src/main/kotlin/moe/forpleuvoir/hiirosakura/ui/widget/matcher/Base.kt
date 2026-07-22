@@ -84,7 +84,7 @@ internal fun <T : MatchEntry<*>> MatchEntryRow(
         targetValue = if (isHovered) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
         animationSpec = tween(200),
-        label = "configRowBackground"
+        label = "MatchEntryRow"
     )
     Row(
         modifier = modifier

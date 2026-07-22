@@ -22,6 +22,10 @@ object CustomRadialMenuLang {
 
     inline fun exists(name: String) = lang("exists", name)
 
+    inline val nameEmpty get() = lang("name_empty")
+
+    inline val nameInvalid get() = lang("name_invalid")
+
     inline val settingInnerColor
         get() = lang("setting.inner_color").style {
             hover(lang("setting.inner_color.comment"))
@@ -71,4 +75,28 @@ object CustomRadialMenuLang {
         get() = lang("setting.page_size").style {
             hover(lang("setting.page_size.comment"))
         }
+
+    inline val settingBorderColor
+        get() = lang("setting.border_color").style {
+            hover(lang("setting.border_color.comment"))
+        }
+
+    inline val settingSelectedBorderColor
+        get() = lang("setting.selected_border_color").style {
+            hover(lang("setting.selected_border_color.comment"))
+        }
+
+    inline val settingCornerRadius
+        get() = lang("setting.corner_radius").style {
+            hover(lang("setting.corner_radius.comment"))
+        }
+
+    inline val settingBorderWidth
+        get() = lang("setting.border_width").style {
+            hover(lang("setting.border_width.comment"))
+        }
+
+    inline val delete get() = lang("delete")
+    inline val deleteConfirm get() = lang("delete_confirm")
+    inline val importTasks get() = lang("import_tasks")
 }

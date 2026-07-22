@@ -15,8 +15,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.functional.task.ui.ScriptEditorDialog
-import moe.forpleuvoir.hiirosakura.ui.widget.radialmenu.MouseButton
+import moe.forpleuvoir.hiirosakura.functional.task.ui.TaskEditorDialog
 import moe.forpleuvoir.hiirosakura.ui.widget.radialmenu.RadialMenu
 import moe.forpleuvoir.hiirosakura.ui.widget.radialmenu.RadialMenuDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.radialmenu.rememberRadialMenuState
@@ -24,6 +23,8 @@ import moe.forpleuvoir.ibukigourd.config.item.configKeybind
 import moe.forpleuvoir.ibukigourd.input.KeyTriggerTiming
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.KeybindSetting
+import moe.forpleuvoir.ibukigourd.input.MouseButton
+import moe.forpleuvoir.ibukigourd.input.MouseButton.*
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.ComposeScreen
 import moe.forpleuvoir.ibukigourd.ui.closeScreen
@@ -82,7 +83,7 @@ object QuickTickTaskExecuteScreen : ConfigGroup("quick_tick_task_execute") {
 
     val singlePageMaxCount by configInt("single_page_max_count", RadialMenuDefaults.OPTIONS_PRE_PAGE, 4, 12)
 
-    private val hitAlignment = BiasAlignment(0f, 0.85f)
+    internal val hitAlignment = BiasAlignment(0f, 0.85f)
 
     /** 打开快捷任务执行轮盘。
      *
@@ -114,21 +115,23 @@ object QuickTickTaskExecuteScreen : ConfigGroup("quick_tick_task_execute") {
                     borderWidth = borderWidth.dp,
                     onOptionClick = { keyed, button ->
                         when (button) {
-                            MouseButton.LEFT -> keyed?.let {
+                            LEFT -> keyed?.let {
                                 it.value.execute()
                                 closeScreen()
                             }
 
-                            MouseButton.MIDDLE -> keyed?.let { deletingTask = it }
+                            MIDDLE -> keyed?.let { deletingTask = it }
 
                             // 右键选项编辑，右键空选区新建
-                            MouseButton.RIGHT -> editorState =
+                            RIGHT -> editorState =
                                 TaskEditorState(keyed?.key, keyed?.value ?: KeybindTickTask.empty)
+
+                            else -> Unit
                         }
                     },
                     // 右键扇区以外的地方（中心、环外）关闭屏幕
                     onEmptyClick = { button ->
-                        if (button == MouseButton.RIGHT) closeScreen()
+                        if (button != LEFT) closeScreen()
                     },
                     optionContent = { keyed, _ ->
                         val stack = remember(keyed.value.icon) { ItemStack(keyed.value.icon) }
@@ -168,7 +171,7 @@ object QuickTickTaskExecuteScreen : ConfigGroup("quick_tick_task_execute") {
 
                 // 编辑 / 新建
                 editorState?.let { state ->
-                    ScriptEditorDialog(
+                    TaskEditorDialog(
                         task = state.task,
                         title = { if (state.key == null) Text(HSLang.Task.newTask) else Text(HSLang.Task.editTask) },
                         onDismissRequest = { editorState = null },

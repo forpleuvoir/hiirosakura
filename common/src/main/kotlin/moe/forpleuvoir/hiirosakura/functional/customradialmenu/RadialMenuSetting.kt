@@ -1,44 +1,42 @@
 package moe.forpleuvoir.hiirosakura.functional.customradialmenu
 
-import moe.forpleuvoir.hiirosakura.ui.widget.radialmenu.RadialMenuDefaults
-import moe.forpleuvoir.ibukigourd.ui.util.toNebulaColor
+import moe.forpleuvoir.hiirosakura.functional.task.QuickTickTaskExecuteScreen as Defaults
 import moe.forpleuvoir.nebula.common.color.Color
-import moe.forpleuvoir.nebula.serialization.Serializable
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 import moe.forpleuvoir.nebula.serialization.codec.color
 
 class RadialMenuSetting(
-    val innerColor: Color = RadialMenuDefaults.IdleInnerColor.toNebulaColor,
-    val outerColor: Color = RadialMenuDefaults.IdleOuterColor.toNebulaColor,
-    val innerSelectedColor: Color = RadialMenuDefaults.SelectedInnerColor.toNebulaColor,
-    val outerSelectedColor: Color = RadialMenuDefaults.SelectedOuterColor.toNebulaColor,
-    iconScale: Float = 1f,
-    innerRadius: Float = RadialMenuDefaults.InnerRadius.value,
-    outerRadius: Float = RadialMenuDefaults.OuterRadius.value,
-    optionRadius: Float = RadialMenuDefaults.OptionRadius.value,
-    gap: Float = RadialMenuDefaults.GAP,
-    pageSize: Int = RadialMenuDefaults.OPTIONS_PRE_PAGE,
-    val borderColor: Color = RadialMenuDefaults.IdleBorderColor.toNebulaColor,
-    val selectedBorderColor: Color = RadialMenuDefaults.SelectedBorderColor.toNebulaColor,
-    cornerRadius: Float = RadialMenuDefaults.CornerRadius.value,
-    borderWidth: Float = RadialMenuDefaults.BorderWidth.value,
+    val innerColor: Color = Defaults.innerColor,
+    val outerColor: Color = Defaults.outerColor,
+    val innerSelectedColor: Color = Defaults.innerSelectedColor,
+    val outerSelectedColor: Color = Defaults.outerSelectedColor,
+    iconScale: Float = Defaults.iconScale,
+    innerRadius: Float = Defaults.innerRadius,
+    outerRadius: Float = Defaults.outerRadius,
+    optionRadius: Float = Defaults.optionRadius,
+    gap: Float = Defaults.gapDistance,
+    pageSize: Int = Defaults.singlePageMaxCount,
+    val borderColor: Color = Defaults.idleBorderColor,
+    val selectedBorderColor: Color = Defaults.selectedBorderColor,
+    cornerRadius: Float = Defaults.cornerRadius,
+    borderWidth: Float = Defaults.borderWidth,
 ) {
 
     companion object : Codec<RadialMenuSetting> by Codec.create<RadialMenuSetting>()
-        .field<Color>("inner_color").getter(RadialMenuSetting::innerColor).default(RadialMenuDefaults.IdleInnerColor.toNebulaColor).codec(Codec.color)
-        .field<Color>("outer_color").getter(RadialMenuSetting::outerColor).default(RadialMenuDefaults.IdleOuterColor.toNebulaColor).codec(Codec.color)
-        .field<Color>("inner_selected_color").getter(RadialMenuSetting::innerSelectedColor).default(RadialMenuDefaults.SelectedInnerColor.toNebulaColor).codec(Codec.color)
-        .field<Color>("outer_selected_color").getter(RadialMenuSetting::outerSelectedColor).default(RadialMenuDefaults.SelectedOuterColor.toNebulaColor).codec(Codec.color)
-        .field<Float>("icon_scale").getter(RadialMenuSetting::iconScale).default(1f).codec(Codec.float)
-        .field<Float>("inner_radius").getter(RadialMenuSetting::innerRadius).default(RadialMenuDefaults.InnerRadius.value).codec(Codec.float)
-        .field<Float>("outer_radius").getter(RadialMenuSetting::outerRadius).default(RadialMenuDefaults.OuterRadius.value).codec(Codec.float)
-        .field<Float>("option_radius").getter(RadialMenuSetting::optionRadius).default(RadialMenuDefaults.OptionRadius.value).codec(Codec.float)
-        .field<Float>("gap").getter(RadialMenuSetting::gap).default(RadialMenuDefaults.GAP).codec(Codec.float)
-        .field<Int>("page_size").getter(RadialMenuSetting::pageSize).default(RadialMenuDefaults.OPTIONS_PRE_PAGE).codec(Codec.int)
-        .field<Color>("border_color").getter(RadialMenuSetting::borderColor).default(RadialMenuDefaults.IdleBorderColor.toNebulaColor).codec(Codec.color)
-        .field<Color>("selected_border_color").getter(RadialMenuSetting::selectedBorderColor).default(RadialMenuDefaults.SelectedBorderColor.toNebulaColor).codec(Codec.color)
-        .field<Float>("corner_radius").getter(RadialMenuSetting::cornerRadius).default(RadialMenuDefaults.CornerRadius.value).codec(Codec.float)
-        .field<Float>("border_width").getter(RadialMenuSetting::borderWidth).default(RadialMenuDefaults.BorderWidth.value).codec(Codec.float)
+        .field<Color>("inner_color").getter({ it.innerColor }).default(Defaults.innerColor).skipDefault().codec(Codec.color)
+        .field<Color>("outer_color").getter({ it.outerColor }).default(Defaults.outerColor).skipDefault().codec(Codec.color)
+        .field<Color>("inner_selected_color").getter({ it.innerSelectedColor }).default(Defaults.innerSelectedColor).skipDefault().codec(Codec.color)
+        .field<Color>("outer_selected_color").getter({ it.outerSelectedColor }).default(Defaults.outerSelectedColor).skipDefault().codec(Codec.color)
+        .field<Float>("icon_scale").getter(RadialMenuSetting::iconScale).default(Defaults.iconScale).skipDefault().codec(Codec.float)
+        .field<Float>("inner_radius").getter({ it.innerRadius }).default(Defaults.innerRadius).skipDefault().codec(Codec.float)
+        .field<Float>("outer_radius").getter({ it.outerRadius }).default(Defaults.outerRadius).skipDefault().codec(Codec.float)
+        .field<Float>("option_radius").getter({ it.optionRadius }).default(Defaults.optionRadius).skipDefault().codec(Codec.float)
+        .field<Float>("gap").getter({ it.gap }).default(Defaults.gapDistance).skipDefault().codec(Codec.float)
+        .field<Int>("page_size").getter({ it.pageSize }).default(Defaults.singlePageMaxCount).skipDefault().codec(Codec.int)
+        .field<Color>("border_color").getter({ it.borderColor }).default(Defaults.idleBorderColor).skipDefault().codec(Codec.color)
+        .field<Color>("selected_border_color").getter({ it.selectedBorderColor }).default(Defaults.selectedBorderColor).skipDefault().codec(Codec.color)
+        .field<Float>("corner_radius").getter({ it.cornerRadius }).default(Defaults.cornerRadius).skipDefault().codec(Codec.float)
+        .field<Float>("border_width").getter({ it.borderWidth }).default(Defaults.borderWidth).skipDefault().codec(Codec.float)
         .build(::RadialMenuSetting)
 
 

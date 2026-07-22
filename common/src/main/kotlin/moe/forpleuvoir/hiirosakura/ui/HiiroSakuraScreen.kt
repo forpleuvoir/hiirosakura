@@ -8,8 +8,10 @@ import androidx.compose.ui.text.font.FontWeight
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.config.HSConfig
+import moe.forpleuvoir.hiirosakura.functional.customradialmenu.ui.CustomRadialMenuManagerUI
 import moe.forpleuvoir.hiirosakura.functional.task.ui.TaskManagerUI
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Assignment
+import moe.forpleuvoir.hiirosakura.ui.icon.default.Radar
 import moe.forpleuvoir.hiirosakura.ui.icon.filled.Assignment
 import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.ibukigourd.config.translateText
@@ -71,6 +73,17 @@ internal fun HiiroSakuraScreenContent() {
                 }
                 content {
                     TaskManagerUI(Modifier)
+                }
+            },
+            //自定义轮盘菜单
+            DrawerItem {
+                label { Text(HSLang.CustomRadialMenu.title) }
+                icon {
+                    //TODO 换掉这个图标
+                    Icon(Icons.Radar, null)
+                }
+                content {
+                    CustomRadialMenuManagerUI(Modifier)
                 }
             }
         )

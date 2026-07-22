@@ -20,11 +20,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.ibukigourd.input.MouseButton
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
-
-enum class MouseButton { LEFT, MIDDLE, RIGHT }
 
 /**
  * 径向菜单（Radial Menu）
@@ -141,7 +140,7 @@ fun <T> RadialMenu(
     var hoveredIndex by remember { mutableStateOf(-1) }
 
     // 每个扇区独立的选中进度（0f 未选中 -> 1f 选中），驱动扇区动画
-    val sectorProgresses = sectors.mapIndexed { index, _ ->
+    val sectorProgresses = List(sectors.size) { index ->
         animateFloatAsState(
             targetValue = if (index == hoveredIndex) 1f else 0f,
             animationSpec = animation.spec,
@@ -165,7 +164,7 @@ fun <T> RadialMenu(
                     while (true) {
                         val event = awaitPointerEvent(PointerEventPass.Main)
                         when (event.type) {
-                            PointerEventType.Move -> {
+                            PointerEventType.Move   -> {
                                 val change = event.changes.firstOrNull() ?: continue
                                 hoveredIndex = findSectorIndex(
                                     sectors = sectors,
@@ -175,8 +174,9 @@ fun <T> RadialMenu(
                                     outerRadiusPx = actualOuterRadiusPx,
                                 )
                             }
-                            PointerEventType.Exit -> hoveredIndex = -1
-                            PointerEventType.Press -> {
+
+                            PointerEventType.Exit   -> hoveredIndex = -1
+                            PointerEventType.Press  -> {
                                 val change = event.changes.firstOrNull() ?: continue
                                 val idx = findSectorIndex(
                                     sectors = sectors,
@@ -186,19 +186,25 @@ fun <T> RadialMenu(
                                     outerRadiusPx = actualOuterRadiusPx,
                                 )
                                 val button = when {
-                                    event.buttons.isTertiaryPressed -> MouseButton.MIDDLE
+                                    event.buttons.isPrimaryPressed   -> MouseButton.LEFT
+                                    event.buttons.isTertiaryPressed  -> MouseButton.MIDDLE
                                     event.buttons.isSecondaryPressed -> MouseButton.RIGHT
-                                    else -> MouseButton.LEFT
+                                    event.buttons.isBackPressed      -> MouseButton.BUTTON_4
+                                    event.buttons.isForwardPressed   -> MouseButton.BUTTON_5
+                                    else                             -> null
                                 }
-                                if (idx >= 0) {
-                                    // 点击扇区：有选项返回对应选项，无选项返回 null
-                                    currentOnOptionClick(currentPage.getOrNull(idx), button)
-                                } else {
-                                    // 点击扇区以外区域，不进入 onOptionClick
-                                    currentOnEmptyClick(button)
+                                button?.let {
+                                    if (idx >= 0) {
+                                        // 点击扇区：有选项返回对应选项，无选项返回 null
+                                        currentOnOptionClick(currentPage.getOrNull(idx), button)
+                                    } else {
+                                        // 点击扇区以外区域，不进入 onOptionClick
+                                        currentOnEmptyClick(button)
+                                    }
                                 }
                                 change.consume()
                             }
+
                             PointerEventType.Scroll -> {
                                 val change = event.changes.firstOrNull() ?: continue
                                 if (change.scrollDelta.y != 0f) {

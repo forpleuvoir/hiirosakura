@@ -162,7 +162,7 @@ internal fun TasksPage(modifier: Modifier) {
             }
         }
         if (showEditor) {
-            ScriptEditorDialog(
+            TaskEditorDialog(
                 task = TaskManager.taskList.values().getOrElse(editingTaskIndex) { KeybindTickTask.empty },
                 title = { if (editingTaskIndex == -1) Text(HSLang.Task.newTask) else Text(HSLang.Task.editTask.plainText) },
                 onDismissRequest = { showEditor = false },
@@ -179,7 +179,7 @@ internal fun TasksPage(modifier: Modifier) {
 }
 
 @Composable
-fun <T : HSTickTask> ScriptEditorDialog(
+fun <T : HSTickTask> TaskEditorDialog(
     task: T,
     title: @Composable (() -> Unit)? = null,
     onDismissRequest: () -> Unit,

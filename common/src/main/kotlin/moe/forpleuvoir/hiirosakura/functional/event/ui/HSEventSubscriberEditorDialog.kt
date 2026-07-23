@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
+import moe.forpleuvoir.hiirosakura.editor.codeEditorShortcuts
 import moe.forpleuvoir.hiirosakura.functional.event.EventTypes
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber.ExecutorType
@@ -150,14 +151,17 @@ fun HSEventSubscriberEditorDialog(
                 //TODO替换成 脚本编辑器
                 Box {
                     val scrollState = rememberScrollState()
+                    val state = when (type) {
+                        Command               -> cmdContent
+                        Message               -> msgContent
+                        Script                -> scriptContent
+                        ExecutorType.TickTask -> taskContent
+                    }
                     OutlinedTextField(
-                        when (type) {
-                            Command               -> cmdContent
-                            Message               -> msgContent
-                            Script                -> scriptContent
-                            ExecutorType.TickTask -> taskContent
-                        },
-                        modifier = Modifier.fillMaxSize(),
+                        state,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .codeEditorShortcuts(state),
                         textStyle = TextStyle(fontFamily = FontFamily.Monospace),
                         labelPosition = TextFieldLabelPosition.Attached(true),
 //                        label = { Text(executorType.translateText) },

@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.editor.codeEditorShortcuts
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.IconTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.KeybindTickTask
@@ -264,7 +265,9 @@ fun <T : HSTickTask> TaskEditorDialog(
                     val scrollState = rememberScrollState()
                     OutlinedTextField(
                         executor,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .codeEditorShortcuts(executor),
                         textStyle = TextStyle(fontFamily = FontFamily.Monospace),
                         labelPosition = TextFieldLabelPosition.Attached(true),
                         label = { Text(executorType.translateText) },

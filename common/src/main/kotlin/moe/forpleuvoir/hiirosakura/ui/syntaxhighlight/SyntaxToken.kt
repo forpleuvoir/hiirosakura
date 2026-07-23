@@ -1,0 +1,25 @@
+package moe.forpleuvoir.hiirosakura.ui.syntaxhighlight
+
+enum class SyntaxToken {
+    Plain,
+    Keyword,
+    Identifier,
+    Type,
+    Function,
+    Property,
+    Parameter,
+    Number,
+    String,
+    Character,
+    EscapeSequence,
+    Comment,
+    Documentation,
+    Operator,
+    Punctuation,
+    Annotation,
+    Boolean,
+    Null,
+    Label,
+    Constant,
+    Error,
+}

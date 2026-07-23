@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.event.ui
 
 import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,8 +15,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.HiiroSakura
-import moe.forpleuvoir.hiirosakura.editor.codeEditorShortcuts
+import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
 import moe.forpleuvoir.hiirosakura.functional.event.EventTypes
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber.ExecutorType
@@ -28,7 +26,6 @@ import moe.forpleuvoir.hiirosakura.functional.task.executor.MessageExecutor
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
 import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
 import moe.forpleuvoir.ibukigourd.task.TickTask
-import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
 import kotlin.enums.enumEntries

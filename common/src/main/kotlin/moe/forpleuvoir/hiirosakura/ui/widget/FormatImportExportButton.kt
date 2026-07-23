@@ -16,15 +16,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.*
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Download
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Upload
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.HjsonSyntaxLanguage
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JexlSyntaxLanguage
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JsonSyntaxLanguage
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.TomlSyntaxLanguage
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.YamlSyntaxLanguage
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
 import moe.forpleuvoir.hiirosakura.ui.util.showErrorToast
 import moe.forpleuvoir.hiirosakura.ui.util.showSuccessToast
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.FormatSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.FormatSelectorDialog
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.currentFormatDialect
-import moe.forpleuvoir.ibukigourd.input.InputHandler
-import moe.forpleuvoir.ibukigourd.input.Keyboard
+import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.format
+import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.lastUsedFormat
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
@@ -69,7 +77,6 @@ object FormatImportExportButtonDefaults {
         if (lastUsedFormat < 0) lastUsedFormat = format.lastIndex
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun FormatSelectorDialog(
         onDismissRequest: () -> Unit,
@@ -78,7 +85,7 @@ object FormatImportExportButtonDefaults {
         AlertDialog(
             onDismissRequest,
             title = { Text(HSLang.Common.exportAsFormat) },
-            text = { FormatSelector(Modifier.width(280.dp)) },
+            text = { FormatSelector(Modifier.fillMaxWidth()) },
             confirmButton = { TextButton(onClick = { onConfirmRequest() }) { Text(IGLang.Misc.confirm) } },
             dismissButton = { TextButton(onClick = { onDismissRequest() }) { Text(IGLang.Misc.cancel) } }
         )
@@ -219,6 +226,16 @@ fun FormatImportButton(
                                         delay(50.milliseconds)
                                     }
                                 }
+                                val transformation = rememberSyntaxHighlightTransformation(
+                                    language = when (format[lastUsedFormat].first) {
+                                        "Json" -> JsonSyntaxLanguage
+                                        "Hjson" -> HjsonSyntaxLanguage
+                                        "Yaml" -> YamlSyntaxLanguage
+                                        "Toml" -> TomlSyntaxLanguage
+                                        else -> throw NotImplementedError()
+                                    },
+                                    theme = SyntaxHighlightDefaults.theme(),
+                                )
                                 OutlinedTextField(
                                     state,
                                     scrollState = scrollState,
@@ -234,9 +251,11 @@ fun FormatImportButton(
                                         fontFamily = FontFamily.Monospace,
                                         fontSize = 13.sp
                                     ),
+                                    outputTransformation = transformation,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(480.dp)
+                                        .codeEditorShortcuts(state)
                                 )
                                 VerticalScrollbar(
                                     modifier = Modifier.align(Alignment.CenterEnd).padding(top = 14.dp, bottom = 6.dp, end = 4.dp).height(460.dp),

@@ -567,5 +567,7 @@
   "#hs.custom_data": "Custom Data",
   "hiirosakura.custom_data": "Custom Data",
   "hiirosakura.custom_data.key": "Key",
-  "hiirosakura.custom_data.type": "Data Type"
+  "hiirosakura.custom_data.type": "Data Type",
+  "hiirosakura.export_as_format": "Export as Formatted Text",
+  "hiirosakura.import_from_format": "Import from Formatted Text"
 }

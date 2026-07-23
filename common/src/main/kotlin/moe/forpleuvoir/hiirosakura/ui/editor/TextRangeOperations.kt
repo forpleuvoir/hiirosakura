@@ -1,4 +1,4 @@
-package moe.forpleuvoir.hiirosakura.editor
+package moe.forpleuvoir.hiirosakura.ui.editor
 
 import androidx.compose.ui.text.TextRange
 

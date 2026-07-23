@@ -28,7 +28,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
+import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
 import moe.forpleuvoir.hiirosakura.ui.icon.default.PlayArrow
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JexlSyntaxLanguage
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JsonSyntaxLanguage
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
 import moe.forpleuvoir.hiirosakura.ui.util.showErrorToast
 import moe.forpleuvoir.hiirosakura.ui.util.showSuccessToast
 import moe.forpleuvoir.ibukigourd.text.plainText
@@ -319,6 +324,10 @@ internal fun BasicScriptEditor(
     onValueChange: (String) -> Unit
 ) {
     val state = rememberTextFieldStateBinding(script, onValueChange)
+    val transformation = rememberSyntaxHighlightTransformation(
+        language = JexlSyntaxLanguage,
+        theme = SyntaxHighlightDefaults.theme(),
+    )
     Box {
         val scrollState = rememberScrollState()
         OutlinedTextField(
@@ -328,7 +337,10 @@ internal fun BasicScriptEditor(
                 fontFamily = FontFamily.Monospace,
                 fontSize = 14.sp
             ),
+            outputTransformation = transformation,
             modifier = Modifier.fillMaxSize()
+                .codeEditorShortcuts(state)
+
         )
 
         VerticalScrollbar(

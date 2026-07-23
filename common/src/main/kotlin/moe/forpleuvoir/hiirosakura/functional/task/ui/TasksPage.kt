@@ -29,6 +29,7 @@ import moe.forpleuvoir.hiirosakura.functional.task.KeybindTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.hiirosakura.ui.icon.default.PlayArrow
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemSelector
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.task.TickTask
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
@@ -187,9 +188,9 @@ fun <T : HSTickTask> TaskEditorDialog(
 ) {
 
     val name = rememberTextFieldState(task.name)
-    var delay by remember { mutableIntStateOf(0) }
-    var period by remember { mutableIntStateOf(1) }
-    var times by remember { mutableIntStateOf(1) }
+    var delay by remember { mutableIntStateOf(task.setting.delay) }
+    var period by remember { mutableIntStateOf(task.setting.period) }
+    var times by remember { mutableIntStateOf(task.setting.times) }
     var executeOn by remember { mutableStateOf(task.executeOn) }
     var executorType by remember { mutableStateOf(task.executorType) }
 
@@ -209,11 +210,15 @@ fun <T : HSTickTask> TaskEditorDialog(
                 modifier = Modifier.size(1280.dp, 720.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     icon?.let {
-                        ItemSelector(it, { newIcon -> icon = newIcon }, false, Modifier.plainTooltip {
-                            Text(HSLang.Task.icon)
-                        })
+                        OutlinedLabelBox(
+                            label = { Text(HSLang.Task.icon) },
+                            contentPadding = PaddingValues(16.dp, 0.dp, 16.dp, 4.dp),
+                            modifier = Modifier.height(58.dp)
+                        ) {
+                            ItemSelector(it, { newIcon -> icon = newIcon }, false, 1.05f)
+                        }
                     }
                     OutlinedTextField(name, labelPosition = TextFieldLabelPosition.Attached(true), label = { Text(HSLang.Task.name) })
                     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {

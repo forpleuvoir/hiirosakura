@@ -1,10 +1,12 @@
 package moe.forpleuvoir.hiirosakura.functional.event
 
+import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.event.events.HSEvents
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent
 import moe.forpleuvoir.ibukigourd.event.events.client.input.KeyboardEvent
 import moe.forpleuvoir.ibukigourd.event.events.client.input.MouseEvent
+import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.nebula.event.Event
 import moe.forpleuvoir.nebula.event.Registration
 
@@ -54,6 +56,10 @@ object EventTypes {
     )
 
     val ids: List<String> get() = all.keys.toList()
+
+    fun id2Text(id: String) = Texts.translatable("${HiiroSakura.MOD_ID}.event.type.$id", fallback = id)
+
+    fun id2TextComment(id: String) = Texts.translatable("${HiiroSakura.MOD_ID}.event.type.$id.comment", fallback = id)
 
     operator fun get(id: String): HSEventType? = all[id]
 }

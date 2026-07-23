@@ -16,9 +16,13 @@ object EventLang {
 
     inline fun enableEventNotFound(name: String) = lang("enable.not_found", name)
 
+    inline val subscribe get() = lang("subscribe", true)
+
     inline val subscriberManager get() = lang("subscriber.manager")
 
     inline val subscriberEditor get() = lang("subscriber.editor")
 
     inline val subscriberName get() = lang("subscriber.name")
+
+    inline val eventType get() = lang("type")
 }

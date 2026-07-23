@@ -164,6 +164,8 @@ gradlew.bat buildAllModJar
 - 语言键沿用已有命名空间，并登记到项目现有语言对象；只删除经源码搜索确认不再使用的键。
 - `processResources` 处理的模组元数据、Mixin 配置和 `pack.mcmeta` 中继续使用现有 `${...}` 占位符，不写死构建版本。
 - 新增或移动资源时同时核对代码引用、资源路径大小写和两端打包结果。
+- 事件类型的 i18n `.comment` 条目必须包含：触发时机描述、上下文类型(标注是否可取消)及全部属性的 `名称: 类型 - 说明`，使用 `\n` 换行。详细属性嵌套子属性时继续缩进。参考 `zh_cn.json` 中 `hiirosakura.event.type.sound_play.comment` 的格式。
+  `var` 属性需标注 `(可修改)`，`val` 属性不标注。
 
 ## Git 与工作区
 

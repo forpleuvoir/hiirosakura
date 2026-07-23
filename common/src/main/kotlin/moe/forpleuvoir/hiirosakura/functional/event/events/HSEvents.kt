@@ -9,7 +9,7 @@ import moe.forpleuvoir.ibukigourd.event.CancellableContextImpl
 import moe.forpleuvoir.nebula.event.EventFactory
 import kotlin.jvm.JvmField
 
-//region 非可取消事件
+//region 不可取消事件上下文
 
 data class ServerJoinContext(
     @JvmField val serverName: String,
@@ -46,7 +46,7 @@ data object PlayerRespawnContext
 
 //endregion
 
-//region 可取消事件
+//region 可取消事件上下文
 
 class BreakBlockContext(
     @JvmField val blockState: HSBlockState,
@@ -87,7 +87,7 @@ class SoundPlayContext(
 
 object HSEvents {
 
-    //region 非可取消事件实例
+    //region 不可取消事件实例
 
     @JvmField
     val ServerJoin = EventFactory.create<(ServerJoinContext) -> Unit>({}) { ls ->

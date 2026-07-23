@@ -9,10 +9,14 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.config.HSConfig
 import moe.forpleuvoir.hiirosakura.functional.customradialmenu.ui.CustomRadialMenuManagerUI
+import moe.forpleuvoir.hiirosakura.functional.event.ui.HSEventManagerUI
 import moe.forpleuvoir.hiirosakura.functional.task.ui.TaskManagerUI
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Assignment
+import moe.forpleuvoir.hiirosakura.ui.icon.default.NotificationAdd
+import moe.forpleuvoir.hiirosakura.ui.icon.default.Notifications
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Radar
 import moe.forpleuvoir.hiirosakura.ui.icon.filled.Assignment
+import moe.forpleuvoir.hiirosakura.ui.icon.filled.Notifications
 import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
@@ -72,7 +76,7 @@ internal fun HiiroSakuraScreenContent() {
                     Icon(if (LocalDrawerItemSelected.current) Icons.Filled.Assignment else Icons.Assignment, null)
                 }
                 content {
-                    TaskManagerUI(Modifier)
+                    TaskManagerUI()
                 }
             },
             //自定义轮盘菜单
@@ -83,7 +87,16 @@ internal fun HiiroSakuraScreenContent() {
                     Icon(Icons.Radar, null)
                 }
                 content {
-                    CustomRadialMenuManagerUI(Modifier)
+                    CustomRadialMenuManagerUI()
+                }
+            },
+            DrawerItem {
+                label { Text(HSLang.Event.subscriberManager) }
+                icon {
+                    Icon(if (LocalDrawerItemSelected.current) Icons.Filled.Notifications else Icons.Notifications, null)
+                }
+                content {
+                    HSEventManagerUI()
                 }
             }
         )

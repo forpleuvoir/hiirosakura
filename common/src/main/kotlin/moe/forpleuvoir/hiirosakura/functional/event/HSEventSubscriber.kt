@@ -81,7 +81,7 @@ class HSEventSubscriber(
         if (!enabled) return
         val type = EventTypes[eventTypeId]
         if (type == null) {
-            log.warn("未知事件类型: {}", eventTypeId)
+            log.warn("Unknown event type: {}", eventTypeId)
             return
         }
         registration = type.subscribe { onEvent(it) }
@@ -100,7 +100,7 @@ class HSEventSubscriber(
 
         private fun resolveEventTypeId(raw: String): String =
             EventTypes[raw]?.let { raw } ?: EventTypes.ids.first().also {
-                logger().warn("配置中存在未知事件类型 '{}', 回退至 '{}'", raw, it)
+                log.warn("Unknown event type '{}' found in configuration, falling back to '{}'", raw, it);
             }
 
         override fun deserialization(data: SerializeElement): Result<HSEventSubscriber> = DeserializationException.runCatching {
@@ -117,11 +117,11 @@ class HSEventSubscriber(
         }
 
         override fun serialization(target: HSEventSubscriber): SerializeElement = SerializeObject.build {
-            "name" to target.name
-            "enabled" to target.enabled
-            "event_type" to target.eventTypeId
-            "executor_type" to target.executorType.name
-            "executor" to target.executor.serialization()
+            "name"(target.name)
+            "enabled"(target.enabled)
+            "event_type"(target.eventTypeId)
+            "executor_type"(target.executorType.name)
+            "executor"(target.executor)
         }
     }
 }

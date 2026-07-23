@@ -57,16 +57,16 @@ import net.minecraft.world.item.*
 import net.minecraft.world.level.ItemLike
 import net.minecraft.world.level.block.Block
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ItemSelector(
     value: Item,
     onValueChange: (Item) -> Unit,
     showTooltip: Boolean = true,
+    scaleOnHover: Float = 1f,
     modifier: Modifier = Modifier,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    ItemBrowserDefaults.ItemWrapper(value, false, 1f, modifier.size(LocalItemIconVanillaSize.current), showTooltip) {
+    ItemBrowserDefaults.ItemWrapper(value, false, scaleOnHover, modifier.size(LocalItemIconVanillaSize.current), showTooltip) {
         showDialog = true
     }
     if (showDialog) {
@@ -90,7 +90,6 @@ fun ItemSelector(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BlockSelector(
     value: Block,

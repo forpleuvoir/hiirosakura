@@ -15,6 +15,7 @@ import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
 import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
+import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.ModLogger
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.sendMessage
@@ -167,7 +168,7 @@ interface CommonApi {
     }
 
     fun enableEvent(name: String, enable: Boolean) {
-        HSEventManager.subscriberList.find { it.name == name }?.let {
+        HSEventManager.subscribers.values().find { it.name == name }?.let {
             it.enabled = enable
             ToastHandler.showContent { Text(HSLang.Event.enableEvent(name, enable)) }
         } ?: ToastHandler.showContent { Text(HSLang.Event.enableEventNotFound(name)) }

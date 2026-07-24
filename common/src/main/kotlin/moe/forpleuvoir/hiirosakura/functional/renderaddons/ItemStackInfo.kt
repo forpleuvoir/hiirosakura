@@ -2,11 +2,13 @@ package moe.forpleuvoir.hiirosakura.functional.renderaddons
 
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSItemStack
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.CodeConfigWrapper
 import moe.forpleuvoir.hiirosakura.util.tooltipFlag
 import moe.forpleuvoir.ibukigourd.config.translateCommentKey
 import moe.forpleuvoir.ibukigourd.config.translationKey
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.ConfigItem
@@ -41,15 +43,16 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
         "script",
         """
         //example
-        //if(itemStack.getCount()<16){
+        //if(itemStack.getCount() < 16){
         //  renderState["count"] = false;
         //}
-    """.trimIndent(), serde = ConfigSerde.of(Codec.string)
+    """.trimIndent(),
+        serde = ConfigSerde.of(Codec.string)
     ).setTranslatedText().apply {
         if (enableScript) {
             addConfig(this)
         }
-    }
+    }.uiWrapper { CodeConfigWrapper(it) }
 
     val _name by configBoolean("name", true).setTranslatedText()
 

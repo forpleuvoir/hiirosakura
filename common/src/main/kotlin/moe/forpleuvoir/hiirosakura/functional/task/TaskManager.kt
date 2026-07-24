@@ -2,8 +2,10 @@ package moe.forpleuvoir.hiirosakura.functional.task
 
 import androidx.compose.runtime.mutableStateListOf
 import moe.forpleuvoir.hiirosakura.common.HiiroSakuraData
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.CodeConfigWrapper
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.input.InputHandler
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
 import moe.forpleuvoir.ibukigourd.util.moveElement
@@ -23,6 +25,7 @@ object TaskManager : HiiroSakuraData {
     object Config : ConfigGroup("hiirosakura.data.task_manager") {
 
         val scriptCommonLib by configString("script_common_lib", "")
+            .uiWrapper { CodeConfigWrapper(it) }
 
         init {
             addConfig(QuickTickTaskExecuteScreen)
@@ -60,6 +63,7 @@ object TaskManager : HiiroSakuraData {
         taskList.getOrNull(index)?.let {
             InputHandler.unregister(it.value.keybind)
             taskList[index] = it.copyValue(task)
+            InputHandler.register(taskList[index].value.keybind)
         } ?: add(index, task)
     }
 

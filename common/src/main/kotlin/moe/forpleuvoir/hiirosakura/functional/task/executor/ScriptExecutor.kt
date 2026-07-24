@@ -100,7 +100,7 @@ class ScriptExecutor(
             ToastHandler.showContent(
                 duration = 5.seconds,
             ) {
-                Text(it.message ?: "unknown", color = Color.Red)
+                Text(it.stackTraceToString(), color = Color.Red)
             }
             log.error(it)
         }

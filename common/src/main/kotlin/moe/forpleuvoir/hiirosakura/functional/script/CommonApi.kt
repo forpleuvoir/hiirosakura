@@ -5,6 +5,7 @@ import kotlinx.coroutines.delay
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.config.HSConfig
+import moe.forpleuvoir.hiirosakura.functional.customradialmenu.CustomRadialMenuManager
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventManager
 import moe.forpleuvoir.hiirosakura.input.InputSimulator
 import moe.forpleuvoir.hiirosakura.util.logger
@@ -62,8 +63,8 @@ interface CommonApi {
         moe.forpleuvoir.hiirosakura.util.sendNotification(title, content)
     }
 
-    fun toast(content: String) {
-        ToastHandler.showContent { Text(Texts.inlineStyle(content)) }
+    fun toast(content: Any) {
+        ToastHandler.showContent { Text(Texts.inlineStyle(content.toString())) }
     }
 
     fun onKey(keyCode: Int, scancode: Int, action: Int, modifiers: Int) {
@@ -173,6 +174,10 @@ interface CommonApi {
             ToastHandler.showContent { Text(HSLang.Event.enableEvent(name, enable)) }
         } ?: ToastHandler.showContent { Text(HSLang.Event.enableEventNotFound(name)) }
 
+    }
+
+    fun openMenu(menuKey: String) {
+        CustomRadialMenuManager.customRadialMenus[menuKey]?.open()
     }
 
     fun editItem() {

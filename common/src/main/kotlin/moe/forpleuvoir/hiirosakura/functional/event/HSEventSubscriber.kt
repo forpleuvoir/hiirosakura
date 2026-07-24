@@ -53,6 +53,7 @@ class HSEventSubscriber(
     }
 
     fun onEvent(eventContext: Any) {
+        if(!enabled) return
         when (executorType) {
             ExecutorType.Message, ExecutorType.Command -> executor.execute()
             ExecutorType.Script                        -> {

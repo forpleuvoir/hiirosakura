@@ -24,6 +24,9 @@ import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.executor.CommandExecutor
 import moe.forpleuvoir.hiirosakura.functional.task.executor.MessageExecutor
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JexlSyntaxLanguage
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
 import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
 import moe.forpleuvoir.ibukigourd.task.TickTask
 import moe.forpleuvoir.ibukigourd.ui.preset.*
@@ -159,9 +162,9 @@ fun HSEventSubscriberEditorDialog(
                         modifier = Modifier
                             .fillMaxSize()
                             .codeEditorShortcuts(state),
+                        outputTransformation = rememberSyntaxHighlightTransformation(JexlSyntaxLanguage, SyntaxHighlightDefaults.theme()),
                         textStyle = TextStyle(fontFamily = FontFamily.Monospace),
                         labelPosition = TextFieldLabelPosition.Attached(true),
-//                        label = { Text(executorType.translateText) },
                         scrollState = scrollState,
                         contentPadding = OutlinedTextFieldDefaults.contentPadding(end = 24.dp),
                     )

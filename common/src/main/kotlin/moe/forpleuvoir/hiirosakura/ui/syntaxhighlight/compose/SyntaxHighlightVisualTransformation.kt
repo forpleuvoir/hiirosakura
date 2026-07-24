@@ -8,6 +8,9 @@ import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightSpan
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlighter
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightTheme
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxLanguage
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxToken
+
+private const val VISIBLE_SPACE = '\u2423'
 
 /**
  * [OutputTransformation] 实现，用于在可编辑的 [TextField]/[OutlinedTextField] 中应用语法高亮。
@@ -36,6 +39,13 @@ class SyntaxHighlightOutputTransformation(
             result
         }
         for (span in spans) {
+            if (span.token == SyntaxToken.Error) {
+                val s = span.range.start.coerceIn(0, raw.length)
+                val ch = raw[s]
+                if (ch.isWhitespace() && ch != '\n') {
+                    replace(s, (s + 1).coerceAtMost(length), VISIBLE_SPACE.toString())
+                }
+            }
             addStyle(
                 spanStyle = theme.styleOf(span.token),
                 start = span.range.start,

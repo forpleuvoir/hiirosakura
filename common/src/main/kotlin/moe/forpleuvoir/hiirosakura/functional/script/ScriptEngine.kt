@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.script
 
 import org.apache.commons.jexl3.JexlBuilder
+import org.apache.commons.jexl3.JexlException
 import org.apache.commons.jexl3.JexlScript
 import org.apache.commons.jexl3.MapContext
 import org.apache.commons.jexl3.introspection.JexlPermissions
@@ -31,6 +32,17 @@ class ScriptEngine(
 
     private val removeTag = ConcurrentLinkedDeque<String>()
 
+    fun validateJexl(expression: String): JexlException? {
+        runCatching {
+            jexl.createScript(expression)
+        }.onFailure {
+            if(it is JexlException) {
+               return it
+            }
+        }
+        return null
+    }
+
     fun eval(code: String, context: MapContext): Any? {
         if (code.isBlank()) return null
         return cache(code).execute(context)
@@ -39,7 +51,9 @@ class ScriptEngine(
     fun cache(code: String): JexlScript {
         val result = scriptCache.getOrPut(code) { jexl.createScript(code) }
         removeTag.add(code)
-        if (removeTag.size > 1000) { removeTag.removeFirst() }
+        if (removeTag.size > 1000) {
+            removeTag.removeFirst()
+        }
         return result
     }
 

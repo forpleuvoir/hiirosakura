@@ -1,13 +1,14 @@
 package moe.forpleuvoir.hiirosakura.ui.syntaxhighlight
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 
 object SyntaxHighlightDefaults {
 
+    //TODO 颜色需要修改
     val lightTheme: SyntaxHighlightTheme = SyntaxHighlightTheme(
         plain = SpanStyle(color = Color(0xFF24292F)),
         styles = mapOf(
@@ -65,7 +66,7 @@ object SyntaxHighlightDefaults {
 
     @Composable
     fun theme(
-        darkTheme: Boolean = isSystemInDarkTheme(),
+        darkTheme: Boolean = !IGConfig.Gui.Theme.lightMode,
         colorSchemes: SyntaxHighlightColorSchemes = this.colorSchemes,
     ): SyntaxHighlightTheme =
         if (darkTheme) colorSchemes.dark else colorSchemes.light

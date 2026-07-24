@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.ui.syntaxhighlight
 
 import androidx.compose.ui.text.TextRange
+import moe.forpleuvoir.nebula.serialization.json.JsonDialect
 
 object JsonSyntaxLanguage : SyntaxLanguage {
 
@@ -69,6 +70,16 @@ object JsonSyntaxLanguage : SyntaxLanguage {
                     else -> pos++
                 }
             }
+            validateByDecode(source.subSequence(start, end), JsonDialect).forEach { span ->
+            emit(
+                SyntaxHighlightSpan(
+                    range = TextRange(span.range.start + start, span.range.end + start),
+                    token = span.token,
+                    layer = span.layer,
+                    priority = span.priority,
+                )
+            )
+        }
         }
     }
 }

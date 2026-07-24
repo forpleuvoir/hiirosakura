@@ -1,6 +1,8 @@
 package moe.forpleuvoir.hiirosakura.ui.syntaxhighlight
 
 import androidx.compose.ui.text.TextRange
+import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
+import org.apache.commons.jexl3.JexlException
 
 object JexlSyntaxLanguage : SyntaxLanguage {
 
@@ -8,13 +10,34 @@ object JexlSyntaxLanguage : SyntaxLanguage {
 
     override fun createScanner(): SyntaxScanner = JexlScanner
 
+    private fun lineOffset(source: CharSequence, line: Int): Int {
+        var off = 0
+        var current = 0
+        while (current < line && off < source.length) {
+            if (source[off] == '\n') current++
+            off++
+        }
+        return off
+    }
+
+    private fun parseErrorSpans(source: CharSequence, error: JexlException): List<SyntaxHighlightSpan> {
+        val info = error.info ?: return emptyList()
+        val lineOff = lineOffset(source, (info.line - 1).coerceAtLeast(0))
+        val detail = info.detail
+        val start = if (detail != null) lineOff + detail.start() else lineOff + (info.column - 1).coerceAtLeast(0)
+        if (start !in 0 until source.length) return emptyList()
+        return listOf(
+            SyntaxHighlightSpan(
+                range = TextRange(start, (start + 1).coerceAtMost(source.length)),
+                token = SyntaxToken.Error,
+                layer = HighlightLayer.Diagnostic,
+                priority = 1000,
+            )
+        )
+    }
+
     private fun isIdentPart(source: CharSequence, pos: Int, end: Int): Boolean =
         pos < end && (source[pos].isLetterOrDigit() || source[pos] == '_')
-
-    private val jexlOperators = setOf(
-        "==", "!=", "===", "!==", ">=", "<=", "&&", "||", "=~",
-        "+", "-", "*", "/", "%", ">", "<", "!", "?:", "?",
-    )
 
     private object JexlScanner : SyntaxScanner {
 
@@ -150,6 +173,20 @@ object JexlSyntaxLanguage : SyntaxLanguage {
                         pos++
                     }
                     else -> pos++
+                }
+            }
+            val fullText = source.subSequence(start, end).toString()
+            val err = ScriptExecutor.scriptEngine.validateJexl(fullText)
+            if (err != null) {
+                parseErrorSpans(fullText, err).forEach { span ->
+                    emit(
+                        SyntaxHighlightSpan(
+                            range = TextRange(span.range.start + start, span.range.end + start),
+                            token = span.token,
+                            layer = span.layer,
+                            priority = span.priority,
+                        )
+                    )
                 }
             }
         }

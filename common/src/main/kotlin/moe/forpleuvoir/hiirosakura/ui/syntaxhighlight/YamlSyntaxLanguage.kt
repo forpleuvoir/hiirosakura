@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.ui.syntaxhighlight
 
 import androidx.compose.ui.text.TextRange
+import moe.forpleuvoir.nebula.serialization.yml.YamlDialect
 
 object YamlSyntaxLanguage : SyntaxLanguage {
 
@@ -117,6 +118,16 @@ object YamlSyntaxLanguage : SyntaxLanguage {
                     else -> pos++
                 }
             }
+            validateByDecode(source.subSequence(start, end), YamlDialect).forEach { span ->
+            emit(
+                SyntaxHighlightSpan(
+                    range = TextRange(span.range.start + start, span.range.end + start),
+                    token = span.token,
+                    layer = span.layer,
+                    priority = span.priority,
+                )
+            )
+        }
         }
 
         private fun scanPlainScalar(source: CharSequence, startPos: Int, end: Int, emit: (SyntaxHighlightSpan) -> Unit): Int {

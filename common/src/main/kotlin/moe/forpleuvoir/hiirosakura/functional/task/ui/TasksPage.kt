@@ -29,6 +29,10 @@ import moe.forpleuvoir.hiirosakura.functional.task.IconTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.KeybindTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.hiirosakura.ui.icon.default.PlayArrow
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JexlSyntaxLanguage
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightTheme
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
 import moe.forpleuvoir.ibukigourd.lang.IGLang
@@ -269,6 +273,7 @@ fun <T : HSTickTask> TaskEditorDialog(
                             .fillMaxSize()
                             .codeEditorShortcuts(executor),
                         textStyle = TextStyle(fontFamily = FontFamily.Monospace),
+                        outputTransformation = rememberSyntaxHighlightTransformation(JexlSyntaxLanguage, SyntaxHighlightDefaults.theme()),
                         labelPosition = TextFieldLabelPosition.Attached(true),
                         label = { Text(executorType.translateText) },
                         scrollState = scrollState,

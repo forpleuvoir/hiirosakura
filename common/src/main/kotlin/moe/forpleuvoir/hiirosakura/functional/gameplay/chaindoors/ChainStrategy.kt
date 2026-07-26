@@ -73,12 +73,12 @@ sealed class ChainStrategy(
         val radius: Int = radius.coerceIn(1, MAX_RADIUS)
 
         companion object : Codec<Neighborhood> by Codec.create<Neighborhood>()
-            .field<String>("type").getter(Neighborhood::type).default(NEIGHBORHOOD_TYPE).codec(Codec.string)
-            .field<Int>("radius").getter(Neighborhood::radius).default(1).codec(Codec.int(1..MAX_RADIUS))
-            .field<Shape>("shape").getter(Neighborhood::shape).default(CUBE).codec(Codec.enum())
-            .field<Boolean>("same_block").getter(Neighborhood::sameBlock).default(true).codec(Codec.boolean)
-            .field<Boolean>("sync_state").getter(Neighborhood::syncState).default(true).codec(Codec.boolean)
-            .field<Int>("limit").getter(Neighborhood::limit).default(1).codec(Codec.int(1..MAX_LIMIT))
+            .field(Neighborhood::type).default(NEIGHBORHOOD_TYPE).codec(Codec.string)
+            .field(Neighborhood::radius).default(1).codec(Codec.int(1..MAX_RADIUS))
+            .field(Neighborhood::shape).default(CUBE).codec(Codec.enum())
+            .field(Neighborhood::sameBlock).default(true).codec(Codec.boolean)
+            .field(Neighborhood::syncState).default(true).codec(Codec.boolean)
+            .field(Neighborhood::limit).default(1).codec(Codec.int(1..MAX_LIMIT))
             .build({ _, radius, shape, sameBlock, syncState, limit -> Neighborhood(radius, shape, sameBlock, syncState, limit) }) {
 
             val DEFAULT = Neighborhood(1, CUBE, true, syncState = true, limit = 1)
@@ -151,10 +151,10 @@ sealed class ChainStrategy(
     ) : ChainStrategy(RECURSIVE_TYPE, sameBlock, syncState, limit) {
 
         companion object : Codec<Recursive> by Codec.create<Recursive>()
-            .field<String>("type").getter(Recursive::type).default("neighborhood").codec(Codec.string)
-            .field<Boolean>("same_block").getter(Recursive::sameBlock).default(true).codec(Codec.boolean)
-            .field<Boolean>("sync_state").getter(Recursive::syncState).default(true).codec(Codec.boolean)
-            .field<Int>("limit").getter(Recursive::limit).default(8).codec(Codec.int(1..MAX_LIMIT))
+            .field(Recursive::type).default("neighborhood").codec(Codec.string)
+            .field(Recursive::sameBlock).default(true).codec(Codec.boolean)
+            .field(Recursive::syncState).default(true).codec(Codec.boolean)
+            .field(Recursive::limit).default(8).codec(Codec.int(1..MAX_LIMIT))
             .build({ _, sameBlock, syncState, limit -> Recursive(sameBlock, syncState, limit) }) {
 
             val DEFAULT = Recursive(sameBlock = true, syncState = true, limit = 8)

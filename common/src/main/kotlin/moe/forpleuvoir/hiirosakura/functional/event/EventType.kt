@@ -36,6 +36,7 @@ object EventTypes {
         "mouse.dragging" to EventType("mouse.dragging", MouseEvent.Dragging),
         "client_life_cycle.starting" to EventType("client_life_cycle.starting", ClientLifecycleEvent.Starting),
         "client_life_cycle.stopping" to EventType("client_life_cycle.stopping", ClientLifecycleEvent.Stopping),
+        "client_life_cycle.open_game_menu" to EventType("client_life_cycle.open_game_menu", ClientLifecycleEvent.OpenGameMenu),
         "client_tick.start" to EventType("client_tick.start", ClientTickEvent.TickStart),
         "client_tick.end" to EventType("client_tick.end", ClientTickEvent.TickEnd),
 

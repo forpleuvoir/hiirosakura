@@ -3,6 +3,7 @@ package moe.forpleuvoir.hiirosakura.functional.customradialmenu.ui
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -10,7 +11,9 @@ import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.onClick
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -57,23 +60,34 @@ fun RadialMenuListPane(
 
         Spacer(Modifier.height(12.dp))
 
-
-        if (CustomRadialMenuManager.customRadialMenus.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            if (CustomRadialMenuManager.customRadialMenus.isEmpty()) {
                 Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        } else {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                items(CustomRadialMenuManager.customRadialMenus.entries.toList(), key = { it.key }) { (key, _) ->
-                    RadialMenuListItem(
-                        name = key,
-                        isSelected = key == selectedMenuKey,
-                        onClick = { onSelectMenu(key) },
-                        onEditSetting = { onEditSetting(key) },
-                        onRename = { onRename(key) },
-                        onDelete = { onDeleteMenu(key) },
-                    )
+            } else {
+                val lazyListState = rememberLazyListState()
+                val canScroll = lazyListState.canScrollBackward || lazyListState.canScrollForward
+
+                LazyColumn(
+                    modifier = Modifier.padding(end = if (canScroll) 12.dp else 0.dp).fillMaxSize(),
+                    state = lazyListState,
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    items(CustomRadialMenuManager.customRadialMenus.entries.toList(), key = { it.key }) { (key, _) ->
+                        RadialMenuListItem(
+                            name = key,
+                            isSelected = key == selectedMenuKey,
+                            onClick = { onSelectMenu(key) },
+                            onEditSetting = { onEditSetting(key) },
+                            onRename = { onRename(key) },
+                            onDelete = { onDeleteMenu(key) },
+                        )
+                    }
                 }
+
+                VerticalScrollbar(
+                    adapter = rememberScrollbarAdapter(lazyListState),
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
             }
         }
     }

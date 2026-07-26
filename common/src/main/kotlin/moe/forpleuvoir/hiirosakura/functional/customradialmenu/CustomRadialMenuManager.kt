@@ -9,6 +9,7 @@ import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
 import moe.forpleuvoir.hiirosakura.lang.CustomRadialMenuLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.nebula.common.api.Initializable
+import moe.forpleuvoir.nebula.common.util.ioLaunch
 import moe.forpleuvoir.nebula.config.util.ConfigUtil
 import moe.forpleuvoir.nebula.serialization.json.JsonDialect
 import net.minecraft.network.chat.Component
@@ -30,6 +31,7 @@ object CustomRadialMenuManager : Initializable {
     override fun init() {
         ClientLifecycleEvent.Starting.register { load() }
         ClientLifecycleEvent.Stopping.register { save() }
+        ClientLifecycleEvent.OpenGameMenu.register { ioLaunch { asyncSave() } }
     }
 
     // --- 名称校验 ---

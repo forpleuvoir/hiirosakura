@@ -1,12 +1,14 @@
 package moe.forpleuvoir.hiirosakura.functional.customradialmenu.ui
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -78,92 +80,95 @@ fun RadialMenuTaskPane(
 
         // Task list
         Spacer(Modifier.height(16.dp))
-
-        if (menu.tasks.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            if (menu.tasks.isEmpty()) {
                 Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        } else {
-            var editingTaskIndex by remember { mutableStateOf(-1) }
-            val lazyListState = rememberLazyListState()
-            val hapticFeedback = LocalHapticFeedback.current
-            val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-                menu.moveTask(from.index, to.index)
-                CustomRadialMenuManager.save()
-                hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
-            }
-
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxSize(),
-                state = lazyListState,
-            ) {
-                itemsIndexed(menu.tasks, key = { _, keyed -> keyed.key }) { index, keyedTask ->
-                    ReorderableItem(reorderableLazyListState, keyedTask.key) { isDragging ->
-                        val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                        val handleInteraction = remember { MutableInteractionSource() }
-                        val handleHovered by handleInteraction.collectIsHoveredAsState()
-                        Card(modifier = Modifier.fillMaxWidth().scale(scale)) {
-                            Row(
-                                Modifier.padding(12.dp).fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                            ) {
+            } else {
+                var editingTaskIndex by remember { mutableStateOf(-1) }
+                val lazyListState = rememberLazyListState()
+                val hapticFeedback = LocalHapticFeedback.current
+                val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+                    menu.moveTask(from.index, to.index)
+                    CustomRadialMenuManager.save()
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                }
+                val canScroll = lazyListState.canScrollBackward || lazyListState.canScrollForward
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(end = if (canScroll) 12.dp else 0.dp).fillMaxSize(),
+                    state = lazyListState,
+                ) {
+                    itemsIndexed(menu.tasks, key = { _, keyed -> keyed.key }) { index, keyedTask ->
+                        ReorderableItem(reorderableLazyListState, keyedTask.key) { isDragging ->
+                            val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
+                            val handleInteraction = remember { MutableInteractionSource() }
+                            val handleHovered by handleInteraction.collectIsHoveredAsState()
+                            Card(modifier = Modifier.fillMaxWidth().scale(scale)) {
                                 Row(
+                                    Modifier.padding(12.dp).fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
                                 ) {
-                                    DragHandle(hapticFeedback, handleInteraction, handleHovered, isDragging)
-                                    val stack = remember(keyedTask.value.icon) { ItemStack(keyedTask.value.icon) }
-                                    if (!stack.isEmpty) ItemIcon(stack, showTooltip = false)
-                                    Text(InlineStyleText(keyedTask.value.name))
-                                }
-
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                ) {
-                                    IconButton({
-                                        keyedTask.value.execute()
-                                    }, Modifier.plainTooltip { Text(HSLang.Task.execute) }) {
-                                        Icon(Icons.PlayArrow, null)
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    ) {
+                                        DragHandle(hapticFeedback, handleInteraction, handleHovered, isDragging)
+                                        val stack = remember(keyedTask.value.icon) { ItemStack(keyedTask.value.icon) }
+                                        if (!stack.isEmpty) ItemIcon(stack, showTooltip = false)
+                                        Text(InlineStyleText(keyedTask.value.name))
                                     }
 
-                                    IconButton({
-                                        editingTaskIndex = index
-                                    }, Modifier.plainTooltip { Text(HSLang.Task.editTask) }) {
-                                        Icon(Icons.EditNote, null)
-                                    }
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    ) {
+                                        IconButton({
+                                            keyedTask.value.execute()
+                                        }, Modifier.plainTooltip { Text(HSLang.Task.execute) }) {
+                                            Icon(Icons.PlayArrow, null)
+                                        }
 
-                                    RemoveConfirmButton(
-                                        message = keyedTask.value.name,
-                                        action = {
-                                            menu.removeTaskAt(index)
-                                            CustomRadialMenuManager.save()
-                                        },
-                                    )
+                                        IconButton({
+                                            editingTaskIndex = index
+                                        }, Modifier.plainTooltip { Text(HSLang.Task.editTask) }) {
+                                            Icon(Icons.EditNote, null)
+                                        }
+
+                                        RemoveConfirmButton(
+                                            message = keyedTask.value.name,
+                                            action = {
+                                                menu.removeTaskAt(index)
+                                                CustomRadialMenuManager.save()
+                                            },
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            // Edit task dialog
-            if (editingTaskIndex >= 0) {
-                val keyedTask = menu.tasks.getOrNull(editingTaskIndex)
-                if (keyedTask != null) {
-                    TaskEditorDialog(
-                        task = keyedTask.value,
-                        title = { Text(HSLang.Task.editTask) },
-                        onDismissRequest = { editingTaskIndex = -1 },
-                    ) { newTask ->
-                        menu.updateTask(editingTaskIndex, newTask)
-                        CustomRadialMenuManager.save()
+                VerticalScrollbar(
+                    adapter = rememberScrollbarAdapter(lazyListState),
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+                // Edit task dialog
+                if (editingTaskIndex >= 0) {
+                    val keyedTask = menu.tasks.getOrNull(editingTaskIndex)
+                    if (keyedTask != null) {
+                        TaskEditorDialog(
+                            task = keyedTask.value,
+                            title = { Text(HSLang.Task.editTask) },
+                            onDismissRequest = { editingTaskIndex = -1 },
+                        ) { newTask ->
+                            menu.updateTask(editingTaskIndex, newTask)
+                            CustomRadialMenuManager.save()
+                            editingTaskIndex = -1
+                        }
+                    } else {
                         editingTaskIndex = -1
                     }
-                } else {
-                    editingTaskIndex = -1
                 }
             }
         }

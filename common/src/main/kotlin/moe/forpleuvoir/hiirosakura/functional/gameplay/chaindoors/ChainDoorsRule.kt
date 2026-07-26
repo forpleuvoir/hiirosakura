@@ -15,10 +15,10 @@ data class ChainDoorsRule(
 ) {
 
     companion object : Codec<ChainDoorsRule> by Codec.create<ChainDoorsRule>()
-        .field<BlockInfoMatcher>("origin_door").getter(ChainDoorsRule::originDoor).codec(BlockInfoMatcher)
-        .field<BlockInfoMatcher>("chain_door").getter(ChainDoorsRule::chainDoor).codec(BlockInfoMatcher)
-        .field<Boolean>("key_toggle_mode").getter(ChainDoorsRule::keyToggleMode).codec(Codec.boolean)
-        .field<ChainStrategy>("strategy").getter(ChainDoorsRule::strategy).codec(ChainStrategy)
+        .field(ChainDoorsRule::originDoor).codec(BlockInfoMatcher)
+        .field(ChainDoorsRule::chainDoor).codec(BlockInfoMatcher)
+        .field(ChainDoorsRule::keyToggleMode).codec(Codec.boolean)
+        .field(ChainDoorsRule::strategy).codec(ChainStrategy)
         .build(::ChainDoorsRule) {
 
         val MOB_INTERACTABLE_DOORS = ChainDoorsRule(

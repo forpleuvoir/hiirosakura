@@ -90,81 +90,90 @@ internal fun TasksPage(modifier: Modifier) {
         }
 
         Spacer(Modifier.height(16.dp))
-
-        if (TaskManager.taskList.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            if (TaskManager.taskList.isEmpty()) {
                 Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        } else {
-            val lazyListState = rememberLazyListState()
-            val hapticFeedback = LocalHapticFeedback.current
-            val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-                TaskManager.moveElement(from.index, to.index)
-                hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
-            }
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxSize(), state = lazyListState) {
-                itemsIndexed(TaskManager.taskList, key = { _, keyed -> keyed.key }) { index, task ->
-                    ReorderableItem(reorderableLazyListState, task.key) { isDragging ->
-                        val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                        val handleInteraction = remember { MutableInteractionSource() }
-                        val handleHovered by handleInteraction.collectIsHoveredAsState()
-                        Card(
-                            modifier = Modifier.fillMaxWidth().scale(scale)
-                        ) {
-                            Row(
-                                Modifier.padding(12.dp).fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+            } else {
+                val lazyListState = rememberLazyListState()
+                val hapticFeedback = LocalHapticFeedback.current
+                val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+                    TaskManager.moveElement(from.index, to.index)
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                }
+                val canScroll = lazyListState.canScrollBackward || lazyListState.canScrollForward
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(end = if (canScroll) 12.dp else 0.dp).fillMaxSize(),
+                    state = lazyListState
+                ) {
+                    itemsIndexed(TaskManager.taskList, key = { _, keyed -> keyed.key }) { index, task ->
+                        ReorderableItem(reorderableLazyListState, task.key) { isDragging ->
+                            val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
+                            val handleInteraction = remember { MutableInteractionSource() }
+                            val handleHovered by handleInteraction.collectIsHoveredAsState()
+                            Card(
+                                modifier = Modifier.fillMaxWidth().scale(scale)
                             ) {
                                 Row(
+                                    Modifier.padding(12.dp).fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    DragHandle(
-                                        hapticFeedback,
-                                        handleInteraction,
-                                        handleHovered,
-                                        isDragging
-                                    )
-                                    val icon = remember(task.value.icon) { ItemStack(task.value.icon) }
-                                    if (!icon.isEmpty) {
-                                        ItemIcon(icon, showTooltip = false)
-                                    }
-                                    Text(InlineStyleText(task.value.name))
-                                }
-
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    IconButton({
-                                        task.value.execute()
-                                    }, Modifier.plainTooltip {
-                                        Text(HSLang.Task.execute)
-                                    }) {
-                                        Icon(Icons.PlayArrow, null)
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        DragHandle(
+                                            hapticFeedback,
+                                            handleInteraction,
+                                            handleHovered,
+                                            isDragging
+                                        )
+                                        val icon = remember(task.value.icon) { ItemStack(task.value.icon) }
+                                        if (!icon.isEmpty) {
+                                            ItemIcon(icon, showTooltip = false)
+                                        }
+                                        Text(InlineStyleText(task.value.name))
                                     }
 
-                                    KeybindAssistChip(task.value.keybind, modifier = Modifier.width(280.dp))
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        IconButton({
+                                            task.value.execute()
+                                        }, Modifier.plainTooltip {
+                                            Text(HSLang.Task.execute)
+                                        }) {
+                                            Icon(Icons.PlayArrow, null)
+                                        }
 
-                                    IconButton({
-                                        showEditor = true
-                                        editingTaskIndex = index
-                                    }, Modifier.plainTooltip {
-                                        Text(HSLang.Task.editTask)
-                                    }) {
-                                        Icon(Icons.EditNote, null)
+                                        KeybindAssistChip(task.value.keybind, modifier = Modifier.width(280.dp))
+
+                                        IconButton({
+                                            showEditor = true
+                                            editingTaskIndex = index
+                                        }, Modifier.plainTooltip {
+                                            Text(HSLang.Task.editTask)
+                                        }) {
+                                            Icon(Icons.EditNote, null)
+                                        }
+
+                                        RemoveConfirmButton(
+                                            task.value.name,
+                                            { TaskManager.removeAt(index) }
+                                        )
                                     }
-
-                                    RemoveConfirmButton(
-                                        task.value.name,
-                                        { TaskManager.removeAt(index) }
-                                    )
                                 }
                             }
                         }
                     }
                 }
+
+                VerticalScrollbar(
+                    adapter = rememberScrollbarAdapter(lazyListState),
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
             }
         }
         if (showEditor) {
@@ -273,7 +282,11 @@ fun <T : HSTickTask> TaskEditorDialog(
                             .fillMaxSize()
                             .codeEditorShortcuts(executor),
                         textStyle = TextStyle(fontFamily = FontFamily.Monospace),
-                        outputTransformation = rememberSyntaxHighlightTransformation(JexlSyntaxLanguage, SyntaxHighlightDefaults.theme(), executor.text.toString()),
+                        outputTransformation = rememberSyntaxHighlightTransformation(
+                            JexlSyntaxLanguage,
+                            SyntaxHighlightDefaults.theme(),
+                            executor.text.toString()
+                        ),
                         labelPosition = TextFieldLabelPosition.Attached(true),
                         label = { Text(executorType.translateText) },
                         scrollState = scrollState,

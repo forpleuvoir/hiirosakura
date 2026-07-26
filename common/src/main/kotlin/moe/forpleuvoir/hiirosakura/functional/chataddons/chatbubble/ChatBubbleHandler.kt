@@ -95,9 +95,9 @@ data class ChatBubbleServerConfig(
     val enableProfile: Boolean = false,
 ) {
     companion object : Codec<ChatBubbleServerConfig> by Codec.create<ChatBubbleServerConfig>()
-        .field<String>("regex").getter(ChatBubbleServerConfig::regex).codec(Codec.string)
-        .field<Boolean>("enable_uuid").getter(ChatBubbleServerConfig::enableUUID).codec(Codec.boolean)
-        .field<Boolean>("enable_profile").getter(ChatBubbleServerConfig::enableProfile).codec(Codec.boolean)
+        .field(ChatBubbleServerConfig::regex).codec(Codec.string)
+        .field(ChatBubbleServerConfig::enableUUID).codec(Codec.boolean)
+        .field(ChatBubbleServerConfig::enableProfile).codec(Codec.boolean)
         .build(::ChatBubbleServerConfig) {
 
         val DEFAULT_CONFIG = ChatBubbleServerConfig()

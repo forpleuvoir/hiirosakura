@@ -67,7 +67,7 @@ object QuickTickTaskExecuteScreen : ConfigGroup("quick_tick_task_execute") {
 
     val selectedBorderColor by configColor("selected_border_color", RadialMenuDefaults.SelectedBorderColor.toNebulaColor)
 
-    val iconScale by configFloat("icon_scale", 1f, 0.2f, 2f)
+    val iconScale by configFloat("icon_scale", 1.3f, 0.2f, 2f)
 
     val innerRadius by configFloat("inner_radius", RadialMenuDefaults.InnerRadius.value, 40f, 300f)
 

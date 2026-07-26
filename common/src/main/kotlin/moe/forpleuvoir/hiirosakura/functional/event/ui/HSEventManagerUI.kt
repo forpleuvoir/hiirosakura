@@ -1,12 +1,14 @@
 package moe.forpleuvoir.hiirosakura.functional.event.ui
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.text.contextmenu.modifier.appendTextContextMenuComponents
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -81,83 +83,94 @@ fun HSEventManagerUI(
             }
         }
         Spacer(Modifier.height(12.dp))
-        if (HSEventManager.subscribers.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            if (HSEventManager.subscribers.isEmpty()) {
+
                 Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        } else {
-            val lazyListState = rememberLazyListState()
-            val hapticFeedback = LocalHapticFeedback.current
-            val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-                HSEventManager.moveElement(from.index, to.index)
-                hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
-            }
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxSize(), state = lazyListState) {
-                itemsIndexed(
-                    HSEventManager.subscribers,
-                    key = { _, keyed -> keyed.key }
-                ) { index, (key, subscriber) ->
-                    if (filteredType == "all" || subscriber.eventTypeId == filteredType) {
-                        ReorderableItem(reorderableLazyListState, key) { isDragging ->
-                            val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                            val handleInteraction = remember { MutableInteractionSource() }
-                            val handleHovered by handleInteraction.collectIsHoveredAsState()
-                            Card(
-                                modifier = Modifier.fillMaxWidth().scale(scale)
-                            ) {
-                                Row(
-                                    Modifier.padding(12.dp).fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
+            } else {
+                val lazyListState = rememberLazyListState()
+                val hapticFeedback = LocalHapticFeedback.current
+                val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+                    HSEventManager.moveElement(from.index, to.index)
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                }
+                val canScroll = lazyListState.canScrollBackward || lazyListState.canScrollForward
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(end = if (canScroll) 12.dp else 0.dp).fillMaxSize(),
+                    state = lazyListState
+                ) {
+                    itemsIndexed(
+                        HSEventManager.subscribers,
+                        key = { _, keyed -> keyed.key }
+                    ) { index, (key, subscriber) ->
+                        if (filteredType == "all" || subscriber.eventTypeId == filteredType) {
+                            ReorderableItem(reorderableLazyListState, key) { isDragging ->
+                                val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
+                                val handleInteraction = remember { MutableInteractionSource() }
+                                val handleHovered by handleInteraction.collectIsHoveredAsState()
+                                Card(
+                                    modifier = Modifier.fillMaxWidth().scale(scale)
                                 ) {
                                     Row(
+                                        Modifier.padding(12.dp).fillMaxWidth(),
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                        horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        DragHandle(
-                                            hapticFeedback,
-                                            handleInteraction,
-                                            handleHovered,
-                                            isDragging
-                                        )
-                                        Text(
-                                            Texts.translatable("${HiiroSakura.MOD_ID}.event.${subscriber.eventTypeId}"),
-                                            color = MaterialTheme.colorScheme.secondary
-                                        )
-                                        Icon(Icons.Link, null)
-                                        Text(InlineStyleText(subscriber.name))
-                                    }
-
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        var enabled by remember { mutableStateOf(subscriber.enabled) }
-                                        LaunchedEffect(enabled) {
-                                            subscriber.enabled = enabled
-                                        }
-                                        Switch(enabled, onCheckedChange = { enabled = it }, Modifier.plainTooltip {
-                                            Text(HSLang.Common.enable)
-                                        })
-
-                                        IconButton({
-                                            editingSubscriber = index
-                                        }, Modifier.plainTooltip {
-                                            Text(HSLang.Event.subscriberEditor)
-                                        }) {
-                                            Icon(Icons.EditNote, null)
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                        ) {
+                                            DragHandle(
+                                                hapticFeedback,
+                                                handleInteraction,
+                                                handleHovered,
+                                                isDragging
+                                            )
+                                            Text(
+                                                EventTypes.id2Text(subscriber.eventTypeId),
+                                                color = MaterialTheme.colorScheme.primary
+                                            )
+                                            Icon(Icons.Link, null)
+                                            Text(InlineStyleText(subscriber.name))
                                         }
 
-                                        RemoveConfirmButton(
-                                            subscriber.name,
-                                            { HSEventManager.remove(index) }
-                                        )
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            var enabled by remember { mutableStateOf(subscriber.enabled) }
+                                            LaunchedEffect(enabled) {
+                                                subscriber.enabled = enabled
+                                            }
+                                            Switch(enabled, onCheckedChange = { enabled = it }, Modifier.plainTooltip {
+                                                Text(HSLang.Common.enable)
+                                            })
+
+                                            IconButton({
+                                                editingSubscriber = index
+                                            }, Modifier.plainTooltip {
+                                                Text(HSLang.Event.subscriberEditor)
+                                            }) {
+                                                Icon(Icons.EditNote, null)
+                                            }
+
+                                            RemoveConfirmButton(
+                                                subscriber.name,
+                                                { HSEventManager.remove(index) }
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+
+                VerticalScrollbar(
+                    adapter = rememberScrollbarAdapter(lazyListState),
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
             }
         }
     }

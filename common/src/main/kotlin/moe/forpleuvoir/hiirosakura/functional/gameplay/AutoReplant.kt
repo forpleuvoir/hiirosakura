@@ -73,9 +73,9 @@ object AutoReplant : ConfigGroup("auto_replant") {
         ),
     ) {
         companion object : Codec<Entry> by Codec.create<Entry>()
-            .field<BlockInfoMatcher>("target_block").getter(Entry::targetBlock).codec(BlockInfoMatcher)
-            .field<ItemStackMatcher>("replant_item").getter(Entry::replantItem).codec(ItemStackMatcher)
-            .field<BlockInfoMatcher>("ground_block").getter(Entry::groundBlock).codec(BlockInfoMatcher)
+            .field(Entry::targetBlock).codec(BlockInfoMatcher)
+            .field(Entry::replantItem).codec(ItemStackMatcher)
+            .field(Entry::groundBlock).codec(BlockInfoMatcher)
             .build(::Entry)
     }
 

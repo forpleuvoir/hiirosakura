@@ -33,6 +33,9 @@ object HiiroSakuraDataManager : Initializable {
         ClientLifecycleEvent.Stopping.register {
             onSave()
         }
+        ClientLifecycleEvent.OpenGameMenu.register {
+            asyncSave()
+        }
     }
 
     fun clientStart() {

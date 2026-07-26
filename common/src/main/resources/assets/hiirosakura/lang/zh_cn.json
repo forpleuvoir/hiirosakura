@@ -57,6 +57,8 @@
   "hiirosakura.event.type.client_life_cycle.starting.comment": "客户端启动时触发\n上下文: Minecraft (不可取消)",
   "hiirosakura.event.type.client_life_cycle.stopping": "客户端停止",
   "hiirosakura.event.type.client_life_cycle.stopping.comment": "客户端停止时触发\n上下文: Minecraft (不可取消)",
+  "hiirosakura.event.type.client_life_cycle.open_game_menu": "打开游戏菜单",
+  "hiirosakura.event.type.client_life_cycle.open_game_menu.comment": "打开游戏菜单时触发\n上下文: Minecraft (不可取消)",
   "hiirosakura.event.type.client_tick.start": "Tick开始",
   "hiirosakura.event.type.client_tick.start.comment": "客户端Tick开始时触发\n上下文: Minecraft (不可取消)",
   "hiirosakura.event.type.client_tick.end": "Tick结束",

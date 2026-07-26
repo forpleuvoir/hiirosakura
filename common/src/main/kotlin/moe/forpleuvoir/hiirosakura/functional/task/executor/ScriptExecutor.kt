@@ -2,6 +2,7 @@ package moe.forpleuvoir.hiirosakura.functional.task.executor
 
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.executor.Executor
 import moe.forpleuvoir.hiirosakura.functional.script.CommonApi
@@ -100,7 +101,7 @@ class ScriptExecutor(
             ToastHandler.showContent(
                 duration = 5.seconds,
             ) {
-                Text(it.stackTraceToString(), color = Color.Red)
+                Text(it.stackTraceToString(), color = Color.Red, maxLines = 16, overflow = TextOverflow.Ellipsis)
             }
             log.error(it)
         }

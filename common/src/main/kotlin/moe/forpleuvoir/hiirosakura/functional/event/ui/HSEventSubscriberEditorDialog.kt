@@ -162,7 +162,7 @@ fun HSEventSubscriberEditorDialog(
                         modifier = Modifier
                             .fillMaxSize()
                             .codeEditorShortcuts(state),
-                        outputTransformation = rememberSyntaxHighlightTransformation(JexlSyntaxLanguage, SyntaxHighlightDefaults.theme()),
+                        outputTransformation = rememberSyntaxHighlightTransformation(JexlSyntaxLanguage, SyntaxHighlightDefaults.theme(), state.text.toString()),
                         textStyle = TextStyle(fontFamily = FontFamily.Monospace),
                         labelPosition = TextFieldLabelPosition.Attached(true),
                         scrollState = scrollState,

@@ -21,7 +21,7 @@ fun interface DataComponentWrapper<C> {
         component: C,
         modifier: Modifier,
         removeAction: () -> Unit,
-        onValueChange: (C, Boolean) -> Unit
+        onValueChange: (C) -> Unit
     )
 }
 
@@ -62,29 +62,28 @@ object DataComponentWrappers : Initializable {
     @Composable
     fun <C : Any> DataComponentWrapper(
         componentType: DataComponentType<C>,
-        component: Any?,
+        component: Any,
         modifier: Modifier = Modifier,
         removeAction: () -> Unit,
-        onValueChange: (C, Boolean) -> Unit
+        onValueChange: (C) -> Unit
     ) {
         componentWrappers[componentType]?.apply {
-            val defaultComponent = defaultValue(componentType)!!
             wrapper(
                 componentIds[componentType]!!,
-                component ?: defaultComponent,
+                component,
                 modifier,
                 removeAction,
-                onValueChange as (Any, Boolean) -> Unit
+                onValueChange as (Any) -> Unit
             )
         } ?: run {
-//            DefaultComponentWrapper(
-//                componentType.keyOrUnknown,
-//                componentType,
-//                component,
-//                removeAction,
-//                modifier,
-//                onValueChange = onValueChange
-//            )
+            DefaultComponentWrapper(
+                componentType.keyOrUnknown,
+                componentType,
+                component,
+                removeAction,
+                modifier,
+                onValueChange = onValueChange
+            )
         }
     }
 

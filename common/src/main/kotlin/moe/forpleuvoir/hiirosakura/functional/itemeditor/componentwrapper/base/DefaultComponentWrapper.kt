@@ -1,5 +1,45 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
+import net.minecraft.core.component.DataComponentType
+import net.minecraft.resources.Identifier
+
+@Composable
+fun <C : Any> DefaultComponentWrapper(
+    key: Identifier,
+    componentType: DataComponentType<C>,
+    component: Any?,
+    removeAction: () -> Unit,
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    onValueChange: (C) -> Unit
+) {
+    DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
+        var showEditDialog by remember { mutableStateOf(false) }
+        IconButton({
+            showEditDialog = true
+        }) {
+            Icon(Icons.EditNote, null)
+        }
+        if(showEditDialog) {
+            //TODO 实现通用的编辑器
+        }
+    }
+}
+
 //
 //@Suppress("UNCHECKED_CAST")
 //fun <C : Any> ContainerScope.DefaultComponentWrapper(

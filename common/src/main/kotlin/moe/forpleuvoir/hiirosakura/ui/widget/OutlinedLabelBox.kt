@@ -2,6 +2,7 @@ package moe.forpleuvoir.hiirosakura.ui.widget
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -26,7 +27,7 @@ fun OutlinedLabelBox(
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
     contentPadding: PaddingValues =
         OutlinedTextFieldDefaults.contentPadding(),
-    content: @Composable () -> Unit,
+    content: @Composable BoxScope.() -> Unit,
 ) {
     val decorator = OutlinedTextFieldDefaults.decorator(
         state = rememberTextFieldState(),

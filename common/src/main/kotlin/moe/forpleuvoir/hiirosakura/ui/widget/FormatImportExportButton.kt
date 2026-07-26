@@ -235,6 +235,7 @@ fun FormatImportButton(
                                         else -> throw NotImplementedError()
                                     },
                                     theme = SyntaxHighlightDefaults.theme(),
+                                    text = state.text.toString(),
                                 )
                                 OutlinedTextField(
                                     state,

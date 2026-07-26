@@ -208,6 +208,7 @@
   "hiirosakura.item_editor.item_preview": "物品预览",
   "hiirosakura.item_editor.item_count": "物品数量",
   "hiirosakura.item_editor.add_item_component": "添加组件",
+  "hiirosakura.item_editor.data_components": "数据组件",
   "hiirosakura.item_editor.adapted_component": "已适配的组件",
   "hiirosakura.item_editor.unadapted_component": "未适配的组件",
   "hiirosakura.item_editor.item_component_exist": "组件[%s]已存在",

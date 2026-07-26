@@ -1,231 +1,353 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor
 
-//
-//@Suppress("UNCHECKED_CAST")
-//fun ItemStackEditor(
-//    itemStack: ItemStack = ItemStackMatcher.handheldItemStack ?: ItemStack(Items.MELON),
-//    consumer: (ItemStack) -> Unit
-//) = ConfirmDialog(
-//    stateOf(HSLang.itemEditor),
-//) {
-//    val result = itemStack.asMutableState
-//    val itemState = itemStack.item.asMutableState
-//    val countState = itemStack.count.asMutableState
-//
-//    val componentMap = itemStack.copy().components.let {
-//        it as? PatchedDataComponentMap ?: PatchedDataComponentMap(it)
-//    }
-//
-//    countState.subscribe {
-//        result.setValue(ItemStack(itemState.getValue(), countState.getValue(), componentMap.copy()))
-//    }
-//
-//    var recompose by lateInitValueOf {}
-//
-//    var previewRecompose by lateInitValueOf {
-//        result.setValue(ItemStack(itemState.getValue(), countState.getValue(), componentMap.copy()))
-//    }
-//
-//    itemState.subscribe {
-//        previewRecompose()
-//    }
-//
-//    confirm {
-//        consumer(result.getValue())
-//        closeScreen()
-//    }
-//
-//    Row(Modifier.width(400f), horizontalArrangement = Arrangement.SpaceBetween) {
-//        ItemType(itemState)
-//        ItemPreview(itemSupplier = result).apply {
-//            previewRecompose = {
-//                result.setValue(ItemStack(itemState.getValue(), countState.getValue(), componentMap.copy()))
-//                this.executeRecompose()
-//            }
-//        }
-//    }
-//
-//    var countRecompose: (DataComponentType<*>, Any?) -> Unit by lateInitValueOf { _, _ -> }
-//
-//    Row(Modifier.matchSibling(), horizontalArrangement = Arrangement.SpaceBetween) {
-//        countRecompose = ItemCount(countState, componentMap)
-//        ComponentAdder(componentMap) {
-//            recompose()
-//            previewRecompose()
-//        }
-//    }
-//    recompose = Components(componentMap) { type, component ->
-//        countRecompose(type, component)
-//        previewRecompose()
-//    }
-//
-//}
-//
-//private fun RowScope.ItemPreview(itemSupplier: State<ItemStack>) = Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
-//    Text(HSLang.itemEditorItemPreview)
-//    Row(
-//        Modifier.padding(horizontal = 5f, vertical = 4f)
-//            .width(143f)
-//            .render { guiGraphics, _, _, _ ->
-//                guiGraphics.pushWidgetTexture(transform, WidgetTextures.DROP_DOWN_MENU_BACKGROUND)
-//            }
-//            .renderOverlay { ctx, mx, my, d ->
-//                if (wasMouseOver) ctx.postEndRender {
-//                    pushItemTooltip(itemSupplier.getValue(), mx, my)
-//                }
-//            },
-//        horizontalArrangement = Arrangement.spacedBy(2f),
-//    ) {
-//        ItemIcon(itemSupplier, .6f)
-//        Text(itemSupplier.getValue().styledHoverName)
-//    }
-//}
-//
-//private fun RowScope.ItemType(itemState: MutableState<Item>) = Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
-//    Text(HSLang.itemEditorItemType)
-//    ItemSelector(
-//        itemState,
-//        modifier = Modifier.width(100f),
-//    )
-//}
-//
-//private fun RowScope.ItemCount(countState: MutableState<Int>, componentMap: PatchedDataComponentMap): (DataComponentType<*>, Any?) -> Unit {
-//    var result: (DataComponentType<*>, Any?) -> Unit by lateInitValueOf { _, _ -> }
-//    Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
-//        Text(HSLang.itemEditorItemCount)
-//        var state = true
-//        val maxCount = (componentMap.find { it.type.key == DataComponents.MAX_STACK_SIZE.key }?.value as? Int ?: 64).asMutableState
-//        Row(horizontalArrangement = Arrangement.spacedBy(5f)) {
-//            val switch = state.asMutableState
-//            SwitchableProxy(
-//                { IntSlider(countState, 1..maxCount.getValue(), modifier = Modifier.width(75f)) },
-//                { IntEditor(countState, 1..maxCount.getValue(), modifier = Modifier.width(75f), editorModifier = { Modifier.weight(1) }) },
-//                switch
-//            )
-//            Button {
-//                click {
-//                    switch.switch()
-//                    state = switch.getValue()
-//                }
-//                Icon(IconTextures.SWITCH)
-//            }
-//        }.apply {
-//            result = { type, component ->
-//                if (type.key == DataComponents.MAX_STACK_SIZE.key) {
-//                    maxCount.setValue(component as? Int ?: 64)
-//                    countState.setValue(countState.getValue().coerceIn(0..maxCount.getValue()))
-//                    this.executeRecompose()
-//                }
-//            }
-//        }
-//    }
-//    return result
-//}
-//
-//
-//@Suppress("UNCHECKED_CAST")
-//private fun RowScope.ComponentAdder(
-//    componentMap: PatchedDataComponentMap,
-//    onAdd: () -> Unit
-//) = Row(modifier = Modifier, horizontalArrangement = Arrangement.spacedBy(5f)) {
-//    val registryManager = registryAccess!!
-//    val components = registryManager.lookupOrThrow(Registries.DATA_COMPONENT_TYPE).sortedBy { it.key(registryManager) }
-//    val selected = components.first().asMutableState
-//    Text(HSLang.itemEditorItemAddComponent)
-//    var toggle by lateInitValueOf {}
-//    SelectorWithSearcher(
-//        options = components,
-//        selected = selected,
-//        predicate = { component, str ->
-//            val id = component.keyOrUnknown(registryManager)
-//            id.toString().contains(str) ||
-//                    id.asTranslateText().string.contains(str)
-//        },
-//        optionWrapper = {
-//            val isAdapted = DataComponentWrappers.isAdaptedComponent(it)
-//            Text(
-//                it.key(registryManager).toString(),
-//                style = style(if (isAdapted) HSVColor(195f, 1f, 1f) else HSVColor(5f, .6f, 1f)),
-//                modifier = Modifier.hoverText(if (isAdapted) HSLang.itemEditorAdaptedComponent else HSLang.itemEditorUnadaptedComponent)
-//            )
-//        },
-//        selectedWrapper = {
-//            Text(it.key(registryManager).toString(), modifier = Modifier.width(120f))
-//        },
-//        amountStep = 15f,
-//        onSelected = { type ->
-//            closeScreen()
-//            toggle()
-//            runCatching {
-//                DataComponentWrappers.defaultValue(type)?.let {
-//                    if (!componentMap.has(type)) {
-//                        componentMap.set(type as DataComponentType<Any>, it)
-//                        onAdd()
-//                    } else {
-//                        Toast.showToast(HSLang.itemEditorItemComponentExist(type.keyOrUnknown(registryManager)))
-//                    }
-//                } ?: run {
-//                    DefaultComponentBuilder(type.key(registryManager)!!, type) { component, recompose ->
-//                        if (!componentMap.has(type)) {
-//                            componentMap.set(type as DataComponentType<Any>, component)
-//                            if (recompose) onAdd()
-//                        } else {
-//                            Toast.showToast(HSLang.itemEditorItemComponentExist(type.keyOrUnknown(registryManager)))
-//                        }
-//                    }.open()
-//                }
-//            }.onFailure {
-//                Toast.showToast(Literal(it.message ?: "unknown error").withColor(Colors.RED))
-//                DataComponentWrappers.log.error(it)
-//            }
-//        },
-//        searchBarModifier = {
-//            Modifier.width((components.map { it.keyOrUnknown.toString() }.maxWidth + 12f).coerceAtLeast(210f)).maxHeight(180f)
-//        },
-//        listWrapperModifier = {
-//            Modifier.width((components.map { it.keyOrUnknown.toString() }.maxWidth + 12f).coerceAtLeast(210f)).maxHeight(180f)
-//        },
-//    ) {
-//        toggle = { this.toggle() }
-//    }
-//}
-//
-//@Suppress("UNCHECKED_CAST")
-//private fun ColumnScope.Components(
-//    components: PatchedDataComponentMap,
-//    onComponentChange: (DataComponentType<*>, Any?) -> Unit
-//): () -> Unit {
-//    var recompose by lateInitValueOf<()-> Unit>()
-//    ColumnListWrapped(
-//        Modifier.matchSibling().minHeight(140f).maxHeight(180f),
-//        spacing = 2f,
-//        horizontalAlignment = Alignment.Left,
-//        listModifier = {
-//            Modifier.weight(1).fill()
-//        },
-//        onCreate = {
-//            recompose = { this.executeRecompose() }
-//        }
-//    ) {
-//        components.keySet().sortedBy {
-//            it.key(registryAccess!!)
-//        }.forEach { type ->
-//            components[type]?.let { c ->
-//                DataComponentWrapper(
-//                    type, c,
-//                    removeAction = {
-//                        components.remove(type)
-//                        onComponentChange(type, null)
-//                        this.executeRecompose()
-//                    }
-//                ) { component, recompose ->
-//                    components[type as DataComponentType<Any>] = component
-//                    onComponentChange(type, component)
-//                    if (recompose) this.executeRecompose()
-//                }
-//            }
-//        }
-//    }
-//    return recompose
-//}
-//
+import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrappers
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrappers.DataComponentWrapper
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
+import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowser
+import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.util.*
+import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
+import moe.forpleuvoir.ibukigourd.ui.preset.*
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
+import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
+import moe.forpleuvoir.nebula.common.color.Color
+import moe.forpleuvoir.nebula.common.color.Colors
+import net.minecraft.core.Holder
+import net.minecraft.core.component.DataComponentType
+import net.minecraft.core.component.DataComponents
+import net.minecraft.core.component.PatchedDataComponentMap
+import net.minecraft.core.registries.Registries
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
+
+@Composable
+fun ItemStackEditor(
+    value: ItemStack = ItemStackMatcher.handheldItemStack ?: ItemStack(Items.MELON),
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    onValueChange: (ItemStack) -> Unit,
+) {
+    var editingItem by remember { mutableStateOf(value) }
+    FlexibleDialog(
+        modifier = modifier.padding(24.dp).size(1200.dp, 900.dp),
+        onDismissRequest = onDismissRequest,
+        onConfirmRequest = {
+            onValueChange(editingItem)
+            true
+        },
+        title = {
+            Text(HSLang.ItemEditor.title)
+        },
+        content = {
+            var item by remember { mutableStateOf(value.typeHolder()) }
+            var count by remember { mutableStateOf(value.count) }
+            val dataComponents = remember {
+                ObservableDataComponentMap(value.copy().components.let {
+                    it as? PatchedDataComponentMap ?: PatchedDataComponentMap(it)
+                })
+            }
+            LaunchedEffect(item, count, dataComponents.revision) {
+                editingItem = ItemStack(item, count, dataComponents.delegate.copy())
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                ItemType(item, { item = it }, modifier = Modifier.height(58.dp).weight(1f))
+                ItemCount(count, { count = it }, dataComponents.maxCount, modifier = Modifier.height(66.5.dp).weight(1f))
+                ItemPreview(editingItem, modifier = Modifier.height(58.dp).weight(1f))
+                ComponentAdder(dataComponents, modifier = Modifier.height(66.5.dp).weight(2.2f))
+            }
+            Spacer(Modifier.height(12.dp))
+            Components(dataComponents)
+        }
+    )
+}
+
+@Composable
+private fun ItemType(
+    value: Holder<Item>,
+    onValueChange: (Holder<Item>) -> Unit,
+    modifier: Modifier = Modifier,
+) = OutlinedLabelBox(
+    modifier = modifier,
+    label = { Text(HSLang.ItemEditor.itemType) },
+    contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 8.dp),
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        var showDialog by remember { mutableStateOf(false) }
+
+        ItemIcon(ItemStack(value), modifier = Modifier, showTooltip = false, scaleOnHover = 1f)
+        Spacer(Modifier.width(8.dp))
+        Text(value.value().name, modifier = Modifier.weight(1f))
+        Spacer(Modifier.width(8.dp))
+        IconButton(onClick = { showDialog = true }) {
+            Icon(Icons.EditNote, null)
+        }
+
+        if (showDialog) {
+            FlexibleDialog(
+                onDismissRequest = { showDialog = false },
+                onConfirmRequest = { true },
+                content = {
+                    ItemBrowser(
+                        itemDisplay = {
+                            ItemBrowserDefaults.ItemWrapper(it) { selected ->
+                                @Suppress("DEPRECATION")
+                                onValueChange(selected.asItem().builtInRegistryHolder())
+                                showDialog = false
+                            }
+                        },
+                        modifier = Modifier.size(680.dp, 520.dp)
+                    )
+                },
+                confirmButton = {},
+                dismissButton = {}
+            )
+        }
+    }
+}
+
+@Composable
+fun ItemCount(
+    value: Int,
+    onValueChange: (Int) -> Unit,
+    maxValue: Int,
+    modifier: Modifier = Modifier
+) = CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
+    IntField(
+        value,
+        onValueChange,
+        range = 1..maxValue,
+        modifier = modifier,
+        labelPosition = TextFieldLabelPosition.Attached(true),
+        label = {
+            Row {
+                Text(HSLang.ItemEditor.itemCount)
+                Spacer(Modifier.width(8.dp))
+                Text("1..${maxValue}")
+            }
+        }
+    )
+}
+
+@Composable
+fun ItemPreview(
+    value: ItemStack,
+    modifier: Modifier = Modifier
+) = OutlinedLabelBox(
+    modifier = modifier,
+    label = { Text(HSLang.ItemEditor.itemPreview) },
+) {
+    Row {
+        ItemIcon(
+            value,
+            modifier = Modifier,
+            showCount = true,
+            showTooltip = true,
+            scaleOnHover = 1f,
+            countAlignment = BiasAlignment(0.75f, 0.95f),
+            countStyle = TextStyle(
+                color = Colors.WHITE.toComposeColor,
+                fontSize = 14.sp,
+                shadow = Shadow(Colors.BLACK.alpha(0.5f).toComposeColor, Offset(3f, 3f), blurRadius = 1f)
+            )
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(value.hoverName)
+    }
+}
+
+
+@Suppress("UNCHECKED_CAST")
+@Composable
+private fun ComponentAdder(
+    dataComponents: ObservableDataComponentMap,
+    modifier: Modifier = Modifier,
+) {
+    val registryManager = registryAccess!!
+    val components = registryManager.lookupOrThrow(Registries.DATA_COMPONENT_TYPE).sortedBy { it.key(registryManager) }
+    var selected by remember { mutableStateOf(components.first()) }
+
+    Selector(
+        selected = selected,
+        onSelect = { type ->
+            selected = type
+            runCatching {
+                DataComponentWrappers.defaultValue(type)?.let {
+                    if (!dataComponents.delegate.has(type)) {
+                        dataComponents[type as DataComponentType<Any>] = it
+                    } else {
+                        ToastHandler.showContent { Text(HSLang.ItemEditor.itemComponentExist(type.keyOrUnknown(registryManager))) }
+                    }
+                } ?: run {
+                    // TODO 通用的组件构建器
+                }
+            }.onFailure {
+                ToastHandler.showContent {
+                    Text(it.stackTraceToString(), maxLines = 16, overflow = TextOverflow.Ellipsis, color = Colors.RED.toComposeColor)
+                }
+                DataComponentWrappers.log.error(it)
+            }
+        },
+        items = components,
+        label = {
+            Text(HSLang.ItemEditor.addItemComponent)
+        },
+        modifier = modifier,
+        searchFilter = { str, type ->
+            val id = type.keyOrUnknown(registryManager)
+            id.toString().contains(str) || id.asTranslateText().plainText.contains(str)
+        },
+        content = {
+            Text(it.keyOrUnknown(registryManager))
+        },
+        itemContent = { type, _ ->
+            val isAdapted = DataComponentWrappers.isAdaptedComponent(type)
+            Text(
+                identifier = type.keyOrUnknown(registryManager),
+                color = if (isAdapted)
+                    Color.fromHSV(195f / 360f, 1f, 1f).toComposeColor
+                else
+                    Color.fromHSV(5f / 360f, .6f, 1f).toComposeColor,
+                modifier = Modifier.plainTooltip {
+                    Text(
+                        if (isAdapted)
+                            HSLang.ItemEditor.adaptedComponent
+                        else
+                            HSLang.ItemEditor.unadaptedComponent
+                    )
+                }
+            )
+        }
+    )
+}
+
+@Suppress("UNCHECKED_CAST")
+@Composable
+private fun Components(
+    components: ObservableDataComponentMap
+) = OutlinedLabelBox(
+    modifier = Modifier.fillMaxSize(),
+    contentPadding = PaddingValues(16.dp, 16.dp, 8.dp, 16.dp),
+    label = {
+        Text(HSLang.ItemEditor.dataComponents)
+    }
+) {
+    val lazyListState = rememberLazyListState()
+    if (components.isEmpty()) {
+        Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    } else {
+        val canScroll = lazyListState.canScrollBackward || lazyListState.canScrollForward
+        Box {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(end = if (canScroll) 12.dp else 8.dp).fillMaxSize(),
+                state = lazyListState
+            ) {
+                items(
+                    components.keySet().sortedBy { it.keyOrUnknown(registryAccess!!) },
+                    key = { type -> type.keyOrUnknown(registryAccess!!) }
+                ) { type ->
+                    components[type]?.let { component ->
+                        DataComponentWrapper(
+                            type,
+                            component,
+                            removeAction = {
+                                components.remove(type)
+                            }
+                        ) {
+                            components[type as DataComponentType<Any>] = it
+                        }
+                    }
+                }
+            }
+
+            VerticalScrollbar(
+                adapter = rememberScrollbarAdapter(lazyListState),
+                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight()
+            )
+        }
+    }
+}
+
+
+@Stable
+private class ObservableDataComponentMap(
+    val delegate: PatchedDataComponentMap
+) {
+
+    var revision by mutableLongStateOf(0L)
+        private set
+
+    var maxCount by mutableIntStateOf(readMaxCount())
+        private set
+
+    fun isEmpty(): Boolean {
+        revision
+        return delegate.isEmpty
+    }
+
+    operator fun <T : Any> get(type: DataComponentType<T>): T? {
+        revision
+        return delegate[type]
+    }
+
+    operator fun <T : Any> set(
+        type: DataComponentType<T>,
+        component: T,
+    ) {
+        delegate[type] = component
+        notifyChanged()
+    }
+
+    fun <T : Any> remove(type: DataComponentType<T>): T? {
+        val removed = delegate.remove(type)
+        notifyChanged()
+        return removed
+    }
+
+    fun keySet(): Set<DataComponentType<*>> {
+        revision
+        return delegate.keySet()
+    }
+
+    private fun notifyChanged() {
+        maxCount = readMaxCount()
+        revision++
+    }
+
+    private fun readMaxCount(): Int {
+        return delegate[DataComponents.MAX_STACK_SIZE] ?: 64
+    }
+
+}

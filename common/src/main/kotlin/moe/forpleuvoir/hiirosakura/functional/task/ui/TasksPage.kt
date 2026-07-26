@@ -273,7 +273,7 @@ fun <T : HSTickTask> TaskEditorDialog(
                             .fillMaxSize()
                             .codeEditorShortcuts(executor),
                         textStyle = TextStyle(fontFamily = FontFamily.Monospace),
-                        outputTransformation = rememberSyntaxHighlightTransformation(JexlSyntaxLanguage, SyntaxHighlightDefaults.theme()),
+                        outputTransformation = rememberSyntaxHighlightTransformation(JexlSyntaxLanguage, SyntaxHighlightDefaults.theme(), executor.text.toString()),
                         labelPosition = TextFieldLabelPosition.Attached(true),
                         label = { Text(executorType.translateText) },
                         scrollState = scrollState,

@@ -22,6 +22,7 @@ object HiiroSakuraClient {
         InputSimulator,
         CustomRadialMenuManager,
         HSConfigWrapper,
+        DataComponentWrappers,
     )
 
     fun init() {
@@ -31,7 +32,6 @@ object HiiroSakuraClient {
             DataComponentPreBinder.bind()
         }
         ClientModConfigHandler.register(HSConfig)
-        DataComponentWrappers.init()
     }
 
 }

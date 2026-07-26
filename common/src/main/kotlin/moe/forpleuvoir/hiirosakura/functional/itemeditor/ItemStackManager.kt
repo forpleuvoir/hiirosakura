@@ -1,9 +1,12 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor
 
+import androidx.compose.runtime.mutableStateListOf
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.platform.PLATFORM
 import moe.forpleuvoir.hiirosakura.util.logger
+import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
+import moe.forpleuvoir.ibukigourd.util.moveElement
 import moe.forpleuvoir.nebula.common.util.ioAsync
 import moe.forpleuvoir.nebula.common.util.requireKey
 import moe.forpleuvoir.nebula.common.util.requireType
@@ -27,51 +30,35 @@ object ItemStackManager {
 
     private val dataPath = File(PLATFORM.getConfigDir(), "${HiiroSakura.MOD_ID}/data").toPath()
 
-    private val _items = CopyOnWriteArrayList<ItemStack>()
+    private var nextKey = 0L
+
+    val items: List<Keyed<ItemStack>>
+        field = mutableStateListOf()
 
     private var changed = false
 
-    fun asSequence() = _items.asSequence()
-
-    val lastIndex get() = _items.lastIndex
-
-    fun forEach(action: (ItemStack) -> Unit) {
-        _items.forEach(action)
-    }
-
-    fun forEachIndexed(action: (index: Int, ItemStack) -> Unit) {
-        _items.forEachIndexed(action)
-    }
-
     operator fun set(index: Int, itemStack: ItemStack) {
-        _items[index] = itemStack
+        items[index] = Keyed(nextKey++, itemStack)
         changed = true
     }
 
     fun add(itemStack: ItemStack) {
-        _items.add(itemStack)
-        changed = true
-    }
-
-    fun add(index: Int, itemStack: ItemStack) {
-        _items.add(index, itemStack)
+        items.add(Keyed(nextKey++, itemStack))
         changed = true
     }
 
     fun moveElement(fromIndex: Int, toIndex: Int) {
-        if (fromIndex == toIndex) return
-        val movingElement = this.removeAt(fromIndex)
-        this.add(toIndex, movingElement)
+        items.moveElement(fromIndex, toIndex)
     }
 
-    fun removeAt(index: Int): ItemStack {
-        return _items.removeAt(index).apply() {
+    fun removeAt(index: Int): Keyed<ItemStack> {
+        return items.removeAt(index).apply {
             changed = true
         }
     }
 
     fun remove(itemStack: ItemStack) {
-        if (_items.remove(itemStack)) {
+        if (items.removeAll { it.value == itemStack }) {
             changed = true
         }
     }
@@ -84,7 +71,6 @@ object ItemStackManager {
                 deserialization(registryAccess, JsonDialect.decode(json).getOrThrow())
             }
         }.onFailure {
-//            saveDataAsync(registryManager)
             log.warn(it)
         }
     }
@@ -107,9 +93,9 @@ object ItemStackManager {
 
     fun serialization(registryAccess: RegistryAccess): SerializeElement = SerializeObject.build {
         "items" arr {
-            _items.forEach { itemStack ->
+            items.forEach { itemStack ->
                 runCatching {
-                    ItemStack.CODEC.encodeStart(registryAccess.createSerializationContext(NebulaOps), itemStack)
+                    ItemStack.CODEC.encodeStart(registryAccess.createSerializationContext(NebulaOps), itemStack.value)
                         .orThrow
                         .let {
                             add(it)
@@ -139,8 +125,10 @@ object ItemStackManager {
                 }
             }
         }
-        _items.clear()
-        _items.addAll(temp)
+        items.clear()
+        temp.forEach {
+            add(it)
+        }
     }
 
 }

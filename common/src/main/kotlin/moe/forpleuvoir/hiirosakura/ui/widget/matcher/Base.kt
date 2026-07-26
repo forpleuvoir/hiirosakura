@@ -327,6 +327,7 @@ internal fun BasicScriptEditor(
     val transformation = rememberSyntaxHighlightTransformation(
         language = JexlSyntaxLanguage,
         theme = SyntaxHighlightDefaults.theme(),
+        text = state.text.toString(),
     )
     Box {
         val scrollState = rememberScrollState()

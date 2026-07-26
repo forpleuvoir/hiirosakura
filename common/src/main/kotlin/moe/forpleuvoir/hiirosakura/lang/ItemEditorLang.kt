@@ -1,5 +1,7 @@
 package moe.forpleuvoir.hiirosakura.lang
 
+import androidx.compose.runtime.key
+import com.sun.tools.javac.tree.TreeInfo.args
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
@@ -13,6 +15,8 @@ object ItemEditorLang {
         Translatable("${HiiroSakura.MOD_ID}.item_editor.$key", args = args)
 
     inline val title get() = Translatable("${HiiroSakura.MOD_ID}.item_editor")
+
+    inline val loading get() = lang("loading")
 
     inline val saveSuccess get() = lang("save_success")
 
@@ -33,6 +37,8 @@ object ItemEditorLang {
     inline val itemCount get() = lang("item_count")
 
     inline val addItemComponent get() = lang("add_item_component")
+
+    inline val dataComponents get() = lang("data_components")
 
     inline val adaptedComponent get() = lang("adapted_component")
 

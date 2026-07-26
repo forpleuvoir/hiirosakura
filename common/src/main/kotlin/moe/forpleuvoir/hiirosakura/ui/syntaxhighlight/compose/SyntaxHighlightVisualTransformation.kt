@@ -25,19 +25,9 @@ class SyntaxHighlightOutputTransformation(
     private val theme: SyntaxHighlightTheme,
 ) : OutputTransformation {
 
-    private var cachedText: String? = null
-    private var cachedResult: List<SyntaxHighlightSpan>? = null
-
     override fun TextFieldBuffer.transformOutput() {
         val raw = toString()
-        val spans = if (cachedText == raw) {
-            cachedResult ?: return
-        } else {
-            val result = SyntaxHighlighter.highlight(raw, language)
-            cachedText = raw
-            cachedResult = result
-            result
-        }
+        val spans = SyntaxHighlighter.highlight(raw, language)
         for (span in spans) {
             if (span.token == SyntaxToken.Error) {
                 val s = span.range.start.coerceIn(0, raw.length)
@@ -59,9 +49,11 @@ class SyntaxHighlightOutputTransformation(
  * 创建并缓存 [SyntaxHighlightOutputTransformation] 实例，适用于可编辑 TextField。
  *
  * 通过 [remember] 缓存 transformation 实例，切换语言或主题时自动重建。
+ * 传入 [text] 会在文本变化时重新创建实例，确保输入法组合输入时高亮也能正确更新。
  *
  * @param language 语法语言。
  * @param theme 高亮主题。
+ * @param text 当前文本，用于在文本变化时重新创建实例（如输入法组合输入场景）。
  * @return [OutputTransformation]，传给 [OutlinedTextField.outputTransformation] 或
  *   [BasicTextField] 的对应参数。
  */
@@ -69,6 +61,7 @@ class SyntaxHighlightOutputTransformation(
 fun rememberSyntaxHighlightTransformation(
     language: SyntaxLanguage,
     theme: SyntaxHighlightTheme,
-): OutputTransformation = remember(language.id, theme) {
+    text: String = "",
+): OutputTransformation = remember(language.id, theme, text) {
     SyntaxHighlightOutputTransformation(language, theme)
 }

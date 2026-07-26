@@ -14,7 +14,7 @@ class TestInitialization : ModInitialization {
         TestCommand.init()
         InputHandler.apply {
             register(Keyboard.KP_1) {
-                openItemBrowser()
+                testItemEditor()
             }
             register(
                 Keyboard.KP_2, defaultSetting = KeybindSetting(
@@ -30,14 +30,6 @@ class TestInitialization : ModInitialization {
             ) {
                 openItemMacherEditor()
             }
-            register(
-                Keyboard.KP_4, defaultSetting = KeybindSetting(
-                    env = KeyEnvironment.Any
-                )
-            ) {
-                openRadialMenuTest()
-            }
-
         }
     }
 }

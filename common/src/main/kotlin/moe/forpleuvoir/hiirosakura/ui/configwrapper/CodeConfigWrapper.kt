@@ -106,7 +106,7 @@ fun CodeConfigWrapper(
                                 fontFamily = FontFamily.Monospace,
                                 fontSize = 14.sp
                             ),
-                            outputTransformation = rememberSyntaxHighlightTransformation(language, SyntaxHighlightDefaults.theme()),
+                            outputTransformation = rememberSyntaxHighlightTransformation(language, SyntaxHighlightDefaults.theme(), state.text.toString()),
                             modifier = Modifier.fillMaxSize()
                                 .codeEditorShortcuts(state)
                         )

@@ -72,7 +72,7 @@ fun HSEventManagerUI(
                 },
                 modifier = Modifier.width(360.dp)
             )
-            Button(onClick = {
+            FilledTonalButton(onClick = {
                 editingSubscriber = -1
             }) {
                 Icon(Icons.NotificationAdd, contentDescription = "")

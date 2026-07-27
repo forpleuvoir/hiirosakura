@@ -12,9 +12,7 @@ import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
@@ -38,7 +37,7 @@ import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
-import moe.forpleuvoir.nebula.common.util.primitive.either
+import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
 import net.minecraft.locale.Language
 import net.minecraft.network.chat.Style
 import net.minecraft.resources.Identifier
@@ -50,6 +49,11 @@ private val logger = logger("ComponentWrapper:Base")
 
 object DataComponentEditorDefaults {
 
+    val entrySize: DpSize
+        @Composable @ReadOnlyComposable get() = LocalEntrySize.current
+
+
+    val LocalEntrySize = staticCompositionLocalOf { DpSize(320.dp, 64.dp) }
 
 }
 
@@ -170,10 +174,10 @@ fun DataComponentEntryRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         val style = LocalTextStyle.current.copy(
-            color = DataComponentWrappers.isAdaptedComponent(key).either(
-                MaterialTheme.colorScheme.primary,
-                MaterialTheme.colorScheme.error,
-            )
+            color = if (DataComponentWrappers.isAdaptedComponent(key))
+                moe.forpleuvoir.nebula.common.color.Color.fromHSV(195f / 360f, 1f, 1f).toComposeColor
+            else
+                moe.forpleuvoir.nebula.common.color.Color.fromHSV(5f / 360f, .6f, 1f).toComposeColor
         )
         ProvideTextStyle(style) {
             Text(key, modifier = Modifier.weight(1f, false).widthIn(max = 420.dp), overflow = TextOverflow.Ellipsis, maxLines = 1)

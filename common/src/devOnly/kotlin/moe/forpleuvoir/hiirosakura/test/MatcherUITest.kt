@@ -13,9 +13,10 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo.BlockInfoMatcherEditorDialog
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack.ItemStackMatcherEditorDialog
 import moe.forpleuvoir.ibukigourd.ui.openComposePopupScreen
+import moe.forpleuvoir.ibukigourd.ui.openComposeScreen
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 
-fun openBlockMacherEditor() = openComposePopupScreen {
+fun openBlockMacherEditor() = openComposeScreen {
     IbukiGourdTheme {
         var expanded by remember { mutableStateOf(true) }
         Box(contentAlignment = Alignment.Center) {
@@ -32,7 +33,7 @@ fun openBlockMacherEditor() = openComposePopupScreen {
 }
 
 
-fun openItemMacherEditor() = openComposePopupScreen {
+fun openItemMacherEditor() = openComposeScreen {
     IbukiGourdTheme {
         var expanded by remember { mutableStateOf(true) }
         Box(contentAlignment = Alignment.Center) {

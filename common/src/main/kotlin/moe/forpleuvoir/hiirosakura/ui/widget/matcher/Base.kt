@@ -21,8 +21,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,8 +50,10 @@ import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
 import moe.forpleuvoir.ibukigourd.ui.preset.state.isQuickAction
 import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberFabVisibilityByScroll
+import moe.forpleuvoir.ibukigourd.ui.preset.toAnnotatedString
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.network.chat.Component
@@ -260,33 +265,48 @@ internal fun CompositeMatcherModeSelector(
     mode: CompositeMatcher.MatchMode,
     onModeChange: (CompositeMatcher.MatchMode) -> Unit,
 ) {
-    SingleChoiceSegmentedButtonRow {
-        TipBox({ Text(CompositeMatcher.MatchMode.AllMatch.translateComment) }) {
+    val items = CompositeMatcher.MatchMode.entries
+    val textStyle = MaterialTheme.typography.labelLarge
+    val textMeasurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
+    val contentPadding = SegmentedButtonDefaults.ContentPadding
+
+    val maxTextWidth = items.maxOf { item ->
+        textMeasurer.measure(
+            text = item.translateText.toAnnotatedString(),
+            style = textStyle,
+            maxLines = 1,
+        ).size.width
+    }
+
+    val buttonWidth = with(density) {
+        maxTextWidth.toDp()
+    } + contentPadding.calculateStartPadding(layoutDirection) +
+            contentPadding.calculateEndPadding(layoutDirection) +
+            SegmentedButtonDefaults.IconSize +
+            8.dp // 图标与文本之间的间距
+
+    SingleChoiceSegmentedButtonRow(
+        modifier = Modifier.width(IntrinsicSize.Max),
+    ) {
+        items.forEachIndexed { index, item ->
             SegmentedButton(
-                selected = mode == CompositeMatcher.MatchMode.AllMatch,
-                onClick = { onModeChange(CompositeMatcher.MatchMode.AllMatch) },
-                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
-            ) {
-                Text(CompositeMatcher.MatchMode.AllMatch.translateText)
-            }
-        }
-        TipBox({ Text(CompositeMatcher.MatchMode.AnyMatch.translateComment) }) {
-            SegmentedButton(
-                selected = mode == CompositeMatcher.MatchMode.AnyMatch,
-                onClick = { onModeChange(CompositeMatcher.MatchMode.AnyMatch) },
-                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
-            ) {
-                Text(CompositeMatcher.MatchMode.AnyMatch.translateText)
-            }
-        }
-        TipBox({ Text(CompositeMatcher.MatchMode.NoneMatch.translateComment) }) {
-            SegmentedButton(
-                selected = mode == CompositeMatcher.MatchMode.NoneMatch,
-                onClick = { onModeChange(CompositeMatcher.MatchMode.NoneMatch) },
-                shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
-            ) {
-                Text(CompositeMatcher.MatchMode.NoneMatch.translateText)
-            }
+                selected = mode == item,
+                onClick = { onModeChange(item) },
+                shape = SegmentedButtonDefaults.itemShape(
+                    index = index,
+                    count = items.size,
+                ),
+                modifier = Modifier
+                    .width(buttonWidth)
+                    .plainTooltip {
+                        Text(item.translateComment)
+                    },
+                label = {
+                    Text(item.translateText, style = textStyle, maxLines = 1)
+                }
+            )
         }
     }
 }

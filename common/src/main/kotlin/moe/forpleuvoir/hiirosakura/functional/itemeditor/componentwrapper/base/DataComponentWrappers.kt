@@ -88,35 +88,36 @@ object DataComponentWrappers : Initializable {
     }
 
     override fun init() {
-//        //------------ Int ------------\\
-//        register(MAX_STACK_SIZE, { 64 }) { key, c, m, rm, consumer ->
-//            IntComponentWrapper(key, c, 1..Item.ABSOLUTE_MAX_STACK_SIZE, modifier = m, removeAction = rm, onValueChange = consumer)
-//        }
-//        register(MAX_DAMAGE, { 233 }) { key, c, m, rm, consumer ->
-//            IntComponentWrapper(key, c, 1..Int.MAX_VALUE, modifier = m, removeAction = rm, onValueChange = consumer)
-//        }
-//        register(DAMAGE, { 0 }) { key, c, m, rm, consumer ->
-//            IntComponentWrapper(key, c, 0..Int.MAX_VALUE, modifier = m, removeAction = rm, onValueChange = consumer)
-//        }
-//        register(REPAIR_COST, { 0 }) { key, c, m, rm, consumer ->
-//            IntComponentWrapper(key, c, 0..Int.MAX_VALUE, modifier = m, removeAction = rm, onValueChange = consumer)
-//        }
-//        register(OMINOUS_BOTTLE_AMPLIFIER, { OminousBottleAmplifier(0) }) { key, c, m, rm, consumer ->
-//            IntComponentWrapper(key, c.value(), 0..4, modifier = m, removeAction = rm, onValueChange = { value, changed ->
-//                consumer(OminousBottleAmplifier(value), changed)
-//            })
-//        }
-//        //------------ Float ------------\\
-//        register(POTION_DURATION_SCALE, { 1f }) { key, c, m, rm, consumer ->
-//            FloatComponentWrapper(key, c, 0f..Float.MAX_VALUE, modifier = m, removeAction = rm, onValueChange = consumer)
-//        }
-//        register(MINIMUM_ATTACK_CHARGE, { 1f }) { key, c, m, rm, consumer ->
-//            FloatComponentWrapper(key, c, 0f..1f, modifier = m, removeAction = rm, onValueChange = consumer)
-//        }
-//        //------------ Boolean ------------\\
-//        register(ENCHANTMENT_GLINT_OVERRIDE, { true }) { key, c, m, rm, consumer ->
-//            BooleanComponentWrapper(key, c, modifier = m, removeAction = rm, onValueChange = consumer)
-//        }
+        //region Int
+        register(MAX_STACK_SIZE, { Item.DEFAULT_MAX_STACK_SIZE }) { key, c, m, rm, onValueChange ->
+            IntComponentWrapper(key, c, onValueChange, 1..Item.ABSOLUTE_MAX_STACK_SIZE, modifier = m, removeAction = rm)
+        }
+        register(MAX_DAMAGE, { 233 }) { key, c, m, rm, onValueChange ->
+            IntComponentWrapper(key, c, onValueChange, 1..Int.MAX_VALUE, modifier = m, removeAction = rm)
+        }
+        register(DAMAGE, { 0 }) { key, c, m, rm, onValueChange ->
+            IntComponentWrapper(key, c, onValueChange, 1..Int.MAX_VALUE, modifier = m, removeAction = rm)
+        }
+        register(REPAIR_COST, { 0 }) { key, c, m, rm, onValueChange ->
+            IntComponentWrapper(key, c, onValueChange, 1..Int.MAX_VALUE, modifier = m, removeAction = rm)
+        }
+        register(OMINOUS_BOTTLE_AMPLIFIER, { OminousBottleAmplifier(0) }) { key, c, m, rm, onValueChange ->
+            IntComponentWrapper(key, c.value(), { onValueChange(OminousBottleAmplifier(it)) }, 1..Int.MAX_VALUE, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Float
+        register(POTION_DURATION_SCALE, { 1f }) { key, c, m, rm, onValueChange ->
+            FloatComponentWrapper(key, c, onValueChange, 0f..Float.MAX_VALUE, modifier = m, removeAction = rm)
+        }
+        register(MINIMUM_ATTACK_CHARGE, { 1f }) { key, c, m, rm, onValueChange ->
+            FloatComponentWrapper(key, c, onValueChange, 0f..1f, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Boolean
+        register(ENCHANTMENT_GLINT_OVERRIDE, { true }) { key, c, m, rm, onValueChange ->
+            BooleanComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
 //        //------------ Text ------------\\
 //        register(CUSTOM_NAME, { Literal("custom_name") }) { key, c, m, rm, consumer ->
 //            TextComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)

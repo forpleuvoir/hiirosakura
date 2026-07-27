@@ -29,4 +29,6 @@ object HSLang {
     val ItemStackMatcher = ItemStackMatcherLang
 
     val BlockInfoMatcher = BlockInfoMatcherLang
+
+    val TextEditor = TextEditorLang
 }

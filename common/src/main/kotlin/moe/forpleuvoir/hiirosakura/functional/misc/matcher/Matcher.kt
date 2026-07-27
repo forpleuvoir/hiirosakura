@@ -55,6 +55,11 @@ interface CompositeMatcher<T> : Matcher<T> {
 
     enum class MatchMode {
         /**
+         *  此模式通常用于需要确保全部条件均满足的场景。例如，当需要验证某个集合中所有元素都满足给定规则时，可采用此模式。
+         */
+        AllMatch,
+
+        /**
          *
          * 在任意匹配模式下，只要存在一个匹配项符合条件，则整个匹配规则被视为通过。
          * 该模式常用于需要满足至少一个条件即可的场景。
@@ -66,12 +71,8 @@ interface CompositeMatcher<T> : Matcher<T> {
          * 当且仅当所有匹配项均不符合指定规则时，匹配才成功。
          * 适用于需要确保没有一项符合条件的场景，例如检测某集合中是否不存在特定属性或值。
          */
-        NoneMatch,
+        NoneMatch;
 
-        /**
-         *  此模式通常用于需要确保全部条件均满足的场景。例如，当需要验证某个集合中所有元素都满足给定规则时，可采用此模式。
-         */
-        AllMatch;
 
         companion object : Codec<MatchMode> by Codec.enum()
 

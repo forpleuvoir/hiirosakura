@@ -85,7 +85,6 @@ fun HSEventManagerUI(
         Spacer(Modifier.height(12.dp))
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             if (HSEventManager.subscribers.isEmpty()) {
-
                 Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 val lazyListState = rememberLazyListState()

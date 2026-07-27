@@ -46,7 +46,7 @@ object EnchatmentHelper {
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnchatmentSelector(
     selected: Holder<Enchantment>,
@@ -56,7 +56,7 @@ fun EnchatmentSelector(
     content: @Composable (Holder<Enchantment>) -> Unit = {
         Text(EnchatmentHelper.enchantmentDescription(it))
     },
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
+    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (Holder<Enchantment>, Boolean) -> Unit = { item, _ ->
         Text(EnchatmentHelper.enchantmentDescription(item))

@@ -321,18 +321,16 @@ internal fun TestButton(
     failedMsg: String,
     test: () -> Boolean
 ) {
-    TipBox({
+    IconButton({
+        if (test()) {
+            showSuccessToast(successMsg)
+        } else {
+            showErrorToast(failedMsg)
+        }
+    }, modifier = Modifier.plainTooltip {
         Text(tip)
     }) {
-        IconButton({
-            if (test()) {
-                showSuccessToast(successMsg)
-            } else {
-                showErrorToast(failedMsg)
-            }
-        }) {
-            Icon(Icons.PlayArrow, null)
-        }
+        Icon(Icons.PlayArrow, null)
     }
 }
 

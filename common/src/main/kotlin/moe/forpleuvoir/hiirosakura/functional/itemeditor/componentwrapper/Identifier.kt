@@ -1,0 +1,123 @@
+package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldLabelPosition
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
+import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
+import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import net.minecraft.resources.Identifier
+
+@Composable
+fun IdentifierComponentWrapper(
+    key: Identifier,
+    value: Identifier,
+    onValueChange: (Identifier) -> Unit,
+    removeAction: () -> Unit,
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
+    Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
+        var showDialog by remember { mutableStateOf(false) }
+        AssistChip(
+            {},
+            modifier = Modifier.fillMaxHeight().width(DataComponentEditorDefaults.entrySize.width),
+            label = {
+                Text(value, overflow = TextOverflow.Ellipsis, maxLines = 1)
+            },
+            trailingIcon = {
+                IconButton(onClick = { showDialog = true }) {
+                    Icon(Icons.EditNote, null)
+                }
+            }
+        )
+
+        if (showDialog) {
+            val namespace = rememberTextFieldState(value.namespace)
+            val path = rememberTextFieldState(value.path)
+
+            val checkNamespace: Boolean = Identifier.isValidNamespace(namespace.text.toString())
+            val checkPath: Boolean = Identifier.isValidPath(path.text.toString())
+
+            SimpleAlertDialog(
+                onDismissRequest = { showDialog = false },
+                onConfirmRequest = { true },
+                title = { Text(key) },
+                content = {
+                    Column {
+                        OutlinedTextField(
+                            namespace,
+                            labelPosition = TextFieldLabelPosition.Attached(true),
+                            label = {
+                                Row {
+                                    Text("namespace")
+                                    if (!checkNamespace) {
+                                        Spacer(Modifier.width(8.dp))
+                                        Text("Non [a-z0-9_.-] character in namespace of location")
+                                    }
+                                }
+                            },
+                            isError = !checkNamespace,
+                            modifier = Modifier.fillMaxWidth().height(68.dp),
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedTextField(
+                            path,
+                            labelPosition = TextFieldLabelPosition.Attached(true),
+                            label = {
+                                Row {
+                                    Text("path")
+                                    if (!checkPath) {
+                                        Spacer(Modifier.width(8.dp))
+                                        Text("Non [a-z0-9/._-] character in path of location")
+                                    }
+                                }
+                            },
+                            isError = !checkPath,
+                            modifier = Modifier.fillMaxWidth().height(68.dp),
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        if (checkNamespace && checkPath) {
+                            onValueChange(Identifier.fromNamespaceAndPath(namespace.text.toString(), path.text.toString()))
+                        }
+                    }, enabled = checkNamespace && checkPath) {
+                        Text(IGLang.Misc.confirm)
+                    }
+                }
+            )
+        }
+    }
+}

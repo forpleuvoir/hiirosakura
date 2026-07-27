@@ -2,6 +2,7 @@ package moe.forpleuvoir.hiirosakura.util
 
 import com.mojang.blaze3d.vertex.PoseStack
 import kotlinx.coroutines.delay
+import kotlinx.serialization.descriptors.PrimitiveKind
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.ibukigourd.render.pose
 import moe.forpleuvoir.ibukigourd.text.Literal
@@ -44,15 +45,19 @@ fun PoseStack.clearRotation(): PoseStack {
     return newPose
 }
 
-fun Identifier.asTranslateText(prefix: String? = null, suffix: String? = null): MutableText {
+fun Identifier.asTranslateKey(prefix: String? = null, suffix: String? = null): String {
     return if (prefix != null && suffix != null)
-        Translatable(this.toLanguageKey(prefix, suffix), this.toString())
+        this.toLanguageKey(prefix, suffix)
     else if (prefix != null)
-        Translatable(this.toLanguageKey(prefix), this.toString())
+        this.toLanguageKey(prefix)
     else if (suffix != null)
-        Translatable(this.toLanguageKey(suffix), this.toString())
+        this.toLanguageKey(suffix)
     else
-        Translatable(this.toLanguageKey(), this.toString())
+        this.toLanguageKey()
+}
+
+fun Identifier.asTranslateText(prefix: String? = null, suffix: String? = null): MutableText {
+    return Translatable(asTranslateKey(prefix, suffix), this.toString())
 }
 
 fun Identifier.asText(): MutableText = Literal(this.toString())

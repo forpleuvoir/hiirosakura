@@ -1,6 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor
 
 import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,6 +20,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.isActive
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrappers
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrappers.DataComponentWrapper
@@ -32,8 +36,10 @@ import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import moe.forpleuvoir.ibukigourd.ui.skia.LocalSkiaSurface
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.core.Holder
@@ -54,7 +60,7 @@ fun ItemStackEditor(
 ) {
     var editingItem by remember { mutableStateOf(value) }
     FlexibleDialog(
-        modifier = modifier.padding(24.dp).size(1200.dp, 900.dp),
+        modifier = modifier.padding(24.dp).size(1300.dp, 900.dp),
         onDismissRequest = onDismissRequest,
         onConfirmRequest = {
             onValueChange(editingItem)
@@ -80,10 +86,10 @@ fun ItemStackEditor(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                ItemType(item, { item = it }, modifier = Modifier.height(58.dp).weight(1f))
-                ItemCount(count, { count = it }, dataComponents.maxCount, modifier = Modifier.height(66.5.dp).weight(1f))
                 ItemPreview(editingItem, modifier = Modifier.height(58.dp).weight(1f))
-                ComponentAdder(dataComponents, modifier = Modifier.height(66.5.dp).weight(2.2f))
+                ItemType(item, { item = it }, modifier = Modifier.height(58.dp).weight(1f))
+                ItemCount(count, { count = it }, dataComponents.maxCount, modifier = Modifier.height(66.5.dp).weight(0.5f))
+                ComponentAdder(dataComponents, modifier = Modifier.height(66.5.dp).weight(1.75f))
             }
             Spacer(Modifier.height(12.dp))
             Components(dataComponents)
@@ -99,7 +105,7 @@ private fun ItemType(
 ) = OutlinedLabelBox(
     modifier = modifier,
     label = { Text(HSLang.ItemEditor.itemType) },
-    contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 8.dp),
+    contentPadding = PaddingValues(16.dp, 8.dp, 8.dp, 8.dp),
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -108,7 +114,7 @@ private fun ItemType(
 
         ItemIcon(ItemStack(value), modifier = Modifier, showTooltip = false, scaleOnHover = 1f)
         Spacer(Modifier.width(8.dp))
-        Text(value.value().name, modifier = Modifier.weight(1f))
+        Text(value.value().name, modifier = Modifier.weight(1f), overflow = TextOverflow.Ellipsis, maxLines = 1)
         Spacer(Modifier.width(8.dp))
         IconButton(onClick = { showDialog = true }) {
             Icon(Icons.EditNote, null)
@@ -164,26 +170,48 @@ fun ItemCount(
 fun ItemPreview(
     value: ItemStack,
     modifier: Modifier = Modifier
-) = OutlinedLabelBox(
-    modifier = modifier,
-    label = { Text(HSLang.ItemEditor.itemPreview) },
 ) {
-    Row {
-        ItemIcon(
-            value,
-            modifier = Modifier,
-            showCount = true,
-            showTooltip = true,
-            scaleOnHover = 1f,
-            countAlignment = BiasAlignment(0.75f, 0.95f),
-            countStyle = TextStyle(
-                color = Colors.WHITE.toComposeColor,
-                fontSize = 14.sp,
-                shadow = Shadow(Colors.BLACK.alpha(0.5f).toComposeColor, Offset(3f, 3f), blurRadius = 1f)
+    val interactionSource = remember { MutableInteractionSource() }
+    val hovered by interactionSource.collectIsHoveredAsState()
+    val surface = LocalSkiaSurface.current
+    LaunchedEffect(value) {
+        while (isActive) {
+            withFrameNanos {
+                if (hovered)
+                    surface.postRender {
+                        val guiScale = mc.window.guiScale.toFloat()
+                        val density = 1f / guiScale
+                        val mouseX = (mc.mouseHandler.xpos() * density).toInt()
+                        val mouseY = (mc.mouseHandler.ypos() * density).toInt()
+                        setTooltipForNextFrame(mc.font, value, mouseX, mouseY)
+                    }
+            }
+        }
+    }
+
+    OutlinedLabelBox(
+        modifier = modifier.hoverable(interactionSource),
+        label = { Text(HSLang.ItemEditor.itemPreview) },
+        contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 8.dp),
+    ) {
+
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxHeight()) {
+            ItemIcon(
+                value,
+                modifier = Modifier,
+                showCount = true,
+                showTooltip = false,
+                scaleOnHover = 1f,
+                countAlignment = BiasAlignment(0.75f, 0.95f),
+                countStyle = TextStyle(
+                    color = Colors.WHITE.toComposeColor,
+                    fontSize = 14.sp,
+                    shadow = Shadow(Colors.BLACK.alpha(0.5f).toComposeColor, Offset(3f, 3f), blurRadius = 1f)
+                )
             )
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(value.hoverName)
+            Spacer(Modifier.width(8.dp))
+            Text(value.hoverName, overflow = TextOverflow.Ellipsis, maxLines = 1)
+        }
     }
 }
 

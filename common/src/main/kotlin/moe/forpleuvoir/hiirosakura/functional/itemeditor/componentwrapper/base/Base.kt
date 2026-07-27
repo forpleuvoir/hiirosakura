@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.util.asTranslateKey
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.hiirosakura.util.logger
@@ -60,6 +61,9 @@ object DataComponentEditorDefaults {
 @Composable
 fun Text(
     identifier: Identifier,
+    prefix: String? = null,
+    suffix: String? = null,
+    fallback: String? = null,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
     autoSize: TextAutoSize? = null,
@@ -79,8 +83,9 @@ fun Text(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
 ) {
-    val text = identifier.asTranslateText()
-    val commentKey = "${identifier.toLanguageKey()}.comment"
+    val key = identifier.asTranslateKey(prefix, suffix)
+    val text = Translatable(key, fallback ?: identifier.toString())
+    val commentKey = "$key.comment"
     if (Language.getInstance().has(commentKey)) {
         modifier.plainTooltip {
             Text(Translatable(commentKey))
@@ -108,44 +113,6 @@ fun Text(
         style,
     )
 }
-
-@Composable
-fun IdentifierText(
-    key: Identifier,
-    style: Style? = Style.EMPTY,
-    modifier: Modifier = Modifier,
-) {
-    val text = key.asTranslateText().apply {
-        if (style != null) setStyle(style)
-    }
-    val commentKey = "${key.toLanguageKey()}.comment"
-    if (Language.getInstance().has(commentKey)) {
-        modifier.plainTooltip {
-            Text(Translatable(commentKey))
-        }
-    }
-    return Text(text, modifier)
-}
-
-@Composable
-fun <C : Any> DataComponentEditor(
-    newComponent: () -> C,
-    onValueChange: (C) -> Unit,
-    title: @Composable () -> Unit,
-    onDismissRequest: () -> Unit,
-    onConfirm: () -> Boolean = { true },
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) = FlexibleDialog(
-    modifier = modifier,
-    onDismissRequest = onDismissRequest,
-    title = title,
-    onConfirmRequest = {
-        onValueChange(newComponent())
-        true
-    },
-    content = content
-)
 
 @Composable
 fun DataComponentEntryRow(

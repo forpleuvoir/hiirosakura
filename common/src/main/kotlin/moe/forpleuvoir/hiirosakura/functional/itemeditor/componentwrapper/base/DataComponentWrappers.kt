@@ -6,13 +6,18 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.*
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
 import moe.forpleuvoir.hiirosakura.util.logger
+import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.nebula.common.api.Initializable
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents.*
 import net.minecraft.resources.Identifier
-import net.minecraft.world.item.*
-import net.minecraft.world.item.component.*
-import java.util.*
+import net.minecraft.world.food.Foods
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Rarity
+import net.minecraft.world.item.component.ItemLore
+import net.minecraft.world.item.component.OminousBottleAmplifier
+import net.minecraft.world.item.enchantment.Enchantable
+import net.minecraft.world.item.enchantment.ItemEnchantments
 
 fun interface DataComponentWrapper<C> {
     @Composable
@@ -104,6 +109,9 @@ object DataComponentWrappers : Initializable {
         register(OMINOUS_BOTTLE_AMPLIFIER, { OminousBottleAmplifier(0) }) { key, c, m, rm, onValueChange ->
             IntComponentWrapper(key, c.value(), { onValueChange(OminousBottleAmplifier(it)) }, 1..Int.MAX_VALUE, modifier = m, removeAction = rm)
         }
+        register(ENCHANTABLE, { Enchantable(15) }) { key, c, m, rm, onValueChange ->
+            IntComponentWrapper(key, c.value, { onValueChange(Enchantable(it)) }, 1..Int.MAX_VALUE, modifier = m, removeAction = rm)
+        }
         //endregion
         //region Float
         register(POTION_DURATION_SCALE, { 1f }) { key, c, m, rm, onValueChange ->
@@ -118,59 +126,63 @@ object DataComponentWrappers : Initializable {
             BooleanComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
         }
         //endregion
-//        //------------ Text ------------\\
-//        register(CUSTOM_NAME, { Literal("custom_name") }) { key, c, m, rm, consumer ->
-//            TextComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        register(ITEM_NAME, { Literal("item_name") }) { key, c, m, rm, consumer ->
-//            TextComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------ Identifier ------------\\
-//        register(ITEM_MODEL, { Identifier.parse("minecraft:item_model") }) { key, c, m, rm, consumer ->
-//            IdentifierComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        register(TOOLTIP_STYLE, { Identifier.parse("minecraft:tooltip_style") }) { key, c, m, rm, consumer ->
-//            IdentifierComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        register(NOTE_BLOCK_SOUND, { Identifier.parse("minecraft:note_block_sound") }) { key, c, m, rm, consumer ->
-//            IdentifierComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------ Lore ------------\\
-//        register(LORE, { ItemLore.EMPTY }) { key, c, m, rm, consumer ->
-//            LoreComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------ Enum ------------\\
-//        register(RARITY, { Rarity.COMMON }) { key, c, m, rm, consumer ->
-//            EnumComponentWrapper(key, c, modifier = m, removeAction = rm, onValueChange = consumer)
-//        }
-//        //------------ ItemEnchantments ------------\\
-//        register(ENCHANTMENTS, { ItemEnchantments.EMPTY }) { key, c, m, rm, consumer ->
-//            ItemEnchantmentsComponentWrapper(key, c, modifier = m, removeAction = rm, onValueChange = consumer)
-//        }
-//        register(STORED_ENCHANTMENTS, { ItemEnchantments.EMPTY }) { key, c, m, rm, consumer ->
-//            ItemEnchantmentsComponentWrapper(key, c, modifier = m, removeAction = rm, onValueChange = consumer)
-//        }
-//        //------------ EnchantableComponent ------------\\
-//        register(ENCHANTABLE, { Enchantable(15) }) { key, c, m, rm, consumer ->
-//            EnchantableComponentWrapper(key, c, modifier = m, removeAction = rm, onValueChange = consumer)
-//        }
-//        //------------  Unit ------------\\
-//        register(UNBREAKABLE, { net.minecraft.util.Unit.INSTANCE }) { key, _, m, rm, _ ->
-//            UnitComponentWrapper(key, modifier = m, removeAction = rm)
-//        }
-//        register(CREATIVE_SLOT_LOCK, { net.minecraft.util.Unit.INSTANCE }) { key, _, m, rm, _ ->
-//            UnitComponentWrapper(key, modifier = m, removeAction = rm)
-//        }
-//        register(INTANGIBLE_PROJECTILE, { net.minecraft.util.Unit.INSTANCE }) { key, _, m, rm, _ ->
-//            UnitComponentWrapper(key, modifier = m, removeAction = rm)
-//        }
-//        register(GLIDER, { net.minecraft.util.Unit.INSTANCE }) { key, _, m, rm, _ ->
-//            UnitComponentWrapper(key, modifier = m, removeAction = rm)
-//        }
-//        //------------ Food ------------\\
-//        register(FOOD, { Foods.MELON_SLICE }) { key, c, m, rm, consumer ->
-//            FoodComponentWrapper(key, c, modifier = m, removeAction = rm, onValueChange = consumer)
-//        }
+        //region Text
+        register(CUSTOM_NAME, { Literal("custom_name") }) { key, c, m, rm, onValueChange ->
+            TextComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        register(ITEM_NAME, { Literal("item_name") }) { key, c, m, rm, onValueChange ->
+            TextComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Lore
+        register(LORE, { ItemLore.EMPTY }) { key, c, m, rm, onValueChange ->
+            ItemLoreComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Identifier
+        register(ITEM_MODEL, { Identifier.parse("minecraft:item_model") }) { key, c, m, rm, onValueChange ->
+            IdentifierComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        register(TOOLTIP_STYLE, { Identifier.parse("minecraft:tooltip_style") }) { key, c, m, rm, onValueChange ->
+            IdentifierComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        register(NOTE_BLOCK_SOUND, { Identifier.parse("minecraft:note_block_sound") }) { key, c, m, rm, onValueChange ->
+            IdentifierComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Enum
+        register(RARITY, { Rarity.COMMON }) { key, c, m, rm, onValueChange ->
+            EnumComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region ItemEnchantments
+        register(ENCHANTMENTS, { ItemEnchantments.EMPTY }) { key, c, m, rm, onValueChange ->
+            ItemEnchantmentsComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        register(STORED_ENCHANTMENTS, { ItemEnchantments.EMPTY }) { key, c, m, rm, onValueChange ->
+            ItemEnchantmentsComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Unit
+        register(UNBREAKABLE, { net.minecraft.util.Unit.INSTANCE }) { key, _, m, rm, _ ->
+            UnitComponentWrapper(key, rm, modifier = m)
+        }
+        register(CREATIVE_SLOT_LOCK, { net.minecraft.util.Unit.INSTANCE }) { key, _, m, rm, _ ->
+            UnitComponentWrapper(key, rm, modifier = m)
+        }
+        register(INTANGIBLE_PROJECTILE, { net.minecraft.util.Unit.INSTANCE }) { key, _, m, rm, _ ->
+            UnitComponentWrapper(key, rm, modifier = m)
+        }
+        register(GLIDER, { net.minecraft.util.Unit.INSTANCE }) { key, _, m, rm, _ ->
+            UnitComponentWrapper(key, rm, modifier = m)
+        }
+        //endregion
+        //region Food
+        register(FOOD, { Foods.MELON_SLICE }) { key, c, m, rm, onValueChange ->
+            FoodComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+
 //        //------------ Attribute Modifiers ------------\\
 //        register(ATTRIBUTE_MODIFIERS, { ItemAttributeModifiers.EMPTY }) { key, c, m, rm, consumer ->
 //            AttributeModifiersComponentWrapper(key, c, modifier = m, removeAction = rm, onValueChange = consumer)

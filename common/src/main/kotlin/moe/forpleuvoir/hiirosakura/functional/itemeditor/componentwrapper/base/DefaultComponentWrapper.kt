@@ -1,6 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -29,13 +32,13 @@ fun <C : Any> DefaultComponentWrapper(
 ) {
     DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
         var showEditDialog by remember { mutableStateOf(false) }
-        IconButton({
-            showEditDialog = true
-        }) {
-            Icon(Icons.EditNote, null)
-        }
-        if(showEditDialog) {
-            //TODO 实现通用的编辑器
+        Box(Modifier.height(DataComponentEditorDefaults.entrySize.height), contentAlignment = Alignment.CenterEnd) {
+            IconButton({ showEditDialog = true }) {
+                Icon(Icons.EditNote, null)
+            }
+            if (showEditDialog) {
+                //TODO 实现通用的编辑器
+            }
         }
     }
 }

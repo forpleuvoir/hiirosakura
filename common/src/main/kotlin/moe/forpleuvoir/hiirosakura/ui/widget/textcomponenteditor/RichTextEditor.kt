@@ -75,7 +75,7 @@ fun RichTextEditor(
                     }
                 }
                 Spacer(
-                    modifier
+                    Modifier
                         .fillMaxSize()
                         .onGloballyPositioned { area = it.rectInMcWindow() }
                 )

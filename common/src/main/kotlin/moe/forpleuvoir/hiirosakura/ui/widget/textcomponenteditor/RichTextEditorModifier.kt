@@ -54,7 +54,8 @@ fun SliceStyle.toSpanStyle(): SpanStyle = SpanStyle(
     shadow = when (val s = shadowColor) {
         is StyleProperty.Set -> androidx.compose.ui.graphics.Shadow(
             color = Color(s.value.argb),
-            blurRadius = 0f,
+            offset = androidx.compose.ui.geometry.Offset(1f, 1f),
+            blurRadius = 1f,
         )
         else -> null
     },

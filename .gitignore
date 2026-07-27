@@ -12,6 +12,7 @@ server_run
 .lingma
 .vscode
 fabric/runs
+neoforge/runs
 modJar
 out
 .*/

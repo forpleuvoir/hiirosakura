@@ -26,6 +26,7 @@ import moe.forpleuvoir.nebula.common.color.Colors
 @Composable
 fun RichTextEditor(
     state: RichTextEditorState = remember { RichTextEditorState() },
+    enabledPreviewRender: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
@@ -58,8 +59,8 @@ fun RichTextEditor(
             ) {
                 var area by remember { mutableStateOf<Rect?>(null) }
                 val surface = LocalSkiaSurface.current
-                LaunchedEffect(surface) {
-                    while (isActive) {
+                LaunchedEffect(surface, enabledPreviewRender) {
+                    while (isActive && enabledPreviewRender) {
                         withFrameNanos {
                             area ?: return@withFrameNanos
                             surface.postRender {

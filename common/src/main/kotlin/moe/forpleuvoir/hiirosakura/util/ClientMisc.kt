@@ -56,8 +56,8 @@ fun Identifier.asTranslateKey(prefix: String? = null, suffix: String? = null): S
         this.toLanguageKey()
 }
 
-fun Identifier.asTranslateText(prefix: String? = null, suffix: String? = null): MutableText {
-    return Translatable(asTranslateKey(prefix, suffix), this.toString())
+fun Identifier.asTranslateText(prefix: String? = null, suffix: String? = null, fallback: String? = null): MutableText {
+    return Translatable(asTranslateKey(prefix, suffix), fallback ?: this.toString())
 }
 
 fun Identifier.asText(): MutableText = Literal(this.toString())

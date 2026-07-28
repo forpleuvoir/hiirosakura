@@ -8,16 +8,19 @@ import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.nebula.common.api.Initializable
+import net.minecraft.core.HolderSet
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents.*
 import net.minecraft.resources.Identifier
+import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.food.Foods
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Rarity
-import net.minecraft.world.item.component.ItemLore
-import net.minecraft.world.item.component.OminousBottleAmplifier
+import net.minecraft.world.item.component.*
 import net.minecraft.world.item.enchantment.Enchantable
 import net.minecraft.world.item.enchantment.ItemEnchantments
+import net.minecraft.world.item.enchantment.Repairable
+import net.minecraft.world.level.block.entity.BannerPatternLayers
 
 fun interface DataComponentWrapper<C> {
     @Composable
@@ -182,23 +185,31 @@ object DataComponentWrappers : Initializable {
             FoodComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
         }
         //endregion
-
-//        //------------ Attribute Modifiers ------------\\
-//        register(ATTRIBUTE_MODIFIERS, { ItemAttributeModifiers.EMPTY }) { key, c, m, rm, consumer ->
-//            AttributeModifiersComponentWrapper(key, c, modifier = m, removeAction = rm, onValueChange = consumer)
-//        }
-//        //------------ Break Sound ------------\\
-//        register(BREAK_SOUND, { SoundEvents.ITEM_BREAK }) { key, c, m, rm, consumer ->
-//            BreakSoundComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------ Tooltip Display ------------\\
-//        register(TOOLTIP_DISPLAY, { TooltipDisplay.DEFAULT }) { key, c, m, rm, consumer ->
-//            TooltipDisplayComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------ Banner Pattern ------------\\
-//        register(BANNER_PATTERNS, { BannerPatternLayers.EMPTY }) { key, c, m, rm, consumer ->
-//            BannerPatternComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
+        //region Attribute Modifiers
+        register(ATTRIBUTE_MODIFIERS, { ItemAttributeModifiers.EMPTY }) { key, c, m, rm, onValueChange ->
+            AttributeModifiersComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Break Sound
+        register(BREAK_SOUND, { SoundEvents.ITEM_BREAK }) { key, c, m, rm, onValueChange ->
+            BreakSoundComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Tooltip Display
+        register(TOOLTIP_DISPLAY, { TooltipDisplay.DEFAULT }) { key, c, m, rm, onValueChange ->
+            TooltipDisplayComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Banner Pattern
+        register(BANNER_PATTERNS, { BannerPatternLayers.EMPTY }) { key, c, m, rm, onValueChange ->
+            BannerPatternComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Damage Resistant
+        register(DAMAGE_RESISTANT, { DamageResistant(HolderSet.empty()) }) { key, c, m, rm, onValueChange ->
+            DamageResistantComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
 //        //------------ DamageResistant ------------\\
 //        register(DAMAGE_RESISTANT, { DamageResistant(DamageTypeTags.IS_FIRE) }) { key, c, m, rm, consumer ->
 //            DamageResistantComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
@@ -207,6 +218,11 @@ object DataComponentWrappers : Initializable {
 //        register(EQUIPPABLE, { Items.SADDLE.components().get(EQUIPPABLE) ?: Equippable.harness(DyeColor.PINK) }) { key, c, m, rm, consumer ->
 //            EquippableComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
 //        }
+        //region Repairable
+        register(REPAIRABLE, { Repairable(HolderSet.empty()) }) { key, c, m, rm, onValueChange ->
+            RepairableComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
 //        //------------ Repairable ------------\\
 //        register(REPAIRABLE, { Repairable(HolderSet.empty()) }) { key, c, m, rm, consumer ->
 //            RepairableComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)

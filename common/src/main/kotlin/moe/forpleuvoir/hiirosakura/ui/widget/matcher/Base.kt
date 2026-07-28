@@ -8,7 +8,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.*
@@ -18,14 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,21 +27,18 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
 import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
 import moe.forpleuvoir.hiirosakura.ui.icon.default.PlayArrow
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JexlSyntaxLanguage
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JsonSyntaxLanguage
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
+import moe.forpleuvoir.hiirosakura.ui.util.rememberSegmentedButtonWidth
 import moe.forpleuvoir.hiirosakura.ui.util.showErrorToast
 import moe.forpleuvoir.hiirosakura.ui.util.showSuccessToast
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateComment
 import moe.forpleuvoir.ibukigourd.text.translateText
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ListConfigWrapperDefaults.MoveColumn
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.default.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
 import moe.forpleuvoir.ibukigourd.ui.preset.state.isQuickAction
@@ -239,23 +229,32 @@ internal fun MatchEntryModeSelector(
     onModeChange: (MatchEntry.MatchMode) -> Unit,
 ) {
     SingleChoiceSegmentedButtonRow {
-        TipBox({ Text(MatchEntry.MatchMode.Include.translateComment) }) {
-            SegmentedButton(
-                selected = mode == MatchEntry.MatchMode.Include,
-                onClick = { onModeChange(MatchEntry.MatchMode.Include) },
-                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-            ) {
-                Text(MatchEntry.MatchMode.Include.translateText)
+        val width = rememberSegmentedButtonWidth(
+            items = listOf(
+                MatchEntry.MatchMode.Include.translateText,
+                MatchEntry.MatchMode.Exclude.translateText
+            ),
+            textStyle = MaterialTheme.typography.labelLarge,
+        ) { it.toAnnotatedString() }
+        SegmentedButton(
+            selected = mode == MatchEntry.MatchMode.Include,
+            onClick = { onModeChange(MatchEntry.MatchMode.Include) },
+            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+            modifier = Modifier.width(width).plainTooltip {
+                Text(MatchEntry.MatchMode.Include.translateComment)
             }
+        ) {
+            Text(MatchEntry.MatchMode.Include.translateText)
         }
-        TipBox({ Text(MatchEntry.MatchMode.Exclude.translateComment) }) {
-            SegmentedButton(
-                selected = mode == MatchEntry.MatchMode.Exclude,
-                onClick = { onModeChange(MatchEntry.MatchMode.Exclude) },
-                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-            ) {
-                Text(MatchEntry.MatchMode.Exclude.translateText)
+        SegmentedButton(
+            selected = mode == MatchEntry.MatchMode.Exclude,
+            onClick = { onModeChange(MatchEntry.MatchMode.Exclude) },
+            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+            modifier = Modifier.width(width).plainTooltip {
+                Text(MatchEntry.MatchMode.Exclude.translateComment)
             }
+        ) {
+            Text(MatchEntry.MatchMode.Exclude.translateText)
         }
     }
 }
@@ -267,25 +266,12 @@ internal fun CompositeMatcherModeSelector(
 ) {
     val items = CompositeMatcher.MatchMode.entries
     val textStyle = MaterialTheme.typography.labelLarge
-    val textMeasurer = rememberTextMeasurer()
-    val density = LocalDensity.current
-    val layoutDirection = LocalLayoutDirection.current
-    val contentPadding = SegmentedButtonDefaults.ContentPadding
-
-    val maxTextWidth = items.maxOf { item ->
-        textMeasurer.measure(
-            text = item.translateText.toAnnotatedString(),
-            style = textStyle,
-            maxLines = 1,
-        ).size.width
+    val width = rememberSegmentedButtonWidth(
+        items = items,
+        textStyle = textStyle,
+    ) {
+        it.translateText.toAnnotatedString()
     }
-
-    val buttonWidth = with(density) {
-        maxTextWidth.toDp()
-    } + contentPadding.calculateStartPadding(layoutDirection) +
-            contentPadding.calculateEndPadding(layoutDirection) +
-            SegmentedButtonDefaults.IconSize +
-            8.dp // 图标与文本之间的间距
 
     SingleChoiceSegmentedButtonRow(
         modifier = Modifier.width(IntrinsicSize.Max),
@@ -299,7 +285,7 @@ internal fun CompositeMatcherModeSelector(
                     count = items.size,
                 ),
                 modifier = Modifier
-                    .width(buttonWidth)
+                    .width(width)
                     .plainTooltip {
                         Text(item.translateComment)
                     },

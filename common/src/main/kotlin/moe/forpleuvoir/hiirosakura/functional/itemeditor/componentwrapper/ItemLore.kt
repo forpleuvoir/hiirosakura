@@ -23,6 +23,7 @@ import kotlinx.coroutines.isActive
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
+import moe.forpleuvoir.hiirosakura.ui.modifier.vanillaTooltip
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.ibukigourd.text.plainText
@@ -63,29 +64,12 @@ fun ItemLoreComponentWrapper(
     Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
         var showDialog by remember { mutableStateOf(false) }
 
-        val interactionSource = remember { MutableInteractionSource() }
-        val hovered by interactionSource.collectIsHoveredAsState()
-        val surface = LocalSkiaSurface.current
-        LaunchedEffect(value) {
-            while (isActive) {
-                withFrameNanos {
-                    if (hovered)
-                        surface.postRender {
-                            val guiScale = mc.window.guiScale.toFloat()
-                            val density = 1f / guiScale
-                            val mouseX = (mc.mouseHandler.xpos() * density).toInt()
-                            val mouseY = (mc.mouseHandler.ypos() * density).toInt()
-                            setTooltipForNextFrame(value.styledLines.map { it.visualOrderText }, mouseX, mouseY)
-                        }
-                }
-            }
-        }
         AssistChip(
             {},
             modifier = Modifier
                 .fillMaxHeight()
                 .width(DataComponentEditorDefaults.entrySize.width)
-                .hoverable(interactionSource),
+                .vanillaTooltip(value.styledLines),
             label = {
                 Text(IGLang.ConfigWrapper.listConfigWrapperText(value.styledLines().size), overflow = TextOverflow.Ellipsis, maxLines = 1)
             },

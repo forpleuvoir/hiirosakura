@@ -1,8 +1,5 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
-import androidx.compose.foundation.hoverable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,6 +16,7 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
+import moe.forpleuvoir.hiirosakura.ui.modifier.vanillaTooltip
 import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.RichTextEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.RichTextEditorState
@@ -32,7 +30,6 @@ import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.state.isQuickAction
 import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberTextFieldState
 import moe.forpleuvoir.ibukigourd.ui.skia.LocalSkiaSurface
-import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
@@ -51,29 +48,12 @@ fun TextComponentWrapper(
         var showDialog by remember { mutableStateOf(false) }
         var showInlineEditorDialog by remember { mutableStateOf(false) }
 
-        val interactionSource = remember { MutableInteractionSource() }
-        val hovered by interactionSource.collectIsHoveredAsState()
-        val surface = LocalSkiaSurface.current
-        LaunchedEffect(value) {
-            while (isActive) {
-                withFrameNanos {
-                    if (hovered)
-                        surface.postRender {
-                            val guiScale = mc.window.guiScale.toFloat()
-                            val density = 1f / guiScale
-                            val mouseX = (mc.mouseHandler.xpos() * density).toInt()
-                            val mouseY = (mc.mouseHandler.ypos() * density).toInt()
-                            setTooltipForNextFrame(value, mouseX, mouseY)
-                        }
-                }
-            }
-        }
         AssistChip(
             {},
             modifier = Modifier
                 .fillMaxHeight()
                 .width(DataComponentEditorDefaults.entrySize.width)
-                .hoverable(interactionSource),
+                .vanillaTooltip(value),
             label = {
                 Text(value, overflow = TextOverflow.Ellipsis, maxLines = 1)
             },
@@ -132,9 +112,6 @@ fun InlineStyleTextEditorDialog(
     var editingValue by remember { mutableStateOf(value) }
     val state = rememberTextFieldState(InlineStyleTextParser.inline(value)) {
         editingValue = InlineStyleTextParser.parse(it, InlineStyleTextParser.noneEventModifier)
-    }
-    LaunchedEffect(Unit) {
-
     }
     FlexibleDialog(
         onDismissRequest,

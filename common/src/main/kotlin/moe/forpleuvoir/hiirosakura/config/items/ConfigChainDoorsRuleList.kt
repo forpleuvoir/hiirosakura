@@ -12,6 +12,7 @@ import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainDoorsRule
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainStrategy
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Link2
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Radar
+import moe.forpleuvoir.hiirosakura.ui.util.rememberSegmentedButtonWidth
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo.BlockInfoMatcherDisplayerInnerEditor
 import moe.forpleuvoir.ibukigourd.config.translateText
@@ -320,10 +321,15 @@ private fun ChainStrategyEditor(
 
     Column {
         SingleChoiceSegmentedButtonRow {
+            val width = rememberSegmentedButtonWidth(
+                items = listOf(ChainStrategy.Neighborhood.text, ChainStrategy.Recursive.text),
+                textStyle = MaterialTheme.typography.labelLarge,
+            ) { it.toAnnotatedString() }
             SegmentedButton(
                 selected = isNeighborhood,
                 onClick = { isNeighborhood = true },
                 shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                modifier = Modifier.width(width)
             ) {
                 Text(ChainStrategy.Neighborhood.text, Modifier.plainTooltip { Text(ChainStrategy.Neighborhood.hoverText) })
             }
@@ -331,6 +337,7 @@ private fun ChainStrategyEditor(
                 selected = !isNeighborhood,
                 onClick = { isNeighborhood = false },
                 shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                modifier = Modifier.width(width)
             ) {
                 Text(ChainStrategy.Recursive.text, Modifier.plainTooltip { Text(ChainStrategy.Recursive.hoverText) })
             }

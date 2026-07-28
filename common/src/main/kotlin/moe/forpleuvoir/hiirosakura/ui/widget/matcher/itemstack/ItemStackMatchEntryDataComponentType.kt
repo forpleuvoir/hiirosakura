@@ -28,8 +28,10 @@ import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
 import moe.forpleuvoir.hiirosakura.util.allEnchantments
+import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
+import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
@@ -136,8 +138,8 @@ internal fun BasicItemStackMatchEntryDataComponentTypeEditor(
                 value.componentType,
                 { onValueChange(value.copy(componentType = it)) },
                 modifier = Modifier.width(width),
-                searchFilter = { s, c ->
-                    s in c.keyOrUnknown.toString()
+                searchFilter = { str, type ->
+                    str in type.keyOrUnknown.toString() || str in type.keyOrUnknown.asTranslateText().plainText
                 }
             )
         }

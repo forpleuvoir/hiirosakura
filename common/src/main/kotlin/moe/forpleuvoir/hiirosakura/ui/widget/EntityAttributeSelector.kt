@@ -7,31 +7,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
-import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
+import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.ui.preset.Selector
-import net.minecraft.core.component.DataComponentType
-import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.core.Holder
+import net.minecraft.core.registries.Registries
+import net.minecraft.world.entity.ai.attributes.Attribute
+
+val REGISTERED_ATTRIBUTE get() = registryAccess?.lookupOrThrow(Registries.ATTRIBUTE)?.asHolderIdMap()?.toList() ?: emptyList()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DataComponentTypeSelector(
-    selected: DataComponentType<*>,
-    onSelect: (DataComponentType<*>) -> Unit,
-    items: List<DataComponentType<*>> = BuiltInRegistries.DATA_COMPONENT_TYPE.toList(),
-    itemEquals: (DataComponentType<*>, DataComponentType<*>) -> Boolean = { a, b -> a == b },
-    content: @Composable (DataComponentType<*>) -> Unit = {
-        Text(it.keyOrUnknown.toString())
+fun EntityAttributeSelector(
+    selected: Holder<Attribute>,
+    onSelect: (Holder<Attribute>) -> Unit,
+    items: List<Holder<Attribute>> = REGISTERED_ATTRIBUTE,
+    itemEquals: (Holder<Attribute>, Holder<Attribute>) -> Boolean = { a, b -> a == b },
+    content: @Composable (Holder<Attribute>) -> Unit = {
+        Text(it.registeredName)
     },
     labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
-    itemContent: @Composable (DataComponentType<*>, Boolean) -> Unit = { item, _ ->
-        Text(item.keyOrUnknown.toString())
+    itemContent: @Composable (Holder<Attribute>, Boolean) -> Unit = { item, _ ->
+        Text(item.registeredName)
     },
     enabled: Boolean = true,
-    searchFilter: ((String, DataComponentType<*>) -> Boolean)? = null,
+    searchFilter: ((String, Holder<Attribute>) -> Boolean)? = { str, entry ->
+        entry.registeredName.contains(str)
+    },
     modifier: Modifier = Modifier,
-    itemLeadingIcon: ((Boolean) -> (@Composable (DataComponentType<*>) -> Unit)?)? = null,
-    itemTrailingIcon: ((Boolean) -> (@Composable (DataComponentType<*>) -> Unit)?)? = null,
+    itemLeadingIcon: ((Boolean) -> (@Composable (Holder<Attribute>) -> Unit)?)? = null,
+    itemTrailingIcon: ((Boolean) -> (@Composable (Holder<Attribute>) -> Unit)?)? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     interactionSource: MutableInteractionSource? = null,
     shape: Shape = OutlinedTextFieldDefaults.shape,
@@ -55,5 +60,5 @@ fun DataComponentTypeSelector(
     interactionSource = interactionSource,
     shape = shape,
     colors = colors,
-    contentPadding = contentPadding,
+    contentPadding = contentPadding
 )

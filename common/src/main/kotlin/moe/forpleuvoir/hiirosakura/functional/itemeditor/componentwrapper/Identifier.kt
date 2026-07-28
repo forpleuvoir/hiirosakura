@@ -63,61 +63,72 @@ fun IdentifierComponentWrapper(
         )
 
         if (showDialog) {
-            val namespace = rememberTextFieldState(value.namespace)
-            val path = rememberTextFieldState(value.path)
-
-            val checkNamespace: Boolean = Identifier.isValidNamespace(namespace.text.toString())
-            val checkPath: Boolean = Identifier.isValidPath(path.text.toString())
-
-            SimpleAlertDialog(
-                onDismissRequest = { showDialog = false },
-                onConfirmRequest = { true },
-                title = { Text(key) },
-                content = {
-                    Column {
-                        OutlinedTextField(
-                            namespace,
-                            labelPosition = TextFieldLabelPosition.Attached(true),
-                            label = {
-                                Row {
-                                    Text("namespace")
-                                    if (!checkNamespace) {
-                                        Spacer(Modifier.width(8.dp))
-                                        Text("Non [a-z0-9_.-] character in namespace of location")
-                                    }
-                                }
-                            },
-                            isError = !checkNamespace,
-                            modifier = Modifier.fillMaxWidth().height(68.dp),
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        OutlinedTextField(
-                            path,
-                            labelPosition = TextFieldLabelPosition.Attached(true),
-                            label = {
-                                Row {
-                                    Text("path")
-                                    if (!checkPath) {
-                                        Spacer(Modifier.width(8.dp))
-                                        Text("Non [a-z0-9/._-] character in path of location")
-                                    }
-                                }
-                            },
-                            isError = !checkPath,
-                            modifier = Modifier.fillMaxWidth().height(68.dp),
-                        )
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-                        if (checkNamespace && checkPath) {
-                            onValueChange(Identifier.fromNamespaceAndPath(namespace.text.toString(), path.text.toString()))
-                        }
-                    }, enabled = checkNamespace && checkPath) {
-                        Text(IGLang.Misc.confirm)
-                    }
-                }
-            )
+            IdentifierEditorDialog(value, key, onValueChange, { showDialog = false })
         }
     }
+}
+
+@Composable
+fun IdentifierEditorDialog(
+    value: Identifier,
+    key: Identifier,
+    onValueChange: (Identifier) -> Unit,
+    onDismissRequest: () -> Unit,
+) {
+    val namespace = rememberTextFieldState(value.namespace)
+    val path = rememberTextFieldState(value.path)
+
+    val checkNamespace: Boolean = Identifier.isValidNamespace(namespace.text.toString())
+    val checkPath: Boolean = Identifier.isValidPath(path.text.toString())
+
+    SimpleAlertDialog(
+        onDismissRequest = onDismissRequest,
+        onConfirmRequest = { true },
+        title = { Text(key) },
+        content = {
+            Column {
+                OutlinedTextField(
+                    namespace,
+                    labelPosition = TextFieldLabelPosition.Attached(true),
+                    label = {
+                        Row {
+                            Text("namespace")
+                            if (!checkNamespace) {
+                                Spacer(Modifier.width(8.dp))
+                                Text("Non [a-z0-9_.-] character in namespace of location")
+                            }
+                        }
+                    },
+                    isError = !checkNamespace,
+                    modifier = Modifier.fillMaxWidth().height(68.dp),
+                )
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    path,
+                    labelPosition = TextFieldLabelPosition.Attached(true),
+                    label = {
+                        Row {
+                            Text("path")
+                            if (!checkPath) {
+                                Spacer(Modifier.width(8.dp))
+                                Text("Non [a-z0-9/._-] character in path of location")
+                            }
+                        }
+                    },
+                    isError = !checkPath,
+                    modifier = Modifier.fillMaxWidth().height(68.dp),
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                if (checkNamespace && checkPath) {
+                    onValueChange(Identifier.fromNamespaceAndPath(namespace.text.toString(), path.text.toString()))
+                    onDismissRequest()
+                }
+            }, enabled = checkNamespace && checkPath) {
+                Text(IGLang.Misc.confirm)
+            }
+        }
+    )
 }

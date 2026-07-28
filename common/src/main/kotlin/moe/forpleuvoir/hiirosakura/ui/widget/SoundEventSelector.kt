@@ -32,6 +32,7 @@ import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Search
 import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.SharedConstants
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
@@ -88,7 +89,9 @@ fun SoundEventWrapper(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier,
+        modifier.plainTooltip{
+            Text(soundEvent.location.toString())
+        },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         SoundPlayButton(soundEvent)
@@ -96,6 +99,20 @@ fun SoundEventWrapper(
         Text(soundEvent.getSubtitle(), overflow = TextOverflow.Ellipsis)
     }
 }
+
+@Composable
+fun HolderSoundEventSelector(value: Holder<SoundEvent>, onValueChange: (Holder<SoundEvent>) -> Unit, modifier: Modifier = Modifier) =
+    SoundEventSelector(
+        value.value(),
+        { newValue ->
+            BuiltInRegistries.SOUND_EVENT.asHolderIdMap().find {
+                it.value().location == newValue.location
+            }?.let { newValue ->
+                onValueChange(newValue)
+            }
+        },
+        modifier
+    )
 
 //todo 实现一个多 项的选择器
 @Composable
@@ -107,12 +124,14 @@ fun SoundEventSelector(
     var showDialog by remember { mutableStateOf(false) }
     AssistChip(
         {},
-        modifier = modifier,
+        modifier = modifier.plainTooltip {
+            Text(value.location.toString())
+        },
         leadingIcon = {
             SoundPlayButton(value)
         },
         label = {
-            Text(value.getSubtitle(), overflow = TextOverflow.Ellipsis)
+            Text(value.getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
         },
         trailingIcon = {
             IconButton({

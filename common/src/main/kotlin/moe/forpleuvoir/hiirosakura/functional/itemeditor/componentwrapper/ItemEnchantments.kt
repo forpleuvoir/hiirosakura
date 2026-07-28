@@ -219,14 +219,12 @@ fun ItemEnchantmentsComponentEditDialog(
                 }
 
                 if (showAddDialog) {
-                    var level by remember { mutableStateOf(0) }
+                    var level by remember { mutableStateOf(1) }
                     var enchantment by remember { mutableStateOf(otherEnchantments(null).first()) }
                     SimpleAlertDialog(
                         onDismissRequest = { showAddDialog = false },
                         onConfirmRequest = {
-                            otherEnchantments(null).firstOrNull()?.let {
-                                editingEnchantments.addLast(it to 1)
-                            }
+                            editingEnchantments.addLast(enchantment to level)
                             true
                         },
                         title = { Text(IGLang.Misc.add) },

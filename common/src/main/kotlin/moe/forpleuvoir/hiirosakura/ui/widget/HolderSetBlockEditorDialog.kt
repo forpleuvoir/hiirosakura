@@ -1,8 +1,10 @@
-package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
+package moe.forpleuvoir.hiirosakura.ui.widget
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
@@ -10,6 +12,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,137 +21,66 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.util.canScroll
 import moe.forpleuvoir.hiirosakura.ui.util.rememberSegmentedButtonWidth
-import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowser
-import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.hiirosakura.util.key
-import moe.forpleuvoir.hiirosakura.util.name
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
+import moe.forpleuvoir.nebula.common.util.requireType
 import net.minecraft.core.HolderSet
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.Identifier
 import net.minecraft.tags.TagKey
-import net.minecraft.world.item.Item
+import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.enchantment.Repairable
+import net.minecraft.world.level.block.Block
 
-@Composable
-fun RepairableComponentWrapper(
-    key: Identifier,
-    value: Repairable,
-    onValueChange: (Repairable) -> Unit,
-    removeAction: () -> Unit,
-    modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
-    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
-        val count = value.items.count()
-        var showDialog by remember { mutableStateOf(false) }
-        val tip = if (count > 0) {
-            Modifier.plainTooltip {
-                FlowRow(
-                    modifier = Modifier.widthIn(max = 320.dp).padding(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    value.items.take(20).forEach { item ->
-                        ItemIcon(ItemStack(item), scaleOnHover = 1f, showTooltip = false)
-                    }
-                }
-            }
-        } else Modifier
-        AssistChip(
-            {},
-            modifier = Modifier
-                .fillMaxHeight()
-                .then(tip)
-                .width(DataComponentEditorDefaults.entrySize.width),
-            label = {
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    value.items.take(6).forEach { item ->
-                        ItemIcon(ItemStack(item), scaleOnHover = 1f, showTooltip = false)
-                    }
-                    if (count > 6)
-                        Text("...", overflow = TextOverflow.Ellipsis, maxLines = 1)
-                    if (count == 0)
-                        Text(IGLang.Misc.hasNothing, overflow = TextOverflow.Ellipsis, maxLines = 1)
-                }
-            },
-            trailingIcon = {
-                IconButton(onClick = {
-                    showDialog = true
-                }) {
-                    Icon(Icons.EditNote, null)
-                }
-            }
-        )
+internal val blockTags
+    get() = registryAccess!!.lookupOrThrow(Registries.BLOCK).tags.map { it.key() }
 
-        if (showDialog) {
-            HolderSetItemEditorDialog(
-                key = key,
-                value = value.items,
-                onValueChange = { onValueChange(Repairable(it)) },
-                onDismissRequest = { showDialog = false },
-                title = { Text(key) }
-            )
-        }
-    }
-}
+internal val TagKey<Block>.blocks
+    get() = registryAccess!!.lookupOrThrow(Registries.BLOCK).getTagOrEmpty(this)
 
-private val itemTags
-    get() = registryAccess!!.lookupOrThrow(Registries.ITEM).tags.map { it.key() }
-
-private val TagKey<Item>.items
-    get() = registryAccess!!.lookupOrThrow(Registries.ITEM).getTagOrEmpty(this)
-
-private val TagKey<Item>.asHolderSet
-    get() = registryAccess!!.lookupOrThrow(Registries.ITEM).tags.filter {
+internal val TagKey<Block>.asHolderSet
+    get() = registryAccess!!.lookupOrThrow(Registries.BLOCK).tags.filter {
         it.key().location == this.location
     }.findFirst().get()
 
 
 @Composable
-fun HolderSetItemEditorDialog(
+fun HolderSetBlockEditorDialog(
     key: Identifier,
-    value: HolderSet<Item>,
-    onValueChange: (HolderSet<Item>) -> Unit,
+    value: HolderSet<Block>,
+    onValueChange: (HolderSet<Block>) -> Unit,
     onDismissRequest: () -> Unit,
     title: @Composable () -> Unit
 ) {
     var tag by remember {
         mutableStateOf(
             if (value is HolderSet.Named) value.key()
-            else itemTags.findFirst().get()
+            else blockTags.findFirst().get()
         )
     }
 
     var mode by remember { mutableStateOf(value !is HolderSet.Named) }
-    val items = rememberKeyedList(value.map { it.value() }.toList())
-    var nextKey by remember { mutableLongStateOf(items.size.toLong()) }
+    val blocks = rememberKeyedList(value.map { it.value() }.toList())
+    var nextKey by remember { mutableLongStateOf(blocks.size.toLong()) }
 
     SimpleAlertDialog(
         onDismissRequest = onDismissRequest,
         title = title,
         onConfirmRequest = {
             val result = if (mode) {
-                HolderSet.direct(items.values().map { BuiltInRegistries.ITEM.wrapAsHolder(it) })
+                HolderSet.direct(blocks.values().map { BuiltInRegistries.BLOCK.wrapAsHolder(it) })
             } else {
                 tag.asHolderSet
             }
@@ -159,7 +91,7 @@ fun HolderSetItemEditorDialog(
             Column {
                 SingleChoiceSegmentedButtonRow {
                     val buttonTexts = listOf(
-                        key.asTranslateText(suffix = "from_items", fallback = "From Items"),
+                        key.asTranslateText(suffix = "from_blocks", fallback = "From Blocks"),
                         key.asTranslateText(suffix = "from_tag", fallback = "From Tag"),
                     )
                     val width = rememberSegmentedButtonWidth(
@@ -171,7 +103,7 @@ fun HolderSetItemEditorDialog(
                         onClick = { mode = true },
                         shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
                         modifier = Modifier.width(width),
-                        label = { Text(key, suffix = "from_items", fallback = "From Items") }
+                        label = { Text(key, suffix = "from_blocks", fallback = "From Blocks") }
                     )
                     SegmentedButton(
                         selected = !mode,
@@ -187,12 +119,10 @@ fun HolderSetItemEditorDialog(
                     transitionSpec = {
                         if (targetState) {
                             // false -> true：新内容从左侧进入
-                            slideInHorizontally { -it } togetherWith
-                                    slideOutHorizontally { it }
+                            slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
                         } else {
                             // true -> false：新内容从右侧进入
-                            slideInHorizontally { it } togetherWith
-                                    slideOutHorizontally { -it }
+                            slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
                         }
                     },
                     label = "ModeSlide",
@@ -207,7 +137,7 @@ fun HolderSetItemEditorDialog(
                                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                                     shape = MaterialTheme.shapes.extraSmall,
                                 ) {
-                                    Text(key, suffix = "add_item", fallback = "Add Item")
+                                    Text(key, suffix = "add_block", fallback = "Add Block")
                                 }
                                 if (showItemSelector) {
                                     FlexibleDialog(
@@ -217,9 +147,11 @@ fun HolderSetItemEditorDialog(
                                             ItemBrowser(
                                                 itemDisplay = {
                                                     ItemBrowserDefaults.ItemWrapper(it) { selected ->
-                                                        val item = selected.asItem()
-                                                        if (!items.any { keyed -> keyed.value == item }) {
-                                                            items.add(Keyed(nextKey++, item))
+                                                        val block = if (selected is BlockItem) {
+                                                            selected.block
+                                                        } else selected.requireType<Block>()
+                                                        if (!blocks.any { keyed -> keyed.value == block }) {
+                                                            blocks.add(Keyed(nextKey++, block))
                                                         }
                                                         showItemSelector = false
                                                     }
@@ -232,12 +164,12 @@ fun HolderSetItemEditorDialog(
                                     )
                                 }
                                 Spacer(Modifier.width(12.dp))
-                                ItemTagSelector(
-                                    itemTags.findFirst().get(),
+                                BlockTagSelector(
+                                    blockTags.findFirst().get(),
                                     { tag ->
-                                        tag.items.forEach { item ->
-                                            if (!items.any { it.value == item.value() }) {
-                                                items.add(Keyed(nextKey++, item.value()))
+                                        tag.blocks.forEach { item ->
+                                            if (!blocks.any { it.value == item.value() }) {
+                                                blocks.add(Keyed(nextKey++, item.value()))
                                             }
                                         }
                                     },
@@ -253,17 +185,17 @@ fun HolderSetItemEditorDialog(
                                 { Text(key, suffix = "items", fallback = "Items") },
                             ) {
                                 Box(Modifier.fillMaxWidth().height(460.dp)) {
-                                    val lazyGridState = rememberLazyGridState()
+                                    val lazyListState = rememberLazyGridState()
                                     LazyVerticalGrid(
                                         modifier = Modifier
                                             .fillMaxWidth(),
                                         columns = GridCells.Fixed(9),
                                         verticalArrangement = Arrangement.spacedBy(3.dp),
                                         horizontalArrangement = Arrangement.spacedBy(3.dp),
-                                        contentPadding = PaddingValues(if (lazyGridState.canScroll) 12.dp else 0.dp),
-                                        state = lazyGridState
+                                        contentPadding = PaddingValues(if (lazyListState.canScroll) 12.dp else 0.dp),
+                                        state = lazyListState
                                     ) {
-                                        itemsIndexed(items, key = { _, keyed -> keyed.key }) { index, (_, item) ->
+                                        itemsIndexed(blocks, key = { _, keyed -> keyed.key }) { index, (_, block) ->
                                             val interactionSource = remember { MutableInteractionSource() }
                                             val isHovered by interactionSource.collectIsHoveredAsState()
                                             OutlinedCard(
@@ -272,9 +204,9 @@ fun HolderSetItemEditorDialog(
                                                     .hoverable(interactionSource)
                                                     .plainTooltip(interactionSource) {
                                                         Column {
-                                                            Text(item.asItem().name)
+                                                            Text(block.name)
                                                             Spacer(Modifier.height(4.dp))
-                                                            Text(item.asItem().key.toString(), color = MaterialTheme.colorScheme.primaryContainer)
+                                                            Text(block.key.toString(), color = MaterialTheme.colorScheme.primaryContainer)
                                                         }
                                                     },
                                             ) {
@@ -309,11 +241,11 @@ fun HolderSetItemEditorDialog(
                                                     ) { hovered ->
                                                         if (hovered) {
                                                             RemoveButton {
-                                                                items.removeAt(index)
+                                                                blocks.removeAt(index)
                                                             }
                                                         } else {
                                                             ItemIcon(
-                                                                ItemStack(item),
+                                                                ItemStack(block),
                                                                 scaleOnHover = 1f,
                                                                 showTooltip = false,
                                                             )
@@ -326,14 +258,14 @@ fun HolderSetItemEditorDialog(
 
                                     VerticalScrollbar(
                                         modifier = Modifier.align(Alignment.CenterEnd),
-                                        adapter = rememberScrollbarAdapter(lazyGridState)
+                                        adapter = rememberScrollbarAdapter(lazyListState)
                                     )
                                 }
                             }
                         }
 
                     } else {
-                        ItemTagSelector(tag, { tag = it })
+                        BlockTagSelector(tag, { tag = it })
                     }
                 }
             }
@@ -341,16 +273,17 @@ fun HolderSetItemEditorDialog(
     )
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ItemTagSelector(
-    selected: TagKey<Item>,
-    onSelect: (TagKey<Item>) -> Unit,
-    items: List<TagKey<Item>> = itemTags.toList(),
-    itemEquals: (TagKey<Item>, TagKey<Item>) -> Boolean = { a, b -> a == b },
-    content: @Composable (TagKey<Item>) -> Unit = {
+fun BlockTagSelector(
+    selected: TagKey<Block>,
+    onSelect: (TagKey<Block>) -> Unit,
+    items: List<TagKey<Block>> = blockTags.toList(),
+    itemEquals: (TagKey<Block>, TagKey<Block>) -> Boolean = { a, b -> a == b },
+    content: @Composable (TagKey<Block>) -> Unit = {
         Row(Modifier.plainTooltip {
-            val types = it.items
+            val types = it.blocks
             if (types.count() == 0) {
                 Text(IGLang.Misc.hasNothing)
                 return@plainTooltip
@@ -361,7 +294,7 @@ fun ItemTagSelector(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     types.take(20).forEach { item ->
-                        ItemIcon(ItemStack(item), scaleOnHover = 1f, showTooltip = false)
+                        ItemBrowserDefaults.ItemWrapper(item.value(), scaleOnHover = 1f, showTooltip = false, border = false, modifier = Modifier.size(36.dp))
                     }
                     if (types.count() > 20) Text("...")
                 }
@@ -372,9 +305,9 @@ fun ItemTagSelector(
     },
     labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
-    itemContent: @Composable (TagKey<Item>, Boolean) -> Unit = { item, _ ->
+    itemContent: @Composable (TagKey<Block>, Boolean) -> Unit = { item, _ ->
         Row(Modifier.plainTooltip {
-            val types = item.items
+            val types = item.blocks
             if (types.count() == 0) {
                 Text(IGLang.Misc.hasNothing)
                 return@plainTooltip
@@ -385,7 +318,7 @@ fun ItemTagSelector(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     types.take(20).forEach { item ->
-                        ItemIcon(ItemStack(item), scaleOnHover = 1f)
+                        ItemBrowserDefaults.ItemWrapper(item.value(), scaleOnHover = 1f, showTooltip = false, border = false, modifier = Modifier.size(36.dp))
                     }
                     if (types.count() > 20) Text("...")
                 }
@@ -395,12 +328,12 @@ fun ItemTagSelector(
         }
     },
     enabled: Boolean = true,
-    searchFilter: ((String, TagKey<Item>) -> Boolean)? = { str, tag ->
-        str in tag.location.toString() || tag.items.any { str in it.value().name.plainText }
+    searchFilter: ((String, TagKey<Block>) -> Boolean)? = { str, tag ->
+        str in tag.location.toString() || tag.blocks.any { str in it.value().name.plainText }
     },
     modifier: Modifier = Modifier,
-    itemLeadingIcon: ((Boolean) -> (@Composable (TagKey<Item>) -> Unit)?)? = null,
-    itemTrailingIcon: ((Boolean) -> (@Composable (TagKey<Item>) -> Unit)?)? = null,
+    itemLeadingIcon: ((Boolean) -> (@Composable (TagKey<Block>) -> Unit)?)? = null,
+    itemTrailingIcon: ((Boolean) -> (@Composable (TagKey<Block>) -> Unit)?)? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     interactionSource: MutableInteractionSource? = null,
     shape: Shape = OutlinedTextFieldDefaults.shape,

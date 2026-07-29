@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.util.asTranslateKey
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
@@ -34,13 +35,12 @@ import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
 import net.minecraft.locale.Language
-import net.minecraft.network.chat.Style
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 
 val unknownComponentType = identifier("unknown_component_type")
@@ -58,12 +58,20 @@ object DataComponentEditorDefaults {
 
 }
 
+sealed class CommentAppendMode {
+    data object Tooltip : CommentAppendMode()
+    data class Append(val newLine: Boolean) : CommentAppendMode()
+    data object Replace : CommentAppendMode()
+    data object None : CommentAppendMode()
+}
+
 @Composable
 fun Text(
     identifier: Identifier,
     prefix: String? = null,
     suffix: String? = null,
     fallback: String? = null,
+    commentAppendMode: CommentAppendMode = CommentAppendMode.Tooltip,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
     autoSize: TextAutoSize? = null,
@@ -84,16 +92,32 @@ fun Text(
     style: TextStyle = LocalTextStyle.current,
 ) {
     val key = identifier.asTranslateKey(prefix, suffix)
-    val text = Translatable(key, fallback ?: identifier.toString())
     val commentKey = "$key.comment"
-    if (Language.getInstance().has(commentKey)) {
-        modifier.plainTooltip {
-            Text(Translatable(commentKey))
-        }
+    val hasComment = Language.getInstance().has(commentKey)
+
+    val displayText = when (commentAppendMode) {
+        is CommentAppendMode.Replace -> if (hasComment) Translatable(commentKey)
+        else Translatable(key, fallback ?: identifier.toString())
+
+        else                         -> Translatable(key, fallback ?: identifier.toString())
     }
+
+    val actualModifier = if (hasComment && commentAppendMode is CommentAppendMode.Tooltip) {
+        modifier.plainTooltip { Text(Translatable(commentKey)) }
+    } else {
+        modifier
+    }
+
     Text(
-        text,
-        modifier,
+        if (hasComment && commentAppendMode is CommentAppendMode.Append) {
+            val sep = if (commentAppendMode.newLine) "\n" else " "
+            val comment = Language.getInstance().getOrDefault(commentKey)
+            val original = Language.getInstance().getOrDefault(key)
+            Component.literal("$original$sep$comment")
+        } else {
+            displayText
+        },
+        actualModifier,
         color,
         autoSize,
         fontSize,
@@ -147,7 +171,13 @@ fun DataComponentEntryRow(
                 moe.forpleuvoir.nebula.common.color.Color.fromHSV(5f / 360f, .6f, 1f).toComposeColor
         )
         ProvideTextStyle(style) {
-            Text(key, modifier = Modifier.weight(1f, false).widthIn(max = 420.dp), overflow = TextOverflow.Ellipsis, maxLines = 1)
+            Column(modifier = Modifier.weight(1f, false)) {
+                Text(key, overflow = TextOverflow.Ellipsis, maxLines = 1)
+                val hasTranslation = Language.getInstance().has(key.asTranslateKey())
+                if (hasTranslation) {
+                    Text(Component.literal(key.toString()), fontSize = MaterialTheme.typography.bodySmall.fontSize)
+                }
+            }
         }
 
         Row(

@@ -14,8 +14,6 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.ItemStackEditor
 import moe.forpleuvoir.ibukigourd.ui.openComposeScreen
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.util.mc
-
-
 fun testItemEditor() {
     openComposeScreen {
         IbukiGourdTheme {
@@ -28,8 +26,12 @@ fun testItemEditor() {
             if (showDialog) {
                 ItemStackEditor(
                     onDismissRequest = { showDialog = false }
-                ) {
-                    mc.player?.inventory?.selectedItem = it
+                ) { stack ->
+                    val player = mc.player ?: return@ItemStackEditor
+                    if (player.isCreative) {
+                        player.inventory.selectedItem = stack
+                        mc.gameMode?.handleCreativeModeItemAdd(stack, 36 + player.inventory.selectedSlot)
+                    }
                 }
             }
         }

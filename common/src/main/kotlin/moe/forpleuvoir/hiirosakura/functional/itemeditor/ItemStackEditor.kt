@@ -47,6 +47,8 @@ import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.component.PatchedDataComponentMap
 import net.minecraft.core.registries.Registries
+import net.minecraft.locale.Language
+import net.minecraft.network.chat.Component
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -223,7 +225,10 @@ private fun ComponentAdder(
     modifier: Modifier = Modifier,
 ) {
     val registryManager = registryAccess!!
-    val components = registryManager.lookupOrThrow(Registries.DATA_COMPONENT_TYPE).sortedBy { it.key(registryManager) }
+
+    val components =
+        registryManager.lookupOrThrow(Registries.DATA_COMPONENT_TYPE).sortedBy { it.key(registryManager) } - dataComponents.keySet()
+
     var selected by remember { mutableStateOf(components.first()) }
 
     Selector(
@@ -257,25 +262,25 @@ private fun ComponentAdder(
             id.toString().contains(str) || id.asTranslateText().plainText.contains(str)
         },
         content = {
-            Text(it.keyOrUnknown(registryManager))
+            Text(it.keyOrUnknown(registryManager).toString())
         },
         itemContent = { type, _ ->
             val isAdapted = DataComponentWrappers.isAdaptedComponent(type)
-            Text(
-                identifier = type.keyOrUnknown(registryManager),
-                color = if (isAdapted)
-                    Color.fromHSV(195f / 360f, 1f, 1f).toComposeColor
-                else
-                    Color.fromHSV(5f / 360f, .6f, 1f).toComposeColor,
-                modifier = Modifier.plainTooltip {
-                    Text(
-                        if (isAdapted)
-                            HSLang.ItemEditor.adaptedComponent
-                        else
-                            HSLang.ItemEditor.unadaptedComponent
-                    )
+            val color = if (isAdapted)
+                Color.fromHSV(195f / 360f, 1f, 1f).toComposeColor
+            else
+                Color.fromHSV(5f / 360f, .6f, 1f).toComposeColor
+            Column {
+                val identifier = type.keyOrUnknown(registryManager)
+                Text(
+                    identifier = identifier,
+                    color = color
+                )
+                val hasTranslation = Language.getInstance().has(identifier.asTranslateKey())
+                if (hasTranslation) {
+                    Text(Component.literal(identifier.toString()), color = color, fontSize = MaterialTheme.typography.bodySmall.fontSize)
                 }
-            )
+            }
         }
     )
 }

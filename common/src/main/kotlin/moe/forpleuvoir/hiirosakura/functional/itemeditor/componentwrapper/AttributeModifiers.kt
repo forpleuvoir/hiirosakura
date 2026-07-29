@@ -141,99 +141,106 @@ fun ItemAttributeModifiersEditor(
             onValueChange(ItemAttributeModifiers(editingModifiers.values().toMutableList()))
             true
         },
-        modifier = Modifier.padding(24.dp).height(820.dp).width(1180.dp),
+        modifier = Modifier.padding(24.dp),
         content = {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                var nextKey by remember { mutableLongStateOf(editingModifiers.size.toLong()) }
-                val lazyGridState = rememberLazyGridState()
-                if (editingModifiers.isEmpty()) {
-                    Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                } else {
-                    val hapticFeedback = LocalHapticFeedback.current
-                    val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
-                        editingModifiers.moveElement(from.index, to.index)
-                        hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
-                    }
+            BoxWithConstraints {
+                Box(
+                    modifier = Modifier
+                        .height(820.dp)
+                        .width(if (maxWidth > 1140.dp) 1140.dp else 780.dp)
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    var nextKey by remember { mutableLongStateOf(editingModifiers.size.toLong()) }
+                    val lazyGridState = rememberLazyGridState()
+                    if (editingModifiers.isEmpty()) {
+                        Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    } else {
+                        val hapticFeedback = LocalHapticFeedback.current
+                        val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
+                            editingModifiers.moveElement(from.index, to.index)
+                            hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                        }
 
-                    val canScroll = lazyGridState.canScrollBackward || lazyGridState.canScrollForward
-                    LazyVerticalGrid(
-                        state = lazyGridState,
-                        columns = GridCells.Adaptive(360.dp),
-                        modifier = Modifier.padding(end = if (canScroll) 12.dp else 0.dp).fillMaxHeight(),
-                        contentPadding = PaddingValues(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        itemsIndexed(editingModifiers, key = { _, v -> v.key }) { index, item ->
-                            ReorderableItem(reorderableLazyGridState, item.key) { isDragging ->
-                                val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                                val handleInteraction = remember { MutableInteractionSource() }
-                                val handleHovered by handleInteraction.collectIsHoveredAsState()
-                                ModifierCard(
-                                    item.value,
-                                    {
-                                        editingModifiers[index] = item.copyValue(it)
-                                    },
-                                    modifier = Modifier.scale(scale).width(360.dp),
-                                    onRemove = {
-                                        editingModifiers.removeAt(index)
-                                    },
-                                    key = key,
-                                    hapticFeedback = hapticFeedback,
-                                    handleInteraction = handleInteraction,
-                                    handleHovered = handleHovered,
-                                    isDragging = isDragging,
-                                )
+                        val canScroll = lazyGridState.canScrollBackward || lazyGridState.canScrollForward
+                        LazyVerticalGrid(
+                            state = lazyGridState,
+                            columns = GridCells.Adaptive(360.dp),
+                            modifier = Modifier.padding(end = if (canScroll) 12.dp else 0.dp).fillMaxHeight(),
+                            contentPadding = PaddingValues(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            itemsIndexed(editingModifiers, key = { _, v -> v.key }) { index, item ->
+                                ReorderableItem(reorderableLazyGridState, item.key) { isDragging ->
+                                    val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
+                                    val handleInteraction = remember { MutableInteractionSource() }
+                                    val handleHovered by handleInteraction.collectIsHoveredAsState()
+                                    ModifierCard(
+                                        item.value,
+                                        {
+                                            editingModifiers[index] = item.copyValue(it)
+                                        },
+                                        modifier = Modifier.scale(scale).width(360.dp),
+                                        onRemove = {
+                                            editingModifiers.removeAt(index)
+                                        },
+                                        key = key,
+                                        hapticFeedback = hapticFeedback,
+                                        handleInteraction = handleInteraction,
+                                        handleHovered = handleHovered,
+                                        isDragging = isDragging,
+                                    )
+                                }
                             }
                         }
-                    }
 
-                    VerticalScrollbar(
-                        adapter = rememberScrollbarAdapter(lazyGridState),
-                        modifier = Modifier.align(Alignment.CenterEnd)
-                    )
-                }
-                var showAddDialog by remember { mutableStateOf(false) }
-                FloatingActionButton(
-                    onClick = {
-                        showAddDialog = true
-                    },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(12.dp)
-                        .size(40.dp)
-                        .fabVisibilityAnimation(rememberFabVisibilityByScroll(lazyGridState))
-                ) {
-                    Icon(Icons.Add, IGLang.Misc.add.plainText)
-                }
-                if (showAddDialog) {
-                    var addingEntry by remember {
-                        mutableStateOf(
-                            ItemAttributeModifiers.Entry(
-                                REGISTERED_ATTRIBUTE.first(),
-                                AttributeModifier(
-                                    Identifier.parse("minecraft:unknow"),
-                                    0.0,
-                                    AttributeModifier.Operation.ADD_VALUE
-                                ),
-                                EquipmentSlotGroup.MAINHAND
-                            )
+                        VerticalScrollbar(
+                            adapter = rememberScrollbarAdapter(lazyGridState),
+                            modifier = Modifier.align(Alignment.CenterEnd)
                         )
                     }
-                    SimpleAlertDialog(
-                        onDismissRequest = { showAddDialog = false },
-                        onConfirmRequest = {
-                            editingModifiers.addLast(Keyed(nextKey++, addingEntry))
-                            true
+                    var showAddDialog by remember { mutableStateOf(false) }
+                    FloatingActionButton(
+                        onClick = {
+                            showAddDialog = true
                         },
-                        title = { Text(IGLang.Misc.add) },
-                        content = {
-                            ModifierEntryContent(addingEntry, { addingEntry = it }, key)
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(12.dp)
+                            .size(40.dp)
+                            .fabVisibilityAnimation(rememberFabVisibilityByScroll(lazyGridState))
+                    ) {
+                        Icon(Icons.Add, IGLang.Misc.add.plainText)
+                    }
+                    if (showAddDialog) {
+                        var addingEntry by remember {
+                            mutableStateOf(
+                                ItemAttributeModifiers.Entry(
+                                    REGISTERED_ATTRIBUTE.first(),
+                                    AttributeModifier(
+                                        Identifier.parse("minecraft:unknow"),
+                                        0.0,
+                                        AttributeModifier.Operation.ADD_VALUE
+                                    ),
+                                    EquipmentSlotGroup.MAINHAND
+                                )
+                            )
                         }
-                    )
+                        SimpleAlertDialog(
+                            onDismissRequest = { showAddDialog = false },
+                            onConfirmRequest = {
+                                editingModifiers.addLast(Keyed(nextKey++, addingEntry))
+                                true
+                            },
+                            title = { Text(IGLang.Misc.add) },
+                            content = {
+                                ModifierEntryContent(addingEntry, { addingEntry = it }, key)
+                            }
+                        )
+                    }
                 }
             }
-
         }
     )
 
@@ -313,7 +320,11 @@ private fun ModifierEntryContent(
                     Icon(Icons.EditNote, null)
                 }
                 if (showDialog) {
-                    IdentifierEditorDialog(value.modifier.id, key, { onValueChange(value.copy(id = it)) }, { showDialog = false })
+                    IdentifierEditorDialog(
+                        value.modifier.id,
+                        { onValueChange(value.copy(id = it)) },
+                        { Text(key, suffix = "id", fallback = "ID") },
+                        { showDialog = false })
                 }
             }
         }

@@ -63,7 +63,7 @@ fun IdentifierComponentWrapper(
         )
 
         if (showDialog) {
-            IdentifierEditorDialog(value, key, onValueChange, { showDialog = false })
+            IdentifierEditorDialog(value, onValueChange, { Text(key) }, { showDialog = false })
         }
     }
 }
@@ -71,8 +71,8 @@ fun IdentifierComponentWrapper(
 @Composable
 fun IdentifierEditorDialog(
     value: Identifier,
-    key: Identifier,
     onValueChange: (Identifier) -> Unit,
+    title: @Composable (() -> Unit)? = null,
     onDismissRequest: () -> Unit,
 ) {
     val namespace = rememberTextFieldState(value.namespace)
@@ -84,7 +84,7 @@ fun IdentifierEditorDialog(
     SimpleAlertDialog(
         onDismissRequest = onDismissRequest,
         onConfirmRequest = { true },
-        title = { Text(key) },
+        title = title,
         content = {
             Column {
                 OutlinedTextField(
@@ -92,7 +92,7 @@ fun IdentifierEditorDialog(
                     labelPosition = TextFieldLabelPosition.Attached(true),
                     label = {
                         Row {
-                            Text("namespace")
+                            Text("Namespace")
                             if (!checkNamespace) {
                                 Spacer(Modifier.width(8.dp))
                                 Text("Non [a-z0-9_.-] character in namespace of location")
@@ -108,7 +108,7 @@ fun IdentifierEditorDialog(
                     labelPosition = TextFieldLabelPosition.Attached(true),
                     label = {
                         Row {
-                            Text("path")
+                            Text("Path")
                             if (!checkPath) {
                                 Spacer(Modifier.width(8.dp))
                                 Text("Non [a-z0-9/._-] character in path of location")

@@ -51,7 +51,7 @@ fun Identifier.asTranslateKey(prefix: String? = null, suffix: String? = null): S
     else if (prefix != null)
         this.toLanguageKey(prefix)
     else if (suffix != null)
-        this.toLanguageKey(suffix)
+        this.toLanguageKey() + "." + suffix
     else
         this.toLanguageKey()
 }

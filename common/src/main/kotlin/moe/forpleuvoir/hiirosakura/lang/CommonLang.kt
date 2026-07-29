@@ -32,6 +32,10 @@ object CommonLang {
 
     inline fun deleteConfirm(someThing: Any): MutableText = lang("delete_confirm", someThing)
 
+    inline val clear get() = lang("clear")
+
+    inline val unset get() = lang("unset")
+
     inline val tag get() = lang("tag")
 
     inline val itemComponent get() = lang("item_component")

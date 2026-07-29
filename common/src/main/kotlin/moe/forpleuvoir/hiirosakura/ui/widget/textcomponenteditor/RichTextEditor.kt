@@ -17,16 +17,19 @@ import kotlinx.coroutines.isActive
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.toolbar.RichTextEditorToolbar
+import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.render.extension.pushTextLines
 import moe.forpleuvoir.ibukigourd.ui.skia.LocalSkiaSurface
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.util.mc
+import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 
 @Composable
 fun RichTextEditor(
     state: RichTextEditorState = remember { RichTextEditorState() },
     enabledPreviewRender: Boolean = true,
+    previewDefaultColor: Color = if (IGConfig.Gui.Theme.lightMode) Colors.BLACK else Colors.WHITE,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
@@ -69,7 +72,7 @@ fun RichTextEditor(
                                     area = area!!.roundToIntRect(),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center,
-                                    defaultColor = Colors.WHITE,
+                                    defaultColor = previewDefaultColor,
                                 )
                             }
                         }

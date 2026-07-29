@@ -19,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -89,7 +90,7 @@ fun SoundEventWrapper(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier.plainTooltip{
+        modifier.plainTooltip {
             Text(soundEvent.location.toString())
         },
         verticalAlignment = Alignment.CenterVertically,
@@ -101,46 +102,69 @@ fun SoundEventWrapper(
 }
 
 @Composable
-fun HolderSoundEventSelector(value: Holder<SoundEvent>, onValueChange: (Holder<SoundEvent>) -> Unit, modifier: Modifier = Modifier) =
-    SoundEventSelector(
-        value.value(),
-        { newValue ->
-            BuiltInRegistries.SOUND_EVENT.asHolderIdMap().find {
-                it.value().location == newValue.location
-            }?.let { newValue ->
-                onValueChange(newValue)
-            }
-        },
-        modifier
-    )
+fun HolderSoundEventSelector(
+    value: Holder<SoundEvent>,
+    onValueChange: (Holder<SoundEvent>) -> Unit,
+    modifier: Modifier = Modifier,
+    label: @Composable (() -> Unit)? = null,
+    shape: Shape = OutlinedTextFieldDefaults.shape,
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
+    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
+) = SoundEventSelector(
+    value.value(),
+    { newValue ->
+        BuiltInRegistries.SOUND_EVENT.asHolderIdMap().find {
+            it.value().location == newValue.location
+        }?.let { newValue ->
+            onValueChange(newValue)
+        }
+    },
+    modifier,
+    label,
+    shape,
+    colors,
+    contentPadding,
+)
 
-//todo 实现一个多 项的选择器
 @Composable
 fun SoundEventSelector(
     value: SoundEvent,
     onValueChange: (SoundEvent) -> Unit,
     modifier: Modifier = Modifier,
+    label: @Composable (() -> Unit)? = null,
+    shape: Shape = OutlinedTextFieldDefaults.shape,
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
+    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    AssistChip(
-        {},
-        modifier = modifier.plainTooltip {
+    OutlinedLabelBox(
+        label,
+        modifier.plainTooltip {
             Text(value.location.toString())
         },
-        leadingIcon = {
-            SoundPlayButton(value)
-        },
-        label = {
-            Text(value.getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
-        },
-        trailingIcon = {
+        shape = shape,
+        colors = colors,
+        contentPadding = contentPadding,
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Row(
+                modifier = Modifier.weight(1f, false),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SoundPlayButton(value)
+                Spacer(Modifier.width(4.dp))
+                Text(value.getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
+            }
             IconButton({
                 showDialog = true
             }) {
                 Icon(Icons.EditNote, contentDescription = null)
             }
         }
-    )
+    }
     if (showDialog) {
         SimpleAlertDialog(
             onDismissRequest = { showDialog = false },
@@ -156,6 +180,49 @@ fun SoundEventSelector(
         )
     }
 }
+
+////todo 实现一个多 项的选择器
+//@Composable
+//fun SoundEventSelector(
+//    value: SoundEvent,
+//    onValueChange: (SoundEvent) -> Unit,
+//    modifier: Modifier = Modifier,
+//) {
+//    var showDialog by remember { mutableStateOf(false) }
+//    AssistChip(
+//        {},
+//        modifier = modifier.plainTooltip {
+//            Text(value.location.toString())
+//        },
+//        leadingIcon = {
+//            SoundPlayButton(value)
+//        },
+//        label = {
+//            Text(value.getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
+//        },
+//        trailingIcon = {
+//            IconButton({
+//                showDialog = true
+//            }) {
+//                Icon(Icons.EditNote, contentDescription = null)
+//            }
+//        }
+//    )
+//    if (showDialog) {
+//        SimpleAlertDialog(
+//            onDismissRequest = { showDialog = false },
+//            onConfirmRequest = { true },
+//            content = {
+//                SoundEventBrowser(modifier = Modifier.height(520.dp).fillMaxWidth()) {
+//                    onValueChange(it)
+//                    showDialog = false
+//                }
+//            },
+//            confirmButton = {},
+//            dismissButton = {}
+//        )
+//    }
+//}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

@@ -138,7 +138,7 @@ fun getSectorPath(
 
     // 半径 r 处的单侧间隙角（度），使间隙线性宽度恒为 gap
     fun gapHalfAngle(radius: Float): Float =
-        if (gap > 0f && radius > 0f) Math.toDegrees((gap / (2.0 * radius)).toDouble()).toFloat() else 0f
+        if (gap > 0f && radius > 0f) Math.toDegrees((gap / (2.0 * radius))).toFloat() else 0f
 
     // 边曲线上的点（相对菜单中心）：startEdge 为起始边，否则为结束边
     fun edgePoint(startEdge: Boolean, radius: Float): Offset {

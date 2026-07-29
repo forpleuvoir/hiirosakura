@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Shape
 
 @Composable
 fun OutlinedLabelBox(
-    label: @Composable () -> Unit,
+    label: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isError: Boolean = false,
@@ -25,8 +25,7 @@ fun OutlinedLabelBox(
     },
     shape: Shape = OutlinedTextFieldDefaults.shape,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
-    contentPadding: PaddingValues =
-        OutlinedTextFieldDefaults.contentPadding(),
+    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
     content: @Composable BoxScope.() -> Unit,
 ) {
     val decorator = OutlinedTextFieldDefaults.decorator(
@@ -38,9 +37,7 @@ fun OutlinedLabelBox(
         labelPosition = TextFieldLabelPosition.Attached(
             alwaysMinimize = true,
         ),
-        label = {
-            label()
-        },
+        label = label?.let { { it.invoke() } },
         isError = isError,
         colors = colors,
         contentPadding = contentPadding,

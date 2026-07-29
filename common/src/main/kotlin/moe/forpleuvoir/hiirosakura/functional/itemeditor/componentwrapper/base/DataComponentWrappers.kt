@@ -14,12 +14,15 @@ import net.minecraft.core.component.DataComponents.*
 import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.food.Foods
+import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Item
+import net.minecraft.world.item.Items
 import net.minecraft.world.item.Rarity
 import net.minecraft.world.item.component.*
 import net.minecraft.world.item.enchantment.Enchantable
 import net.minecraft.world.item.enchantment.ItemEnchantments
 import net.minecraft.world.item.enchantment.Repairable
+import net.minecraft.world.item.equipment.Equippable
 import net.minecraft.world.level.block.entity.BannerPatternLayers
 
 fun interface DataComponentWrapper<C> {
@@ -210,23 +213,21 @@ object DataComponentWrappers : Initializable {
             DamageResistantComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
         }
         //endregion
-//        //------------ DamageResistant ------------\\
-//        register(DAMAGE_RESISTANT, { DamageResistant(DamageTypeTags.IS_FIRE) }) { key, c, m, rm, consumer ->
-//            DamageResistantComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------ Equippable ------------\\
-//        register(EQUIPPABLE, { Items.SADDLE.components().get(EQUIPPABLE) ?: Equippable.harness(DyeColor.PINK) }) { key, c, m, rm, consumer ->
-//            EquippableComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
+        //region Equippable
+        register(EQUIPPABLE, { Items.SADDLE.components().get(EQUIPPABLE) ?: Equippable.harness(DyeColor.PINK) }) { key, c, m, rm, onValueChange ->
+            EquippableComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
         //region Repairable
         register(REPAIRABLE, { Repairable(HolderSet.empty()) }) { key, c, m, rm, onValueChange ->
             RepairableComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
         }
         //endregion
-//        //------------ Repairable ------------\\
-//        register(REPAIRABLE, { Repairable(HolderSet.empty()) }) { key, c, m, rm, consumer ->
-//            RepairableComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
+        //region Tool
+        register(TOOL, { Tool(emptyList(), 1f, 1, true) }) { key, c, m, rm, onValueChange ->
+            ToolComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
 //        //------------ Tool ------------\\
 //        register(TOOL, { Tool(emptyList(), 1f, 1, true) }) { key, c, m, rm, consumer ->
 //            ToolComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)

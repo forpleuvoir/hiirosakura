@@ -1,4 +1,4 @@
-package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
+package moe.forpleuvoir.hiirosakura.ui.widget
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
@@ -24,105 +24,53 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.util.canScroll
 import moe.forpleuvoir.hiirosakura.ui.util.rememberSegmentedButtonWidth
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
-import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.core.HolderSet
 import net.minecraft.core.registries.Registries
-import net.minecraft.network.chat.ComponentUtils
 import net.minecraft.resources.Identifier
 import net.minecraft.tags.TagKey
-import net.minecraft.world.damagesource.DamageType
-import net.minecraft.world.damagesource.DeathMessageType.INTENTIONAL_GAME_DESIGN
 import net.minecraft.world.entity.EntityType
-import net.minecraft.world.item.component.DamageResistant
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
+internal val entityTypeTags
+    get() = registryAccess!!.lookupOrThrow(Registries.ENTITY_TYPE).tags.map { it.key() }
+
+internal val TagKey<EntityType<*>>.entityTypes
+    get() = registryAccess!!.lookupOrThrow(Registries.ENTITY_TYPE).getTagOrEmpty(this)
+
+internal val entityTypes
+    get() = registryAccess!!.lookupOrThrow(Registries.ENTITY_TYPE).stream()
+
+private val TagKey<EntityType<*>>.asHolderSet
+    get() = registryAccess!!.lookupOrThrow(Registries.ENTITY_TYPE).tags.filter {
+        it.key().location == this.location
+    }.findFirst().get()
 
 @Composable
-fun DamageResistantComponentWrapper(
+fun HolderSetEntityTypeEditorDialog(
     key: Identifier,
-    value: DamageResistant,
-    onValueChange: (DamageResistant) -> Unit,
-    removeAction: () -> Unit,
-    modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
-    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
-        val count = value.types.count()
-        var showDialog by remember { mutableStateOf(false) }
-
-        val tip = if (count != 0) {
-            Modifier.plainTooltip {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    value.types.take(10).forEach { type ->
-                        Text(type.value().translatableText)
-                    }
-                }
-            }
-        } else Modifier
-        AssistChip(
-            {},
-            modifier = Modifier
-                .fillMaxHeight()
-                .then(tip)
-                .width(DataComponentEditorDefaults.entrySize.width),
-            label = {
-                Text(IGLang.ConfigWrapper.listConfigWrapperText(count), overflow = TextOverflow.Ellipsis, maxLines = 1)
-            },
-            trailingIcon = {
-                IconButton(onClick = {
-                    showDialog = true
-                }) {
-                    Icon(Icons.EditNote, null)
-                }
-            }
-        )
-
-        if (showDialog) {
-            HolderSetDamageTypeEditorDialog(
-                key = key,
-                value = value.types,
-                onValueChange = { onValueChange(DamageResistant(it)) },
-                onDismissRequest = { showDialog = false },
-                title = { Text(key) }
-            )
-        }
-    }
-}
-
-
-@Composable
-fun HolderSetDamageTypeEditorDialog(
-    key: Identifier,
-    value: HolderSet<DamageType>,
-    onValueChange: (HolderSet<DamageType>) -> Unit,
+    value: HolderSet<EntityType<*>>,
+    onValueChange: (HolderSet<EntityType<*>>) -> Unit,
     onDismissRequest: () -> Unit,
     title: @Composable () -> Unit
 ) {
     var tag by remember {
         mutableStateOf(
             if (value is HolderSet.Named) value.key()
-            else damageTypeTags.findFirst().get()
+            else entityTypeTags.findFirst().get()
         )
     }
 
@@ -135,7 +83,7 @@ fun HolderSetDamageTypeEditorDialog(
         title = title,
         onConfirmRequest = {
             val result = if (mode) {
-                val registry = registryAccess!!.lookupOrThrow(Registries.DAMAGE_TYPE)
+                val registry = registryAccess!!.lookupOrThrow(Registries.ENTITY_TYPE)
                 HolderSet.direct(types.values().map { registry.wrapAsHolder(it) })
             } else {
                 tag.asHolderSet
@@ -198,8 +146,8 @@ fun HolderSetDamageTypeEditorDialog(
                     if (currentMode) {
                         Column {
                             Row(verticalAlignment = Alignment.Bottom) {
-                                DamageTypeSelector(
-                                    damageTypes.findFirst().get(),
+                                EntityTypeSelector(
+                                    entityTypes.findFirst().get(),
                                     { type ->
                                         if (!types.any { it.value == type }) {
                                             types.add(Keyed(nextKey++, type))
@@ -217,10 +165,10 @@ fun HolderSetDamageTypeEditorDialog(
                                 )
 
                                 Spacer(Modifier.width(12.dp))
-                                DamageTypeTagSelector(
-                                    damageTypeTags.findFirst().get(),
+                                EntityTypeTagSelector(
+                                    entityTypeTags.findFirst().get(),
                                     { tag ->
-                                        tag.damageTypes.forEach { item ->
+                                        tag.entityTypes.forEach { item ->
                                             if (!types.any { it.value == item.value() }) {
                                                 types.add(Keyed(nextKey++, item.value()))
                                             }
@@ -282,7 +230,7 @@ fun HolderSetDamageTypeEditorDialog(
                                                                     handleHovered,
                                                                     isDragging
                                                                 )
-                                                                Text(type.translatableText)
+                                                                Text(type.description)
                                                             }
 
                                                             Row(
@@ -311,7 +259,7 @@ fun HolderSetDamageTypeEditorDialog(
                         }
 
                     } else {
-                        DamageTypeTagSelector(tag, { tag = it })
+                        EntityTypeTagSelector(tag, { tag = it })
                     }
                 }
             }
@@ -319,93 +267,29 @@ fun HolderSetDamageTypeEditorDialog(
     )
 }
 
-internal val damageTypeTags
-    get() = registryAccess!!.lookupOrThrow(Registries.DAMAGE_TYPE).tags.map { it.key() }
-
-internal val TagKey<DamageType>.damageTypes
-    get() = registryAccess!!.lookupOrThrow(Registries.DAMAGE_TYPE).getTagOrEmpty(this)
-
-internal val damageTypes
-    get() = registryAccess!!.lookupOrThrow(Registries.DAMAGE_TYPE).stream()
-
-private val TagKey<DamageType>.asHolderSet
-    get() = registryAccess!!.lookupOrThrow(Registries.DAMAGE_TYPE).tags.filter {
-        it.key().location == this.location
-    }.findFirst().get()
-
-internal val DamageType.translatableText
-    get() = when (this.deathMessageType()) {
-        INTENTIONAL_GAME_DESIGN -> Text.translatable(
-            "death.attack.${this.msgId}.message",
-            mc.player?.name?.plainText ?: "xx",
-            ComponentUtils.wrapInSquareBrackets(Text.translatable("death.attack.${this.msgId}.link"))
-        )
-
-        else                    -> Text.translatable(
-            "death.attack.${this.msgId}",
-            mc.player?.name?.plainText ?: "xx",
-            EntityType.PIG.description.plainText
-        )
-    }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DamageTypeTagSelector(
-    selected: TagKey<DamageType>,
-    onSelect: (TagKey<DamageType>) -> Unit,
-    items: List<TagKey<DamageType>> = damageTypeTags.toList(),
-    itemEquals: (TagKey<DamageType>, TagKey<DamageType>) -> Boolean = { a, b -> a == b },
-    content: @Composable (TagKey<DamageType>) -> Unit = {
-        Text(
-            "#${it.location}",
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.plainTooltip {
-                val types = it.damageTypes
-                if (types.count() == 0) {
-                    Text(IGLang.Misc.hasNothing)
-                    return@plainTooltip
-                } else {
-                    Column {
-                        types.take(20).forEach { type ->
-                            Text(type.value().translatableText)
-                        }
-                        if (types.count() > 20) Text("...")
-                    }
-                }
-            }
-        )
+fun EntityTypeSelector(
+    selected: EntityType<*>,
+    onSelect: (EntityType<*>) -> Unit,
+    items: List<EntityType<*>> = entityTypes.toList(),
+    itemEquals: (EntityType<*>, EntityType<*>) -> Boolean = { a, b -> a == b },
+    content: @Composable (EntityType<*>) -> Unit = {
+        Text(it.description, maxLines = 1, overflow = TextOverflow.Ellipsis)
     },
     labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
-    itemContent: @Composable (TagKey<DamageType>, Boolean) -> Unit = { item, _ ->
-        Text(
-            "#${item.location}",
-            modifier = Modifier.plainTooltip {
-                val types = item.damageTypes
-                if (types.count() == 0) {
-                    Text(IGLang.Misc.hasNothing)
-                    return@plainTooltip
-                } else {
-                    Column {
-                        types.take(20).forEach { type ->
-                            Text(type.value().translatableText)
-                        }
-                        if (types.count() > 20) Text("...")
-                    }
-                }
-            }
-        )
+    itemContent: @Composable (EntityType<*>, Boolean) -> Unit = { item, _ ->
+        Text(item.description)
     },
     enabled: Boolean = true,
-    searchFilter: ((String, TagKey<DamageType>) -> Boolean)? = { str, tag ->
-        str in tag.location.toString() || tag.damageTypes.any {
-            str in it.value().translatableText.plainText || str in it.value().msgId
-        }
+    searchFilter: ((String, EntityType<*>) -> Boolean)? = { str, type ->
+        str in type.description.plainText || str in type.descriptionId
     },
     modifier: Modifier = Modifier,
-    itemLeadingIcon: ((Boolean) -> (@Composable (TagKey<DamageType>) -> Unit)?)? = null,
-    itemTrailingIcon: ((Boolean) -> (@Composable (TagKey<DamageType>) -> Unit)?)? = null,
+    itemLeadingIcon: ((Boolean) -> (@Composable (EntityType<*>) -> Unit)?)? = null,
+    itemTrailingIcon: ((Boolean) -> (@Composable (EntityType<*>) -> Unit)?)? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     interactionSource: MutableInteractionSource? = null,
     shape: Shape = OutlinedTextFieldDefaults.shape,
@@ -435,26 +319,62 @@ fun DamageTypeTagSelector(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DamageTypeSelector(
-    selected: DamageType,
-    onSelect: (DamageType) -> Unit,
-    items: List<DamageType> = damageTypes.toList(),
-    itemEquals: (DamageType, DamageType) -> Boolean = { a, b -> a == b },
-    content: @Composable (DamageType) -> Unit = {
-        Text(it.translatableText)
+fun EntityTypeTagSelector(
+    selected: TagKey<EntityType<*>>,
+    onSelect: (TagKey<EntityType<*>>) -> Unit,
+    items: List<TagKey<EntityType<*>>> = entityTypeTags.toList(),
+    itemEquals: (TagKey<EntityType<*>>, TagKey<EntityType<*>>) -> Boolean = { a, b -> a == b },
+    content: @Composable (TagKey<EntityType<*>>) -> Unit = {
+        Text(
+            "#${it.location}",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.plainTooltip {
+                val types = it.entityTypes
+                if (types.count() == 0) {
+                    Text(IGLang.Misc.hasNothing)
+                    return@plainTooltip
+                } else {
+                    Column {
+                        types.take(20).forEach { type ->
+                            Text(type.value().description)
+                        }
+                        if (types.count() > 20) Text("...")
+                    }
+                }
+            }
+        )
     },
     labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
-    itemContent: @Composable (DamageType, Boolean) -> Unit = { item, _ ->
-        Text(item.translatableText)
+    itemContent: @Composable (TagKey<EntityType<*>>, Boolean) -> Unit = { item, _ ->
+        Text(
+            "#${item.location}",
+            modifier = Modifier.plainTooltip {
+                val types = item.entityTypes
+                if (types.count() == 0) {
+                    Text(IGLang.Misc.hasNothing)
+                    return@plainTooltip
+                } else {
+                    Column {
+                        types.take(20).forEach { type ->
+                            Text(type.value().description)
+                        }
+                        if (types.count() > 20) Text("...")
+                    }
+                }
+            }
+        )
     },
     enabled: Boolean = true,
-    searchFilter: ((String, DamageType) -> Boolean)? = { str, type ->
-        str in type.translatableText.plainText || str in type.msgId
+    searchFilter: ((String, TagKey<EntityType<*>>) -> Boolean)? = { str, tag ->
+        str in tag.location.toString() || tag.entityTypes.any {
+            str in it.value().description.plainText || str in it.value().descriptionId
+        }
     },
     modifier: Modifier = Modifier,
-    itemLeadingIcon: ((Boolean) -> (@Composable (DamageType) -> Unit)?)? = null,
-    itemTrailingIcon: ((Boolean) -> (@Composable (DamageType) -> Unit)?)? = null,
+    itemLeadingIcon: ((Boolean) -> (@Composable (TagKey<EntityType<*>>) -> Unit)?)? = null,
+    itemTrailingIcon: ((Boolean) -> (@Composable (TagKey<EntityType<*>>) -> Unit)?)? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     interactionSource: MutableInteractionSource? = null,
     shape: Shape = OutlinedTextFieldDefaults.shape,

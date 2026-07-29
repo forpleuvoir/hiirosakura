@@ -160,7 +160,8 @@ gradlew.bat buildAllModJar
 ## 资源与国际化
 
 - 共享资源放在 `common/src/main/resources`，加载器专属元数据放在对应模块。
-- 新增或修改语言键时同步检查 `assets/hiirosakura/lang/zh_cn.json` 与 `en_us.json`，保持键集合一致。
+- 新增或修改语言键时，除非明确要求，**只修改中文**（`zh_cn.json`），不碰其他语言文件。
+- 已适配 Data Component 的功能（如 itemeditor）的翻译可独立放在 `assets/hiirosakura_item_editor/lang/` 命名空间下，与主模组解耦。
 - 语言键沿用已有命名空间，并登记到项目现有语言对象；只删除经源码搜索确认不再使用的键。
 - `processResources` 处理的模组元数据、Mixin 配置和 `pack.mcmeta` 中继续使用现有 `${...}` 占位符，不写死构建版本。
 - 新增或移动资源时同时核对代码引用、资源路径大小写和两端打包结果。

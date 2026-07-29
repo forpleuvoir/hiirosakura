@@ -24,6 +24,7 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.modifier.vanillaTooltip
+import moe.forpleuvoir.hiirosakura.ui.util.canScroll
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.ibukigourd.text.plainText
@@ -128,10 +129,9 @@ private fun ItemLoreComponentEditDialog(
                         editingLines.moveElement(from.index, to.index)
                         hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
                     }
-                    val canScroll = lazyListState.canScrollBackward || lazyListState.canScrollForward
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(end = if (canScroll) 12.dp else 0.dp).fillMaxSize(),
+                        modifier = Modifier.padding(end = if (lazyListState.canScroll) 12.dp else 0.dp).fillMaxSize(),
                         state = lazyListState
                     ) {
                         itemsIndexed(
@@ -146,7 +146,7 @@ private fun ItemLoreComponentEditDialog(
                                     modifier = Modifier.fillMaxWidth().scale(scale)
                                 ) {
                                     Row(
-                                        Modifier.padding(12.dp).fillMaxWidth(),
+                                        Modifier.padding(4.dp).fillMaxWidth(),
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {

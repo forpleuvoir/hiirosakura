@@ -1,18 +1,9 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.*
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -21,29 +12,17 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.ui.widget.DataComponentTypeSelector
-import moe.forpleuvoir.hiirosakura.ui.widget.EnchatmentHelper
-import moe.forpleuvoir.hiirosakura.ui.widget.EnchatmentSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
-import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
-import moe.forpleuvoir.hiirosakura.util.allEnchantments
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
-import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
-import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.IntField
-import moe.forpleuvoir.ibukigourd.ui.preset.LocalNumberFieldStyle
-import moe.forpleuvoir.ibukigourd.ui.preset.NumberFieldStyle
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
-import net.minecraft.core.Holder
-import net.minecraft.world.item.enchantment.Enchantment
 
 @Composable
 fun ItemStackMatchEntryDataComponentTypeInfo(entry: ItemStackMatchEntry.DataComponentType) {

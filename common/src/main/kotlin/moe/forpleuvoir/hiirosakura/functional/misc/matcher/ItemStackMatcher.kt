@@ -2,8 +2,6 @@ package moe.forpleuvoir.hiirosakura.functional.misc.matcher
 
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.EntityMatchEntry.Matcher
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry.Script.Companion.defaultScript
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSItemStack
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
 import moe.forpleuvoir.hiirosakura.ui.widget.EnchatmentHelper

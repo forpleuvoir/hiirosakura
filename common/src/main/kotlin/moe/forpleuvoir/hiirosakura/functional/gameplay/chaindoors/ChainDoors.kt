@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
-import moe.forpleuvoir.hiirosakura.config.items.ChainDoorsRuleListConfigWrapper
 import moe.forpleuvoir.hiirosakura.config.items.configChainDoorsRuleList
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfo
 import moe.forpleuvoir.hiirosakura.util.logger
@@ -9,7 +8,6 @@ import moe.forpleuvoir.ibukigourd.config.item.configKeyCode
 import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
 import moe.forpleuvoir.ibukigourd.input.InputHandler
 import moe.forpleuvoir.ibukigourd.input.Keyboard
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
 import moe.forpleuvoir.nebula.common.util.primitive.onFalse
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import net.minecraft.client.multiplayer.MultiPlayerGameMode

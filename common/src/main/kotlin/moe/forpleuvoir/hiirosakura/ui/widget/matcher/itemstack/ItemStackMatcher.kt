@@ -32,7 +32,10 @@ import moe.forpleuvoir.hiirosakura.ui.widget.AddMenuOption
 import moe.forpleuvoir.hiirosakura.ui.widget.FloatingAddButton
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatExportButton
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportButton
-import moe.forpleuvoir.hiirosakura.ui.widget.matcher.*
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.CompositeMatcherModeSelector
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatcherDialogContentSize
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryRow
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.TestButton
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.appendLiteral
 import moe.forpleuvoir.ibukigourd.text.plainText

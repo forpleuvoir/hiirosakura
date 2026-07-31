@@ -2,7 +2,6 @@ package moe.forpleuvoir.hiirosakura.functional.misc.matcher
 
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
-import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry.Script.Companion.defaultScript
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSBlockHitResult
 import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSBlockState
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
@@ -12,13 +11,7 @@ import moe.forpleuvoir.hiirosakura.util.math.toVector
 import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.config.item.pair
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.text.TextBuilder
-import moe.forpleuvoir.ibukigourd.text.Translatable
-import moe.forpleuvoir.ibukigourd.text.appendLiteral
-import moe.forpleuvoir.ibukigourd.text.buildText
-import moe.forpleuvoir.ibukigourd.text.translateText
-import moe.forpleuvoir.ibukigourd.util.math.Vector3i
+import moe.forpleuvoir.ibukigourd.text.*
 import moe.forpleuvoir.ibukigourd.util.math.vector3ic
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -28,7 +21,6 @@ import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
-import moe.forpleuvoir.nebula.serialization.base.builder.SerializeObjectBuilder
 import moe.forpleuvoir.nebula.serialization.base.builder.build
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 import moe.forpleuvoir.nebula.serialization.codec.serialization
@@ -44,7 +36,6 @@ import net.minecraft.world.phys.Vec3
 import org.joml.Vector3i
 import org.joml.Vector3ic
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.jvm.optionals.getOrElse
 import kotlin.jvm.optionals.getOrNull
 import net.minecraft.world.level.block.Block as McBlock
 

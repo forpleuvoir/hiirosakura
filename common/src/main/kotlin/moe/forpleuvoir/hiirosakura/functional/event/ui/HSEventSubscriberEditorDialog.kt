@@ -15,7 +15,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
 import moe.forpleuvoir.hiirosakura.functional.event.EventTypes
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber.ExecutorType
@@ -24,6 +23,7 @@ import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.executor.CommandExecutor
 import moe.forpleuvoir.hiirosakura.functional.task.executor.MessageExecutor
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
+import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JexlSyntaxLanguage
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation

@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.util.codec
 
 import moe.forpleuvoir.hiirosakura.util.asBlock
+import moe.forpleuvoir.hiirosakura.util.asItem
 import moe.forpleuvoir.hiirosakura.util.serialization
 import moe.forpleuvoir.nebula.common.util.checkType
 import moe.forpleuvoir.nebula.common.util.requireType
@@ -8,7 +9,6 @@ import moe.forpleuvoir.nebula.serialization.DeserializationException
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import moe.forpleuvoir.nebula.serialization.codec.Codec
-import moe.forpleuvoir.hiirosakura.util.asItem
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.Identifier

@@ -1,9 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.customradialmenu
 
-import moe.forpleuvoir.hiirosakura.functional.task.QuickTickTaskExecuteScreen as Defaults
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 import moe.forpleuvoir.nebula.serialization.codec.color
+import moe.forpleuvoir.hiirosakura.functional.task.QuickTickTaskExecuteScreen as Defaults
 
 class RadialMenuSetting(
     val innerColor: Color = Defaults.innerColor,

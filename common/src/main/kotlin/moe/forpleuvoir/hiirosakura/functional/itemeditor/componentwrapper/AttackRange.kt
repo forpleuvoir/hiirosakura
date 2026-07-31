@@ -14,8 +14,6 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.T
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.FloatField
-import moe.forpleuvoir.ibukigourd.ui.preset.LocalNumberFieldStyle
-import moe.forpleuvoir.ibukigourd.ui.preset.NumberFieldStyle
 import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.AttackRange
@@ -67,57 +65,55 @@ fun AttackRangeEditorDialog(
         },
         title = title,
         content = {
-            CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    FloatField(
-                        editing.minReach,
-                        { editing = editing.copy(minReach = it) },
-                        range = 0f..64.0f,
-                        labelPosition = TextFieldLabelPosition.Attached(true),
-                        label = { Text(key, suffix = "min_reach", fallback = "Min Reach") },
-                        modifier = Modifier.width(300.dp)
-                    )
-                    FloatField(
-                        editing.maxReach,
-                        { editing = editing.copy(maxReach = it) },
-                        range = 0f..64.0f,
-                        labelPosition = TextFieldLabelPosition.Attached(true),
-                        label = { Text(key, suffix = "max_reach", fallback = "Max Reach") },
-                        modifier = Modifier.width(300.dp)
-                    )
-                    FloatField(
-                        editing.minCreativeReach,
-                        { editing = editing.copy(minCreativeReach = it) },
-                        range = 0f..64.0f,
-                        labelPosition = TextFieldLabelPosition.Attached(true),
-                        label = { Text(key, suffix = "min_creative_reach", fallback = "Min Creative Reach") },
-                        modifier = Modifier.width(300.dp)
-                    )
-                    FloatField(
-                        editing.maxCreativeReach,
-                        { editing = editing.copy(maxCreativeReach = it) },
-                        range = 0f..64.0f,
-                        labelPosition = TextFieldLabelPosition.Attached(true),
-                        label = { Text(key, suffix = "max_creative_reach", fallback = "Max Creative Reach") },
-                        modifier = Modifier.width(300.dp)
-                    )
-                    FloatField(
-                        editing.hitboxMargin,
-                        { editing = editing.copy(hitboxMargin = it) },
-                        range = 0f..1.0f,
-                        labelPosition = TextFieldLabelPosition.Attached(true),
-                        label = { Text(key, suffix = "hitbox_margin", fallback = "Hitbox Margin") },
-                        modifier = Modifier.width(300.dp)
-                    )
-                    FloatField(
-                        editing.mobFactor,
-                        { editing = editing.copy(mobFactor = it) },
-                        range = 0f..2.0f,
-                        labelPosition = TextFieldLabelPosition.Attached(true),
-                        label = { Text(key, suffix = "mob_factor", fallback = "Mob Factor") },
-                        modifier = Modifier.width(300.dp)
-                    )
-                }
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                FloatField(
+                    editing.minReach,
+                    { editing = editing.copy(minReach = it) },
+                    range = 0f..64.0f,
+                    labelPosition = TextFieldLabelPosition.Attached(true),
+                    label = { Text(key, suffix = "min_reach", fallback = "Min Reach") },
+                    modifier = Modifier.width(300.dp)
+                )
+                FloatField(
+                    editing.maxReach,
+                    { editing = editing.copy(maxReach = it) },
+                    range = 0f..64.0f,
+                    labelPosition = TextFieldLabelPosition.Attached(true),
+                    label = { Text(key, suffix = "max_reach", fallback = "Max Reach") },
+                    modifier = Modifier.width(300.dp)
+                )
+                FloatField(
+                    editing.minCreativeReach,
+                    { editing = editing.copy(minCreativeReach = it) },
+                    range = 0f..64.0f,
+                    labelPosition = TextFieldLabelPosition.Attached(true),
+                    label = { Text(key, suffix = "min_creative_reach", fallback = "Min Creative Reach") },
+                    modifier = Modifier.width(300.dp)
+                )
+                FloatField(
+                    editing.maxCreativeReach,
+                    { editing = editing.copy(maxCreativeReach = it) },
+                    range = 0f..64.0f,
+                    labelPosition = TextFieldLabelPosition.Attached(true),
+                    label = { Text(key, suffix = "max_creative_reach", fallback = "Max Creative Reach") },
+                    modifier = Modifier.width(300.dp)
+                )
+                FloatField(
+                    editing.hitboxMargin,
+                    { editing = editing.copy(hitboxMargin = it) },
+                    range = 0f..1.0f,
+                    labelPosition = TextFieldLabelPosition.Attached(true),
+                    label = { Text(key, suffix = "hitbox_margin", fallback = "Hitbox Margin") },
+                    modifier = Modifier.width(300.dp)
+                )
+                FloatField(
+                    editing.mobFactor,
+                    { editing = editing.copy(mobFactor = it) },
+                    range = 0f..2.0f,
+                    labelPosition = TextFieldLabelPosition.Attached(true),
+                    label = { Text(key, suffix = "mob_factor", fallback = "Mob Factor") },
+                    modifier = Modifier.width(300.dp)
+                )
             }
         }
     )

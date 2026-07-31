@@ -1,35 +1,24 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.foundation.text.input.InputTransformation
-import androidx.compose.foundation.text.input.OutputTransformation
-import androidx.compose.foundation.text.input.placeCursorAtEnd
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.hapticfeedback.HapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.CommentAppendMode
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
-import moe.forpleuvoir.hiirosakura.ui.util.canScroll
+import moe.forpleuvoir.hiirosakura.ui.util.NullableInputTransformation
+import moe.forpleuvoir.hiirosakura.ui.util.NullableOutputTransformation
+import moe.forpleuvoir.hiirosakura.ui.util.NullableTrailingIcon
 import moe.forpleuvoir.hiirosakura.ui.widget.HolderSetBlockEditorDialog
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
@@ -39,7 +28,6 @@ import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
@@ -55,8 +43,6 @@ import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.Tool
 import net.minecraft.world.level.block.Block
 import sh.calvin.reorderable.ReorderableCollectionItemScope
-import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.rememberReorderableLazyGridState
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
@@ -348,52 +334,13 @@ private fun RuleContent(
             value = value.speed.getOrNull() ?: 0f,
             onValueChange = { onValueChange(value.copy(speed = Optional.of(it))) },
             range = 0f..Float.MAX_VALUE,
-            inputTransformation = InputTransformation {
-                if (value.speed.isEmpty) {
-                    val before = originalText.toString()       // "0.0"
-                    val after = asCharSequence().toString()    // "0.01"
-
-                    val prefixLength = before
-                        .zip(after)
-                        .indexOfFirst { (a, b) -> a != b }
-                        .let { if (it == -1) minOf(before.length, after.length) else it }
-
-                    var suffixLength = 0
-                    while (
-                        suffixLength < before.length - prefixLength &&
-                        suffixLength < after.length - prefixLength &&
-                        before[before.lastIndex - suffixLength] ==
-                        after[after.lastIndex - suffixLength]
-                    ) {
-                        suffixLength++
-                    }
-
-                    val insertedText = after.substring(
-                        startIndex = prefixLength,
-                        endIndex = after.length - suffixLength,
-                    )
-
-                    if (insertedText.any(Char::isDigit)) {
-                        replace(0, length, insertedText)
-                        placeCursorAtEnd()
-                    }
-                }
-            },
-            outputTransformation = if (value.speed.isEmpty) {
-                OutputTransformation {
-                    replace(start = 0, end = length, text = HSLang.Common.unset.plainText)
-                }
-            } else null,
+            inputTransformation = NullableInputTransformation(value.speed.isEmpty),
+            outputTransformation = NullableOutputTransformation(value.speed.isEmpty),
             labelPosition = TextFieldLabelPosition.Attached(true),
             label = { Text(key, suffix = "speed", fallback = "Speed") },
             trailingIcon = {
-                if (value.speed.isPresent) {
-                    Row {
-                        IconButton(onClick = { onValueChange(value.copy(speed = Optional.empty())) }) {
-                            Icon(Icons.Delete, null)
-                        }
-                        Spacer(Modifier.width(4.dp))
-                    }
+                NullableTrailingIcon(value.speed.isPresent){
+                    onValueChange(value.copy(speed = Optional.empty()))
                 }
             },
             modifier = Modifier.fillMaxWidth()

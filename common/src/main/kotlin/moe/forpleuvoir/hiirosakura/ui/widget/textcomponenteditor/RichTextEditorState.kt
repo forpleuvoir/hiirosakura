@@ -1,19 +1,14 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor
 
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.text.TextRange
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.MutableText
-import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
-import net.minecraft.network.chat.TextColor
 import net.minecraft.network.chat.contents.PlainTextContents
+import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
 
 @Stable
 class RichTextEditorState(

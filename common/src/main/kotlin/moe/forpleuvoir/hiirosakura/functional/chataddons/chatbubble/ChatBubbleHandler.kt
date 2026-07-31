@@ -6,7 +6,6 @@ import moe.forpleuvoir.hiirosakura.config.items.configChatBubbleServerConfigMap
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.EntityMatcher
 import moe.forpleuvoir.ibukigourd.config.item.configVector2f
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.configBoolean

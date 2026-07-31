@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainStrategy.Neighborhood.Shape.CUBE

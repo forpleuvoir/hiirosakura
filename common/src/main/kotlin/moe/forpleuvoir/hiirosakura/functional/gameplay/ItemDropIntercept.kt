@@ -11,7 +11,6 @@ import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastStrategy
 import moe.forpleuvoir.nebula.config.ConfigGroup
-import moe.forpleuvoir.nebula.config.pathWithRoot
 import net.minecraft.world.item.ItemStack
 
 object ItemDropIntercept : ConfigGroup("item_drop_intercept") {

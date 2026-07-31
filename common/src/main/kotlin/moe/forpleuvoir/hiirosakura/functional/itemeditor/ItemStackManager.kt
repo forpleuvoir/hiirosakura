@@ -20,7 +20,6 @@ import moe.forpleuvoir.nebula.serialization.json.JsonDialect
 import net.minecraft.core.RegistryAccess
 import net.minecraft.world.item.ItemStack
 import java.io.File
-import java.util.concurrent.CopyOnWriteArrayList
 
 object ItemStackManager {
 

@@ -3,7 +3,10 @@ package moe.forpleuvoir.hiirosakura.ui.widget.radialmenu
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Path
-import kotlin.math.*
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 data class Sector(
     val start: Float,

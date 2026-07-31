@@ -23,15 +23,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.IconTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.KeybindTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
+import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
 import moe.forpleuvoir.hiirosakura.ui.icon.default.PlayArrow
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JexlSyntaxLanguage
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightTheme
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox

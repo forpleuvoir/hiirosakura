@@ -2,7 +2,6 @@ package moe.forpleuvoir.hiirosakura.util
 
 import com.mojang.blaze3d.vertex.PoseStack
 import kotlinx.coroutines.delay
-import kotlinx.serialization.descriptors.PrimitiveKind
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.ibukigourd.render.pose
 import moe.forpleuvoir.ibukigourd.text.Literal

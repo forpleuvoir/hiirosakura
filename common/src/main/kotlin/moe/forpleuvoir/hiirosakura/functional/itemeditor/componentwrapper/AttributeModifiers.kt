@@ -364,7 +364,7 @@ private fun ModifierEntryContent(
                 var showDialog by remember { mutableStateOf(false) }
 
                 Column(modifier = Modifier.weight(1f)) {
-                    var overrideText: Component? by remember { mutableStateOf(null) }
+                    var overrideText: Component? by remember(value.display) { mutableStateOf(null) }
 
                     value.display.apply({
                         overrideText = it

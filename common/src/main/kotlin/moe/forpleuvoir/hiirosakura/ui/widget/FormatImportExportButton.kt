@@ -19,12 +19,7 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Download
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Upload
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.HjsonSyntaxLanguage
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JexlSyntaxLanguage
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JsonSyntaxLanguage
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.TomlSyntaxLanguage
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.YamlSyntaxLanguage
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.*
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
 import moe.forpleuvoir.hiirosakura.ui.util.showErrorToast
 import moe.forpleuvoir.hiirosakura.ui.util.showSuccessToast

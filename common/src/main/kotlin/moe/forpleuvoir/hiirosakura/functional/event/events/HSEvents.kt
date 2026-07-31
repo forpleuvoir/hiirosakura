@@ -7,7 +7,6 @@ import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSSoundInstan
 import moe.forpleuvoir.ibukigourd.event.CancellableContext
 import moe.forpleuvoir.ibukigourd.event.CancellableContextImpl
 import moe.forpleuvoir.nebula.event.EventFactory
-import kotlin.jvm.JvmField
 
 //region 不可取消事件上下文
 

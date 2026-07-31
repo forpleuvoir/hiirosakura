@@ -40,11 +40,7 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.component.DataComponentPatch
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.NbtOps
-import net.minecraft.nbt.StringTag
-import net.minecraft.nbt.StringTagVisitor
-import net.minecraft.nbt.Tag
+import net.minecraft.nbt.*
 import net.minecraft.world.item.ItemStack
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState

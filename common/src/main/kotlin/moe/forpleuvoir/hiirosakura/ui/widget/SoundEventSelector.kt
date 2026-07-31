@@ -24,12 +24,14 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.icon.default.PlayArrow
 import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Close
+import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Search
 import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
@@ -42,6 +44,8 @@ import net.minecraft.core.Holder
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.contents.TranslatableContents
 import net.minecraft.sounds.SoundEvent
+import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 @Composable
 fun SoundPlayButton(
@@ -110,16 +114,12 @@ fun HolderSoundEventSelector(
     label: @Composable (() -> Unit)? = null,
     shape: Shape = OutlinedTextFieldDefaults.shape,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
+    contentPadding: PaddingValues = PaddingValues(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
     labelStartPadding: Dp? = 16.dp,
 ) = SoundEventSelector(
     value.value(),
     { newValue ->
-        BuiltInRegistries.SOUND_EVENT.asHolderIdMap().find {
-            it.value().location == newValue.location
-        }?.let { newValue ->
-            onValueChange(newValue)
-        }
+        onValueChange(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(newValue))
     },
     modifier,
     label,
@@ -137,7 +137,7 @@ fun SoundEventSelector(
     label: @Composable (() -> Unit)? = null,
     shape: Shape = OutlinedTextFieldDefaults.shape,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
+    contentPadding: PaddingValues = PaddingValues(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
     labelStartPadding: Dp? = 16.dp,
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -177,6 +177,79 @@ fun SoundEventSelector(
             content = {
                 SoundEventBrowser(modifier = Modifier.height(520.dp).fillMaxWidth()) {
                     onValueChange(it)
+                    showDialog = false
+                }
+            },
+            confirmButton = {},
+            dismissButton = {}
+        )
+    }
+}
+
+@Composable
+fun OptionalHolderSoundEventSelector(
+    value: Optional<Holder<SoundEvent>>,
+    onValueChange: (Optional<Holder<SoundEvent>>) -> Unit,
+    modifier: Modifier = Modifier,
+    label: @Composable (() -> Unit)? = null,
+    shape: Shape = OutlinedTextFieldDefaults.shape,
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
+    contentPadding: PaddingValues = PaddingValues(top = 4.dp, bottom = 8.dp, start = 8.dp, end = 8.dp),
+    labelStartPadding: Dp? = 16.dp,
+) {
+    var showDialog by remember { mutableStateOf(false) }
+    val tip = if (value.isPresent) {
+        Modifier.plainTooltip {
+            Text(value.get().value().location.toString())
+        }
+    } else Modifier
+    OutlinedLabelBox(
+        label,
+        modifier.then(tip),
+        shape = shape,
+        colors = colors,
+        contentPadding = contentPadding,
+        labelStartPadding = labelStartPadding,
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Row(
+                modifier = Modifier.weight(1f, false),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                value.getOrNull()?.let {
+                    SoundPlayButton(it)
+                    Spacer(Modifier.width(4.dp))
+                    Text(it.value().getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
+                } ?: run {
+                    Spacer(Modifier.width(4.dp))
+                    Text(HSLang.Common.unset)
+                }
+            }
+            Row {
+                value.getOrNull()?.let {
+                    IconButton({ onValueChange(Optional.empty()) }) {
+                        Icon(Icons.Delete, contentDescription = null)
+                    }
+                }
+                IconButton({
+                    showDialog = true
+                }) {
+                    Icon(Icons.EditNote, contentDescription = null)
+                }
+            }
+
+        }
+    }
+    if (showDialog) {
+        SimpleAlertDialog(
+            onDismissRequest = { showDialog = false },
+            onConfirmRequest = { true },
+            content = {
+                SoundEventBrowser(modifier = Modifier.height(520.dp).fillMaxWidth()) {
+                    onValueChange(Optional.of(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(it)))
                     showDialog = false
                 }
             },

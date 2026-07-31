@@ -3,10 +3,10 @@ package moe.forpleuvoir.hiirosakura.functional.customradialmenu
 import androidx.compose.runtime.mutableStateMapOf
 import kotlinx.coroutines.runBlocking
 import moe.forpleuvoir.hiirosakura.HiiroSakura
+import moe.forpleuvoir.hiirosakura.lang.CustomRadialMenuLang
 import moe.forpleuvoir.hiirosakura.platform.PLATFORM
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
-import moe.forpleuvoir.hiirosakura.lang.CustomRadialMenuLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.nebula.common.api.Initializable
 import moe.forpleuvoir.nebula.common.util.ioLaunch

@@ -22,9 +22,7 @@ import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.ItemIcon
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import net.minecraft.world.item.ItemStack
 
 @Composable
 fun ItemStackMatchEntryNameInfo(entry: ItemStackMatchEntry.Name) {

@@ -11,19 +11,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import com.llamalad7.mixinextras.sugar.Local
-import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.widget.*
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
-import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Texts
-import moe.forpleuvoir.ibukigourd.text.appendTranslate
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Add
@@ -46,12 +43,7 @@ import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.item.ItemUseAnimation
 import net.minecraft.world.item.component.Consumable
-import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect
-import net.minecraft.world.item.consume_effects.ClearAllStatusEffectsConsumeEffect
-import net.minecraft.world.item.consume_effects.ConsumeEffect
-import net.minecraft.world.item.consume_effects.PlaySoundConsumeEffect
-import net.minecraft.world.item.consume_effects.RemoveStatusEffectsConsumeEffect
-import net.minecraft.world.item.consume_effects.TeleportRandomlyConsumeEffect
+import net.minecraft.world.item.consume_effects.*
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 
 @Composable
@@ -146,66 +138,65 @@ fun ConsumableEditorDialog(
                     label = { Text(key, suffix = "on_consume_effects") },
                     contentPadding = PaddingValues(8.dp, 12.dp),
                 ) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        ReorderableEditorList(
-                            onConsumeEffects,
-                            key = { it.key },
-                            onMove = onConsumeEffects::removeRange,
-                            floatingActionButton = { lazyListState ->
-                                FloatingAddButton(
-                                    modifier = Modifier
-                                        .align(Alignment.BottomEnd),
-                                    fabVisibilityState = rememberFabVisibilityByScroll(lazyListState),
-                                    addMenuOptions = ConsumableEditor.consumeEffectAddMenuOptions,
-                                    addAction = {
-                                        onConsumeEffects.add(Keyed(nextKey++, it))
-                                    }
-                                )
-                            },
-                            itemContent = { index, effect, isDragging, hapticFeedback ->
-                                val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                                val handleInteraction = remember { MutableInteractionSource() }
-                                val handleHovered by handleInteraction.collectIsHoveredAsState()
+                    ReorderableEditorList(
+                        onConsumeEffects,
+                        key = { it.key },
+                        onMove = onConsumeEffects::removeRange,
+                        modifier = Modifier.fillMaxSize(),
+                        floatingActionButton = { lazyListState ->
+                            FloatingAddButton(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd),
+                                fabVisibilityState = rememberFabVisibilityByScroll(lazyListState),
+                                addMenuOptions = ConsumableEditor.consumeEffectAddMenuOptions,
+                                addAction = {
+                                    onConsumeEffects.add(Keyed(nextKey++, it))
+                                }
+                            )
+                        },
+                        itemContent = { index, effect, isDragging, hapticFeedback ->
+                            val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
+                            val handleInteraction = remember { MutableInteractionSource() }
+                            val handleHovered by handleInteraction.collectIsHoveredAsState()
 
-                                val wrapper = ConsumableEditor.consumeEffectsWrappers[effect.value.type]
-                                ElevatedCard(
-                                    modifier = Modifier.fillMaxWidth().scale(scale)
+                            val wrapper = ConsumableEditor.consumeEffectsWrappers[effect.value.type]
+                            ElevatedCard(
+                                modifier = Modifier.fillMaxWidth().scale(scale)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
                                 ) {
                                     Row(
-                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     ) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                        ) {
-                                            DragHandle(
-                                                hapticFeedback,
-                                                handleInteraction,
-                                                handleHovered,
-                                                isDragging
-                                            )
-                                            wrapper?.title()
-                                        }
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                        ) {
-                                            wrapper?.content(effect.value, {
-                                                onConsumeEffects[index] = effect.copyValue(it)
-                                            })
+                                        DragHandle(
+                                            hapticFeedback,
+                                            handleInteraction,
+                                            handleHovered,
+                                            isDragging
+                                        )
+                                        wrapper?.title()
+                                    }
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        wrapper?.content(effect.value, {
+                                            onConsumeEffects[index] = effect.copyValue(it)
+                                        })
 
-                                            RemoveConfirmButton(
-                                                ConsumeEffect.Type.APPLY_EFFECTS.id.asTranslateText().plainText,
-                                                { onConsumeEffects.removeAt(index) }
-                                            )
-                                        }
+                                        RemoveConfirmButton(
+                                            ConsumeEffect.Type.APPLY_EFFECTS.id.asTranslateText().plainText,
+                                            { onConsumeEffects.removeAt(index) }
+                                        )
                                     }
                                 }
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             }
         }

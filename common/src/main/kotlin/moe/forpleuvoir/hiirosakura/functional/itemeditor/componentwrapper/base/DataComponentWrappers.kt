@@ -9,7 +9,6 @@ import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.nebula.common.api.Initializable
-import net.minecraft.core.Holder
 import net.minecraft.core.HolderSet
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents.*
@@ -18,18 +17,14 @@ import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.damagesource.DamageTypes
 import net.minecraft.world.food.Foods
-import net.minecraft.world.item.DyeColor
-import net.minecraft.world.item.Item
-import net.minecraft.world.item.ItemUseAnimation
-import net.minecraft.world.item.Items
-import net.minecraft.world.item.Rarity
+import net.minecraft.world.item.*
 import net.minecraft.world.item.component.*
-import net.minecraft.world.item.consume_effects.ConsumeEffect
 import net.minecraft.world.item.enchantment.Enchantable
 import net.minecraft.world.item.enchantment.ItemEnchantments
 import net.minecraft.world.item.enchantment.Repairable
 import net.minecraft.world.item.equipment.Equippable
 import net.minecraft.world.level.block.entity.BannerPatternLayers
+import java.util.*
 
 fun interface DataComponentWrapper<C> {
     @Composable
@@ -261,42 +256,40 @@ object DataComponentWrappers : Initializable {
         //endregion
         //region Consumable
         register(CONSUMABLE, {
-            Consumable(1.6f, ItemUseAnimation.EAT, SoundEvents.GENERIC_EAT, true, ArrayList<ConsumeEffect>())
+            Consumable(1.6f, ItemUseAnimation.EAT, SoundEvents.GENERIC_EAT, true, ArrayList())
         }) { key, c, m, rm, onValueChange ->
             ConsumableComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
         }
         //endregion
-//        //------------ KineticWeapon ------------\\
-//        register(
-//            KINETIC_WEAPON, {
-//                KineticWeapon(
-//                    10,
-//                    0,
-//                    Optional<KineticWeapon.Condition>.ofNullable(null),
-//                    Optional<KineticWeapon.Condition>.ofNullable(null),
-//                    Optional<KineticWeapon.Condition>.ofNullable(null),
-//                    0f,
-//                    1f,
-//                    Optional<Holder<SoundEvent>>.ofNullable(SoundEvents.SPEAR_USE),
-//                    Optional<Holder<SoundEvent>>.ofNullable(SoundEvents.SPEAR_HIT)
-//                )
-//            }) { key, c, m, rm, consumer ->
-//            KineticWeaponComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------ PiercingWeapon ------------\\
-//        register(
-//            PIERCING_WEAPON,
-//            {
-//                PiercingWeapon(
-//                    true,
-//                    false,
-//                    Optional<Holder<SoundEvent>>.ofNullable(SoundEvents.SPEAR_USE),
-//                    Optional<Holder<SoundEvent>>.ofNullable(SoundEvents.SPEAR_HIT)
-//                )
-//            }
-//        ) { key, c, m, rm, consumer ->
-//            PiercingWeaponComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
+        //region Kinetic Weapon
+        register(KINETIC_WEAPON, {
+            KineticWeapon(
+                    10,
+                    0,
+                    Optional.empty(),
+                    Optional.empty(),
+                    Optional.empty(),
+                    0f,
+                    1f,
+                    Optional.of(SoundEvents.SPEAR_USE),
+                    Optional.of(SoundEvents.SPEAR_HIT)
+                )
+        }) { key, c, m, rm, onValueChange ->
+            KineticWeaponComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Piercing Weapon
+        register(PIERCING_WEAPON, {
+            PiercingWeapon(
+                  true,
+                  false,
+                  Optional.of(SoundEvents.SPEAR_USE),
+                  Optional.of(SoundEvents.SPEAR_HIT)
+              )
+        }) { key, c, m, rm, onValueChange ->
+            PiercingWeaponComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
 //        //------------ Fireworks ------------\\
 //        register(
 //            FIREWORKS,

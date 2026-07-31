@@ -3,7 +3,6 @@ package moe.forpleuvoir.hiirosakura.ui
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
@@ -12,7 +11,6 @@ import moe.forpleuvoir.hiirosakura.functional.customradialmenu.ui.CustomRadialMe
 import moe.forpleuvoir.hiirosakura.functional.event.ui.HSEventManagerUI
 import moe.forpleuvoir.hiirosakura.functional.task.ui.TaskManagerUI
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Assignment
-import moe.forpleuvoir.hiirosakura.ui.icon.default.NotificationAdd
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Notifications
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Radar
 import moe.forpleuvoir.hiirosakura.ui.icon.filled.Assignment

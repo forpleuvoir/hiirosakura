@@ -4,9 +4,8 @@ import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightSpan
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlighter
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightTheme
+import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlighter
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxLanguage
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxToken
 

@@ -2,8 +2,6 @@ package moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.background
-import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
@@ -11,26 +9,30 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.*
+import moe.forpleuvoir.hiirosakura.ui.widget.AddMenuOption
+import moe.forpleuvoir.hiirosakura.ui.widget.FloatingAddButton
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatExportButton
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportButton
-import moe.forpleuvoir.hiirosakura.ui.widget.matcher.*
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.CompositeMatcherModeSelector
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatcherDialogContentSize
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryRow
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.TestButton
 import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.appendLiteral
@@ -38,7 +40,6 @@ import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
 import moe.forpleuvoir.ibukigourd.ui.preset.DragHandle
@@ -47,6 +48,7 @@ import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.PlainTooltip
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fadeScaleTooltip
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.tooltip
+import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberFabVisibilityByScroll
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
@@ -292,10 +294,10 @@ fun BasicBlockInfoMatcherEditor(
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
 
-            FloatingEntryAddButton(
+            FloatingAddButton(
                 modifier = Modifier
                     .align(Alignment.BottomEnd),
-                scrollState = lazyListState,
+                fabVisibilityState = rememberFabVisibilityByScroll(lazyListState),
                 addMenuOptions = if (isNested) nestedAddMenuOptions else addMenuOptions
             ) { newEntry ->
                 entries.add(Keyed(entries.size.toLong(), newEntry))
@@ -365,25 +367,27 @@ private fun BlockInfoMatchEntryRow(
 
 
 private val nestedAddMenuOptions: List<AddMenuOption<BlockInfoMatchEntry>> = listOf(
-    AddMenuOption(BlockInfoMatchEntry.Block.title, { BlockInfoMatchEntry.Block.default }) { addAction, onDismiss ->
-        BlockInfoMatchEntryBlockEditorDialog(onDismiss, BlockInfoMatchEntry.Block.default, addAction)
+    AddMenuOption({ Text(BlockInfoMatchEntry.Block.title) }, { BlockInfoMatchEntry.Block.default }) { addAction, defaultValue, onDismiss ->
+        BlockInfoMatchEntryBlockEditorDialog(onDismiss, defaultValue() as BlockInfoMatchEntry.Block, addAction)
     },
-    AddMenuOption(BlockInfoMatchEntry.Script.title, { BlockInfoMatchEntry.Script.default }) { addAction, onDismiss ->
-        BlockInfoMatchEntryScriptEditorDialog(onDismiss, BlockInfoMatchEntry.Script.default, addAction)
+    AddMenuOption({ Text(BlockInfoMatchEntry.Script.title) }, { BlockInfoMatchEntry.Script.default }) { addAction, defaultValue, onDismiss ->
+        BlockInfoMatchEntryScriptEditorDialog(onDismiss, defaultValue() as BlockInfoMatchEntry.Script, addAction)
     },
-    AddMenuOption(BlockInfoMatchEntry.Pos.title, { BlockInfoMatchEntry.Pos.default }) { addAction, onDismiss ->
-        BlockInfoMatchEntryPosEditorDialog(onDismiss, BlockInfoMatchEntry.Pos.default, addAction)
+    AddMenuOption({ Text(BlockInfoMatchEntry.Pos.title) }, { BlockInfoMatchEntry.Pos.default }) { addAction, defaultValue, onDismiss ->
+        BlockInfoMatchEntryPosEditorDialog(onDismiss, defaultValue() as BlockInfoMatchEntry.Pos, addAction)
     },
-    AddMenuOption(BlockInfoMatchEntry.Tag.title, { BlockInfoMatchEntry.Tag.default }) { addAction, onDismiss ->
-        BlockInfoMatchEntryTagEditorDialog(onDismiss, BlockInfoMatchEntry.Tag.default, addAction)
+    AddMenuOption({ Text(BlockInfoMatchEntry.Tag.title) }, { BlockInfoMatchEntry.Tag.default }) { addAction, defaultValue, onDismiss ->
+        BlockInfoMatchEntryTagEditorDialog(onDismiss, defaultValue() as BlockInfoMatchEntry.Tag, addAction)
     },
-    AddMenuOption(BlockInfoMatchEntry.Property.title, { BlockInfoMatchEntry.Property.default }) { addAction, onDismiss ->
-        BlockInfoMatchEntryPropertyEditorDialog(onDismiss, BlockInfoMatchEntry.Property.default, addAction)
+    AddMenuOption({ Text(BlockInfoMatchEntry.Property.title) }, { BlockInfoMatchEntry.Property.default }) { addAction, defaultValue, onDismiss ->
+        BlockInfoMatchEntryPropertyEditorDialog(onDismiss, defaultValue() as BlockInfoMatchEntry.Property, addAction)
     }
 )
 
 private val addMenuOptions: List<AddMenuOption<BlockInfoMatchEntry>> =
-    nestedAddMenuOptions + AddMenuOption(BlockInfoMatchEntry.Matcher.title, { BlockInfoMatchEntry.Matcher.default }) { addAction, onDismiss ->
-        BlockInfoMatchEntryMatcherEditorDialog(onDismiss, BlockInfoMatchEntry.Matcher.default, addAction)
+    nestedAddMenuOptions + AddMenuOption(
+        { Text(BlockInfoMatchEntry.Matcher.title) },
+        { BlockInfoMatchEntry.Matcher.default }) { addAction, defaultValue, onDismiss ->
+        BlockInfoMatchEntryMatcherEditorDialog(onDismiss, defaultValue() as BlockInfoMatchEntry.Matcher, addAction)
     }
 //endregion

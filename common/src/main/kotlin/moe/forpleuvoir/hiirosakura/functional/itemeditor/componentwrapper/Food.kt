@@ -193,7 +193,6 @@ fun FoodComponentWrapper(
                     }
                 }
             )
-
         }
     }
 }

@@ -39,6 +39,7 @@ import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
 import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
+import moe.forpleuvoir.nebula.common.util.primitive.toTitleCase
 import net.minecraft.locale.Language
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
@@ -70,7 +71,7 @@ fun Text(
     identifier: Identifier,
     prefix: String? = null,
     suffix: String? = null,
-    fallback: String? = null,
+    fallback: String? = suffix?.toTitleCase() ?: identifier.toString(),
     commentAppendMode: CommentAppendMode = CommentAppendMode.Tooltip,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
@@ -97,9 +98,9 @@ fun Text(
 
     val displayText = when (commentAppendMode) {
         is CommentAppendMode.Replace -> if (hasComment) Translatable(commentKey)
-        else Translatable(key, fallback ?: identifier.toString())
+        else Translatable(key, fallback)
 
-        else                         -> Translatable(key, fallback ?: identifier.toString())
+        else                         -> Translatable(key, fallback)
     }
 
     val actualModifier = if (hasComment && commentAppendMode is CommentAppendMode.Tooltip) {

@@ -292,7 +292,9 @@ private fun ModifierEntryContent(
     onValueChange: (ItemAttributeModifiers.Entry) -> Unit,
     key: Identifier
 ) {
-    Column {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
         //attribute
         EntityAttributeSelector(
             value.attribute,
@@ -303,7 +305,6 @@ private fun ModifierEntryContent(
             },
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(Modifier.height(14.dp))
         //id
         OutlinedLabelBox(
             { Text(key, suffix = "id", fallback = "ID") },
@@ -328,7 +329,6 @@ private fun ModifierEntryContent(
                 }
             }
         }
-        Spacer(Modifier.height(8.dp))
         //amount
         DoubleField(
             value = value.modifier.amount,
@@ -337,7 +337,6 @@ private fun ModifierEntryContent(
             label = { Text(key, suffix = "amount", fallback = "Amount") },
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(Modifier.height(8.dp))
         //operation
         EnumSelector(
             value.modifier.operation,
@@ -345,7 +344,6 @@ private fun ModifierEntryContent(
             label = { Text(key, suffix = "operation", fallback = "Operation") },
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(Modifier.height(8.dp))
         //slot
         EnumSelector(
             value.slot,
@@ -353,7 +351,6 @@ private fun ModifierEntryContent(
             label = { Text(key, suffix = "slot", fallback = "Slot") },
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(Modifier.height(14.dp))
         //display
         OutlinedLabelBox(
             { Text(key, suffix = "display", fallback = "Display") },

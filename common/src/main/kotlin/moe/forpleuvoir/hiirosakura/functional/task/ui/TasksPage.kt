@@ -228,8 +228,8 @@ fun <T : HSTickTask> TaskEditorDialog(
                     icon?.let {
                         OutlinedLabelBox(
                             label = { Text(HSLang.Task.icon) },
-                            contentPadding = PaddingValues(16.dp, 0.dp, 16.dp, 4.dp),
-                            modifier = Modifier.height(58.dp)
+//                            contentPadding = PaddingValues(16.dp, 0.dp, 16.dp, 4.dp),
+                            modifier = Modifier.height(66.5.dp)
                         ) {
                             ItemSelector(it, { newIcon -> icon = newIcon }, false, 1.05f)
                         }

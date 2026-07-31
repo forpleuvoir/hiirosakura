@@ -11,6 +11,7 @@ import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.util.defaultLaunch
 import moe.forpleuvoir.nebula.common.util.primitive.either
+import moe.forpleuvoir.nebula.common.util.primitive.toTitleCase
 import net.minecraft.client.Minecraft
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.TooltipFlag
@@ -56,7 +57,7 @@ fun Identifier.asTranslateKey(prefix: String? = null, suffix: String? = null): S
         this.toLanguageKey()
 }
 
-fun Identifier.asTranslateText(prefix: String? = null, suffix: String? = null, fallback: String? = null): MutableText {
+fun Identifier.asTranslateText(prefix: String? = null, suffix: String? = null, fallback: String? = suffix?.toTitleCase()): MutableText {
     return Translatable(asTranslateKey(prefix, suffix), fallback ?: this.toString())
 }
 

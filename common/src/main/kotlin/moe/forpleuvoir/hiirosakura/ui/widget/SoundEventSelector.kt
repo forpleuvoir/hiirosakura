@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.ui.icon.default.PlayArrow
 import moe.forpleuvoir.ibukigourd.text.MutableText
@@ -110,6 +111,7 @@ fun HolderSoundEventSelector(
     shape: Shape = OutlinedTextFieldDefaults.shape,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
     contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
+    labelStartPadding: Dp? = 16.dp,
 ) = SoundEventSelector(
     value.value(),
     { newValue ->
@@ -124,6 +126,7 @@ fun HolderSoundEventSelector(
     shape,
     colors,
     contentPadding,
+    labelStartPadding,
 )
 
 @Composable
@@ -135,6 +138,7 @@ fun SoundEventSelector(
     shape: Shape = OutlinedTextFieldDefaults.shape,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
     contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
+    labelStartPadding: Dp? = 16.dp,
 ) {
     var showDialog by remember { mutableStateOf(false) }
     OutlinedLabelBox(
@@ -145,6 +149,7 @@ fun SoundEventSelector(
         shape = shape,
         colors = colors,
         contentPadding = contentPadding,
+        labelStartPadding = labelStartPadding,
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -180,49 +185,6 @@ fun SoundEventSelector(
         )
     }
 }
-
-////todo 实现一个多 项的选择器
-//@Composable
-//fun SoundEventSelector(
-//    value: SoundEvent,
-//    onValueChange: (SoundEvent) -> Unit,
-//    modifier: Modifier = Modifier,
-//) {
-//    var showDialog by remember { mutableStateOf(false) }
-//    AssistChip(
-//        {},
-//        modifier = modifier.plainTooltip {
-//            Text(value.location.toString())
-//        },
-//        leadingIcon = {
-//            SoundPlayButton(value)
-//        },
-//        label = {
-//            Text(value.getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
-//        },
-//        trailingIcon = {
-//            IconButton({
-//                showDialog = true
-//            }) {
-//                Icon(Icons.EditNote, contentDescription = null)
-//            }
-//        }
-//    )
-//    if (showDialog) {
-//        SimpleAlertDialog(
-//            onDismissRequest = { showDialog = false },
-//            onConfirmRequest = { true },
-//            content = {
-//                SoundEventBrowser(modifier = Modifier.height(520.dp).fillMaxWidth()) {
-//                    onValueChange(it)
-//                    showDialog = false
-//                }
-//            },
-//            confirmButton = {},
-//            dismissButton = {}
-//        )
-//    }
-//}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

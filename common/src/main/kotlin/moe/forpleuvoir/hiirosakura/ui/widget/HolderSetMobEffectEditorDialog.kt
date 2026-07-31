@@ -24,11 +24,10 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.util.canScroll
 import moe.forpleuvoir.hiirosakura.ui.util.rememberSegmentedButtonWidth
 import moe.forpleuvoir.hiirosakura.util.registryAccess
-import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.preset.*
@@ -40,37 +39,37 @@ import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.core.HolderSet
 import net.minecraft.core.registries.Registries
 import net.minecraft.tags.TagKey
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.effect.MobEffect
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import kotlin.jvm.optionals.getOrNull
 
-internal val entityTypeTags
-    get() = registryAccess!!.lookupOrThrow(Registries.ENTITY_TYPE).tags.map { it.key() }
 
-internal val TagKey<EntityType<*>>.entityTypes
-    get() = registryAccess!!.lookupOrThrow(Registries.ENTITY_TYPE).getTagOrEmpty(this)
+internal val mobEffectTags
+    get() = registryAccess!!.lookupOrThrow(Registries.MOB_EFFECT).tags.map { it.key() }
 
-internal val entityTypes
-    get() = registryAccess!!.lookupOrThrow(Registries.ENTITY_TYPE).stream()
+internal val TagKey<MobEffect>.mobEffects
+    get() = registryAccess!!.lookupOrThrow(Registries.MOB_EFFECT).getTagOrEmpty(this)
 
-private val TagKey<EntityType<*>>.asHolderSet
-    get() = registryAccess!!.lookupOrThrow(Registries.ENTITY_TYPE).tags.filter {
+internal val mobEffects
+    get() = registryAccess!!.lookupOrThrow(Registries.MOB_EFFECT).stream()
+
+private val TagKey<MobEffect>.asHolderSet
+    get() = registryAccess!!.lookupOrThrow(Registries.MOB_EFFECT).tags.filter {
         it.key().location == this.location
     }.findFirst().get()
 
 @Composable
-fun HolderSetEntityTypeEditorDialog(
-    value: HolderSet<EntityType<*>>,
-    onValueChange: (HolderSet<EntityType<*>>) -> Unit,
+fun HolderSetMobEffectEditorDialog(
+    value: HolderSet<MobEffect>,
+    onValueChange: (HolderSet<MobEffect>) -> Unit,
     onDismissRequest: () -> Unit,
     title: @Composable () -> Unit
 ) {
-    val firstTag = entityTypeTags.findFirst().getOrNull()
+
+    val firstTag = mobEffectTags.findFirst().getOrNull()
     var tag by remember {
-        mutableStateOf(
-            if (value is HolderSet.Named) value.key() else firstTag
-        )
+        mutableStateOf(if (value is HolderSet.Named) value.key() else firstTag)
     }
 
     var mode by remember { mutableStateOf(value !is HolderSet.Named) }
@@ -84,7 +83,7 @@ fun HolderSetEntityTypeEditorDialog(
         onDismissRequest = onDismissRequest,
         title = title,
         onConfirmRequest = {
-            val registry = registryAccess!!.lookupOrThrow(Registries.ENTITY_TYPE)
+            val registry = registryAccess!!.lookupOrThrow(Registries.MOB_EFFECT)
             val list = HolderSet.direct(types.values().map { registry.wrapAsHolder(it) })
             onValueChange(
                 if (mode) list
@@ -137,8 +136,8 @@ fun HolderSetEntityTypeEditorDialog(
                     if (currentMode) {
                         Column {
                             Row(verticalAlignment = Alignment.Bottom) {
-                                EntityTypeSelector(
-                                    entityTypes.findFirst().get(),
+                                MobEffectSelector(
+                                    mobEffects.findFirst().get(),
                                     { type ->
                                         if (!types.any { it.value == type }) {
                                             types.add(Keyed(nextKey++, type))
@@ -148,13 +147,12 @@ fun HolderSetEntityTypeEditorDialog(
                                     contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
                                     content = { Text(HSLang.ItemEditor.addFromRegistry) }
                                 )
-
                                 firstTag?.let {
                                     Spacer(Modifier.width(12.dp))
-                                    EntityTypeTagSelector(
-                                        it,
+                                    MobEffectTagSelector(
+                                        firstTag,
                                         { tag ->
-                                            tag.entityTypes.forEach { item ->
+                                            tag.mobEffects.forEach { item ->
                                                 if (!types.any { it.value == item.value() }) {
                                                     types.add(Keyed(nextKey++, item.value()))
                                                 }
@@ -168,7 +166,7 @@ fun HolderSetEntityTypeEditorDialog(
                             }
                             Spacer(Modifier.height(12.dp))
                             OutlinedLabelBox(
-                                { Text(HSLang.ItemEditor.tags) },
+                                { Text(HSLang.ItemEditor.mobEffects) },
                             ) {
                                 Box(Modifier.fillMaxWidth().height(460.dp)) {
                                     val lazyListState = rememberLazyListState()
@@ -211,7 +209,7 @@ fun HolderSetEntityTypeEditorDialog(
                                                                     handleHovered,
                                                                     isDragging
                                                                 )
-                                                                Text(type.description)
+                                                                Text(type.displayName)
                                                             }
 
                                                             Row(
@@ -240,8 +238,9 @@ fun HolderSetEntityTypeEditorDialog(
                         }
 
                     } else {
-                        tag?.let { EntityTypeTagSelector(it, { tag = it }) }
-                            ?: Text(IGLang.Misc.hasNothing)
+                        tag?.let {
+                            MobEffectTagSelector(it, { newTag -> tag = newTag })
+                        } ?: Text(IGLang.Misc.hasNothing)
                     }
                 }
             }
@@ -252,74 +251,25 @@ fun HolderSetEntityTypeEditorDialog(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EntityTypeSelector(
-    selected: EntityType<*>,
-    onSelect: (EntityType<*>) -> Unit,
-    items: List<EntityType<*>> = entityTypes.toList(),
-    itemEquals: (EntityType<*>, EntityType<*>) -> Boolean = { a, b -> a == b },
-    content: @Composable (EntityType<*>) -> Unit = {
-        Text(it.description, maxLines = 1, overflow = TextOverflow.Ellipsis)
-    },
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
-    label: @Composable (() -> Unit)? = null,
-    itemContent: @Composable (EntityType<*>, Boolean) -> Unit = { item, _ ->
-        Text(item.description)
-    },
-    enabled: Boolean = true,
-    searchFilter: ((String, EntityType<*>) -> Boolean)? = { str, type ->
-        str in type.description.plainText || str in type.descriptionId
-    },
-    modifier: Modifier = Modifier,
-    itemLeadingIcon: ((Boolean) -> (@Composable (EntityType<*>) -> Unit)?)? = null,
-    itemTrailingIcon: ((Boolean) -> (@Composable (EntityType<*>) -> Unit)?)? = null,
-    textStyle: TextStyle = LocalTextStyle.current,
-    interactionSource: MutableInteractionSource? = null,
-    shape: Shape = OutlinedTextFieldDefaults.shape,
-    colors: TextFieldColors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
-) = Selector(
-    selected = selected,
-    onSelect = onSelect,
-    items = items,
-    itemEquals = itemEquals,
-    content = content,
-    labelPosition = labelPosition,
-    label = label,
-    itemContent = itemContent,
-    enabled = enabled,
-    searchFilter = searchFilter,
-    modifier = modifier,
-    itemLeadingIcon = itemLeadingIcon,
-    itemTrailingIcon = itemTrailingIcon,
-    textStyle = textStyle,
-    interactionSource = interactionSource,
-    shape = shape,
-    colors = colors,
-    contentPadding = contentPadding
-)
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun EntityTypeTagSelector(
-    selected: TagKey<EntityType<*>>,
-    onSelect: (TagKey<EntityType<*>>) -> Unit,
-    items: List<TagKey<EntityType<*>>> = entityTypeTags.toList(),
-    itemEquals: (TagKey<EntityType<*>>, TagKey<EntityType<*>>) -> Boolean = { a, b -> a == b },
-    content: @Composable (TagKey<EntityType<*>>) -> Unit = {
+fun MobEffectTagSelector(
+    selected: TagKey<MobEffect>,
+    onSelect: (TagKey<MobEffect>) -> Unit,
+    items: List<TagKey<MobEffect>> = mobEffectTags.toList(),
+    itemEquals: (TagKey<MobEffect>, TagKey<MobEffect>) -> Boolean = { a, b -> a == b },
+    content: @Composable (TagKey<MobEffect>) -> Unit = {
         Text(
             "#${it.location}",
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.plainTooltip {
-                val types = it.entityTypes
+                val types = it.mobEffects
                 if (types.count() == 0) {
                     Text(IGLang.Misc.hasNothing)
                     return@plainTooltip
                 } else {
                     Column {
                         types.take(20).forEach { type ->
-                            Text(type.value().description)
+                            Text(type.value().displayName)
                         }
                         if (types.count() > 20) Text("...")
                     }
@@ -329,18 +279,18 @@ fun EntityTypeTagSelector(
     },
     labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
-    itemContent: @Composable (TagKey<EntityType<*>>, Boolean) -> Unit = { item, _ ->
+    itemContent: @Composable (TagKey<MobEffect>, Boolean) -> Unit = { item, _ ->
         Text(
             "#${item.location}",
             modifier = Modifier.plainTooltip {
-                val types = item.entityTypes
+                val types = item.mobEffects
                 if (types.count() == 0) {
                     Text(IGLang.Misc.hasNothing)
                     return@plainTooltip
                 } else {
                     Column {
                         types.take(20).forEach { type ->
-                            Text(type.value().description)
+                            Text(type.value().displayName)
                         }
                         if (types.count() > 20) Text("...")
                     }
@@ -349,14 +299,14 @@ fun EntityTypeTagSelector(
         )
     },
     enabled: Boolean = true,
-    searchFilter: ((String, TagKey<EntityType<*>>) -> Boolean)? = { str, tag ->
-        str in tag.location.toString() || tag.entityTypes.any {
-            str in it.value().description.plainText || str in it.value().descriptionId
+    searchFilter: ((String, TagKey<MobEffect>) -> Boolean)? = { str, tag ->
+        str in tag.location.toString() || tag.mobEffects.any {
+            str in it.value().displayName.plainText || str in it.value().descriptionId
         }
     },
     modifier: Modifier = Modifier,
-    itemLeadingIcon: ((Boolean) -> (@Composable (TagKey<EntityType<*>>) -> Unit)?)? = null,
-    itemTrailingIcon: ((Boolean) -> (@Composable (TagKey<EntityType<*>>) -> Unit)?)? = null,
+    itemLeadingIcon: ((Boolean) -> (@Composable (TagKey<MobEffect>) -> Unit)?)? = null,
+    itemTrailingIcon: ((Boolean) -> (@Composable (TagKey<MobEffect>) -> Unit)?)? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     interactionSource: MutableInteractionSource? = null,
     shape: Shape = OutlinedTextFieldDefaults.shape,

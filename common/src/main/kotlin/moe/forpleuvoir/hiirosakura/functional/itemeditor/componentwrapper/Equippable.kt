@@ -95,7 +95,7 @@ fun EquippableEditorDialog(
         },
         content = {
             Box(
-                modifier = Modifier.heightIn(max = 720.dp)
+                modifier = Modifier.heightIn(max = 750.dp)
             ) {
                 val scrollState = rememberScrollState()
                 Column(
@@ -226,7 +226,6 @@ private fun AllowedEntities(
 
     if (showAllowedEntitiesDialog) {
         HolderSetEntityTypeEditorDialog(
-            key = key,
             value = value.allowedEntities.getOrNull() ?: HolderSet.empty(),
             onValueChange = {
                 onValueChange(value.copy(allowedEntities = Optional.ofNullable(it)))
@@ -394,7 +393,7 @@ private fun AssetId(
                             selected = it
                         },
                         items = equipmentAssetKeys,
-                        label = { Text(key, suffix = "form_resource_manager", fallback = "From Resource Manager") },
+                        label = { Text(HSLang.ItemEditor.fromResourceManager) },
                         content = {
                             Text(it.identifier(), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         },

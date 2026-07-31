@@ -85,7 +85,7 @@ fun HSEventSubscriberEditorDialog(
                         OutlinedLabelBox(
                             label = { Text(HSLang.Common.enable) },
                             contentPadding = PaddingValues(16.dp, 0.dp, 16.dp, 4.dp),
-                            modifier = Modifier.height(58.dp)
+                            modifier = Modifier.height(66.5.dp)
                         ) {
                             Switch(enabled, onCheckedChange = { enabled = it })
                         }

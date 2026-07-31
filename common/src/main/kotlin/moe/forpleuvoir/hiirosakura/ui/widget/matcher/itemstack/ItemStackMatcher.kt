@@ -28,6 +28,8 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
+import moe.forpleuvoir.hiirosakura.ui.widget.AddMenuOption
+import moe.forpleuvoir.hiirosakura.ui.widget.FloatingAddButton
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatExportButton
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportButton
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.*
@@ -45,6 +47,7 @@ import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.PlainTooltip
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fadeScaleTooltip
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.tooltip
+import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberFabVisibilityByScroll
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
@@ -153,7 +156,13 @@ fun ItemStackMatcherInfo(
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(4.dp),
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
 ) = Column(modifier, verticalArrangement, horizontalAlignment) {
-    Text(value.mode.translateText, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.align(Alignment.CenterHorizontally))
+    Text(
+        value.mode.translateText,
+        textAlign = TextAlign.Center,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.align(Alignment.CenterHorizontally)
+    )
     HorizontalDivider()
     value.entries.take(10).forEach { entry ->
         ItemStackMatchEntryInfo(entry)
@@ -288,10 +297,10 @@ fun BasicItemStackMatcherEditor(
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
 
-            FloatingEntryAddButton(
+            FloatingAddButton(
                 modifier = Modifier
                     .align(Alignment.BottomEnd),
-                scrollState = lazyListState,
+                fabVisibilityState = rememberFabVisibilityByScroll(lazyListState),
                 addMenuOptions = if (isNested) nestedAddMenuOptions else addMenuOptions
             ) { newEntry ->
                 entries.add(Keyed(entries.size.toLong(), newEntry))
@@ -362,34 +371,38 @@ private fun ItemStackMatchEntryRow(
 //region Adder
 
 private val nestedAddMenuOptions: List<AddMenuOption<ItemStackMatchEntry>> = listOf(
-    AddMenuOption(ItemStackMatchEntry.Item.title, { ItemStackMatchEntry.Item.default }) { addAction, onDismiss ->
-        ItemStackMatchEntryItemEditorDialog(onDismiss, ItemStackMatchEntry.Item.default, addAction)
+    AddMenuOption({ Text(ItemStackMatchEntry.Item.title) }, { ItemStackMatchEntry.Item.default }) { addAction, defaultValue, onDismiss ->
+        ItemStackMatchEntryItemEditorDialog(onDismiss, defaultValue() as ItemStackMatchEntry.Item, addAction)
     },
-    AddMenuOption(ItemStackMatchEntry.Name.title, { ItemStackMatchEntry.Name.default }) { addAction, onDismiss ->
-        ItemStackMatchEntryNameEditorDialog(onDismiss, ItemStackMatchEntry.Name.default, addAction)
+    AddMenuOption({ Text(ItemStackMatchEntry.Name.title) }, { ItemStackMatchEntry.Name.default }) { addAction, defaultValue, onDismiss ->
+        ItemStackMatchEntryNameEditorDialog(onDismiss, defaultValue() as ItemStackMatchEntry.Name, addAction)
     },
-    AddMenuOption(ItemStackMatchEntry.Script.title, { ItemStackMatchEntry.Script.default }) { addAction, onDismiss ->
-        ItemStackMatchEntryScriptEditorDialog(onDismiss, ItemStackMatchEntry.Script.default, addAction)
+    AddMenuOption({ Text(ItemStackMatchEntry.Script.title) }, { ItemStackMatchEntry.Script.default }) { addAction, defaultValue, onDismiss ->
+        ItemStackMatchEntryScriptEditorDialog(onDismiss, defaultValue() as ItemStackMatchEntry.Script, addAction)
     },
-    AddMenuOption(ItemStackMatchEntry.Count.title, { ItemStackMatchEntry.Count.default }) { addAction, onDismiss ->
-        ItemStackMatchEntryCountEditorDialog(onDismiss, ItemStackMatchEntry.Count.default, addAction)
+    AddMenuOption({ Text(ItemStackMatchEntry.Count.title) }, { ItemStackMatchEntry.Count.default }) { addAction, defaultValue, onDismiss ->
+        ItemStackMatchEntryCountEditorDialog(onDismiss, defaultValue() as ItemStackMatchEntry.Count, addAction)
     },
-    AddMenuOption(ItemStackMatchEntry.Rarity.title, { ItemStackMatchEntry.Rarity.default }) { addAction, onDismiss ->
-        ItemStackMatchEntryRarityEditorDialog(onDismiss, ItemStackMatchEntry.Rarity.default, addAction)
+    AddMenuOption({ Text(ItemStackMatchEntry.Rarity.title) }, { ItemStackMatchEntry.Rarity.default }) { addAction, defaultValue, onDismiss ->
+        ItemStackMatchEntryRarityEditorDialog(onDismiss, defaultValue() as ItemStackMatchEntry.Rarity, addAction)
     },
-    AddMenuOption(ItemStackMatchEntry.Enchantment.title, { ItemStackMatchEntry.Enchantment.default }) { addAction, onDismiss ->
-        ItemStackMatchEntryEnchantmentEditorDialog(onDismiss, ItemStackMatchEntry.Enchantment.default, addAction)
+    AddMenuOption({ Text(ItemStackMatchEntry.Enchantment.title) }, { ItemStackMatchEntry.Enchantment.default }) { addAction, defaultValue, onDismiss ->
+        ItemStackMatchEntryEnchantmentEditorDialog(onDismiss, defaultValue() as ItemStackMatchEntry.Enchantment, addAction)
     },
-    AddMenuOption(ItemStackMatchEntry.Tag.title, { ItemStackMatchEntry.Tag.default }) { addAction, onDismiss ->
-        ItemStackMatchEntryTagEditorDialog(onDismiss, ItemStackMatchEntry.Tag.default, addAction)
+    AddMenuOption({ Text(ItemStackMatchEntry.Tag.title) }, { ItemStackMatchEntry.Tag.default }) { addAction, defaultValue, onDismiss ->
+        ItemStackMatchEntryTagEditorDialog(onDismiss, defaultValue() as ItemStackMatchEntry.Tag, addAction)
     },
-    AddMenuOption(ItemStackMatchEntry.DataComponentType.title, { ItemStackMatchEntry.DataComponentType.default }) { addAction, onDismiss ->
-        ItemStackMatchEntryDataComponentTypeEditorDialog(onDismiss, ItemStackMatchEntry.DataComponentType.default, addAction)
+    AddMenuOption(
+        { Text(ItemStackMatchEntry.DataComponentType.title) },
+        { ItemStackMatchEntry.DataComponentType.default }) { addAction, defaultValue, onDismiss ->
+        ItemStackMatchEntryDataComponentTypeEditorDialog(onDismiss, defaultValue() as ItemStackMatchEntry.DataComponentType, addAction)
     }
 )
 
 private val addMenuOptions: List<AddMenuOption<ItemStackMatchEntry>> =
-    nestedAddMenuOptions + AddMenuOption(ItemStackMatchEntry.Matcher.title, { ItemStackMatchEntry.Matcher.default }) { addAction, onDismiss ->
-        ItemStackMatchEntryMatcherEditorDialog(onDismiss, ItemStackMatchEntry.Matcher.default, addAction)
+    nestedAddMenuOptions + AddMenuOption(
+        { Text(ItemStackMatchEntry.Matcher.title) },
+        { ItemStackMatchEntry.Matcher.default }) { addAction, defaultValue, onDismiss ->
+        ItemStackMatchEntryMatcherEditorDialog(onDismiss, defaultValue() as ItemStackMatchEntry.Matcher, addAction)
     }
 //endregion

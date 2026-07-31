@@ -10,14 +10,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
-import moe.forpleuvoir.ibukigourd.ui.preset.EnumSelector
+import net.minecraft.core.Holder
 import net.minecraft.resources.Identifier
+import net.minecraft.world.damagesource.DamageType
 
 @Composable
-fun <E : Enum<E>> EnumComponentWrapper(
+fun DamageTypeComponentWrapper(
     key: Identifier,
-    value: E,
-    onValueChange: (E) -> Unit,
+    value: Holder<DamageType>,
+    onValueChange: (Holder<DamageType>) -> Unit,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
@@ -27,6 +28,8 @@ fun <E : Enum<E>> EnumComponentWrapper(
         modifier = Modifier.size(DataComponentEditorDefaults.entrySize),
         contentAlignment = Alignment.Center,
     ) {
-        EnumSelector(value, onValueChange, modifier = Modifier.fillMaxWidth())
+        DamageTypeSelector(value.value(), { onValueChange(damageTypes.wrapAsHolder(it)) }, modifier = Modifier.fillMaxWidth())
     }
 }
+
+

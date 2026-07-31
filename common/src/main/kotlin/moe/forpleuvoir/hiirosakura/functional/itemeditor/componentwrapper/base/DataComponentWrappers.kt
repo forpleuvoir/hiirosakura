@@ -6,19 +6,25 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.*
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
 import moe.forpleuvoir.hiirosakura.util.logger
+import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.nebula.common.api.Initializable
+import net.minecraft.core.Holder
 import net.minecraft.core.HolderSet
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents.*
+import net.minecraft.core.registries.Registries
 import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
+import net.minecraft.world.damagesource.DamageTypes
 import net.minecraft.world.food.Foods
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemUseAnimation
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.Rarity
 import net.minecraft.world.item.component.*
+import net.minecraft.world.item.consume_effects.ConsumeEffect
 import net.minecraft.world.item.enchantment.Enchantable
 import net.minecraft.world.item.enchantment.ItemEnchantments
 import net.minecraft.world.item.enchantment.Repairable
@@ -228,37 +234,38 @@ object DataComponentWrappers : Initializable {
             ToolComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
         }
         //endregion
-//        //------------ Tool ------------\\
-//        register(TOOL, { Tool(emptyList(), 1f, 1, true) }) { key, c, m, rm, consumer ->
-//            ToolComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------ Weapon ------------\\
-//        register(WEAPON, { Weapon(1) }) { key, c, m, rm, consumer ->
-//            WeaponComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------ SwingAnimation ------------\\
-//        register(SWING_ANIMATION, { SwingAnimation.DEFAULT }) { key, c, m, rm, consumer ->
-//            SwingAnimationComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------ UseEffects ------------\\
-//        register(USE_EFFECTS, { UseEffects.DEFAULT }) { key, c, m, rm, consumer ->
-//            UseEffectsComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------ AttackRange ------------\\
-//        register(ATTACK_RANGE, { AttackRange(0f, 3f, 0f, 5f, 0.3f, 1f) }) { key, c, m, rm, consumer ->
-//            AttackRangeComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------ DamageType ------------\\
-//        register(DAMAGE_TYPE, { EitherHolder(DamageTypes.SPEAR) }) { key, c, m, rm, consumer ->
-//            DamageTypeComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------ Consumable ------------\\
-//        register(
-//            CONSUMABLE,
-//            { Consumable(1.6f, ItemUseAnimation.EAT, SoundEvents.GENERIC_EAT, true, ArrayList<ConsumeEffect>()) }
-//        ) { key, c, m, rm, consumer ->
-//            ConsumableComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
+        //region Weapon
+        register(WEAPON, { Weapon(1) }) { key, c, m, rm, onValueChange ->
+            WeaponComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Swing Animation
+        register(SWING_ANIMATION, { SwingAnimation.DEFAULT }) { key, c, m, rm, onValueChange ->
+            SwingAnimationComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Use Effects
+        register(USE_EFFECTS, { UseEffects.DEFAULT }) { key, c, m, rm, onValueChange ->
+            UseEffectsComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Attack Range
+        register(ATTACK_RANGE, { AttackRange(0f, 3f, 0f, 5f, 0.3f, 1f) }) { key, c, m, rm, onValueChange ->
+            AttackRangeComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Damage Type
+        register(DAMAGE_TYPE, { registryAccess!!.lookupOrThrow(Registries.DAMAGE_TYPE).get(DamageTypes.SPEAR).get() }) { key, c, m, rm, onValueChange ->
+            DamageTypeComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Consumable
+        register(CONSUMABLE, {
+            Consumable(1.6f, ItemUseAnimation.EAT, SoundEvents.GENERIC_EAT, true, ArrayList<ConsumeEffect>())
+        }) { key, c, m, rm, onValueChange ->
+            ConsumableComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
 //        //------------ KineticWeapon ------------\\
 //        register(
 //            KINETIC_WEAPON, {

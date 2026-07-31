@@ -1,7 +1,5 @@
 package moe.forpleuvoir.hiirosakura.lang
 
-import androidx.compose.runtime.key
-import com.sun.tools.javac.tree.TreeInfo.args
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
@@ -47,4 +45,13 @@ object ItemEditorLang {
     inline fun itemComponentExist(component: Any) = lang("item_component_exist", component)
 
     inline fun enchantmentExist(enchantment: Any) = lang("enchantment_exist", enchantment)
+
+    inline val fromRegistry get() = lang("from_registry")
+    inline val fromTag get() = lang("from_tag")
+    inline val addFromRegistry get() = lang("add_from_registry")
+    inline val addFromTag get() = lang("add_from_tag")
+    inline val tags get() = lang("tags")
+    inline val items get() = lang("items")
+    inline val mobEffects get() = lang("mob_effects")
+    inline val fromResourceManager get() = lang("from_resource_manager")
 }

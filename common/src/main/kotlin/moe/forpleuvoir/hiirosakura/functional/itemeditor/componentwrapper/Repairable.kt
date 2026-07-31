@@ -26,10 +26,10 @@ import moe.forpleuvoir.hiirosakura.ui.util.rememberSegmentedButtonWidth
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowser
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
-import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.name
 import moe.forpleuvoir.hiirosakura.util.registryAccess
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
@@ -47,6 +47,7 @@ import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.enchantment.Repairable
+import kotlin.jvm.optionals.getOrNull
 
 @Composable
 fun RepairableComponentWrapper(
@@ -102,7 +103,6 @@ fun RepairableComponentWrapper(
 
         if (showDialog) {
             HolderSetItemEditorDialog(
-                key = key,
                 value = value.items,
                 onValueChange = { onValueChange(Repairable(it)) },
                 onDismissRequest = { showDialog = false },
@@ -126,20 +126,22 @@ private val TagKey<Item>.asHolderSet
 
 @Composable
 fun HolderSetItemEditorDialog(
-    key: Identifier,
     value: HolderSet<Item>,
     onValueChange: (HolderSet<Item>) -> Unit,
     onDismissRequest: () -> Unit,
     title: @Composable () -> Unit
 ) {
+    val firstTag = itemTags.findFirst().getOrNull()
     var tag by remember {
         mutableStateOf(
-            if (value is HolderSet.Named) value.key()
-            else itemTags.findFirst().get()
+            if (value is HolderSet.Named) value.key() else firstTag
         )
     }
 
     var mode by remember { mutableStateOf(value !is HolderSet.Named) }
+    LaunchedEffect(tag) {
+        if (tag == null) mode = true
+    }
     val items = rememberKeyedList(value.map { it.value() }.toList())
     var nextKey by remember { mutableLongStateOf(items.size.toLong()) }
 
@@ -147,39 +149,40 @@ fun HolderSetItemEditorDialog(
         onDismissRequest = onDismissRequest,
         title = title,
         onConfirmRequest = {
-            val result = if (mode) {
-                HolderSet.direct(items.values().map { BuiltInRegistries.ITEM.wrapAsHolder(it) })
-            } else {
-                tag.asHolderSet
-            }
-            onValueChange(result)
+            val list = HolderSet.direct(items.values().map { BuiltInRegistries.ITEM.wrapAsHolder(it) })
+            onValueChange(
+                if (mode) list
+                else tag?.asHolderSet ?: list
+            )
             true
         },
         content = {
             Column {
-                SingleChoiceSegmentedButtonRow {
-                    val buttonTexts = listOf(
-                        key.asTranslateText(suffix = "from_items", fallback = "From Items"),
-                        key.asTranslateText(suffix = "from_tag", fallback = "From Tag"),
-                    )
-                    val width = rememberSegmentedButtonWidth(
-                        items = buttonTexts,
-                        textStyle = MaterialTheme.typography.labelLarge,
-                    ) { it.toAnnotatedString() }
-                    SegmentedButton(
-                        selected = mode,
-                        onClick = { mode = true },
-                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                        modifier = Modifier.width(width),
-                        label = { Text(key, suffix = "from_items", fallback = "From Items") }
-                    )
-                    SegmentedButton(
-                        selected = !mode,
-                        onClick = { mode = false },
-                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                        modifier = Modifier.width(width),
-                        label = { Text(key, suffix = "from_tag", fallback = "From Tag") }
-                    )
+                firstTag?.let {
+                    SingleChoiceSegmentedButtonRow {
+                        val buttonTexts = listOf(
+                            HSLang.ItemEditor.fromRegistry,
+                            HSLang.ItemEditor.fromTag,
+                        )
+                        val width = rememberSegmentedButtonWidth(
+                            items = buttonTexts,
+                            textStyle = MaterialTheme.typography.labelLarge,
+                        ) { it.toAnnotatedString() }
+                        SegmentedButton(
+                            selected = mode,
+                            onClick = { mode = true },
+                            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                            modifier = Modifier.width(width),
+                            label = { Text(HSLang.ItemEditor.fromRegistry) }
+                        )
+                        SegmentedButton(
+                            selected = !mode,
+                            onClick = { mode = false },
+                            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                            modifier = Modifier.width(width),
+                            label = { Text(HSLang.ItemEditor.fromTag) }
+                        )
+                    }
                 }
                 Spacer(Modifier.height(12.dp))
                 AnimatedContent(
@@ -207,7 +210,7 @@ fun HolderSetItemEditorDialog(
                                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                                     shape = MaterialTheme.shapes.extraSmall,
                                 ) {
-                                    Text(key, suffix = "add_item", fallback = "Add Item")
+                                    Text(HSLang.ItemEditor.addFromRegistry)
                                 }
                                 if (showItemSelector) {
                                     FlexibleDialog(
@@ -231,26 +234,28 @@ fun HolderSetItemEditorDialog(
                                         dismissButton = {}
                                     )
                                 }
-                                Spacer(Modifier.width(12.dp))
-                                ItemTagSelector(
-                                    itemTags.findFirst().get(),
-                                    { tag ->
-                                        tag.items.forEach { item ->
-                                            if (!items.any { it.value == item.value() }) {
-                                                items.add(Keyed(nextKey++, item.value()))
+                                firstTag?.let {
+                                    Spacer(Modifier.width(12.dp))
+                                    ItemTagSelector(
+                                        it,
+                                        { tag ->
+                                            tag.items.forEach { item ->
+                                                if (!items.any { it.value == item.value() }) {
+                                                    items.add(Keyed(nextKey++, item.value()))
+                                                }
                                             }
+                                        },
+                                        modifier = Modifier.weight(1f).height(44.dp),
+                                        contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
+                                        content = {
+                                            Text(HSLang.ItemEditor.addFromTag)
                                         }
-                                    },
-                                    modifier = Modifier.weight(1f).height(44.dp),
-                                    contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
-                                    content = {
-                                        Text(key, suffix = "add_from_tag", fallback = "Add From Tag")
-                                    }
-                                )
+                                    )
+                                }
                             }
                             Spacer(Modifier.height(12.dp))
                             OutlinedLabelBox(
-                                { Text(key, suffix = "items", fallback = "Items") },
+                                { Text(HSLang.ItemEditor.items) },
                             ) {
                                 Box(Modifier.fillMaxWidth().height(460.dp)) {
                                     val lazyGridState = rememberLazyGridState()
@@ -333,7 +338,8 @@ fun HolderSetItemEditorDialog(
                         }
 
                     } else {
-                        ItemTagSelector(tag, { tag = it })
+                        tag?.let { ItemTagSelector(it, { tag = it }) }
+                            ?: Text(IGLang.Misc.hasNothing)
                     }
                 }
             }

@@ -30,8 +30,8 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.T
 import moe.forpleuvoir.hiirosakura.ui.util.canScroll
 import moe.forpleuvoir.hiirosakura.ui.util.rememberSegmentedButtonWidth
 import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
-import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.hiirosakura.util.registryAccess
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.plainText
@@ -55,6 +55,7 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.component.DamageResistant
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
+import kotlin.jvm.optionals.getOrNull
 
 
 @Composable
@@ -100,7 +101,6 @@ fun DamageResistantComponentWrapper(
 
         if (showDialog) {
             HolderSetDamageTypeEditorDialog(
-                key = key,
                 value = value.types,
                 onValueChange = { onValueChange(DamageResistant(it)) },
                 onDismissRequest = { showDialog = false },
@@ -113,20 +113,22 @@ fun DamageResistantComponentWrapper(
 
 @Composable
 fun HolderSetDamageTypeEditorDialog(
-    key: Identifier,
     value: HolderSet<DamageType>,
     onValueChange: (HolderSet<DamageType>) -> Unit,
     onDismissRequest: () -> Unit,
     title: @Composable () -> Unit
 ) {
+    val firstTag = damageTypeTags.findFirst().getOrNull()
     var tag by remember {
         mutableStateOf(
-            if (value is HolderSet.Named) value.key()
-            else damageTypeTags.findFirst().get()
+            if (value is HolderSet.Named) value.key() else firstTag
         )
     }
 
     var mode by remember { mutableStateOf(value !is HolderSet.Named) }
+    LaunchedEffect(tag) {
+        if (tag == null) mode = true
+    }
     val types = rememberKeyedList(value.map { it.value() }.toList())
     var nextKey by remember { mutableLongStateOf(types.size.toLong()) }
 
@@ -134,52 +136,41 @@ fun HolderSetDamageTypeEditorDialog(
         onDismissRequest = onDismissRequest,
         title = title,
         onConfirmRequest = {
-            val result = if (mode) {
-                val registry = registryAccess!!.lookupOrThrow(Registries.DAMAGE_TYPE)
-                HolderSet.direct(types.values().map { registry.wrapAsHolder(it) })
-            } else {
-                tag.asHolderSet
-            }
-            onValueChange(result)
+            val registry = registryAccess!!.lookupOrThrow(Registries.DAMAGE_TYPE)
+            val list = HolderSet.direct(types.values().map { registry.wrapAsHolder(it) })
+            onValueChange(
+                if (mode) list
+                else tag?.asHolderSet ?: list
+            )
             true
         },
         content = {
             Column {
-                SingleChoiceSegmentedButtonRow {
-                    val buttonTexts = listOf(
-                        key.asTranslateText(suffix = "from_types", fallback = "From Types"),
-                        key.asTranslateText(suffix = "from_tag", fallback = "From Tag"),
-                    )
-                    val width = rememberSegmentedButtonWidth(
-                        items = buttonTexts,
-                        textStyle = MaterialTheme.typography.labelLarge,
-                    ) { it.toAnnotatedString() }
-                    SegmentedButton(
-                        selected = mode,
-                        onClick = { mode = true },
-                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                        modifier = Modifier.width(width),
-                        label = {
-                            Text(
-                                key,
-                                suffix = "from_types",
-                                fallback = "From Types"
-                            )
-                        }
-                    )
-                    SegmentedButton(
-                        selected = !mode,
-                        onClick = { mode = false },
-                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                        modifier = Modifier.width(width),
-                        label = {
-                            Text(
-                                key,
-                                suffix = "from_tag",
-                                fallback = "From Tag"
-                            )
-                        }
-                    )
+                firstTag?.let {
+                    SingleChoiceSegmentedButtonRow {
+                        val buttonTexts = listOf(
+                            HSLang.ItemEditor.fromRegistry,
+                            HSLang.ItemEditor.fromTag,
+                        )
+                        val width = rememberSegmentedButtonWidth(
+                            items = buttonTexts,
+                            textStyle = MaterialTheme.typography.labelLarge,
+                        ) { it.toAnnotatedString() }
+                        SegmentedButton(
+                            selected = mode,
+                            onClick = { mode = true },
+                            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                            modifier = Modifier.width(width),
+                            label = { Text(HSLang.ItemEditor.fromRegistry) }
+                        )
+                        SegmentedButton(
+                            selected = !mode,
+                            onClick = { mode = false },
+                            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                            modifier = Modifier.width(width),
+                            label = { Text(HSLang.ItemEditor.fromTag) }
+                        )
+                    }
                 }
                 Spacer(Modifier.height(12.dp))
                 AnimatedContent(
@@ -199,7 +190,7 @@ fun HolderSetDamageTypeEditorDialog(
                         Column {
                             Row(verticalAlignment = Alignment.Bottom) {
                                 DamageTypeSelector(
-                                    damageTypes.findFirst().get(),
+                                    damageTypes.stream().findFirst().get(),
                                     { type ->
                                         if (!types.any { it.value == type }) {
                                             types.add(Keyed(nextKey++, type))
@@ -207,39 +198,29 @@ fun HolderSetDamageTypeEditorDialog(
                                     },
                                     modifier = Modifier.weight(1f).height(44.dp),
                                     contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
-                                    content = {
-                                        Text(
-                                            key,
-                                            suffix = "add_type",
-                                            fallback = "Add Type"
-                                        )
-                                    }
+                                    content = { Text(HSLang.ItemEditor.addFromRegistry) }
                                 )
 
-                                Spacer(Modifier.width(12.dp))
-                                DamageTypeTagSelector(
-                                    damageTypeTags.findFirst().get(),
-                                    { tag ->
-                                        tag.damageTypes.forEach { item ->
-                                            if (!types.any { it.value == item.value() }) {
-                                                types.add(Keyed(nextKey++, item.value()))
+                                firstTag?.let {
+                                    Spacer(Modifier.width(12.dp))
+                                    DamageTypeTagSelector(
+                                        it,
+                                        { tag ->
+                                            tag.damageTypes.forEach { item ->
+                                                if (!types.any { it.value == item.value() }) {
+                                                    types.add(Keyed(nextKey++, item.value()))
+                                                }
                                             }
-                                        }
-                                    },
-                                    modifier = Modifier.weight(1f).height(44.dp),
-                                    contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
-                                    content = {
-                                        Text(
-                                            key,
-                                            suffix = "add_from_tag",
-                                            fallback = "Add From Tag"
-                                        )
-                                    }
-                                )
+                                        },
+                                        modifier = Modifier.weight(1f).height(44.dp),
+                                        contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
+                                        content = { Text(HSLang.ItemEditor.addFromTag) }
+                                    )
+                                }
                             }
                             Spacer(Modifier.height(12.dp))
                             OutlinedLabelBox(
-                                { Text(key, suffix = "tags", fallback = "Tags") },
+                                { Text(HSLang.ItemEditor.tags) },
                             ) {
                                 Box(Modifier.fillMaxWidth().height(460.dp)) {
                                     val lazyListState = rememberLazyListState()
@@ -265,7 +246,9 @@ fun HolderSetDamageTypeEditorDialog(
                                                     val handleInteraction = remember { MutableInteractionSource() }
                                                     val handleHovered by handleInteraction.collectIsHoveredAsState()
                                                     Card(
-                                                        modifier = Modifier.fillMaxWidth().scale(scale)
+                                                        modifier = Modifier.fillMaxWidth().scale(scale).plainTooltip {
+                                                           Text(type.toString())
+                                                        }
                                                     ) {
                                                         Row(
                                                             Modifier.padding(4.dp).fillMaxWidth(),
@@ -311,7 +294,8 @@ fun HolderSetDamageTypeEditorDialog(
                         }
 
                     } else {
-                        DamageTypeTagSelector(tag, { tag = it })
+                        tag?.let { DamageTypeTagSelector(it, { tag = it }) }
+                            ?: Text(IGLang.Misc.hasNothing)
                     }
                 }
             }
@@ -326,7 +310,7 @@ internal val TagKey<DamageType>.damageTypes
     get() = registryAccess!!.lookupOrThrow(Registries.DAMAGE_TYPE).getTagOrEmpty(this)
 
 internal val damageTypes
-    get() = registryAccess!!.lookupOrThrow(Registries.DAMAGE_TYPE).stream()
+    get() = registryAccess!!.lookupOrThrow(Registries.DAMAGE_TYPE)
 
 private val TagKey<DamageType>.asHolderSet
     get() = registryAccess!!.lookupOrThrow(Registries.DAMAGE_TYPE).tags.filter {
@@ -441,12 +425,21 @@ fun DamageTypeSelector(
     items: List<DamageType> = damageTypes.toList(),
     itemEquals: (DamageType, DamageType) -> Boolean = { a, b -> a == b },
     content: @Composable (DamageType) -> Unit = {
-        Text(it.translatableText)
+        Text(
+            it.translatableText,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.plainTooltip {
+                Text(it.toString())
+            }
+        )
     },
     labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (DamageType, Boolean) -> Unit = { item, _ ->
-        Text(item.translatableText)
+        Text(item.translatableText, modifier = Modifier.plainTooltip {
+            Text(item.toString())
+        })
     },
     enabled: Boolean = true,
     searchFilter: ((String, DamageType) -> Boolean)? = { str, type ->

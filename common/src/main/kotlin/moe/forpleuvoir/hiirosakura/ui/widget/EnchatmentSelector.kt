@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.ui.preset.Selector
@@ -54,7 +55,7 @@ fun EnchatmentSelector(
     items: List<Holder<Enchantment>> = EnchatmentHelper.REGISTERED_ENCHANTMENT,
     itemEquals: (Holder<Enchantment>, Holder<Enchantment>) -> Boolean = { a, b -> a == b },
     content: @Composable (Holder<Enchantment>) -> Unit = {
-        Text(EnchatmentHelper.enchantmentDescription(it))
+        Text(EnchatmentHelper.enchantmentDescription(it), maxLines = 1, overflow = TextOverflow.Ellipsis)
     },
     labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,

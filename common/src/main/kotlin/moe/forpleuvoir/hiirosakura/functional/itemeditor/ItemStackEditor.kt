@@ -88,8 +88,8 @@ fun ItemStackEditor(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                ItemPreview(editingItem, modifier = Modifier.height(58.dp).weight(1f))
-                ItemType(item, { item = it }, modifier = Modifier.height(58.dp).weight(1f))
+                ItemPreview(editingItem, modifier = Modifier.height(66.5.dp).weight(1f))
+                ItemType(item, { item = it }, modifier = Modifier.height(66.5.dp).weight(1f))
                 ItemCount(count, { count = it }, dataComponents.maxCount, modifier = Modifier.height(66.5.dp).weight(0.5f))
                 ComponentAdder(dataComponents, modifier = Modifier.height(66.5.dp).weight(1.75f))
             }

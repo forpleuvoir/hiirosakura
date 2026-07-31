@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -10,7 +11,9 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.placeCursorAtEnd
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,6 +33,7 @@ import moe.forpleuvoir.hiirosakura.ui.util.canScroll
 import moe.forpleuvoir.hiirosakura.ui.widget.HolderSetBlockEditorDialog
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.ReorderableEditorVerticalGrid
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
@@ -85,6 +89,7 @@ fun ToolComponentWrapper(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ToolEditorDialog(
     key: Identifier,
@@ -117,7 +122,7 @@ fun ToolEditorDialog(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+                        verticalAlignment = Alignment.Bottom,
                     ) {
                         FloatField(
                             defaultMiningSpeed,
@@ -131,22 +136,14 @@ fun ToolEditorDialog(
                             modifier = Modifier.weight(1f, false),
                             label = { Text(key, suffix = "damage_per_block", fallback = "Damage Per Block") }
                         )
-                        Box(
-                            modifier = Modifier.height(68.dp).padding(top = 18.dp),
-                            contentAlignment = Alignment.Center
+                        OutlinedToggleButton(
+                            canDestroyBlocksInCreative,
+                            { canDestroyBlocksInCreative = it },
+                            modifier = Modifier.height(56.dp)
                         ) {
-                            Switch(
-                                canDestroyBlocksInCreative,
-                                { canDestroyBlocksInCreative = it },
-                                modifier = Modifier.plainTooltip {
-                                    Text(
-                                        key,
-                                        suffix = "can_destroy_blocks_in_creative",
-                                        fallback = "Can Destroy Blocks In Creative",
-                                        commentAppendMode = CommentAppendMode.Append(true)
-                                    )
-                                }
-                            )
+                            Text(key, suffix = "can_destroy_blocks_in_creative")
+                            Spacer(Modifier.width(8.dp))
+                            Text(IGLang.Misc.coloredSwitch(canDestroyBlocksInCreative))
                         }
                     }
                     Spacer(Modifier.height(12.dp))
@@ -155,93 +152,71 @@ fun ToolEditorDialog(
                             Text(key, suffix = "rules", fallback = "Rules")
                         },
                     ) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            var nextKey by remember { mutableLongStateOf(rules.size.toLong()) }
-                            val lazyGridState = rememberLazyGridState()
-                            if (rules.isEmpty()) {
-                                Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            } else {
-                                val hapticFeedback = LocalHapticFeedback.current
-                                val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
-                                    rules.moveElement(from.index, to.index)
-                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
-                                }
-                                LazyVerticalGrid(
-                                    state = lazyGridState,
-                                    columns = GridCells.Adaptive(360.dp),
-                                    modifier = Modifier.padding(end = if (lazyGridState.canScroll) 12.dp else 0.dp).fillMaxHeight(),
-                                    contentPadding = PaddingValues(8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        var nextKey by remember { mutableLongStateOf(rules.size.toLong()) }
+                        ReorderableEditorVerticalGrid(
+                            rules,
+                            key = { it.key },
+                            onMove = rules::moveElement,
+                            columns = GridCells.Adaptive(360.dp),
+                            floatingActionButton = { lazyGridState ->
+                                var showAddDialog by remember { mutableStateOf(false) }
+                                FloatingActionButton(
+                                    onClick = {
+                                        showAddDialog = true
+                                    },
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(12.dp)
+                                        .size(40.dp)
+                                        .fabVisibilityAnimation(rememberFabVisibilityByScroll(lazyGridState))
                                 ) {
-                                    itemsIndexed(rules, key = { _, v -> v.key }) { index, rule ->
-                                        ReorderableItem(reorderableLazyGridState, rule.key) { isDragging ->
-                                            val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                                            val handleInteraction = remember { MutableInteractionSource() }
-                                            val handleHovered by handleInteraction.collectIsHoveredAsState()
-                                            RuleCard(
-                                                rule.value,
-                                                {
-                                                    rules[index] = rule.copyValue(it)
-                                                },
-                                                modifier = Modifier.scale(scale).width(360.dp),
-                                                onRemove = {
-                                                    rules.removeAt(index)
-                                                },
-                                                key = key,
-                                                hapticFeedback = hapticFeedback,
-                                                handleInteraction = handleInteraction,
-                                                handleHovered = handleHovered,
-                                                isDragging = isDragging,
-                                            )
-                                        }
-                                    }
+                                    Icon(Icons.Add, IGLang.Misc.add.plainText)
                                 }
-
-                                VerticalScrollbar(
-                                    adapter = rememberScrollbarAdapter(lazyGridState),
-                                    modifier = Modifier.align(Alignment.CenterEnd)
-                                )
-                            }
-                            var showAddDialog by remember { mutableStateOf(false) }
-                            FloatingActionButton(
-                                onClick = {
-                                    showAddDialog = true
-                                },
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(12.dp)
-                                    .size(40.dp)
-                                    .fabVisibilityAnimation(rememberFabVisibilityByScroll(lazyGridState))
-                            ) {
-                                Icon(Icons.Add, IGLang.Misc.add.plainText)
-                            }
-                            if (showAddDialog) {
-                                var addingEntry by remember {
-                                    mutableStateOf(
-                                        Tool.Rule(
-                                            HolderSet.empty(),
-                                            Optional.ofNullable(null),
-                                            Optional.ofNullable(null)
+                                if (showAddDialog) {
+                                    var addingEntry by remember {
+                                        mutableStateOf(
+                                            Tool.Rule(
+                                                HolderSet.empty(),
+                                                Optional.ofNullable(null),
+                                                Optional.ofNullable(null)
+                                            )
                                         )
+                                    }
+                                    SimpleAlertDialog(
+                                        onDismissRequest = { showAddDialog = false },
+                                        onConfirmRequest = {
+                                            rules.addLast(Keyed(nextKey++, addingEntry))
+                                            true
+                                        },
+                                        title = { Text(IGLang.Misc.add) },
+                                        content = {
+                                            RuleContent(addingEntry, { addingEntry = it }, key)
+                                        }
                                     )
                                 }
-                                SimpleAlertDialog(
-                                    onDismissRequest = { showAddDialog = false },
-                                    onConfirmRequest = {
-                                        rules.addLast(Keyed(nextKey++, addingEntry))
-                                        true
-                                    },
-                                    title = { Text(IGLang.Misc.add) },
-                                    content = {
-                                        RuleContent(addingEntry, { addingEntry = it }, key)
-                                    }
-                                )
+
                             }
+                        ) { index, rule, isDragging, hapticFeedback ->
+                            val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
+                            val handleInteraction = remember { MutableInteractionSource() }
+                            val handleHovered by handleInteraction.collectIsHoveredAsState()
+                            RuleCard(
+                                rule.value,
+                                {
+                                    rules[index] = rule.copyValue(it)
+                                },
+                                modifier = Modifier.scale(scale).width(360.dp),
+                                onRemove = {
+                                    rules.removeAt(index)
+                                },
+                                key = key,
+                                hapticFeedback = hapticFeedback,
+                                handleInteraction = handleInteraction,
+                                handleHovered = handleHovered,
+                                isDragging = isDragging,
+                            )
                         }
-
                     }
-
                 }
             }
         }
@@ -317,10 +292,11 @@ private fun RuleContent(
             }
         } else Modifier
         OutlinedLabelBox(
-            modifier = Modifier.height(64.dp)
+            modifier = Modifier
+                .height(64.dp)
                 .fillMaxWidth()
                 .then(tip),
-            contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp),
+            contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
             label = {
                 Text(key, suffix = "blocks", fallback = "Blocks")
             }
@@ -359,7 +335,6 @@ private fun RuleContent(
 
             if (showDialog) {
                 HolderSetBlockEditorDialog(
-                    key = key,
                     value = value.blocks,
                     onValueChange = { onValueChange(value.copy(blocks = it)) },
                     onDismissRequest = { showDialog = false },
@@ -373,6 +348,37 @@ private fun RuleContent(
             value = value.speed.getOrNull() ?: 0f,
             onValueChange = { onValueChange(value.copy(speed = Optional.of(it))) },
             range = 0f..Float.MAX_VALUE,
+            inputTransformation = InputTransformation {
+                if (value.speed.isEmpty) {
+                    val before = originalText.toString()       // "0.0"
+                    val after = asCharSequence().toString()    // "0.01"
+
+                    val prefixLength = before
+                        .zip(after)
+                        .indexOfFirst { (a, b) -> a != b }
+                        .let { if (it == -1) minOf(before.length, after.length) else it }
+
+                    var suffixLength = 0
+                    while (
+                        suffixLength < before.length - prefixLength &&
+                        suffixLength < after.length - prefixLength &&
+                        before[before.lastIndex - suffixLength] ==
+                        after[after.lastIndex - suffixLength]
+                    ) {
+                        suffixLength++
+                    }
+
+                    val insertedText = after.substring(
+                        startIndex = prefixLength,
+                        endIndex = after.length - suffixLength,
+                    )
+
+                    if (insertedText.any(Char::isDigit)) {
+                        replace(0, length, insertedText)
+                        placeCursorAtEnd()
+                    }
+                }
+            },
             outputTransformation = if (value.speed.isEmpty) {
                 OutputTransformation {
                     replace(start = 0, end = length, text = HSLang.Common.unset.plainText)
@@ -382,8 +388,11 @@ private fun RuleContent(
             label = { Text(key, suffix = "speed", fallback = "Speed") },
             trailingIcon = {
                 if (value.speed.isPresent) {
-                    IconButton(onClick = { onValueChange(value.copy(speed = Optional.ofNullable(null))) }) {
-                        Icon(Icons.Delete, null)
+                    Row {
+                        IconButton(onClick = { onValueChange(value.copy(speed = Optional.empty())) }) {
+                            Icon(Icons.Delete, null)
+                        }
+                        Spacer(Modifier.width(4.dp))
                     }
                 }
             },
@@ -392,7 +401,7 @@ private fun RuleContent(
         //correctForDrops
         Spacer(Modifier.height(12.dp))
         Row(
-            modifier = Modifier.fillMaxWidth().height(64.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {

@@ -114,10 +114,16 @@ object DataComponentWrappers : Initializable {
             IntComponentWrapper(key, c, onValueChange, 1..Int.MAX_VALUE, modifier = m, removeAction = rm)
         }
         register(OMINOUS_BOTTLE_AMPLIFIER, { OminousBottleAmplifier(0) }) { key, c, m, rm, onValueChange ->
-            IntComponentWrapper(key, c.value(), { onValueChange(OminousBottleAmplifier(it)) }, 1..Int.MAX_VALUE, modifier = m, removeAction = rm)
+            IntComponentWrapper(key, c.value(), { onValueChange(OminousBottleAmplifier(it)) }, 0..4, modifier = m, removeAction = rm)
         }
         register(ENCHANTABLE, { Enchantable(15) }) { key, c, m, rm, onValueChange ->
             IntComponentWrapper(key, c.value, { onValueChange(Enchantable(it)) }, 1..Int.MAX_VALUE, modifier = m, removeAction = rm)
+        }
+        register(DYED_COLOR, { DyedItemColor(DyedItemColor.LEATHER_COLOR) }) { key, c, m, rm, onValueChange ->
+            IntComponentWrapper(key, c.rgb(), { onValueChange(DyedItemColor(it)) }, 0..0xFFFFFF, modifier = m, removeAction = rm)
+        }
+        register(MAP_COLOR, { MapItemColor.DEFAULT }) { key, c, m, rm, onValueChange ->
+            IntComponentWrapper(key, c.rgb(), { onValueChange(MapItemColor(it)) }, 0..0xFFFFFF, modifier = m, removeAction = rm)
         }
         //endregion
         //region Float
@@ -126,6 +132,9 @@ object DataComponentWrappers : Initializable {
         }
         register(MINIMUM_ATTACK_CHARGE, { 1f }) { key, c, m, rm, onValueChange ->
             FloatComponentWrapper(key, c, onValueChange, 0f..1f, modifier = m, removeAction = rm)
+        }
+        register(USE_COOLDOWN, { UseCooldown(1.0f) }) { key, c, m, rm, onValueChange ->
+            FloatComponentWrapper(key, c.seconds(), { onValueChange(UseCooldown(it)) }, 0f..Float.MAX_VALUE, modifier = m, removeAction = rm)
         }
         //endregion
         //region Boolean
@@ -264,16 +273,16 @@ object DataComponentWrappers : Initializable {
         //region Kinetic Weapon
         register(KINETIC_WEAPON, {
             KineticWeapon(
-                    10,
-                    0,
-                    Optional.empty(),
-                    Optional.empty(),
-                    Optional.empty(),
-                    0f,
-                    1f,
-                    Optional.of(SoundEvents.SPEAR_USE),
-                    Optional.of(SoundEvents.SPEAR_HIT)
-                )
+                10,
+                0,
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                0f,
+                1f,
+                Optional.of(SoundEvents.SPEAR_USE),
+                Optional.of(SoundEvents.SPEAR_HIT)
+            )
         }) { key, c, m, rm, onValueChange ->
             KineticWeaponComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
         }
@@ -281,68 +290,56 @@ object DataComponentWrappers : Initializable {
         //region Piercing Weapon
         register(PIERCING_WEAPON, {
             PiercingWeapon(
-                  true,
-                  false,
-                  Optional.of(SoundEvents.SPEAR_USE),
-                  Optional.of(SoundEvents.SPEAR_HIT)
-              )
+                true,
+                false,
+                Optional.of(SoundEvents.SPEAR_USE),
+                Optional.of(SoundEvents.SPEAR_HIT)
+            )
         }) { key, c, m, rm, onValueChange ->
             PiercingWeaponComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
         }
         //endregion
-//        //------------ Fireworks ------------\\
-//        register(
-//            FIREWORKS,
-//            {
-//                Fireworks(
-//                    0,
-//                    mutableListOf()
-//                )
-//            }
-//        ) { key, c, m, rm, consumer ->
-//            FireworksComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------ FireworkExplosion ------------\\
-//        register(
-//            FIREWORK_EXPLOSION,
-//            {
-//                FireworkExplosion(
-//                    FireworkExplosion.Shape.SMALL_BALL,
-//                    IntList.of(),
-//                    IntList.of(),
-//                    false,
-//                    false
-//                )
-//            }
-//        ) { key, c, m, rm, consumer ->
-//            FireworkExplosionComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------ DyeColor ------------\\
-//        register(BASE_COLOR, { DyeColor.CYAN }) { key, c, m, rm, consumer ->
-//            EnumComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        register(WOLF_COLLAR, { DyeColor.CYAN }) { key, c, m, rm, consumer ->
-//            EnumComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        register(TROPICAL_FISH_BASE_COLOR, { DyeColor.CYAN }) { key, c, m, rm, consumer ->
-//            EnumComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        register(TROPICAL_FISH_PATTERN_COLOR, { DyeColor.CYAN }) { key, c, m, rm, consumer ->
-//            EnumComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        register(CAT_COLLAR, { DyeColor.CYAN }) { key, c, m, rm, consumer ->
-//            EnumComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        register(SHEEP_COLOR, { DyeColor.CYAN }) { key, c, m, rm, consumer ->
-//            EnumComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        register(SHULKER_COLOR, { DyeColor.CYAN }) { key, c, m, rm, consumer ->
-//            EnumComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
-//        //------------  ------------\\
-//        register(LODESTONE_TRACKER, { LodestoneTracker(Optional.ofNullable(null), true) }) { key, c, m, rm, consumer ->
-//            LodestoneTrackerComponentWrapper(key, c, rm, modifier = m, onValueChange = consumer)
-//        }
+        //region Fireworks
+        register(FIREWORKS, { Fireworks(0, mutableListOf()) }) { key, c, m, rm, onValueChange ->
+            FireworksComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region FireworkExplosion
+        register(FIREWORK_EXPLOSION, { FireworkExplosion.DEFAULT }) { key, c, m, rm, onValueChange ->
+            FireworkExplosionComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region DyeColor
+        register(DYE, { DyeColor.WHITE }) { key, c, m, rm, onValueChange ->
+            EnumComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        register(BASE_COLOR, { DyeColor.CYAN }) { key, c, m, rm, onValueChange ->
+            EnumComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        register(WOLF_COLLAR, { DyeColor.CYAN }) { key, c, m, rm, onValueChange ->
+            EnumComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        register(TROPICAL_FISH_BASE_COLOR, { DyeColor.CYAN }) { key, c, m, rm, onValueChange ->
+            EnumComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        register(TROPICAL_FISH_PATTERN_COLOR, { DyeColor.CYAN }) { key, c, m, rm, onValueChange ->
+            EnumComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        register(CAT_COLLAR, { DyeColor.CYAN }) { key, c, m, rm, onValueChange ->
+            EnumComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        register(SHEEP_COLOR, { DyeColor.CYAN }) { key, c, m, rm, onValueChange ->
+            EnumComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        register(SHULKER_COLOR, { DyeColor.CYAN }) { key, c, m, rm, onValueChange ->
+            EnumComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
+        //region Lodestone Tracker
+        register(LODESTONE_TRACKER, { LodestoneTracker(Optional.empty(), true) }) { key, c, m, rm, onValueChange ->
+            LodestoneTrackerComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        //endregion
 ////      CONTAINER
     }
 

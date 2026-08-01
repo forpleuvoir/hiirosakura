@@ -9,6 +9,7 @@ import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.config.HSConfig
 import moe.forpleuvoir.hiirosakura.functional.customradialmenu.ui.CustomRadialMenuManagerUI
 import moe.forpleuvoir.hiirosakura.functional.event.ui.HSEventManagerUI
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.ItemEditorManagerUI
 import moe.forpleuvoir.hiirosakura.functional.task.ui.TaskManagerUI
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Assignment
 import moe.forpleuvoir.hiirosakura.ui.icon.default.Notifications
@@ -16,6 +17,7 @@ import moe.forpleuvoir.hiirosakura.ui.icon.default.Radar
 import moe.forpleuvoir.hiirosakura.ui.icon.filled.Assignment
 import moe.forpleuvoir.hiirosakura.ui.icon.filled.Notifications
 import moe.forpleuvoir.hiirosakura.util.identifier
+import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.mod.ui.*
@@ -27,6 +29,7 @@ import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.ComposeScreen
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigManagerWrapper
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
 import moe.forpleuvoir.ibukigourd.ui.icon.default.Settings
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.Settings
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
@@ -56,9 +59,8 @@ private var selectedIndex by mutableStateOf(0)
 @Composable
 internal fun HiiroSakuraScreenContent() {
     val items = remember {
-        mutableStateListOf(
-            //配置页面
-            DrawerItem {
+        mutableStateListOf<DrawerItem>().apply {
+            add(DrawerItem {
                 label { Text(InlineStyleText(HSConfig.translateText.plainText)) }
                 icon {
                     Icon(if (LocalDrawerItemSelected.current) Icons.Filled.Settings else Icons.Settings, null)
@@ -66,9 +68,8 @@ internal fun HiiroSakuraScreenContent() {
                 content {
                     ConfigManagerWrapper(HSConfig)
                 }
-            },
-            //任务管理器
-            DrawerItem {
+            })
+            add(DrawerItem {
                 label { Text(HSLang.Task.manager) }
                 icon {
                     Icon(if (LocalDrawerItemSelected.current) Icons.Filled.Assignment else Icons.Assignment, null)
@@ -76,19 +77,17 @@ internal fun HiiroSakuraScreenContent() {
                 content {
                     TaskManagerUI()
                 }
-            },
-            //自定义轮盘菜单
-            DrawerItem {
+            })
+            add(DrawerItem {
                 label { Text(HSLang.CustomRadialMenu.title) }
                 icon {
-                    //TODO 换掉这个图标
                     Icon(Icons.Radar, null)
                 }
                 content {
                     CustomRadialMenuManagerUI()
                 }
-            },
-            DrawerItem {
+            })
+            add(DrawerItem {
                 label { Text(HSLang.Event.subscriberManager) }
                 icon {
                     Icon(if (LocalDrawerItemSelected.current) Icons.Filled.Notifications else Icons.Notifications, null)
@@ -96,8 +95,19 @@ internal fun HiiroSakuraScreenContent() {
                 content {
                     HSEventManagerUI()
                 }
+            })
+            if (registryAccess != null) {
+                add(DrawerItem {
+                    label { Text(HSLang.ItemEditor.title) }
+                    icon {
+                        Icon(Icons.EditNote, null)
+                    }
+                    content {
+                        ItemEditorManagerUI(registryAccess!!)
+                    }
+                })
             }
-        )
+        }
     }
     IbukiGourdTheme {
         ModScreen(

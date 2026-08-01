@@ -4,6 +4,8 @@ msg = (msg) -> common:sendMessage(msg);
 
 toast = (msg) -> common:toast(msg);
 
+logger = (msg) -> common:logger(msg);
+
 notify = (title, msg) -> common:notify(title, msg);
 
 state = (key) -> {

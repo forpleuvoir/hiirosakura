@@ -32,16 +32,18 @@ interface CommonApi {
     companion object {
 
         val INSTANCE by lazy {
-            object : CommonApi {
-                override val logger: ModLogger by lazy { logger("CommonApi") }
-            }
+            object : CommonApi {}
         }
+
+        private val logger = logger("CommonApi")
 
         private val globalData = mutableMapOf<String, Any>()
 
     }
 
-    val logger: ModLogger
+    fun logger(msg: Any) = logger.info(msg.toString())
+
+    val logger get() = Companion.logger
 
     fun import(className: String): Class<*> {
         return HiiroSakura.javaClass.classLoader.loadClass(className)

@@ -4,6 +4,7 @@ import moe.forpleuvoir.hiirosakura.config.items.matcher.configItemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
+import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
 import moe.forpleuvoir.hiirosakura.util.swapSlotWithHotbar
 import moe.forpleuvoir.ibukigourd.config.item.configKeybind
 import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
@@ -53,7 +54,19 @@ object Gliding : ConfigGroup("gliding") {
     val fireworkMatcher by configItemStackMatcher(
         "firework_matcher", ItemStackMatcher(
             CompositeMatcher.MatchMode.AnyMatch,
-            ItemStackMatchEntry.Item(Items.FIREWORK_ROCKET)
+            ItemStackMatchEntry.Item(Items.FIREWORK_ROCKET),
+            ItemStackMatchEntry.Script(
+                """
+                //If the item has an explosive property, exclude it.
+                fireworks = itemStack.getComponent("minecraft:fireworks");
+                if(fireworks != null){
+                    explosions = fireworks.explosions;
+                    if(explosions != null && explosions.size() > 0){
+                        result.set(true);
+                    }
+                }
+            """.trimIndent(), MatchEntry.MatchMode.Exclude
+            ),
         )
     )
 

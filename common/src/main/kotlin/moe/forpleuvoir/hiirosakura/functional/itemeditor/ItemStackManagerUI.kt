@@ -36,12 +36,16 @@ import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
+import moe.forpleuvoir.ibukigourd.ui.util.copyValue
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Colors
+import net.minecraft.client.Minecraft
+import net.minecraft.client.player.LocalPlayer
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.nbt.*
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import java.util.Map
@@ -67,7 +71,12 @@ fun ItemEditorManagerUI(
             deferred.await()
             loaded = true
         }
-
+        DisposableEffect(Unit) {
+            onDispose {
+                @Suppress("DeferredResultUnused")
+                ItemStackManager.saveDataAsync(registryAccess)
+            }
+        }
 
         ToolBar()
 
@@ -77,7 +86,7 @@ fun ItemEditorManagerUI(
 
 @Composable
 private fun ToolBar(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.fillMaxWidth(),
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) {
@@ -86,17 +95,30 @@ private fun ToolBar(
         horizontalArrangement = horizontalArrangement,
         verticalAlignment = verticalAlignment
     ) {
+        var editingItem by remember { mutableStateOf<ItemStack?>(null) }
         ItemStackMatcher.handheldItemStack?.let { stack ->
             Button({
-                //TODO 打开物品编辑器
+                editingItem = stack
             }) {
                 Text(HSLang.ItemEditor.addFromHandheldItem)
             }
         }
         IconButton({
-            //TODO 打开物品编辑器
+            editingItem = ItemStack(Items.MELON)
+        }, modifier = Modifier.plainTooltip {
+            Text(IGLang.Misc.edit)
         }) {
             Icon(Icons.Add, null)
+        }
+
+        editingItem?.let { item ->
+            ItemStackEditor(
+                item,
+                { editingItem = null },
+                onValueChange = {
+                    ItemStackManager.add(it)
+                }
+            )
         }
     }
 }
@@ -120,6 +142,7 @@ private fun ItemStackList(
                 ItemStackManager.moveElement(from.index, to.index)
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
             }
+            var editingItemIndex by remember { mutableStateOf<Int?>(null) }
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxSize(), state = lazyListState) {
                 itemsIndexed(
                     ItemStackManager.items,
@@ -130,7 +153,7 @@ private fun ItemStackList(
                             val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                             val handleInteraction = remember { MutableInteractionSource() }
                             val handleHovered by handleInteraction.collectIsHoveredAsState()
-                            Card(
+                            ElevatedCard(
                                 modifier = Modifier.fillMaxWidth().scale(scale)
                             ) {
                                 Row(
@@ -160,9 +183,12 @@ private fun ItemStackList(
                                         //获取到背包
                                         if (mc.player?.isCreative == true) {
                                             Button({
-                                                mc.player?.inventory?.add(item.copy())
-                                                ToastHandler.showContent {
-                                                    Text(HSLang.ItemEditor.getToBackpackSuccess(item.hoverName))
+                                                mc.player?.addCreativeItem(item).let {
+                                                    if (!it.isNullOrEmpty()) {
+                                                        ToastHandler.showContent {
+                                                            Text(HSLang.ItemEditor.getToBackpackSuccess(item.hoverName))
+                                                        }
+                                                    }
                                                 }
                                             }) {
                                                 Text(HSLang.ItemEditor.getToBackpack)
@@ -191,14 +217,19 @@ private fun ItemStackList(
                                         }
                                         //编辑
                                         IconButton({
-                                            //TODO编辑 物品
+                                            editingItemIndex = index
+                                        }, modifier = Modifier.plainTooltip {
+                                            Text(IGLang.Misc.edit)
                                         }) {
                                             Icon(Icons.EditNote, null)
                                         }
 
                                         RemoveConfirmButton(
                                             HSLang.ItemEditor.removeConfirm.plainText,
-                                            { ItemStackManager.removeAt(index) }
+                                            { ItemStackManager.removeAt(index) },
+                                            modifier = Modifier.plainTooltip {
+                                                Text(IGLang.Misc.remove)
+                                            }
                                         ) {
                                             ItemIcon(item, showCount = true, scaleOnHover = 1f)
                                             Text(item.hoverName)
@@ -209,6 +240,15 @@ private fun ItemStackList(
                         }
                     }
                 }
+            }
+            editingItemIndex?.let { index ->
+                ItemStackEditor(
+                    ItemStackManager.items[index].value,
+                    { editingItemIndex = null },
+                    onValueChange = {
+                        ItemStackManager.items[index].copyValue(it)
+                    }
+                )
             }
         }
 
@@ -267,4 +307,37 @@ private class CommandNbtWriter : StringTagVisitor() {
 
         this.builder.append(']')
     }
+}
+
+/**
+ * 以创造模式向玩家背包添加物品，并将发生变化的槽位同步到服务端。
+ *
+ * @return 发生变化的玩家背包槽位。快捷栏为 0..8，主背包为 9..35。
+ */
+fun LocalPlayer.addCreativeItem(stack: ItemStack): List<Int> {
+    val gameMode = Minecraft.getInstance().gameMode ?: return emptyList()
+
+    val before = (0 until 36).map { slot ->
+        inventory.getItem(slot).copy()
+    }
+
+    // add 可能同时修改多个槽位，所以不能依赖其返回值判断是否有槽位变化
+    inventory.add(stack.copy())
+
+    return (0 until 36)
+        .filter { slot ->
+            !ItemStack.matches(before[slot], inventory.getItem(slot))
+        }
+        .onEach { inventorySlot ->
+            val menuSlot = when (inventorySlot) {
+                in 0..8 -> 36 + inventorySlot
+                in 9..35 -> inventorySlot
+                else -> return@onEach
+            }
+
+            gameMode.handleCreativeModeItemAdd(
+                inventory.getItem(inventorySlot).copy(),
+                menuSlot,
+            )
+        }
 }

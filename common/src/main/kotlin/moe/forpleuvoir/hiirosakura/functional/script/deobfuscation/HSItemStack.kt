@@ -8,6 +8,7 @@ import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.*
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * HSItemStack 类用于封装 Minecraft 中的物品堆栈(ItemStack)对象，并提供相关的属性和辅助方法以获取堆栈信息。
@@ -33,6 +34,12 @@ class HSItemStack(@JvmField val vanilla: ItemStack) {
     fun isStackable() = vanilla.isStackable
 
     fun hasComponent(componentType: String): Boolean = vanilla.has(BuiltInRegistries.DATA_COMPONENT_TYPE.get(Identifier.parse(componentType)).get().value())
+
+    fun getComponent(componentType: String): Any? {
+        return BuiltInRegistries.DATA_COMPONENT_TYPE.get(Identifier.parse(componentType)).getOrNull()?.value()?.let {
+            vanilla.get(it)
+        }
+    }
 
     /**
      * 获取当前物品的唯一标识符，并将其转换为字符串形式。
@@ -128,7 +135,7 @@ class HSItemStack(@JvmField val vanilla: ItemStack) {
      *
      * @return 包含附魔字符串的列表。如果没有附魔数据，则返回空列表。
      */
-    fun getEnchantments() = buildList<String> {
+    fun getEnchantments() = buildList {
         vanilla.get(DataComponents.ENCHANTMENTS)?.addToTooltip(Item.TooltipContext.EMPTY, {
             add(it.string)
         }, mc.tooltipFlag, vanilla)
@@ -142,7 +149,7 @@ class HSItemStack(@JvmField val vanilla: ItemStack) {
      *
      * @return 包含存储附魔名称的列表。
      */
-    fun getStoredEnchantments() = buildList<String> {
+    fun getStoredEnchantments() = buildList {
         vanilla.get(DataComponents.STORED_ENCHANTMENTS)?.addToTooltip(Item.TooltipContext.EMPTY, {
             add(it.string)
         }, mc.tooltipFlag, vanilla.components)

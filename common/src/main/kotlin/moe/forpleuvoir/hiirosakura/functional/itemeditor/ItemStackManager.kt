@@ -7,6 +7,8 @@ import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.moveElement
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import moe.forpleuvoir.nebula.common.util.ioAsync
 import moe.forpleuvoir.nebula.common.util.requireKey
 import moe.forpleuvoir.nebula.common.util.requireType
@@ -36,6 +38,8 @@ object ItemStackManager {
 
     private var changed = false
 
+    private val mutex = Mutex()
+
     operator fun set(index: Int, itemStack: ItemStack) {
         items[index] = Keyed(nextKey++, itemStack)
         changed = true
@@ -63,31 +67,35 @@ object ItemStackManager {
     }
 
     fun loadDataAsync(registryAccess: RegistryAccess) = ioAsync {
-        runCatching {
-            ConfigUtil.run {
-                val file = configFile("${KEY}.json", dataPath)
-                val json = readFileToString(file)
-                deserialization(registryAccess, JsonDialect.decode(json).getOrThrow())
-            }
-        }.onFailure {
-            log.warn(it)
-        }
-    }
-
-    fun saveDataAsync(registryAccess: RegistryAccess) = ioAsync {
-        if (changed) {
+        mutex.withLock {
             runCatching {
                 ConfigUtil.run {
                     val file = configFile("${KEY}.json", dataPath)
-                    writeToFile(JsonDialect.encode(serialization(registryAccess)), file)
+                    val json = readFileToString(file)
+                    deserialization(registryAccess, JsonDialect.decode(json).getOrThrow())
                 }
             }.onFailure {
                 log.warn(it)
             }
-            changed = false
-            return@ioAsync true
         }
-        return@ioAsync false
+    }
+
+    fun saveDataAsync(registryAccess: RegistryAccess) = ioAsync {
+        mutex.withLock {
+            if (changed) {
+                runCatching {
+                    ConfigUtil.run {
+                        val file = configFile("${KEY}.json", dataPath)
+                        writeToFile(JsonDialect.encode(serialization(registryAccess)), file)
+                    }
+                }.onFailure {
+                    log.warn(it)
+                }
+                changed = false
+                return@withLock true
+            }
+            return@withLock false
+        }
     }
 
     fun serialization(registryAccess: RegistryAccess): SerializeElement = SerializeObject.build {

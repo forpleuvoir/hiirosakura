@@ -29,7 +29,13 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowser
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.truncateLines
 import moe.forpleuvoir.hiirosakura.util.*
+import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.SerializeElementEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.SerializeElementType
+import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.matchesType
+import moe.forpleuvoir.ibukigourd.util.NebulaOps
+import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
@@ -51,6 +57,8 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+
+private val logger = logger("ItemStackEditor")
 
 @Composable
 fun ItemStackEditor(
@@ -229,6 +237,7 @@ private fun ComponentAdder(
         registryManager.lookupOrThrow(Registries.DATA_COMPONENT_TYPE).sortedBy { it.key(registryManager) } - dataComponents.keySet()
 
     var selected by remember { mutableStateOf(components.first()) }
+    var buildingType by remember { mutableStateOf<DataComponentType<*>?>(null) }
 
     Selector(
         selected = selected,
@@ -242,7 +251,7 @@ private fun ComponentAdder(
                         ToastHandler.showContent { Text(HSLang.ItemEditor.itemComponentExist(type.keyOrUnknown(registryManager))) }
                     }
                 } ?: run {
-                    // TODO 通用的组件构建器
+                    buildingType = type
                 }
             }.onFailure {
                 ToastHandler.showContent {
@@ -281,6 +290,81 @@ private fun ComponentAdder(
                 }
             }
         }
+    )
+
+    buildingType?.let { type ->
+        ComponentBuilderDialog(
+            type = type as DataComponentType<Any>,
+            onDismiss = { buildingType = null },
+            onValueChange = { component ->
+                if (!dataComponents.delegate.has(type)) {
+                    dataComponents[type] = component
+                } else {
+                    ToastHandler.showContent {
+                        Text(HSLang.ItemEditor.itemComponentExist(type.keyOrUnknown(registryManager)))
+                    }
+                }
+                buildingType = null
+            },
+        )
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+@Composable
+private fun <C : Any> ComponentBuilderDialog(
+    type: DataComponentType<C>,
+    onDismiss: () -> Unit,
+    onValueChange: (C) -> Unit,
+) {
+    var rootType by remember { mutableStateOf(SerializeElementType.Object) }
+    var data by remember { mutableStateOf(SerializeElementType.Object.defaultValue) }
+
+    FlexibleDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.padding(24.dp),
+        title = { Text(Component.literal(type.keyOrUnknown(registryAccess!!).toString())) },
+        onConfirmRequest = {
+            runCatching {
+                type.codecOrThrow()
+                    .parse(registryAccess!!.createSerializationContext(NebulaOps), data)
+                    .orThrow
+            }.fold(
+                onSuccess = { result ->
+                    onValueChange(result)
+                    true
+                },
+                onFailure = { e ->
+                    logger.error(e)
+                    ToastHandler.showContent {
+                        Text(e.stackTraceToString().truncateLines(8))
+                    }
+                    false
+                }
+            )
+        },
+        content = {
+            Column {
+                EnumSelector(
+                    selected = rootType,
+                    onSelect = { newType ->
+                        rootType = newType
+                        if (!data.matchesType(newType)) {
+                            data = newType.defaultValue.deepCopy()
+                        }
+                    },
+                    items = SerializeElementType.entries,
+                    label = { Text(HSLang.ItemEditor.rootType) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(8.dp))
+                SerializeElementEditor(
+                    data = data,
+                    onDataChange = { data = it },
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+        },
     )
 }
 

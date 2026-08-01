@@ -31,4 +31,6 @@ object HSLang {
     val BlockInfoMatcher = BlockInfoMatcherLang
 
     val TextEditor = TextEditorLang
+
+    val SerializeEditor = SerializeEditorLang
 }

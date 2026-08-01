@@ -267,7 +267,7 @@ fun FormatImportButton(
 }
 
 
-private fun String.truncateLines(maxLines: Int = 50): String {
+fun String.truncateLines(maxLines: Int = 50): String {
     val lines = split("\n")
     return if (lines.size <= maxLines) this
     else lines.take(maxLines).joinToString("\n") + "\n... (total lines: ${lines.size})"

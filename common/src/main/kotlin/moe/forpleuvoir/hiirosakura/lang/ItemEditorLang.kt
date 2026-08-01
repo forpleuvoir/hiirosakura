@@ -33,6 +33,7 @@ object ItemEditorLang {
     inline val itemPreview get() = lang("item_preview")
 
     inline val itemCount get() = lang("item_count")
+    inline val rootType get() = lang("root_type")
 
     inline val addItemComponent get() = lang("add_item_component")
 

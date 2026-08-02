@@ -1,4 +1,3 @@
-import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -15,7 +14,7 @@ val gitHash: Provider<String> by lazy {
     }.standardOutput.asText.map { it.trim() }
 }
 
-val versionWithGitHashAndBuildTime: String = "v$version.$gitHash.$time"
+val versionWithGitHashAndBuildTime: String = "v$version.${gitHash.get()}.$time"
 
 run {
     //只是为了生成一个toml方便https://shields.io/读取

@@ -24,7 +24,7 @@ import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.rectInMcWindow
 import moe.forpleuvoir.ibukigourd.render.extension.pushTextLines
 import moe.forpleuvoir.ibukigourd.text.inlinestyletext.InlineStyleTextParser
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.state.isQuickAction

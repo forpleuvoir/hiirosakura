@@ -22,8 +22,8 @@ import moe.forpleuvoir.hiirosakura.ui.widget.HolderSoundEventSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
-import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Delete
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.EnumSelector
 import moe.forpleuvoir.ibukigourd.ui.preset.Selector
 import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog

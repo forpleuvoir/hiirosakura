@@ -1,4 +1,4 @@
-package moe.forpleuvoir.hiirosakura.ui.icon.default
+package moe.forpleuvoir.hiirosakura.ui.icon.defaults
 
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector

@@ -9,10 +9,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.ui.icon.default.Assignment
-import moe.forpleuvoir.hiirosakura.ui.icon.default.Task
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Assignment
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Task
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Settings
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Settings
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 
 @Composable

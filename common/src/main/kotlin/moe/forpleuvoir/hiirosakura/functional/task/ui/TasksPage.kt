@@ -28,7 +28,7 @@ import moe.forpleuvoir.hiirosakura.functional.task.IconTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.KeybindTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
-import moe.forpleuvoir.hiirosakura.ui.icon.default.PlayArrow
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.PlayArrow
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JexlSyntaxLanguage
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
@@ -40,7 +40,7 @@ import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler

@@ -11,9 +11,9 @@ import moe.forpleuvoir.hiirosakura.functional.customradialmenu.ui.CustomRadialMe
 import moe.forpleuvoir.hiirosakura.functional.event.ui.HSEventManagerUI
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.ItemEditorManagerUI
 import moe.forpleuvoir.hiirosakura.functional.task.ui.TaskManagerUI
-import moe.forpleuvoir.hiirosakura.ui.icon.default.Assignment
-import moe.forpleuvoir.hiirosakura.ui.icon.default.Notifications
-import moe.forpleuvoir.hiirosakura.ui.icon.default.Radar
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Assignment
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Notifications
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Radar
 import moe.forpleuvoir.hiirosakura.ui.icon.filled.Assignment
 import moe.forpleuvoir.hiirosakura.ui.icon.filled.Notifications
 import moe.forpleuvoir.hiirosakura.util.identifier
@@ -29,8 +29,8 @@ import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.ComposeScreen
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigManagerWrapper
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Settings
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Settings
 import moe.forpleuvoir.ibukigourd.ui.icon.filled.Settings
 import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 import moe.forpleuvoir.ibukigourd.ui.preset.BlitTexture

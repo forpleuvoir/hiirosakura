@@ -12,8 +12,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
-import moe.forpleuvoir.hiirosakura.ui.icon.default.EditSquare
-import moe.forpleuvoir.hiirosakura.ui.icon.default.Equal
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.EditSquare
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Equal
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer

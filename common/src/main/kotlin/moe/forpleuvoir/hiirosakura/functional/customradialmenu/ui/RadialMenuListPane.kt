@@ -21,7 +21,7 @@ import moe.forpleuvoir.hiirosakura.functional.customradialmenu.CustomRadialMenuM
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.*
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.*
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
 

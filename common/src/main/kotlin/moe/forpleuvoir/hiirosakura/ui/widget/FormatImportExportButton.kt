@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.*
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
-import moe.forpleuvoir.hiirosakura.ui.icon.default.Download
-import moe.forpleuvoir.hiirosakura.ui.icon.default.Upload
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Download
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Upload
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.*
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
 import moe.forpleuvoir.hiirosakura.ui.util.showErrorToast

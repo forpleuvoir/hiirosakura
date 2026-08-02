@@ -15,7 +15,7 @@ import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.replacedA
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.withoutAt
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Delete
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement

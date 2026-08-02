@@ -15,7 +15,7 @@ import moe.forpleuvoir.ibukigourd.render.extension.texture.IGTexture
 import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureUVMapping
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.*
 import net.minecraft.resources.Identifier
 import net.minecraft.world.food.FoodProperties

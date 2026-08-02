@@ -23,13 +23,13 @@ import moe.forpleuvoir.hiirosakura.functional.event.HSEventManager
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber.ExecutorType
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
-import moe.forpleuvoir.hiirosakura.ui.icon.default.FilterList
-import moe.forpleuvoir.hiirosakura.ui.icon.default.Link
-import moe.forpleuvoir.hiirosakura.ui.icon.default.NotificationAdd
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.FilterList
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Link
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.NotificationAdd
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.EditNote
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
 import moe.forpleuvoir.ibukigourd.ui.preset.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.preset.Text

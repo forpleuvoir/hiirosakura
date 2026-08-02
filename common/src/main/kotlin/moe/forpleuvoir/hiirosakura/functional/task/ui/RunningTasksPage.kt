@@ -19,7 +19,7 @@ import moe.forpleuvoir.hiirosakura.functional.task.HSTickTaskScheduler.remove
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.task.TickTask
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Delete
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Delete
 import moe.forpleuvoir.ibukigourd.ui.preset.Text
 import net.minecraft.client.Minecraft
 import kotlin.time.Duration.Companion.milliseconds

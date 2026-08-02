@@ -16,8 +16,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.default.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.default.KeyboardArrowRight
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Add
+import moe.forpleuvoir.ibukigourd.ui.icon.defaults.KeyboardArrowRight
 
 /**
  * 对象 / 数组编辑器的统一容器：

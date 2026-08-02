@@ -7,8 +7,8 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.ui.icon.default.Cancel
-import moe.forpleuvoir.hiirosakura.ui.icon.default.CheckCircle
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Cancel
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.CheckCircle
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.icon.Icons
 import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler

@@ -1,4 +1,4 @@
-v3.5.3+beta
+v3.6.0+alpha
   - `Minecraft`版本更新至`26.1.2`
   - 全面迁移至 Compose UI，包括：
     - 物品编辑器
@@ -14,6 +14,10 @@ v3.5.3+beta
   - 新增 OpenGameMenu 事件
   - 完善本地化并调整配置默认值
   - 修复了聊天气泡匹配玩家时可能导致的崩溃问题
+
+v3.5.3+beta
+ - 修复了聊天气泡匹配玩家时可能导致的崩溃问题
+ - 物品编辑器新增对`Consumable`,`KineticWeapon`,`PiercingWeapon`,`Fireworks`,`FireworkExplosion`,`LodestoneTracker`,`DyeColor`组件的适配
 
 v3.5.2+beta
  - 修改了轮盘菜单的渲染方式,由原来地渲染四边形改为圆形

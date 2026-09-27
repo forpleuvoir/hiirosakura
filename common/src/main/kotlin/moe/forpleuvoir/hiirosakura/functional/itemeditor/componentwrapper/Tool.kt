@@ -277,7 +277,7 @@ private fun RuleContent(
                     value.blocks.take(20).forEach { item ->
                         ItemBrowserDefaults.ItemWrapper(
                             item.value(),
-                            border = false,
+                            hoverHighlight = false,
                             scaleOnHover = 1f,
                             showTooltip = false,
                             modifier = Modifier.size(36.dp)
@@ -308,7 +308,7 @@ private fun RuleContent(
                     value.blocks.take(6).forEach { item ->
                         ItemBrowserDefaults.ItemWrapper(
                             item.value(),
-                            border = false,
+                            hoverHighlight = false,
                             scaleOnHover = 1f,
                             showTooltip = false,
                             modifier = Modifier.size(36.dp)

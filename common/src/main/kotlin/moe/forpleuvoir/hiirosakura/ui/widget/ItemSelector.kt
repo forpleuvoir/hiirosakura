@@ -4,7 +4,6 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -444,7 +443,7 @@ object ItemBrowserDefaults {
     @Composable
     fun ItemWrapper(
         item: ItemLike,
-        border: Boolean = true,
+        hoverHighlight: Boolean = true,
         scaleOnHover: Float = 1.1f,
         // 默认给一个尺寸:自身是 aspectRatio(1f),没有外部约束时会塌掉 —— 默认取
         // ItemIconDefaults.size(48dp),调用方要别的尺寸再显式传。
@@ -457,7 +456,6 @@ object ItemBrowserDefaults {
     ) {
         val interactionSource = remember { MutableInteractionSource() }
 
-        val isHovered by interactionSource.collectIsHoveredAsState()
 
         Box(
             modifier = modifier
@@ -466,7 +464,7 @@ object ItemBrowserDefaults {
                 .clickable(interactionSource = interactionSource, indication = null) { onCLick(item) }
                 // 悬停反馈改为 IG 的悬停高亮(原来是一圈 1dp 描边):
                 // 高亮块铺在内容之下,主题色 / 浓度 / 淡入淡出全部沿用 hoverHighlight 的定义。
-                .then(if (border) Modifier.hoverHighlight(interactionSource) else Modifier)
+                .then(if (hoverHighlight) Modifier.hoverHighlight(interactionSource) else Modifier)
                 .then(
                     if (showTooltip) Modifier.tooltip {
                         Column {

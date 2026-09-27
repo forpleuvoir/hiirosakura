@@ -172,7 +172,7 @@ fun MultiItemSelectorDialog(
                             ItemBrowserDefaults.ItemWrapper(
                                 item,
                                 // 悬停反馈由 ItemWrapper 内部挂的 IG 悬停高亮承担
-                                border = true,
+                                hoverHighlight = true,
                                 // 选中态 = 禁用态:50% 半透明。用**物品着色**表达 —— 它走物品绘制着色,
                                 // 不建 graphicsLayer(本平台图层是命令烘焙 + 父链连锁重录,用 Modifier.alpha
                                 // 会为每个选中项建层,选中越多越慢)。
@@ -254,7 +254,7 @@ fun MultiItemSelectorDialog(
                                             if (flyingItem != item) {
                                                 ItemBrowserDefaults.ItemWrapper(
                                                     item,
-                                                    border = false,
+                                                    hoverHighlight = false,
                                                     scaleOnHover = 1f,
                                                     modifier = Modifier.fillMaxSize(),
                                                     showTooltip = false,
@@ -344,7 +344,7 @@ fun MultiItemSelector(
         if (value.isEmpty()) {
             ItemBrowserDefaults.ItemWrapper(
                 Items.AIR,
-                border = false,
+                hoverHighlight = false,
                 scaleOnHover = 1f,
                 modifier = Modifier.size(LocalItemIconVanillaSize.current),
                 showTooltip = false,
@@ -356,7 +356,7 @@ fun MultiItemSelector(
             value.take(preview).forEach { item ->
                 ItemBrowserDefaults.ItemWrapper(
                     item,
-                    border = false,
+                    hoverHighlight = false,
                     scaleOnHover = 1f,
                     modifier = Modifier.size(LocalItemIconVanillaSize.current),
                     showTooltip = showTooltip,

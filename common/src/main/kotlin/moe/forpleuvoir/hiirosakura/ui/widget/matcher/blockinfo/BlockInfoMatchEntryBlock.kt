@@ -22,7 +22,7 @@ fun BlockInfoMatchEntryBlockInfo(entry: BlockInfoMatchEntry.Block) {
         Spacer(Modifier.width(8.dp))
         Text(BlockInfoMatchEntry.Block.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Spacer(Modifier.width(8.dp))
-        ItemBrowserDefaults.ItemWrapper(entry.block, showTooltip = false, scaleOnHover = 1f, border = false, modifier = Modifier.size(32.dp))
+        ItemBrowserDefaults.ItemWrapper(entry.block, showTooltip = false, scaleOnHover = 1f, hoverHighlight = false, modifier = Modifier.size(32.dp))
         Spacer(Modifier.width(8.dp))
         Text(entry.asText, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }

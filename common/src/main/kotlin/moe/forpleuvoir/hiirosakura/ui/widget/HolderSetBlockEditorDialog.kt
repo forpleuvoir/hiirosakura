@@ -291,7 +291,7 @@ fun BlockTagSelector(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     types.take(20).forEach { item ->
-                        ItemBrowserDefaults.ItemWrapper(item.value(), scaleOnHover = 1f, showTooltip = false, border = false, modifier = Modifier.size(36.dp))
+                        ItemBrowserDefaults.ItemWrapper(item.value(), scaleOnHover = 1f, showTooltip = false, hoverHighlight = false, modifier = Modifier.size(36.dp))
                     }
 
                     if (types.count() > 20) Text("...")
@@ -315,7 +315,7 @@ fun BlockTagSelector(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     types.take(20).forEach { item ->
-                        ItemBrowserDefaults.ItemWrapper(item.value(), scaleOnHover = 1f, showTooltip = false, border = false, modifier = Modifier.size(36.dp))
+                        ItemBrowserDefaults.ItemWrapper(item.value(), scaleOnHover = 1f, showTooltip = false, hoverHighlight = false, modifier = Modifier.size(36.dp))
                     }
 
                     if (types.count() > 20) Text("...")

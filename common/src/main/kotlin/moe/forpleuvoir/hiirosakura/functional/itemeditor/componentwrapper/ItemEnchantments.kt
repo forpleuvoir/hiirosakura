@@ -9,8 +9,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
@@ -80,14 +80,14 @@ fun ItemEnchantmentsComponentWrapper(
                 }
                 .width(DataComponentEditorDefaults.entrySize.width),
         ) {
-Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.enchantments.size), overflow = TextOverflow.Ellipsis, maxLines = 1)
-IconButton(onClick = {
-    showDialog = true
-}) {
-    Icon(Icons.Edit)
-}
+            Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.enchantments.size), overflow = TextOverflow.Ellipsis, maxLines = 1)
+            IconButton(onClick = {
+                showDialog = true
+            }) {
+                Icon(Icons.Edit)
+            }
         }
-if (showDialog) {
+        if (showDialog) {
             ItemEnchantmentsComponentEditDialog(
                 value,
                 onValueChange,
@@ -174,14 +174,14 @@ fun ItemEnchantmentsComponentEditDialog(
                                         }
                                     )
                                     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                                                                                LabelBox(label = {
-                                                Text(key, suffix = "level", fallback = "level")
-                                            }, modifier = Modifier.height(68.dp).width(120.dp)) {
+                                        LabelBox(label = {
+                                            Text(key, suffix = "level", fallback = "level")
+                                        }, modifier = Modifier.height(68.dp).width(120.dp)) {
                                             IntField(
                                                 level,
                                                 {
-                                                editingEnchantments[index] = editingEnchantments[index].copy(second = it)
-                                            },
+                                                    editingEnchantments[index] = editingEnchantments[index].copy(second = it)
+                                                },
                                                 valueRange = 1..255,
                                                 modifier = Modifier.fillMaxWidth(),
                                             )
@@ -236,33 +236,33 @@ fun ItemEnchantmentsComponentEditDialog(
                         },
                         title = { Text(component = IGLang.Misc.add) },
                         content = {
-                            
-                                Row {
-                                    EnchatmentSelector(
-                                        enchantment,
-                                        onSelect = { enchantment = it },
-                                        items = otherEnchantments(enchantment),
-                                        modifier = Modifier.weight(1f),
-                                        searchFilter = { str, entry ->
-                                            entry.registeredName.contains(str) || entry.value().description.plainText.contains(str)
-                                        },
-                                        label = {
-                                            Text(key, suffix = "enchantment", fallback = "enchantment")
-                                        }
-                                    )
-                                    Spacer(Modifier.width(8.dp))
-                                                                        LabelBox(label = {
-                                            Text(key, suffix = "level", fallback = "level")
-                                        }, modifier = Modifier.height(68.dp).width(120.dp)) {
-                                        IntField(
-                                            level,
-                                            { level = it },
-                                            valueRange = 1..255,
-                                            modifier = Modifier.fillMaxWidth(),
-                                        )
+
+                            Row {
+                                EnchatmentSelector(
+                                    enchantment,
+                                    onSelect = { enchantment = it },
+                                    items = otherEnchantments(enchantment),
+                                    modifier = Modifier.weight(1f),
+                                    searchFilter = { str, entry ->
+                                        entry.registeredName.contains(str) || entry.value().description.plainText.contains(str)
+                                    },
+                                    label = {
+                                        Text(key, suffix = "enchantment", fallback = "enchantment")
                                     }
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                LabelBox(label = {
+                                    Text(key, suffix = "level", fallback = "level")
+                                }, modifier = Modifier.height(68.dp).width(120.dp)) {
+                                    IntField(
+                                        level,
+                                        { level = it },
+                                        valueRange = 1..255,
+                                        modifier = Modifier.fillMaxWidth(),
+                                    )
                                 }
-                            
+                            }
+
                         }
                     )
 

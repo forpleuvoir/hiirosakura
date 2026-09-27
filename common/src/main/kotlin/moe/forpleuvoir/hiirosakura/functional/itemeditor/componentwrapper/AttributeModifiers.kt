@@ -17,8 +17,8 @@ import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
-import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
@@ -98,14 +98,14 @@ fun AttributeModifiersComponentWrapper(
                 .vanillaTooltip(getDisplayTexts(value))
                 .width(DataComponentEditorDefaults.entrySize.width),
         ) {
-Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.modifiers.size))
-IconButton(onClick = {
-    showDialog = true
-}) {
-    Icon(Icons.Edit)
-}
+            Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.modifiers.size))
+            IconButton(onClick = {
+                showDialog = true
+            }) {
+                Icon(Icons.Edit)
+            }
         }
-if (showDialog) {
+        if (showDialog) {
             ItemAttributeModifiersEditor(
                 value,
                 onValueChange,

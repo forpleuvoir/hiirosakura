@@ -8,8 +8,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
-import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
@@ -360,14 +360,14 @@ private fun AssetId(
             content = {
                 Column {
                     LabelBox(label = {
-                            Row {
-                                Text("Namespace")
-                                if (!checkNamespace) {
-                                    Spacer(Modifier.width(8.dp))
-                                    Text("Non [a-z0-9_.-] character in namespace of location")
-                                }
+                        Row {
+                            Text("Namespace")
+                            if (!checkNamespace) {
+                                Spacer(Modifier.width(8.dp))
+                                Text("Non [a-z0-9_.-] character in namespace of location")
                             }
-                        }) {
+                        }
+                    }) {
                         TextField(
                             namespace,
                             isError = !checkNamespace,
@@ -376,14 +376,14 @@ private fun AssetId(
                     }
                     Spacer(Modifier.height(8.dp))
                     LabelBox(label = {
-                            Row {
-                                Text("Path")
-                                if (!checkPath) {
-                                    Spacer(Modifier.width(8.dp))
-                                    Text("Non [a-z0-9/._-] character in path of location")
-                                }
+                        Row {
+                            Text("Path")
+                            if (!checkPath) {
+                                Spacer(Modifier.width(8.dp))
+                                Text("Non [a-z0-9/._-] character in path of location")
                             }
-                        }) {
+                        }
+                    }) {
                         TextField(
                             path,
                             isError = !checkPath,
@@ -392,30 +392,30 @@ private fun AssetId(
                     }
                     Spacer(Modifier.height(8.dp))
                     var selected by remember { mutableStateOf(equipmentAssetKeys.first()) }
-                                        LabelBox(label = { Text(component = HSLang.ItemEditor.fromResourceManager) }) {
+                    LabelBox(label = { Text(component = HSLang.ItemEditor.fromResourceManager) }) {
                         Selector(
-                                                equipmentAssetKeys.first(),
-                                                {
-                                                    namespace.edit {
-                                                        replace(0, length, it.identifier().namespace)
-                                                    }
-                                                    path.edit {
-                                                        replace(0, length, it.identifier().path)
-                                                    }
-                                                    selected = it
-                                                },
-                                                items = equipmentAssetKeys,
-                                                
-                                                content = {
-                                                    Text(it.identifier(), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                                },
-                                                itemContent = { item, _ ->
-                                                    Text(item.identifier())
-                                                },
-                                                searchFilter = { it, str ->
-                                                    it.identifier().toString().contains(str, ignoreCase = true)
-                                                }
-                                            )
+                            equipmentAssetKeys.first(),
+                            {
+                                namespace.edit {
+                                    replace(0, length, it.identifier().namespace)
+                                }
+                                path.edit {
+                                    replace(0, length, it.identifier().path)
+                                }
+                                selected = it
+                            },
+                            items = equipmentAssetKeys,
+
+                            content = {
+                                Text(it.identifier(), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            },
+                            itemContent = { item, _ ->
+                                Text(item.identifier())
+                            },
+                            searchFilter = { it, str ->
+                                it.identifier().toString().contains(str, ignoreCase = true)
+                            }
+                        )
                     }
                 }
             },

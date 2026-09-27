@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
@@ -97,23 +97,23 @@ fun RepairableComponentWrapper(
                 }
                 .width(DataComponentEditorDefaults.entrySize.width),
         ) {
-Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-    value.items.take(6).forEach { item ->
-        ItemIcon(ItemStack(item), scaleOnHover = 1f, showTooltip = false)
-    }
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                value.items.take(6).forEach { item ->
+                    ItemIcon(ItemStack(item), scaleOnHover = 1f, showTooltip = false)
+                }
 
-    if (count > 6)
-        Text("...", overflow = TextOverflow.Ellipsis, maxLines = 1)
-    if (count == 0)
-        Text(component = IGLang.Misc.hasNothing, overflow = TextOverflow.Ellipsis, maxLines = 1)
-}
-IconButton(onClick = {
-    showDialog = true
-}) {
-    Icon(Icons.Edit)
-}
+                if (count > 6)
+                    Text("...", overflow = TextOverflow.Ellipsis, maxLines = 1)
+                if (count == 0)
+                    Text(component = IGLang.Misc.hasNothing, overflow = TextOverflow.Ellipsis, maxLines = 1)
+            }
+            IconButton(onClick = {
+                showDialog = true
+            }) {
+                Icon(Icons.Edit)
+            }
         }
-if (showDialog) {
+        if (showDialog) {
             HolderSetItemEditorDialog(
                 value = value.items,
                 onValueChange = { onValueChange(Repairable(it)) },
@@ -408,19 +408,19 @@ fun ItemTagSelector(
     shape: Shape = RectangleShape,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
-        LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
-                Selector(
-                selected = selected,
-                onSelect = onSelect,
-                items = items,
-                itemEquals = itemEquals,
-                content = content,
-                itemContent = itemContent,
-                enabled = enabled,
-                itemLeadingIcon = itemLeadingIcon,
-                itemTrailingIcon = itemTrailingIcon,
-                searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
+    LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+        Selector(
+            selected = selected,
+            onSelect = onSelect,
+            items = items,
+            itemEquals = itemEquals,
+            content = content,
+            itemContent = itemContent,
+            enabled = enabled,
+            itemLeadingIcon = itemLeadingIcon,
+            itemTrailingIcon = itemTrailingIcon,
+            searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
+}

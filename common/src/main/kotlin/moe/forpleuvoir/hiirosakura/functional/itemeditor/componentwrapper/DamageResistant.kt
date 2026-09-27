@@ -20,8 +20,8 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
@@ -100,14 +100,14 @@ fun DamageResistantComponentWrapper(
                 }
                 .width(DataComponentEditorDefaults.entrySize.width),
         ) {
-Text(component = IGLang.ConfigWrapper.listConfigWrapperText(count), overflow = TextOverflow.Ellipsis, maxLines = 1)
-IconButton(onClick = {
-    showDialog = true
-}) {
-    Icon(Icons.Edit)
-}
+            Text(component = IGLang.ConfigWrapper.listConfigWrapperText(count), overflow = TextOverflow.Ellipsis, maxLines = 1)
+            IconButton(onClick = {
+                showDialog = true
+            }) {
+                Icon(Icons.Edit)
+            }
         }
-if (showDialog) {
+        if (showDialog) {
             HolderSetDamageTypeEditorDialog(
                 value = value.types,
                 onValueChange = { onValueChange(DamageResistant(it)) },
@@ -229,7 +229,8 @@ fun HolderSetDamageTypeEditorDialog(
                                             modifier = Modifier.padding(end = if (lazyListState.canScroll) 12.dp else 0.dp).fillMaxSize(),
                                             state = lazyListState
                                         ) {
-                                            itemsIndexed(types.entries,
+                                            itemsIndexed(
+                                                types.entries,
                                                 key = { _, keyed -> keyed.key }
                                             ) { index, (key, type) ->
                                                 ReorderableItem(
@@ -242,7 +243,7 @@ fun HolderSetDamageTypeEditorDialog(
                                                     val handleHovered by handleInteraction.collectIsHoveredAsState()
                                                     Surface(
                                                         modifier = Modifier.fillMaxWidth().scale(scale).tooltip {
-                                                           Text(type.toString())
+                                                            Text(type.toString())
                                                         }
                                                     ) {
                                                         Row(
@@ -386,22 +387,22 @@ fun DamageTypeTagSelector(
     shape: Shape = RectangleShape,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
-        LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
-                Selector(
-                selected = selected,
-                onSelect = onSelect,
-                items = items,
-                itemEquals = itemEquals,
-                content = content,
-                itemContent = itemContent,
-                enabled = enabled,
-                itemLeadingIcon = itemLeadingIcon,
-                itemTrailingIcon = itemTrailingIcon,
-                searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
+    LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+        Selector(
+            selected = selected,
+            onSelect = onSelect,
+            items = items,
+            itemEquals = itemEquals,
+            content = content,
+            itemContent = itemContent,
+            enabled = enabled,
+            itemLeadingIcon = itemLeadingIcon,
+            itemTrailingIcon = itemTrailingIcon,
+            searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
+}
 
 
 @Composable
@@ -438,19 +439,19 @@ fun DamageTypeSelector(
     shape: Shape = RectangleShape,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
-        LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
-                Selector(
-                selected = selected,
-                onSelect = onSelect,
-                items = items,
-                itemEquals = itemEquals,
-                content = content,
-                itemContent = itemContent,
-                enabled = enabled,
-                itemLeadingIcon = itemLeadingIcon,
-                itemTrailingIcon = itemTrailingIcon,
-                searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
+    LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+        Selector(
+            selected = selected,
+            onSelect = onSelect,
+            items = items,
+            itemEquals = itemEquals,
+            content = content,
+            itemContent = itemContent,
+            enabled = enabled,
+            itemLeadingIcon = itemLeadingIcon,
+            itemTrailingIcon = itemTrailingIcon,
+            searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
+}

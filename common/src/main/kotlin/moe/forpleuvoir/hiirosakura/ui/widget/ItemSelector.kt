@@ -23,6 +23,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.*
+import kotlinx.coroutines.flow.distinctUntilChanged
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.util.ItemRegistryHelper
 import moe.forpleuvoir.hiirosakura.util.key
@@ -33,6 +34,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.util.FabVisibilityState
 import moe.forpleuvoir.ibukigourd.ui.util.fabVisibilityAnimation
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
@@ -46,7 +48,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.ui.graphics.RectangleShape
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.hiirosakura.ui.util.rememberAdaptiveGridSpan
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
@@ -60,6 +62,17 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.DpSize
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
 import androidx.compose.foundation.clickable
+import moe.forpleuvoir.ibukigourd.ui.util.rememberHideActionState
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.animation.core.Animatable
+import androidx.compose.ui.graphics.graphicsLayer
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Tab
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TabRow
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TabRowDefaults
+import androidx.compose.ui.platform.LocalDensity
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.delay
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 
 @Composable
 fun ItemSelector(
@@ -138,17 +151,23 @@ fun BlockSelector(
 
 @Composable
 fun ItemBrowser(
-    itemGroups: List<ResourceKey<CreativeModeTab>> = ItemRegistryHelper.getAllTabs(),
+    itemGroups: List<ResourceKey<CreativeModeTab>>? = null,
     itemDisplay: @Composable (ItemLike) -> Unit = ItemBrowserDefaults::ItemWrapper,
     filter: (ItemLike) -> Boolean = { true },
-    searchItems: List<ItemLike> = ItemRegistryHelper.allItem.toList(),
+    searchItems: List<ItemLike>? = null,
     gridCellSize: Dp = ItemBrowserDefaults.gridCellSize(contentPadding = PaddingValues(4.dp)),
     searchBarBackgroundColor: Color = SokitsuTheme.colorScheme.surface,
     modifier: Modifier = Modifier
 ) {
-    val tabList = remember(itemGroups) {
+    // 这两个默认值原来直接求值,而 ItemBrowser 会随对话框状态反复重组:
+    // `getAllTabs()` 内部是 `CreativeModeTabs.tryRebuildTabContents(...)`(重建全部分类内容),
+    // `allItem.toList()` 会复制整个物品注册表 —— 每重组一次就来一遍。改成只算一次。
+    val groups = remember(itemGroups) { itemGroups ?: ItemRegistryHelper.getAllTabs() }
+    val searchPool = remember(searchItems) { searchItems ?: ItemRegistryHelper.allItem.toList() }
+
+    val tabList = remember(groups) {
         listOf(ItemStack(Items.COMPASS) to IGLang.Misc.search.string) +
-                itemGroups.map {
+                groups.map {
                     val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValueOrThrow(it)
                     tab.iconItem to tab.displayName.string
                 }
@@ -156,187 +175,266 @@ fun ItemBrowser(
 
     var selectedTabIndex by remember { mutableStateOf(if (tabList.size > 1) 1 else 0) }
 
+    val gridState = rememberLazyGridState()
+    // 切分类回到顶部:网格状态是跨分类共用的,不重置就会带着上一个分类的滚动位置
+    // (表现就是「翻页之后滚动条不在 0」,而且新分类可能一进来就停在半截)。
+    LaunchedEffect(selectedTabIndex) { gridState.scrollToItem(0) }
+    // 滚动显隐的嵌套滚动回调必须挂在滚动容器的祖先上;搜索框是它的兄弟节点,挂在搜索框上收不到位移
+    val fabVisibility = rememberFabScrollVisibility(gridState)
+
+    val textFieldState = rememberTextFieldState()
+    var searchQuery by remember { mutableStateOf("") }
+    // 用 snapshotFlow 收敛输入,而不是在组合期读 textFieldState.text:后者会让每次按键都重组
+    // 整个浏览器(含整个网格),输入非常卡。
+    LaunchedEffect(textFieldState) {
+        snapshotFlow { textFieldState.text.toString() }
+            .distinctUntilChanged()
+            .collect { searchQuery = it }
+    }
+
+    // 当前页签的物品清单:只在页签/入参变化时重算一次(原来用 mutableStateOf 包了一层多余状态)
+    val tabItems = remember(selectedTabIndex, groups, searchPool, filter) {
+        if (selectedTabIndex != 0)
+            ItemRegistryHelper.getItemsByTab(groups[selectedTabIndex - 1])
+                .filter { filter(it.item) }
+                .map { it.item }
+                .distinctBy { it.key }
+        else searchPool.filter { filter(it) }.distinctBy {
+            when (it) {
+                is Item  -> it.key
+                is Block -> it.key
+                else     -> it
+            }
+        }
+    }
+
+    val displayItems = remember(tabItems, searchQuery) {
+        if (searchQuery.isBlank()) tabItems
+        else tabItems.filter {
+            when (it) {
+                is Item  -> it.name.plainText.contains(searchQuery, ignoreCase = true)
+                        || it.key.toString().contains(searchQuery, ignoreCase = true)
+
+                is Block -> it.name.plainText.contains(searchQuery, ignoreCase = true)
+                        || it.key.toString().contains(searchQuery, ignoreCase = true)
+
+                else     -> false
+            }
+        }
+    }
 
     Column(
         modifier = modifier.fillMaxSize()
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        // 分类条用 IG 的 TabRow + Tab。TabRow 是等宽的,分类多时**显式给出内容宽度**交给横向滚动 ——
+        // 与 IG dev 测试页 TabRowTest(40 个页签)完全同一个做法:外层 Box 横向滚动,
+        // 内层给足内容宽,滚轮(见 CMP 的 scrollDelta 修复)和拖动都能到达后面的分类。
+        val tabDensity = LocalDensity.current
+        val tabScroll = rememberScrollState()
+        val tabContentWidth = CategoryTabWidth * tabList.size + TabRowDefaults.tabGap * (tabList.size - 1).coerceAtLeast(0)
+        // 选中页签自动滚进视野(照 IG dev 测试页 TabRowTest 的 M3 ScrollableTabData 同式):
+        // 没有这段的话,超出可视区的分类点不到、也翻不过去 —— 测试页能翻页靠的就是它。
+        LaunchedEffect(selectedTabIndex) {
+            val maxScroll = snapshotFlow { tabScroll.maxValue }.first { it in 1 until Int.MAX_VALUE }
+            val density = tabDensity
+            val tabWidthPx = with(density) { CategoryTabWidth.roundToPx() }
+            val tabGapPx = with(density) { TabRowDefaults.tabGap.roundToPx() }
+            val tabStridePx = tabWidthPx + tabGapPx
+            val totalWidthPx = with(density) { tabContentWidth.roundToPx() }
+            val visibleWidth = totalWidthPx - maxScroll
+            val tabLeft = selectedTabIndex * tabStridePx
+            val centered = tabLeft - (visibleWidth / 2 - tabWidthPx / 2)
+            val available = (totalWidthPx - visibleWidth).coerceAtLeast(0)
+            tabScroll.animateScrollTo(
+                value = centered.coerceIn(0, available),
+                animationSpec = tween(TabRowDefaults.IndicatorAnimationDurationMillis),
+            )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(tabScroll),
         ) {
-            tabList.forEachIndexed { index, tabKey ->
-                FlatButton(
-                    onClick = { selectedTabIndex = index },
-                    modifier = Modifier.padding(bottom = 6.dp, start = 4.dp, end = 4.dp),
-                    colors = if (selectedTabIndex == index) {
-                        FlatButtonDefaults.colors(
-                            color = SokitsuTheme.colorScheme.primaryContainer,
-                            contentColor = SokitsuTheme.colorScheme.onPrimaryContainer,
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                containerColor = Color.Transparent,
+                modifier = Modifier.width(tabContentWidth),
+                tabs = {
+                    tabList.forEachIndexed { index, tabKey ->
+                        Tab(
+                            selected = selectedTabIndex == index,
+                            onClick = { selectedTabIndex = index },
+                            modifier = Modifier.tooltip { Text(tabKey.second) },
+                            text = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    ItemIcon(
+                                        tabKey.first,
+                                        size = DpSize(32.dp, 32.dp),
+                                        showTooltip = false,
+                                        scaleOnHover = 1f,
+                                    )
+                                    Spacer(Modifier.width(4.dp))
+                                    Text(tabKey.second, maxLines = 1)
+                                }
+                            },
                         )
-                    } else {
-                        FlatButtonDefaults.colors()
-                    },
-                ) {
-                    ItemIcon(
-                        tabKey.first,
-                        modifier = Modifier.size(32.dp),
-                        showTooltip = false,
-                        scaleOnHover = 1f,
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Text(tabKey.second)
-                }
-            }
+                    }
+                },
+            )
         }
         Spacer(Modifier.height(8.dp))
-        AnimatedContent(
-            targetState = selectedTabIndex,
-            transitionSpec = {
-                val currentIdx = initialState
-                val targetIdx = targetState
-                val direction = if (targetIdx > currentIdx) 1 else -1
-                (slideInHorizontally(tween(150)) { width -> direction * width } + fadeIn(tween(150))) togetherWith
-                        (slideOutHorizontally(tween(150)) { width -> -direction * width } + fadeOut(tween(150)))
-            },
-            label = "ItemBrowserTabContent"
+        // 切换过渡:进度必须在**组合期**读(TabStrip 的注释:只在绘制期读的状态在本渲染栈推进不到)
+        val panelSlide = remember { Animatable(1f) }
+        var previousTab by remember { mutableIntStateOf(selectedTabIndex) }
+        LaunchedEffect(selectedTabIndex) {
+            if (previousTab != selectedTabIndex) {
+                panelSlide.snapTo(0f)
+                panelSlide.animateTo(1f, tween(180))
+                previousTab = selectedTabIndex
+            }
+        }
+        // 列表**一次给全**(滚动条长度因此稳定),只是每格的**渲染**按帧放开:
+        // 每个物品首次出现都要新建一次离屏 PIP 纹理,一帧上百个就是切换卡顿的尖峰。
+        // 只需放开首屏那几十格,其余交给 Lazy 按需组合(滚到时才动)。
+        var revealedCount by remember(displayItems) { mutableIntStateOf(0) }
+        LaunchedEffect(displayItems) {
+            revealedCount = 0
+            val warmUp = displayItems.size.coerceAtMost(128)
+            while (revealedCount < warmUp) {
+                delay(12)
+                revealedCount = (revealedCount + 6).coerceAtMost(warmUp)
+            }
+            revealedCount = displayItems.size
+        }
+
+        val panelProgress = panelSlide.value
+        val slideDirection = if (selectedTabIndex >= previousTab) 1f else -1f
+        Spacer(Modifier.height(8.dp))
+        Box(
+            modifier = Modifier
+                .graphicsLayer {
+                    translationX = slideDirection * (1f - panelProgress) * 48f
+                    alpha = panelProgress
+                }
+                .fillMaxSize()
+                .fabScrollVisibility(fabVisibility)
         ) {
-            Column {
-
-                val gridState = rememberLazyGridState()
-                val textFieldState = rememberTextFieldState()
-
-                val items by remember(selectedTabIndex) {
-                    mutableStateOf(
-                        if (selectedTabIndex != 0)
-                            ItemRegistryHelper.getItemsByTab(itemGroups[selectedTabIndex - 1])
-                                .filter { filter(it.item) }
-                                .map { it.item }
-                                .distinctBy { it.key }
-                        else searchItems.filter { filter(it) }.distinctBy {
-                            when (it) {
-                                is Item  -> it.key
-                                is Block -> it.key
-                                else     -> it
-                            }
-                        }
-                    )
-                }
-
-
-                var searchQuery by remember { mutableStateOf("") }
-
-                val displayItems by remember(items, searchQuery) {
-                    mutableStateOf(
-                        if (searchQuery.isBlank()) items
-                        else items.filter {
-                            when (it) {
-                                is Item  -> it.name.plainText.contains(searchQuery, ignoreCase = true)
-                                        || it.key.toString().contains(searchQuery, ignoreCase = true)
-
-                                is Block -> it.name.plainText.contains(searchQuery, ignoreCase = true)
-                                        || it.key.toString().contains(searchQuery, ignoreCase = true)
-
-                                else     -> false
-                            }
-                        }
-                    )
-                }
-
-                if (selectedTabIndex == 0) {
-                    LaunchedEffect(textFieldState.text.toString()) {
-                        searchQuery = textFieldState.text.toString()
-                    }
-                }
-
-                Box(modifier = Modifier.fillMaxSize()) {
-                    LazyVerticalGrid(
-                        state = gridState,
-                        columns = GridCells.Adaptive(gridCellSize),
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.spacedBy(2.dp),
-                        verticalArrangement = Arrangement.spacedBy(2.dp),
-                        contentPadding = PaddingValues(4.dp)
-                    ) {
-                        items(displayItems) { itemStack ->
+            // 列表与滚动条各占一列:滚动条不再浮在列表上,所以不用 Box + align 叠起来
+            Row(modifier = Modifier.fillMaxSize()) {
+                LazyVerticalGrid(
+                    state = gridState,
+                    columns = GridCells.Adaptive(gridCellSize),
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                    contentPadding = PaddingValues(4.dp)
+                ) {
+                    // key 用注册名:切页签 / 改搜索词时 Compose 能复用已有条目,而不是整片重建
+                    // 未放开的格子先用占位撑住尺寸:列表长度/滚动条不受影响
+                    itemsIndexed(displayItems, key = { _, item -> itemKey(item) }) { index, itemStack ->
+                        if (index < revealedCount) {
                             itemDisplay(itemStack)
+                        } else {
+                            Spacer(Modifier.size(gridCellSize))
                         }
                     }
+                }
 
+                VerticalFlatScroller(
+                    adapter = rememberScrollerAdapter(gridState, rememberAdaptiveGridSpan(gridState))
+                )
+            }
 
-                    VerticalScroller(
-                        modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                        adapter = rememberScrollerAdapter(gridState, rememberAdaptiveGridSpan(gridState))
+            if (selectedTabIndex == 0) {
+                // 与浮动按钮同一套显隐来源:滚动收起 + 按住隐藏动作键(IGConfig.Gui.hideActionKeyCode)收起
+                val hiddenByKey = rememberHideActionState()
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = !hiddenByKey && fabVisibility.state == FabVisibilityState.Visible,
+                    modifier = Modifier
+                        .align(BiasAlignment(0f, 0.85f))
+                        .padding(horizontal = 24.dp, vertical = 8.dp),
+                    enter = fadeIn(tween(150)),
+                    exit = fadeOut(tween(150)),
+                ) {
+                    SearchBar(
+                        textFieldState = textFieldState,
+                        backgroundColor = searchBarBackgroundColor,
+                        modifier = Modifier.width(320.dp)
                     )
-
-                    if (selectedTabIndex == 0) {
-                        SearchBar(
-                            textFieldState = textFieldState,
-                            modifier = Modifier
-                                .align(BiasAlignment(0f, 0.85f))
-                                .padding(horizontal = 24.dp, vertical = 8.dp)
-                                .width(320.dp)
-                                .fabScrollVisibility(rememberFabScrollVisibility(gridState))
-                        )
-                    }
                 }
             }
         }
     }
 }
 
-
 @Composable
 private fun SearchBar(
     textFieldState: TextFieldState,
+    backgroundColor: Color = SokitsuTheme.colorScheme.surface,
     modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier,
-        color = SokitsuTheme.colorScheme.surface,
+        color = backgroundColor,
     ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(horizontal = 24.dp)
-    ) {
-        Box(Modifier.fillMaxWidth().height(48.dp), contentAlignment = Alignment.CenterStart) {
-            if (textFieldState.text.isEmpty()) {
-                Text(
-                    component = IGLang.Misc.search,
-                    color = SokitsuTheme.colorScheme.onSurfaceVariant,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
+            // 输入区必须用 weight:原来这里是 fillMaxWidth,会吃掉整行宽度,
+            // 把清除按钮挤出 Row 之外 —— 既看不见也点不到。
+            Box(Modifier.weight(1f).height(48.dp), contentAlignment = Alignment.CenterStart) {
+                if (textFieldState.text.isEmpty()) {
+                    Text(
+                        component = IGLang.Misc.search,
+                        color = SokitsuTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                BasicTextField(
+                    state = textFieldState,
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    cursorBrush = SolidColor(SokitsuTheme.colorScheme.primary),
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
-            BasicTextField(
-                state = textFieldState,
-                lineLimits = TextFieldLineLimits.SingleLine,
-                cursorBrush = SolidColor(SokitsuTheme.colorScheme.primary),
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
 
-        if (textFieldState.text.isNotEmpty()) {
-            IconButton(onClick = { textFieldState.edit { replace(0, length, "") } }) {
-                Icon(Icons.Close)
+            if (textFieldState.text.isNotEmpty()) {
+                // 点按目标放大到 36dp、图标放大到 3 倍像素:原来默认尺寸太小不好点
+                IconButton(
+                    onClick = { textFieldState.edit { replace(0, length, "") } },
+                    minSize = DpSize(36.dp, 36.dp),
+                ) {
+                    Icon(Icons.Close, scale = 3)
+                }
             }
         }
-    }
     }
 }
 
 /** 物品图标的展示尺寸；新版上游移除了旧 IG 的同名组合本地量，这里按本项目像素风取值。 */
 val LocalItemIconVanillaSize = staticCompositionLocalOf { DpSize(32.dp, 32.dp) }
 
+/** 分类条每格的内容宽:够放「16dp 图标 + 间隙 + 完整分类名」(不截断)。 */
+private val CategoryTabWidth = 168.dp
+
+/** Lazy 网格的条目 key:用注册名,保证切页签 / 搜索时条目身份稳定。 */
+private fun itemKey(item: ItemLike): Any = when (item) {
+    is Item  -> item.key
+    is Block -> item.key
+    else     -> item
+}
+
 object ItemBrowserDefaults {
 
     @Composable
-    fun gridCellSize(wrapperSize: DpSize = LocalItemIconVanillaSize.current, contentPadding: PaddingValues): Dp =
+    fun gridCellSize(wrapperSize: DpSize = DpSize(LocalItemIconSize.current, LocalItemIconSize.current), contentPadding: PaddingValues): Dp =
         (wrapperSize.width + contentPadding.calculateLeftPadding(LayoutDirection.Ltr) + contentPadding.calculateRightPadding(LayoutDirection.Ltr))
             .coerceAtMost(wrapperSize.height + contentPadding.calculateTopPadding() + contentPadding.calculateBottomPadding())
 
     val LocalItemIconSize = compositionLocalOf {
-        42.dp
+        48.dp
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun ItemWrapper(
         item: ItemLike,
@@ -363,11 +461,11 @@ object ItemBrowserDefaults {
                             if (item is Item) {
                                 Text(item.asItem().name)
                                 Spacer(Modifier.height(4.dp))
-                                Text(item.asItem().key.toString(), color = SokitsuTheme.colorScheme.primaryContainer)
+                                Text(item.asItem().key.toString(), color = SokitsuTheme.colorScheme.onSurfaceVariant)
                             } else if (item is Block) {
                                 Text(item.name)
                                 Spacer(Modifier.height(4.dp))
-                                Text(item.key.toString(), color = SokitsuTheme.colorScheme.primaryContainer)
+                                Text(item.key.toString(), color = SokitsuTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -375,16 +473,13 @@ object ItemBrowserDefaults {
                 ),
             contentAlignment = Alignment.Center
         ) {
-            val icon = runCatching {
-                ItemStack(item)
-            }.onFailure {
-                closeScreen()
-                ToastHandler.showContent { Text(component = HSLang.Common.itemInitFailure) }
-            }.getOrThrow()
-            if (icon.item != Items.AIR) {
+            // ItemStack 构造放进 remember:网格滚动/重绘时不再反复构造;构造失败取 null 走下面的
+            // 占位格 —— 原来在组合期直接 closeScreen() + Toast 属于组合期副作用。
+            val icon = remember(item) { runCatching { ItemStack(item) }.getOrNull() }
+            if (icon != null && icon.item != Items.AIR) {
                 ItemIcon(
                     icon,
-                    modifier = Modifier.size(LocalItemIconSize.current),
+                    size = DpSize(LocalItemIconSize.current, LocalItemIconSize.current),
                     showTooltip = false,
                     scaleOnHover = scaleOnHover
                 )

@@ -1,6 +1,9 @@
 package moe.forpleuvoir.hiirosakura.ui.compat
 
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -203,21 +206,34 @@ val LocalAutoExpandConfigGroupLimit = staticCompositionLocalOf { Int.MAX_VALUE }
  * 旧版 `FloatingActionButtonMenu`：按钮 + 展开菜单。
  *
  * 旧实现基于 material3 的悬浮按钮菜单；这里用 [Column] 叠加表达，展开时菜单排在按钮上方。
+ *
+ * [horizontalAlignment] 同时作用于展开的菜单项与按钮本身：贴在右下角时传 `Alignment.End`，
+ * 两者右缘对齐。
+ *
+ * [menuMaxHeight] 给展开的菜单项区一个有界高度并开启纵向滚动。不限高时，选项多于一屏会被
+ * Column 压扁、并溢出到宿主（如对话框页脚）之上；传 [Dp.Unspecified] 保持旧的溢出行为。
  */
 @Composable
 fun FloatingActionButtonMenu(
     expanded: Boolean,
     modifier: Modifier = Modifier,
+    horizontalAlignment: Alignment.Horizontal = Alignment.End,
+    menuMaxHeight: Dp = Dp.Unspecified,
     button: @Composable () -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) = Column(
     modifier = modifier,
-    horizontalAlignment = Alignment.CenterHorizontally,
+    horizontalAlignment = horizontalAlignment,
     verticalArrangement = Arrangement.spacedBy(8.dp),
 ) {
     if (expanded) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .then(
+                    if (menuMaxHeight == Dp.Unspecified) Modifier
+                    else Modifier.heightIn(max = menuMaxHeight).verticalScroll(rememberScrollState())
+                ),
+            horizontalAlignment = horizontalAlignment,
             verticalArrangement = Arrangement.spacedBy(8.dp),
             content = content,
         )

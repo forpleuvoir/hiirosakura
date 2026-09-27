@@ -3,7 +3,7 @@ package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Switch
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier

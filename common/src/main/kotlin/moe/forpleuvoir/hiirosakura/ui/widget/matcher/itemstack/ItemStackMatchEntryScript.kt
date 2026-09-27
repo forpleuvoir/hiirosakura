@@ -1,8 +1,8 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,11 +15,11 @@ import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.compat.TipBox
 
 @Composable
 fun ItemStackMatchEntryScriptInfo(entry: ItemStackMatchEntry.Script) {
@@ -57,8 +57,9 @@ internal fun ItemStackMatchEntryScriptRow(
     Spacer(Modifier.width(6.dp))
     var showEditor by remember { mutableStateOf(false) }
     IconButton({ showEditor = true }) {
-        Icon(Icons.EditNote, "${IGLang.Misc.edit} ${entry.translateText.plainText}")
+        Icon(Icons.Edit)
     }
+
     if (showEditor) {
         ItemStackMatchEntryScriptEditorDialog(
             { showEditor = false },

@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
+import moe.forpleuvoir.ibukigourd.mod.config.ThemeMode
 
 object SyntaxHighlightDefaults {
 
@@ -65,7 +66,7 @@ object SyntaxHighlightDefaults {
 
     @Composable
     fun theme(
-        darkTheme: Boolean = !IGConfig.Gui.Theme.lightMode,
+        darkTheme: Boolean = IGConfig.Gui.Theme.mode != ThemeMode.Light,
         colorSchemes: SyntaxHighlightColorSchemes = this.colorSchemes,
     ): SyntaxHighlightTheme =
         if (darkTheme) colorSchemes.dark else colorSchemes.light

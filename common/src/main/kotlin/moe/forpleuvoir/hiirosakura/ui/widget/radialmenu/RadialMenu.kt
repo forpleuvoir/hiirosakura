@@ -90,8 +90,10 @@ fun <T> RadialMenu(
     require(cornerRadius >= 0.dp) { "cornerRadius must be >= 0" }
     require(borderWidth >= 0.dp) { "borderWidth must be >= 0" }
 
+
     val density = LocalDensity.current
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
+
 
     val pageCount = remember(options, optionsPerPage) {
         maxOf(1, (options.size + optionsPerPage - 1) / optionsPerPage)
@@ -101,22 +103,31 @@ fun <T> RadialMenu(
         state.clampPageIndex(pageCount)
     }
 
+
     val currentPage by remember(state.currentPageIndex, optionsPerPage, options) {
         derivedStateOf {
             options.drop(state.currentPageIndex * optionsPerPage).take(optionsPerPage)
         }
     }
 
+
     val innerRadiusPx = with(density) { innerRadius.toPx() }
+
     val outerRadiusPx = with(density) { outerRadius.toPx() }
+
     val optionRadiusPx = with(density) { optionRadius.toPx() }
+
     val optionContentSizePx = with(density) { optionContentSize.toPx() }
+
     val cornerRadiusPx = with(density) { cornerRadius.toPx() }
+
     val borderWidthPx = with(density) { borderWidth.toPx() }
+
 
     val center = remember(containerSize) {
         Offset(containerSize.width / 2f, containerSize.height / 2f)
     }
+
 
     val availableRadius = minOf(containerSize.width, containerSize.height) / 2f
     val layoutScale = if (outerRadiusPx > 0f) (availableRadius / outerRadiusPx).coerceAtMost(1f) else 1f
@@ -131,11 +142,13 @@ fun <T> RadialMenu(
         calculateSectors(startAngleDegree, optionsPerPage)
     }
 
+
     val sectorPathMap = remember(sectors, actualInnerRadiusPx, actualOuterRadiusPx, actualGap, actualCornerRadiusPx, center) {
         sectors.map { sector ->
             getSectorPath(center, sector, actualInnerRadiusPx, actualOuterRadiusPx, actualGap, actualCornerRadiusPx)
         }
     }
+
 
     var hoveredIndex by remember { mutableStateOf(-1) }
 
@@ -148,9 +161,11 @@ fun <T> RadialMenu(
         )
     }
 
+
     val selectedOption by remember(hoveredIndex, currentPage) {
         derivedStateOf { currentPage.getOrNull(hoveredIndex) }
     }
+
 
     val currentOnOptionClick by rememberUpdatedState(onOptionClick)
     val currentOnEmptyClick by rememberUpdatedState(onEmptyClick)
@@ -241,6 +256,7 @@ fun <T> RadialMenu(
                             drawPath(path, borderColor, style = Stroke(width = actualBorderWidthPx))
                         }
                     }
+
                     if (sectorScale != 1f || radialOffset != 0f) {
                         val radians = Math.toRadians(sectors[index].centerAngle.toDouble())
                         val dirX = cos(radians).toFloat()
@@ -310,6 +326,7 @@ fun <T> RadialMenu(
             }
         }
 
+
         Box(
             modifier = Modifier.align(Alignment.Center),
             contentAlignment = Alignment.Center,
@@ -318,6 +335,7 @@ fun <T> RadialMenu(
                 Box(Modifier.wrapContentSize(), contentAlignment = Alignment.Center) {
                     centerContent(selectedOption)
                 }
+
                 if (pageCount > 1) {
                     Spacer(Modifier.height(4.dp))
                     PageIndicator(

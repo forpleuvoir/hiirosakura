@@ -70,6 +70,7 @@ object CustomRadialMenuManager : Initializable {
         require(normalizedNew.isNotEmpty()) { "Name cannot be empty" }
         require(isValidFileName(normalizedNew)) { "Name contains invalid characters" }
         require(normalizedNew !in customRadialMenus) { "Menu [$normalizedNew] already exists" }
+
         val menu = customRadialMenus.remove(normalizedOld)
             ?: throw NoSuchElementException("Menu [$normalizedOld] not found")
         customRadialMenus[normalizedNew] = menu

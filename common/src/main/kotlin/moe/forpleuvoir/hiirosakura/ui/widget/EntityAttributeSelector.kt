@@ -2,20 +2,22 @@ package moe.forpleuvoir.hiirosakura.ui.widget
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import moe.forpleuvoir.hiirosakura.util.registryAccess
-import moe.forpleuvoir.ibukigourd.ui.preset.Selector
+import moe.forpleuvoir.ibukigourd.ui.selector.Selector
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
 import net.minecraft.world.entity.ai.attributes.Attribute
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import androidx.compose.foundation.layout.fillMaxWidth
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
+import androidx.compose.ui.graphics.RectangleShape
 
 val REGISTERED_ATTRIBUTE get() = registryAccess?.lookupOrThrow(Registries.ATTRIBUTE)?.asHolderIdMap()?.toList() ?: emptyList()
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EntityAttributeSelector(
     selected: Holder<Attribute>,
@@ -25,7 +27,6 @@ fun EntityAttributeSelector(
     content: @Composable (Holder<Attribute>) -> Unit = {
         Text(it.registeredName)
     },
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (Holder<Attribute>, Boolean) -> Unit = { item, _ ->
         Text(item.registeredName)
@@ -39,26 +40,22 @@ fun EntityAttributeSelector(
     itemTrailingIcon: ((Boolean) -> (@Composable (Holder<Attribute>) -> Unit)?)? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     interactionSource: MutableInteractionSource? = null,
-    shape: Shape = OutlinedTextFieldDefaults.shape,
-    colors: TextFieldColors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
-) = Selector(
-    selected = selected,
-    onSelect = onSelect,
-    items = items,
-    itemEquals = itemEquals,
-    content = content,
-    labelPosition = labelPosition,
-    label = label,
-    itemContent = itemContent,
-    enabled = enabled,
-    searchFilter = searchFilter,
-    modifier = modifier,
-    itemLeadingIcon = itemLeadingIcon,
-    itemTrailingIcon = itemTrailingIcon,
-    textStyle = textStyle,
-    interactionSource = interactionSource,
-    shape = shape,
-    colors = colors,
-    contentPadding = contentPadding
-)
+    shape: Shape = RectangleShape,
+    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
+) {
+        OutlinedLabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+                Selector(
+                selected = selected,
+                onSelect = onSelect,
+                items = items,
+                itemEquals = itemEquals,
+                content = content,
+                itemContent = itemContent,
+                enabled = enabled,
+                itemLeadingIcon = itemLeadingIcon,
+                itemTrailingIcon = itemTrailingIcon,
+                searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }

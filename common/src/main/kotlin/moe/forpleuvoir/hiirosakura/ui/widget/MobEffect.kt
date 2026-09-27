@@ -2,7 +2,6 @@ package moe.forpleuvoir.hiirosakura.ui.widget
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,16 +13,27 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.*
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.Identifier
 import net.minecraft.world.effect.MobEffect
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.selector.Selector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
+import androidx.compose.ui.graphics.RectangleShape
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import androidx.compose.foundation.layout.fillMaxWidth
 
 @Composable
 fun MobEffectInstanceEditorDialog(
@@ -62,19 +72,21 @@ fun MobEffectInstanceEditorContent(
             label = { Text(key, suffix = "effect") },
             modifier = Modifier.fillMaxWidth()
         )
-        IntField(
-            value.duration,
-            onValueChange = { onValueChange(value.copy(duration = it)) },
-            label = { Text(key, suffix = "duration") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        IntField(
-            value.amplifier,
-            onValueChange = { onValueChange(value.copy(amplifier = it)) },
-            label = { Text(key, suffix = "amplifier") },
-            range = 0..255,
-            modifier = Modifier.fillMaxWidth()
-        )
+                OutlinedLabelBox(label = { Text(key, suffix = "duration") }, modifier = Modifier.fillMaxWidth()) {
+            IntField(
+                value.duration,
+                onValueChange = { onValueChange(value.copy(duration = it)) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+                OutlinedLabelBox(label = { Text(key, suffix = "amplifier") }, modifier = Modifier.fillMaxWidth()) {
+            IntField(
+                value.amplifier,
+                onValueChange = { onValueChange(value.copy(amplifier = it)) },
+                valueRange = 0..255,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -89,6 +101,7 @@ fun MobEffectInstanceEditorContent(
             )
             Switch(value.ambient, { onValueChange(value.copy(ambient = it)) })
         }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -103,6 +116,7 @@ fun MobEffectInstanceEditorContent(
             )
             Switch(value.visible, { onValueChange(value.copy(visible = it)) })
         }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -141,15 +155,16 @@ fun MobEffectInstanceEditorContent(
                             modifier = Modifier.mobEffectInstanceTip(hiddenEffect, key)
                         )
                         RemoveConfirmButton(
-                            key.asTranslateText(suffix = "hidden_effect", fallback = "Hidden Effect").plainText,
-                            { onValueChange(value.copy(hiddenEffect = null)) }
+                            message = key.asTranslateText(suffix = "hidden_effect", fallback = "Hidden Effect").plainText,
+                            onConfirm = { onValueChange(value.copy(hiddenEffect = null)) },
                         )
                     }
-                } ?: Text(HSLang.Common.unset, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                } ?: Text(component = HSLang.Common.unset, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
 
                 IconButton(onClick = { showDialog = true }) {
-                    Icon(Icons.EditNote, null)
+                    Icon(Icons.Edit)
                 }
+
 
                 if (showDialog) {
                     MobEffectInstanceEditorDialog(
@@ -168,7 +183,7 @@ fun MobEffectInstanceEditorContent(
 }
 
 @Composable
-internal fun Modifier.mobEffectInstanceTip(mobEffectInstance: MobEffectInstance, key: Identifier): Modifier = plainTooltip {
+internal fun Modifier.mobEffectInstanceTip(mobEffectInstance: MobEffectInstance, key: Identifier): Modifier = tooltip {
     Column(
         modifier = Modifier.width(320.dp),
     ) {
@@ -176,26 +191,32 @@ internal fun Modifier.mobEffectInstanceTip(mobEffectInstance: MobEffectInstance,
             Text(key, suffix = "effect")
             Text(mobEffectInstance.effect.value().displayName)
         }
+
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text(key, suffix = "duration")
             Text(mobEffectInstance.duration.toString())
         }
+
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text(key, suffix = "amplifier")
             Text(mobEffectInstance.amplifier.toString())
         }
+
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text(key, suffix = "ambient")
             Text(mobEffectInstance.ambient.toString())
         }
+
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text(key, suffix = "visible")
             Text(mobEffectInstance.visible.toString())
         }
+
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text(key, suffix = "show_icon")
             Text(mobEffectInstance.showIcon.toString())
         }
+
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text(key, suffix = "hidden_effect")
             Text(mobEffectInstance.hiddenEffect?.effect?.value()?.displayName ?: HSLang.Common.unset)
@@ -221,7 +242,6 @@ fun MobEffectInstance.copy(
     hiddenEffect,
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MobEffectSelector(
     selected: MobEffect,
@@ -233,15 +253,14 @@ fun MobEffectSelector(
             it.displayName,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.plainTooltip { Text(it.descriptionId) }
+            modifier = Modifier.tooltip { Text(it.descriptionId) }
         )
     },
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (MobEffect, Boolean) -> Unit = { item, _ ->
         Text(
             item.displayName,
-            modifier = Modifier.plainTooltip { Text(item.descriptionId) }
+            modifier = Modifier.tooltip { Text(item.descriptionId) }
         )
     },
     enabled: Boolean = true,
@@ -255,26 +274,22 @@ fun MobEffectSelector(
     itemTrailingIcon: ((Boolean) -> (@Composable (MobEffect) -> Unit)?)? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     interactionSource: MutableInteractionSource? = null,
-    shape: Shape = OutlinedTextFieldDefaults.shape,
-    colors: TextFieldColors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
-) = Selector(
-    selected = selected,
-    onSelect = onSelect,
-    items = items,
-    itemEquals = itemEquals,
-    content = content,
-    labelPosition = labelPosition,
-    label = label,
-    itemContent = itemContent,
-    enabled = enabled,
-    searchFilter = searchFilter,
-    modifier = modifier,
-    itemLeadingIcon = itemLeadingIcon,
-    itemTrailingIcon = itemTrailingIcon,
-    textStyle = textStyle,
-    interactionSource = interactionSource,
-    shape = shape,
-    colors = colors,
-    contentPadding = contentPadding
-)
+    shape: Shape = RectangleShape,
+    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
+) {
+        OutlinedLabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+                Selector(
+                selected = selected,
+                onSelect = onSelect,
+                items = items,
+                itemEquals = itemEquals,
+                content = content,
+                itemContent = itemContent,
+                enabled = enabled,
+                itemLeadingIcon = itemLeadingIcon,
+                itemTrailingIcon = itemTrailingIcon,
+                searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }

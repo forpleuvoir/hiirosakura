@@ -26,6 +26,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import java.util.concurrent.atomic.AtomicBoolean
+import net.minecraft.world.entity.EntityTypes
 
 data class EntityMatcher(
     override val mode: CompositeMatcher.MatchMode,
@@ -55,11 +56,12 @@ data class EntityMatcher(
                 return mc.crosshairPickEntity
             }
 
+
         val anyMatcher
             get() = EntityMatcher(
                 mode = CompositeMatcher.MatchMode.AnyMatch,
-                EntityMatchEntry.Type(EntityType.CREEPER, MatchEntry.MatchMode.Include),
-                EntityMatchEntry.Type(EntityType.CREEPER, MatchEntry.MatchMode.Exclude)
+                EntityMatchEntry.Type(EntityTypes.CREEPER, MatchEntry.MatchMode.Include),
+                EntityMatchEntry.Type(EntityTypes.CREEPER, MatchEntry.MatchMode.Exclude)
             )
 
         fun isAnyMatcher(matcher: CompositeMatcher<Entity>): Boolean {
@@ -97,6 +99,7 @@ data class EntityMatcher(
             }
         }
     }
+
 
     val simpleText by lazy {
         when (entries.size) {

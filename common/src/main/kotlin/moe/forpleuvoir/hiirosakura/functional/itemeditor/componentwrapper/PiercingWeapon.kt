@@ -1,9 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Switch
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,14 +12,14 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.widget.OptionalHolderSoundEventSelector
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import net.minecraft.core.Holder
 import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.world.item.component.PiercingWeapon
 import java.util.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun PiercingWeaponComponentWrapper(
@@ -36,8 +36,9 @@ fun PiercingWeaponComponentWrapper(
         IconButton(onClick = {
             showDialog = true
         }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.EditNote, null)
+            Icon(Icons.Edit)
         }
+
         if (showDialog) {
             PiercingWeaponEditorDialog(
                 key = key,
@@ -73,6 +74,7 @@ fun PiercingWeaponEditorDialog(
                     Text(key, suffix = "deals_knockback")
                     Switch(editing.dealsKnockback, { editing = editing.copy(dealsKnockback = it) })
                 }
+
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(key, suffix = "dismounts")
                     Switch(editing.dismounts, { editing = editing.copy(dismounts = it) })

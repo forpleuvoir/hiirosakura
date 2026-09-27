@@ -10,8 +10,7 @@ import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalContentColor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,7 +18,9 @@ import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.StyleProperty
 import moe.forpleuvoir.ibukigourd.input.MouseButton
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun FormatButton(
@@ -32,18 +33,21 @@ fun FormatButton(
 ) {
     var pressedButton by remember { mutableStateOf<MouseButton?>(null) }
 
+
     val effectiveState: StyleProperty<Boolean> = state ?: StyleProperty.Unset
 
     val color = when (effectiveState) {
         StyleProperty.None, StyleProperty.Unset -> LocalContentColor.current
-        is StyleProperty.Set<*>                 -> MaterialTheme.colorScheme.primary
+        is StyleProperty.Set<*>                 -> SokitsuTheme.colorScheme.primary
     }
 
+
     val interactionSource = remember { MutableInteractionSource() }
+
     val isHovered by interactionSource.collectIsHoveredAsState()
     val backgroundColor by animateColorAsState(
-        targetValue = if (isHovered) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+        targetValue = if (isHovered) SokitsuTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        else SokitsuTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
         animationSpec = tween(200),
         label = "bgHoverHighlight"
     )
@@ -54,9 +58,9 @@ fun FormatButton(
             .hoverable(interactionSource)
             .background(backgroundColor, CircleShape)
             .then(
-                if (effectiveState != StyleProperty.Unset) Modifier.border(2.dp, MaterialTheme.colorScheme.primary, CircleShape) else Modifier
+                if (effectiveState != StyleProperty.Unset) Modifier.border(2.dp, SokitsuTheme.colorScheme.primary, CircleShape) else Modifier
             )
-            .plainTooltip { tip() }
+            .tooltip { tip() }
             .pointerInput(Unit) {
                 awaitPointerEventScope {
                     while (true) {

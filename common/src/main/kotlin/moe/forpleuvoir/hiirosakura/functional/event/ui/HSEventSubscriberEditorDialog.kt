@@ -1,12 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.event.ui
 
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,12 +26,27 @@ import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
 import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
 import moe.forpleuvoir.ibukigourd.task.TickTask
-import moe.forpleuvoir.ibukigourd.ui.preset.*
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
 import kotlin.enums.enumEntries
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
+import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
+import moe.forpleuvoir.hiirosakura.ui.widget.StringSelector
+import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.foundation.layout.fillMaxWidth
+import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
+import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
 
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HSEventSubscriberEditorDialog(
     value: HSEventSubscriber,
@@ -44,16 +56,25 @@ fun HSEventSubscriberEditorDialog(
 ) {
     val name = rememberTextFieldState(value.name)
     var enabled by remember { mutableStateOf(value.enabled) }
+
     var eventType by remember { mutableStateOf(value.eventTypeId) }
+
     var type by remember { mutableStateOf(value.executorType) }
+
 
     val default = remember { HSTickTask.empty }
 
+
     var delay by remember { mutableIntStateOf((value.executor as? HSTickTask)?.setting?.delay ?: default.setting.delay) }
+
     var period by remember { mutableIntStateOf((value.executor as? HSTickTask)?.setting?.period ?: default.setting.period) }
+
     var times by remember { mutableIntStateOf((value.executor as? HSTickTask)?.setting?.times ?: default.setting.times) }
+
     var executeOn by remember { mutableStateOf((value.executor as? HSTickTask)?.executeOn ?: default.executeOn) }
+
     var executorType by remember { mutableStateOf((value.executor as? HSTickTask)?.executorType ?: default.executorType) }
+
 
     val cmdContent = rememberTextFieldState((value.executor as? CommandExecutor)?.command ?: "")
     val msgContent = rememberTextFieldState((value.executor as? MessageExecutor)?.message ?: "")
@@ -76,14 +97,17 @@ fun HSEventSubscriberEditorDialog(
                         verticalAlignment = Alignment.Bottom,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        OutlinedTextField(
-                            name,
-                            labelPosition = TextFieldLabelPosition.Attached(true),
-                            label = { Text(HSLang.Task.name) },
-                            modifier = Modifier.weight(1f),
-                        )
                         OutlinedLabelBox(
-                            label = { Text(HSLang.Common.enable) },
+                            label = { Text(component = HSLang.Task.name) },
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            TextField(
+                                name,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                        OutlinedLabelBox(
+                            label = { Text(component = HSLang.Common.enable) },
                             contentPadding = PaddingValues(16.dp, 0.dp, 16.dp, 4.dp),
                             modifier = Modifier.height(66.5.dp)
                         ) {
@@ -91,12 +115,13 @@ fun HSEventSubscriberEditorDialog(
                         }
                     }
                     EventTypeSelector(eventType, { eventType = it }, modifier = Modifier.weight(1f), label = {
-                        Text(HSLang.Event.eventType)
+                        Text(component = HSLang.Event.eventType)
                     })
                     EnumSelector(type, { type = it }, enumEntries(), modifier = Modifier.weight(1f), label = {
-                        Text(HSLang.Task.executorType)
+                        Text(component = HSLang.Task.executorType)
                     })
                 }
+
 
                 if (type == ExecutorType.TickTask) {
                     Row(
@@ -109,38 +134,45 @@ fun HSEventSubscriberEditorDialog(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                                IntField(
-                                    delay, { delay = it }, range = 0..1141514, modifier = Modifier.weight(1f),
-                                    labelPosition = TextFieldLabelPosition.Attached(true),
-                                    label = { Text(HSLang.Task.delay) }
-                                )
-                                IntField(
-                                    period, { period = it }, range = 1..1141514, modifier = Modifier.weight(1f),
-                                    labelPosition = TextFieldLabelPosition.Attached(true),
-                                    label = { Text(HSLang.Task.period) }
-                                )
-                                IntField(
-                                    times, { times = it }, range = 1..1141514, modifier = Modifier.weight(1f),
-                                    labelPosition = TextFieldLabelPosition.Attached(true),
-                                    label = { Text(HSLang.Task.times) }
-                                )
+                                OutlinedLabelBox(label = { Text(component = HSLang.Task.delay) }, modifier = Modifier.weight(1f)) {
+                                    IntField(
+                                        delay,
+                                        { delay = it },
+                                        valueRange = 0..1141514,
+                                        modifier = Modifier.fillMaxWidth(),
+                                    )
+                                }
+                                                                OutlinedLabelBox(label = { Text(component = HSLang.Task.period) }, modifier = Modifier.weight(1f)) {
+                                    IntField(
+                                        period,
+                                        { period = it },
+                                        valueRange = 1..1141514,
+                                        modifier = Modifier.fillMaxWidth(),
+                                    )
+                                }
+                                                                OutlinedLabelBox(label = { Text(component = HSLang.Task.times) }, modifier = Modifier.weight(1f)) {
+                                    IntField(
+                                        times,
+                                        { times = it },
+                                        valueRange = 1..1141514,
+                                        modifier = Modifier.fillMaxWidth(),
+                                    )
+                                }
                             }
                         }
 
                         EnumSelector(
                             executeOn, { executeOn = it }, enumEntries(),
-                            labelPosition = TextFieldLabelPosition.Attached(true),
                             label = {
-                                Text(HSLang.Task.executeOn)
+                                Text(component = HSLang.Task.executeOn)
                             },
                             modifier = Modifier.weight(1f)
                         )
 
                         EnumSelector(
                             executorType, { executorType = it }, enumEntries(),
-                            labelPosition = TextFieldLabelPosition.Attached(true),
                             label = {
-                                Text(HSLang.Task.executorType)
+                                Text(component = HSLang.Task.executorType)
                             },
                             modifier = Modifier.weight(1f)
                         )
@@ -157,21 +189,16 @@ fun HSEventSubscriberEditorDialog(
                         Script                -> scriptContent
                         ExecutorType.TickTask -> taskContent
                     }
-                    OutlinedTextField(
+                    TextField(
                         state,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .codeEditorShortcuts(state),
-                        outputTransformation = rememberSyntaxHighlightTransformation(JexlSyntaxLanguage, SyntaxHighlightDefaults.theme(), state.text.toString()),
-                        textStyle = TextStyle(fontFamily = FontFamily.Monospace),
-                        labelPosition = TextFieldLabelPosition.Attached(true),
-                        scrollState = scrollState,
-                        contentPadding = OutlinedTextFieldDefaults.contentPadding(end = 24.dp),
+                        modifier = Modifier .fillMaxSize() .codeEditorShortcuts(state),
+                        
+                        contentPadding = LabeledFieldDefaults.contentPadding(end = 24.dp),
                     )
 
-                    VerticalScrollbar(
+                    VerticalScroller(
                         modifier = Modifier.align(Alignment.CenterEnd).padding(vertical = 12.dp),
-                        adapter = rememberScrollbarAdapter(scrollState)
+                        adapter = rememberScrollerAdapter(scrollState)
                     )
                 }
 
@@ -200,19 +227,18 @@ fun HSEventSubscriberEditorDialog(
                 onValueChange(result)
                 onDismissRequest()
             }) {
-                Text(HSLang.Task.save)
+                Text(component = HSLang.Task.save)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(HSLang.Task.cancel)
+                Text(component = HSLang.Task.cancel)
             }
         }
     )
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventTypeSelector(
     selected: String,
@@ -220,14 +246,13 @@ fun EventTypeSelector(
     items: List<String> = EventTypes.ids,
     itemEquals: (String, String) -> Boolean = { a, b -> a == b },
     content: @Composable (String) -> Unit = {
-        Text(EventTypes.id2Text(it), modifier = Modifier.plainTooltip {
+        Text(EventTypes.id2Text(it), modifier = Modifier.tooltip {
             Text(EventTypes.id2TextComment(it))
         })
     },
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (String, Boolean) -> Unit = { item, _ ->
-        Text(EventTypes.id2Text(item), modifier = Modifier.plainTooltip {
+        Text(EventTypes.id2Text(item), modifier = Modifier.tooltip {
             Text(EventTypes.id2TextComment(item))
         })
     },
@@ -238,16 +263,14 @@ fun EventTypeSelector(
     itemTrailingIcon: ((Boolean) -> (@Composable (String) -> Unit)?)? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     interactionSource: MutableInteractionSource? = null,
-    shape: Shape = OutlinedTextFieldDefaults.shape,
-    colors: TextFieldColors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
+    shape: Shape = RectangleShape,
+    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) = StringSelector(
     selected = selected,
     onSelect = onSelect,
     items = items,
     itemEquals = itemEquals,
     content = content,
-    labelPosition = labelPosition,
     label = label,
     itemContent = itemContent,
     enabled = enabled,
@@ -257,7 +280,6 @@ fun EventTypeSelector(
     itemTrailingIcon = itemTrailingIcon,
     textStyle = textStyle,
     interactionSource = interactionSource,
-    shape = shape,
-    colors = colors,
+    
     contentPadding = contentPadding,
 )

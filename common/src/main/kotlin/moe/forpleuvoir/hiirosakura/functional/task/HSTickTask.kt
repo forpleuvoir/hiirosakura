@@ -79,11 +79,13 @@ open class HSTickTask(
 
     }
 
+
     var name = name
         set(value) {
             field = value
             nameAsInlineStyleText = InlineStyleText(value)
         }
+
 
     var nameAsInlineStyleText = InlineStyleText(name)
         private set

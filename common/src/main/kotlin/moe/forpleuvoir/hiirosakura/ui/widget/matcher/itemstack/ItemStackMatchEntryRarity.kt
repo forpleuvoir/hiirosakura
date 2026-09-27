@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,8 +14,9 @@ import moe.forpleuvoir.hiirosakura.ui.widget.RaritySelector
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
-import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 
 @Composable
 fun ItemStackMatchEntryRarityInfo(entry: ItemStackMatchEntry.Rarity) {
@@ -41,7 +41,7 @@ internal fun ItemStackMatchEntryRarityRow(
     RaritySelector(
         entry.rarity,
         { onChange(entry.copy(rarity = it)) },
-        contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 10.dp, bottom = 10.dp),
+        contentPadding = LabeledFieldDefaults.contentPadding(top = 10.dp, bottom = 10.dp),
         modifier = Modifier.width(200.dp),
     )
 }

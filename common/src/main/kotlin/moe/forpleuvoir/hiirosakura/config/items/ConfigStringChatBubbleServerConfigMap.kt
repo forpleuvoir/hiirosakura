@@ -3,7 +3,6 @@ package moe.forpleuvoir.hiirosakura.config.items
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,17 +16,25 @@ import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBindi
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Texts
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.MapConfigWrapperDefaults
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.MapEntry
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.MapConfigWrapperDefaults
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.MapEntry
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.ConfigMap
 import moe.forpleuvoir.nebula.config.item.configMap
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.HorizontalDivider
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
 
 context(group: ConfigGroup)
 fun configChatBubbleServerConfigMap(name: String, defaultValue: Map<String, ChatBubbleServerConfig>) =
@@ -42,33 +49,32 @@ fun ChatBubbleServerConfigDisplayer(
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
 ) {
-    AssistChip(
-        {},
-        modifier = modifier.plainTooltip {
+    FlatButton(
+        onClick = {},
+        modifier = modifier.tooltip {
             Column(Modifier.width(220.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(ChatLang.bubbleServerConfig, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                Text(component = ChatLang.bubbleServerConfig, modifier = Modifier.fillMaxWidth())
                 HorizontalDivider()
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                    Text(ChatLang.bubbleServerConfigEnableUUID)
-                    Text(IGLang.Misc.coloredSwitch(value.enableUUID))
+                    Text(component = ChatLang.bubbleServerConfigEnableUUID)
+                    Text(component = IGLang.Misc.coloredSwitch(value.enableUUID))
                 }
+
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                    Text(ChatLang.bubbleServerConfigEnableProfile)
-                    Text(IGLang.Misc.coloredSwitch(value.enableProfile))
+                    Text(component = ChatLang.bubbleServerConfigEnableProfile)
+                    Text(component = IGLang.Misc.coloredSwitch(value.enableProfile))
                 }
             }
         },
-        label = {
-            Text(
-                Texts.literal(value.regex),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        },
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-    )
-}
+    ) {
+(leadingIcon)?.invoke()
+Text(
+    Texts.literal(value.regex),
+    maxLines = 1,
+    overflow = TextOverflow.Ellipsis,
+)
+(trailingIcon)?.invoke()
+    }}
 
 @Composable
 fun ChatBubbleServerConfigForm(
@@ -77,29 +83,32 @@ fun ChatBubbleServerConfigForm(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         val regexState = rememberTextFieldStateBinding(value.regex) { onValueChange(value.copy(regex = it)) }
-        OutlinedTextField(
-            state = regexState,
-            label = { Text(ChatLang.bubbleServerConfigRegex) },
-            lineLimits = TextFieldLineLimits.SingleLine,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        OutlinedLabelBox(label = { Text(component = ChatLang.bubbleServerConfigRegex) }) {
+            TextField(
+                state = regexState,
+                lineLimits = TextFieldLineLimits.SingleLine,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(ChatLang.bubbleServerConfigEnableUUID)
+            Text(component = ChatLang.bubbleServerConfigEnableUUID)
             Switch(
                 checked = value.enableUUID,
                 onCheckedChange = { onValueChange(value.copy(enableUUID = it)) },
             )
         }
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(ChatLang.bubbleServerConfigEnableProfile)
+            Text(component = ChatLang.bubbleServerConfigEnableProfile)
             Switch(
                 checked = value.enableProfile,
                 onCheckedChange = { onValueChange(value.copy(enableProfile = it)) },
@@ -117,7 +126,7 @@ fun ChatBubbleServerConfigEditorDialog(
     var editingValue by remember(value) { mutableStateOf(value) }
     SimpleAlertDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(ChatLang.bubbleServerConfig) },
+        title = { Text(component = ChatLang.bubbleServerConfig) },
         onConfirmRequest = {
             onValueChange(editingValue)
             true
@@ -139,6 +148,7 @@ fun ChatBubbleServerConfigInnerEditor(
     modifier: Modifier = Modifier,
 ) {
     var showDialog by remember { mutableStateOf(false) }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier,
@@ -149,11 +159,12 @@ fun ChatBubbleServerConfigInnerEditor(
             leadingIcon = leadingIcon,
             trailingIcon = {
                 IconButton(onClick = { showDialog = true }) {
-                    Icon(Icons.EditNote, null)
+                    Icon(Icons.Edit)
                 }
             },
         )
     }
+
     if (showDialog) {
         ChatBubbleServerConfigEditorDialog(
             onDismissRequest = { showDialog = false },
@@ -167,8 +178,8 @@ fun ChatBubbleServerConfigInnerEditor(
 fun ChatBubbleServerConfigMapConfigWrapper(
     config: ConfigMap<ChatBubbleServerConfig>,
     editorDialogTitle: @Composable (() -> Unit)? = { Text(config.translateText) },
-    keyHeader: @Composable BoxScope.() -> Unit = { Text(ChatLang.bubbleServerName) },
-    valueHeader: @Composable BoxScope.() -> Unit = { Text(ChatLang.bubbleServerConfig) },
+    keyHeader: @Composable BoxScope.() -> Unit = { Text(component = ChatLang.bubbleServerName) },
+    valueHeader: @Composable BoxScope.() -> Unit = { Text(component = ChatLang.bubbleServerConfig) },
     modifier: Modifier = Modifier,
     dialogModifier: Modifier = Modifier.padding(40.dp).size(1000.dp, 800.dp),
 ) = MapConfigWrapperDefaults.run {
@@ -180,6 +191,7 @@ fun ChatBubbleServerConfigMapConfigWrapper(
             config = config,
             modifier = modifier,
         ) { showEditDialog = true }
+
 
         if (showEditDialog) {
             EditDialog(
@@ -200,10 +212,11 @@ fun ChatBubbleServerConfigMapConfigWrapper(
                     addDialog = { onDismissRequest ->
                         val newKey = rememberTextFieldState("")
                         val isDuplicate = remember(newKey.text.toString()) { data.any { it.value.key == newKey.text.toString() } }
+
                         var newValue by remember { mutableStateOf(ChatBubbleServerConfig()) }
                         SimpleAlertDialog(
                             onDismissRequest = onDismissRequest,
-                            title = { Text(IGLang.Misc.add) },
+                            title = { Text(component = IGLang.Misc.add) },
                             onConfirmRequest = {
                                 if (!isDuplicate) {
                                     data.add(Keyed(nextKey++, MapEntry(newKey.text.toString(), newValue)))
@@ -212,16 +225,17 @@ fun ChatBubbleServerConfigMapConfigWrapper(
                             },
                             content = {
                                 Column {
-                                    OutlinedTextField(
-                                        state = newKey,
-                                        lineLimits = TextFieldLineLimits.SingleLine,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        isError = isDuplicate,
-                                        label = {
-                                            if (isDuplicate) Text(IGLang.ConfigWrapper.keyExists(newKey.text.toString()))
-                                            else Text(ChatLang.bubbleServerName)
-                                        },
-                                    )
+                                    OutlinedLabelBox(label = {
+                                            if (isDuplicate) Text(component = IGLang.ConfigWrapper.keyExists(newKey.text.toString()))
+                                            else Text(component = ChatLang.bubbleServerName)
+                                        }) {
+                                        TextField(
+                                            state = newKey,
+                                            lineLimits = TextFieldLineLimits.SingleLine,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            isError = isDuplicate,
+                                        )
+                                    }
                                     Spacer(Modifier.height(8.dp))
                                     ChatBubbleServerConfigForm(
                                         value = newValue,

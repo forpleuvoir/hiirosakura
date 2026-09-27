@@ -49,7 +49,7 @@ object TntFuseRenderer : ConfigGroup("tnt") {
         val progress = (fuse / MAX_FUSE).coerceIn(0f, 1f)
         val color = dangerColor.hsvLerp(safeColor, QuadEasing.easeIn(progress))
 
-        val camera = mc.gameRenderer.mainCamera
+        val camera = mc.gameRenderer.mainCamera()
         val cameraYaw = camera.yRot()
         val cameraPitch = camera.xRot()
 

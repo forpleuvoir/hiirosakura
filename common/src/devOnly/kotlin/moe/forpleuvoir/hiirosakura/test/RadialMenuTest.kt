@@ -12,10 +12,10 @@ import net.minecraft.world.item.Items
 import moe.forpleuvoir.hiirosakura.ui.widget.radialmenu.RadialMenu
 import moe.forpleuvoir.hiirosakura.ui.widget.radialmenu.RadialMenuDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.radialmenu.rememberRadialMenuState
-import moe.forpleuvoir.ibukigourd.ui.openComposeScreen
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
-import moe.forpleuvoir.ibukigourd.ui.preset.ItemIcon
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.hiirosakura.ui.compat.openComposeScreen
 
 private val testItems = listOf(
     ItemStack(Items.LAPIS_LAZULI),
@@ -50,7 +50,7 @@ private val testItems = listOf(
 )
 
 fun openRadialMenuTest() = openComposeScreen(shouldRenderLevel = { true }) {
-    IbukiGourdTheme {
+    SokitsuTheme {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             val selectedStack = remember { mutableStateOf<ItemStack?>(null) }
             RadialMenu(

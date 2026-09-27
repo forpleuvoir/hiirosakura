@@ -91,6 +91,7 @@ class ChatBubble(
                         if (config.enableUUID && uuid != null) {
                             add(EntityMatchEntry.UUID(uuid))
                         }
+
                         if (config.enableProfile && profile != null) {
                             add(EntityMatchEntry.Name(profile.name))
                             add(EntityMatchEntry.DisplayName(profile.name))
@@ -162,7 +163,7 @@ class ChatBubble(
             poseStack.translate(0f, height + arrowArea.bottom * -s, 0f)
             poseStack.translate(scaledOffset.x(), scaledOffset.y(), 0f)
 
-            val camera = mc.gameRenderer.mainCamera
+            val camera = mc.gameRenderer.mainCamera()
             val cameraYaw = camera.yRot()
             val cameraPitch = camera.xRot()
             poseStack.mulPose(Quaternionf().rotateY(-cameraYaw * (Math.PI.toFloat() / 180F)))// 水平旋转
@@ -241,6 +242,7 @@ class ChatBubble(
         bubbleArea = textArea.expandEdges(5f, 4f, 5f, 5f)
         arrowArea = Rect(Offset(textArea.center.x - ARROW.width / 2f, bubbleArea.bottom), Size(ARROW.width.toFloat(), ARROW.height.toFloat()))
     }
+
 
     val shouldRemove: Boolean get() = timeMark.elapsedNow() > duration
 

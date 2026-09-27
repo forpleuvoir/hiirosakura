@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -14,10 +13,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.preset.EnumSelector
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.hiirosakura.ui.widget.ValueTextField
+import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
 
 @Composable
 fun SerializeElementAdderDialog(
@@ -27,7 +29,9 @@ fun SerializeElementAdderDialog(
     onConfirm: (key: String, element: SerializeElement) -> Unit,
 ) {
     var currentKey by remember { mutableStateOf(key) }
+
     var selectedType by remember { mutableStateOf(SerializeElementType.String) }
+
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     SimpleAlertDialog(
@@ -45,31 +49,22 @@ fun SerializeElementAdderDialog(
                 true
             }
         },
-        title = { Text(HSLang.SerializeEditor.addElement) },
+        title = { Text(component = HSLang.SerializeEditor.addElement) },
         content = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = currentKey,
-                    onValueChange = { currentKey = it; errorMessage = null },
-                    singleLine = true,
-                    label = { Text(HSLang.SerializeEditor.key) },
-                    modifier = Modifier.fillMaxWidth(),
-                    textStyle = TextStyle(fontFamily = FontFamily.Monospace),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { /* confirm handled by dialog */ }),
-                )
+                ValueTextField(value = currentKey, onValueChange = { currentKey = it; errorMessage = null }, modifier = Modifier.fillMaxWidth(), label = { Text(component = HSLang.SerializeEditor.key) })
                 EnumSelector(
                     selected = selectedType,
                     onSelect = { selectedType = it },
                     items = SerializeElementType.entries,
-                    label = { Text(HSLang.SerializeEditor.type) },
+                    label = { Text(component = HSLang.SerializeEditor.type) },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 errorMessage?.let {
                     Text(
                         text = it,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
+                        color = SokitsuTheme.colorScheme.error,
+                        style = SokitsuTheme.typography.body,
                     )
                 }
             }
@@ -90,13 +85,13 @@ fun SerializeArrayElementAdderDialog(
             onConfirm(selectedType.defaultValue.deepCopy())
             true
         },
-        title = { Text(HSLang.SerializeEditor.addElement) },
+        title = { Text(component = HSLang.SerializeEditor.addElement) },
         content = {
             EnumSelector(
                 selected = selectedType,
                 onSelect = onTypeChange,
                 items = SerializeElementType.entries,
-                label = { Text(HSLang.SerializeEditor.type) },
+                label = { Text(component = HSLang.SerializeEditor.type) },
                 modifier = Modifier.fillMaxWidth(),
             )
         },

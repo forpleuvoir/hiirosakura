@@ -14,6 +14,7 @@ import moe.forpleuvoir.ibukigourd.ui.configwrapper.asState
 import moe.forpleuvoir.nebula.config.Config
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.config
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.ConfigRowWrapperCompat
 
 context(group: ConfigGroup)
 fun configItemStackMatcher(name: String, defaultValue: ItemStackMatcher) = config(name, defaultValue, ItemStackMatcher)
@@ -32,7 +33,7 @@ fun ItemStackMatcherConfigWrapper(
     ItemStackMatcherDisplayerEditor(
         value = value,
         onValueChange = { config.setValue(it) },
-        modifier = Modifier.size(ConfigRowWrapper.entrySize),
+        modifier = Modifier.size(ConfigRowWrapperCompat.entrySize),
         displayModifier = { Modifier.weight(1f).fillMaxHeight() }
     )
 }

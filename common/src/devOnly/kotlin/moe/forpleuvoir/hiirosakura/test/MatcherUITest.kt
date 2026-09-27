@@ -1,50 +1,24 @@
 package moe.forpleuvoir.hiirosakura.test
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
+import moe.forpleuvoir.hiirosakura.ui.compat.closeScreen
+import moe.forpleuvoir.hiirosakura.ui.compat.openComposeScreen
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo.BlockInfoMatcherEditorDialog
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack.ItemStackMatcherEditorDialog
-import moe.forpleuvoir.ibukigourd.ui.openComposePopupScreen
-import moe.forpleuvoir.ibukigourd.ui.openComposeScreen
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
 
 fun openBlockMacherEditor() = openComposeScreen {
-    IbukiGourdTheme {
-        var expanded by remember { mutableStateOf(true) }
-        Box(contentAlignment = Alignment.Center) {
-            Button(onClick = {
-                expanded = true
-            }) {
-                Text("点我")
-            }
-        }
-        var matcher by remember { mutableStateOf(BlockInfoMatcher.targetBlockMatcher) }
-        if (expanded)
-            BlockInfoMatcherEditorDialog({ expanded = false }, matcher, { matcher = it })
-    }
+    var matcher by remember { mutableStateOf(BlockInfoMatcher.targetBlockMatcher) }
+    BlockInfoMatcherEditorDialog({ closeScreen() }, matcher, { matcher = it })
 }
 
 
 fun openItemMacherEditor() = openComposeScreen {
-    IbukiGourdTheme {
-        var expanded by remember { mutableStateOf(true) }
-        Box(contentAlignment = Alignment.Center) {
-            Button(onClick = {
-                expanded = true
-            }) {
-                Text("点我")
-            }
-        }
-        var matcher by remember { mutableStateOf(ItemStackMatcher.handheldItemMatcher) }
-        if (expanded)
-            ItemStackMatcherEditorDialog({ expanded = false }, matcher, { matcher = it })
-    }
+
+    var matcher by remember { mutableStateOf(ItemStackMatcher.handheldItemMatcher) }
+    ItemStackMatcherEditorDialog({ closeScreen() }, matcher, { matcher = it })
 }

@@ -1,14 +1,11 @@
 package moe.forpleuvoir.hiirosakura.ui.widget
 
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,11 +16,16 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.ui.util.canScroll
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyGridState
 import sh.calvin.reorderable.rememberReorderableLazyListState
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.hiirosakura.ui.util.rememberAdaptiveGridSpan
+import androidx.compose.ui.platform.LocalDensity
 
 @Composable
 fun <T, K : Any> ReorderableEditorList(
@@ -35,7 +37,7 @@ fun <T, K : Any> ReorderableEditorList(
     scrollbarPadding: Dp = 12.dp,
     listContentPadding: PaddingValues = PaddingValues(0.dp),
     emptyContent: @Composable BoxScope.() -> Unit = {
-        Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
     },
     floatingActionButton: (@Composable BoxScope.(lazyListState: LazyListState) -> Unit)? = null,
     itemContent: @Composable ReorderableCollectionItemScope.(index: Int, item: T, isDragging: Boolean, hapticFeedback: HapticFeedback) -> Unit,
@@ -51,6 +53,7 @@ fun <T, K : Any> ReorderableEditorList(
             onMove(from.index, to.index)
             hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
         }
+
 
         if (items.isEmpty()) {
             emptyContent()
@@ -81,8 +84,8 @@ fun <T, K : Any> ReorderableEditorList(
                 }
             }
 
-            VerticalScrollbar(
-                adapter = rememberScrollbarAdapter(lazyListState),
+            VerticalScroller(
+                adapter = rememberScrollerAdapter(lazyListState),
                 modifier = Modifier.align(Alignment.CenterEnd),
             )
         }
@@ -103,7 +106,7 @@ fun <T, K : Any> ReorderableEditorVerticalGrid(
     scrollbarPadding: Dp = 12.dp,
     gridContentPadding: PaddingValues = PaddingValues(8.dp),
     emptyContent: @Composable BoxScope.() -> Unit = {
-        Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
     },
     floatingActionButton: (@Composable BoxScope.(lazyGridState: LazyGridState) -> Unit)? = null,
     itemContent: @Composable ReorderableCollectionItemScope.(index: Int, item: T, isDragging: Boolean, hapticFeedback: HapticFeedback) -> Unit,
@@ -119,6 +122,7 @@ fun <T, K : Any> ReorderableEditorVerticalGrid(
             onMove(from.index, to.index)
             hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
         }
+
 
         if (items.isEmpty()) {
             emptyContent()
@@ -151,8 +155,19 @@ fun <T, K : Any> ReorderableEditorVerticalGrid(
                 }
             }
 
-            VerticalScrollbar(
-                adapter = rememberScrollbarAdapter(lazyGridState),
+
+            val density = LocalDensity.current
+            val spanCount = when (val cells = columns) {
+                // CMP 把 GridCells.Fixed 的 count 设为 private，改由交叉轴尺寸列表推列数
+                is GridCells.Fixed -> with(cells) {
+                    with(density) {
+                        calculateCrossAxisCellSizes(lazyGridState.layoutInfo.viewportSize.width, 0).size
+                    }
+                }
+                else -> rememberAdaptiveGridSpan(lazyGridState)
+            }
+            VerticalScroller(
+                adapter = rememberScrollerAdapter(lazyGridState, spanCount),
                 modifier = Modifier.align(Alignment.CenterEnd),
             )
         }

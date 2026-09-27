@@ -14,7 +14,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,18 +24,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.PlayArrow
 import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Close
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Delete
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Search
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.SharedConstants
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
@@ -46,6 +39,20 @@ import net.minecraft.network.chat.contents.TranslatableContents
 import net.minecraft.sounds.SoundEvent
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
+import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.HorizontalDivider
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import androidx.compose.ui.graphics.RectangleShape
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.PlayArrow
+import androidx.compose.foundation.clickable
 
 @Composable
 fun SoundPlayButton(
@@ -54,7 +61,7 @@ fun SoundPlayButton(
 ) = IconButton({
     mc.soundManager.play(soundSupplier())
 }, modifier = modifier) {
-    Icon(Icons.PlayArrow, contentDescription = "PlaySound")
+    VectorIcon(HSIcons.PlayArrow, contentDescription = "PlaySound")
 }
 
 @Composable
@@ -76,6 +83,7 @@ fun SoundEvent.getSubtitle(): MutableText {
     if (SharedConstants.DEBUG_SUBTITLES) {
         return Translatable(location.path, fallback)
     }
+
     val weighed = mc.soundManager.getSoundEvent(location)
     if (weighed != null) {
         val subtitle = weighed.subtitle
@@ -95,7 +103,7 @@ fun SoundEventWrapper(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier.plainTooltip {
+        modifier.tooltip {
             Text(soundEvent.location.toString())
         },
         verticalAlignment = Alignment.CenterVertically,
@@ -112,8 +120,7 @@ fun HolderSoundEventSelector(
     onValueChange: (Holder<SoundEvent>) -> Unit,
     modifier: Modifier = Modifier,
     label: @Composable (() -> Unit)? = null,
-    shape: Shape = OutlinedTextFieldDefaults.shape,
-    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
+    shape: Shape = RectangleShape,
     contentPadding: PaddingValues = PaddingValues(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
     labelStartPadding: Dp? = 16.dp,
 ) = SoundEventSelector(
@@ -124,7 +131,6 @@ fun HolderSoundEventSelector(
     modifier,
     label,
     shape,
-    colors,
     contentPadding,
     labelStartPadding,
 )
@@ -135,19 +141,17 @@ fun SoundEventSelector(
     onValueChange: (SoundEvent) -> Unit,
     modifier: Modifier = Modifier,
     label: @Composable (() -> Unit)? = null,
-    shape: Shape = OutlinedTextFieldDefaults.shape,
-    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
+    shape: Shape = RectangleShape,
     contentPadding: PaddingValues = PaddingValues(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
     labelStartPadding: Dp? = 16.dp,
 ) {
     var showDialog by remember { mutableStateOf(false) }
     OutlinedLabelBox(
         label,
-        modifier.plainTooltip {
+        modifier.tooltip {
             Text(value.location.toString())
         },
-        shape = shape,
-        colors = colors,
+        
         contentPadding = contentPadding,
         labelStartPadding = labelStartPadding,
     ) {
@@ -166,10 +170,11 @@ fun SoundEventSelector(
             IconButton({
                 showDialog = true
             }) {
-                Icon(Icons.EditNote, contentDescription = null)
+                Icon(Icons.Edit)
             }
         }
     }
+
     if (showDialog) {
         SimpleAlertDialog(
             onDismissRequest = { showDialog = false },
@@ -192,22 +197,21 @@ fun OptionalHolderSoundEventSelector(
     onValueChange: (Optional<Holder<SoundEvent>>) -> Unit,
     modifier: Modifier = Modifier,
     label: @Composable (() -> Unit)? = null,
-    shape: Shape = OutlinedTextFieldDefaults.shape,
-    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
+    shape: Shape = RectangleShape,
     contentPadding: PaddingValues = PaddingValues(top = 4.dp, bottom = 8.dp, start = 8.dp, end = 8.dp),
     labelStartPadding: Dp? = 16.dp,
 ) {
     var showDialog by remember { mutableStateOf(false) }
+
     val tip = if (value.isPresent) {
-        Modifier.plainTooltip {
+        Modifier.tooltip {
             Text(value.get().value().location.toString())
         }
     } else Modifier
     OutlinedLabelBox(
         label,
         modifier.then(tip),
-        shape = shape,
-        colors = colors,
+        
         contentPadding = contentPadding,
         labelStartPadding = labelStartPadding,
     ) {
@@ -225,24 +229,26 @@ fun OptionalHolderSoundEventSelector(
                     Text(it.value().getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
                 } ?: run {
                     Spacer(Modifier.width(4.dp))
-                    Text(HSLang.Common.unset)
+                    Text(component = HSLang.Common.unset)
                 }
             }
+
             Row {
                 value.getOrNull()?.let {
                     IconButton({ onValueChange(Optional.empty()) }) {
-                        Icon(Icons.Delete, contentDescription = null)
+                        Icon(Icons.Delete)
                     }
                 }
                 IconButton({
                     showDialog = true
                 }) {
-                    Icon(Icons.EditNote, contentDescription = null)
+                    Icon(Icons.Edit)
                 }
             }
 
         }
     }
+
     if (showDialog) {
         SimpleAlertDialog(
             onDismissRequest = { showDialog = false },
@@ -280,6 +286,7 @@ fun SoundEventBrowser(
             }
         }
 
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
@@ -288,35 +295,28 @@ fun SoundEventBrowser(
                 .padding(horizontal = 4.dp)
                 .height(40.dp)
         ) {
-            Icon(Icons.Search, null)
+            Icon(Icons.Search)
             Spacer(Modifier.width(8.dp))
             BasicTextField(
                 searchQuery,
                 modifier = Modifier.weight(1f),
                 lineLimits = TextFieldLineLimits.SingleLine,
-                textStyle = LocalTextStyle.current.merge(
-                    MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                ),
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                cursorBrush = SolidColor(SokitsuTheme.colorScheme.primary),
             )
             Spacer(Modifier.width(8.dp))
             if (searchQuery.text.isNotEmpty()) {
                 val interactionSource = remember { MutableInteractionSource() }
+
                 val isHovered by interactionSource.collectIsHoveredAsState()
 
                 Icon(
-                    Icons.Close, contentDescription = null,
+                    Icons.Close,
                     modifier = Modifier
-                        .onClick { searchQuery.clearText() }
+                        .clickable { searchQuery.clearText() }
                         .hoverable(interactionSource)
                         .background(
-                            color = if (isHovered) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
-                            shape = CircleShape
-                        )
-                        .padding(6.dp)
-                )
+                            color = if (isHovered) SokitsuTheme.colorScheme.surfaceVariant else Color.Transparent)
+                        .padding(6.dp))
             }
         }
 
@@ -333,10 +333,11 @@ fun SoundEventBrowser(
                 items(displayItems) { soundEvent ->
 
                     val interactionSource = remember { MutableInteractionSource() }
+
                     val isHovered by interactionSource.collectIsHoveredAsState()
                     val backgroundColor by animateColorAsState(
-                        targetValue = if (isHovered) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+                        targetValue = if (isHovered) SokitsuTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        else SokitsuTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
                         animationSpec = tween(200),
                     )
 
@@ -345,15 +346,15 @@ fun SoundEventBrowser(
                         modifier = Modifier
                             .fillMaxWidth()
                             .hoverable(interactionSource)
-                            .background(backgroundColor, MaterialTheme.shapes.medium)
-                            .onClick { onClick(soundEvent) }
+                            .background(backgroundColor, RectangleShape)
+                            .clickable { onClick(soundEvent) }
                     )
                 }
             }
 
-            VerticalScrollbar(
+            VerticalScroller(
                 modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                adapter = rememberScrollbarAdapter(listState)
+                adapter = rememberScrollerAdapter(listState)
             )
         }
     }

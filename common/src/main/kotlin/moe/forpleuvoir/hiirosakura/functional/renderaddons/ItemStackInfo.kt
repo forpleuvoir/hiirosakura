@@ -39,6 +39,7 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
         return this
     }
 
+
     val script = ConfigItem(
         "script",
         """
@@ -53,6 +54,7 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
             addConfig(this)
         }
     }.uiWrapper { CodeConfigWrapper(it) }
+
 
     val _name by configBoolean("name", true).setTranslatedText()
 
@@ -184,6 +186,7 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
         if (isEnabled(state, "count", count) && itemStack.count > 1) {
             nameAndCount.append(" x${itemStack.count}").withStyle(ChatFormatting.WHITE)
         }
+
         if (nameAndCount.plainText.isNotEmpty()) this.add(nameAndCount)
 
         val display = if (isEnabled(state, "tooltip_display", tooltipDisplay.getValue())) {
@@ -250,6 +253,7 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
                 }
             }
         }
+
         if (isEnabled(state, "can_place_on", canPlaceOn.getValue())) {
             itemStack.get(DataComponents.CAN_BREAK)?.let {
                 if (display.shows(DataComponents.CAN_PLACE_ON)) {
@@ -260,13 +264,16 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
             }
         }
 
+
         if (tooltipFlag.isAdvanced) {
             if (isEnabled(state, "damage", damage.getValue()) && itemStack.isDamaged && display.shows(DataComponents.DAMAGE)) {
                 adder.accept(Component.translatable("item.durability", itemStack.maxDamage - itemStack.damageValue, itemStack.maxDamage))
             }
+
             if (isEnabled(state, "item_id", itemId.getValue())) {
                 adder.accept(Text.literal(BuiltInRegistries.ITEM.getKey(itemStack.item).toString()).withColor(-16741121))
             }
+
             if (isEnabled(state, "component_count", componentCount.getValue())) {
                 val componentsCount: Int = itemStack.components.size()
                 if (componentsCount > 0) {
@@ -275,10 +282,12 @@ class ItemStackInfo(key: String = "item_stack_info", val enableScript: Boolean) 
             }
         }
 
+
         if (isEnabled(state, "disabled_item_tooltip", disabledItemTooltip.getValue())) {
             if (player != null && !itemStack.item.isEnabled(player.level().enabledFeatures()))
                 adder.accept(ItemStack.DISABLED_ITEM_TOOLTIP)
         }
+
         if (isEnabled(state, "op_nbt_warning", opNbtWarning.getValue())) {
             if (itemStack.item.shouldPrintOpWarning(itemStack, player)) {
                 ItemStack.OP_NBT_WARNING.forEach(adder)

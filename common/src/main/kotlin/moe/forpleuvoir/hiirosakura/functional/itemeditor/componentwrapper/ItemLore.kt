@@ -1,15 +1,12 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,20 +23,16 @@ import moe.forpleuvoir.hiirosakura.ui.util.canScroll
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.DragHandle
-import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
-import moe.forpleuvoir.ibukigourd.ui.preset.state.isQuickAction
-import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberFabVisibilityByScroll
-import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberHideActionState
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.util.fabVisibilityAnimation
+import moe.forpleuvoir.ibukigourd.ui.util.isQuickAction
+import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
+import moe.forpleuvoir.ibukigourd.ui.util.rememberHideActionState
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
-import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.network.chat.Component
@@ -47,6 +40,17 @@ import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.ItemLore
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
+import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 
 @Composable
 fun ItemLoreComponentWrapper(
@@ -61,25 +65,21 @@ fun ItemLoreComponentWrapper(
     Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
         var showDialog by remember { mutableStateOf(false) }
 
-        AssistChip(
-            {},
+        FlatButton(
+            onClick = {},
             modifier = Modifier
                 .fillMaxHeight()
                 .width(DataComponentEditorDefaults.entrySize.width)
                 .vanillaTooltip(value.styledLines),
-            label = {
-                Text(IGLang.ConfigWrapper.listConfigWrapperText(value.styledLines().size), overflow = TextOverflow.Ellipsis, maxLines = 1)
-            },
-            trailingIcon = {
-                IconButton(onClick = {
-                    showDialog = true
-                }) {
-                    Icon(Icons.EditNote, null)
-                }
-            }
-        )
-
-        if (showDialog) {
+        ) {
+Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.styledLines().size), overflow = TextOverflow.Ellipsis, maxLines = 1)
+IconButton(onClick = {
+    showDialog = true
+}) {
+    Icon(Icons.Edit)
+}
+        }
+if (showDialog) {
             ItemLoreComponentEditDialog(
                 value,
                 onValueChange,
@@ -98,8 +98,9 @@ private fun ItemLoreComponentEditDialog(
     title: @Composable () -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    val editingLines = rememberKeyedList(value.lines)
+    val editingLines = rememberKeyedStateList(value.lines)
     var nextKey by remember { mutableLongStateOf(editingLines.size.toLong()) }
+
     val maxSize = ItemLore.MAX_LINES
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
@@ -114,11 +115,13 @@ private fun ItemLoreComponentEditDialog(
         content = {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 var editingComponent by remember { mutableStateOf<Int?>(null) }
+
                 var editingComponentInlineDialog by remember { mutableStateOf<Int?>(null) }
+
 
                 val lazyListState = rememberLazyListState()
                 if (editingLines.isEmpty()) {
-                    Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
                 } else {
                     val hapticFeedback = LocalHapticFeedback.current
                     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
@@ -137,8 +140,9 @@ private fun ItemLoreComponentEditDialog(
                             ReorderableItem(reorderableLazyListState, key) { isDragging ->
                                 val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                                 val handleInteraction = remember { MutableInteractionSource() }
+
                                 val handleHovered by handleInteraction.collectIsHoveredAsState()
-                                Card(
+                                Surface(
                                     modifier = Modifier.fillMaxWidth().scale(scale)
                                 ) {
                                     Row(
@@ -150,14 +154,10 @@ private fun ItemLoreComponentEditDialog(
                                             verticalAlignment = Alignment.CenterVertically,
                                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                                         ) {
-                                            DragHandle(
-                                                hapticFeedback,
-                                                handleInteraction,
-                                                handleHovered,
-                                                isDragging
-                                            )
+                                            DragHandle(modifier = Modifier)
                                             Text(component)
                                         }
+
 
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
@@ -168,15 +168,15 @@ private fun ItemLoreComponentEditDialog(
                                                     editingComponentInlineDialog = index
                                                 else
                                                     editingComponent = index
-                                            }, Modifier.plainTooltip {
-                                                Text(IGLang.Misc.edit)
+                                            }, Modifier.tooltip {
+                                                Text(component = IGLang.Misc.edit)
                                             }) {
-                                                Icon(Icons.EditNote, null)
+                                                Icon(Icons.Edit)
                                             }
 
                                             RemoveConfirmButton(
                                                 component.plainText,
-                                                { editingLines.removeAt(index) }
+                                                onConfirm = { { editingLines.removeAt(index) } },
                                             )
                                         }
                                     }
@@ -185,14 +185,14 @@ private fun ItemLoreComponentEditDialog(
                         }
                     }
 
-                    VerticalScrollbar(
-                        adapter = rememberScrollbarAdapter(lazyListState),
+                    VerticalScroller(
+                        adapter = rememberScrollerAdapter(lazyListState),
                         modifier = Modifier.align(Alignment.CenterEnd)
                     )
 
                 }
 
-                FloatingActionButton(
+                Button(
                     onClick = {
                         if (isQuickAction)
                             editingComponentInlineDialog = -1
@@ -203,14 +203,12 @@ private fun ItemLoreComponentEditDialog(
                         .align(Alignment.BottomEnd)
                         .padding(12.dp)
                         .size(40.dp)
-                        .fabVisibilityAnimation(
-                            rememberFabVisibilityByScroll(lazyListState),
-                            shouldHide = rememberHideActionState() || editingLines.size >= maxSize
-                        )
+                        .fabScrollVisibility(
+                            rememberFabScrollVisibility(lazyListState),
+                        ),
                 ) {
-                    Icon(Icons.Add, IGLang.Misc.add.plainText)
+                    Icon(Icons.Add)
                 }
-
                 fun value(idx: Int): Component = editingLines.getOrNull(idx)?.value ?: Texts.literal("")
 
                 editingComponent?.let { idx ->

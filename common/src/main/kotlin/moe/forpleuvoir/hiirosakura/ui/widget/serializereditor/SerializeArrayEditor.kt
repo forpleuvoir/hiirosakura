@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.serializereditor
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
@@ -14,13 +13,16 @@ import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.rememberM
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.replacedAt
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.withoutAt
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Delete
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun SerializeArrayEditor(
@@ -28,7 +30,9 @@ fun SerializeArrayEditor(
     onValueChange: (SerializeArray) -> Unit,
 ) {
     var showAdder by remember { mutableStateOf(false) }
+
     var addingType by remember { mutableStateOf(SerializeElementType.String) }
+
     val expanded = rememberExpandState(default = serializeArray.size <= 5)
     val keyWidth = rememberMaxLabelWidth(
         labels = serializeArray.indices.map { "[$it] :" },
@@ -36,7 +40,7 @@ fun SerializeArrayEditor(
     )
 
     ElementContainer(
-        title = { Text(HSLang.SerializeEditor.arrayType) },
+        title = { Text(component = HSLang.SerializeEditor.arrayType) },
         count = serializeArray.size,
         expanded = expanded.value,
         onToggle = { expanded.value = !expanded.value },
@@ -57,6 +61,7 @@ fun SerializeArrayEditor(
             )
         }
     }
+
 
     if (showAdder) {
         SerializeArrayElementAdderDialog(
@@ -84,6 +89,7 @@ private fun SerializeArrayEntry(
         is SerializePrimitive -> if (value.isString || value.isNumber) 8.dp else 0.dp
         else -> 0.dp
     }
+
     val keyModifier = Modifier.width(keyWidth).then(
         if (keyTopPadding > 0.dp) Modifier.padding(top = keyTopPadding) else Modifier
     )
@@ -94,7 +100,7 @@ private fun SerializeArrayEntry(
         keyWrapper = {
             KeyLabel(
                 text = "[$index]",
-                color = MaterialTheme.colorScheme.tertiary,
+                color = SokitsuTheme.colorScheme.secondary,
                 modifier = keyModifier,
             )
         },
@@ -104,7 +110,7 @@ private fun SerializeArrayEntry(
                 onClick = onRemove,
                 modifier = Modifier.size(30.dp),
             ) {
-                Icon(Icons.Delete, null, Modifier.size(15.dp))
+                Icon(Icons.Delete, Modifier.size(15.dp))
             }
         },
     )
@@ -118,7 +124,9 @@ fun SerializeArrayEntryEditor(
 ) {
     val expanded = rememberExpandState(default = serializeArray.size <= 5)
     var showAdder by remember { mutableStateOf(false) }
+
     var addingType by remember { mutableStateOf(SerializeElementType.String) }
+
     val keyWidth = rememberMaxLabelWidth(
         labels = serializeArray.indices.map { "[$it] :" },
         style = keyLabelStyle(),
@@ -126,7 +134,7 @@ fun SerializeArrayEntryEditor(
 
     ElementContainer(
         modifier = modifier,
-        title = { Text(HSLang.SerializeEditor.arrayType) },
+        title = { Text(component = HSLang.SerializeEditor.arrayType) },
         count = serializeArray.size,
         expanded = expanded.value,
         onToggle = { expanded.value = !expanded.value },
@@ -147,6 +155,7 @@ fun SerializeArrayEntryEditor(
             )
         }
     }
+
 
     if (showAdder) {
         SerializeArrayElementAdderDialog(

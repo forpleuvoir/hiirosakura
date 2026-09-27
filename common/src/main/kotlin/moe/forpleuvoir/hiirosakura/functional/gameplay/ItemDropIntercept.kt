@@ -7,9 +7,9 @@ import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
-import moe.forpleuvoir.ibukigourd.ui.toast.ToastStrategy
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastStrategy
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import net.minecraft.world.item.ItemStack
 
@@ -21,8 +21,8 @@ object ItemDropIntercept : ConfigGroup("item_drop_intercept") {
         .uiWrapper { config ->
             ItemStackMatcherMapConfigWrapper(
                 config,
-                keyHeader = { Text(HSLang.Common.name) },
-                valueHeader = { Text(HSLang.ItemStackMatcher.handheldItem) },
+                keyHeader = { Text(component = HSLang.Common.name) },
+                valueHeader = { Text(component = HSLang.ItemStackMatcher.handheldItem) },
             )
         }
 

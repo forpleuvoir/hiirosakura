@@ -4,9 +4,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,10 +19,10 @@ import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun ItemStackMatchEntryNameInfo(entry: ItemStackMatchEntry.Name) {
@@ -48,8 +48,9 @@ internal fun ItemStackMatchEntryNameRow(
     Spacer(Modifier.width(6.dp))
     var showEditor by remember { mutableStateOf(false) }
     IconButton({ showEditor = true }) {
-        Icon(Icons.EditNote, "${IGLang.Misc.edit} ${entry.translateText.plainText}")
+        Icon(Icons.Edit)
     }
+
     if (showEditor) {
         ItemStackMatchEntryNameEditorDialog(
             { showEditor = false },
@@ -94,9 +95,9 @@ internal fun BasicItemStackMatchEntryNameEditor(
         modifier = modifier,
     ) {
         val state = rememberTextFieldStateBinding(value.name) { onValueChange(value.copy(name = it)) }
-        OutlinedTextField(
+        TextField(
             state = state,
-            modifier = Modifier.width(300.dp)
+            modifier = Modifier.width(300.dp),
         )
     }
 }

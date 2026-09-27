@@ -10,7 +10,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,17 +19,20 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.StyleProperty
 import moe.forpleuvoir.ibukigourd.input.MouseButton
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.ui.closeScreen
-import moe.forpleuvoir.ibukigourd.ui.openComposePopupScreen
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
-import moe.forpleuvoir.ibukigourd.ui.preset.ColorPicker
-import moe.forpleuvoir.ibukigourd.ui.preset.LocalColorPickerEnableAlpha
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
-import moe.forpleuvoir.ibukigourd.ui.util.ProvideContentColorTextStyle
-import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
+import moe.forpleuvoir.ibukigourd.ui.colorpicker.ColorPicker
+import moe.forpleuvoir.ibukigourd.ui.colorpicker.LocalColorPickerEnableAlpha
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ProvideContentColorTextStyle
+import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalContentColor
+import moe.forpleuvoir.hiirosakura.ui.compat.closeScreen
+import moe.forpleuvoir.hiirosakura.ui.compat.openComposePopupScreen
+import moe.forpleuvoir.ibukigourd.util.toNebulaColor
 
 private val MINECRAFT_CHAT_COLOR_RGB = listOf(
     0x000000, 0x0000AA, 0x00AA00, 0x00AAAA,
@@ -54,15 +56,17 @@ fun ColorStyleControl(
     label: @Composable (current: Color, pending: Color) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val current = (currentState as? StyleProperty.Set<NebulaColor>)?.value?.toComposeColor ?: LocalContentColor.current
+    val current = (currentState as? StyleProperty.Set<NebulaColor>)?.value?.toComposeColor() ?: LocalContentColor.current
 
     var pressedButton by remember { mutableStateOf<MouseButton?>(null) }
 
+
     val interactionSource = remember { MutableInteractionSource() }
+
     val isHovered by interactionSource.collectIsHoveredAsState()
     val backgroundColor by animateColorAsState(
-        targetValue = if (isHovered) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+        targetValue = if (isHovered) SokitsuTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        else SokitsuTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
         animationSpec = tween(200),
         label = "bgHoverHighlight"
     )
@@ -73,10 +77,10 @@ fun ColorStyleControl(
             .background(backgroundColor, CircleShape)
             .then(
                 if (currentState != null && currentState != StyleProperty.Unset)
-                    Modifier.border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                    Modifier.border(2.dp, SokitsuTheme.colorScheme.primary, CircleShape)
                 else Modifier
             )
-            .plainTooltip { tip() }
+            .tooltip { tip() }
             .pointerInput(Unit) {
                 awaitPointerEventScope {
                     while (true) {
@@ -114,7 +118,7 @@ fun ColorStyleControl(
             },
         contentAlignment = Alignment.Center,
     ) {
-        label(current, pendingColor.toComposeColor)
+        label(current, pendingColor.toComposeColor())
     }
 }
 
@@ -126,8 +130,9 @@ private fun openColorPickerScreen(
     tip: @Composable () -> Unit
 ) {
     openComposePopupScreen {
-        IbukiGourdTheme {
+        SokitsuTheme {
             var editingColor by remember { mutableStateOf(pendingColor) }
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -139,44 +144,44 @@ private fun openColorPickerScreen(
                     },
                 contentAlignment = Alignment.Center
             ) {
-                IGCompositionLocalProvider {
+                
                     Surface(
                         modifier = Modifier
                             .clickable(
                                 indication = null,
                                 interactionSource = remember { MutableInteractionSource() }
                             ) { },
-                        shape = AlertDialogDefaults.shape,
-                        color = AlertDialogDefaults.containerColor,
-                        tonalElevation = AlertDialogDefaults.TonalElevation,
+                        
+                        color = SokitsuTheme.colorScheme.surface,
                     ) {
                         Column(
                             modifier = Modifier.padding(PaddingValues(24.dp)),
                         ) {
                             Box(Modifier.padding(bottom = 12.dp)) {
                                 ProvideContentColorTextStyle(
-                                    contentColor = AlertDialogDefaults.titleContentColor,
-                                    textStyle = MaterialTheme.typography.headlineSmall
+                                    contentColor = SokitsuTheme.colorScheme.onSurface,
+                                    textStyle = SokitsuTheme.typography.title
                                 ) {
                                     tip()
                                 }
                             }
 
                             CompositionLocalProvider(
-                                LocalContentColor provides AlertDialogDefaults.textContentColor,
+                                LocalContentColor provides SokitsuTheme.colorScheme.onSurfaceVariant,
                                 LocalColorPickerEnableAlpha provides enabledAlpha,
                             ) {
                                 Column(
                                     modifier = Modifier.weight(1f, false)
                                 ) {
                                     ColorPicker(
-                                        editingColor,
+                                        editingColor.toComposeColor(),
                                         {
-                                            editingColor = it
+                                            editingColor = it.toNebulaColor()
                                         },
                                     )
                                 }
                             }
+
 
                             Row(
                                 modifier = Modifier
@@ -186,19 +191,19 @@ private fun openColorPickerScreen(
                             ) {
                                 Box(Modifier.padding(end = 8.dp)) {
                                     TextButton(onClick = { closeScreen() }) {
-                                        Text(IGLang.Misc.cancel)
+                                        Text(component = IGLang.Misc.cancel)
                                     }
                                 }
                                 TextButton(onClick = {
                                     onPendingColorChange(editingColor)
                                     closeScreen()
                                 }) {
-                                    Text(IGLang.Misc.confirm)
+                                    Text(component = IGLang.Misc.confirm)
                                 }
                             }
                         }
                     }
-                }
+                
             }
         }
     }

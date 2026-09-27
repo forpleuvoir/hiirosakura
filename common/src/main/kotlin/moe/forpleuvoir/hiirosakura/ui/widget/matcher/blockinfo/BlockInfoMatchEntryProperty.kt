@@ -1,10 +1,10 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,21 +12,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatchEntry
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.EditSquare
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Equal
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
 import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Selector
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.selector.Selector
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.util.Util
+import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
+import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.EditSquare
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Equal
 
 @Composable
 fun BlockInfoMatchEntryPropertyInfo(entry: BlockInfoMatchEntry.Property) {
@@ -52,8 +54,9 @@ internal fun BlockInfoMatchEntryPropertyRow(
     Spacer(Modifier.width(6.dp))
     var showEditor by remember { mutableStateOf(false) }
     IconButton({ showEditor = true }) {
-        Icon(Icons.EditSquare, "${IGLang.Misc.edit} ${entry.translateText.plainText}")
+        VectorIcon(HSIcons.EditSquare, "${IGLang.Misc.edit} ${entry.translateText.plainText}")
     }
+
     if (showEditor) {
         BlockInfoMatchEntryPropertyEditorDialog(
             { showEditor = false },
@@ -103,6 +106,7 @@ internal fun BasicBlockInfoMatchEntryPropertyEditor(
             Text(value.translateText)
 
             val keyState = rememberTextFieldStateBinding(value.property.first) { onValueChange(value.copy(property = it to value.property.second)) }
+
             val valueState = rememberTextFieldStateBinding(value.property.second) { onValueChange(value.copy(property = value.property.first to it)) }
 
             Spacer(Modifier.height(16.dp))
@@ -111,6 +115,7 @@ internal fun BasicBlockInfoMatchEntryPropertyEditor(
                     it.property.name to Util.getPropertyName(it.property, it.value)
                 }?.toList()
             }
+
             if (!properties.isNullOrEmpty()) {
                 Selector(
                     "" to "",
@@ -118,6 +123,7 @@ internal fun BasicBlockInfoMatchEntryPropertyEditor(
                         if (keyState.text.toString() != selectedTag.first) {
                             keyState.edit { replace(0, length, selectedTag.first) }
                         }
+
                         if (valueState.text.toString() != selectedTag.second) {
                             valueState.edit { replace(0, length, selectedTag.second) }
                         }
@@ -131,18 +137,21 @@ internal fun BasicBlockInfoMatchEntryPropertyEditor(
                 )
                 Spacer(Modifier.height(8.dp))
             }
+
             Row(verticalAlignment = Alignment.CenterVertically) {
-                OutlinedTextField(
-                    state = keyState,
-                    label = { Text(IGLang.ConfigWrapper.mapKey) },
-                    modifier = Modifier.weight(1f)
-                )
-                Icon(Icons.Equal, null, Modifier.padding(horizontal = 16.dp))
-                OutlinedTextField(
-                    state = valueState,
-                    label = { Text(IGLang.ConfigWrapper.mapValue) },
-                    modifier = Modifier.weight(1f)
-                )
+                OutlinedLabelBox(label = { Text(component = IGLang.ConfigWrapper.mapKey) }, modifier = Modifier.weight(1f)) {
+                    TextField(
+                        state = keyState,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                VectorIcon(HSIcons.Equal, null, Modifier.padding(horizontal = 16.dp))
+                OutlinedLabelBox(label = { Text(component = IGLang.ConfigWrapper.mapValue) }, modifier = Modifier.weight(1f)) {
+                    TextField(
+                        state = valueState,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
 

@@ -1,11 +1,8 @@
 package moe.forpleuvoir.hiirosakura.ui.widget
 
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,8 +14,6 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.*
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Download
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Upload
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.*
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
 import moe.forpleuvoir.hiirosakura.ui.util.showErrorToast
@@ -28,21 +23,30 @@ import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.Fo
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.currentFormatDialect
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.format
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.lastUsedFormat
-import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
-import moe.forpleuvoir.ibukigourd.ui.preset.StringSelector
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
-import moe.forpleuvoir.ibukigourd.ui.preset.state.isQuickAction
+import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.util.isQuickAction
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.serialization.ast.SyntaxDialect
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.hjson.HJsonDialect
 import moe.forpleuvoir.nebula.serialization.json.JsonDialect
 import moe.forpleuvoir.nebula.serialization.toml.TomlDialect
-import moe.forpleuvoir.nebula.serialization.yml.YamlDialect
+import moe.forpleuvoir.nebula.serialization.yaml.YamlDialect
 import kotlin.time.Duration.Companion.milliseconds
+import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
+import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.AlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Download
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Upload
+import moe.forpleuvoir.hiirosakura.ui.compat.TipBox
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
 
 object FormatImportExportButtonDefaults {
 
@@ -59,6 +63,7 @@ object FormatImportExportButtonDefaults {
     fun setCurrentUsedFormat(index: Int) {
         lastUsedFormat = index.coerceIn(0, format.lastIndex)
     }
+
 
     val currentFormatType get() = format[lastUsedFormat].first
     val currentFormatDialect get() = format[lastUsedFormat].second
@@ -79,10 +84,10 @@ object FormatImportExportButtonDefaults {
     ) {
         AlertDialog(
             onDismissRequest,
-            title = { Text(HSLang.Common.exportAsFormat) },
+            title = { Text(component = HSLang.Common.exportAsFormat) },
             text = { FormatSelector(Modifier.fillMaxWidth()) },
-            confirmButton = { TextButton(onClick = { onConfirmRequest() }) { Text(IGLang.Misc.confirm) } },
-            dismissButton = { TextButton(onClick = { onDismissRequest() }) { Text(IGLang.Misc.cancel) } }
+            confirmButton = { TextButton(onClick = { onConfirmRequest() }) { Text(component = IGLang.Misc.confirm) } },
+            dismissButton = { TextButton(onClick = { onDismissRequest() }) { Text(component = IGLang.Misc.cancel) } }
         )
     }
 
@@ -106,8 +111,9 @@ fun FormatExportButton(
     encode: suspend (SyntaxDialect) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
+
     val scope = rememberCoroutineScope()
-    TipBox({ Text(HSLang.Common.exportAsFormat) }) {
+    TipBox({ Text(component = HSLang.Common.exportAsFormat) }) {
         IconButton(onClick = {
             if (isQuickAction) {
                 scope.launch {
@@ -124,26 +130,28 @@ fun FormatExportButton(
                 }
             } else expanded = true
         }) {
-            Icon(Icons.Upload, null)
+            VectorIcon(HSIcons.Upload)
         }
     }
+
     if (expanded) {
         FormatSelectorDialog(
-            { expanded = false }
-        ) {
-            scope.launch {
-                withContext(Dispatchers.IO) {
-                    runCatching {
-                        encode(currentFormatDialect)
-                    }.onFailure {
-                        showErrorToast(it.localizedMessage)
-                    }.onSuccess {
-                        showSuccessToast(successMsg)
-                        expanded = false
+            onDismissRequest = { expanded = false },
+            onConfirmRequest = {
+                scope.launch {
+                    withContext(Dispatchers.IO) {
+                        runCatching {
+                            encode(currentFormatDialect)
+                        }.onFailure {
+                            showErrorToast(it.localizedMessage)
+                        }.onSuccess {
+                            showSuccessToast(successMsg)
+                            expanded = false
+                        }
                     }
                 }
-            }
-        }
+            },
+        )
     }
 }
 
@@ -155,9 +163,10 @@ fun FormatImportButton(
     decode: suspend (SerializeElement) -> Unit,
 ) {
     TipBox({
-        Text(HSLang.Common.importFromFormat)
+        Text(component = HSLang.Common.importFromFormat)
     }) {
         var expanded by remember { mutableStateOf(false) }
+
         val scope = rememberCoroutineScope()
         IconButton({
             if (isQuickAction) {
@@ -174,8 +183,9 @@ fun FormatImportButton(
                 expanded = true
             }
         }) {
-            Icon(Icons.Download, null)
+            VectorIcon(HSIcons.Download)
         }
+
         if (expanded) {
             val state = rememberTextFieldState("")
             AlertDialog(
@@ -193,16 +203,17 @@ fun FormatImportButton(
                             }
                         }
 
-                    }) { Text(IGLang.Misc.confirm) }
+                    }) { Text(component = IGLang.Misc.confirm) }
                 },
-                dismissButton = { TextButton(onClick = { expanded = false }) { Text(IGLang.Misc.cancel) } },
+                dismissButton = { TextButton(onClick = { expanded = false }) { Text(component = IGLang.Misc.cancel) } },
                 title = { Text(title) },
                 text = {
-                    IGCompositionLocalProvider {
+                    
                         Column {
                             FormatSelector(Modifier.fillMaxWidth())
                             Box {
                                 var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+
                                 val scrollState = rememberScrollState()
                                 var cursorInfo by remember { mutableStateOf("") }
                                 LaunchedEffect(Unit) {
@@ -221,6 +232,7 @@ fun FormatImportButton(
                                         delay(50.milliseconds)
                                     }
                                 }
+
                                 val transformation = rememberSyntaxHighlightTransformation(
                                     language = when (format[lastUsedFormat].first) {
                                         "Json" -> JsonSyntaxLanguage
@@ -232,34 +244,22 @@ fun FormatImportButton(
                                     theme = SyntaxHighlightDefaults.theme(),
                                     text = state.text.toString(),
                                 )
-                                OutlinedTextField(
-                                    state,
-                                    scrollState = scrollState,
-                                    label = {
+                                OutlinedLabelBox(label = {
                                         Text(cursorInfo)
-                                    },
-                                    onTextLayout = {
-                                        it()?.let { textLayoutResult ->
-                                            layoutResult = textLayoutResult
-                                        }
-                                    },
-                                    textStyle = TextStyle(
-                                        fontFamily = FontFamily.Monospace,
-                                        fontSize = 13.sp
-                                    ),
-                                    outputTransformation = transformation,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(480.dp)
-                                        .codeEditorShortcuts(state)
-                                )
-                                VerticalScrollbar(
+                                    }) {
+                                    TextField(
+                                        state,
+                                        
+                                        modifier = Modifier .fillMaxWidth() .height(480.dp) .codeEditorShortcuts(state),
+                                    )
+                                }
+                                VerticalScroller(
                                     modifier = Modifier.align(Alignment.CenterEnd).padding(top = 14.dp, bottom = 6.dp, end = 4.dp).height(460.dp),
-                                    adapter = rememberScrollbarAdapter(scrollState)
+                                    adapter = rememberScrollerAdapter(scrollState)
                                 )
                             }
                         }
-                    }
+                    
                 }
             )
         }

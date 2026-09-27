@@ -64,9 +64,11 @@ object ChainDoors : ConfigGroup("chain_doors") {
 
             isEnabled(rule.keyToggleMode).onFalse { return }
 
+
             val predicate: (BlockPos) -> Boolean = { pos ->
                 rule.chainDoor.match(BlockInfo(level.getBlockState(pos), pos, blockResult.direction))
             }
+
 
             val reachDist = player.blockInteractionRange() + 0.25
             val reachDistSq = reachDist * reachDist
@@ -80,7 +82,7 @@ object ChainDoors : ConfigGroup("chain_doors") {
                 if (alreadyActed.add(targetPos)) {
                     val state = level.getBlockState(targetPos)
 
-                    if (player.eyePosition.distanceToSqr(targetPos.center) > reachDistSq) {
+                    if (player.eyePosition.distanceToSqr(net.minecraft.world.phys.Vec3.atCenterOf(targetPos)) > reachDistSq) {
                         return@forEach
                     }
 
@@ -89,7 +91,7 @@ object ChainDoors : ConfigGroup("chain_doors") {
                     gameMode.useItemOn(
                         player,
                         hand,
-                        BlockHitResult(targetPos.center, blockResult.direction, targetPos, false)
+                        BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(targetPos), blockResult.direction, targetPos, false)
                     )
                 }
             }

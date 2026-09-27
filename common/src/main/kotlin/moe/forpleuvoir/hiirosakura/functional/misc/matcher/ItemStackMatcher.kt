@@ -114,6 +114,7 @@ data class ItemStackMatcher(
 
     }
 
+
     val simpleText by lazy {
         when (entries.size) {
             0    -> IGLang.Misc.hasNothing

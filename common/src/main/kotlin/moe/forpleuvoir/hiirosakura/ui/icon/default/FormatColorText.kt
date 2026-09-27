@@ -5,10 +5,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.group
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
 
 @Suppress("CheckReturnValue")
-val Icons.FormatColorText: ImageVector
+val HSIcons.FormatColorText: ImageVector
     get() {
         if (formatColorText != null) {
             return formatColorText!!
@@ -82,7 +82,7 @@ val Icons.FormatColorText: ImageVector
 private var formatColorText: ImageVector? = null
 
 
-val Icons.FormatColorTextTop: ImageVector
+val HSIcons.FormatColorTextTop: ImageVector
     get() {
         if (formatColorTextTop != null) {
             return formatColorTextTop!!
@@ -134,7 +134,7 @@ private var formatColorTextTop: ImageVector? = null
 
 
 @Suppress("CheckReturnValue")
-val Icons.FormatColorTextShadowTop: ImageVector
+val HSIcons.FormatColorTextShadowTop: ImageVector
     get() {
         if (formatTextShadowTop != null) {
             return formatTextShadowTop!!
@@ -202,7 +202,8 @@ private fun ImageVector.Builder.addFormatTextPath(
     }
 }
 
-val Icons.FormatColorTextBottom: ImageVector
+
+val HSIcons.FormatColorTextBottom: ImageVector
     get() {
         if (formatColorTextBottom != null) {
             return formatColorTextBottom!!

@@ -21,6 +21,7 @@ val Minecraft.targetBlock: BlockInfo?
         BlockInfo(result)
     } }
 
+
 val SerializeElement.asBlock: Block
     get() = this.checkType<SerializePrimitive, Block> {
         BuiltInRegistries.BLOCK.get(Identifier.parse(it.value.requireType())).get().value()

@@ -2,7 +2,6 @@ package moe.forpleuvoir.hiirosakura.config.items
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -10,8 +9,6 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainDoorsRule
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainStrategy
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Link2
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Radar
 import moe.forpleuvoir.hiirosakura.ui.util.rememberSegmentedButtonWidth
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo.BlockInfoMatcherDisplayerInnerEditor
@@ -20,15 +17,31 @@ import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateText
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ListConfigWrapperDefaults
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
-import moe.forpleuvoir.ibukigourd.ui.preset.*
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.ListConfigWrapperDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.ConfigList
 import moe.forpleuvoir.nebula.config.item.configList
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
+import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
+import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.HorizontalDivider
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.AlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.hiirosakura.ui.widget.SegmentedButton
+import moe.forpleuvoir.hiirosakura.ui.widget.SegmentedButtonDefaults
+import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
+import androidx.compose.foundation.layout.Row
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Link2
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Radar
 
 context(group: ConfigGroup)
 fun configChainDoorsRuleList(name: String, defaultValue: List<ChainDoorsRule>) = configList(name, defaultValue, ChainDoorsRule)
@@ -39,7 +52,7 @@ fun configChainDoorsRuleList(name: String, defaultValue: List<ChainDoorsRule>) =
 fun ChainDoorsRuleListConfigWrapper(
     config: ConfigList<ChainDoorsRule>,
     editorDialogTitle: @Composable (() -> Unit)? = {
-        Text(InlineStyleText(config.translateText.plainText))
+        Text(component = InlineStyleText(config.translateText.plainText))
     },
     modifier: Modifier = Modifier,
     dialogModifier: Modifier = Modifier.padding(40.dp).size(1200.dp, 800.dp),
@@ -52,10 +65,12 @@ fun ChainDoorsRuleListConfigWrapper(
             config = config,
             modifier = modifier
         ) { showEditDialog = true }
+
         if (showEditDialog) {
             val editingValue = remember {
                 config.mapIndexed { index, value -> index.toLong() to value }.toMutableStateList()
             }
+
             var nextKey by remember { mutableLongStateOf(editingValue.size.toLong()) }
             EditDialog(
                 config = config,
@@ -76,16 +91,19 @@ fun ChainDoorsRuleListConfigWrapper(
                             contentHeader = {
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(LocalColumnSpacing.current)) {
                                     Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                                        Text(HSLang.ChainDoors.originDoor)
+                                        Text(component = HSLang.ChainDoors.originDoor)
                                     }
+
                                     Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                                        Text(HSLang.ChainDoors.chainDoor)
+                                        Text(component = HSLang.ChainDoors.chainDoor)
                                     }
+
                                     Box(Modifier.width(100.dp), contentAlignment = Alignment.Center) {
-                                        Text(HSLang.ChainDoors.keyToggleMode)
+                                        Text(component = HSLang.ChainDoors.keyToggleMode)
                                     }
+
                                     Box(Modifier.width(180.dp), contentAlignment = Alignment.Center) {
-                                        Text(HSLang.ChainDoors.strategy)
+                                        Text(component = HSLang.ChainDoors.strategy)
                                     }
                                 }
                             }
@@ -95,16 +113,16 @@ fun ChainDoorsRuleListConfigWrapper(
                         var rule by remember { mutableStateOf(ChainDoorsRule.MOB_INTERACTABLE_DOORS) }
                         AlertDialog(
                             onDismissRequest = onDismissRequest,
-                            title = { Text(IGLang.Misc.add) },
+                            title = { Text(component = IGLang.Misc.add) },
                             text = {
-                                IGCompositionLocalProvider {
+                                
                                     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                         BlockInfoMatcherDisplayerInnerEditor(
                                             rule.originDoor,
                                             { rule = rule.copy(originDoor = it) },
                                             modifier = Modifier.fillMaxWidth(),
                                             leadingIcon = {
-                                                Text(HSLang.ChainDoors.originDoor)
+                                                Text(component = HSLang.ChainDoors.originDoor)
                                             }
                                         )
                                         BlockInfoMatcherDisplayerInnerEditor(
@@ -112,7 +130,7 @@ fun ChainDoorsRuleListConfigWrapper(
                                             { rule = rule.copy(chainDoor = it) },
                                             modifier = Modifier.fillMaxWidth(),
                                             leadingIcon = {
-                                                Text(HSLang.ChainDoors.chainDoor)
+                                                Text(component = HSLang.ChainDoors.chainDoor)
                                             }
                                         )
                                         Row(
@@ -120,21 +138,22 @@ fun ChainDoorsRuleListConfigWrapper(
                                             horizontalArrangement = Arrangement.SpaceBetween,
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Text(HSLang.ChainDoors.keyToggleMode)
+                                            Text(component = HSLang.ChainDoors.keyToggleMode)
                                             Switch(rule.keyToggleMode, { rule = rule.copy(keyToggleMode = it) })
                                         }
+
                                         Row(
                                             Modifier.fillMaxWidth(),
                                             horizontalArrangement = Arrangement.SpaceBetween,
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Text(HSLang.ChainDoors.keyToggleMode)
+                                            Text(component = HSLang.ChainDoors.keyToggleMode)
                                             ChainStrategyDisplayerEditor(
                                                 rule.strategy, { rule = rule.copy(strategy = it) }, modifier = Modifier.width(250.dp)
                                             )
                                         }
                                     }
-                                }
+                                
                             },
                             confirmButton = {
                                 TextButton(
@@ -143,12 +162,12 @@ fun ChainDoorsRuleListConfigWrapper(
                                         onDismissRequest()
                                     }
                                 ) {
-                                    Text(IGLang.Misc.confirm)
+                                    Text(component = IGLang.Misc.confirm)
                                 }
                             },
                             dismissButton = {
                                 TextButton(onClick = onDismissRequest) {
-                                    Text(IGLang.Misc.cancel)
+                                    Text(component = IGLang.Misc.cancel)
                                 }
                             },
                         )
@@ -205,9 +224,9 @@ fun ChainStrategyDisplayerEditor(
     modifier: Modifier = Modifier,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    AssistChip(
-        {},
-        modifier = modifier.plainTooltip {
+    FlatButton(
+        onClick = {},
+        modifier = modifier.tooltip {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.width(240.dp)) {
                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     ChainStrategyInfo(value)
@@ -215,56 +234,53 @@ fun ChainStrategyDisplayerEditor(
                 HorizontalDivider()
                 if (value is ChainStrategy.Neighborhood) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(HSLang.ChainDoors.strategyRadius)
+                        Text(component = HSLang.ChainDoors.strategyRadius)
                         Text("${value.radius}")
                     }
+
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(HSLang.ChainDoors.strategyShape)
+                        Text(component = HSLang.ChainDoors.strategyShape)
                         Text(value.shape.translateText)
                     }
                 }
+
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(HSLang.ChainDoors.strategySameBlock)
-                    Text(IGLang.Misc.coloredSwitch(value.sameBlock))
+                    Text(component = HSLang.ChainDoors.strategySameBlock)
+                    Text(component = IGLang.Misc.coloredSwitch(value.sameBlock))
                 }
+
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(HSLang.ChainDoors.strategySyncState)
-                    Text(IGLang.Misc.coloredSwitch(value.syncState))
+                    Text(component = HSLang.ChainDoors.strategySyncState)
+                    Text(component = IGLang.Misc.coloredSwitch(value.syncState))
                 }
+
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(HSLang.ChainDoors.strategyLimit)
+                    Text(component = HSLang.ChainDoors.strategyLimit)
                     Text("${value.limit}")
                 }
             }
         },
-        label = {
-            ChainStrategyInfo(value)
-        },
-        leadingIcon = {
-            when (value) {
-                is ChainStrategy.Neighborhood -> Icon(Icons.Radar, null)
-                is ChainStrategy.Recursive    -> Icon(Icons.Link2, null)
-            }
-        },
-        trailingIcon = {
-            IconButton({
-                showDialog = true
-            }) {
-                Icon(Icons.EditNote, null)
-            }
-        }
-    )
-    if (showDialog) {
+    ) {
+when (value) {
+    is ChainStrategy.Neighborhood -> VectorIcon(HSIcons.Radar)
+    is ChainStrategy.Recursive    -> VectorIcon(HSIcons.Link2)
+}
+ChainStrategyInfo(value)
+IconButton({
+    showDialog = true
+}) {
+    Icon(Icons.Edit)
+}
+    }
+if (showDialog) {
         var editingValue by remember { mutableStateOf(value) }
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text(HSLang.ChainDoors.strategy) },
+            title = { Text(component = HSLang.ChainDoors.strategy) },
             text = {
-                IGCompositionLocalProvider(
-                    LocalNumberFieldStyle provides NumberFieldStyle.Outlined,
-                ) {
+                
                     ChainStrategyEditor(editingValue) { editingValue = it }
-                }
+                
             },
             confirmButton = {
                 TextButton(
@@ -273,12 +289,12 @@ fun ChainStrategyDisplayerEditor(
                         showDialog = false
                     }
                 ) {
-                    Text(IGLang.Misc.confirm)
+                    Text(component = IGLang.Misc.confirm)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDialog = false }) {
-                    Text(IGLang.Misc.cancel)
+                    Text(component = IGLang.Misc.cancel)
                 }
             },
         )
@@ -305,7 +321,9 @@ private fun ChainStrategyEditor(
 ) {
     var isNeighborhood by remember { mutableStateOf(value is ChainStrategy.Neighborhood) }
 
+
     var neighborhoodValue by remember { mutableStateOf(value as? ChainStrategy.Neighborhood ?: ChainStrategy.Neighborhood.DEFAULT) }
+
     var recursiveValue by remember { mutableStateOf(value as? ChainStrategy.Recursive ?: ChainStrategy.Recursive.DEFAULT) }
 
     LaunchedEffect(isNeighborhood, neighborhoodValue) {
@@ -319,27 +337,28 @@ private fun ChainStrategyEditor(
         }
     }
 
+
     Column {
-        SingleChoiceSegmentedButtonRow {
+        Row {
             val width = rememberSegmentedButtonWidth(
                 items = listOf(ChainStrategy.Neighborhood.text, ChainStrategy.Recursive.text),
-                textStyle = MaterialTheme.typography.labelLarge,
-            ) { it.toAnnotatedString() }
+                textStyle = SokitsuTheme.typography.button,
+            ) { it }
             SegmentedButton(
                 selected = isNeighborhood,
                 onClick = { isNeighborhood = true },
-                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                
                 modifier = Modifier.width(width)
             ) {
-                Text(ChainStrategy.Neighborhood.text, Modifier.plainTooltip { Text(ChainStrategy.Neighborhood.hoverText) })
+                Text(ChainStrategy.Neighborhood.text, Modifier.tooltip { Text(ChainStrategy.Neighborhood.hoverText) })
             }
             SegmentedButton(
                 selected = !isNeighborhood,
                 onClick = { isNeighborhood = false },
-                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                
                 modifier = Modifier.width(width)
             ) {
-                Text(ChainStrategy.Recursive.text, Modifier.plainTooltip { Text(ChainStrategy.Recursive.hoverText) })
+                Text(ChainStrategy.Recursive.text, Modifier.tooltip { Text(ChainStrategy.Recursive.hoverText) })
             }
         }
         Spacer(Modifier.height(16.dp))
@@ -359,38 +378,44 @@ private fun ChainStrategyEditor(
                 if (neighborhood) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(HSLang.ChainDoors.strategyRadius)
+                            Text(component = HSLang.ChainDoors.strategyRadius)
                             IntField(neighborhoodValue.radius, { neighborhoodValue = neighborhoodValue.copy(radius = it) }, modifier = Modifier.width(width))
                         }
+
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(HSLang.ChainDoors.strategyShape)
-                            EnumSelector(neighborhoodValue.shape, { neighborhoodValue = neighborhoodValue.copy(shape = it) }, modifier = Modifier.width(width))
+                            Text(component = HSLang.ChainDoors.strategyShape)
+                            EnumSelector(neighborhoodValue.shape, { neighborhoodValue = neighborhoodValue.copy() }, modifier = Modifier.width(width))
                         }
+
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(HSLang.ChainDoors.strategySameBlock)
+                            Text(component = HSLang.ChainDoors.strategySameBlock)
                             Switch(neighborhoodValue.sameBlock, { neighborhoodValue = neighborhoodValue.copy(sameBlock = it) })
                         }
+
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(HSLang.ChainDoors.strategySyncState)
+                            Text(component = HSLang.ChainDoors.strategySyncState)
                             Switch(neighborhoodValue.syncState, { neighborhoodValue = neighborhoodValue.copy(syncState = it) })
                         }
+
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(HSLang.ChainDoors.strategyLimit)
+                            Text(component = HSLang.ChainDoors.strategyLimit)
                             IntField(neighborhoodValue.limit, { neighborhoodValue = neighborhoodValue.copy(limit = it) }, modifier = Modifier.width(width))
                         }
                     }
                 } else {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(HSLang.ChainDoors.strategySameBlock)
+                            Text(component = HSLang.ChainDoors.strategySameBlock)
                             Switch(recursiveValue.sameBlock, { recursiveValue = recursiveValue.copy(sameBlock = it) })
                         }
+
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(HSLang.ChainDoors.strategySyncState)
+                            Text(component = HSLang.ChainDoors.strategySyncState)
                             Switch(recursiveValue.syncState, { recursiveValue = recursiveValue.copy(syncState = it) })
                         }
+
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(HSLang.ChainDoors.strategyLimit)
+                            Text(component = HSLang.ChainDoors.strategyLimit)
                             IntField(recursiveValue.limit, { recursiveValue = recursiveValue.copy(limit = it) }, modifier = Modifier.width(width))
                         }
                     }

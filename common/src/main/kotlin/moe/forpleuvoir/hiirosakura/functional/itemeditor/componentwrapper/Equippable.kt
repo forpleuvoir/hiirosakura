@@ -1,12 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,14 +18,10 @@ import moe.forpleuvoir.hiirosakura.ui.widget.HolderSetEntityTypeEditorDialog
 import moe.forpleuvoir.hiirosakura.ui.widget.HolderSoundEventSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Delete
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.EnumSelector
-import moe.forpleuvoir.ibukigourd.ui.preset.Selector
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.selector.Selector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.core.Holder
@@ -45,6 +38,17 @@ import net.minecraft.world.item.equipment.Equippable
 import java.util.*
 import kotlin.jvm.optionals.getOrElse
 import kotlin.jvm.optionals.getOrNull
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
+import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
+import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun EquippableComponentWrapper(
@@ -61,8 +65,9 @@ fun EquippableComponentWrapper(
         IconButton(onClick = {
             showDialog = true
         }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.EditNote, null)
+            Icon(Icons.Edit)
         }
+
         if (showDialog) {
             EquippableEditorDialog(
                 key = key,
@@ -118,7 +123,7 @@ fun EquippableEditorDialog(
                         result.equipSound,
                         { result = result.copy(equipSound = it) },
                         label = { Text(key, suffix = "equip_sound", fallback = "Equip Sound") },
-                        contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
+                        contentPadding = LabeledFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
                         modifier = Modifier.fillMaxWidth()
                     )
                     //assetId
@@ -152,13 +157,13 @@ fun EquippableEditorDialog(
                         result.shearingSound,
                         { result = result.copy(shearingSound = it) },
                         label = { Text(key, suffix = "shearing_sound", fallback = "Shearing Sound") },
-                        contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
+                        contentPadding = LabeledFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
                         modifier = Modifier.fillMaxWidth()
                     )
 
                 }
-                VerticalScrollbar(
-                    adapter = rememberScrollbarAdapter(scrollState),
+                VerticalScroller(
+                    adapter = rememberScrollerAdapter(scrollState),
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
             }
@@ -175,13 +180,15 @@ private fun AllowedEntities(
     onValueChange: (Equippable) -> Unit
 ) {
     var showAllowedEntitiesDialog by remember { mutableStateOf(false) }
+
     val allowedEntities = value.allowedEntities
     val tip = if (allowedEntities.isPresent && allowedEntities.get().size() > 0) {
-        Modifier.plainTooltip {
+        Modifier.tooltip {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 allowedEntities.get().take(10).forEach {
                     Text(it.value().description)
                 }
+
                 if (allowedEntities.get().size() > 10) {
                     Text("...")
                 }
@@ -193,7 +200,7 @@ private fun AllowedEntities(
             .fillMaxWidth()
             .then(tip),
         label = { Text(key, suffix = "allowed_entities", fallback = "Allowed Entities") },
-        contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
+        contentPadding = LabeledFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -204,25 +211,27 @@ private fun AllowedEntities(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 value.allowedEntities.getOrNull()?.let { allowedEntities ->
-                    Text(IGLang.ConfigWrapper.listConfigWrapperText(allowedEntities.size()), overflow = TextOverflow.Ellipsis, maxLines = 1)
+                    Text(component = IGLang.ConfigWrapper.listConfigWrapperText(allowedEntities.size()), overflow = TextOverflow.Ellipsis, maxLines = 1)
                 } ?: run {
-                    Text(HSLang.Common.unset)
+                    Text(component = HSLang.Common.unset)
                 }
             }
+
             Row {
                 IconButton({
                     showAllowedEntitiesDialog = true
                 }) {
-                    Icon(Icons.EditNote, contentDescription = null)
+                    Icon(Icons.Edit)
                 }
                 IconButton(onClick = {
                     onValueChange(value.copy(allowedEntities = Optional.ofNullable(null)))
                 }) {
-                    Icon(Icons.Delete, null)
+                    Icon(Icons.Delete)
                 }
             }
         }
     }
+
 
     if (showAllowedEntitiesDialog) {
         HolderSetEntityTypeEditorDialog(
@@ -248,7 +257,7 @@ private fun CameraOverlay(
         modifier = Modifier
             .fillMaxWidth(),
         label = { Text(key, suffix = "camera_overlay", fallback = "Camera Overlay") },
-        contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
+        contentPadding = LabeledFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -261,23 +270,25 @@ private fun CameraOverlay(
                 value.cameraOverlay.getOrNull()?.let { overlay ->
                     Text(overlay, overflow = TextOverflow.Ellipsis, maxLines = 1)
                 } ?: run {
-                    Text(HSLang.Common.unset)
+                    Text(component = HSLang.Common.unset)
                 }
             }
+
             Row {
                 IconButton({
                     showCameraOverlayDialog = true
                 }) {
-                    Icon(Icons.EditNote, contentDescription = null)
+                    Icon(Icons.Edit)
                 }
                 IconButton(onClick = {
                     onValueChange(value.copy(cameraOverlay = Optional.ofNullable(null)))
                 }) {
-                    Icon(Icons.Delete, null)
+                    Icon(Icons.Delete)
                 }
             }
         }
     }
+
     if (showCameraOverlayDialog) {
         IdentifierEditorDialog(
             value.cameraOverlay.getOrElse { identifier("minecraft", "misc/pumpkinblur") },
@@ -299,7 +310,7 @@ private fun AssetId(
         modifier = Modifier
             .fillMaxWidth(),
         label = { Text(key, suffix = "asset_id", fallback = "Asset ID") },
-        contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
+        contentPadding = LabeledFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -312,23 +323,25 @@ private fun AssetId(
                 value.assetId.getOrNull()?.let { assetId ->
                     Text(assetId.identifier(), overflow = TextOverflow.Ellipsis, maxLines = 1)
                 } ?: run {
-                    Text(HSLang.Common.unset)
+                    Text(component = HSLang.Common.unset)
                 }
             }
+
             Row {
                 IconButton({
                     showAssetIDDialog = true
                 }) {
-                    Icon(Icons.EditNote, contentDescription = null)
+                    Icon(Icons.Edit)
                 }
                 IconButton(onClick = {
                     onValueChange(value.copy(assetId = Optional.ofNullable(null)))
                 }) {
-                    Icon(Icons.Delete, null)
+                    Icon(Icons.Delete)
                 }
             }
         }
     }
+
     if (showAssetIDDialog) {
         val equipmentAssetKeys = equipmentAssetKeys()
 
@@ -348,10 +361,7 @@ private fun AssetId(
             title = { Text(key, suffix = "asset_id", fallback = "Asset ID") },
             content = {
                 Column {
-                    OutlinedTextField(
-                        namespace,
-                        labelPosition = TextFieldLabelPosition.Attached(true),
-                        label = {
+                    OutlinedLabelBox(label = {
                             Row {
                                 Text("Namespace")
                                 if (!checkNamespace) {
@@ -359,15 +369,15 @@ private fun AssetId(
                                     Text("Non [a-z0-9_.-] character in namespace of location")
                                 }
                             }
-                        },
-                        isError = !checkNamespace,
-                        modifier = Modifier.fillMaxWidth().height(68.dp),
-                    )
+                        }) {
+                        TextField(
+                            namespace,
+                            isError = !checkNamespace,
+                            modifier = Modifier.fillMaxWidth().height(68.dp),
+                        )
+                    }
                     Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
-                        path,
-                        labelPosition = TextFieldLabelPosition.Attached(true),
-                        label = {
+                    OutlinedLabelBox(label = {
                             Row {
                                 Text("Path")
                                 if (!checkPath) {
@@ -375,35 +385,40 @@ private fun AssetId(
                                     Text("Non [a-z0-9/._-] character in path of location")
                                 }
                             }
-                        },
-                        isError = !checkPath,
-                        modifier = Modifier.fillMaxWidth().height(68.dp),
-                    )
+                        }) {
+                        TextField(
+                            path,
+                            isError = !checkPath,
+                            modifier = Modifier.fillMaxWidth().height(68.dp),
+                        )
+                    }
                     Spacer(Modifier.height(8.dp))
                     var selected by remember { mutableStateOf(equipmentAssetKeys.first()) }
-                    Selector(
-                        equipmentAssetKeys.first(),
-                        {
-                            namespace.edit {
-                                replace(0, length, it.identifier().namespace)
-                            }
-                            path.edit {
-                                replace(0, length, it.identifier().path)
-                            }
-                            selected = it
-                        },
-                        items = equipmentAssetKeys,
-                        label = { Text(HSLang.ItemEditor.fromResourceManager) },
-                        content = {
-                            Text(it.identifier(), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        },
-                        itemContent = { item, _ ->
-                            Text(item.identifier())
-                        },
-                        searchFilter = { str, it ->
-                            it.identifier().toString().contains(str, ignoreCase = true)
-                        }
-                    )
+                                        OutlinedLabelBox(label = { Text(component = HSLang.ItemEditor.fromResourceManager) }) {
+                        Selector(
+                                                equipmentAssetKeys.first(),
+                                                {
+                                                    namespace.edit {
+                                                        replace(0, length, it.identifier().namespace)
+                                                    }
+                                                    path.edit {
+                                                        replace(0, length, it.identifier().path)
+                                                    }
+                                                    selected = it
+                                                },
+                                                items = equipmentAssetKeys,
+                                                
+                                                content = {
+                                                    Text(it.identifier(), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                                },
+                                                itemContent = { item, _ ->
+                                                    Text(item.identifier())
+                                                },
+                                                searchFilter = { it, str ->
+                                                    it.identifier().toString().contains(str, ignoreCase = true)
+                                                }
+                                            )
+                    }
                 }
             },
             confirmButton = {
@@ -417,7 +432,7 @@ private fun AssetId(
                         showAssetIDDialog = false
                     }
                 }, enabled = checkNamespace && checkPath) {
-                    Text(IGLang.Misc.confirm)
+                    Text(component = IGLang.Misc.confirm)
                 }
             }
         )

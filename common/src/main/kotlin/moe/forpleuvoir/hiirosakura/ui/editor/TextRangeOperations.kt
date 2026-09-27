@@ -44,6 +44,7 @@ internal fun CharSequence.wordRangeAt(offset: Int): TextRange? {
         return TextRange(start, end)
     }
 
+
     if (clamped > 0 && this[clamped - 1].isWordChar()) {
         var start = clamped - 1
         while (start > 0 && this[start - 1].isWordChar()) start--
@@ -90,15 +91,18 @@ internal fun CharSequence.expandSelection(currentSelection: TextRange): TextRang
         return cMin != cMax && (cMin <= min && cMax >= max) && (cMin < min || cMax > max)
     }
 
+
     if (currentSelection.collapsed) {
         val word = wordRangeAt(min)
         if (word != null && isStrictlyLarger(word)) return word
     }
 
+
     if (min < length && !this[min].isWhitespace() && this[min] != '\n') {
         val nws = nonWhitespaceRangeAt(min)
         if (nws != null && isStrictlyLarger(nws)) return nws
     }
+
 
     val lineStart = lineStartAt(min)
     val lineContentEnd = lineContentEndAt(max)

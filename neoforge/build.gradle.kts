@@ -11,9 +11,16 @@ val modId: String = project.properties["mod_id"].toString()
 
 sourceSets {
     create("devOnly") {
-        val test = project(":common").sourceSets["devOnly"]
-        compileClasspath += main.get().compileClasspath + main.get().output + test.compileClasspath + test.output
-        runtimeClasspath += main.get().runtimeClasspath + main.get().output + test.runtimeClasspath + test.output
+        // 只取 :common devOnly 源集的产物，不要把它自己的 configuration（devOnlyCompileClasspath /
+        // devOnlyRuntimeClasspath）拼进来：Gradle 9 在并行构建下禁止执行期解析别的 project 的
+        // configuration，runClient 解析 classpath 时会直接失败：
+        //   Resolution of the configuration ':common:devOnlyRuntimeClasspath' was attempted
+        //   without an exclusive lock. This is unsafe and not allowed.
+        // :common 的 devOnly 只在本模块 main 的 classpath 之上追加自己的输出，依赖与 main 一致，
+        // 而这些依赖已经在 loader 模块 main 的 classpath 上，因此这里引产物即可。
+        val commonDevOnly = project(":common").sourceSets["devOnly"]
+        compileClasspath += main.get().compileClasspath + main.get().output + commonDevOnly.output
+        runtimeClasspath += main.get().runtimeClasspath + main.get().output + commonDevOnly.output
     }
 }
 

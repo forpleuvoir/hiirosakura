@@ -42,6 +42,7 @@ object JsonSyntaxLanguage : SyntaxLanguage {
                                 pos++
                             }
                         }
+
                         if (pos < end) pos++
                         emit(SyntaxHighlightSpan(TextRange(strStart, pos), SyntaxToken.String, priority = 90))
                     }

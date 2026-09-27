@@ -126,9 +126,7 @@ publishing {
 
     //https://reposilite.com/guide/gradle
     repositories {
-        maven {
-            url System.getenv('local_maven_url')
-        }
+        mavenLocal()
         maven {
             name = "releases"
             url = "https://maven.forpleuvoir.moe/releases"

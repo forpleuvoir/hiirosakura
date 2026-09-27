@@ -1,6 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.task.executor
 
-import androidx.compose.material3.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import moe.forpleuvoir.hiirosakura.HiiroSakura
@@ -12,7 +12,7 @@ import moe.forpleuvoir.hiirosakura.functional.script.deobfuscation.HSEntity
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.ibukigourd.task.TaskExecutor
 import moe.forpleuvoir.ibukigourd.task.TickTask
-import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.util.ModLogger
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.util.checkType

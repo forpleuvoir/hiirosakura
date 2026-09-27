@@ -36,25 +36,25 @@ run {
 tasks {
     register("publishModToSnapshotsRepository") {
         dependsOn(
-            ":common:publishMavenJavaPublicationToSnapshotsRepository",
-            ":fabric:publishMavenJavaPublicationToSnapshotsRepository",
-            ":neoforge:publishMavenJavaPublicationToSnapshotsRepository"
+            ":common:publishModPublicationToSnapshotsRepository",
+            ":fabric:publishModPublicationToSnapshotsRepository",
+            ":neoforge:publishModPublicationToSnapshotsRepository"
         )
     }
 
     register("publishModToReleasesRepository") {
         dependsOn(
-            ":common:publishMavenJavaPublicationToReleasesRepository",
-            ":fabric:publishMavenJavaPublicationToReleasesRepository",
-            ":neoforge:publishMavenJavaPublicationToReleasesRepository"
+            ":common:publishModPublicationToReleasesRepository",
+            ":fabric:publishModPublicationToReleasesRepository",
+            ":neoforge:publishModPublicationToReleasesRepository"
         )
     }
 
     register("publishModToLocalRepository") {
         dependsOn(
-            ":common:publishMavenJavaPublicationToMavenLocal",
-            ":fabric:publishMavenJavaPublicationToMavenLocal",
-            ":neoforge:publishMavenJavaPublicationToMavenLocal"
+            ":common:publishModPublicationToMavenLocal",
+            ":fabric:publishModPublicationToMavenLocal",
+            ":neoforge:publishModPublicationToMavenLocal"
         )
     }
 
@@ -65,7 +65,7 @@ tasks {
         )
         val minecraftVersion = libs.versions.minecraft.get()
         doFirst {
-            val outputDir = File(project.rootDir, "modJar/$minecraftVersion")
+            val outputDir = File(project.rootDir, "modJar/$minecraftVersion/$version")
             outputDir.mkdirs()
         }
 
@@ -75,6 +75,6 @@ tasks {
         from(project(":neoforge").tasks.named<AbstractArchiveTask>("jar").get().archiveFile) {
             rename { "${project.name}-neoforge-$versionWithGitHashAndBuildTime-minecraft.$minecraftVersion.jar" }
         }
-        into(file("modJar/$minecraftVersion"))
+        into(file("modJar/$minecraftVersion/$version"))
     }
 }

@@ -92,6 +92,7 @@ data class BlockInfoMatcher(
                 }
             }
 
+
         val anyMatcher
             get() = BlockInfoMatcher(
                 mode = CompositeMatcher.MatchMode.AnyMatch,
@@ -134,6 +135,7 @@ data class BlockInfoMatcher(
             }
         }
     }
+
 
     val simpleText by lazy {
         when (entries.size) {

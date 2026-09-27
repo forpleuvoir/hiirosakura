@@ -1,9 +1,12 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.TextFieldLabelPosition
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,10 +14,6 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.FloatField
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.AttackRange
 
@@ -34,7 +33,7 @@ fun AttackRangeComponentWrapper(
         IconButton(onClick = {
             showDialog = true
         }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.EditNote, null)
+            Icon(Icons.Edit)
         }
         if (showDialog) {
             AttackRangeEditorDialog(
@@ -66,54 +65,54 @@ fun AttackRangeEditorDialog(
         title = title,
         content = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                FloatField(
-                    editing.minReach,
-                    { editing = editing.copy(minReach = it) },
-                    range = 0f..64.0f,
-                    labelPosition = TextFieldLabelPosition.Attached(true),
-                    label = { Text(key, suffix = "min_reach", fallback = "Min Reach") },
-                    modifier = Modifier.width(300.dp)
-                )
-                FloatField(
-                    editing.maxReach,
-                    { editing = editing.copy(maxReach = it) },
-                    range = 0f..64.0f,
-                    labelPosition = TextFieldLabelPosition.Attached(true),
-                    label = { Text(key, suffix = "max_reach", fallback = "Max Reach") },
-                    modifier = Modifier.width(300.dp)
-                )
-                FloatField(
-                    editing.minCreativeReach,
-                    { editing = editing.copy(minCreativeReach = it) },
-                    range = 0f..64.0f,
-                    labelPosition = TextFieldLabelPosition.Attached(true),
-                    label = { Text(key, suffix = "min_creative_reach", fallback = "Min Creative Reach") },
-                    modifier = Modifier.width(300.dp)
-                )
-                FloatField(
-                    editing.maxCreativeReach,
-                    { editing = editing.copy(maxCreativeReach = it) },
-                    range = 0f..64.0f,
-                    labelPosition = TextFieldLabelPosition.Attached(true),
-                    label = { Text(key, suffix = "max_creative_reach", fallback = "Max Creative Reach") },
-                    modifier = Modifier.width(300.dp)
-                )
-                FloatField(
-                    editing.hitboxMargin,
-                    { editing = editing.copy(hitboxMargin = it) },
-                    range = 0f..1.0f,
-                    labelPosition = TextFieldLabelPosition.Attached(true),
-                    label = { Text(key, suffix = "hitbox_margin", fallback = "Hitbox Margin") },
-                    modifier = Modifier.width(300.dp)
-                )
-                FloatField(
-                    editing.mobFactor,
-                    { editing = editing.copy(mobFactor = it) },
-                    range = 0f..2.0f,
-                    labelPosition = TextFieldLabelPosition.Attached(true),
-                    label = { Text(key, suffix = "mob_factor", fallback = "Mob Factor") },
-                    modifier = Modifier.width(300.dp)
-                )
+                                OutlinedLabelBox(label = { Text(key, suffix = "min_reach", fallback = "Min Reach") }, modifier = Modifier.width(300.dp)) {
+                    FloatField(
+                        editing.minReach,
+                        { editing = editing.copy(minReach = it) },
+                        valueRange = 0f..64.0f,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                                OutlinedLabelBox(label = { Text(key, suffix = "max_reach", fallback = "Max Reach") }, modifier = Modifier.width(300.dp)) {
+                    FloatField(
+                        editing.maxReach,
+                        { editing = editing.copy(maxReach = it) },
+                        valueRange = 0f..64.0f,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                                OutlinedLabelBox(label = { Text(key, suffix = "min_creative_reach", fallback = "Min Creative Reach") }, modifier = Modifier.width(300.dp)) {
+                    FloatField(
+                        editing.minCreativeReach,
+                        { editing = editing.copy(minCreativeReach = it) },
+                        valueRange = 0f..64.0f,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                                OutlinedLabelBox(label = { Text(key, suffix = "max_creative_reach", fallback = "Max Creative Reach") }, modifier = Modifier.width(300.dp)) {
+                    FloatField(
+                        editing.maxCreativeReach,
+                        { editing = editing.copy(maxCreativeReach = it) },
+                        valueRange = 0f..64.0f,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                                OutlinedLabelBox(label = { Text(key, suffix = "hitbox_margin", fallback = "Hitbox Margin") }, modifier = Modifier.width(300.dp)) {
+                    FloatField(
+                        editing.hitboxMargin,
+                        { editing = editing.copy(hitboxMargin = it) },
+                        valueRange = 0f..1.0f,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                                OutlinedLabelBox(label = { Text(key, suffix = "mob_factor", fallback = "Mob Factor") }, modifier = Modifier.width(300.dp)) {
+                    FloatField(
+                        editing.mobFactor,
+                        { editing = editing.copy(mobFactor = it) },
+                        valueRange = 0f..2.0f,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
     )

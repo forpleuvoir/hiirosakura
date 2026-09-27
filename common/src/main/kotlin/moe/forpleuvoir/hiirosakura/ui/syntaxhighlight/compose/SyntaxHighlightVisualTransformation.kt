@@ -12,7 +12,7 @@ import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxToken
 private const val VISIBLE_SPACE = '\u2423'
 
 /**
- * [OutputTransformation] 实现，用于在可编辑的 [TextField]/[OutlinedTextField] 中应用语法高亮。
+ * [OutputTransformation] 实现，用于在可编辑的 [TextField] 中应用语法高亮。
  *
  * 内部缓存：文本不变时不重复扫描语法。
  *
@@ -53,7 +53,7 @@ class SyntaxHighlightOutputTransformation(
  * @param language 语法语言。
  * @param theme 高亮主题。
  * @param text 当前文本，用于在文本变化时重新创建实例（如输入法组合输入场景）。
- * @return [OutputTransformation]，传给 [OutlinedTextField.outputTransformation] 或
+ * @return [OutputTransformation]，传给 [TextField.outputTransformation] 或
  *   [BasicTextField] 的对应参数。
  */
 @Composable

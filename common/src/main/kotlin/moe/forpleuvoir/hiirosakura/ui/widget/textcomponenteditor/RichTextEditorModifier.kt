@@ -76,12 +76,14 @@ fun computeTextDiff(oldText: String, newText: String): Pair<TextRange, String> {
     ) {
         prefixLen++
     }
+
     var suffixLen = 0
     while (suffixLen < oldText.length - prefixLen && suffixLen < newText.length - prefixLen &&
         oldText[oldText.length - 1 - suffixLen] == newText[newText.length - 1 - suffixLen]
     ) {
         suffixLen++
     }
+
     val replacedStart = prefixLen
     val replacedEnd = oldText.length - suffixLen
     val replacement = newText.substring(prefixLen, newText.length - suffixLen)

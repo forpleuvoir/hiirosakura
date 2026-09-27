@@ -25,7 +25,6 @@ accessible field net/minecraft/network/chat/Style font Lnet/minecraft/network/ch
 
 #Misc
 accessible field net/minecraft/client/multiplayer/chat/ChatListener CHAT_VALIDATION_ERROR Lnet/minecraft/network/chat/Component;
-accessible field net/minecraft/client/renderer/OutlineBufferSource outlineBufferSource Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;
 accessible field net/minecraft/nbt/StringTagVisitor builder Ljava/lang/StringBuilder;
 extendable method net/minecraft/nbt/StringTagVisitor handleKeyEscape (Ljava/lang/String;)V
 
@@ -39,7 +38,6 @@ accessible field net/minecraft/world/entity/EntityEquipment items Ljava/util/Enu
 
 #RenderPipeline
 accessible field net/minecraft/client/renderer/RenderPipelines MATRICES_FOG_LIGHT_DIR_SNIPPET Lcom/mojang/blaze3d/pipeline/RenderPipeline$Snippet;
-accessible field net/minecraft/client/renderer/RenderPipelines MATRICES_PROJECTION_SNIPPET Lcom/mojang/blaze3d/pipeline/RenderPipeline$Snippet;
 accessible field net/minecraft/client/renderer/RenderPipelines DEBUG_FILLED_SNIPPET Lcom/mojang/blaze3d/pipeline/RenderPipeline$Snippet;
 accessible method net/minecraft/client/renderer/RenderPipelines register (Lcom/mojang/blaze3d/pipeline/RenderPipeline;)Lcom/mojang/blaze3d/pipeline/RenderPipeline;
 

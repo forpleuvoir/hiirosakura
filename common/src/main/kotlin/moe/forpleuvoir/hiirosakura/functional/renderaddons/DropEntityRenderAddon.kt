@@ -124,7 +124,7 @@ object DropEntityRenderAddon : ConfigGroup("drop_entity") {
             val yaw = (Math.toDegrees(atan2(-dx, dz))).toFloat()
             // 获取相机的完整旋转信息
             val vector3f = Vector3f()
-            mc.gameRenderer.mainCamera.rotation().getEulerAnglesXYZ(vector3f)
+            mc.gameRenderer.mainCamera().rotation().getEulerAnglesXYZ(vector3f)
 
             // 组合Y轴朝向和Z轴旋转
             poseStack.mulPose(Axis.YP.rotationDegrees(-yaw))

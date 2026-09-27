@@ -65,6 +65,7 @@ object JexlSyntaxLanguage : SyntaxLanguage {
                                 pos++
                             }
                         }
+
                         if (pos < end) pos++
                         emit(SyntaxHighlightSpan(TextRange(strStart, pos), SyntaxToken.String, priority = 90))
                     }
@@ -80,6 +81,7 @@ object JexlSyntaxLanguage : SyntaxLanguage {
                                 pos++
                             }
                         }
+
                         if (pos < end) pos++
                         emit(SyntaxHighlightSpan(TextRange(strStart, pos), SyntaxToken.String, priority = 90))
                     }
@@ -175,6 +177,7 @@ object JexlSyntaxLanguage : SyntaxLanguage {
                     else -> pos++
                 }
             }
+
             val fullText = source.subSequence(start, end).toString()
             val err = ScriptExecutor.scriptEngine.validateJexl(fullText)
             if (err != null) {

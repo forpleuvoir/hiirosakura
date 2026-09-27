@@ -5,15 +5,12 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,12 +32,8 @@ import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.*
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
-import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.moveElement
@@ -56,6 +49,28 @@ import net.minecraft.world.item.component.DamageResistant
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import kotlin.jvm.optionals.getOrNull
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.selector.Selector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.hiirosakura.ui.widget.SegmentedButton
+import moe.forpleuvoir.hiirosakura.ui.widget.SegmentedButtonDefaults
+import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.foundation.layout.Row
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
+import net.minecraft.world.entity.EntityTypes
 
 
 @Composable
@@ -72,8 +87,9 @@ fun DamageResistantComponentWrapper(
         val count = value.types.count()
         var showDialog by remember { mutableStateOf(false) }
 
+
         val tip = if (count != 0) {
-            Modifier.plainTooltip {
+            Modifier.tooltip {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     value.types.take(10).forEach { type ->
                         Text(type.value().translatableText)
@@ -81,25 +97,21 @@ fun DamageResistantComponentWrapper(
                 }
             }
         } else Modifier
-        AssistChip(
-            {},
+        FlatButton(
+            onClick = {},
             modifier = Modifier
                 .fillMaxHeight()
                 .then(tip)
                 .width(DataComponentEditorDefaults.entrySize.width),
-            label = {
-                Text(IGLang.ConfigWrapper.listConfigWrapperText(count), overflow = TextOverflow.Ellipsis, maxLines = 1)
-            },
-            trailingIcon = {
-                IconButton(onClick = {
-                    showDialog = true
-                }) {
-                    Icon(Icons.EditNote, null)
-                }
-            }
-        )
-
-        if (showDialog) {
+        ) {
+Text(component = IGLang.ConfigWrapper.listConfigWrapperText(count), overflow = TextOverflow.Ellipsis, maxLines = 1)
+IconButton(onClick = {
+    showDialog = true
+}) {
+    Icon(Icons.Edit)
+}
+        }
+if (showDialog) {
             HolderSetDamageTypeEditorDialog(
                 value = value.types,
                 onValueChange = { onValueChange(DamageResistant(it)) },
@@ -125,11 +137,13 @@ fun HolderSetDamageTypeEditorDialog(
         )
     }
 
+
     var mode by remember { mutableStateOf(value !is HolderSet.Named) }
     LaunchedEffect(tag) {
         if (tag == null) mode = true
     }
-    val types = rememberKeyedList(value.map { it.value() }.toList())
+
+    val types = rememberKeyedStateList(value.map { it.value() }.toList())
     var nextKey by remember { mutableLongStateOf(types.size.toLong()) }
 
     SimpleAlertDialog(
@@ -147,28 +161,28 @@ fun HolderSetDamageTypeEditorDialog(
         content = {
             Column {
                 firstTag?.let {
-                    SingleChoiceSegmentedButtonRow {
+                    Row {
                         val buttonTexts = listOf(
                             HSLang.ItemEditor.fromRegistry,
                             HSLang.ItemEditor.fromTag,
                         )
                         val width = rememberSegmentedButtonWidth(
                             items = buttonTexts,
-                            textStyle = MaterialTheme.typography.labelLarge,
-                        ) { it.toAnnotatedString() }
+                            textStyle = SokitsuTheme.typography.button,
+                        ) { it }
                         SegmentedButton(
                             selected = mode,
                             onClick = { mode = true },
-                            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                            
                             modifier = Modifier.width(width),
-                            label = { Text(HSLang.ItemEditor.fromRegistry) }
+                            label = { Text(component = HSLang.ItemEditor.fromRegistry) }
                         )
                         SegmentedButton(
                             selected = !mode,
                             onClick = { mode = false },
-                            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                            
                             modifier = Modifier.width(width),
-                            label = { Text(HSLang.ItemEditor.fromTag) }
+                            label = { Text(component = HSLang.ItemEditor.fromTag) }
                         )
                     }
                 }
@@ -197,8 +211,8 @@ fun HolderSetDamageTypeEditorDialog(
                                         }
                                     },
                                     modifier = Modifier.weight(1f).height(44.dp),
-                                    contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
-                                    content = { Text(HSLang.ItemEditor.addFromRegistry) }
+                                    contentPadding = LabeledFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
+                                    content = { Text(component = HSLang.ItemEditor.addFromRegistry) }
                                 )
 
                                 firstTag?.let {
@@ -213,19 +227,19 @@ fun HolderSetDamageTypeEditorDialog(
                                             }
                                         },
                                         modifier = Modifier.weight(1f).height(44.dp),
-                                        contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
-                                        content = { Text(HSLang.ItemEditor.addFromTag) }
+                                        contentPadding = LabeledFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
+                                        content = { Text(component = HSLang.ItemEditor.addFromTag) }
                                     )
                                 }
                             }
                             Spacer(Modifier.height(12.dp))
                             OutlinedLabelBox(
-                                { Text(HSLang.ItemEditor.tags) },
+                                { Text(component = HSLang.ItemEditor.tags) },
                             ) {
                                 Box(Modifier.fillMaxWidth().height(460.dp)) {
                                     val lazyListState = rememberLazyListState()
                                     if (types.isEmpty()) {
-                                        Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
                                     } else {
                                         val hapticFeedback = LocalHapticFeedback.current
                                         val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
@@ -244,9 +258,10 @@ fun HolderSetDamageTypeEditorDialog(
                                                 ReorderableItem(reorderableLazyListState, key) { isDragging ->
                                                     val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                                                     val handleInteraction = remember { MutableInteractionSource() }
+
                                                     val handleHovered by handleInteraction.collectIsHoveredAsState()
-                                                    Card(
-                                                        modifier = Modifier.fillMaxWidth().scale(scale).plainTooltip {
+                                                    Surface(
+                                                        modifier = Modifier.fillMaxWidth().scale(scale).tooltip {
                                                            Text(type.toString())
                                                         }
                                                     ) {
@@ -259,22 +274,18 @@ fun HolderSetDamageTypeEditorDialog(
                                                                 verticalAlignment = Alignment.CenterVertically,
                                                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                                                             ) {
-                                                                DragHandle(
-                                                                    hapticFeedback,
-                                                                    handleInteraction,
-                                                                    handleHovered,
-                                                                    isDragging
-                                                                )
+                                                                DragHandle(modifier = Modifier)
                                                                 Text(type.translatableText)
                                                             }
+
 
                                                             Row(
                                                                 verticalAlignment = Alignment.CenterVertically,
                                                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                                                             ) {
                                                                 RemoveConfirmButton(
-                                                                    "",
-                                                                    { types.removeAt(index) }
+                                                                    message = "",
+                                                                    onConfirm = { types.removeAt(index) },
                                                                 )
                                                             }
                                                         }
@@ -283,8 +294,8 @@ fun HolderSetDamageTypeEditorDialog(
                                             }
                                         }
 
-                                        VerticalScrollbar(
-                                            adapter = rememberScrollbarAdapter(lazyListState),
+                                        VerticalScroller(
+                                            adapter = rememberScrollerAdapter(lazyListState),
                                             modifier = Modifier.align(Alignment.CenterEnd)
                                         )
 
@@ -295,7 +306,7 @@ fun HolderSetDamageTypeEditorDialog(
 
                     } else {
                         tag?.let { DamageTypeTagSelector(it, { tag = it }) }
-                            ?: Text(IGLang.Misc.hasNothing)
+                            ?: Text(component = IGLang.Misc.hasNothing)
                     }
                 }
             }
@@ -328,11 +339,10 @@ internal val DamageType.translatableText
         else                    -> Text.translatable(
             "death.attack.${this.msgId}",
             mc.player?.name?.plainText ?: "xx",
-            EntityType.PIG.description.plainText
+            EntityTypes.PIG.description.plainText
         )
     }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DamageTypeTagSelector(
     selected: TagKey<DamageType>,
@@ -344,37 +354,38 @@ fun DamageTypeTagSelector(
             "#${it.location}",
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.plainTooltip {
+            modifier = Modifier.tooltip {
                 val types = it.damageTypes
                 if (types.count() == 0) {
-                    Text(IGLang.Misc.hasNothing)
-                    return@plainTooltip
+                    Text(component = IGLang.Misc.hasNothing)
+                    return@tooltip
                 } else {
                     Column {
                         types.take(20).forEach { type ->
                             Text(type.value().translatableText)
                         }
+
                         if (types.count() > 20) Text("...")
                     }
                 }
             }
         )
     },
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (TagKey<DamageType>, Boolean) -> Unit = { item, _ ->
         Text(
             "#${item.location}",
-            modifier = Modifier.plainTooltip {
+            modifier = Modifier.tooltip {
                 val types = item.damageTypes
                 if (types.count() == 0) {
-                    Text(IGLang.Misc.hasNothing)
-                    return@plainTooltip
+                    Text(component = IGLang.Misc.hasNothing)
+                    return@tooltip
                 } else {
                     Column {
                         types.take(20).forEach { type ->
                             Text(type.value().translatableText)
                         }
+
                         if (types.count() > 20) Text("...")
                     }
                 }
@@ -392,32 +403,27 @@ fun DamageTypeTagSelector(
     itemTrailingIcon: ((Boolean) -> (@Composable (TagKey<DamageType>) -> Unit)?)? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     interactionSource: MutableInteractionSource? = null,
-    shape: Shape = OutlinedTextFieldDefaults.shape,
-    colors: TextFieldColors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
-) = Selector(
-    selected = selected,
-    onSelect = onSelect,
-    items = items,
-    itemEquals = itemEquals,
-    content = content,
-    labelPosition = labelPosition,
-    label = label,
-    itemContent = itemContent,
-    enabled = enabled,
-    searchFilter = searchFilter,
-    modifier = modifier,
-    itemLeadingIcon = itemLeadingIcon,
-    itemTrailingIcon = itemTrailingIcon,
-    textStyle = textStyle,
-    interactionSource = interactionSource,
-    shape = shape,
-    colors = colors,
-    contentPadding = contentPadding
-)
+    shape: Shape = RectangleShape,
+    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
+) {
+        OutlinedLabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+                Selector(
+                selected = selected,
+                onSelect = onSelect,
+                items = items,
+                itemEquals = itemEquals,
+                content = content,
+                itemContent = itemContent,
+                enabled = enabled,
+                itemLeadingIcon = itemLeadingIcon,
+                itemTrailingIcon = itemTrailingIcon,
+                searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DamageTypeSelector(
     selected: DamageType,
@@ -429,15 +435,14 @@ fun DamageTypeSelector(
             it.translatableText,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.plainTooltip {
+            modifier = Modifier.tooltip {
                 Text(it.toString())
             }
         )
     },
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (DamageType, Boolean) -> Unit = { item, _ ->
-        Text(item.translatableText, modifier = Modifier.plainTooltip {
+        Text(item.translatableText, modifier = Modifier.tooltip {
             Text(item.toString())
         })
     },
@@ -450,26 +455,22 @@ fun DamageTypeSelector(
     itemTrailingIcon: ((Boolean) -> (@Composable (DamageType) -> Unit)?)? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     interactionSource: MutableInteractionSource? = null,
-    shape: Shape = OutlinedTextFieldDefaults.shape,
-    colors: TextFieldColors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
-) = Selector(
-    selected = selected,
-    onSelect = onSelect,
-    items = items,
-    itemEquals = itemEquals,
-    content = content,
-    labelPosition = labelPosition,
-    label = label,
-    itemContent = itemContent,
-    enabled = enabled,
-    searchFilter = searchFilter,
-    modifier = modifier,
-    itemLeadingIcon = itemLeadingIcon,
-    itemTrailingIcon = itemTrailingIcon,
-    textStyle = textStyle,
-    interactionSource = interactionSource,
-    shape = shape,
-    colors = colors,
-    contentPadding = contentPadding
-)
+    shape: Shape = RectangleShape,
+    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
+) {
+        OutlinedLabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+                Selector(
+                selected = selected,
+                onSelect = onSelect,
+                items = items,
+                itemEquals = itemEquals,
+                content = content,
+                itemContent = itemContent,
+                enabled = enabled,
+                itemLeadingIcon = itemLeadingIcon,
+                itemTrailingIcon = itemTrailingIcon,
+                searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }

@@ -21,10 +21,12 @@ internal fun rememberMaxLabelWidth(
     val textMeasurer = rememberTextMeasurer()
     val density = LocalDensity.current
     val cacheKey = remember(labels) { labels.joinToString("\u0000") }
+    // CMP 的文本测量只接受原版 Style；字号由平台文本渲染决定，这里按同一套字体测宽
+    val measureStyle = net.minecraft.network.chat.Style.EMPTY
     return remember(cacheKey, style) {
-        labels.maxOfOrNull { label ->
-            val widthPx = textMeasurer.measure(AnnotatedString(label), style).size.width
-            with(density) { widthPx.toDp() }
-        } ?: 0.dp
+        val widths = labels.map { label ->
+            with(density) { textMeasurer.measure(AnnotatedString(label), measureStyle).size.width.toDp() }
+        }
+        widths.maxOrNull() ?: 0.dp
     }
 }

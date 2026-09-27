@@ -7,17 +7,18 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.VerticalDivider
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.customradialmenu.CustomRadialMenuManager
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun CustomRadialMenuManagerUI(modifier: Modifier = Modifier) {
@@ -32,12 +33,18 @@ fun CustomRadialMenuManagerUI(modifier: Modifier = Modifier) {
         }
     }
 
+
     var showCreateDialog by remember { mutableStateOf(false) }
+
     var showDeleteConfirm by remember { mutableStateOf<String?>(null) }
+
     var showRenameDialog by remember { mutableStateOf<String?>(null) }
+
     var showSettingDialog by remember { mutableStateOf<String?>(null) }
 
+
     val selectedMenu = selectedMenuKey?.let { CustomRadialMenuManager.customRadialMenus[it] }
+
 
     Row(modifier.fillMaxSize()) {
         RadialMenuListPane(
@@ -66,6 +73,7 @@ fun CustomRadialMenuManagerUI(modifier: Modifier = Modifier) {
         }
     }
 
+
     if (showCreateDialog) {
         CreateRadialMenuDialog(
             onDismissRequest = { showCreateDialog = false },
@@ -84,7 +92,7 @@ fun CustomRadialMenuManagerUI(modifier: Modifier = Modifier) {
         SimpleAlertDialog(
             onDismissRequest = { showDeleteConfirm = null },
             onConfirmRequest = { true },
-            title = { Text(HSLang.CustomRadialMenu.deleteConfirm) },
+            title = { Text(component = HSLang.CustomRadialMenu.deleteConfirm) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -96,12 +104,12 @@ fun CustomRadialMenuManagerUI(modifier: Modifier = Modifier) {
                         }
                         showDeleteConfirm = null
                     },
-                    colors = ButtonDefaults.textButtonColors(
-                        containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError,
+                    colors = FlatButtonDefaults.colors(
+                        color = SokitsuTheme.colorScheme.error,
+                        contentColor = SokitsuTheme.colorScheme.onError,
                     )
                 ) {
-                    Text(IGLang.Misc.confirm)
+                    Text(component = IGLang.Misc.confirm)
                 }
             },
         )

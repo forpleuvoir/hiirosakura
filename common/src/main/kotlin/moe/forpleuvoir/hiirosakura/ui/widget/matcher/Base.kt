@@ -8,7 +8,6 @@ import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,7 +21,6 @@ import androidx.compose.ui.unit.sp
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
 import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.PlayArrow
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JexlSyntaxLanguage
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
@@ -32,14 +30,28 @@ import moe.forpleuvoir.hiirosakura.ui.util.showSuccessToast
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateComment
 import moe.forpleuvoir.ibukigourd.text.translateText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
-import moe.forpleuvoir.ibukigourd.ui.preset.toAnnotatedString
-import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
+
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.network.chat.Component
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
+import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import androidx.compose.ui.graphics.RectangleShape
+import moe.forpleuvoir.hiirosakura.ui.widget.SegmentedButton
+import moe.forpleuvoir.hiirosakura.ui.widget.SegmentedButtonDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import androidx.compose.foundation.layout.Row
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.PlayArrow
+import androidx.compose.foundation.clickable
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight
 
 internal val LocalMatchEntryRowHeight = staticCompositionLocalOf {
     72.dp
@@ -57,7 +69,6 @@ internal val LocalMatchEntryInfoHeight = staticCompositionLocalOf {
     32.dp
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun <T : MatchEntry<*>> MatchEntryRow(
     title: Component,
@@ -72,19 +83,12 @@ internal fun <T : MatchEntry<*>> MatchEntryRow(
     content: @Composable () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val isHovered by interactionSource.collectIsHoveredAsState()
-    val backgroundColor by animateColorAsState(
-        targetValue = if (isHovered) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
-        animationSpec = tween(200),
-        label = "MatchEntryRow"
-    )
+
     Row(
         modifier = modifier
             .hoverable(interactionSource)
-            .clip(MaterialTheme.shapes.medium)
-            .background(backgroundColor)
-            .onClick { onClick?.invoke() }
+            .hoverHighlight(interactionSource)
+            .clickable { onClick?.invoke() }
             .fillMaxWidth()
             .height(LocalMatchEntryRowHeight.current)
             .padding(LocalMatchEntryRowPadding.current),
@@ -97,10 +101,12 @@ internal fun <T : MatchEntry<*>> MatchEntryRow(
                 it()
                 Spacer(Modifier.width(8.dp))
             }
+
             Text(title)
             Spacer(Modifier.width(16.dp))
             MatchEntryModeSelector(entry.mode) { onChange(entryCopyWithMode(entry, it)) }
         }
+
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.weight(1f, fill = false).padding(start = 8.dp)) {
                 content()
@@ -133,10 +139,8 @@ internal fun MatchEntryModeDisplayer(
 ) {
     Spacer(
         modifier.background(
-            color = if (mode.asBoolean) Colors.LIME_MINT_GREEN.toComposeColor
-            else Colors.ORANGERED.toComposeColor,
-            shape = MaterialTheme.shapes.small
-        ).border(width = 0.5.dp, color = Color.White, MaterialTheme.shapes.small)
+            color = if (mode.asBoolean) Colors.LIME_MINT_GREEN.toComposeColor()
+            else Colors.ORANGERED.toComposeColor()).border(width = 0.5.dp, color = Color.White, RectangleShape)
     )
 }
 
@@ -145,19 +149,19 @@ internal fun MatchEntryModeSelector(
     mode: MatchEntry.MatchMode,
     onModeChange: (MatchEntry.MatchMode) -> Unit,
 ) {
-    SingleChoiceSegmentedButtonRow {
+    Row {
         val width = rememberSegmentedButtonWidth(
             items = listOf(
                 MatchEntry.MatchMode.Include.translateText,
                 MatchEntry.MatchMode.Exclude.translateText
             ),
-            textStyle = MaterialTheme.typography.labelLarge,
-        ) { it.toAnnotatedString() }
+            textStyle = SokitsuTheme.typography.button,
+        ) { it }
         SegmentedButton(
             selected = mode == MatchEntry.MatchMode.Include,
             onClick = { onModeChange(MatchEntry.MatchMode.Include) },
-            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-            modifier = Modifier.width(width).plainTooltip {
+            
+            modifier = Modifier.width(width).tooltip {
                 Text(MatchEntry.MatchMode.Include.translateComment)
             }
         ) {
@@ -166,8 +170,8 @@ internal fun MatchEntryModeSelector(
         SegmentedButton(
             selected = mode == MatchEntry.MatchMode.Exclude,
             onClick = { onModeChange(MatchEntry.MatchMode.Exclude) },
-            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-            modifier = Modifier.width(width).plainTooltip {
+            
+            modifier = Modifier.width(width).tooltip {
                 Text(MatchEntry.MatchMode.Exclude.translateComment)
             }
         ) {
@@ -182,32 +186,30 @@ internal fun CompositeMatcherModeSelector(
     onModeChange: (CompositeMatcher.MatchMode) -> Unit,
 ) {
     val items = CompositeMatcher.MatchMode.entries
-    val textStyle = MaterialTheme.typography.labelLarge
+    val textStyle = SokitsuTheme.typography.button
     val width = rememberSegmentedButtonWidth(
         items = items,
         textStyle = textStyle,
     ) {
-        it.translateText.toAnnotatedString()
+        it.translateText
     }
 
-    SingleChoiceSegmentedButtonRow(
+
+    Row(
         modifier = Modifier.width(IntrinsicSize.Max),
     ) {
         items.forEachIndexed { index, item ->
             SegmentedButton(
                 selected = mode == item,
                 onClick = { onModeChange(item) },
-                shape = SegmentedButtonDefaults.itemShape(
-                    index = index,
-                    count = items.size,
-                ),
+                
                 modifier = Modifier
                     .width(width)
-                    .plainTooltip {
+                    .tooltip {
                         Text(item.translateComment)
                     },
                 label = {
-                    Text(item.translateText, style = textStyle, maxLines = 1)
+                    Text(item.translateText, maxLines = 1)
                 }
             )
         }
@@ -230,10 +232,10 @@ internal fun TestButton(
         } else {
             showErrorToast(failedMsg)
         }
-    }, modifier = Modifier.plainTooltip {
+    }, modifier = Modifier.tooltip {
         Text(tip)
     }) {
-        Icon(Icons.PlayArrow, null)
+        VectorIcon(HSIcons.PlayArrow)
     }
 }
 
@@ -252,22 +254,15 @@ internal fun BasicScriptEditor(
     )
     Box {
         val scrollState = rememberScrollState()
-        OutlinedTextField(
+        TextField(
             state = state,
-            scrollState = scrollState,
-            textStyle = TextStyle(
-                fontFamily = FontFamily.Monospace,
-                fontSize = 14.sp
-            ),
-            outputTransformation = transformation,
-            modifier = Modifier.fillMaxSize()
-                .codeEditorShortcuts(state)
-
+            
+            modifier = Modifier.fillMaxSize() .codeEditorShortcuts(state),
         )
 
-        VerticalScrollbar(
+        VerticalScroller(
             modifier = Modifier.align(Alignment.CenterEnd),
-            adapter = rememberScrollbarAdapter(scrollState)
+            adapter = rememberScrollerAdapter(scrollState)
         )
     }
 }

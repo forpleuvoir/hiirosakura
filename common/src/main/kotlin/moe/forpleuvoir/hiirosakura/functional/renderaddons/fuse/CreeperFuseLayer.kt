@@ -69,7 +69,7 @@ class CreeperFuseLayer(
         val progress = (1f - (fuse / MAX_FUSE)).coerceIn(0f, 1f)
         val color = dangerColor.hsvLerp(safeColor, QuadEasing.easeIn(progress))
 
-        val camera = mc.gameRenderer.mainCamera
+        val camera = mc.gameRenderer.mainCamera()
         val cameraYaw = camera.yRot()
         val cameraPitch = camera.xRot()
         val h = state.boundingBoxHeight * 0.35f

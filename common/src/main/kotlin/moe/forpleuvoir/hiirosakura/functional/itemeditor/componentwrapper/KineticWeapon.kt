@@ -1,9 +1,8 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,19 +11,20 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.widget.OptionalHolderSoundEventSelector
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Delete
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.FloatField
-import moe.forpleuvoir.ibukigourd.ui.preset.IntField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
 import net.minecraft.core.Holder
 import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.world.item.component.KineticWeapon
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import androidx.compose.foundation.layout.fillMaxWidth
 
 @Composable
 fun KineticWeaponComponentWrapper(
@@ -41,8 +41,9 @@ fun KineticWeaponComponentWrapper(
         IconButton(onClick = {
             showDialog = true
         }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.EditNote, null)
+            Icon(Icons.Edit)
         }
+
         if (showDialog) {
             KineticWeaponEditorDialog(
                 key = key,
@@ -78,34 +79,39 @@ fun KineticWeaponEditorDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    IntField(
-                        editing.contactCooldownTicks,
-                        { editing = editing.copy(contactCooldownTicks = it) },
-                        range = 0..Int.MAX_VALUE,
-                        label = { Text(key, suffix = "contact_cooldown_ticks") },
-                        modifier = Modifier.weight(1f)
-                    )
-                    IntField(
-                        editing.delayTicks,
-                        { editing = editing.copy(delayTicks = it) },
-                        range = 0..Int.MAX_VALUE,
-                        label = { Text(key, suffix = "delay_ticks") },
-                        modifier = Modifier.weight(1f)
-                    )
-                    FloatField(
-                        editing.forwardMovement,
-                        { editing = editing.copy(forwardMovement = it) },
-                        label = { Text(key, suffix = "forward_movement") },
-                        modifier = Modifier.weight(1f)
-                    )
-                    FloatField(
-                        editing.damageMultiplier,
-                        { editing = editing.copy(damageMultiplier = it) },
-                        label = { Text(key, suffix = "damage_multiplier") },
-                        modifier = Modifier.weight(1f)
-                    )
+                                        OutlinedLabelBox(label = { Text(key, suffix = "contact_cooldown_ticks") }, modifier = Modifier.weight(1f)) {
+                        IntField(
+                            editing.contactCooldownTicks,
+                            { editing = editing.copy(contactCooldownTicks = it) },
+                            valueRange = 0..Int.MAX_VALUE,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                                        OutlinedLabelBox(label = { Text(key, suffix = "delay_ticks") }, modifier = Modifier.weight(1f)) {
+                        IntField(
+                            editing.delayTicks,
+                            { editing = editing.copy(delayTicks = it) },
+                            valueRange = 0..Int.MAX_VALUE,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                                        OutlinedLabelBox(label = { Text(key, suffix = "forward_movement") }, modifier = Modifier.weight(1f)) {
+                        FloatField(
+                            editing.forwardMovement,
+                            { editing = editing.copy(forwardMovement = it) },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                                        OutlinedLabelBox(label = { Text(key, suffix = "damage_multiplier") }, modifier = Modifier.weight(1f)) {
+                        FloatField(
+                            editing.damageMultiplier,
+                            { editing = editing.copy(damageMultiplier = it) },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
 
                 }
+
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     OptionalHolderSoundEventSelector(
                         editing.sound,
@@ -120,6 +126,7 @@ fun KineticWeaponEditorDialog(
                         modifier = Modifier.weight(1f).height(64.dp)
                     )
                 }
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -164,7 +171,7 @@ fun OptionalKineticWeaponConditionCard(
     label: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
-    ElevatedCard(
+    Surface(
         modifier = modifier,
     ) {
         Column(
@@ -190,29 +197,32 @@ fun OptionalKineticWeaponConditionCard(
                     } else {
                         Icons.Delete
                     }
-                    Icon(icon, null)
+                    Icon(icon)
                 }
             }
             value.getOrNull()?.let { value ->
-                IntField(
-                    value.maxDurationTicks,
-                    { onValueChange(Optional.of(value.copy(maxDurationTicks = it))) },
-                    range = 0..Int.MAX_VALUE,
-                    label = { Text(key, suffix = "max_duration_ticks") },
-                    modifier = Modifier
-                )
-                FloatField(
-                    value.minSpeed,
-                    { onValueChange(Optional.of(value.copy(minSpeed = it))) },
-                    label = { Text(key, suffix = "min_speed") },
-                    modifier = Modifier
-                )
-                FloatField(
-                    value.minRelativeSpeed,
-                    { onValueChange(Optional.of(value.copy(minRelativeSpeed = it))) },
-                    label = { Text(key, suffix = "min_relative_speed") },
-                    modifier = Modifier
-                )
+                OutlinedLabelBox(label = { Text(key, suffix = "max_duration_ticks") }, modifier = Modifier) {
+                    IntField(
+                        value.maxDurationTicks,
+                        { onValueChange(Optional.of(value.copy(maxDurationTicks = it))) },
+                        valueRange = 0..Int.MAX_VALUE,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                                OutlinedLabelBox(label = { Text(key, suffix = "min_speed") }, modifier = Modifier) {
+                    FloatField(
+                        value.minSpeed,
+                        { onValueChange(Optional.of(value.copy(minSpeed = it))) },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                                OutlinedLabelBox(label = { Text(key, suffix = "min_relative_speed") }, modifier = Modifier) {
+                    FloatField(
+                        value.minRelativeSpeed,
+                        { onValueChange(Optional.of(value.copy(minRelativeSpeed = it))) },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
     }

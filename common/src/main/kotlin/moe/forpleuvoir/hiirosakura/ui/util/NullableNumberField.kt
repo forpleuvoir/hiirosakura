@@ -6,15 +6,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.placeCursorAtEnd
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Delete
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun NullableInputTransformation(
@@ -30,6 +30,7 @@ fun NullableInputTransformation(
                 .indexOfFirst { (a, b) -> a != b }
                 .let { if (it == -1) minOf(before.length, after.length) else it }
 
+
             var suffixLength = 0
             while (
                 suffixLength < before.length - prefixLength &&
@@ -39,6 +40,7 @@ fun NullableInputTransformation(
             ) {
                 suffixLength++
             }
+
 
             val insertedText = after.substring(
                 startIndex = prefixLength,
@@ -72,7 +74,7 @@ fun NullableTrailingIcon(
     if (isPresent) {
         Row {
             IconButton(onClick = onClear) {
-                Icon(Icons.Delete, null)
+                Icon(Icons.Delete)
             }
             Spacer(Modifier.width(4.dp))
         }

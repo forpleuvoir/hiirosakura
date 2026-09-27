@@ -95,6 +95,7 @@ private fun sendAWTNotification(title: String, message: String): Boolean {
         return false
     }
 
+
     val systemTray = SystemTray.getSystemTray()
 
     val image = Toolkit.getDefaultToolkit().getImage("assets/icon.png")

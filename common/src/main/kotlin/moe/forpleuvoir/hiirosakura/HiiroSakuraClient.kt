@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura
 
+import moe.forpleuvoir.compose_minecraft.ComposeWarmup
 import moe.forpleuvoir.hiirosakura.command.HiirosakuraCommand
 import moe.forpleuvoir.hiirosakura.common.HiiroSakuraDataManager
 import moe.forpleuvoir.hiirosakura.config.HSConfig
@@ -11,7 +12,6 @@ import moe.forpleuvoir.hiirosakura.ui.configwrapper.HSConfigWrapper
 import moe.forpleuvoir.hiirosakura.util.DataComponentPreBinder
 import moe.forpleuvoir.ibukigourd.config.ClientModConfigHandler
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientLifecycleEvent
-import moe.forpleuvoir.ibukigourd.ui.ComposeSceneWarmup
 import moe.forpleuvoir.nebula.common.api.Initializable
 
 object HiiroSakuraClient {
@@ -28,7 +28,7 @@ object HiiroSakuraClient {
     fun init() {
         inits.forEach(Initializable::init)
         ClientLifecycleEvent.Starting.register {
-            ComposeSceneWarmup.warmUp { HiiroSakuraScreenContent() }
+            ComposeWarmup.warmup { HiiroSakuraScreenContent() }
             DataComponentPreBinder.bind()
         }
         ClientModConfigHandler.register(HSConfig)

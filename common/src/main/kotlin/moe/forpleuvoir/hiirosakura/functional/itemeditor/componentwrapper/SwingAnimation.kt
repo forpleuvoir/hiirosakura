@@ -1,9 +1,8 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.TextFieldLabelPosition
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,13 +10,15 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.EnumSelector
-import moe.forpleuvoir.ibukigourd.ui.preset.IntField
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.SwingAnimation
+import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import androidx.compose.foundation.layout.fillMaxWidth
 
 @Composable
 fun SwingAnimationComponentWrapper(
@@ -34,8 +35,9 @@ fun SwingAnimationComponentWrapper(
         IconButton(onClick = {
             showDialog = true
         }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.EditNote, null)
+            Icon(Icons.Edit)
         }
+
         if (showDialog) {
             SwingAnimationEditorDialog(
                 key = key,
@@ -72,16 +74,16 @@ fun SwingAnimationEditorDialog(
                     label = { Text(key, suffix = "type", fallback = "Type") },
                     modifier = Modifier.width(300.dp)
                 )
-                IntField(
-                    editing.duration,
-                    {
-                        editing = SwingAnimation(editing.type, it)
+                                OutlinedLabelBox(label = { Text(key, suffix = "duration", fallback = "Duration") }, modifier = Modifier.width(300.dp)) {
+                    IntField(
+                        editing.duration,
+                        {
+                        editing = SwingAnimation(editing.type, it)
                     },
-                    range = 1..Int.MAX_VALUE,
-                    labelPosition = TextFieldLabelPosition.Attached(true),
-                    label = { Text(key, suffix = "duration", fallback = "Duration") },
-                    modifier = Modifier.width(300.dp)
-                )
+                        valueRange = 1..Int.MAX_VALUE,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
     )

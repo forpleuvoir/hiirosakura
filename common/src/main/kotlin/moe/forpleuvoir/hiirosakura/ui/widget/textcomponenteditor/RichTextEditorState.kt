@@ -24,6 +24,7 @@ class RichTextEditorState(
         }
     }
 
+
     var defaultStyle: SliceStyle by mutableStateOf(initialDefaultStyle)
         private set
 
@@ -44,6 +45,7 @@ class RichTextEditorState(
     val outputTransformation: RichTextOutputTransformation by lazy {
         RichTextOutputTransformation(this)
     }
+
 
     val mcText: MutableText by derivedStateOf {
         val text = textState.text.toString()
@@ -92,6 +94,7 @@ class RichTextEditorState(
             _editJustHappened = false
             return
         }
+
         val length = currentTextLength()
         if (length == 0) return
         defaultStyleFromUser = false
@@ -123,6 +126,7 @@ class RichTextEditorState(
             val segments = collectMcSegments(component)
             val fullText = segments.joinToString("") { it.first }
 
+
             val state = RichTextEditorState()
 
             val initialSlices = mutableListOf<TextSlice>()
@@ -134,6 +138,7 @@ class RichTextEditorState(
                     offset += len
                 }
             }
+
 
             if (fullText.isNotEmpty()) {
                 state.textState.edit {
@@ -159,6 +164,7 @@ class RichTextEditorState(
                 is PlainTextContents -> c.text()
                 else -> component.string.take(32767)
             }
+
             if (text.isNotEmpty()) {
                 result.add(text to component.style)
             }
@@ -232,6 +238,7 @@ class RichTextEditorState(
                     }
                 }
             }
+
 
             if (replacement.isNotEmpty()) {
                 adjusted.add(

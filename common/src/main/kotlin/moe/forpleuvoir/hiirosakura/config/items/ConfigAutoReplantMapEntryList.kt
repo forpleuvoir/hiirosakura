@@ -14,15 +14,15 @@ import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ListConfigWrapperDefaults
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.ListConfigWrapperDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
-import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.ConfigList
 import moe.forpleuvoir.nebula.config.item.configList
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 
 context(group: ConfigGroup)
 fun configAutoReplantEntryList(name: String, defaultValue: List<AutoReplant.Entry>) = configList(name, defaultValue, AutoReplant.Entry)
@@ -34,7 +34,7 @@ fun configAutoReplantEntryList(name: String, defaultValue: List<AutoReplant.Entr
 fun AutoReplantEntryListConfigWrapper(
     config: ConfigList<AutoReplant.Entry>,
     editorDialogTitle: @Composable (() -> Unit)? = {
-        Text(InlineStyleText(config.translateText.plainText))
+        Text(component = InlineStyleText(config.translateText.plainText))
     },
     modifier: Modifier = Modifier,
     dialogModifier: Modifier = Modifier.padding(40.dp).size(1200.dp, 800.dp),
@@ -47,8 +47,9 @@ fun AutoReplantEntryListConfigWrapper(
             config = config,
             modifier = modifier
         ) { showEditDialog = true }
+
         if (showEditDialog) {
-            val editingValue = rememberKeyedList(config)
+            val editingValue = rememberKeyedStateList(config)
             var nextKey by remember { mutableLongStateOf(editingValue.size.toLong()) }
             EditDialog(
                 config = config,
@@ -69,13 +70,15 @@ fun AutoReplantEntryListConfigWrapper(
                             contentHeader = {
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(LocalColumnSpacing.current)) {
                                     Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                                        Text(HSLang.AutoReplant.mapEntryTargetBlock)
+                                        Text(component = HSLang.AutoReplant.mapEntryTargetBlock)
                                     }
+
                                     Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                                        Text(HSLang.AutoReplant.mapEntryReplantItem)
+                                        Text(component = HSLang.AutoReplant.mapEntryReplantItem)
                                     }
+
                                     Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                                        Text(HSLang.AutoReplant.mapEntryGroundBlock)
+                                        Text(component = HSLang.AutoReplant.mapEntryGroundBlock)
                                     }
                                 }
                             }
@@ -85,7 +88,7 @@ fun AutoReplantEntryListConfigWrapper(
                         var entry by remember { mutableStateOf(AutoReplant.Entry()) }
                         SimpleAlertDialog(
                             onDismissRequest = onDismissRequest,
-                            title = { Text(IGLang.Misc.add) },
+                            title = { Text(component = IGLang.Misc.add) },
                             onConfirmRequest = {
                                 editingValue.add(Keyed(nextKey++, entry))
                                 true
@@ -97,7 +100,7 @@ fun AutoReplantEntryListConfigWrapper(
                                         { entry = entry.copy(targetBlock = it) },
                                         modifier = Modifier.fillMaxWidth(),
                                         leadingIcon = {
-                                            Text(HSLang.AutoReplant.mapEntryTargetBlock)
+                                            Text(component = HSLang.AutoReplant.mapEntryTargetBlock)
                                         }
                                     )
                                     ItemStackMatcherDisplayerInnerEditor(
@@ -105,7 +108,7 @@ fun AutoReplantEntryListConfigWrapper(
                                         { entry = entry.copy(replantItem = it) },
                                         modifier = Modifier.fillMaxWidth(),
                                         leadingIcon = {
-                                            Text(HSLang.AutoReplant.mapEntryReplantItem)
+                                            Text(component = HSLang.AutoReplant.mapEntryReplantItem)
                                         }
                                     )
                                     BlockInfoMatcherDisplayerInnerEditor(
@@ -113,7 +116,7 @@ fun AutoReplantEntryListConfigWrapper(
                                         { entry = entry.copy(groundBlock = it) },
                                         modifier = Modifier.fillMaxWidth(),
                                         leadingIcon = {
-                                            Text(HSLang.AutoReplant.mapEntryGroundBlock)
+                                            Text(component = HSLang.AutoReplant.mapEntryGroundBlock)
                                         }
                                     )
                                 }

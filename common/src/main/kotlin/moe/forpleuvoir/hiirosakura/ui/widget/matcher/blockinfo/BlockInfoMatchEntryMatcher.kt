@@ -1,8 +1,8 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -21,14 +21,14 @@ import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatcherDialogContentSi
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.TipBox
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
-import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.compat.TipBox
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 
 @Composable
 fun BlockInfoMatchEntryMatcherInfo(entry: BlockInfoMatchEntry.Matcher) {
@@ -51,15 +51,16 @@ internal fun BlockInfoMatchEntryMatcherRow(
     modifier: Modifier = Modifier
 ) = Row(modifier, verticalAlignment = Alignment.CenterVertically) {
     TipBox({
-        Text(HSLang.BlockInfoMatcher.Entry.matcher)
+        Text(component = HSLang.BlockInfoMatcher.Entry.matcher)
     }) {
         Text(entry.asText, Modifier.weight(1f, false), overflow = TextOverflow.Ellipsis)
     }
     Spacer(Modifier.width(6.dp))
     var showEditor by remember { mutableStateOf(false) }
     IconButton({ showEditor = true }) {
-        Icon(Icons.EditNote, "${IGLang.Misc.edit} ${entry.translateText.plainText}")
+        Icon(Icons.Edit)
     }
+
     if (showEditor) {
         BlockInfoMatchEntryMatcherEditorDialog(
             { showEditor = false },
@@ -77,8 +78,10 @@ internal fun BlockInfoMatchEntryMatcherEditorDialog(
     onValueChange: (BlockInfoMatchEntry) -> Unit,
 ) {
     var editingEntryMode by remember(value) { mutableStateOf(value.mode) }
+
     var editingMode by remember(value) { mutableStateOf(value.matcher.mode) }
-    val editingEntries = rememberKeyedList(value.matcher.entries)
+
+    val editingEntries = rememberKeyedStateList(value.matcher.entries)
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(value.translateText) },

@@ -4,19 +4,32 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.icon.defaults.*
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.*
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.nebula.common.color.Colors
 import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
+import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.FormatBold
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.FormatClear
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.FormatItalic
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.FormatStrikethrough
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.FormatUnderlined
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Help
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.QuestionMark
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.FormatColorTextTop
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.FormatColorTextShadowTop
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.FormatColorTextBottom
 
 @Composable
 fun RichTextEditorToolbar(
@@ -30,6 +43,7 @@ fun RichTextEditorToolbar(
         if (hasSelection) state.slices.computeSelectionStyleState(selection) else null
     }
 
+
     val effectiveBold = selectionStyleState?.bold ?: state.defaultStyle.bold
     val effectiveItalic = selectionStyleState?.italic ?: state.defaultStyle.italic
     val effectiveUnderlined = selectionStyleState?.underlined ?: state.defaultStyle.underlined
@@ -39,7 +53,9 @@ fun RichTextEditorToolbar(
     val effectiveShadowColor = selectionStyleState?.shadowColor ?: state.defaultStyle.shadowColor
 
     var pendingTextColor by remember { mutableStateOf(Colors.WHITE) }
+
     var pendingShadowColor by remember { mutableStateOf(NebulaColor.fromRGB(0x3F003F)) }
+
 
     Row(
         modifier = modifier,
@@ -52,40 +68,40 @@ fun RichTextEditorToolbar(
                 state = if (selectionStyleState == null || selectionStyleState.bold != null) effectiveBold else null,
                 onLeftClick = { applyToggle(state, PropertyToggle.Bold) },
                 onRightClick = { applyStyleAction(state, SliceStylePatch(bold = PropertyPatch.Replace(StyleProperty.Unset))) },
-                tip = { Text(HSLang.TextEditor.bold) },
-                label = { Icon(Icons.FormatBold, null) },
+                tip = { Text(component = HSLang.TextEditor.bold) },
+                label = { VectorIcon(HSIcons.FormatBold) },
             )
 
             FormatButton(
                 state = if (selectionStyleState == null || selectionStyleState.italic != null) effectiveItalic else null,
                 onLeftClick = { applyToggle(state, PropertyToggle.Italic) },
                 onRightClick = { applyStyleAction(state, SliceStylePatch(italic = PropertyPatch.Replace(StyleProperty.Unset))) },
-                tip = { Text(HSLang.TextEditor.italic) },
-                label = { Icon(Icons.FormatItalic, null) },
+                tip = { Text(component = HSLang.TextEditor.italic) },
+                label = { VectorIcon(HSIcons.FormatItalic) },
             )
 
             FormatButton(
                 state = if (selectionStyleState == null || selectionStyleState.underlined != null) effectiveUnderlined else null,
                 onLeftClick = { applyToggle(state, PropertyToggle.Underlined) },
                 onRightClick = { applyStyleAction(state, SliceStylePatch(underlined = PropertyPatch.Replace(StyleProperty.Unset))) },
-                tip = { Text(HSLang.TextEditor.underlined) },
-                label = { Icon(Icons.FormatUnderlined, null) },
+                tip = { Text(component = HSLang.TextEditor.underlined) },
+                label = { VectorIcon(HSIcons.FormatUnderlined) },
             )
 
             FormatButton(
                 state = if (selectionStyleState == null || selectionStyleState.strikethrough != null) effectiveStrikethrough else null,
                 onLeftClick = { applyToggle(state, PropertyToggle.Strikethrough) },
                 onRightClick = { applyStyleAction(state, SliceStylePatch(strikethrough = PropertyPatch.Replace(StyleProperty.Unset))) },
-                tip = { Text(HSLang.TextEditor.strikethrough) },
-                label = { Icon(Icons.FormatStrikethrough, null) },
+                tip = { Text(component = HSLang.TextEditor.strikethrough) },
+                label = { VectorIcon(HSIcons.FormatStrikethrough) },
             )
 
             FormatButton(
                 state = if (selectionStyleState == null || selectionStyleState.obfuscated != null) effectiveObfuscated else null,
                 onLeftClick = { applyToggle(state, PropertyToggle.Obfuscated) },
                 onRightClick = { applyStyleAction(state, SliceStylePatch(obfuscated = PropertyPatch.Replace(StyleProperty.Unset))) },
-                tip = { Text(HSLang.TextEditor.obfuscated) },
-                label = { Icon(Icons.QuestionMark, null) },
+                tip = { Text(component = HSLang.TextEditor.obfuscated) },
+                label = { VectorIcon(HSIcons.QuestionMark) },
             )
 
             ColorStyleControl(
@@ -95,11 +111,11 @@ fun RichTextEditorToolbar(
                 onLeftClick = { applyStyleAction(state, SliceStylePatch(color = PropertyPatch.Replace(StyleProperty.Set(pendingTextColor)))) },
                 onRightClick = { applyStyleAction(state, SliceStylePatch(color = PropertyPatch.Replace(StyleProperty.Unset))) },
                 enabledAlpha = false,
-                tip = { Text(HSLang.TextEditor.textColor) },
+                tip = { Text(component = HSLang.TextEditor.textColor) },
                 label = { current, pending ->
                     Box(modifier = Modifier.size(24.dp)) {
-                        Icon(Icons.FormatColorTextTop, null, tint = current)
-                        Icon(Icons.FormatColorTextBottom, null, tint = pending, modifier = Modifier.matchParentSize())
+                        VectorIcon(HSIcons.FormatColorTextTop, tint = current)
+                        VectorIcon(HSIcons.FormatColorTextBottom, tint = pending, modifier = Modifier.matchParentSize())
                     }
                 },
             )
@@ -111,11 +127,11 @@ fun RichTextEditorToolbar(
                 onLeftClick = { applyStyleAction(state, SliceStylePatch(shadowColor = PropertyPatch.Replace(StyleProperty.Set(pendingShadowColor)))) },
                 onRightClick = { applyStyleAction(state, SliceStylePatch(shadowColor = PropertyPatch.Replace(StyleProperty.Unset))) },
                 enabledAlpha = true,
-                tip = { Text(HSLang.TextEditor.shadowColor) },
+                tip = { Text(component = HSLang.TextEditor.shadowColor) },
                 label = { current, pending ->
                     Box(modifier = Modifier.size(24.dp)) {
-                        Icon(Icons.FormatColorTextShadowTop, null, tint = current, modifier = Modifier.matchParentSize())
-                        Icon(Icons.FormatColorTextBottom, null, tint = pending, modifier = Modifier.matchParentSize())
+                        VectorIcon(HSIcons.FormatColorTextShadowTop, tint = current, modifier = Modifier.matchParentSize())
+                        VectorIcon(HSIcons.FormatColorTextBottom, tint = pending, modifier = Modifier.matchParentSize())
                     }
                 },
             )
@@ -124,14 +140,14 @@ fun RichTextEditorToolbar(
                 state = StyleProperty.Unset,
                 onLeftClick = { applyStyleAction(state, SliceStylePatch.Clear) },
                 onRightClick = { applyStyleAction(state, SliceStylePatch.Unset) },
-                tip = { Text(HSLang.TextEditor.clearStyle) },
-                label = { Icon(Icons.FormatClear, null) },
+                tip = { Text(component = HSLang.TextEditor.clearStyle) },
+                label = { VectorIcon(HSIcons.FormatClear) },
             )
         }
-IconButton({}, modifier = Modifier.plainTooltip {
-            Text(HSLang.TextEditor.helpTip)
+IconButton({}, modifier = Modifier.tooltip {
+            Text(component = HSLang.TextEditor.helpTip)
         }) {
-            Icon(Icons.Help, null)
+            VectorIcon(HSIcons.Help)
         }
     }
 }
@@ -161,11 +177,13 @@ private fun applyToggle(state: RichTextEditorState, toggle: PropertyToggle) {
         }
     }
 
+
     val target = when {
         current == null                               -> StyleProperty.Set(true)
         current is StyleProperty.Set && current.value -> StyleProperty.None
         else                                          -> StyleProperty.Set(true)
     }
+
 
     val patch = when (toggle) {
         PropertyToggle.Bold          -> SliceStylePatch(bold = PropertyPatch.Replace(target))

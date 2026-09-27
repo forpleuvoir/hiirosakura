@@ -31,6 +31,7 @@ fun ItemStack.getEnchantmentTextWithLvl(
     }
 }
 
+
 val ItemStack.allEnchantments
     get() = buildMap {
         enchantments.entrySet().forEach { entry ->
@@ -40,6 +41,7 @@ val ItemStack.allEnchantments
             put(entry.key, entry.intValue)
         }
     }
+
 
 val ItemStack?.empty: Boolean get() = this == null || this.isEmpty
 
@@ -55,6 +57,7 @@ val SerializeElement.asItem: Item
     }
 
 fun ItemStack.hasTag(tag: String): Boolean = this.tags().anyMatch { it.location.toString() == tag }
+
 
 val DataComponentType<*>.key get() = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(this)
 

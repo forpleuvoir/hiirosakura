@@ -18,6 +18,7 @@ data class Sector(
         }
     }
 
+
     val centerAngle: Float
         get() = normalizeDegree(start + arch * 0.5f)
 
@@ -38,6 +39,7 @@ fun normalizeDegree(angle: Float): Float {
 
 fun calculateSectors(startAngleDegree: Float, count: Int): List<Sector> {
     require(count > 0) { "count must be > 0" }
+
     val step = 360f / count
     val firstStart = startAngleDegree - step / 2f
     return List(count) { i ->
@@ -167,6 +169,7 @@ fun getSectorPath(
         }
     }
 
+
     val outerHalf = gapHalfAngle(outerRadius)
     val innerHalf = gapHalfAngle(innerRadius)
     val outerArch = (sector.arch - 2f * outerHalf).coerceAtLeast(0f)
@@ -183,6 +186,7 @@ fun getSectorPath(
         return if (outer) radius * s / (1f + s) else radius * s / (1f - s)
     }
 
+
     val radius = cornerRadius
         .coerceIn(0f, (outerRadius - innerRadius) / 2f * 0.999f)
         .coerceAtMost(maxCornerForSpan(outerRadius, outerArch, outer = true) * 0.999f)
@@ -196,6 +200,7 @@ fun getSectorPath(
         path.close()
         return path
     }
+
 
     val startTangentOuter = edgeTangent(true, outerRadius)
     val endTangentOuter = edgeTangent(false, outerRadius)

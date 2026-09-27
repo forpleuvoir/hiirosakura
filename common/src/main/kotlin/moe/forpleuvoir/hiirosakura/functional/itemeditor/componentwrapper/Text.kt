@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,16 +22,22 @@ import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.RichTextEditorS
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.rectInMcWindow
 import moe.forpleuvoir.ibukigourd.render.extension.pushTextLines
 import moe.forpleuvoir.ibukigourd.text.inlinestyletext.InlineStyleTextParser
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.state.isQuickAction
-import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberTextFieldState
-import moe.forpleuvoir.ibukigourd.ui.skia.LocalSkiaSurface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.util.isQuickAction
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.foundation.text.input.rememberTextFieldState
 
 @Composable
 fun TextComponentWrapper(
@@ -46,32 +51,30 @@ fun TextComponentWrapper(
 ) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
         var showDialog by remember { mutableStateOf(false) }
+
         var showInlineEditorDialog by remember { mutableStateOf(false) }
 
-        AssistChip(
-            {},
+        FlatButton(
+            onClick = {},
             modifier = Modifier
                 .fillMaxHeight()
                 .width(DataComponentEditorDefaults.entrySize.width)
                 .vanillaTooltip(value),
-            label = {
-                Text(value, overflow = TextOverflow.Ellipsis, maxLines = 1)
-            },
-            trailingIcon = {
-                IconButton(onClick = {
-                    if (isQuickAction)
-                        showInlineEditorDialog = true
-                    else
-                        showDialog = true
-                }) {
-                    Icon(Icons.EditNote, null)
-                }
-            }
-        )
-
-        if (showDialog) {
+        ) {
+Text(value, overflow = TextOverflow.Ellipsis, maxLines = 1)
+IconButton(onClick = {
+    if (isQuickAction)
+        showInlineEditorDialog = true
+    else
+        showDialog = true
+}) {
+    Icon(Icons.Edit)
+}
+        }
+if (showDialog) {
             RichTextEditorDialog(value, onValueChange, { Text(key) }) { showDialog = false }
         }
+
         if (showInlineEditorDialog) {
             InlineStyleTextEditorDialog(value, onValueChange, { Text(key) }) { showInlineEditorDialog = false }
         }
@@ -110,8 +113,14 @@ fun InlineStyleTextEditorDialog(
     onDismissRequest: () -> Unit,
 ) {
     var editingValue by remember { mutableStateOf(value) }
-    val state = rememberTextFieldState(InlineStyleTextParser.inline(value)) {
-        editingValue = InlineStyleTextParser.parse(it, InlineStyleTextParser.noneEventModifier)
+
+    val state = rememberTextFieldState(InlineStyleTextParser.inline(value))
+
+    // 输入即时同步回编辑值（新版 TextFieldState 不再接受 onChange 回调）
+    LaunchedEffect(state) {
+        snapshotFlow { state.text.toString() }.collect { text ->
+            editingValue = InlineStyleTextParser.parse(text, InlineStyleTextParser.noneEventModifier)
+        }
     }
     FlexibleDialog(
         onDismissRequest,
@@ -123,19 +132,14 @@ fun InlineStyleTextEditorDialog(
         title = title,
         content = {
             Column(modifier = Modifier.fillMaxSize()) {
-                OutlinedTextField(
+                TextField(
                     state = state,
-                    textStyle = TextStyle(
-                        color = MaterialTheme.colorScheme.onSurface,
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
+                    modifier = Modifier .fillMaxWidth() .weight(1f),
                 )
                 Spacer(Modifier.height(12.dp))
                 OutlinedLabelBox(
                     label = {
-                        Text(HSLang.TextEditor.preview)
+                        Text(component = HSLang.TextEditor.preview)
                     },
                     modifier = Modifier.weight(1.25f).fillMaxWidth()
                 ) {
@@ -143,28 +147,9 @@ fun InlineStyleTextEditorDialog(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        var area by remember { mutableStateOf<Rect?>(null) }
-                        val surface = LocalSkiaSurface.current
-                        LaunchedEffect(surface) {
-                            while (isActive) {
-                                withFrameNanos {
-                                    area ?: return@withFrameNanos
-                                    surface.postRender {
-                                        pushTextLines(
-                                            editingValue,
-                                            area = area!!.roundToIntRect(),
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.Center,
-                                            defaultColor = Colors.WHITE,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        Spacer(
-                            Modifier
-                                .fillMaxSize()
-                                .onGloballyPositioned { area = it.rectInMcWindow() }
+                        Text(
+                            component = editingValue,
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
                 }

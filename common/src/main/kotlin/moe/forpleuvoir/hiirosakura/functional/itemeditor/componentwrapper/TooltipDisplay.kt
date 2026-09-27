@@ -1,15 +1,12 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,16 +27,13 @@ import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.DragHandle
-import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
-import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.core.registries.BuiltInRegistries
@@ -47,6 +41,18 @@ import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.TooltipDisplay
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.HorizontalDivider
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 
 @Composable
 fun TooltipDisplayComponentWrapper(
@@ -60,11 +66,11 @@ fun TooltipDisplayComponentWrapper(
 ) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
         var showDialog by remember { mutableStateOf(false) }
-        AssistChip(
-            {},
+        FlatButton(
+            onClick = {},
             modifier = Modifier
                 .fillMaxHeight()
-                .plainTooltip {
+                .tooltip {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.width(IntrinsicSize.Min)
@@ -76,29 +82,26 @@ fun TooltipDisplayComponentWrapper(
                         }
                         HorizontalDivider()
                         if (value.hiddenComponents.isEmpty()) {
-                            Text(IGLang.Misc.hasNothing)
+                            Text(component = IGLang.Misc.hasNothing)
                         } else {
                             value.hiddenComponents.take(10).forEach { component ->
                                 Text(component.keyOrUnknown(registryAccess!!))
                             }
+
                             if (value.hiddenComponents.size > 10) Text("...")
                         }
                     }
                 }
                 .width(DataComponentEditorDefaults.entrySize.width),
-            label = {
-                Text(IGLang.ConfigWrapper.listConfigWrapperText(value.hiddenComponents.size), overflow = TextOverflow.Ellipsis, maxLines = 1)
-            },
-            trailingIcon = {
-                IconButton(onClick = {
-                    showDialog = true
-                }) {
-                    Icon(Icons.EditNote, null)
-                }
-            }
-        )
-
-        if (showDialog) {
+        ) {
+Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.hiddenComponents.size), overflow = TextOverflow.Ellipsis, maxLines = 1)
+IconButton(onClick = {
+    showDialog = true
+}) {
+    Icon(Icons.Edit)
+}
+        }
+if (showDialog) {
             TooltipDisplayEditorDialog(
                 key = key,
                 value = value,
@@ -121,7 +124,8 @@ fun TooltipDisplayEditorDialog(
     onDismissRequest: () -> Unit,
 ) {
     var enabled by remember { mutableStateOf(value.hideTooltip) }
-    val list = rememberKeyedList(value.hiddenComponents.toList())
+
+    val list = rememberKeyedStateList(value.hiddenComponents.toList())
     var nextKey by remember { mutableLongStateOf(list.size.toLong()) }
 
     FlexibleDialog(
@@ -146,6 +150,7 @@ fun TooltipDisplayEditorDialog(
                         Switch(enabled, { enabled = it })
                     }
 
+
                     var type by remember(availableComponents) { mutableStateOf(availableComponents.first()) }
                     DataComponentTypeSelector(
                         type,
@@ -153,7 +158,7 @@ fun TooltipDisplayEditorDialog(
                             type = it
                             list.add(Keyed(nextKey++, it))
                         },
-                        label = { Text(HSLang.ItemEditor.addItemComponent) },
+                        label = { Text(component = HSLang.ItemEditor.addItemComponent) },
                         content = {
                             Text(it.keyOrUnknown.toString(), overflow = TextOverflow.Ellipsis, maxLines = 1)
                         },
@@ -169,13 +174,14 @@ fun TooltipDisplayEditorDialog(
                     val lazyListState = rememberLazyListState()
 
                     if (list.isEmpty()) {
-                        Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
                     } else {
                         val hapticFeedback = LocalHapticFeedback.current
                         val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
                             list.moveElement(from.index, to.index)
                             hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
                         }
+
                         val canScroll = lazyListState.canScrollBackward || lazyListState.canScrollForward
                         LazyColumn(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -189,8 +195,9 @@ fun TooltipDisplayEditorDialog(
                                 ReorderableItem(reorderableLazyListState, key) { isDragging ->
                                     val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                                     val handleInteraction = remember { MutableInteractionSource() }
+
                                     val handleHovered by handleInteraction.collectIsHoveredAsState()
-                                    Card(
+                                    Surface(
                                         modifier = Modifier.fillMaxWidth().scale(scale)
                                     ) {
                                         Row(
@@ -203,12 +210,7 @@ fun TooltipDisplayEditorDialog(
                                                 verticalAlignment = Alignment.CenterVertically,
                                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                                             ) {
-                                                DragHandle(
-                                                    hapticFeedback,
-                                                    handleInteraction,
-                                                    handleHovered,
-                                                    isDragging
-                                                )
+                                                DragHandle(modifier = Modifier)
                                                 DataComponentTypeSelector(
                                                     component,
                                                     {
@@ -223,6 +225,7 @@ fun TooltipDisplayEditorDialog(
                                                 )
                                             }
 
+
                                             Row(
                                                 verticalAlignment = Alignment.CenterVertically,
                                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -230,7 +233,7 @@ fun TooltipDisplayEditorDialog(
 
                                                 RemoveConfirmButton(
                                                     component.keyOrUnknown(registryAccess!!).asText().plainText,
-                                                    { list.removeAt(index) }
+                                                    onConfirm = { list.removeAt(index) },
                                                 )
                                             }
                                         }
@@ -239,8 +242,8 @@ fun TooltipDisplayEditorDialog(
                             }
                         }
 
-                        VerticalScrollbar(
-                            adapter = rememberScrollbarAdapter(lazyListState),
+                        VerticalScroller(
+                            adapter = rememberScrollerAdapter(lazyListState),
                             modifier = Modifier.align(Alignment.CenterEnd)
                         )
 

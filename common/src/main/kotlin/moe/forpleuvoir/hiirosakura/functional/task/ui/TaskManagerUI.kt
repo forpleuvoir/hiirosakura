@@ -1,23 +1,25 @@
 package moe.forpleuvoir.hiirosakura.functional.task.ui
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.VerticalDivider
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
+import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
 import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Assignment
 import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Task
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Settings
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.hiirosakura.ui.compat.NavigationRail
+import moe.forpleuvoir.hiirosakura.ui.compat.NavigationRailItem
 
 @Composable
 fun TaskManagerUI(modifier: Modifier = Modifier) {
     var selectedPage by remember { mutableIntStateOf(0) }
+
 
     Row(modifier.fillMaxSize()) {
         NavigationRail(
@@ -27,20 +29,20 @@ fun TaskManagerUI(modifier: Modifier = Modifier) {
             NavigationRailItem(
                 selected = selectedPage == 0,
                 onClick = { selectedPage = 0 },
-                icon = { Icon(Icons.Task, null) },
-                label = { Text(HSLang.Task.tasks) }
+                icon = { VectorIcon(HSIcons.Task) },
+                label = { Text(component = HSLang.Task.tasks) }
             )
             NavigationRailItem(
                 selected = selectedPage == 1,
                 onClick = { selectedPage = 1 },
-                icon = { Icon(Icons.Assignment, null) },
-                label = { Text(HSLang.Task.runningTasks) }
+                icon = { VectorIcon(HSIcons.Assignment) },
+                label = { Text(component = HSLang.Task.runningTasks) }
             )
             NavigationRailItem(
                 selected = selectedPage == 2,
                 onClick = { selectedPage = 2 },
-                icon = { Icon(Icons.Settings, null) },
-                label = { Text(HSLang.Task.settings) }
+                icon = { Icon(Icons.Setting) },
+                label = { Text(component = HSLang.Task.settings) }
             )
         }
 

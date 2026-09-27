@@ -5,7 +5,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,16 +21,11 @@ import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.*
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
-import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberFabVisibilityByScroll
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.util.fabVisibilityAnimation
+import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
-import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.core.Holder
@@ -45,6 +39,23 @@ import net.minecraft.world.item.ItemUseAnimation
 import net.minecraft.world.item.component.Consumable
 import net.minecraft.world.item.consume_effects.*
 import sh.calvin.reorderable.ReorderableCollectionItemScope
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
+import androidx.compose.foundation.layout.fillMaxWidth
+import moe.forpleuvoir.hiirosakura.ui.compat.OutlinedToggleButton
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
+import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 
 @Composable
 fun ConsumableComponentWrapper(
@@ -61,8 +72,9 @@ fun ConsumableComponentWrapper(
         IconButton(onClick = {
             showDialog = true
         }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.EditNote, null)
+            Icon(Icons.Edit)
         }
+
         if (showDialog) {
             ConsumableEditorDialog(
                 key = key,
@@ -75,7 +87,6 @@ fun ConsumableComponentWrapper(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ConsumableEditorDialog(
     key: Identifier,
@@ -85,7 +96,8 @@ fun ConsumableEditorDialog(
     title: @Composable () -> Unit,
 ) {
     var editing by remember { mutableStateOf(value) }
-    val onConsumeEffects = rememberKeyedList(value.onConsumeEffects)
+
+    val onConsumeEffects = rememberKeyedStateList(value.onConsumeEffects)
     var nextKey by remember { mutableLongStateOf(onConsumeEffects.size.toLong()) }
     FlexibleDialog(
         onDismissRequest,
@@ -104,13 +116,14 @@ fun ConsumableEditorDialog(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.Bottom,
                 ) {
-                    FloatField(
-                        editing.consumeSeconds,
-                        { editing = editing.copy(consumeSeconds = it) },
-                        range = 0f..64.0f,
-                        label = { Text(key, suffix = "consume_seconds") },
-                        modifier = Modifier.weight(1f).height(64.dp)
-                    )
+                    OutlinedLabelBox(label = { Text(key, suffix = "consume_seconds") }, modifier = Modifier.weight(1f).height(64.dp)) {
+                        FloatField(
+                            editing.consumeSeconds,
+                            { editing = editing.copy(consumeSeconds = it) },
+                            valueRange = 0f..64.0f,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                     EnumSelector(
                         editing.animation,
                         { editing = editing.copy(animation = it) },
@@ -130,7 +143,7 @@ fun ConsumableEditorDialog(
                     ) {
                         Text(key, suffix = "has_consume_particles")
                         Spacer(Modifier.width(8.dp))
-                        Text(IGLang.Misc.coloredSwitch(editing.hasConsumeParticles))
+                        Text(component = IGLang.Misc.coloredSwitch(editing.hasConsumeParticles))
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -147,7 +160,7 @@ fun ConsumableEditorDialog(
                             FloatingAddButton(
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd),
-                                fabVisibilityState = rememberFabVisibilityByScroll(lazyListState),
+                                fabVisibilityState = rememberFabScrollVisibility(lazyListState),
                                 addMenuOptions = ConsumableEditor.consumeEffectAddMenuOptions,
                                 addAction = {
                                     onConsumeEffects.add(Keyed(nextKey++, it))
@@ -157,10 +170,11 @@ fun ConsumableEditorDialog(
                         itemContent = { index, effect, isDragging, hapticFeedback ->
                             val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                             val handleInteraction = remember { MutableInteractionSource() }
+
                             val handleHovered by handleInteraction.collectIsHoveredAsState()
 
                             val wrapper = ConsumableEditor.consumeEffectsWrappers[effect.value.type]
-                            ElevatedCard(
+                            Surface(
                                 modifier = Modifier.fillMaxWidth().scale(scale)
                             ) {
                                 Row(
@@ -172,14 +186,10 @@ fun ConsumableEditorDialog(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     ) {
-                                        DragHandle(
-                                            hapticFeedback,
-                                            handleInteraction,
-                                            handleHovered,
-                                            isDragging
-                                        )
+                                        DragHandle(modifier = Modifier)
                                         wrapper?.title()
                                     }
+
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -190,7 +200,7 @@ fun ConsumableEditorDialog(
 
                                         RemoveConfirmButton(
                                             ConsumeEffect.Type.APPLY_EFFECTS.id.asTranslateText().plainText,
-                                            { onConsumeEffects.removeAt(index) }
+                                            onConfirm = { { onConsumeEffects.removeAt(index) } },
                                         )
                                     }
                                 }
@@ -209,6 +219,7 @@ object ConsumableEditor {
         DpSize(280.dp, 56.dp)
     }
 
+
     val consumeEffectsWrappers = mutableMapOf<ConsumeEffect.Type<*>, ConsumeEffectWrapper>(
         ConsumeEffect.Type.APPLY_EFFECTS to ConsumeEffectWrapper(
             title = { Text(ConsumeEffect.Type.APPLY_EFFECTS.id) },
@@ -218,9 +229,9 @@ object ConsumableEditor {
                     modifier = Modifier.size(LocalConsumeEffectWrapperSize.current).padding(vertical = 4.dp),
                 ) {
                     var showDialog by remember { mutableStateOf(false) }
-                    AssistChip(
-                        {},
-                        modifier = Modifier.fillMaxSize().plainTooltip {
+                    FlatButton(
+                        onClick = {},
+                        modifier = Modifier.fillMaxSize().tooltip {
                             value.effects.take(20).forEach {
                                 Row {
                                     Text(it.effect.value().displayName)
@@ -228,18 +239,16 @@ object ConsumableEditor {
                                     Text(Texts.translatable("enchantment.level.${it.amplifier}", it.amplifier.toString()))
                                 }
                             }
+
                             if (value.effects.size > 20) Text("...")
                         },
-                        label = {
-                            Text(IGLang.ConfigWrapper.listConfigWrapperText(value.effects.size))
-                        },
-                        trailingIcon = {
-                            IconButton({ showDialog = true }) {
-                                Icon(Icons.EditNote, null)
-                            }
-                        }
-                    )
-                    if (showDialog) {
+                    ) {
+Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.effects.size))
+IconButton({ showDialog = true }) {
+    Icon(Icons.Edit)
+}
+                    }
+if (showDialog) {
                         ApplyStatusEditorDialog({ showDialog = false }, value, { onValueChange(it) })
                     }
                 }
@@ -253,26 +262,24 @@ object ConsumableEditor {
                     modifier = Modifier.size(LocalConsumeEffectWrapperSize.current).padding(vertical = 4.dp),
                 ) {
                     var showDialog by remember { mutableStateOf(false) }
-                    AssistChip(
-                        {},
-                        modifier = Modifier.fillMaxSize().plainTooltip {
+               FlatButton(
+                        onClick = {},
+                        modifier = Modifier.fillMaxSize().tooltip {
                             value.effects.take(20).forEach {
                                 Row {
                                     Text(it.value().displayName)
                                 }
                             }
+
                             if (value.effects.count() > 20) Text("...")
                         },
-                        label = {
-                            Text(IGLang.ConfigWrapper.listConfigWrapperText(value.effects.count()))
-                        },
-                        trailingIcon = {
-                            IconButton({ showDialog = true }) {
-                                Icon(Icons.EditNote, null)
-                            }
-                        }
-                    )
-                    if (showDialog) {
+                    ) {
+Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.effects.count()))
+IconButton({ showDialog = true }) {
+    Icon(Icons.Edit)
+}
+                    }
+     if (showDialog) {
                         RemoveStatusEditorDialog({ showDialog = false }, value, { onValueChange(it) })
                     }
                 }
@@ -292,9 +299,8 @@ object ConsumableEditor {
                     FloatField(
                         value.diameter,
                         { onValueChange(TeleportRandomlyConsumeEffect(it)) },
-                        range = 0f..Float.MAX_VALUE,
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                        modifier = Modifier.fillMaxSize()
+                        valueRange = 0f..Float.MAX_VALUE,
+                        modifier = Modifier.fillMaxSize(),
                     )
                 }
             }
@@ -363,8 +369,10 @@ fun ApplyStatusEditorDialog(
     onValueChange: (ApplyStatusEffectsConsumeEffect) -> Unit,
 ) {
     var probability by remember { mutableFloatStateOf(value.probability) }
-    val list = rememberKeyedList(value.effects)
+
+    val list = rememberKeyedStateList(value.effects)
     var nextKey by remember { mutableLongStateOf(list.size.toLong()) }
+
     val id = ConsumeEffect.Type.APPLY_EFFECTS.id
     FlexibleDialog(
         onDismissRequest,
@@ -380,12 +388,13 @@ fun ApplyStatusEditorDialog(
                     Modifier.size(if (maxWidth > 1150.dp) 1150.dp else 780.dp, 725.dp)
                 ) {
                     Row {
-                        FloatField(
-                            probability,
-                            { probability = it },
-                            label = { Text(id, suffix = "probability") },
-                            range = 0f..1f,
-                        )
+                                                OutlinedLabelBox(label = { Text(id, suffix = "probability") }) {
+                            FloatField(
+                                probability,
+                                { probability = it },
+                                valueRange = 0f..1f,
+                            )
+                        }
                         Spacer(Modifier.width(8.dp))
                     }
                     Spacer(Modifier.height(8.dp))
@@ -400,16 +409,17 @@ fun ApplyStatusEditorDialog(
                             columns = GridCells.Adaptive(360.dp),
                             floatingActionButton = { lazyGridState ->
                                 var showAddDialog by remember { mutableStateOf(false) }
-                                FloatingActionButton(
+                                Button(
                                     onClick = { showAddDialog = true },
                                     modifier = Modifier
                                         .align(Alignment.BottomEnd)
                                         .padding(12.dp)
                                         .size(40.dp)
-                                        .fabVisibilityAnimation(rememberFabVisibilityByScroll(lazyGridState))
+                                        .fabScrollVisibility(rememberFabScrollVisibility(lazyGridState)),
                                 ) {
-                                    Icon(Icons.Add, IGLang.Misc.add.plainText)
+                                    Icon(Icons.Add)
                                 }
+
                                 if (showAddDialog) {
                                     MobEffectInstanceEditorDialog(
                                         MobEffectInstance(MobEffects.LUCK),
@@ -418,7 +428,7 @@ fun ApplyStatusEditorDialog(
                                         { showAddDialog = false },
                                         {
                                             Row {
-                                                Text(IGLang.Misc.add)
+                                                Text(component = IGLang.Misc.add)
                                                 Spacer(Modifier.width(8.dp))
                                                 Text(id)
                                             }
@@ -429,6 +439,7 @@ fun ApplyStatusEditorDialog(
                             itemContent = { index, instance, isDragging, hapticFeedback ->
                                 val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                                 val handleInteraction = remember { MutableInteractionSource() }
+
                                 val handleHovered by handleInteraction.collectIsHoveredAsState()
                                 MobEffectInstanceCard(
                                     instance.value,
@@ -468,7 +479,7 @@ private fun ReorderableCollectionItemScope.MobEffectInstanceCard(
     isDragging: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    ElevatedCard(
+    Surface(
         modifier = modifier,
     ) {
         Column(
@@ -479,12 +490,7 @@ private fun ReorderableCollectionItemScope.MobEffectInstanceCard(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                DragHandle(
-                    hapticFeedback,
-                    handleInteraction,
-                    handleHovered,
-                    isDragging
-                )
+                DragHandle(modifier = Modifier)
                 RemoveConfirmButton(
                     key.asTranslateText(suffix = "mob_effect_instance").plainText,
                     onRemove

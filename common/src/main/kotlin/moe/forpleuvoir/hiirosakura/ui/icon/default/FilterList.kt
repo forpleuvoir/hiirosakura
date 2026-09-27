@@ -4,10 +4,10 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
+import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
 
 @Suppress("CheckReturnValue")
- val Icons.FilterList: ImageVector
+ val HSIcons.FilterList: ImageVector
     get() {
         if (filterList != null) {
             return filterList!!

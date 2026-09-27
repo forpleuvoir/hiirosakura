@@ -2,8 +2,7 @@ package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldLabelPosition
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -11,10 +10,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
-import moe.forpleuvoir.ibukigourd.ui.preset.FloatField
-import moe.forpleuvoir.ibukigourd.ui.preset.LocalNumberFieldStyle
-import moe.forpleuvoir.ibukigourd.ui.preset.NumberFieldStyle
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
 import net.minecraft.resources.Identifier
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import androidx.compose.foundation.layout.fillMaxWidth
+import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
+import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
 
 @Composable
 fun FloatComponentWrapper(
@@ -29,14 +30,14 @@ fun FloatComponentWrapper(
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-        FloatField(
-            value = value,
-            onValueChange = onValueChange,
-            range = valueRange,
-            valueToText = valueToText,
-            labelPosition = TextFieldLabelPosition.Attached(true),
-            label = { Text("Float [$valueRange]") },
-            modifier = Modifier.size(DataComponentEditorDefaults.entrySize),
-        )
+                OutlinedLabelBox(label = { Text("Float [$valueRange]") }, modifier = Modifier.size(DataComponentEditorDefaults.entrySize)) {
+            FloatField(
+                value = value,
+                onValueChange = onValueChange,
+                valueRange = valueRange,
+                valueToText = valueToText,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }

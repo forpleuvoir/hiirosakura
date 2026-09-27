@@ -59,11 +59,13 @@ object AutoSwitchElytra : ConfigGroup("auto_switch_elytra") {
             interaction.useItem(player, InteractionHand.OFF_HAND)
         }
 
+
         val index = player.swapSlotWithHotbar {
             switchableGlider.match(it)
                     && it.get(DataComponents.GLIDER) == Unit.INSTANCE
                     && it.get(DataComponents.EQUIPPABLE)?.slot == slot
         }
+
         if (index < 0) return
         interaction.useItem(player, InteractionHand.MAIN_HAND)
         player.swapSlotWithHotbar(index)
@@ -80,6 +82,7 @@ object AutoSwitchElytra : ConfigGroup("auto_switch_elytra") {
             if (it == null) return
         }
 
+
         val interaction = mc.gameMode!!
 
         val offHand = player.offhandItem
@@ -90,10 +93,12 @@ object AutoSwitchElytra : ConfigGroup("auto_switch_elytra") {
             interaction.useItem(player, InteractionHand.OFF_HAND)
         }
 
+
         val index = player.swapSlotWithHotbar {
             switchableEquip.match(it)
                     && it.get(DataComponents.EQUIPPABLE)?.slot == slot
         }
+
         if (index < 0) return
         interaction.useItem(player, InteractionHand.MAIN_HAND)
         player.swapSlotWithHotbar(index)

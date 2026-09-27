@@ -1,9 +1,12 @@
 package moe.forpleuvoir.hiirosakura.ui
 
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.config.HSConfig
@@ -11,131 +14,66 @@ import moe.forpleuvoir.hiirosakura.functional.customradialmenu.ui.CustomRadialMe
 import moe.forpleuvoir.hiirosakura.functional.event.ui.HSEventManagerUI
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.ItemEditorManagerUI
 import moe.forpleuvoir.hiirosakura.functional.task.ui.TaskManagerUI
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Assignment
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Notifications
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Radar
-import moe.forpleuvoir.hiirosakura.ui.icon.filled.Assignment
-import moe.forpleuvoir.hiirosakura.ui.icon.filled.Notifications
+import moe.forpleuvoir.hiirosakura.ui.compat.BlitTexture
 import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.config.translateText
-import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
-import moe.forpleuvoir.ibukigourd.mod.ui.*
-import moe.forpleuvoir.ibukigourd.render.extension.texture.Corner
-import moe.forpleuvoir.ibukigourd.render.extension.texture.IGTexture
-import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureInfo
-import moe.forpleuvoir.ibukigourd.text.InlineStyleText
-import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.ComposeScreen
+import moe.forpleuvoir.ibukigourd.ui.ModScreen
+import moe.forpleuvoir.ibukigourd.ui.ModScreenIcon
+import moe.forpleuvoir.ibukigourd.ui.ModScreenTab
+import moe.forpleuvoir.ibukigourd.ui.rememberModScreenState
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigManagerWrapper
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Settings
-import moe.forpleuvoir.ibukigourd.ui.icon.filled.Settings
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
-import moe.forpleuvoir.ibukigourd.ui.preset.BlitTexture
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SokitsuScreen
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import net.minecraft.client.gui.screens.Screen
 
-private val icon = IGTexture(Corner(), 0, 0, 128, 128, TextureInfo(128, 128, identifier("icon.png")))
-
+/**
+ * 打开 HiiroSakura 主界面。
+ *
+ * 新版上游把「抽屉 + 页脚」的模组屏幕换成了 [ModScreen] 的页签布局，因此本界面改为一个页签一页；
+ * 主题切换不再占用屏内位置，改由配置页的 `IGConfig.Gui.Theme.mode` 调整。
+ */
 fun HiiroSakuraScreen(
-    pauseGame: Boolean = false,
-    renderParent: Boolean = false,
     parentScreen: Screen? = null,
-    shouldRenderLevel: Boolean = false,
-    entryAnimation: Boolean = true,
-) = ComposeScreen(
-    pauseGame,
-    renderParent,
-    parentScreen,
-    { shouldRenderLevel },
-    entryAnimation,
-    ::HiiroSakuraScreenContent
+) = SokitsuScreen.create(
+    parent = parentScreen,
+    content = {
+        HiiroSakuraScreenContent()
+    },
 )
 
-private var selectedIndex by mutableStateOf(0)
+fun OpenHiiroSakuraScreen(
+    parentScreen: Screen? = null,
+) = SokitsuScreen.open(
+    parent = parentScreen,
+    content = {
+        HiiroSakuraScreenContent()
+    },
+)
 
 @Composable
 internal fun HiiroSakuraScreenContent() {
-    val items = remember {
-        mutableStateListOf<DrawerItem>().apply {
-            add(DrawerItem {
-                label { Text(InlineStyleText(HSConfig.translateText.plainText)) }
-                icon {
-                    Icon(if (LocalDrawerItemSelected.current) Icons.Filled.Settings else Icons.Settings, null)
-                }
-                content {
-                    ConfigManagerWrapper(HSConfig)
-                }
-            })
-            add(DrawerItem {
-                label { Text(HSLang.Task.manager) }
-                icon {
-                    Icon(if (LocalDrawerItemSelected.current) Icons.Filled.Assignment else Icons.Assignment, null)
-                }
-                content {
-                    TaskManagerUI()
-                }
-            })
-            add(DrawerItem {
-                label { Text(HSLang.CustomRadialMenu.title) }
-                icon {
-                    Icon(Icons.Radar, null)
-                }
-                content {
-                    CustomRadialMenuManagerUI()
-                }
-            })
-            add(DrawerItem {
-                label { Text(HSLang.Event.subscriberManager) }
-                icon {
-                    Icon(if (LocalDrawerItemSelected.current) Icons.Filled.Notifications else Icons.Notifications, null)
-                }
-                content {
-                    HSEventManagerUI()
-                }
-            })
-            if (registryAccess != null) {
-                add(DrawerItem {
-                    label { Text(HSLang.ItemEditor.title) }
-                    icon {
-                        Icon(Icons.EditNote, null)
-                    }
-                    content {
-                        ItemEditorManagerUI(registryAccess!!)
-                    }
-                })
+    val access = registryAccess
+    val tabs = remember(access) {
+        buildList {
+            add(ModScreenTab(HSConfig.translateText) { ConfigManagerWrapper(HSConfig) })
+            add(ModScreenTab(HSLang.Task.manager) { TaskManagerUI() })
+            add(ModScreenTab(HSLang.CustomRadialMenu.title) { CustomRadialMenuManagerUI() })
+            add(ModScreenTab(HSLang.Event.subscriberManager) { HSEventManagerUI() })
+            if (access != null) {
+                add(ModScreenTab(HSLang.ItemEditor.title) { ItemEditorManagerUI(access) })
             }
         }
     }
-    IbukiGourdTheme {
-        ModScreen(
-            title = {
-                Text(HiiroSakura.MOD_NAME, fontWeight = FontWeight.Bold)
-            },
-            items = items,
-            selectedIndex = selectedIndex.coerceIn(items.indices),
-            onSelectIndex = { selectedIndex = it },
-            header = {
-                DrawerHeader(
-                    monogram = {
-                        BlitTexture(identifier("icon.png"))
-                    },
-                    name = {
-                        Text(HiiroSakura.MOD_NAME, fontWeight = FontWeight.Bold)
-                    },
-                    subtitle = {
-                        Text(HiiroSakura.MOD_ID)
-                    }
-                )
-            },
-            footer = {
-                ThemeSwitcher(
-                    isLight = IGConfig.Gui.Theme.lightMode,
-                    onToggle = { IGConfig.Gui.Theme.lightMode = it }
-                )
-            }
-        )
-    }
+    ModScreen(
+        tabs = tabs,
+        state = rememberModScreenState(),
+        title = {
+            Text(HiiroSakura.MOD_NAME, color = Color(0xFFBD4246), fontWeight = FontWeight.Bold)
+        },
+        icon = {
+            ModScreenIcon(identifier("icon.png"))
+        },
+    )
 }

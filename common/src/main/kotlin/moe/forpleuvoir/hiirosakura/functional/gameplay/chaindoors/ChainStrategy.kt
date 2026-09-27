@@ -181,6 +181,7 @@ sealed class ChainStrategy(
             visited.add(origin)
             ChainDoors.getOtherPart(origin, originState)?.let { if (visited.add(it)) queue.add(it) }
 
+
             var foundCount = 0
             while (queue.isNotEmpty() && foundCount < limit) {
                 val current = queue.poll()
@@ -198,6 +199,7 @@ sealed class ChainStrategy(
                             visited.add(neighbor)
                             queue.add(neighbor)
                             ChainDoors.getOtherPart(neighbor, state)?.let { if (visited.add(it)) queue.add(it) }
+
                             val currentOpen = state.getOptionalValue(DoorBlock.OPEN).getOrNull()
                             val isStateSyncMatch = !syncState || (targetRequiredState != null && currentOpen == targetRequiredState)
                             if (isStateSyncMatch) {

@@ -14,8 +14,8 @@ import moe.forpleuvoir.ibukigourd.input.MouseButton
 import moe.forpleuvoir.ibukigourd.task.scheduleEndTick
 import moe.forpleuvoir.ibukigourd.task.scheduleStartTick
 import moe.forpleuvoir.ibukigourd.text.Texts
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.ModLogger
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -158,12 +158,12 @@ interface CommonApi {
                 runCatching {
                     (it as? Config<Any>)?.setValue(value)
                 }.onSuccess {
-                    ToastHandler.showContent { Text(HSLang.Script.setConfigSuccess(key, value.toString())) }
+                    ToastHandler.showContent { Text(component = HSLang.Script.setConfigSuccess(key, value.toString())) }
                 }.onFailure { t ->
-                    ToastHandler.showContent { Text(HSLang.Script.setConfigFail(key, value.toString(), t.message)) }
+                    ToastHandler.showContent { Text(component = HSLang.Script.setConfigFail(key, value.toString(), t.message)) }
                     logger.warn(t)
                 }
-            } ?: ToastHandler.showContent { Text(HSLang.Script.setConfigFailNotFound(key)) }
+            } ?: ToastHandler.showContent { Text(component = HSLang.Script.setConfigFailNotFound(key)) }
     }
 
     fun getConfig(key: String): Any? {
@@ -173,8 +173,8 @@ interface CommonApi {
     fun enableEvent(name: String, enable: Boolean) {
         HSEventManager.subscribers.values().find { it.name == name }?.let {
             it.enabled = enable
-            ToastHandler.showContent { Text(HSLang.Event.enableEvent(name, enable)) }
-        } ?: ToastHandler.showContent { Text(HSLang.Event.enableEventNotFound(name)) }
+            ToastHandler.showContent { Text(component = HSLang.Event.enableEvent(name, enable)) }
+        } ?: ToastHandler.showContent { Text(component = HSLang.Event.enableEventNotFound(name)) }
 
     }
 

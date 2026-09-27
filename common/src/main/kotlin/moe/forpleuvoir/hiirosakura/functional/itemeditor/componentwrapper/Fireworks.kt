@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -35,12 +34,9 @@ import moe.forpleuvoir.hiirosakura.ui.widget.ReorderableEditorVerticalGrid
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.*
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
-import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberFabVisibilityByScroll
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.util.fabVisibilityAnimation
+import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.*
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.resources.Identifier
@@ -48,6 +44,31 @@ import net.minecraft.world.item.component.FireworkExplosion
 import net.minecraft.world.item.component.Fireworks
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
+import moe.forpleuvoir.ibukigourd.ui.colorpicker.ColorPicker
+import moe.forpleuvoir.ibukigourd.ui.colorpicker.LocalColorPickerEnableAlpha
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenu
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
+import moe.forpleuvoir.ibukigourd.util.toComposeColor
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
+import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenuItem
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.dropdownMenuAnchor
+import moe.forpleuvoir.ibukigourd.util.toNebulaColor
 
 @Composable
 fun FireworksComponentWrapper(
@@ -64,8 +85,9 @@ fun FireworksComponentWrapper(
         IconButton(onClick = {
             showDialog = true
         }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.EditNote, null)
+            Icon(Icons.Edit)
         }
+
         if (showDialog) {
             FireworksEditorDialog(
                 key = key,
@@ -87,7 +109,8 @@ fun FireworksEditorDialog(
     title: @Composable () -> Unit,
 ) {
     var flightDuration by remember { mutableIntStateOf(value.flightDuration) }
-    val explosions = rememberKeyedList(value.explosions)
+
+    val explosions = rememberKeyedStateList(value.explosions)
     var nextKey by remember { mutableLongStateOf(explosions.size.toLong()) }
 
     FlexibleDialog(
@@ -103,13 +126,14 @@ fun FireworksEditorDialog(
         title = title,
         content = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                IntField(
-                    flightDuration,
-                    { flightDuration = it.coerceIn(0..255) },
-                    label = { Text(key, suffix = "flight_duration") },
-                    range = 0..255,
-                    modifier = Modifier.height(64.dp).fillMaxWidth()
-                )
+                OutlinedLabelBox(label = { Text(key, suffix = "flight_duration") }, modifier = Modifier.height(64.dp).fillMaxWidth()) {
+                    IntField(
+                        flightDuration,
+                        { flightDuration = it.coerceIn(0..255) },
+                        valueRange = 0..255,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
                 OutlinedLabelBox(
                     modifier = Modifier.fillMaxSize(),
                     label = { Text(key, suffix = "explosions") },
@@ -122,7 +146,7 @@ fun FireworksEditorDialog(
                         columns = GridCells.Adaptive(360.dp),
                         modifier = Modifier.fillMaxSize(),
                         floatingActionButton = { lazyGridState ->
-                            FloatingActionButton(
+                            Button(
                                 onClick = {
                                     if (explosions.size < Fireworks.MAX_EXPLOSIONS) explosions.add(Keyed(nextKey++, FireworkExplosion.DEFAULT))
                                 },
@@ -130,14 +154,14 @@ fun FireworksEditorDialog(
                                     .align(Alignment.BottomEnd)
                                     .padding(12.dp)
                                     .size(40.dp)
-                                    .fabVisibilityAnimation(rememberFabVisibilityByScroll(lazyGridState))
+                                    .fabScrollVisibility(rememberFabScrollVisibility(lazyGridState)),
                             ) {
-                                Icon(Icons.Add, IGLang.Misc.add.plainText)
-                            }
-                        },
+                                Icon(Icons.Add)
+                            }},
                         itemContent = { index, explosion, isDragging, hapticFeedback ->
                             val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                             val handleInteraction = remember { MutableInteractionSource() }
+
                             val handleHovered by handleInteraction.collectIsHoveredAsState()
                             ExplosionCard(
                                 explosion = explosion.value,
@@ -170,7 +194,7 @@ private fun ReorderableCollectionItemScope.ExplosionCard(
     isDragging: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    ElevatedCard(modifier = modifier) {
+    Surface(modifier = modifier) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -180,9 +204,10 @@ private fun ReorderableCollectionItemScope.ExplosionCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                DragHandle(hapticFeedback, handleInteraction, handleHovered, isDragging)
+                DragHandle(modifier = Modifier)
                 RemoveConfirmButton(key.asTranslateText(suffix = "explosion").plainText, onRemove)
             }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -215,6 +240,7 @@ private fun ReorderableCollectionItemScope.ExplosionCard(
                 Spacer(Modifier.weight(1f))
                 Switch(explosion.hasTrail, { onValueChange(FireworkExplosion(explosion.shape, explosion.colors, explosion.fadeColors, it, explosion.hasTwinkle)) })
             }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -245,6 +271,7 @@ private fun ColorRow(
         LaunchedEffect(addCount) {
             scrollState.animateScrollTo(Int.MAX_VALUE)
         }
+
         Row(
             modifier = Modifier
                 .horizontalScroll(scrollState)
@@ -272,13 +299,16 @@ private fun ColorRow(
                     },
                 )
             }
+
             var showAddPicker by remember { mutableStateOf(false) }
+
             var newColor by remember { mutableStateOf(NebulaColor.fromRGB(0xFF0000)) }
             IconButton(
                 onClick = { showAddPicker = true },
             ) {
-                Icon(Icons.Add, null)
+                Icon(Icons.Add)
             }
+
             if (showAddPicker) {
                 SimpleAlertDialog(
                     onDismissRequest = { showAddPicker = false },
@@ -289,10 +319,10 @@ private fun ColorRow(
                         addCount++
                         true
                     },
-                    title = { Text(IGLang.Misc.add) },
+                    title = { Text(component = IGLang.Misc.add) },
                     content = {
                         CompositionLocalProvider(LocalColorPickerEnableAlpha provides false) {
-                            ColorPicker(newColor, { newColor = it })
+                            ColorPicker(newColor.toComposeColor(), { newColor = it.toNebulaColor() })
                         }
                     }
                 )
@@ -309,10 +339,14 @@ private fun ColorCircle(
     onRemove: () -> Unit,
 ) {
     var showColorPicker by remember { mutableStateOf(false) }
+
     var showContextMenu by remember { mutableStateOf(false) }
+
     var pendingColor by remember(color) { mutableStateOf(NebulaColor.fromRGB(color)) }
 
-    Box {
+
+        var menuAnchorBounds by remember { mutableStateOf(Rect.Zero) }
+        Box(modifier = Modifier.dropdownMenuAnchor { menuAnchorBounds = it }) {
         IconButton(
             onClick = { showColorPicker = true },
             modifier = Modifier
@@ -327,29 +361,33 @@ private fun ColorCircle(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(CircleShape)
-                    .background(pendingColor.toComposeColor)
-                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                    .background(pendingColor.toComposeColor())
+                    .border(1.dp, SokitsuTheme.colorScheme.outline, CircleShape)
             )
         }
-        DropdownMenu(
-            expanded = showContextMenu,
-            onDismissRequest = { showContextMenu = false },
-        ) {
-            DropdownMenuItem(
-                text = { Text(IGLang.Misc.edit) },
-                onClick = {
-                    showContextMenu = false
-                    showColorPicker = true
-                },
-            )
-            DropdownMenuItem(
-                text = { Text(IGLang.Misc.remove) },
-                onClick = {
-                    showContextMenu = false
-                    onRemove()
-                },
-            )
-        }
+            DropdownMenu(
+                expanded = showContextMenu,
+                onDismissRequest = { showContextMenu = false },
+                anchorBounds = menuAnchorBounds,
+            ) {
+                DropdownMenuItem(
+                    onClick = {
+                        showContextMenu = false
+                        showColorPicker = true
+                    },
+                ) {
+                    Text(component = IGLang.Misc.edit)
+                }
+                DropdownMenuItem(
+                    onClick = {
+                        showContextMenu = false
+                        onRemove()
+                    },
+                ) {
+                    Text(component = IGLang.Misc.remove)
+                }
+            }
+
         if (showColorPicker) {
             SimpleAlertDialog(
                 onDismissRequest = { showColorPicker = false },
@@ -357,10 +395,10 @@ private fun ColorCircle(
                     onEdit(pendingColor)
                     true
                 },
-                title = { Text(IGLang.Misc.edit) },
+                title = { Text(component = IGLang.Misc.edit) },
                 content = {
                     CompositionLocalProvider(LocalColorPickerEnableAlpha provides false) {
-                        ColorPicker(pendingColor, { pendingColor = it })
+                        ColorPicker(pendingColor.toComposeColor(), { pendingColor = it.toNebulaColor() })
                     }
                 }
             )

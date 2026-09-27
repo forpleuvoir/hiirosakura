@@ -3,7 +3,6 @@ package moe.forpleuvoir.hiirosakura.ui.widget.serializereditor
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,10 +17,13 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeNull
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 
 @Composable
 internal fun keyLabelStyle(): TextStyle =
-    MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace)
+    SokitsuTheme.typography.body.copy(fontFamily = FontFamily.Monospace)
 
 @Composable
 fun SerializeElementEntryEditor(
@@ -81,7 +83,7 @@ fun ElementEntryRow(
 fun KeyLabel(
     text: String,
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    color: Color = SokitsuTheme.colorScheme.onSurfaceVariant,
     onClick: (() -> Unit)? = null,
 ) {
     Text(
@@ -105,13 +107,13 @@ fun KeyLabel(
 @Composable
 private fun NullEditor() {
     Surface(
-        shape = RoundedCornerShape(6.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.35f),
+        
+        color = SokitsuTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
     ) {
         Text(
             text = "null",
-            style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = SokitsuTheme.typography.button.copy(fontFamily = FontFamily.Monospace),
+            color = SokitsuTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
         )
     }

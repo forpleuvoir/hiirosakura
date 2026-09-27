@@ -38,12 +38,15 @@ object Gliding : ConfigGroup("gliding") {
                         interaction.useItem(player, InteractionHand.MAIN_HAND)
                         return@Keybind
                     }
+
                     if (fireworkMatcher.match(player.offhandItem)) {
                         interaction.useItem(player, InteractionHand.OFF_HAND)
                         return@Keybind
                     }
 
+
                     val index = player.swapSlotWithHotbar { fireworkMatcher.match(it) }
+
                     if (index < 0) return@Keybind
                     interaction.useItem(player, InteractionHand.MAIN_HAND)
                     player.swapSlotWithHotbar(index)

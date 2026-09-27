@@ -1,18 +1,15 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.HorizontalDivider
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -39,24 +36,25 @@ import moe.forpleuvoir.ibukigourd.text.appendLiteral
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.MinecraftClipboard
-import moe.forpleuvoir.ibukigourd.ui.preset.DragHandle
-import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.PlainTooltip
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fadeScaleTooltip
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.tooltip
-import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberFabVisibilityByScroll
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
-import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.hiirosakura.ui.util.rememberClipboardWriter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 
 //region Displayer
 
@@ -86,8 +84,9 @@ fun BlockInfoMatcherDisplayerEditor(
     IconButton(onClick = {
         showDialog = true
     }) {
-        Icon(Icons.EditNote, null)
+        Icon(Icons.Edit)
     }
+
     if (showDialog) {
         BlockInfoMatcherEditorDialog(
             { showDialog = false },
@@ -113,7 +112,7 @@ fun BlockInfoMatcherDisplayerInnerEditor(
             IconButton(onClick = {
                 showDialog = true
             }) {
-                Icon(Icons.EditNote, null)
+                Icon(Icons.Edit)
             }
         }
     )
@@ -133,22 +132,16 @@ fun BlockInfoMatcherDisplayer(
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null
 ) {
-    AssistChip(
-        {},
+    FlatButton(
+        onClick = {},
         modifier = modifier.tooltip {
-            fadeScaleTooltip {
-                PlainTooltip {
-                    BlockInfoMatcherInfo(value)
-                }
-            }
+                                BlockInfoMatcherInfo(value)
         },
-        label = {
-            BlockInfoMatcherSimpleInfo(value, Modifier.padding(vertical = 8.dp))
-        },
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon
-    )
-}
+    ) {
+(leadingIcon)?.invoke()
+BlockInfoMatcherSimpleInfo(value, Modifier.padding(vertical = 8.dp))
+(trailingIcon)?.invoke()
+    }}
 
 @Composable
 fun BlockInfoMatcherInfo(
@@ -159,7 +152,6 @@ fun BlockInfoMatcherInfo(
 ) = Column(modifier, verticalArrangement, horizontalAlignment) {
     Text(
         value.mode.translateText,
-        textAlign = TextAlign.Center,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -181,7 +173,7 @@ fun BlockInfoMatcherSimpleInfo(
 ) {
     val entries = value.entries
     when (entries.size) {
-        0    -> Text(IGLang.Misc.hasNothing, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        0    -> Text(component = IGLang.Misc.hasNothing, maxLines = 1, overflow = TextOverflow.Ellipsis)
         1    -> BlockInfoMatchEntryInfo(entries.first())
         else -> {
             if (BlockInfoMatcher.isAnyMatcher(value)) {
@@ -234,8 +226,10 @@ fun BasicBlockInfoMatcherEditor(
                         BlockInfoMatcher(mode, entries.values()).match(targetBlock)
                     }
                 }
+
+                val copyToClipboard = rememberClipboardWriter()
                 FormatExportButton(IGLang.Misc.copySuccess(HSLang.BlockInfoMatcher.title).plainText) {
-                    MinecraftClipboard.setClipboardText(it.encode(BlockInfoMatcher.serialization(BlockInfoMatcher(mode, entries.values()))))
+                    copyToClipboard(it.encode(BlockInfoMatcher.serialization(BlockInfoMatcher(mode, entries.values()))))
                 }
                 FormatImportButton(HSLang.BlockInfoMatcher.title.plainText, HSLang.Common.success.plainText) {
                     BlockInfoMatcher.deserialization(it)
@@ -266,7 +260,7 @@ fun BasicBlockInfoMatcherEditor(
                     ReorderableItem(reorderableLazyListState, key = key) { isDragging ->
                         val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                         val handleInteraction = remember { MutableInteractionSource() }
-                        val handleHovered by handleInteraction.collectIsHoveredAsState()
+
                         BlockInfoMatchEntryRow(
                             modifier = Modifier.fillMaxWidth().scale(scale),
                             entry = entry,
@@ -277,27 +271,22 @@ fun BasicBlockInfoMatcherEditor(
                                 entries.removeAt(index)
                             },
                             moveHandler = {
-                                DragHandle(
-                                    hapticFeedback,
-                                    handleInteraction,
-                                    handleHovered,
-                                    isDragging
-                                )
+                                DragHandle(modifier = Modifier.draggableHandle(interactionSource = handleInteraction))
                             }
                         )
                     }
 
                 }
             }
-            VerticalScrollbar(
-                adapter = rememberScrollbarAdapter(lazyListState),
+            VerticalScroller(
+                adapter = rememberScrollerAdapter(lazyListState),
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
 
             FloatingAddButton(
                 modifier = Modifier
                     .align(Alignment.BottomEnd),
-                fabVisibilityState = rememberFabVisibilityByScroll(lazyListState),
+                fabVisibilityState = rememberFabScrollVisibility(lazyListState),
                 addMenuOptions = if (isNested) nestedAddMenuOptions else addMenuOptions
             ) { newEntry ->
                 entries.add(Keyed(entries.size.toLong(), newEntry))
@@ -313,10 +302,11 @@ fun BlockInfoMatcherEditorDialog(
     onValueChange: (BlockInfoMatcher) -> Unit,
 ) {
     var editingMode by remember(value) { mutableStateOf(value.mode) }
-    val editingEntries = rememberKeyedList(value.entries)
+
+    val editingEntries = rememberKeyedStateList(value.entries)
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(HSLang.BlockInfoMatcher.title) },
+        title = { Text(component = HSLang.BlockInfoMatcher.title) },
         content = {
             BasicBlockInfoMatcherEditor(
                 editingMode,

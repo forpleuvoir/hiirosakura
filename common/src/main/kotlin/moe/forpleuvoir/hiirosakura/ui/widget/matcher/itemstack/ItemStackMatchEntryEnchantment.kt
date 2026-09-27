@@ -1,10 +1,10 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,11 +22,16 @@ import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBindi
 import moe.forpleuvoir.hiirosakura.util.allEnchantments
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import net.minecraft.core.Holder
 import net.minecraft.world.item.enchantment.Enchantment
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import androidx.compose.foundation.layout.fillMaxWidth
+import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
+import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
+import moe.forpleuvoir.hiirosakura.ui.compat.TipBox
 
 @Composable
 fun ItemStackMatchEntryEnchantmentInfo(entry: ItemStackMatchEntry.Enchantment) {
@@ -52,8 +57,9 @@ internal fun ItemStackMatchEntryEnchantmentRow(
     Spacer(Modifier.width(6.dp))
     var showEditor by remember { mutableStateOf(false) }
     IconButton({ showEditor = true }) {
-        Icon(Icons.EditNote, "${IGLang.Misc.edit} ${entry.translateText.plainText}")
+        Icon(Icons.Edit)
     }
+
     if (showEditor) {
         ItemStackMatchEntryEnchantmentEditorDialog(
             { showEditor = false },
@@ -99,6 +105,7 @@ internal fun BasicItemStackMatchEntryEnchantmentEditor(
         modifier = modifier,
     ) {
         val state = rememberTextFieldStateBinding(value.enchantment) { onValueChange(value.copy(enchantment = it)) }
+
         var levelRange by remember(value.level) { mutableStateOf(value.level) }
         LaunchedEffect(levelRange) {
             onValueChange(value.copy(level = levelRange))
@@ -106,10 +113,12 @@ internal fun BasicItemStackMatchEntryEnchantmentEditor(
 
         //从手中物品获取
         val width = remember { 360.dp }
+
         val enchantments = remember { ItemStackMatcher.handheldItemStack?.allEnchantments }
+
         if (!enchantments.isNullOrEmpty()) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                Text(HSLang.Common.getFromHandItem)
+                Text(component = HSLang.Common.getFromHandItem)
                 var selected by remember { mutableStateOf(enchantments.keys.first()) }
                 EnchatmentSelector(
                     selected,
@@ -127,7 +136,7 @@ internal fun BasicItemStackMatchEntryEnchantmentEditor(
         Spacer(Modifier.height(12.dp))
         //从注册表获取
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-            Text(HSLang.Common.getFromRegistry)
+            Text(component = HSLang.Common.getFromRegistry)
             var selected: Holder<Enchantment> by remember { mutableStateOf(EnchatmentHelper.REGISTERED_ENCHANTMENT.first()) }
             EnchatmentSelector(
                 selected,
@@ -145,30 +154,33 @@ internal fun BasicItemStackMatchEntryEnchantmentEditor(
         Spacer(Modifier.height(12.dp))
         //附魔ID
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-            Text(HSLang.ItemStackMatcher.Entry.enchantmentID)
+            Text(component = HSLang.ItemStackMatcher.Entry.enchantmentID)
             TipBox({
                 Text(EnchatmentHelper.enchantmentDescription(state.text.toString()))
             }) {
-                OutlinedTextField(state, modifier = Modifier.width(width))
+                TextField(
+                    state,
+                    modifier = Modifier.width(width),
+                )
             }
         }
         Spacer(Modifier.height(12.dp))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-            Text(HSLang.ItemStackMatcher.Entry.enchantmentLevelRange)
+            Text(component = HSLang.ItemStackMatcher.Entry.enchantmentLevelRange)
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.width(width)) {
                 CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                    IntField(
+                                        IntField(
                         levelRange.first,
                         { levelRange = it..levelRange.last },
-                        range = 1..Int.MAX_VALUE,
-                        modifier = Modifier.weight(1f)
+                        valueRange = 1..Int.MAX_VALUE,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     Text("≤..≤", modifier = Modifier.padding(horizontal = 12.dp))
-                    IntField(
+                                        IntField(
                         levelRange.last,
                         { levelRange = levelRange.first..it },
-                        range = levelRange.first..Int.MAX_VALUE,
-                        modifier = Modifier.weight(1f)
+                        valueRange = levelRange.first..Int.MAX_VALUE,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }

@@ -2,9 +2,7 @@ package moe.forpleuvoir.hiirosakura.functional.task
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TextButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,21 +23,23 @@ import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.KeybindSetting
 import moe.forpleuvoir.ibukigourd.input.MouseButton.*
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.ui.ComposeScreen
-import moe.forpleuvoir.ibukigourd.ui.closeScreen
-import moe.forpleuvoir.ibukigourd.ui.openComposeScreen
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
-import moe.forpleuvoir.ibukigourd.ui.preset.ItemIcon
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
-import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
-import moe.forpleuvoir.ibukigourd.ui.util.toNebulaColor
+import moe.forpleuvoir.ibukigourd.util.toComposeColor
+import moe.forpleuvoir.ibukigourd.util.toNebulaColor
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.configColor
 import moe.forpleuvoir.nebula.config.item.configFloat
 import moe.forpleuvoir.nebula.config.item.configInt
 import net.minecraft.world.item.ItemStack
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.compat.closeScreen
+import moe.forpleuvoir.hiirosakura.ui.compat.openComposeScreen
+import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreen
 
 object QuickTickTaskExecuteScreen : ConfigGroup("quick_tick_task_execute") {
 
@@ -54,17 +54,17 @@ object QuickTickTaskExecuteScreen : ConfigGroup("quick_tick_task_execute") {
             open()
         })
 
-    val innerColor by configColor("inner_color", RadialMenuDefaults.IdleInnerColor.toNebulaColor)
+    val innerColor by configColor("inner_color", RadialMenuDefaults.IdleInnerColor.toNebulaColor())
 
-    val outerColor by configColor("outer_color", RadialMenuDefaults.IdleOuterColor.toNebulaColor)
+    val outerColor by configColor("outer_color", RadialMenuDefaults.IdleOuterColor.toNebulaColor())
 
-    val idleBorderColor by configColor("idle_border_color", RadialMenuDefaults.IdleBorderColor.toNebulaColor)
+    val idleBorderColor by configColor("idle_border_color", RadialMenuDefaults.IdleBorderColor.toNebulaColor())
 
-    val innerSelectedColor by configColor("inner_selected_color", RadialMenuDefaults.SelectedInnerColor.toNebulaColor)
+    val innerSelectedColor by configColor("inner_selected_color", RadialMenuDefaults.SelectedInnerColor.toNebulaColor())
 
-    val outerSelectedColor by configColor("outer_selected_color", RadialMenuDefaults.SelectedOuterColor.toNebulaColor)
+    val outerSelectedColor by configColor("outer_selected_color", RadialMenuDefaults.SelectedOuterColor.toNebulaColor())
 
-    val selectedBorderColor by configColor("selected_border_color", RadialMenuDefaults.SelectedBorderColor.toNebulaColor)
+    val selectedBorderColor by configColor("selected_border_color", RadialMenuDefaults.SelectedBorderColor.toNebulaColor())
 
     val iconScale by configFloat("icon_scale", 1.3f, 0.2f, 2f)
 
@@ -91,9 +91,10 @@ object QuickTickTaskExecuteScreen : ConfigGroup("quick_tick_task_execute") {
      * 右键扇区以外的地方（中心、环外）关闭屏幕。
      */
     fun open(): ComposeScreen = openComposeScreen {
-        IbukiGourdTheme {
+        SokitsuTheme {
             Box(Modifier.fillMaxSize()) {
                 var editorState by remember { mutableStateOf<TaskEditorState?>(null) }
+
                 var deletingTask by remember { mutableStateOf<Keyed<KeybindTickTask>?>(null) }
                 RadialMenu(
                     // 每次重组复制一份列表，保证增删任务后 RadialMenu 内部 remember(options) 能及时失效
@@ -105,12 +106,12 @@ object QuickTickTaskExecuteScreen : ConfigGroup("quick_tick_task_execute") {
                     gap = gapDistance,
                     cornerRadius = cornerRadius.dp,
                     optionsPerPage = singlePageMaxCount,
-                    idleOuterColor = outerColor.toComposeColor,
-                    idleInnerColor = innerColor.toComposeColor,
-                    idleBorderColor = idleBorderColor.toComposeColor,
-                    selectedOuterColor = outerSelectedColor.toComposeColor,
-                    selectedInnerColor = innerSelectedColor.toComposeColor,
-                    selectedBorderColor = selectedBorderColor.toComposeColor,
+                    idleOuterColor = outerColor.toComposeColor(),
+                    idleInnerColor = innerColor.toComposeColor(),
+                    idleBorderColor = idleBorderColor.toComposeColor(),
+                    selectedOuterColor = outerSelectedColor.toComposeColor(),
+                    selectedInnerColor = innerSelectedColor.toComposeColor(),
+                    selectedBorderColor = selectedBorderColor.toComposeColor(),
                     borderWidth = borderWidth.dp,
                     onOptionClick = { keyed, button ->
                         when (button) {
@@ -134,35 +135,37 @@ object QuickTickTaskExecuteScreen : ConfigGroup("quick_tick_task_execute") {
                     },
                     optionContent = { keyed, _ ->
                         val stack = remember(keyed.value.icon) { ItemStack(keyed.value.icon) }
+
                         if (!stack.isEmpty) ItemIcon(stack, modifier = Modifier.scale(iconScale), showTooltip = false, scaleOnHover = 1f)
                     },
                     centerContent = { keyed ->
                         if (keyed != null) Text(keyed.value.nameAsInlineStyleText, color = Color.White)
-                        else Text(HSLang.Task.unSelected, color = Color.White)
+                        else Text(component = HSLang.Task.unSelected, color = Color.White)
                     },
                 )
 
-                Text(HSLang.Task.quickExecuteHint, Modifier.align(hitAlignment), color = Color.White)
+                Text(component = HSLang.Task.quickExecuteHint, Modifier.align(hitAlignment), color = Color.White)
 
                 // 删除确认
                 deletingTask?.let { keyed ->
                     SimpleAlertDialog(
                         onDismissRequest = { deletingTask = null },
                         onConfirmRequest = { true },
-                        title = { Text(HSLang.Common.deleteConfirm(keyed.value.name)) },
+                        title = { Text(component = HSLang.Common.deleteConfirm(keyed.value.name)) },
                         confirmButton = {
                             TextButton(
                                 onClick = {
                                     val index = TaskManager.taskList.indexOfFirst { it.key == keyed.key }
+
                                     if (index >= 0) TaskManager.removeAt(index)
                                     deletingTask = null
                                 },
-                                colors = ButtonDefaults.textButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.error,
-                                    contentColor = MaterialTheme.colorScheme.onError,
+                                colors = FlatButtonDefaults.colors(
+                                    color = SokitsuTheme.colorScheme.error,
+                                    contentColor = SokitsuTheme.colorScheme.onError,
                                 )
                             ) {
-                                Text(IGLang.Misc.confirm)
+                                Text(component = IGLang.Misc.confirm)
                             }
                         },
                     )
@@ -172,7 +175,7 @@ object QuickTickTaskExecuteScreen : ConfigGroup("quick_tick_task_execute") {
                 editorState?.let { state ->
                     TaskEditorDialog(
                         task = state.task,
-                        title = { if (state.key == null) Text(HSLang.Task.newTask) else Text(HSLang.Task.editTask) },
+                        title = { if (state.key == null) Text(component = HSLang.Task.newTask) else Text(component = HSLang.Task.editTask) },
                         onDismissRequest = { editorState = null },
                     ) { newTask ->
                         val key = state.key
@@ -180,6 +183,7 @@ object QuickTickTaskExecuteScreen : ConfigGroup("quick_tick_task_execute") {
                             TaskManager.add(newTask)
                         } else {
                             val index = TaskManager.taskList.indexOfFirst { it.key == key }
+
                             if (index >= 0) TaskManager.update(index, newTask) else TaskManager.add(newTask)
                         }
                     }

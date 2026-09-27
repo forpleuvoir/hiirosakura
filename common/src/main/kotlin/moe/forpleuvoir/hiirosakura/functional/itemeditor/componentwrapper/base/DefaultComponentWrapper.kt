@@ -9,10 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,13 +23,10 @@ import moe.forpleuvoir.hiirosakura.ui.widget.truncateLines
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.util.registryAccess
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.EnumSelector
-import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.toast.ToastContainer
-import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastContainer
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
@@ -41,6 +37,9 @@ import net.minecraft.core.component.DataComponentType
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.world.level.storage.loot.functions.SetAttributesFunction.modifier
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 private val logger = logger("DefaultComponentWrapper")
 
@@ -78,10 +77,12 @@ fun <C : Any> DefaultComponentWrapper(
 ) {
     DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
         var showEditDialog by remember { mutableStateOf(false) }
+
         Box(Modifier.height(DataComponentEditorDefaults.entrySize.height), contentAlignment = Alignment.CenterEnd) {
             IconButton({ showEditDialog = true }) {
-                Icon(Icons.EditNote, null)
+                Icon(Icons.Edit)
             }
+
             if (showEditDialog) {
                 var data by remember { mutableStateOf<SerializeElement?>(null) }
                 LaunchedEffect(showEditDialog) {
@@ -130,7 +131,9 @@ private fun <C : Any> DefaultComponentEditorDialog(
     modifier: Modifier = Modifier,
 ) {
     var rootType by remember { mutableStateOf(rootTypeOf(initialData)) }
+
     var data by remember { mutableStateOf(initialData) }
+
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     FlexibleDialog(
@@ -165,7 +168,7 @@ private fun <C : Any> DefaultComponentEditorDialog(
                         }
                     },
                     items = SerializeElementType.entries,
-                    label = { Text(HSLang.ItemEditor.rootType) },
+                    label = { Text(component = HSLang.ItemEditor.rootType) },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(8.dp))
@@ -177,7 +180,7 @@ private fun <C : Any> DefaultComponentEditorDialog(
                 errorMessage?.let {
                     Text(
                         Component.literal(it),
-                        color = MaterialTheme.colorScheme.error,
+                        color = SokitsuTheme.colorScheme.error,
                         modifier = Modifier.padding(top = 8.dp)
                     )
                 }

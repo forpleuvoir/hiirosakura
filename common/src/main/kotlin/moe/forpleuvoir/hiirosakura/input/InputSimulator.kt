@@ -12,6 +12,7 @@ import net.minecraft.client.MouseHandler
 import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonInfo
 import org.lwjgl.glfw.GLFW
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 object InputSimulator : Initializable {
 
@@ -50,6 +51,7 @@ object InputSimulator : Initializable {
         }
         keyRemoveList.forEach { keyPressed.remove(it) }
 
+
         val mouseRemoveList = mutableListOf<KeyCode>()
         mousePressed.forEach { (mouse, value) ->
             val (duration, lastDuration) = value
@@ -62,6 +64,7 @@ object InputSimulator : Initializable {
                 mouseRemoveList.add(mouse)
                 GLFW.GLFW_RELEASE
             }
+
             if (action != GLFW.GLFW_REPEAT) onMouseButton(mouse.code, action, 0)
             mousePressed[mouse] = duration to lastDuration - 1
         }

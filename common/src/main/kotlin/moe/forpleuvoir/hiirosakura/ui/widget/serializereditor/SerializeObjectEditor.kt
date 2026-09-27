@@ -3,7 +3,6 @@ package moe.forpleuvoir.hiirosakura.ui.widget.serializereditor
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -20,14 +19,19 @@ import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.removed
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.renamed
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.replaced
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Delete
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.hiirosakura.ui.widget.ValueTextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun SerializeObjectEditor(
@@ -35,6 +39,7 @@ fun SerializeObjectEditor(
     onValueChange: (SerializeObject) -> Unit,
 ) {
     var showAdder by remember { mutableStateOf(false) }
+
     val expanded = rememberExpandState(default = serializeObject.size <= 5)
     val keyWidth = rememberMaxLabelWidth(
         labels = serializeObject.keys.map { "$it :" },
@@ -42,7 +47,7 @@ fun SerializeObjectEditor(
     )
 
     ElementContainer(
-        title = { Text(HSLang.SerializeEditor.objectType) },
+        title = { Text(component = HSLang.SerializeEditor.objectType) },
         count = serializeObject.size,
         expanded = expanded.value,
         onToggle = { expanded.value = !expanded.value },
@@ -69,6 +74,7 @@ fun SerializeObjectEditor(
         }
     }
 
+
     if (showAdder) {
         SerializeElementAdderDialog(
             key = serializeObject.size.toString(),
@@ -92,11 +98,13 @@ private fun SerializeObjectEntry(
     onRename: (String) -> Unit,
 ) {
     var showRenameDialog by remember { mutableStateOf(false) }
+
     val keyTopPadding = when (value) {
         is SerializeObject, is SerializeArray -> 6.dp
         is SerializePrimitive -> if (value.isString || value.isNumber) 8.dp else 0.dp
         else -> 0.dp
     }
+
     val keyModifier = Modifier.width(keyWidth).then(
         if (keyTopPadding > 0.dp) Modifier.padding(top = keyTopPadding) else Modifier
     )
@@ -107,7 +115,7 @@ private fun SerializeObjectEntry(
         keyWrapper = {
             KeyLabel(
                 text = key,
-                color = MaterialTheme.colorScheme.primary,
+                color = SokitsuTheme.colorScheme.primary,
                 onClick = { showRenameDialog = true },
                 modifier = keyModifier,
             )
@@ -118,7 +126,7 @@ private fun SerializeObjectEntry(
                 onClick = onRemove,
                 modifier = Modifier.size(30.dp),
             ) {
-                Icon(Icons.Delete, null, Modifier.size(15.dp))
+                Icon(Icons.Delete, Modifier.size(15.dp))
             }
         },
     )
@@ -144,6 +152,7 @@ fun SerializeObjectEntryEditor(
 ) {
     val expanded = rememberExpandState(default = serializeObject.size <= 5)
     var showAdder by remember { mutableStateOf(false) }
+
     val keyWidth = rememberMaxLabelWidth(
         labels = serializeObject.keys.map { "$it :" },
         style = keyLabelStyle(),
@@ -151,7 +160,7 @@ fun SerializeObjectEntryEditor(
 
     ElementContainer(
         modifier = modifier,
-        title = { Text(HSLang.SerializeEditor.objectType) },
+        title = { Text(component = HSLang.SerializeEditor.objectType) },
         count = serializeObject.size,
         expanded = expanded.value,
         onToggle = { expanded.value = !expanded.value },
@@ -178,6 +187,7 @@ fun SerializeObjectEntryEditor(
         }
     }
 
+
     if (showAdder) {
         SerializeElementAdderDialog(
             key = serializeObject.size.toString(),
@@ -199,6 +209,7 @@ private fun RenameKeyDialog(
     onConfirm: (String) -> Unit,
 ) {
     var newKey by remember { mutableStateOf(currentKey) }
+
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     SimpleAlertDialog(
@@ -216,24 +227,15 @@ private fun RenameKeyDialog(
                 true
             }
         },
-        title = { Text(HSLang.SerializeEditor.renameKey) },
+        title = { Text(component = HSLang.SerializeEditor.renameKey) },
         content = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = newKey,
-                    onValueChange = { newKey = it; errorMessage = null },
-                    singleLine = true,
-                    label = { Text(HSLang.SerializeEditor.key) },
-                    modifier = Modifier.fillMaxWidth(),
-                    textStyle = TextStyle(fontFamily = FontFamily.Monospace),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { /* confirm handled by dialog */ }),
-                )
+                ValueTextField(value = newKey, onValueChange = { newKey = it; errorMessage = null }, modifier = Modifier.fillMaxWidth(), label = { Text(component = HSLang.SerializeEditor.key) })
                 errorMessage?.let {
                     Text(
                         text = it,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
+                        color = SokitsuTheme.colorScheme.error,
+                        style = SokitsuTheme.typography.body,
                     )
                 }
             }

@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,9 +25,28 @@ import moe.forpleuvoir.ibukigourd.input.KeybindSetting
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.preset.*
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import androidx.compose.ui.graphics.RectangleShape
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.keybind.KeybindSetButton
+import moe.forpleuvoir.ibukigourd.ui.colorpicker.ColorPickButton
+import moe.forpleuvoir.ibukigourd.util.toComposeColor
+import moe.forpleuvoir.ibukigourd.util.toNebulaColor
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Slider
+import moe.forpleuvoir.hiirosakura.ui.compat.IntSlider
 
 @Composable
 fun CreateRadialMenuDialog(
@@ -44,11 +62,12 @@ fun CreateRadialMenuDialog(
             )
         )
     }
+
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(HSLang.CustomRadialMenu.add) },
+        title = { Text(component = HSLang.CustomRadialMenu.add) },
         modifier = Modifier.padding(24.dp),
         onConfirmRequest = {
             val name = nameState.text.toString().trim()
@@ -68,16 +87,20 @@ fun CreateRadialMenuDialog(
         },
         content = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.width(400.dp)) {
-                OutlinedTextField(
-                    nameState,
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(HSLang.Common.name) },
-                    lineLimits = TextFieldLineLimits.SingleLine
-                )
-                errorMessage?.let {
-                    Text(it, color = MaterialTheme.colorScheme.error)
+                OutlinedLabelBox(label = { Text(component = HSLang.Common.name) }) {
+                    TextField(
+                        nameState,
+                        modifier = Modifier.fillMaxWidth(),
+                        lineLimits = TextFieldLineLimits.SingleLine,
+                    )
                 }
-                KeybindAssistChip(keybind, modifier = Modifier.fillMaxWidth())
+                errorMessage?.let {
+                    Text(it, color = SokitsuTheme.colorScheme.error)
+                }
+                KeybindSetButton(
+                    keybind = keybind,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         },
         confirmButton = {
@@ -87,12 +110,12 @@ fun CreateRadialMenuDialog(
                 onConfirm(name, menu)
                 onDismissRequest()
             }) {
-                Text(HSLang.Task.save)
+                Text(component = HSLang.Task.save)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(HSLang.Task.cancel)
+                Text(component = HSLang.Task.cancel)
             }
         }
     )
@@ -113,22 +136,23 @@ fun RenameMenuDialog(
 
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(HSLang.CustomRadialMenu.editName) },
+        title = { Text(component = HSLang.CustomRadialMenu.editName) },
         modifier = Modifier.padding(24.dp),
         onConfirmRequest = { errorMessage == null },
         content = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.width(400.dp)) {
-                OutlinedTextField(
-                    state = nameState,
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = errorMessage != null,
-                    label = {
+                OutlinedLabelBox(label = {
                         errorMessage?.let {
-                            Text(it, color = MaterialTheme.colorScheme.error)
-                        } ?: Text(HSLang.Common.name)
-                    },
-                    lineLimits = TextFieldLineLimits.SingleLine
-                )
+                            Text(it, color = SokitsuTheme.colorScheme.error)
+                        } ?: Text(component = HSLang.Common.name)
+                    }) {
+                    TextField(
+                        state = nameState,
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = errorMessage != null,
+                        lineLimits = TextFieldLineLimits.SingleLine,
+                    )
+                }
             }
         },
         confirmButton = {
@@ -140,12 +164,12 @@ fun RenameMenuDialog(
                 },
                 enabled = errorMessage == null
             ) {
-                Text(HSLang.Task.save)
+                Text(component = HSLang.Task.save)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(HSLang.Task.cancel)
+                Text(component = HSLang.Task.cancel)
             }
         }
     )
@@ -158,11 +182,12 @@ fun RadialMenuSettingDialog(
     onConfirm: (RadialMenuSetting) -> Unit,
 ) {
     var draft by remember(setting) { mutableStateOf(setting) }
+
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(HSLang.CustomRadialMenu.setting) },
+        title = { Text(component = HSLang.CustomRadialMenu.setting) },
         modifier = Modifier.padding(24.dp).width(800.dp),
         onConfirmRequest = {
             if (draft.innerRadius >= draft.outerRadius) {
@@ -178,7 +203,7 @@ fun RadialMenuSettingDialog(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     errorMessage?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error)
+                        Text(it, color = SokitsuTheme.colorScheme.error)
                     }
 
                     @Composable
@@ -193,51 +218,58 @@ fun RadialMenuSettingDialog(
 
                     EntryRow {
                         Text(HSLang.CustomRadialMenu.settingInnerColor.plainText)
-                        ColorAssistChip(
-                            draft.innerColor,
-                            { draft = draft.copy(innerColor = it) },
-                            editorTitle = { Text(HSLang.CustomRadialMenu.settingInnerColor) })
+                        ColorPickButton(
+                            color = draft.innerColor.toComposeColor(),
+                            onValueChange = { draft = draft.copy(innerColor = it.toNebulaColor()) },
+                            title = { Text(component = HSLang.CustomRadialMenu.settingInnerColor) },
+                        )
                     }
                     EntryRow {
                         Text(HSLang.CustomRadialMenu.settingOuterColor.plainText)
-                        ColorAssistChip(
-                            draft.outerColor,
-                            { draft = draft.copy(outerColor = it) },
-                            editorTitle = { Text(HSLang.CustomRadialMenu.settingOuterColor) })
+                        ColorPickButton(
+                            color = draft.outerColor.toComposeColor(),
+                            onValueChange = { draft = draft.copy(outerColor = it.toNebulaColor()) },
+                            title = { Text(component = HSLang.CustomRadialMenu.settingOuterColor) },
+                        )
                     }
                     EntryRow {
                         Text(HSLang.CustomRadialMenu.settingInnerSelectedColor.plainText)
-                        ColorAssistChip(
-                            draft.innerSelectedColor,
-                            { draft = draft.copy(innerSelectedColor = it) },
-                            editorTitle = { Text(HSLang.CustomRadialMenu.settingInnerSelectedColor) })
+                        ColorPickButton(
+                            color = draft.innerSelectedColor.toComposeColor(),
+                            onValueChange = { draft = draft.copy(innerSelectedColor = it.toNebulaColor()) },
+                            title = { Text(component = HSLang.CustomRadialMenu.settingInnerSelectedColor) },
+                        )
                     }
                     EntryRow {
                         Text(HSLang.CustomRadialMenu.settingOuterSelectedColor.plainText)
-                        ColorAssistChip(
-                            draft.outerSelectedColor,
-                            { draft = draft.copy(outerSelectedColor = it) },
-                            editorTitle = { Text(HSLang.CustomRadialMenu.settingOuterSelectedColor) })
+                        ColorPickButton(
+                            color = draft.outerSelectedColor.toComposeColor(),
+                            onValueChange = { draft = draft.copy(outerSelectedColor = it.toNebulaColor()) },
+                            title = { Text(component = HSLang.CustomRadialMenu.settingOuterSelectedColor) },
+                        )
                     }
                     EntryRow {
                         Text(HSLang.CustomRadialMenu.settingBorderColor.plainText)
-                        ColorAssistChip(
-                            draft.borderColor,
-                            { draft = draft.copy(borderColor = it) },
-                            editorTitle = { Text(HSLang.CustomRadialMenu.settingBorderColor) })
+                        ColorPickButton(
+                            color = draft.borderColor.toComposeColor(),
+                            onValueChange = { draft = draft.copy(borderColor = it.toNebulaColor()) },
+                            title = { Text(component = HSLang.CustomRadialMenu.settingBorderColor) },
+                        )
                     }
                     EntryRow {
                         Text(HSLang.CustomRadialMenu.settingSelectedBorderColor.plainText)
-                        ColorAssistChip(
-                            draft.selectedBorderColor,
-                            { draft = draft.copy(selectedBorderColor = it) },
-                            editorTitle = { Text(HSLang.CustomRadialMenu.settingSelectedBorderColor) })
+                        ColorPickButton(
+                            color = draft.selectedBorderColor.toComposeColor(),
+                            onValueChange = { draft = draft.copy(selectedBorderColor = it.toNebulaColor()) },
+                            title = { Text(component = HSLang.CustomRadialMenu.settingSelectedBorderColor) },
+                        )
                     }
+
 
                     val width = 280.dp
                     EntryRow {
                         Text(HSLang.CustomRadialMenu.settingIconScale.plainText)
-                        FloatSlider(
+                        Slider(
                             draft.iconScale,
                             { draft = draft.copy(iconScale = it) },
                             valueRange = 0.2f..2f,
@@ -247,7 +279,7 @@ fun RadialMenuSettingDialog(
 
                     EntryRow {
                         Text(HSLang.CustomRadialMenu.settingInnerRadius.plainText)
-                        FloatSlider(
+                        Slider(
                             draft.innerRadius,
                             { draft = draft.copy(innerRadius = it) },
                             valueRange = 80f..250f,
@@ -257,7 +289,7 @@ fun RadialMenuSettingDialog(
 
                     EntryRow {
                         Text(HSLang.CustomRadialMenu.settingOuterRadius.plainText)
-                        FloatSlider(
+                        Slider(
                             draft.outerRadius,
                             { draft = draft.copy(outerRadius = it) },
                             valueRange = 200f..500f,
@@ -267,7 +299,7 @@ fun RadialMenuSettingDialog(
 
                     EntryRow {
                         Text(HSLang.CustomRadialMenu.settingOptionRadius.plainText)
-                        FloatSlider(
+                        Slider(
                             draft.optionRadius,
                             { draft = draft.copy(optionRadius = it) },
                             valueRange = 150f..400f,
@@ -277,7 +309,7 @@ fun RadialMenuSettingDialog(
 
                     EntryRow {
                         Text(HSLang.CustomRadialMenu.settingGap.plainText)
-                        FloatSlider(draft.gap, { draft = draft.copy(gap = it) }, valueRange = 0f..30f, modifier = Modifier.width(width).height(24.dp))
+                        Slider(draft.gap, { draft = draft.copy(gap = it) }, valueRange = 0f..30f, modifier = Modifier.width(width).height(24.dp))
                     }
 
                     EntryRow {
@@ -287,7 +319,7 @@ fun RadialMenuSettingDialog(
 
                     EntryRow {
                         Text(HSLang.CustomRadialMenu.settingCornerRadius.plainText)
-                        FloatSlider(
+                        Slider(
                             draft.cornerRadius,
                             { draft = draft.copy(cornerRadius = it) },
                             valueRange = 0f..20f,
@@ -297,7 +329,7 @@ fun RadialMenuSettingDialog(
 
                     EntryRow {
                         Text(HSLang.CustomRadialMenu.settingBorderWidth.plainText)
-                        FloatSlider(
+                        Slider(
                             draft.borderWidth,
                             { draft = draft.copy(borderWidth = it) },
                             valueRange = 0f..10f,
@@ -306,8 +338,8 @@ fun RadialMenuSettingDialog(
                     }
                 }
 
-                VerticalScrollbar(
-                    adapter = rememberScrollbarAdapter(scrollState),
+                VerticalScroller(
+                    adapter = rememberScrollerAdapter(scrollState),
                     modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
                 )
             }
@@ -317,12 +349,12 @@ fun RadialMenuSettingDialog(
                 onConfirm(draft)
                 onDismissRequest()
             }) {
-                Text(HSLang.Task.save)
+                Text(component = HSLang.Task.save)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(HSLang.Task.cancel)
+                Text(component = HSLang.Task.cancel)
             }
         }
     )
@@ -337,13 +369,13 @@ fun ImportTasksDialog(
 
     SimpleAlertDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(HSLang.CustomRadialMenu.importTasks) },
+        title = { Text(component = HSLang.CustomRadialMenu.importTasks) },
         modifier = Modifier.padding(24.dp),
         content = {
             Column(modifier = Modifier.fillMaxWidth().height(400.dp)) {
                 if (TaskManager.taskList.isEmpty()) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
                     }
                 } else {
                     Box(Modifier.fillMaxSize()) {
@@ -353,7 +385,7 @@ fun ImportTasksDialog(
                                 val checked = keyed.key in selectedKeys
                                 Row(
                                     Modifier.fillMaxWidth()
-                                        .clip(MaterialTheme.shapes.small)
+                                        .clip(RectangleShape)
                                         .clickable {
                                             selectedKeys = if (checked) selectedKeys - keyed.key
                                             else selectedKeys + keyed.key
@@ -361,15 +393,16 @@ fun ImportTasksDialog(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-                                    Checkbox(checked, {})
+                                    Icon(if (checked) Icons.Checked else Icons.Unchecked, scale = 3)
                                     val stack = remember(keyed.value.icon) { ItemStack(keyed.value.icon) }
+
                                     if (!stack.isEmpty) ItemIcon(stack, showTooltip = false)
-                                    Text(InlineStyleText(keyed.value.name), modifier = Modifier.weight(1f))
+                                    Text(component = InlineStyleText(keyed.value.name), modifier = Modifier.weight(1f))
                                 }
                             }
                         }
-                        VerticalScrollbar(
-                            adapter = rememberScrollbarAdapter(state),
+                        VerticalScroller(
+                            adapter = rememberScrollerAdapter(state),
                             modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
                         )
                     }
@@ -393,12 +426,12 @@ fun ImportTasksDialog(
                 onConfirm(imported)
                 onDismissRequest()
             }, enabled = selectedKeys.isNotEmpty()) {
-                Text(IGLang.Misc.confirm)
+                Text(component = IGLang.Misc.confirm)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(IGLang.Misc.cancel)
+                Text(component = IGLang.Misc.cancel)
             }
         }
     )

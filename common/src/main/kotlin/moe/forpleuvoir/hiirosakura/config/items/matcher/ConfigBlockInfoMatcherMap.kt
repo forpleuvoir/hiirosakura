@@ -3,10 +3,9 @@ package moe.forpleuvoir.hiirosakura.config.items.matcher
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldLabelScope
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.AlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -18,14 +17,15 @@ import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.MapConfigWrapperDefaults
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.MapEntry
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.MapConfigWrapperDefaults
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.MapEntry
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.ConfigMap
 import moe.forpleuvoir.nebula.config.item.configMap
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 context(group: ConfigGroup)
 fun configBlockInfoMatcherMap(name: String, defaultValue: Map<String, BlockInfoMatcher>) =
@@ -37,13 +37,13 @@ fun configBlockInfoMatcherMap(name: String, defaultValue: Map<String, BlockInfoM
 @Composable
 fun BlockInfoMatcherMapConfigWrapper(
     config: ConfigMap<BlockInfoMatcher>,
-    editorDialogTitle: @Composable (() -> Unit)? = { Text(InlineStyleText(config.translateText.plainText)) },
-    keyHeader: @Composable BoxScope.() -> Unit = { Text(IGLang.ConfigWrapper.mapKey) },
-    addKeyLabel: @Composable TextFieldLabelScope.(isDuplicate: Boolean, newKey: String) -> Unit = { isDuplicate, newKey ->
-        if (isDuplicate) Text(IGLang.ConfigWrapper.keyExists(newKey))
-        else Text(IGLang.ConfigWrapper.mapKey)
+    editorDialogTitle: @Composable (() -> Unit)? = { Text(component = InlineStyleText(config.translateText.plainText)) },
+    keyHeader: @Composable BoxScope.() -> Unit = { Text(component = IGLang.ConfigWrapper.mapKey) },
+    addKeyLabel: @Composable (isDuplicate: Boolean, newKey: String) -> Unit = { isDuplicate, newKey ->
+        if (isDuplicate) Text(component = IGLang.ConfigWrapper.keyExists(newKey))
+        else Text(component = IGLang.ConfigWrapper.mapKey)
     },
-    valueHeader: @Composable BoxScope.() -> Unit = { Text(HSLang.BlockInfoMatcher.title) },
+    valueHeader: @Composable BoxScope.() -> Unit = { Text(component = HSLang.BlockInfoMatcher.title) },
     modifier: Modifier = Modifier,
     dialogModifier: Modifier = Modifier.padding(40.dp).size(1000.dp, 800.dp),
 ) = MapConfigWrapperDefaults.run {
@@ -55,6 +55,7 @@ fun BlockInfoMatcherMapConfigWrapper(
             config = config,
             modifier = modifier,
         ) { showEditDialog = true }
+
 
         if (showEditDialog) {
             EditDialog(
@@ -75,20 +76,22 @@ fun BlockInfoMatcherMapConfigWrapper(
                     addDialog = { onDismissRequest ->
                         val newKey = rememberTextFieldState("")
                         val isDuplicate = remember(newKey.text.toString()) { data.any { it.value.key == newKey.text.toString() } }
+
                         var newValue by remember { mutableStateOf(BlockInfoMatcher.targetBlockMatcher) }
                         AlertDialog(
                             onDismissRequest = onDismissRequest,
-                            title = { Text(IGLang.Misc.add) },
+                            title = { Text(component = IGLang.Misc.add) },
                             text = {
-                                IGCompositionLocalProvider {
+                                
                                     Column {
-                                        OutlinedTextField(
-                                            state = newKey,
-                                            lineLimits = TextFieldLineLimits.SingleLine,
-                                            modifier = Modifier.fillMaxWidth(),
-                                            isError = isDuplicate,
-                                            label = { addKeyLabel(isDuplicate, newKey.text.toString()) },
-                                        )
+                                        OutlinedLabelBox(label = { addKeyLabel(isDuplicate, newKey.text.toString()) }) {
+                                            TextField(
+                                                state = newKey,
+                                                lineLimits = TextFieldLineLimits.SingleLine,
+                                                modifier = Modifier.fillMaxWidth(),
+                                                isError = isDuplicate,
+                                            )
+                                        }
                                         Spacer(Modifier.height(8.dp))
                                         BlockInfoMatcherDisplayerInnerEditor(
                                             value = newValue,
@@ -96,7 +99,7 @@ fun BlockInfoMatcherMapConfigWrapper(
                                             modifier = Modifier.fillMaxWidth(),
                                         )
                                     }
-                                }
+                                
                             },
                             confirmButton = {
                                 TextButton(
@@ -108,12 +111,12 @@ fun BlockInfoMatcherMapConfigWrapper(
                                     },
                                     enabled = !isDuplicate
                                 ) {
-                                    Text(IGLang.Misc.confirm)
+                                    Text(component = IGLang.Misc.confirm)
                                 }
                             },
                             dismissButton = {
                                 TextButton(onClick = onDismissRequest) {
-                                    Text(IGLang.Misc.cancel)
+                                    Text(component = IGLang.Misc.cancel)
                                 }
                             },
                         )

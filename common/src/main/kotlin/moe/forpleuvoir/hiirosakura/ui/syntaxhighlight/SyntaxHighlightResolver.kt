@@ -29,6 +29,7 @@ object SyntaxHighlightResolver {
         val valid = spans.filter { s ->
             s.range.start >= 0 && s.range.end <= sourceLength && s.range.start < s.range.end
         }
+
         if (valid.isEmpty()) return emptyList()
 
         val events = mutableListOf<Event>()
@@ -56,6 +57,7 @@ object SyntaxHighlightResolver {
                     )
                 )
             }
+
 
             if (event.type == EventType.Close) {
                 active.removeAll { it.originalIndex == event.originalIndex }

@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,13 +10,10 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Delete
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
-import moe.forpleuvoir.ibukigourd.ui.preset.IntField
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.core.BlockPos
 import net.minecraft.core.GlobalPos
@@ -28,6 +24,13 @@ import net.minecraft.world.item.component.LodestoneTracker
 import net.minecraft.world.level.Level
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import androidx.compose.foundation.layout.fillMaxWidth
 
 @Composable
 fun LodestoneTrackerComponentWrapper(
@@ -44,8 +47,9 @@ fun LodestoneTrackerComponentWrapper(
         IconButton(onClick = {
             showDialog = true
         }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.EditNote, null)
+            Icon(Icons.Edit)
         }
+
         if (showDialog) {
             LodestoneTrackerEditorDialog(
                 value = value,
@@ -65,6 +69,7 @@ private fun LodestoneTrackerEditorDialog(
     key: Identifier,
 ) {
     var tracked by remember { mutableStateOf(value.tracked) }
+
     var target by remember { mutableStateOf(value.target) }
 
     SimpleAlertDialog(
@@ -101,7 +106,7 @@ private fun OptionalGlobalPosCard(
     key: Identifier,
     modifier: Modifier = Modifier,
 ) {
-    ElevatedCard(modifier = modifier) {
+    Surface(modifier = modifier) {
         Column(
             modifier = Modifier.padding(16.dp, 8.dp, 16.dp, if (value.isPresent) 16.dp else 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -127,14 +132,18 @@ private fun OptionalGlobalPosCard(
                     }
                 }) {
                     val icon = if (value.isEmpty) Icons.Add else Icons.Delete
-                    Icon(icon, null)
+                    Icon(icon)
                 }
             }
             value.getOrNull()?.let { globalPos ->
                 var showIdEditor by remember { mutableStateOf(false) }
+
                 var editX by remember { mutableStateOf(globalPos.pos.x) }
+
                 var editY by remember { mutableStateOf(globalPos.pos.y) }
+
                 var editZ by remember { mutableStateOf(globalPos.pos.z) }
+
                 var currentDimension by remember { mutableStateOf(globalPos.dimension) }
 
                 OutlinedLabelBox(
@@ -148,10 +157,11 @@ private fun OptionalGlobalPosCard(
                     ) {
                         Text(currentDimension.identifier().toString(), modifier = Modifier.weight(1f))
                         IconButton(onClick = { showIdEditor = true }) {
-                            Icon(Icons.EditNote, null)
+                            Icon(Icons.Edit)
                         }
                     }
                 }
+
                 if (showIdEditor) {
                     IdentifierEditorDialog(
                         currentDimension.identifier(),
@@ -164,22 +174,41 @@ private fun OptionalGlobalPosCard(
                         { showIdEditor = false }
                     )
                 }
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    IntField(editX, {
+                                        OutlinedLabelBox(label = { Text("X") }, modifier = Modifier.weight(1f)) {
+                        IntField(
+                            editX,
+                            {
                         editX = it
                         onValueChange(Optional.of(GlobalPos.of(currentDimension, BlockPos(it, editY, editZ))))
-                    }, label = { Text("X") }, modifier = Modifier.weight(1f))
-                    IntField(editY, {
+                    },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                                        OutlinedLabelBox(label = { Text("Y") }, modifier = Modifier.weight(1f)) {
+                        IntField(
+                            editY,
+                            {
                         editY = it
                         onValueChange(Optional.of(GlobalPos.of(currentDimension, BlockPos(editX, it, editZ))))
-                    }, label = { Text("Y") }, modifier = Modifier.weight(1f))
-                    IntField(editZ, {
+                    },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                                        OutlinedLabelBox(label = { Text("Z") }, modifier = Modifier.weight(1f)) {
+                        IntField(
+                            editZ,
+                            {
                         editZ = it
                         onValueChange(Optional.of(GlobalPos.of(currentDimension, BlockPos(editX, editY, it))))
-                    }, label = { Text("Z") }, modifier = Modifier.weight(1f))
+                    },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
             }
         }

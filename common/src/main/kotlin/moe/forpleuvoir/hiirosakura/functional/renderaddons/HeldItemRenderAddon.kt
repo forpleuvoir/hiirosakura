@@ -53,6 +53,7 @@ object HeldItemRenderAddon : ConfigGroup("held_item") {
             new.count = 1
             origin.count = 1
         }
+
         if (!itemStackInfo.damage.getValue()) {
             new.damageValue = 1
             origin.damageValue = 1
@@ -84,10 +85,12 @@ object HeldItemRenderAddon : ConfigGroup("held_item") {
             if (overallBackground.alpha > 5) {
                 pushRoundRect(area.expandEdges(4f), overallBackground.opacity(alpha), 2)
             }
+
             val verticalOffsets = IntArray(texts.size)
             Arrangement.spacedBy(spacing.dp).run {
                 density.arrange(area.height.fastRoundToInt(), IntArray(texts.size) { font.lineHeight }, verticalOffsets)
             }
+
             val horizontalOffsets = texts.map { Alignment.CenterHorizontally.align(it.width.toInt(), area.width.fastRoundToInt(), LayoutDirection.Ltr) }
 
             verticalOffsets.zip(horizontalOffsets).fastForEachIndexed { idx, (y, x) ->

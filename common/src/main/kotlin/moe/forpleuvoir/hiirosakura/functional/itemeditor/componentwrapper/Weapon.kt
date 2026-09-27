@@ -1,9 +1,8 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.TextFieldLabelPosition
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,11 +10,18 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.Weapon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import androidx.compose.foundation.layout.fillMaxWidth
+import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
+import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
 
 @Composable
 fun WeaponComponentWrapper(
@@ -32,8 +38,9 @@ fun WeaponComponentWrapper(
         IconButton(onClick = {
             showDialog = true
         }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.EditNote, null)
+            Icon(Icons.Edit)
         }
+
         if (showDialog) {
             WeaponEditorDialog(
                 key = key,
@@ -65,26 +72,26 @@ fun WeaponEditorDialog(
         content = {
             CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    IntField(
-                        editingWeapon.itemDamagePerAttack,
-                        {
-                            editingWeapon = Weapon(it, editingWeapon.disableBlockingForSeconds)
+                                        OutlinedLabelBox(label = { Text(key, suffix = "item_damage_per_attack", fallback = "Item Damage Per Attack") }, modifier = Modifier.width(300.dp)) {
+                        IntField(
+                            editingWeapon.itemDamagePerAttack,
+                            {
+                            editingWeapon = Weapon(it, editingWeapon.disableBlockingForSeconds)
                         },
-                        labelPosition = TextFieldLabelPosition.Attached(true),
-                        label = { Text(key, suffix = "item_damage_per_attack", fallback = "Item Damage Per Attack") },
-                        range = 0..Int.MAX_VALUE,
-                        modifier = Modifier.width(300.dp)
-                    )
-                    FloatField(
-                        editingWeapon.disableBlockingForSeconds,
-                        {
-                            editingWeapon = Weapon(editingWeapon.itemDamagePerAttack, it)
+                            valueRange = 0..Int.MAX_VALUE,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                                        OutlinedLabelBox(label = { Text(key, suffix = "disable_blocking_for_seconds", fallback = "Disable Blocking For Seconds") }, modifier = Modifier.width(300.dp)) {
+                        FloatField(
+                            editingWeapon.disableBlockingForSeconds,
+                            {
+                            editingWeapon = Weapon(editingWeapon.itemDamagePerAttack, it)
                         },
-                        labelPosition = TextFieldLabelPosition.Attached(true),
-                        range = 0f..Float.MAX_VALUE,
-                        label = { Text(key, suffix = "disable_blocking_for_seconds", fallback = "Disable Blocking For Seconds") },
-                        modifier = Modifier.width(300.dp)
-                    )
+                            valueRange = 0f..Float.MAX_VALUE,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
             }
         }

@@ -1,11 +1,8 @@
 package moe.forpleuvoir.hiirosakura.functional.task.ui
 
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,11 +15,17 @@ import moe.forpleuvoir.hiirosakura.functional.task.HSTickTaskScheduler
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTaskScheduler.remove
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.task.TickTask
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Delete
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import net.minecraft.client.Minecraft
 import kotlin.time.Duration.Companion.milliseconds
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.compat.Card
 
 @Composable
 internal fun RunningTasksPage(modifier: Modifier) {
@@ -39,9 +42,10 @@ internal fun RunningTasksPage(modifier: Modifier) {
                 delay(50.milliseconds)
             }
         }
+
         if (tasks.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             val scrollState = rememberLazyListState()
@@ -56,7 +60,7 @@ internal fun RunningTasksPage(modifier: Modifier) {
                     }
                 }
             }
-            VerticalScrollbar(rememberScrollbarAdapter(scrollState), Modifier.align(Alignment.CenterEnd))
+            VerticalScroller(rememberScrollerAdapter(scrollState), Modifier.align(Alignment.CenterEnd))
         }
     }
 }
@@ -77,11 +81,12 @@ private fun RunningTask(tickTask: TickTask<Minecraft>, task: HSTickTask, remove:
                     counter = tickTask.times - tickTask.counter
                 }
             }
+
             Text(task.name + "@" + tickTask.hashCode(), modifier = Modifier.weight(1f))
-            Text(HSLang.Task.runningPeriod(tickTask.period))
-            Text(HSLang.Task.runningRemainingTimes(counter))
+            Text(component = HSLang.Task.runningPeriod(tickTask.period))
+            Text(component = HSLang.Task.runningRemainingTimes(counter))
             IconButton(remove) {
-                Icon(Icons.Delete, null)
+                Icon(Icons.Delete)
             }
         }
     }

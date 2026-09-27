@@ -3,12 +3,12 @@ package moe.forpleuvoir.hiirosakura.functional.chataddons
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
 import moe.forpleuvoir.ibukigourd.text.Text
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.StringListConfigWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.configList
 import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.StringListConfigWrapper
 
 object ChatFilterHandler : ConfigGroup("chat_filter") {
 
@@ -19,10 +19,10 @@ object ChatFilterHandler : ConfigGroup("chat_filter") {
             StringListConfigWrapper(
                 config,
                 addContentLabel = {
-                    Text(HSLang.Chat.filterExp)
+                    Text(component = HSLang.Chat.filterExp)
                 },
                 contentHeader = {
-                    Text(HSLang.Chat.filterExp)
+                    Text(component = HSLang.Chat.filterExp)
                 }
             )
         }

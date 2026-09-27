@@ -31,6 +31,7 @@ object TomlSyntaxLanguage : SyntaxLanguage {
                                 pos += 3
                                 break
                             }
+
                             if (source[pos] == '\\' && pos + 1 < end) {
                                 val escStart = pos
                                 pos += 2
@@ -60,6 +61,7 @@ object TomlSyntaxLanguage : SyntaxLanguage {
                                 pos++
                             }
                         }
+
                         if (pos < end) pos++
                         emit(SyntaxHighlightSpan(TextRange(strStart, pos), SyntaxToken.String, priority = 90))
                     }
@@ -92,19 +94,23 @@ object TomlSyntaxLanguage : SyntaxLanguage {
                             if (source[pos] == '"') {
                                 pos++
                                 while (pos < end && source[pos] != '"') { if (source[pos] == '\\') pos++ else pos++ }
+
                                 if (pos < end) pos++
                             } else if (source[pos] == '\'') {
                                 pos++
                                 while (pos < end && source[pos] != '\'') { pos++ }
+
                                 if (pos < end) pos++
                             } else {
                                 pos++
                             }
                         }
+
                         val keyPart = source.subSequence(keyStart, pos)
                         if (keyPart.isNotEmpty()) {
                             emit(SyntaxHighlightSpan(TextRange(keyStart, pos), SyntaxToken.Property, priority = 40))
                         }
+
                         if (pos + 1 < end && source[pos] == ']' && source[pos + 1] == ']') {
                             emit(SyntaxHighlightSpan(TextRange(pos, pos + 2), SyntaxToken.Punctuation, priority = 5))
                             pos += 2
@@ -121,19 +127,23 @@ object TomlSyntaxLanguage : SyntaxLanguage {
                             if (source[pos] == '"') {
                                 pos++
                                 while (pos < end && source[pos] != '"') { if (source[pos] == '\\') pos++ else pos++ }
+
                                 if (pos < end) pos++
                             } else if (source[pos] == '\'') {
                                 pos++
                                 while (pos < end && source[pos] != '\'') { pos++ }
+
                                 if (pos < end) pos++
                             } else {
                                 pos++
                             }
                         }
+
                         val keyPart = source.subSequence(keyStart, pos)
                         if (keyPart.isNotEmpty()) {
                             emit(SyntaxHighlightSpan(TextRange(keyStart, pos), SyntaxToken.Property, priority = 40))
                         }
+
                         if (pos < end && source[pos] == ']') {
                             emit(SyntaxHighlightSpan(TextRange(pos, pos + 1), SyntaxToken.Punctuation, priority = 5))
                             pos++

@@ -152,6 +152,7 @@ private fun pushNineSlicedTexture(
         return
     }
 
+
     val tw = texture.textureInfo.width
     val th = texture.textureInfo.height
     val u = texture.uStart
@@ -263,6 +264,7 @@ fun pushSpeechBubbleTexture(
         pushTexture(bubbleArea.left, bubbleArea.top, bubbleArea.width, bubbleArea.height, bubbleTexture, packedLight, color, pose, vertexConsumer)
         return
     }
+
 
     val aw = arrowArea.width
     val ah = arrowArea.height
@@ -606,6 +608,7 @@ private fun OrderedSubmitNodeCollector.textLines(
         density.arrange(area.height, IntArray(texts.size) { mc.font.lineHeight }, verticalOffsets)
     }
 
+
     val horizontalOffsets = texts.map { horizontalAlignment.align(it.width.toInt(), area.width, LayoutDirection.Ltr) }
 
     verticalOffsets.zip(horizontalOffsets).fastForEachIndexed { idx, (y, x) ->
@@ -630,6 +633,7 @@ private fun OrderedSubmitNodeCollector.textLines(
     verticalArrangement.run {
         density.arrange(area.height, IntArray(texts.size) { mc.font.lineHeight }, verticalOffsets)
     }
+
 
     val horizontalOffsets = texts.map { horizontalAlignment.align(it.width.toInt(), area.width, LayoutDirection.Ltr) }
 

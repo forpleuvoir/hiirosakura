@@ -5,15 +5,12 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,10 +27,7 @@ import moe.forpleuvoir.hiirosakura.ui.util.rememberSegmentedButtonWidth
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.preset.*
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
-import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.core.HolderSet
@@ -43,6 +37,21 @@ import net.minecraft.world.effect.MobEffect
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import kotlin.jvm.optionals.getOrNull
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.selector.Selector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.foundation.layout.Row
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 
 
 internal val mobEffectTags
@@ -72,11 +81,13 @@ fun HolderSetMobEffectEditorDialog(
         mutableStateOf(if (value is HolderSet.Named) value.key() else firstTag)
     }
 
+
     var mode by remember { mutableStateOf(value !is HolderSet.Named) }
     LaunchedEffect(tag) {
         if (tag == null) mode = true
     }
-    val types = rememberKeyedList(value.map { it.value() }.toList())
+
+    val types = rememberKeyedStateList(value.map { it.value() }.toList())
     var nextKey by remember { mutableLongStateOf(types.size.toLong()) }
 
     SimpleAlertDialog(
@@ -94,28 +105,28 @@ fun HolderSetMobEffectEditorDialog(
         content = {
             Column {
                 firstTag?.let {
-                    SingleChoiceSegmentedButtonRow {
+                    Row {
                         val buttonTexts = listOf(
                             HSLang.ItemEditor.fromRegistry,
                             HSLang.ItemEditor.fromTag,
                         )
                         val width = rememberSegmentedButtonWidth(
                             items = buttonTexts,
-                            textStyle = MaterialTheme.typography.labelLarge,
-                        ) { it.toAnnotatedString() }
+                            textStyle = SokitsuTheme.typography.button,
+                        ) { it }
                         SegmentedButton(
                             selected = mode,
                             onClick = { mode = true },
-                            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                            
                             modifier = Modifier.width(width),
-                            label = { Text(HSLang.ItemEditor.fromRegistry) }
+                            label = { Text(component = HSLang.ItemEditor.fromRegistry) }
                         )
                         SegmentedButton(
                             selected = !mode,
                             onClick = { mode = false },
-                            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                            
                             modifier = Modifier.width(width),
-                            label = { Text(HSLang.ItemEditor.fromTag) }
+                            label = { Text(component = HSLang.ItemEditor.fromTag) }
                         )
                     }
                 }
@@ -144,8 +155,8 @@ fun HolderSetMobEffectEditorDialog(
                                         }
                                     },
                                     modifier = Modifier.weight(1f).height(44.dp),
-                                    contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
-                                    content = { Text(HSLang.ItemEditor.addFromRegistry) }
+                                    contentPadding = LabeledFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
+                                    content = { Text(component = HSLang.ItemEditor.addFromRegistry) }
                                 )
                                 firstTag?.let {
                                     Spacer(Modifier.width(12.dp))
@@ -159,19 +170,19 @@ fun HolderSetMobEffectEditorDialog(
                                             }
                                         },
                                         modifier = Modifier.weight(1f).height(44.dp),
-                                        contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
-                                        content = { Text(HSLang.ItemEditor.addFromTag) }
+                                        contentPadding = LabeledFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
+                                        content = { Text(component = HSLang.ItemEditor.addFromTag) }
                                     )
                                 }
                             }
                             Spacer(Modifier.height(12.dp))
                             OutlinedLabelBox(
-                                { Text(HSLang.ItemEditor.mobEffects) },
+                                { Text(component = HSLang.ItemEditor.mobEffects) },
                             ) {
                                 Box(Modifier.fillMaxWidth().height(460.dp)) {
                                     val lazyListState = rememberLazyListState()
                                     if (types.isEmpty()) {
-                                        Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
                                     } else {
                                         val hapticFeedback = LocalHapticFeedback.current
                                         val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
@@ -190,8 +201,9 @@ fun HolderSetMobEffectEditorDialog(
                                                 ReorderableItem(reorderableLazyListState, key) { isDragging ->
                                                     val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                                                     val handleInteraction = remember { MutableInteractionSource() }
+
                                                     val handleHovered by handleInteraction.collectIsHoveredAsState()
-                                                    Card(
+                                                    Surface(
                                                         modifier = Modifier.fillMaxWidth().scale(scale)
                                                     ) {
                                                         Row(
@@ -203,14 +215,10 @@ fun HolderSetMobEffectEditorDialog(
                                                                 verticalAlignment = Alignment.CenterVertically,
                                                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                                                             ) {
-                                                                DragHandle(
-                                                                    hapticFeedback,
-                                                                    handleInteraction,
-                                                                    handleHovered,
-                                                                    isDragging
-                                                                )
+                                                                DragHandle(modifier = Modifier)
                                                                 Text(type.displayName)
                                                             }
+
 
                                                             Row(
                                                                 verticalAlignment = Alignment.CenterVertically,
@@ -218,7 +226,7 @@ fun HolderSetMobEffectEditorDialog(
                                                             ) {
                                                                 RemoveConfirmButton(
                                                                     "",
-                                                                    { types.removeAt(index) }
+                                                                    onConfirm = { types.removeAt(index) },
                                                                 )
                                                             }
                                                         }
@@ -227,8 +235,8 @@ fun HolderSetMobEffectEditorDialog(
                                             }
                                         }
 
-                                        VerticalScrollbar(
-                                            adapter = rememberScrollbarAdapter(lazyListState),
+                                        VerticalScroller(
+                                            adapter = rememberScrollerAdapter(lazyListState),
                                             modifier = Modifier.align(Alignment.CenterEnd)
                                         )
 
@@ -240,7 +248,7 @@ fun HolderSetMobEffectEditorDialog(
                     } else {
                         tag?.let {
                             MobEffectTagSelector(it, { newTag -> tag = newTag })
-                        } ?: Text(IGLang.Misc.hasNothing)
+                        } ?: Text(component = IGLang.Misc.hasNothing)
                     }
                 }
             }
@@ -249,7 +257,6 @@ fun HolderSetMobEffectEditorDialog(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MobEffectTagSelector(
     selected: TagKey<MobEffect>,
@@ -261,37 +268,38 @@ fun MobEffectTagSelector(
             "#${it.location}",
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.plainTooltip {
+            modifier = Modifier.tooltip {
                 val types = it.mobEffects
                 if (types.count() == 0) {
-                    Text(IGLang.Misc.hasNothing)
-                    return@plainTooltip
+                    Text(component = IGLang.Misc.hasNothing)
+                    return@tooltip
                 } else {
                     Column {
                         types.take(20).forEach { type ->
                             Text(type.value().displayName)
                         }
+
                         if (types.count() > 20) Text("...")
                     }
                 }
             }
         )
     },
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (TagKey<MobEffect>, Boolean) -> Unit = { item, _ ->
         Text(
             "#${item.location}",
-            modifier = Modifier.plainTooltip {
+            modifier = Modifier.tooltip {
                 val types = item.mobEffects
                 if (types.count() == 0) {
-                    Text(IGLang.Misc.hasNothing)
-                    return@plainTooltip
+                    Text(component = IGLang.Misc.hasNothing)
+                    return@tooltip
                 } else {
                     Column {
                         types.take(20).forEach { type ->
                             Text(type.value().displayName)
                         }
+
                         if (types.count() > 20) Text("...")
                     }
                 }
@@ -309,26 +317,22 @@ fun MobEffectTagSelector(
     itemTrailingIcon: ((Boolean) -> (@Composable (TagKey<MobEffect>) -> Unit)?)? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     interactionSource: MutableInteractionSource? = null,
-    shape: Shape = OutlinedTextFieldDefaults.shape,
-    colors: TextFieldColors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
-) = Selector(
-    selected = selected,
-    onSelect = onSelect,
-    items = items,
-    itemEquals = itemEquals,
-    content = content,
-    labelPosition = labelPosition,
-    label = label,
-    itemContent = itemContent,
-    enabled = enabled,
-    searchFilter = searchFilter,
-    modifier = modifier,
-    itemLeadingIcon = itemLeadingIcon,
-    itemTrailingIcon = itemTrailingIcon,
-    textStyle = textStyle,
-    interactionSource = interactionSource,
-    shape = shape,
-    colors = colors,
-    contentPadding = contentPadding
-)
+    shape: Shape = RectangleShape,
+    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
+) {
+        OutlinedLabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+                Selector(
+                selected = selected,
+                onSelect = onSelect,
+                items = items,
+                itemEquals = itemEquals,
+                content = content,
+                itemContent = itemContent,
+                enabled = enabled,
+                itemLeadingIcon = itemLeadingIcon,
+                itemTrailingIcon = itemTrailingIcon,
+                searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }

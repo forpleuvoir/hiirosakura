@@ -14,7 +14,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
@@ -24,36 +23,43 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.*
-import com.kyant.backdrop.backdrops.LayerBackdrop
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import com.kyant.backdrop.drawBackdrop
-import com.kyant.backdrop.effects.blur
-import com.kyant.backdrop.effects.lens
-import com.kyant.backdrop.effects.vibrancy
-import com.kyant.backdrop.shadow.Shadow
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.util.ItemRegistryHelper
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.name
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.closeScreen
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Close
-import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.ItemIcon
-import moe.forpleuvoir.ibukigourd.ui.preset.LocalItemIconVanillaSize
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
-import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberFabVisibilityByScroll
-import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.util.fabVisibilityAnimation
+import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceKey
 import net.minecraft.world.item.*
 import net.minecraft.world.level.ItemLike
 import net.minecraft.world.level.block.Block
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import androidx.compose.ui.graphics.RectangleShape
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.hiirosakura.ui.util.rememberAdaptiveGridSpan
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.compat.closeScreen
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.ButtonDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.unit.DpSize
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
+import androidx.compose.foundation.clickable
 
 @Composable
 fun ItemSelector(
@@ -67,6 +73,7 @@ fun ItemSelector(
     ItemBrowserDefaults.ItemWrapper(value, false, scaleOnHover, modifier.size(LocalItemIconVanillaSize.current), showTooltip) {
         showDialog = true
     }
+
     if (showDialog) {
         FlexibleDialog(
             onDismissRequest = { showDialog = false },
@@ -99,6 +106,7 @@ fun BlockSelector(
     ItemBrowserDefaults.ItemWrapper(value, false, 1f, modifier.size(LocalItemIconVanillaSize.current), showTooltip) {
         showDialog = true
     }
+
     if (showDialog) {
         FlexibleDialog(
             onDismissRequest = { showDialog = false },
@@ -135,7 +143,7 @@ fun ItemBrowser(
     filter: (ItemLike) -> Boolean = { true },
     searchItems: List<ItemLike> = ItemRegistryHelper.allItem.toList(),
     gridCellSize: Dp = ItemBrowserDefaults.gridCellSize(contentPadding = PaddingValues(4.dp)),
-    searchBarBackgroundColor: Color = AlertDialogDefaults.containerColor,
+    searchBarBackgroundColor: Color = SokitsuTheme.colorScheme.surface,
     modifier: Modifier = Modifier
 ) {
     val tabList = remember(itemGroups) {
@@ -145,31 +153,39 @@ fun ItemBrowser(
                     tab.iconItem to tab.displayName.string
                 }
     }
+
     var selectedTabIndex by remember { mutableStateOf(if (tabList.size > 1) 1 else 0) }
+
 
     Column(
         modifier = modifier.fillMaxSize()
     ) {
-        PrimaryScrollableTabRow(
-            selectedTabIndex = selectedTabIndex,
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            containerColor = Color.Transparent
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             tabList.forEachIndexed { index, tabKey ->
-                Tab(
-                    modifier = Modifier.padding(bottom = 6.dp, start = 4.dp, end = 4.dp).clip(MaterialTheme.shapes.medium),
-                    selected = selectedTabIndex == index,
+                FlatButton(
                     onClick = { selectedTabIndex = index },
-                    icon = {
-                        ItemIcon(
-                            tabKey.first,
-                            modifier = Modifier.size(32.dp),
-                            showTooltip = false,
-                            scaleOnHover = 1f,
+                    modifier = Modifier.padding(bottom = 6.dp, start = 4.dp, end = 4.dp),
+                    colors = if (selectedTabIndex == index) {
+                        FlatButtonDefaults.colors(
+                            color = SokitsuTheme.colorScheme.primaryContainer,
+                            contentColor = SokitsuTheme.colorScheme.onPrimaryContainer,
                         )
+                    } else {
+                        FlatButtonDefaults.colors()
                     },
-                    text = { Text(tabKey.second) }
-                )
+                ) {
+                    ItemIcon(
+                        tabKey.first,
+                        modifier = Modifier.size(32.dp),
+                        showTooltip = false,
+                        scaleOnHover = 1f,
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text(tabKey.second)
+                }
             }
         }
         Spacer(Modifier.height(8.dp))
@@ -206,7 +222,9 @@ fun ItemBrowser(
                     )
                 }
 
+
                 var searchQuery by remember { mutableStateOf("") }
+
                 val displayItems by remember(items, searchQuery) {
                     mutableStateOf(
                         if (searchQuery.isBlank()) items
@@ -223,22 +241,18 @@ fun ItemBrowser(
                         }
                     )
                 }
+
                 if (selectedTabIndex == 0) {
                     LaunchedEffect(textFieldState.text.toString()) {
                         searchQuery = textFieldState.text.toString()
                     }
                 }
+
                 Box(modifier = Modifier.fillMaxSize()) {
-                    val backdrop = rememberLayerBackdrop {
-                        drawRect(searchBarBackgroundColor)
-                        drawContent()
-                    }
                     LazyVerticalGrid(
                         state = gridState,
                         columns = GridCells.Adaptive(gridCellSize),
-                        modifier = Modifier
-                            .layerBackdrop(backdrop)
-                            .fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         horizontalArrangement = Arrangement.spacedBy(2.dp),
                         verticalArrangement = Arrangement.spacedBy(2.dp),
                         contentPadding = PaddingValues(4.dp)
@@ -248,21 +262,20 @@ fun ItemBrowser(
                         }
                     }
 
-                    val adapter = rememberScrollbarAdapter(gridState)
-                    VerticalScrollbar(
+
+                    VerticalScroller(
                         modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                        adapter = rememberScrollbarAdapter(gridState)
+                        adapter = rememberScrollerAdapter(gridState, rememberAdaptiveGridSpan(gridState))
                     )
 
                     if (selectedTabIndex == 0) {
                         SearchBar(
                             textFieldState = textFieldState,
-                            backdrop = backdrop,
                             modifier = Modifier
                                 .align(BiasAlignment(0f, 0.85f))
                                 .padding(horizontal = 24.dp, vertical = 8.dp)
                                 .width(320.dp)
-                                .fabVisibilityAnimation(rememberFabVisibilityByScroll(adapter))
+                                .fabScrollVisibility(rememberFabScrollVisibility(gridState))
                         )
                     }
                 }
@@ -275,62 +288,42 @@ fun ItemBrowser(
 @Composable
 private fun SearchBar(
     textFieldState: TextFieldState,
-    backdrop: LayerBackdrop,
     modifier: Modifier = Modifier,
 ) {
-    val shape = MaterialTheme.shapes.extraLarge
-    val color = MaterialTheme.colorScheme.onSurface.copy(0.25f)
+    Surface(
+        modifier = modifier,
+        color = SokitsuTheme.colorScheme.surface,
+    ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { shape },
-                shadow = {
-                    Shadow.Default.copy(radius = 8.dp, offset = DpOffset(4.dp, 4.dp), color = Color.Black.copy(alpha = 0.25f))
-                },
-                effects = {
-                    vibrancy()
-                    blur(16f)
-                    lens(8.dp.toPx(), 32.dp.toPx(), depthEffect = true, chromaticAberration = true)
-                },
-                onDrawSurface = {
-                    drawRect(color)
-                }
-            )
-            .padding(horizontal = 24.dp)
+        modifier = Modifier.padding(horizontal = 24.dp)
     ) {
         Box(Modifier.fillMaxWidth().height(48.dp), contentAlignment = Alignment.CenterStart) {
             if (textFieldState.text.isEmpty()) {
                 Text(
-                    IGLang.Misc.search,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = LocalTextStyle.current.merge(
-                        MaterialTheme.typography.bodyLarge.copy(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                    )
+                    component = IGLang.Misc.search,
+                    color = SokitsuTheme.colorScheme.onSurfaceVariant,
                 )
             }
             BasicTextField(
                 state = textFieldState,
                 lineLimits = TextFieldLineLimits.SingleLine,
-                textStyle = LocalTextStyle.current.merge(
-                    MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                ),
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                cursorBrush = SolidColor(SokitsuTheme.colorScheme.primary),
                 modifier = Modifier.fillMaxWidth(),
             )
         }
+
         if (textFieldState.text.isNotEmpty()) {
             IconButton(onClick = { textFieldState.edit { replace(0, length, "") } }) {
-                Icon(Icons.Close, null)
+                Icon(Icons.Close)
             }
         }
     }
+    }
 }
+
+/** 物品图标的展示尺寸；新版上游移除了旧 IG 的同名组合本地量，这里按本项目像素风取值。 */
+val LocalItemIconVanillaSize = staticCompositionLocalOf { DpSize(32.dp, 32.dp) }
 
 object ItemBrowserDefaults {
 
@@ -354,26 +347,27 @@ object ItemBrowserDefaults {
         onCLick: (ItemLike) -> Unit = {}
     ) {
         val interactionSource = remember { MutableInteractionSource() }
+
         val isHovered by interactionSource.collectIsHoveredAsState()
         Box(
             modifier = modifier
                 .aspectRatio(1f)
                 .hoverable(interactionSource)
-                .onClick { onCLick(item) }
+                .clickable(interactionSource = interactionSource, indication = null) { onCLick(item) }
                 .then(
-                    if (isHovered && border) Modifier.border(1.dp, MaterialTheme.colorScheme.outline, shape = MaterialTheme.shapes.extraSmall)
+                    if (isHovered && border) Modifier.border(1.dp, SokitsuTheme.colorScheme.outline)
                     else Modifier
                 ).then(
-                    if (showTooltip) Modifier.plainTooltip {
+                    if (showTooltip) Modifier.tooltip {
                         Column {
                             if (item is Item) {
                                 Text(item.asItem().name)
                                 Spacer(Modifier.height(4.dp))
-                                Text(item.asItem().key.toString(), color = MaterialTheme.colorScheme.primaryContainer)
+                                Text(item.asItem().key.toString(), color = SokitsuTheme.colorScheme.primaryContainer)
                             } else if (item is Block) {
                                 Text(item.name)
                                 Spacer(Modifier.height(4.dp))
-                                Text(item.key.toString(), color = MaterialTheme.colorScheme.primaryContainer)
+                                Text(item.key.toString(), color = SokitsuTheme.colorScheme.primaryContainer)
                             }
                         }
                     }
@@ -385,13 +379,12 @@ object ItemBrowserDefaults {
                 ItemStack(item)
             }.onFailure {
                 closeScreen()
-                ToastHandler.showContent { Text(HSLang.Common.itemInitFailure) }
+                ToastHandler.showContent { Text(component = HSLang.Common.itemInitFailure) }
             }.getOrThrow()
             if (icon.item != Items.AIR) {
                 ItemIcon(
                     icon,
                     modifier = Modifier.size(LocalItemIconSize.current),
-                    imageSize = if (icon.item is BlockItem) IntSize(256, 256) else IntSize(128, 128),
                     showTooltip = false,
                     scaleOnHover = scaleOnHover
                 )

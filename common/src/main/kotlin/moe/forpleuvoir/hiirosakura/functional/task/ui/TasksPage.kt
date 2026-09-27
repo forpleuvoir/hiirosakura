@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.task.ui
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
@@ -9,9 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +25,6 @@ import moe.forpleuvoir.hiirosakura.functional.task.IconTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.KeybindTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.PlayArrow
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JexlSyntaxLanguage
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
@@ -39,30 +35,55 @@ import moe.forpleuvoir.ibukigourd.task.TickTask
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.*
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
-import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import net.minecraft.world.item.ItemStack
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import kotlin.enums.enumEntries
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
+import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
+import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
+import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.ibukigourd.ui.keybind.KeybindSetButton
+import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
+import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.hiirosakura.ui.icon.defaults.PlayArrow
+import androidx.compose.foundation.layout.fillMaxWidth
+import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
+import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
+import moe.forpleuvoir.hiirosakura.ui.compat.FilledTonalButton
 
 @Composable
 internal fun TasksPage(modifier: Modifier) {
 
     Column(modifier.padding(16.dp).fillMaxSize()) {
         var showEditor by remember { mutableStateOf(false) }
+
         var editingTaskIndex by remember { mutableStateOf(-1) }
+
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(HSLang.Task.tasks, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Text(component = HSLang.Task.tasks)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -71,19 +92,19 @@ internal fun TasksPage(modifier: Modifier) {
                     runCatching {
                         TaskManager.reBindKey()
                     }.onSuccess {
-                        ToastHandler.showContent { Text(HSLang.Common.success) }
+                        ToastHandler.showContent { Text(component = HSLang.Common.success) }
                     }.onFailure {
                         ToastHandler.showContent { Text(it.message ?: "") }
                     }
                 }) {
-                    Text(HSLang.Task.reBindKey, Modifier.plainTooltip { Text(HSLang.Task.reBindKeyComment) })
+                    Text(component = HSLang.Task.reBindKey, Modifier.tooltip { Text(component = HSLang.Task.reBindKeyComment) })
                 }
 
                 FilledTonalButton(onClick = {
                     editingTaskIndex = -1
                     showEditor = true
                 }) {
-                    Text(HSLang.Task.newTask)
+                    Text(component = HSLang.Task.newTask)
                 }
             }
         }
@@ -91,7 +112,7 @@ internal fun TasksPage(modifier: Modifier) {
         Spacer(Modifier.height(16.dp))
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             if (TaskManager.taskList.isEmpty()) {
-                Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
             } else {
                 val lazyListState = rememberLazyListState()
                 val hapticFeedback = LocalHapticFeedback.current
@@ -99,6 +120,7 @@ internal fun TasksPage(modifier: Modifier) {
                     TaskManager.moveElement(from.index, to.index)
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
                 }
+
                 val canScroll = lazyListState.canScrollBackward || lazyListState.canScrollForward
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -109,8 +131,9 @@ internal fun TasksPage(modifier: Modifier) {
                         ReorderableItem(reorderableLazyListState, task.key) { isDragging ->
                             val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                             val handleInteraction = remember { MutableInteractionSource() }
+
                             val handleHovered by handleInteraction.collectIsHoveredAsState()
-                            Card(
+                            Surface(
                                 modifier = Modifier.fillMaxWidth().scale(scale)
                             ) {
                                 Row(
@@ -122,18 +145,16 @@ internal fun TasksPage(modifier: Modifier) {
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                                     ) {
-                                        DragHandle(
-                                            hapticFeedback,
-                                            handleInteraction,
-                                            handleHovered,
-                                            isDragging
-                                        )
+                                        DragHandle(modifier = Modifier)
                                         val icon = remember(task.value.icon) { ItemStack(task.value.icon) }
+
                                         if (!icon.isEmpty) {
                                             ItemIcon(icon, showTooltip = false)
                                         }
-                                        Text(InlineStyleText(task.value.name))
+
+                                        Text(component = InlineStyleText(task.value.name))
                                     }
+
 
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
@@ -141,21 +162,24 @@ internal fun TasksPage(modifier: Modifier) {
                                     ) {
                                         IconButton({
                                             task.value.execute()
-                                        }, Modifier.plainTooltip {
-                                            Text(HSLang.Task.execute)
+                                        }, Modifier.tooltip {
+                                            Text(component = HSLang.Task.execute)
                                         }) {
-                                            Icon(Icons.PlayArrow, null)
+                                            VectorIcon(HSIcons.PlayArrow)
                                         }
 
-                                        KeybindAssistChip(task.value.keybind, modifier = Modifier.width(280.dp))
+                                        KeybindSetButton(
+                                            keybind = task.value.keybind,
+                                            modifier = Modifier.width(280.dp),
+                                        )
 
                                         IconButton({
                                             showEditor = true
                                             editingTaskIndex = index
-                                        }, Modifier.plainTooltip {
-                                            Text(HSLang.Task.editTask)
+                                        }, Modifier.tooltip {
+                                            Text(component = HSLang.Task.editTask)
                                         }) {
-                                            Icon(Icons.EditNote, null)
+                                            Icon(Icons.Edit)
                                         }
 
                                         RemoveConfirmButton(
@@ -169,16 +193,17 @@ internal fun TasksPage(modifier: Modifier) {
                     }
                 }
 
-                VerticalScrollbar(
-                    adapter = rememberScrollbarAdapter(lazyListState),
+                VerticalScroller(
+                    adapter = rememberScrollerAdapter(lazyListState),
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
             }
         }
+
         if (showEditor) {
             TaskEditorDialog(
                 task = TaskManager.taskList.values().getOrElse(editingTaskIndex) { KeybindTickTask.empty },
-                title = { if (editingTaskIndex == -1) Text(HSLang.Task.newTask) else Text(HSLang.Task.editTask.plainText) },
+                title = { if (editingTaskIndex == -1) Text(component = HSLang.Task.newTask) else Text(HSLang.Task.editTask.plainText) },
                 onDismissRequest = { showEditor = false },
             ) { newTask ->
                 if (editingTaskIndex == -1) {
@@ -202,14 +227,20 @@ fun <T : HSTickTask> TaskEditorDialog(
 
     val name = rememberTextFieldState(task.name)
     var delay by remember { mutableIntStateOf(task.setting.delay) }
+
     var period by remember { mutableIntStateOf(task.setting.period) }
+
     var times by remember { mutableIntStateOf(task.setting.times) }
+
     var executeOn by remember { mutableStateOf(task.executeOn) }
+
     var executorType by remember { mutableStateOf(task.executorType) }
+
 
     val executor = rememberTextFieldState(task.executor.asString())
 
     var icon by remember { mutableStateOf(if (task is IconTickTask) task.icon else null) }
+
 
     val keybind = if (task is KeybindTickTask) task.keybind else null
 
@@ -226,45 +257,56 @@ fun <T : HSTickTask> TaskEditorDialog(
                 Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     icon?.let {
                         OutlinedLabelBox(
-                            label = { Text(HSLang.Task.icon) },
+                            label = { Text(component = HSLang.Task.icon) },
 //                            contentPadding = PaddingValues(16.dp, 0.dp, 16.dp, 4.dp),
                             modifier = Modifier.height(66.5.dp)
                         ) {
                             ItemSelector(it, { newIcon -> icon = newIcon }, false, 1.05f)
                         }
                     }
-                    OutlinedTextField(name, labelPosition = TextFieldLabelPosition.Attached(true), label = { Text(HSLang.Task.name) })
+                    OutlinedLabelBox(label = { Text(component = HSLang.Task.name) }) {
+                        TextField(
+                            name,
+                        )
+                    }
                     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                        IntField(
-                            delay, { delay = it }, range = 0..1141514, modifier = Modifier.width(120.dp),
-                            labelPosition = TextFieldLabelPosition.Attached(true),
-                            label = { Text(HSLang.Task.delay) }
-                        )
-                        IntField(
-                            period, { period = it }, range = 1..1141514, modifier = Modifier.width(120.dp),
-                            labelPosition = TextFieldLabelPosition.Attached(true),
-                            label = { Text(HSLang.Task.period) }
-                        )
-                        IntField(
-                            times, { times = it }, range = 1..1141514, modifier = Modifier.width(120.dp),
-                            labelPosition = TextFieldLabelPosition.Attached(true),
-                            label = { Text(HSLang.Task.times) }
-                        )
+                                                OutlinedLabelBox(label = { Text(component = HSLang.Task.delay) }, modifier = Modifier.width(120.dp)) {
+                            IntField(
+                                delay,
+                                { delay = it },
+                                valueRange = 0..1141514,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                                                OutlinedLabelBox(label = { Text(component = HSLang.Task.period) }, modifier = Modifier.width(120.dp)) {
+                            IntField(
+                                period,
+                                { period = it },
+                                valueRange = 1..1141514,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                                                OutlinedLabelBox(label = { Text(component = HSLang.Task.times) }, modifier = Modifier.width(120.dp)) {
+                            IntField(
+                                times,
+                                { times = it },
+                                valueRange = 1..1141514,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
                     }
                     EnumSelector(
                         executeOn, { executeOn = it }, enumEntries(),
-                        labelPosition = TextFieldLabelPosition.Attached(true),
                         label = {
-                            Text(HSLang.Task.executeOn)
+                            Text(component = HSLang.Task.executeOn)
                         },
                         modifier = Modifier.weight(1f)
                     )
 
                     EnumSelector(
                         executorType, { executorType = it }, enumEntries(),
-                        labelPosition = TextFieldLabelPosition.Attached(true),
                         label = {
-                            Text(HSLang.Task.executorType)
+                            Text(component = HSLang.Task.executorType)
                         },
                         modifier = Modifier.weight(1f)
                     )
@@ -275,26 +317,18 @@ fun <T : HSTickTask> TaskEditorDialog(
                 //TODO替换成 脚本编辑器
                 Box {
                     val scrollState = rememberScrollState()
-                    OutlinedTextField(
-                        executor,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .codeEditorShortcuts(executor),
-                        textStyle = TextStyle(fontFamily = FontFamily.Monospace),
-                        outputTransformation = rememberSyntaxHighlightTransformation(
-                            JexlSyntaxLanguage,
-                            SyntaxHighlightDefaults.theme(),
-                            executor.text.toString()
-                        ),
-                        labelPosition = TextFieldLabelPosition.Attached(true),
-                        label = { Text(executorType.translateText) },
-                        scrollState = scrollState,
-                        contentPadding = OutlinedTextFieldDefaults.contentPadding(end = 24.dp),
-                    )
+                    OutlinedLabelBox(label = { Text(executorType.translateText) }) {
+                        TextField(
+                            executor,
+                            modifier = Modifier .fillMaxSize() .codeEditorShortcuts(executor),
+                            
+                            contentPadding = LabeledFieldDefaults.contentPadding(end = 24.dp),
+                        )
+                    }
 
-                    VerticalScrollbar(
+                    VerticalScroller(
                         modifier = Modifier.align(Alignment.CenterEnd).padding(vertical = 12.dp),
-                        adapter = rememberScrollbarAdapter(scrollState)
+                        adapter = rememberScrollerAdapter(scrollState)
                     )
                 }
 
@@ -334,12 +368,12 @@ fun <T : HSTickTask> TaskEditorDialog(
                 onTaskChange(newTasks as T)
                 onDismissRequest()
             }) {
-                Text(HSLang.Task.save)
+                Text(component = HSLang.Task.save)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(HSLang.Task.cancel)
+                Text(component = HSLang.Task.cancel)
             }
         }
     )

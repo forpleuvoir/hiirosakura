@@ -1,6 +1,5 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor
 
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -8,8 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
@@ -38,12 +35,9 @@ import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.*
-import moe.forpleuvoir.ibukigourd.ui.skia.LocalSkiaSurface
-import moe.forpleuvoir.ibukigourd.ui.toast.ToastHandler
-import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
+import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -57,6 +51,18 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.selector.Selector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
+import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 private val logger = logger("ItemStackEditor")
 
@@ -76,11 +82,13 @@ fun ItemStackEditor(
             true
         },
         title = {
-            Text(HSLang.ItemEditor.title)
+            Text(component = HSLang.ItemEditor.title)
         },
         content = {
             var item by remember { mutableStateOf(value.typeHolder()) }
+
             var count by remember { mutableStateOf(value.count) }
+
             val dataComponents = remember {
                 ObservableDataComponentMap(value.copy().components.let {
                     it as? PatchedDataComponentMap ?: PatchedDataComponentMap(it)
@@ -89,6 +97,7 @@ fun ItemStackEditor(
             LaunchedEffect(item, count, dataComponents.revision) {
                 editingItem = ItemStack(item, count, dataComponents.delegate.copy())
             }
+
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -113,7 +122,7 @@ private fun ItemType(
     modifier: Modifier = Modifier,
 ) = OutlinedLabelBox(
     modifier = modifier,
-    label = { Text(HSLang.ItemEditor.itemType) },
+    label = { Text(component = HSLang.ItemEditor.itemType) },
     contentPadding = PaddingValues(16.dp, 8.dp, 8.dp, 8.dp),
 ) {
     Row(
@@ -126,8 +135,9 @@ private fun ItemType(
         Text(value.value().name, modifier = Modifier.weight(1f), overflow = TextOverflow.Ellipsis, maxLines = 1)
         Spacer(Modifier.width(8.dp))
         IconButton(onClick = { showDialog = true }) {
-            Icon(Icons.EditNote, null)
+            Icon(Icons.Edit)
         }
+
 
         if (showDialog) {
             FlexibleDialog(
@@ -158,22 +168,25 @@ fun ItemCount(
     onValueChange: (Int) -> Unit,
     maxValue: Int,
     modifier: Modifier = Modifier
-) = CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-    IntField(
-        value,
-        onValueChange,
-        range = 1..maxValue,
-        modifier = modifier,
-        labelPosition = TextFieldLabelPosition.Attached(true),
-        label = {
-            Row {
-                Text(HSLang.ItemEditor.itemCount)
-                Spacer(Modifier.width(8.dp))
-                Text("1..${maxValue}")
-            }
+    ) {
+        OutlinedLabelBox(
+            label = {
+                Row {
+                    Text(component = HSLang.ItemEditor.itemCount)
+                    Spacer(Modifier.width(8.dp))
+                    Text("1..${maxValue}")
+                }
+            },
+            modifier = modifier,
+        ) {
+            IntField(
+                value,
+                onValueChange,
+                valueRange = 1..maxValue,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
-    )
-}
+    }
 
 @Composable
 fun ItemPreview(
@@ -181,26 +194,11 @@ fun ItemPreview(
     modifier: Modifier = Modifier
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val hovered by interactionSource.collectIsHoveredAsState()
-    val surface = LocalSkiaSurface.current
-    LaunchedEffect(value) {
-        while (isActive) {
-            withFrameNanos {
-                if (hovered)
-                    surface.postRender {
-                        val guiScale = mc.window.guiScale.toFloat()
-                        val density = 1f / guiScale
-                        val mouseX = (mc.mouseHandler.xpos() * density).toInt()
-                        val mouseY = (mc.mouseHandler.ypos() * density).toInt()
-                        setTooltipForNextFrame(mc.font, value, mouseX, mouseY)
-                    }
-            }
-        }
-    }
 
+    val hovered by interactionSource.collectIsHoveredAsState()
     OutlinedLabelBox(
         modifier = modifier.hoverable(interactionSource),
-        label = { Text(HSLang.ItemEditor.itemPreview) },
+        label = { Text(component = HSLang.ItemEditor.itemPreview) },
         contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 8.dp),
     ) {
 
@@ -209,13 +207,12 @@ fun ItemPreview(
                 value,
                 modifier = Modifier,
                 showCount = true,
-                showTooltip = false,
+                showTooltip = true,
                 scaleOnHover = 1f,
-                countAlignment = BiasAlignment(0.75f, 0.95f),
                 countStyle = TextStyle(
-                    color = Colors.WHITE.toComposeColor,
+                    color = Colors.WHITE.toComposeColor(),
                     fontSize = 14.sp,
-                    shadow = Shadow(Colors.BLACK.alpha(0.5f).toComposeColor, Offset(3f, 3f), blurRadius = 1f)
+                    shadow = Shadow(Colors.BLACK.alpha(0.5f).toComposeColor(), Offset(3f, 3f), blurRadius = 1f)
                 )
             )
             Spacer(Modifier.width(8.dp))
@@ -237,60 +234,63 @@ private fun ComponentAdder(
         registryManager.lookupOrThrow(Registries.DATA_COMPONENT_TYPE).sortedBy { it.key(registryManager) } - dataComponents.keySet()
 
     var selected by remember { mutableStateOf(components.first()) }
+
     var buildingType by remember { mutableStateOf<DataComponentType<*>?>(null) }
 
-    Selector(
-        selected = selected,
-        onSelect = { type ->
-            selected = type
-            runCatching {
-                DataComponentWrappers.defaultValue(type)?.let {
-                    if (!dataComponents.delegate.has(type)) {
-                        dataComponents[type as DataComponentType<Any>] = it
-                    } else {
-                        ToastHandler.showContent { Text(HSLang.ItemEditor.itemComponentExist(type.keyOrUnknown(registryManager))) }
+        OutlinedLabelBox(label = {
+            Text(component = HSLang.ItemEditor.addItemComponent)
+        }) {
+        Selector(
+                selected = selected,
+                onSelect = { type ->
+                    selected = type
+                    runCatching {
+                        DataComponentWrappers.defaultValue(type)?.let {
+                            if (!dataComponents.delegate.has(type)) {
+                                dataComponents[type as DataComponentType<Any>] = it
+                            } else {
+                                ToastHandler.showContent { Text(component = HSLang.ItemEditor.itemComponentExist(type.keyOrUnknown(registryManager))) }
+                            }
+                        } ?: run {
+                            buildingType = type
+                        }
+                    }.onFailure {
+                        ToastHandler.showContent {
+                            Text(it.stackTraceToString(), maxLines = 16, overflow = TextOverflow.Ellipsis, color = Colors.RED.toComposeColor())
+                        }
+                        DataComponentWrappers.log.error(it)
                     }
-                } ?: run {
-                    buildingType = type
+                },
+                items = components,
+                
+                modifier = modifier,
+                searchFilter = { type, str ->
+                    val id = type.keyOrUnknown(registryManager)
+                    id.toString().contains(str) || id.asTranslateText().plainText.contains(str)
+                },
+                content = {
+                    Text(it.keyOrUnknown(registryManager).toString())
+                },
+                itemContent = { type, _ ->
+                    val isAdapted = DataComponentWrappers.isAdaptedComponent(type)
+                    val color = if (isAdapted)
+                        Color.fromHSV(195f / 360f, 1f, 1f).toComposeColor()
+                    else
+                        Color.fromHSV(5f / 360f, .6f, 1f).toComposeColor()
+                    Column {
+                        val identifier = type.keyOrUnknown(registryManager)
+                        Text(
+                            identifier = identifier,
+                            color = color
+                        )
+                        val hasTranslation = Language.getInstance().has(identifier.asTranslateKey())
+                        if (hasTranslation) {
+                            Text(Component.literal(identifier.toString()), color = color, fontSize = SokitsuTheme.typography.body.fontSize)
+                        }
+                    }
                 }
-            }.onFailure {
-                ToastHandler.showContent {
-                    Text(it.stackTraceToString(), maxLines = 16, overflow = TextOverflow.Ellipsis, color = Colors.RED.toComposeColor)
-                }
-                DataComponentWrappers.log.error(it)
-            }
-        },
-        items = components,
-        label = {
-            Text(HSLang.ItemEditor.addItemComponent)
-        },
-        modifier = modifier,
-        searchFilter = { str, type ->
-            val id = type.keyOrUnknown(registryManager)
-            id.toString().contains(str) || id.asTranslateText().plainText.contains(str)
-        },
-        content = {
-            Text(it.keyOrUnknown(registryManager).toString())
-        },
-        itemContent = { type, _ ->
-            val isAdapted = DataComponentWrappers.isAdaptedComponent(type)
-            val color = if (isAdapted)
-                Color.fromHSV(195f / 360f, 1f, 1f).toComposeColor
-            else
-                Color.fromHSV(5f / 360f, .6f, 1f).toComposeColor
-            Column {
-                val identifier = type.keyOrUnknown(registryManager)
-                Text(
-                    identifier = identifier,
-                    color = color
-                )
-                val hasTranslation = Language.getInstance().has(identifier.asTranslateKey())
-                if (hasTranslation) {
-                    Text(Component.literal(identifier.toString()), color = color, fontSize = MaterialTheme.typography.bodySmall.fontSize)
-                }
-            }
-        }
-    )
+            )
+    }
 
     buildingType?.let { type ->
         ComponentBuilderDialog(
@@ -301,7 +301,7 @@ private fun ComponentAdder(
                     dataComponents[type] = component
                 } else {
                     ToastHandler.showContent {
-                        Text(HSLang.ItemEditor.itemComponentExist(type.keyOrUnknown(registryManager)))
+                        Text(component = HSLang.ItemEditor.itemComponentExist(type.keyOrUnknown(registryManager)))
                     }
                 }
                 buildingType = null
@@ -318,6 +318,7 @@ private fun <C : Any> ComponentBuilderDialog(
     onValueChange: (C) -> Unit,
 ) {
     var rootType by remember { mutableStateOf(SerializeElementType.Object) }
+
     var data by remember { mutableStateOf(SerializeElementType.Object.defaultValue) }
 
     FlexibleDialog(
@@ -354,7 +355,7 @@ private fun <C : Any> ComponentBuilderDialog(
                         }
                     },
                     items = SerializeElementType.entries,
-                    label = { Text(HSLang.ItemEditor.rootType) },
+                    label = { Text(component = HSLang.ItemEditor.rootType) },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(8.dp))
@@ -376,12 +377,12 @@ private fun Components(
     modifier = Modifier.fillMaxSize(),
     contentPadding = PaddingValues(16.dp, 16.dp, 8.dp, 16.dp),
     label = {
-        Text(HSLang.ItemEditor.dataComponents)
+        Text(component = HSLang.ItemEditor.dataComponents)
     }
 ) {
     val lazyListState = rememberLazyListState()
     if (components.isEmpty()) {
-        Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
     } else {
         val canScroll = lazyListState.canScrollBackward || lazyListState.canScrollForward
         Box {
@@ -408,8 +409,8 @@ private fun Components(
                 }
             }
 
-            VerticalScrollbar(
-                adapter = rememberScrollbarAdapter(lazyListState),
+            VerticalScroller(
+                adapter = rememberScrollerAdapter(lazyListState),
                 modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight()
             )
         }

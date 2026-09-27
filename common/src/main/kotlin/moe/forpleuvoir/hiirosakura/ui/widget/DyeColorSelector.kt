@@ -4,9 +4,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenu
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -15,11 +14,16 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.text.translateText
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
-import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import net.minecraft.world.item.DyeColor
 import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.geometry.Rect
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.dropdownMenuAnchor
 
 @Composable
 fun DyeColorSelector(
@@ -30,16 +34,14 @@ fun DyeColorSelector(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Box(modifier) {
-        // 当前选中的颜色，同时作为弹出层锚点
+
+    var menuAnchorBounds by remember { mutableStateOf(Rect.Zero) }
+    Box(modifier.dropdownMenuAnchor { menuAnchorBounds = it }) {
         Surface(
-            onClick = { expanded = true },
-            modifier = Modifier.size(42.dp),
-            shape = MaterialTheme.shapes.small,
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline,
-            ),
+            modifier = Modifier
+                .size(42.dp)
+                .clickable { expanded = true },
+            outlineColor = SokitsuTheme.colorScheme.outline,
             color = Color.Transparent,
         ) {
             DyeColorPreview(
@@ -51,7 +53,7 @@ fun DyeColorSelector(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            shape = MaterialTheme.shapes.large,
+            anchorBounds = menuAnchorBounds,
         ) {
             Column(
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -67,27 +69,24 @@ fun DyeColorSelector(
                                 val selected = entry == value
 
                                 Surface(
-                                    onClick = {
-                                        expanded = false
-                                        if (!selected) {
-                                            onValueChange(entry)
-                                        }
-                                    },
-                                    modifier = Modifier.size(42.dp),
-                                    shape = MaterialTheme.shapes.small,
-                                    border = BorderStroke(
-                                        width = if (selected) 2.dp else 1.dp,
-                                        color = if (selected) {
-                                            MaterialTheme.colorScheme.primary
-                                        } else {
-                                            MaterialTheme.colorScheme.outlineVariant
+                                    modifier = Modifier
+                                        .size(42.dp)
+                                        .clickable {
+                                            expanded = false
+                                            if (!selected) {
+                                                onValueChange(entry)
+                                            }
                                         },
-                                    ),
+                                    outlineColor = if (selected) {
+                                        SokitsuTheme.colorScheme.primary
+                                    } else {
+                                        SokitsuTheme.colorScheme.outline
+                                    },
                                     color = Color.Transparent,
                                 ) {
                                     DyeColorPreview(
                                         colors = displayColor(entry),
-                                        modifier = Modifier.padding(5.dp).plainTooltip {
+                                        modifier = Modifier.padding(5.dp).tooltip {
                                             Text(entry.translateText)
                                         },
                                     )
@@ -107,9 +106,10 @@ private fun DyeColorPreview(
 ) {
     val previewColors = colors
         .take(4)
-        .map { it.toComposeColor }
+        .map { it.toComposeColor() }
 
-    val emptyColor = MaterialTheme.colorScheme.surfaceVariant
+
+    val emptyColor = SokitsuTheme.colorScheme.surfaceVariant
 
     Canvas(
         modifier = modifier

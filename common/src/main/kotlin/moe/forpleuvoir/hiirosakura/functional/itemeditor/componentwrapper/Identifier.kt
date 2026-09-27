@@ -2,7 +2,6 @@ package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,11 +11,17 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import net.minecraft.resources.Identifier
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun IdentifierComponentWrapper(
@@ -30,20 +35,16 @@ fun IdentifierComponentWrapper(
 ) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
         var showDialog by remember { mutableStateOf(false) }
-        AssistChip(
-            {},
+        FlatButton(
+            onClick = {},
             modifier = Modifier.fillMaxHeight().width(DataComponentEditorDefaults.entrySize.width),
-            label = {
-                Text(value, overflow = TextOverflow.Ellipsis, maxLines = 1)
-            },
-            trailingIcon = {
-                IconButton(onClick = { showDialog = true }) {
-                    Icon(Icons.EditNote, null)
-                }
-            }
-        )
-
-        if (showDialog) {
+        ) {
+Text(value, overflow = TextOverflow.Ellipsis, maxLines = 1)
+IconButton(onClick = { showDialog = true }) {
+    Icon(Icons.Edit)
+}
+        }
+if (showDialog) {
             IdentifierEditorDialog(value, onValueChange, { Text(key) }, { showDialog = false })
         }
     }
@@ -68,10 +69,7 @@ fun IdentifierEditorDialog(
         title = title,
         content = {
             Column {
-                OutlinedTextField(
-                    namespace,
-                    labelPosition = TextFieldLabelPosition.Attached(true),
-                    label = {
+                OutlinedLabelBox(label = {
                         Row {
                             Text("Namespace")
                             if (!checkNamespace) {
@@ -79,15 +77,15 @@ fun IdentifierEditorDialog(
                                 Text("Non [a-z0-9_.-] character in namespace of location")
                             }
                         }
-                    },
-                    isError = !checkNamespace,
-                    modifier = Modifier.fillMaxWidth().height(68.dp),
-                )
+                    }) {
+                    TextField(
+                        namespace,
+                        isError = !checkNamespace,
+                        modifier = Modifier.fillMaxWidth().height(68.dp),
+                    )
+                }
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    path,
-                    labelPosition = TextFieldLabelPosition.Attached(true),
-                    label = {
+                OutlinedLabelBox(label = {
                         Row {
                             Text("Path")
                             if (!checkPath) {
@@ -95,10 +93,13 @@ fun IdentifierEditorDialog(
                                 Text("Non [a-z0-9/._-] character in path of location")
                             }
                         }
-                    },
-                    isError = !checkPath,
-                    modifier = Modifier.fillMaxWidth().height(68.dp),
-                )
+                    }) {
+                    TextField(
+                        path,
+                        isError = !checkPath,
+                        modifier = Modifier.fillMaxWidth().height(68.dp),
+                    )
+                }
             }
         },
         confirmButton = {
@@ -108,7 +109,7 @@ fun IdentifierEditorDialog(
                     onDismissRequest()
                 }
             }, enabled = checkNamespace && checkPath) {
-                Text(IGLang.Misc.confirm)
+                Text(component = IGLang.Misc.confirm)
             }
         }
     )

@@ -1,8 +1,7 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,17 +18,18 @@ import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.toolbar.RichTextEditorToolbar
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.render.extension.pushTextLines
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.skia.LocalSkiaSurface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.mod.config.ThemeMode
 
 @Composable
 fun RichTextEditor(
     state: RichTextEditorState = remember { RichTextEditorState() },
     enabledPreviewRender: Boolean = true,
-    previewDefaultColor: Color = if (IGConfig.Gui.Theme.lightMode) Colors.BLACK else Colors.WHITE,
+    previewDefaultColor: Color = if ((IGConfig.Gui.Theme.mode == ThemeMode.Light)) Colors.BLACK else Colors.WHITE,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
@@ -38,21 +38,15 @@ fun RichTextEditor(
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(8.dp))
-        OutlinedTextField(
+        TextField(
             state = state.textState,
-            outputTransformation = state.outputTransformation,
-            textStyle = TextStyle(
-                color = MaterialTheme.colorScheme.onSurface,
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .richTextEditor(state),
+            
+            modifier = Modifier .fillMaxWidth() .weight(1f) .richTextEditor(state),
         )
         Spacer(Modifier.height(12.dp))
         OutlinedLabelBox(
             label = {
-                Text(HSLang.TextEditor.preview)
+                Text(component = HSLang.TextEditor.preview)
             },
             modifier = Modifier.weight(1.25f).fillMaxWidth()
         ) {
@@ -60,28 +54,9 @@ fun RichTextEditor(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
-                var area by remember { mutableStateOf<Rect?>(null) }
-                val surface = LocalSkiaSurface.current
-                LaunchedEffect(surface, enabledPreviewRender) {
-                    while (isActive && enabledPreviewRender) {
-                        withFrameNanos {
-                            area ?: return@withFrameNanos
-                            surface.postRender {
-                                pushTextLines(
-                                    state.mcText,
-                                    area = area!!.roundToIntRect(),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center,
-                                    defaultColor = previewDefaultColor,
-                                )
-                            }
-                        }
-                    }
-                }
-                Spacer(
-                    Modifier
-                        .fillMaxSize()
-                        .onGloballyPositioned { area = it.rectInMcWindow() }
+                Text(
+                    component = state.mcText,
+                    modifier = Modifier.fillMaxSize(),
                 )
             }
         }
@@ -93,6 +68,7 @@ fun RichTextEditor(
 fun LayoutCoordinates.rectInMcWindow(): Rect {
     val guiScale = mc.window.guiScale.toFloat()
     require(guiScale > 0f) { "guiScale must be greater than 0" }
+
 
     val position = positionInWindow()
 

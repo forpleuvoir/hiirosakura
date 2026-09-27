@@ -1,9 +1,9 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,11 +18,12 @@ import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.StringSelector
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.StringSelector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun ItemStackMatchEntryTagInfo(entry: ItemStackMatchEntry.Tag) {
@@ -48,8 +49,9 @@ internal fun ItemStackMatchEntryTagRow(
     Spacer(Modifier.width(6.dp))
     var showEditor by remember { mutableStateOf(false) }
     IconButton({ showEditor = true }) {
-        Icon(Icons.EditNote, "${IGLang.Misc.edit} ${entry.translateText.plainText}")
+        Icon(Icons.Edit)
     }
+
     if (showEditor) {
         ItemStackMatchEntryTagEditorDialog(
             { showEditor = false },
@@ -95,12 +97,14 @@ internal fun BasicItemStackMatchEntryTagEditor(
         modifier = modifier,
     ) {
         val state = rememberTextFieldStateBinding(value.tag) { onValueChange(value.copy(tag = it)) }
+
         val tags = remember {
             ItemStackMatcher.handheldItemStack
                 ?.tags()
                 ?.toList()
                 ?.map { tag -> tag.location.toString() }
         }
+
 
         if (!tags.isNullOrEmpty()) {
             StringSelector(
@@ -115,10 +119,11 @@ internal fun BasicItemStackMatchEntryTagEditor(
             )
             Spacer(Modifier.height(8.dp))
         }
-        OutlinedTextField(
-            state = state,
-            modifier = Modifier.fillMaxWidth().height(120.dp),
-            label = { Text(value.translateText) }
-        )
+        OutlinedLabelBox(label = { Text(value.translateText) }) {
+            TextField(
+                state = state,
+                modifier = Modifier.fillMaxWidth().height(120.dp),
+            )
+        }
     }
 }

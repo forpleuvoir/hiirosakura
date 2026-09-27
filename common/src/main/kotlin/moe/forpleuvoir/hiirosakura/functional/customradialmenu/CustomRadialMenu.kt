@@ -2,9 +2,7 @@ package moe.forpleuvoir.hiirosakura.functional.customradialmenu
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TextButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,15 +21,12 @@ import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.input.KeybindSetting
 import moe.forpleuvoir.ibukigourd.input.MouseButton.*
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.ui.closeScreen
-import moe.forpleuvoir.ibukigourd.ui.openComposeScreen
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.IbukiGourdTheme
-import moe.forpleuvoir.ibukigourd.ui.preset.ItemIcon
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
-import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
+import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import moe.forpleuvoir.nebula.common.util.checkType
 import moe.forpleuvoir.nebula.common.util.requireKey
@@ -43,6 +38,11 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.builder.build
 import moe.forpleuvoir.nebula.serialization.codec.Codec
 import net.minecraft.world.item.ItemStack
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.compat.closeScreen
+import moe.forpleuvoir.hiirosakura.ui.compat.openComposeScreen
 
 class CustomRadialMenu(
     shortcuts: Keybind = Keybind(
@@ -83,6 +83,7 @@ class CustomRadialMenu(
 
     }
 
+
     val shortcuts: Keybind = shortcuts.apply { action = { open() } }
 
     private var nextTaskKey: Long = 0
@@ -120,10 +121,11 @@ class CustomRadialMenu(
     }
 
     fun open() = openComposeScreen {
-        IbukiGourdTheme {
+        SokitsuTheme {
             Box(Modifier.fillMaxSize()) {
                 val s = setting
                 var editorState by remember { mutableStateOf<TaskEditorState?>(null) }
+
                 var deletingTask by remember { mutableStateOf<Keyed<IconTickTask>?>(null) }
                 RadialMenu(
                     options = tasks,
@@ -135,12 +137,12 @@ class CustomRadialMenu(
                     gap = s.gap,
                     cornerRadius = s.cornerRadius.dp,
                     optionsPerPage = s.pageSize,
-                    idleOuterColor = s.outerColor.toComposeColor,
-                    idleInnerColor = s.innerColor.toComposeColor,
-                    idleBorderColor = s.borderColor.toComposeColor,
-                    selectedOuterColor = s.outerSelectedColor.toComposeColor,
-                    selectedInnerColor = s.innerSelectedColor.toComposeColor,
-                    selectedBorderColor = s.selectedBorderColor.toComposeColor,
+                    idleOuterColor = s.outerColor.toComposeColor(),
+                    idleInnerColor = s.innerColor.toComposeColor(),
+                    idleBorderColor = s.borderColor.toComposeColor(),
+                    selectedOuterColor = s.outerSelectedColor.toComposeColor(),
+                    selectedInnerColor = s.innerSelectedColor.toComposeColor(),
+                    selectedBorderColor = s.selectedBorderColor.toComposeColor(),
                     borderWidth = s.borderWidth.dp,
                     onOptionClick = { keyed, button ->
                         when (button) {
@@ -163,35 +165,37 @@ class CustomRadialMenu(
                     },
                     optionContent = { task, _ ->
                         val stack = remember(task.value.icon) { ItemStack(task.value.icon) }
+
                         if (!stack.isEmpty) ItemIcon(stack, showTooltip = false)
                     },
                     centerContent = { task ->
                         if (task != null) Text(task.value.nameAsInlineStyleText, color = Color.White)
-                        else Text(HSLang.Task.unSelected, color = Color.White)
+                        else Text(component = HSLang.Task.unSelected, color = Color.White)
                     },
                 )
 
-                Text(HSLang.Task.quickExecuteHint, Modifier.align(hitAlignment), color = Color.White)
+                Text(component = HSLang.Task.quickExecuteHint, Modifier.align(hitAlignment), color = Color.White)
 
                 // 删除确认
                 deletingTask?.let { keyed ->
                     SimpleAlertDialog(
                         onDismissRequest = { deletingTask = null },
                         onConfirmRequest = { true },
-                        title = { Text(HSLang.Common.deleteConfirm(keyed.value.name)) },
+                        title = { Text(component = HSLang.Common.deleteConfirm(keyed.value.name)) },
                         confirmButton = {
                             TextButton(
                                 onClick = {
                                     val index = TaskManager.taskList.indexOfFirst { it.key == keyed.key }
+
                                     if (index >= 0) TaskManager.removeAt(index)
                                     deletingTask = null
                                 },
-                                colors = ButtonDefaults.textButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.error,
-                                    contentColor = MaterialTheme.colorScheme.onError,
+                                colors = FlatButtonDefaults.colors(
+                                    color = SokitsuTheme.colorScheme.error,
+                                    contentColor = SokitsuTheme.colorScheme.onError,
                                 )
                             ) {
-                                Text(IGLang.Misc.confirm)
+                                Text(component = IGLang.Misc.confirm)
                             }
                         },
                     )
@@ -201,7 +205,7 @@ class CustomRadialMenu(
                 editorState?.let { state ->
                     TaskEditorDialog(
                         task = state.task,
-                        title = { if (state.key == null) Text(HSLang.Task.newTask) else Text(HSLang.Task.editTask) },
+                        title = { if (state.key == null) Text(component = HSLang.Task.newTask) else Text(component = HSLang.Task.editTask) },
                         onDismissRequest = { editorState = null },
                     ) { newTask ->
                         val key = state.key
@@ -209,6 +213,7 @@ class CustomRadialMenu(
                             addTask(newTask)
                         } else {
                             val index = tasks.indexOfFirst { it.key == key }
+
                             if (index >= 0) updateTask(index, newTask) else addTask(newTask)
                         }
                     }

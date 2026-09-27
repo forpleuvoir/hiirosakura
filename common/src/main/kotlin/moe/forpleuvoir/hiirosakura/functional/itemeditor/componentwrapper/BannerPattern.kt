@@ -2,15 +2,12 @@ package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,16 +31,11 @@ import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.*
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
-import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberFabVisibilityByScroll
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.util.fabVisibilityAnimation
+import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
-import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.client.renderer.Sheets
@@ -57,6 +49,31 @@ import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import kotlin.math.roundToInt
 import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.selector.Selector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
+import androidx.compose.ui.graphics.RectangleShape
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
+import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
+import com.mojang.blaze3d.textures.FilterMode
+import moe.forpleuvoir.compose_minecraft.platform.render.plugins.UVMapping
+import moe.forpleuvoir.compose_minecraft.platform.ui.draw.minecraftTexture
+import androidx.compose.foundation.background
 
 @Composable
 fun BannerPatternComponentWrapper(
@@ -70,11 +87,11 @@ fun BannerPatternComponentWrapper(
 ) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
         var showDialog by remember { mutableStateOf(false) }
-        AssistChip(
-            {},
+        FlatButton(
+            onClick = {},
             modifier = Modifier
                 .fillMaxHeight()
-                .plainTooltip {
+                .tooltip {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.width(IntrinsicSize.Min)
@@ -89,19 +106,15 @@ fun BannerPatternComponentWrapper(
                     }
                 }
                 .width(DataComponentEditorDefaults.entrySize.width),
-            label = {
-                Text(IGLang.ConfigWrapper.listConfigWrapperText(value.layers.size), overflow = TextOverflow.Ellipsis, maxLines = 1)
-            },
-            trailingIcon = {
-                IconButton(onClick = {
-                    showDialog = true
-                }) {
-                    Icon(Icons.EditNote, null)
-                }
-            }
-        )
-
-        if (showDialog) {
+        ) {
+Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.layers.size), overflow = TextOverflow.Ellipsis, maxLines = 1)
+IconButton(onClick = {
+    showDialog = true
+}) {
+    Icon(Icons.Edit)
+}
+        }
+if (showDialog) {
             BannerPatternLayersEditorDialog(
                 key = key,
                 value = value,
@@ -121,7 +134,7 @@ fun BannerPatternLayersEditorDialog(
     onDismissRequest: () -> Unit,
     title: @Composable (() -> Unit)? = null,
 ) {
-    val layers = rememberKeyedList(value.layers)
+    val layers = rememberKeyedStateList(value.layers)
     var nextKey by remember { mutableLongStateOf(layers.size.toLong()) }
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
@@ -135,13 +148,14 @@ fun BannerPatternLayersEditorDialog(
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 val lazyListState = rememberLazyListState()
                 if (layers.isEmpty()) {
-                    Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
                 } else {
                     val hapticFeedback = LocalHapticFeedback.current
                     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
                         layers.moveElement(from.index, to.index)
                         hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
                     }
+
                     val canScroll = lazyListState.canScrollBackward || lazyListState.canScrollForward
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -155,8 +169,9 @@ fun BannerPatternLayersEditorDialog(
                             ReorderableItem(reorderableLazyListState, key) { isDragging ->
                                 val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                                 val handleInteraction = remember { MutableInteractionSource() }
+
                                 val handleHovered by handleInteraction.collectIsHoveredAsState()
-                                Card(
+                                Surface(
                                     modifier = Modifier.fillMaxWidth().scale(scale)
                                 ) {
                                     Row(
@@ -169,12 +184,7 @@ fun BannerPatternLayersEditorDialog(
                                             verticalAlignment = Alignment.CenterVertically,
                                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                                         ) {
-                                            DragHandle(
-                                                hapticFeedback,
-                                                handleInteraction,
-                                                handleHovered,
-                                                isDragging
-                                            )
+                                            DragHandle(modifier = Modifier)
                                             DyeColorSelector(
                                                 layer.color,
                                                 {
@@ -196,7 +206,7 @@ fun BannerPatternLayersEditorDialog(
 
                                         RemoveConfirmButton(
                                             layer.pattern.translatableText(layer.color).plainText,
-                                            { layers.removeAt(index) }
+                                            onConfirm = { { layers.removeAt(index) } },
                                         )
                                     }
                                 }
@@ -204,15 +214,16 @@ fun BannerPatternLayersEditorDialog(
                         }
                     }
 
-                    VerticalScrollbar(
-                        adapter = rememberScrollbarAdapter(lazyListState),
+                    VerticalScroller(
+                        adapter = rememberScrollerAdapter(lazyListState),
                         modifier = Modifier.align(Alignment.CenterEnd)
                     )
 
                 }
 
+
                 var showAddDialog by remember { mutableStateOf(false) }
-                FloatingActionButton(
+                Button(
                     onClick = {
                         showAddDialog = true
                     },
@@ -220,15 +231,16 @@ fun BannerPatternLayersEditorDialog(
                         .align(Alignment.BottomEnd)
                         .padding(12.dp)
                         .size(40.dp)
-                        .fabVisibilityAnimation(
-                            rememberFabVisibilityByScroll(lazyListState)
-                        )
+                        .fabScrollVisibility(
+                    rememberFabScrollVisibility(lazyListState)
+                        ),
                 ) {
-                    Icon(Icons.Add, IGLang.Misc.add.plainText)
+                    Icon(Icons.Add)
                 }
 
                 if (showAddDialog) {
                     var newColor by remember { mutableStateOf(DyeColor.WHITE) }
+
                     var newPattern by remember { mutableStateOf(REGISTERED_BANNER_PATTERN[0]) }
                     SimpleAlertDialog(
                         onDismissRequest = { showAddDialog = false },
@@ -236,7 +248,7 @@ fun BannerPatternLayersEditorDialog(
                             layers.add(Keyed(nextKey++, BannerPatternLayers.Layer(newPattern, newColor)))
                             true
                         },
-                        title = { Text(IGLang.Misc.add) },
+                        title = { Text(component = IGLang.Misc.add) },
                         content = {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -268,13 +280,13 @@ fun BannerPatternLayersEditorDialog(
     )
 }
 
+
 val REGISTERED_BANNER_PATTERN: List<Holder<BannerPattern>>
     get() = registryAccess?.lookupOrThrow(Registries.BANNER_PATTERN)?.asHolderIdMap()?.toList() ?: emptyList()
 
 fun Holder<BannerPattern>.translatableText(color: DyeColor) =
     Text.translatable("${this.value().translationKey()}.${color.getName()}", this.value().assetId.toString())
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BannerPatternSelector(
     selected: Holder<BannerPattern>,
@@ -289,7 +301,6 @@ fun BannerPatternSelector(
             Text(it.translatableText(dyeColor))
         }
     },
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (Holder<BannerPattern>, Boolean) -> Unit = { item, _ ->
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -305,29 +316,25 @@ fun BannerPatternSelector(
     itemTrailingIcon: ((Boolean) -> (@Composable (Holder<BannerPattern>) -> Unit)?)? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     interactionSource: MutableInteractionSource? = null,
-    shape: Shape = OutlinedTextFieldDefaults.shape,
-    colors: TextFieldColors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
-) = Selector(
-    selected = selected,
-    onSelect = onSelect,
-    items = items,
-    itemEquals = itemEquals,
-    content = content,
-    labelPosition = labelPosition,
-    label = label,
-    itemContent = itemContent,
-    enabled = enabled,
-    searchFilter = searchFilter,
-    modifier = modifier,
-    itemLeadingIcon = itemLeadingIcon,
-    itemTrailingIcon = itemTrailingIcon,
-    textStyle = textStyle,
-    interactionSource = interactionSource,
-    shape = shape,
-    colors = colors,
-    contentPadding = contentPadding
-)
+    shape: Shape = RectangleShape,
+    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
+) {
+        OutlinedLabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+                Selector(
+                selected = selected,
+                onSelect = onSelect,
+                items = items,
+                itemEquals = itemEquals,
+                content = content,
+                itemContent = itemContent,
+                enabled = enabled,
+                itemLeadingIcon = itemLeadingIcon,
+                itemTrailingIcon = itemTrailingIcon,
+                searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
 
 
 @Composable
@@ -348,56 +355,15 @@ fun BannerPattern(
         "textures/${textureId.path}.png",
     )
 
-    var bitmap by remember(resourceId) {
-        mutableStateOf<ImageBitmap?>(null)
-    }
-
-    LaunchedEffect(resourceId) {
-        bitmap = SkiaTextureHelper.getTextureCache(resourceId)
-    }
-
+    // 原版从 64×64 旗帜图案中截取：x = 0..21，y = 1..41
     Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .background(Color(color.textureDiffuseColor))
+            .minecraftTexture(
+                resourceId,
+                filterMode = FilterMode.NEAREST,
+                uv = UVMapping(0, 1, 21, 41),
+            ),
     ) {
-        Canvas(
-            modifier = Modifier.matchParentSize()
-        ) {
-            drawRect(
-                Color(
-                    color.textureDiffuseColor
-                )
-            )
-
-            val image = bitmap ?: return@Canvas
-
-            /*
-             * 原版从 64×64 旗帜图案中截取：
-             * x = 0..21
-             * y = 1..41
-             */
-            val sourceLeft = 0
-            val sourceTop = (image.height / 64f).roundToInt()
-            val sourceRight = (image.width * 21f / 64f).roundToInt()
-            val sourceBottom = (image.height * 41f / 64f).roundToInt()
-
-            drawImage(
-                image = image,
-                srcOffset = IntOffset(
-                    x = sourceLeft,
-                    y = sourceTop,
-                ),
-                srcSize = IntSize(
-                    width = sourceRight - sourceLeft,
-                    height = sourceBottom - sourceTop,
-                ),
-                dstOffset = IntOffset.Zero,
-                dstSize = IntSize(
-                    width = size.width.roundToInt(),
-                    height = size.height.roundToInt(),
-                ),
-                filterQuality = FilterQuality.None,
-            )
-        }
     }
 }

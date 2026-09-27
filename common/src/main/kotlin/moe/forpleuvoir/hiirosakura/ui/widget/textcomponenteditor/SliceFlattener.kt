@@ -27,6 +27,7 @@ fun flatten(
         }
     }
 
+
     val boundariesList = boundaries.toList()
     val segments = mutableListOf<TextSlice>()
 

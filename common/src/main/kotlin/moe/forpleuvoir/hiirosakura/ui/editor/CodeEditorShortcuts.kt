@@ -5,10 +5,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
-import androidx.compose.ui.platform.ClipboardManager
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
+import moe.forpleuvoir.hiirosakura.ui.compat.rememberClipboardManager
+import moe.forpleuvoir.hiirosakura.ui.compat.ClipboardManager
 
 /**
  * Adds code-editor-style keyboard shortcuts to any Compose text field that uses
@@ -20,7 +20,7 @@ import androidx.compose.ui.text.TextRange
  * ```
  * val state = rememberTextFieldState()
  *
- * OutlinedTextField(
+ * TextField(
  *     state = state,
  *     modifier = Modifier
  *         .fillMaxSize()
@@ -63,7 +63,7 @@ fun Modifier.codeEditorShortcuts(
     require('\n' !in indent && '\r' !in indent)
     require('\n' !in lineComment && '\r' !in lineComment)
 
-    val clipboardManager = LocalClipboardManager.current
+    val clipboardManager = rememberClipboardManager()
     val history = remember(state) { ArrayDeque<SelectionHistoryEntry>() }
 
     return this.onPreviewKeyEvent { event ->
@@ -71,6 +71,7 @@ fun Modifier.codeEditorShortcuts(
             history.clear()
             return@onPreviewKeyEvent false
         }
+
         if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
         handleKeyEvent(event, state, indent, lineComment, clipboardManager, history)
     }
@@ -218,6 +219,7 @@ private fun shrinkSelection(
         history.clear()
         return false
     }
+
 
     val clampedStart = entry.before.start.coerceIn(0, currentText.length)
     val clampedEnd = entry.before.end.coerceIn(0, currentText.length)

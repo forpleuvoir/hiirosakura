@@ -1,9 +1,9 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,9 +15,13 @@ import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import androidx.compose.foundation.layout.fillMaxWidth
+import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
+import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
 
 @Composable
 fun ItemStackMatchEntryCountInfo(entry: ItemStackMatchEntry.Count) {
@@ -43,8 +47,9 @@ internal fun ItemStackMatchEntryCountRow(
     Spacer(Modifier.width(6.dp))
     var showEditor by remember { mutableStateOf(false) }
     IconButton({ showEditor = true }) {
-        Icon(Icons.EditNote, "${IGLang.Misc.edit} ${entry.translateText.plainText}")
+        Icon(Icons.Edit)
     }
+
     if (showEditor) {
         ItemStackMatchEntryCountEditorDialog(
             { showEditor = false },
@@ -91,18 +96,18 @@ internal fun BasicItemStackMatchEntryCountEditor(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                IntField(
+                                IntField(
                     value.count.first,
                     { onValueChange(value.copy(count = it..value.count.last)) },
-                    range = 1..Int.MAX_VALUE,
-                    modifier = Modifier.weight(1f)
+                    valueRange = 1..Int.MAX_VALUE,
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 Text("≤..≤", modifier = Modifier.padding(horizontal = 12.dp))
-                IntField(
+                                IntField(
                     value.count.last,
                     { onValueChange(value.copy(count = value.count.first..it)) },
-                    range = value.count.first..Int.MAX_VALUE,
-                    modifier = Modifier.weight(1f)
+                    valueRange = value.count.first..Int.MAX_VALUE,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }

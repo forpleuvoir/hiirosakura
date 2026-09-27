@@ -10,8 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
-import moe.forpleuvoir.ibukigourd.ui.preset.EnumSelector
 import net.minecraft.resources.Identifier
+import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
 
 @Composable
 fun <E : Enum<E>> EnumComponentWrapper(

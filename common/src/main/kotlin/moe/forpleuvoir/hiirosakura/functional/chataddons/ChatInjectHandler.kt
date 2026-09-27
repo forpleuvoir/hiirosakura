@@ -3,12 +3,13 @@ package moe.forpleuvoir.hiirosakura.functional.chataddons
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.ibukigourd.config.item.configPairList
 import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.StringPairListConfigWrapper
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.PairListConfigWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.ConfigSerde
 import moe.forpleuvoir.nebula.serialization.codec.Codec
+import moe.forpleuvoir.hiirosakura.ui.configwrapper.StringPairListConfigWrapper
 
 object ChatInjectHandler : ConfigGroup("chat_inject") {
 
@@ -18,10 +19,10 @@ object ChatInjectHandler : ConfigGroup("chat_inject") {
         .uiWrapper { config ->
             StringPairListConfigWrapper(
                 config,
-                firstHead = { Text(HSLang.Chat.injectExp) },
-                addFirstLabel = { Text(HSLang.Chat.injectExp) },
-                secondHead = { Text(HSLang.Chat.injectRegex) },
-                addSecondLabel = { Text(HSLang.Chat.injectRegex) },
+                firstHead = { Text(component = HSLang.Chat.injectExp) },
+                addFirstLabel = { Text(component = HSLang.Chat.injectExp) },
+                secondHead = { Text(component = HSLang.Chat.injectRegex) },
+                addSecondLabel = { Text(component = HSLang.Chat.injectRegex) },
             )
         }
 

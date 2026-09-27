@@ -12,8 +12,8 @@ import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 
 @Composable
 fun BlockInfoMatchEntryBlockInfo(entry: BlockInfoMatchEntry.Block) {

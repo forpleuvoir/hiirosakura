@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,13 +13,25 @@ import moe.forpleuvoir.ibukigourd.render.extension.texture.Corner
 import moe.forpleuvoir.ibukigourd.render.extension.texture.IGTexture
 import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureUVMapping
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import net.minecraft.resources.Identifier
 import net.minecraft.world.food.FoodProperties
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import androidx.compose.foundation.layout.fillMaxWidth
+import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
+import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
+import moe.forpleuvoir.hiirosakura.ui.compat.BlitTexture
 
 private val FOOD_EMPTY_HUNGER_TEXTURE = Identifier.withDefaultNamespace("textures/gui/sprites/hud/food_empty_hunger.png")
 private val FOOD_EMPTY_TEXTURE = Identifier.withDefaultNamespace("textures/gui/sprites/hud/food_empty.png")
@@ -47,103 +58,101 @@ fun FoodComponentWrapper(
 ) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
         var showDialog by remember { mutableStateOf(false) }
-        AssistChip(
-            {},
+        FlatButton(
+            onClick = {},
             modifier = Modifier
                 .fillMaxHeight()
                 .width(DataComponentEditorDefaults.entrySize.width),
-            label = {
-                val icon = 22.dp
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    //饱食度
-                    Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                        val nutrition = (value.nutrition / 2)
-                        val remainder = value.nutrition % 2
-                        if (remainder > 0) {
-                            FoodIcon(FOOD_HALF_TEXTURE, Modifier.size(icon))
-                        }
-                        if (nutrition > 5) {
-                            FoodIcon(FOOD_FULL_TEXTURE, Modifier.size(icon))
-                            Spacer(Modifier.width(4.dp))
-                            Text("×$nutrition")
-                        } else {
-                            repeat(nutrition) {
-                                FoodIcon(FOOD_FULL_TEXTURE, Modifier.size(icon))
-                            }
-                        }
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    //饱和度
-                    Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                        val saturation = value.saturation / 2f
-                        val absoluteSaturation = saturation.absoluteValue
+        ) {
+val icon = 22.dp
+Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+    //饱食度
+    Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+        val nutrition = (value.nutrition / 2)
+        val remainder = value.nutrition % 2
+        if (remainder > 0) {
+            FoodIcon(FOOD_HALF_TEXTURE, Modifier.size(icon))
+        }
 
-                        if (PLATFORM.isModLoaded("appleskin")) {
-                            val quarterCount = ceil(absoluteSaturation * 4f).toInt()
-                            val fullCount = quarterCount / 4
-                            val remainingQuarter = quarterCount % 4
+        if (nutrition > 5) {
+            FoodIcon(FOOD_FULL_TEXTURE, Modifier.size(icon))
+            Spacer(Modifier.width(4.dp))
+            Text("×$nutrition")
+        } else {
+            repeat(nutrition) {
+                FoodIcon(FOOD_FULL_TEXTURE, Modifier.size(icon))
+            }
+        }
+    }
+    Spacer(Modifier.width(8.dp))
+    //饱和度
+    Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+        val saturation = value.saturation / 2f
+        val absoluteSaturation = saturation.absoluteValue
 
-                            val remainingTexture = when (remainingQuarter) {
-                                1    -> APPLESKIN_SATURATION_25
-                                2    -> APPLESKIN_SATURATION_50
-                                3    -> APPLESKIN_SATURATION_75
-                                else -> null
-                            }
+        if (PLATFORM.isModLoaded("appleskin")) {
+            val quarterCount = ceil(absoluteSaturation * 4f).toInt()
+            val fullCount = quarterCount / 4
+            val remainingQuarter = quarterCount % 4
 
-                            remainingTexture?.let {
-                                BlitTexture(
-                                    it,
-                                    Modifier.size(icon),
-                                )
-                            }
+            val remainingTexture = when (remainingQuarter) {
+                1    -> APPLESKIN_SATURATION_25
+                2    -> APPLESKIN_SATURATION_50
+                3    -> APPLESKIN_SATURATION_75
+                else -> null
+            }
 
-                            if (absoluteSaturation > 5f) {
-                                BlitTexture(
-                                    APPLESKIN_SATURATION_100,
-                                    Modifier.size(icon),
-                                )
-                                Spacer(Modifier.width(4.dp))
-                                Text("×$fullCount")
-                            } else {
-                                repeat(fullCount) {
-                                    BlitTexture(
-                                        APPLESKIN_SATURATION_100,
-                                        Modifier.size(icon),
-                                    )
-                                }
-                            }
-                        } else {
-                            val saturationCount = saturation.toInt()
+            remainingTexture?.let {
+                BlitTexture(
+                    it,
+                    Modifier.size(icon),
+                )
+            }
 
-                            if (saturationCount.absoluteValue > 5) {
-                                BlitTexture(
-                                    FOOD_EMPTY_HUNGER_TEXTURE,
-                                    Modifier.size(icon),
-                                )
-                                Spacer(Modifier.width(4.dp))
-                                Text("×$saturationCount")
-                            } else {
-                                repeat(saturationCount.absoluteValue) {
-                                    BlitTexture(
-                                        FOOD_EMPTY_HUNGER_TEXTURE,
-                                        Modifier.size(icon),
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            trailingIcon = {
-                IconButton(onClick = {
-                    showDialog = true
-                }) {
-                    Icon(Icons.EditNote, null)
+
+            if (absoluteSaturation > 5f) {
+                BlitTexture(
+                    APPLESKIN_SATURATION_100,
+                    Modifier.size(icon),
+                )
+                Spacer(Modifier.width(4.dp))
+                Text("×$fullCount")
+            } else {
+                repeat(fullCount) {
+                    BlitTexture(
+                        APPLESKIN_SATURATION_100,
+                        Modifier.size(icon),
+                    )
                 }
             }
-        )
+        } else {
+            val saturationCount = saturation.toInt()
 
-        if (showDialog) {
+            if (saturationCount.absoluteValue > 5) {
+                BlitTexture(
+                    FOOD_EMPTY_HUNGER_TEXTURE,
+                    Modifier.size(icon),
+                )
+                Spacer(Modifier.width(4.dp))
+                Text("×$saturationCount")
+            } else {
+                repeat(saturationCount.absoluteValue) {
+                    BlitTexture(
+                        FOOD_EMPTY_HUNGER_TEXTURE,
+                        Modifier.size(icon),
+                    )
+                }
+            }
+        }
+    }
+}
+IconButton(onClick = {
+    showDialog = true
+}) {
+    Icon(Icons.Edit)
+}
+        }
+if (showDialog) {
             var editingFood by remember { mutableStateOf(value) }
             SimpleAlertDialog(
                 { showDialog = false },
@@ -157,25 +166,25 @@ fun FoodComponentWrapper(
                 content = {
                     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            IntField(
-                                editingFood.nutrition,
-                                {
-                                    editingFood = FoodProperties(it, editingFood.saturation, editingFood.canAlwaysEat)
+                                                        OutlinedLabelBox(label = { Text(key, suffix = "nutrition", fallback = "Nutrition") }, modifier = Modifier.width(300.dp)) {
+                                IntField(
+                                    editingFood.nutrition,
+                                    {
+                                    editingFood = FoodProperties(it, editingFood.saturation, editingFood.canAlwaysEat)
                                 },
-                                labelPosition = TextFieldLabelPosition.Attached(true),
-                                label = { Text(key, suffix = "nutrition", fallback = "Nutrition") },
-                                range = 0..Int.MAX_VALUE,
-                                modifier = Modifier.width(300.dp)
-                            )
-                            FloatField(
-                                editingFood.saturation,
-                                {
-                                    editingFood = FoodProperties(editingFood.nutrition, it, editingFood.canAlwaysEat)
+                                    valueRange = 0..Int.MAX_VALUE,
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                            }
+                                                        OutlinedLabelBox(label = { Text(key, suffix = "saturation", fallback = "Saturation") }, modifier = Modifier.width(300.dp)) {
+                                FloatField(
+                                    editingFood.saturation,
+                                    {
+                                    editingFood = FoodProperties(editingFood.nutrition, it, editingFood.canAlwaysEat)
                                 },
-                                labelPosition = TextFieldLabelPosition.Attached(true),
-                                label = { Text(key, suffix = "saturation", fallback = "Saturation") },
-                                modifier = Modifier.width(300.dp)
-                            )
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                            }
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween,

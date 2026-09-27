@@ -1,7 +1,7 @@
 package moe.forpleuvoir.hiirosakura.ui.syntaxhighlight
 
 import androidx.compose.ui.text.TextRange
-import moe.forpleuvoir.nebula.serialization.yml.YamlDialect
+import moe.forpleuvoir.nebula.serialization.yaml.YamlDialect
 
 object YamlSyntaxLanguage : SyntaxLanguage {
 
@@ -53,6 +53,7 @@ object YamlSyntaxLanguage : SyntaxLanguage {
                                 pos++
                             }
                         }
+
                         if (pos < end) pos++
                         emit(SyntaxHighlightSpan(TextRange(strStart, pos), SyntaxToken.String, priority = 90))
                     }

@@ -1,9 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Switch
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,11 +12,13 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.widget.ColorListEditor
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.FireworkExplosion
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun FireworkExplosionComponentWrapper(
@@ -33,8 +35,9 @@ fun FireworkExplosionComponentWrapper(
         IconButton(onClick = {
             showDialog = true
         }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.EditNote, null)
+            Icon(Icons.Edit)
         }
+
         if (showDialog) {
             FireworkExplosionEditorDialog(
                 value = value,
@@ -54,9 +57,13 @@ private fun FireworkExplosionEditorDialog(
     key: Identifier,
 ) {
     var shape by remember { mutableStateOf(value.shape) }
+
     var colors by remember { mutableStateOf(value.colors) }
+
     var fadeColors by remember { mutableStateOf(value.fadeColors) }
+
     var hasTrail by remember { mutableStateOf(value.hasTrail) }
+
     var hasTwinkle by remember { mutableStateOf(value.hasTwinkle) }
 
     SimpleAlertDialog(
@@ -92,6 +99,7 @@ private fun FireworkExplosionEditorDialog(
                     Text(key, suffix = "has_trail")
                     Switch(hasTrail, { hasTrail = it })
                 }
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,

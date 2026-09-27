@@ -9,9 +9,8 @@ import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.TextAutoSize
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProvideTextStyle
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.ProvideTextStyle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,14 +33,18 @@ import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
-import moe.forpleuvoir.ibukigourd.ui.util.toComposeColor
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.nebula.common.util.primitive.toTitleCase
 import net.minecraft.locale.Language
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import androidx.compose.ui.graphics.RectangleShape
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text as SokitsuText
 
 val unknownComponentType = identifier("unknown_component_type")
 
@@ -64,6 +67,33 @@ sealed class CommentAppendMode {
     data object Replace : CommentAppendMode()
     data object None : CommentAppendMode()
 }
+
+/**
+ * 便捷重载：直接渲染纯文本。
+ *
+ * 本包原有的 [Text] 以语言键为入口（`Identifier` + 前后缀）；这里补上直接给文本/组件文本的形态，
+ * 便于调用点写 `Text("...")` 或 `Text(component = ...)` 而不必切到 sokitsu 的导入。
+ */
+@Composable
+fun Text(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+) = SokitsuText(text, modifier, color, overflow = overflow, softWrap = softWrap, maxLines = maxLines)
+
+/** 便捷重载：直接渲染组件文本，见上一条。 */
+@Composable
+fun Text(
+    component: Component,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+) = SokitsuText(component = component, modifier = modifier, color = color, overflow = overflow, softWrap = softWrap, maxLines = maxLines)
 
 @Composable
 fun Text(
@@ -102,14 +132,16 @@ fun Text(
         else                         -> Translatable(key, fallback)
     }
 
+
     val actualModifier = if (hasComment && commentAppendMode is CommentAppendMode.Tooltip) {
-        modifier.plainTooltip { Text(Translatable(commentKey)) }
+        modifier.tooltip { Text(Translatable(commentKey)) }
     } else {
         modifier
     }
 
+
     Text(
-        if (hasComment && commentAppendMode is CommentAppendMode.Append) {
+        component = if (hasComment && commentAppendMode is CommentAppendMode.Append) {
             val sep = if (commentAppendMode.newLine) "\n" else " "
             val comment = Language.getInstance().getOrDefault(commentKey)
             val original = Language.getInstance().getOrDefault(key)
@@ -117,24 +149,11 @@ fun Text(
         } else {
             displayText
         },
-        actualModifier,
-        color,
-        autoSize,
-        fontSize,
-        fontStyle,
-        fontWeight,
-        fontFamily,
-        letterSpacing,
-        textDecoration,
-        textAlign,
-        lineHeight,
-        overflow,
-        softWrap,
-        maxLines,
-        minLines,
-        inlineContent,
-        onTextLayout,
-        style,
+        modifier = actualModifier,
+        color = color,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
     )
 }
 
@@ -148,17 +167,18 @@ fun DataComponentEntryRow(
     content: @Composable RowScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+
     val isHovered by interactionSource.collectIsHoveredAsState()
     val backgroundColor by animateColorAsState(
-        targetValue = if (isHovered) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+        targetValue = if (isHovered) SokitsuTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        else SokitsuTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
         animationSpec = tween(200),
         label = "bgHoverHighlight"
     )
     Row(
         modifier = modifier
             .hoverable(interactionSource)
-            .background(backgroundColor, MaterialTheme.shapes.medium)
+            .background(backgroundColor, RectangleShape)
             .fillMaxWidth()
             .padding(20.dp, 8.dp, 12.dp, 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -166,19 +186,20 @@ fun DataComponentEntryRow(
     ) {
         val style = LocalTextStyle.current.copy(
             color = if (DataComponentWrappers.isAdaptedComponent(key))
-                moe.forpleuvoir.nebula.common.color.Color.fromHSV(195f / 360f, 1f, 1f).toComposeColor
+                moe.forpleuvoir.nebula.common.color.Color.fromHSV(195f / 360f, 1f, 1f).toComposeColor()
             else
-                moe.forpleuvoir.nebula.common.color.Color.fromHSV(5f / 360f, .6f, 1f).toComposeColor
+                moe.forpleuvoir.nebula.common.color.Color.fromHSV(5f / 360f, .6f, 1f).toComposeColor()
         )
         ProvideTextStyle(style) {
             Column(modifier = Modifier.weight(1f, false)) {
                 Text(key, overflow = TextOverflow.Ellipsis, maxLines = 1)
                 val hasTranslation = Language.getInstance().has(key.asTranslateKey())
                 if (hasTranslation) {
-                    Text(Component.literal(key.toString()), fontSize = MaterialTheme.typography.bodySmall.fontSize)
+                    Text(Component.literal(key.toString()), fontSize = SokitsuTheme.typography.body.fontSize)
                 }
             }
         }
+
 
         Row(
             horizontalArrangement = horizontalArrangement,

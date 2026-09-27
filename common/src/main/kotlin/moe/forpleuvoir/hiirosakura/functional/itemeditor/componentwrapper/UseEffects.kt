@@ -1,9 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Switch
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,12 +11,14 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.FloatField
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.UseEffects
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import androidx.compose.foundation.layout.fillMaxWidth
 
 @Composable
 fun UseEffectsComponentWrapper(
@@ -33,8 +35,9 @@ fun UseEffectsComponentWrapper(
         IconButton(onClick = {
             showDialog = true
         }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.EditNote, null)
+            Icon(Icons.Edit)
         }
+
         if (showDialog) {
             UseEffectsEditorDialog(
                 key = key,
@@ -73,6 +76,7 @@ fun UseEffectsEditorDialog(
                     Text(key, suffix = "can_sprint")
                     Switch(editing.canSprint, { editing = editing.copy(canSprint = it) })
                 }
+
                 Row(
                     modifier = Modifier.width(300.dp).height(64.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -81,13 +85,14 @@ fun UseEffectsEditorDialog(
                     Text(key, suffix = "interact_vibrations")
                     Switch(editing.interactVibrations, { editing = editing.copy(interactVibrations = it) })
                 }
-                FloatField(
-                    editing.speedMultiplier,
-                    { editing = editing.copy(speedMultiplier = it) },
-                    range = 0f..1f,
-                    label = { Text(key, suffix = "speed_multiplier") },
-                    modifier = Modifier.width(300.dp)
-                )
+                                OutlinedLabelBox(label = { Text(key, suffix = "speed_multiplier") }, modifier = Modifier.width(300.dp)) {
+                    FloatField(
+                        editing.speedMultiplier,
+                        { editing = editing.copy(speedMultiplier = it) },
+                        valueRange = 0f..1f,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
     )

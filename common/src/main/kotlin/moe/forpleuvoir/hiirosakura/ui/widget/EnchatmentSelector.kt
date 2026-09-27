@@ -2,7 +2,6 @@ package moe.forpleuvoir.hiirosakura.ui.widget
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
@@ -10,14 +9,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.text.Literal
-import moe.forpleuvoir.ibukigourd.ui.preset.Selector
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.selector.Selector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
 import net.minecraft.data.registries.VanillaRegistries
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.enchantment.Enchantment
+import androidx.compose.foundation.layout.fillMaxWidth
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
+import androidx.compose.ui.graphics.RectangleShape
 
 object EnchatmentHelper {
 
@@ -37,6 +39,7 @@ object EnchatmentHelper {
         return REGISTERED_ENCHANTMENT.find { it.registeredName == enchantment.registeredName }?.value()?.description ?: Literal(enchantment.registeredName)
     }
 
+
     val CLIENT_REGISTERED_ENCHANTMENT: List<Holder.Reference<Enchantment>> by lazy {
         VanillaRegistries.createLookup()
             .lookupOrThrow(Registries.ENCHANTMENT)
@@ -47,7 +50,6 @@ object EnchatmentHelper {
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnchatmentSelector(
     selected: Holder<Enchantment>,
@@ -57,7 +59,6 @@ fun EnchatmentSelector(
     content: @Composable (Holder<Enchantment>) -> Unit = {
         Text(EnchatmentHelper.enchantmentDescription(it), maxLines = 1, overflow = TextOverflow.Ellipsis)
     },
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(true),
     label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (Holder<Enchantment>, Boolean) -> Unit = { item, _ ->
         Text(EnchatmentHelper.enchantmentDescription(item))
@@ -69,26 +70,22 @@ fun EnchatmentSelector(
     itemTrailingIcon: ((Boolean) -> (@Composable (Holder<Enchantment>) -> Unit)?)? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     interactionSource: MutableInteractionSource? = null,
-    shape: Shape = OutlinedTextFieldDefaults.shape,
-    colors: TextFieldColors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-    contentPadding: PaddingValues = OutlinedTextFieldDefaults.contentPadding(),
-) = Selector(
-    selected = selected,
-    onSelect = onSelect,
-    items = items,
-    itemEquals = itemEquals,
-    content = content,
-    labelPosition = labelPosition,
-    label = label,
-    itemContent = itemContent,
-    enabled = enabled,
-    searchFilter = searchFilter,
-    modifier = modifier,
-    itemLeadingIcon = itemLeadingIcon,
-    itemTrailingIcon = itemTrailingIcon,
-    textStyle = textStyle,
-    interactionSource = interactionSource,
-    shape = shape,
-    colors = colors,
-    contentPadding = contentPadding
-)
+    shape: Shape = RectangleShape,
+    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
+) {
+        OutlinedLabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+                Selector(
+                selected = selected,
+                onSelect = onSelect,
+                items = items,
+                itemEquals = itemEquals,
+                content = content,
+                itemContent = itemContent,
+                enabled = enabled,
+                itemLeadingIcon = itemLeadingIcon,
+                itemTrailingIcon = itemTrailingIcon,
+                searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }

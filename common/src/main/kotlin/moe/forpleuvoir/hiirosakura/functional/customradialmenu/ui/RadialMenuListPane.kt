@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,10 +19,23 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.customradialmenu.CustomRadialMenuManager
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.*
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import androidx.compose.ui.graphics.RectangleShape
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.compat.FilledTonalButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenu
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenuItem
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.foundation.clickable
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.dropdownMenuAnchor
 
 @Composable
 fun RadialMenuListPane(
@@ -42,16 +54,16 @@ fun RadialMenuListPane(
             onClick = onNewMenu,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Icon(Icons.Add, null)
+            Icon(Icons.Add)
             Spacer(Modifier.width(4.dp))
-            Text(HSLang.CustomRadialMenu.add)
+            Text(component = HSLang.CustomRadialMenu.add)
         }
 
         Spacer(Modifier.height(12.dp))
 
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             if (CustomRadialMenuManager.customRadialMenus.isEmpty()) {
-                Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
             } else {
                 val lazyListState = rememberLazyListState()
                 val canScroll = lazyListState.canScrollBackward || lazyListState.canScrollForward
@@ -73,8 +85,8 @@ fun RadialMenuListPane(
                     }
                 }
 
-                VerticalScrollbar(
-                    adapter = rememberScrollbarAdapter(lazyListState),
+                VerticalScroller(
+                    adapter = rememberScrollerAdapter(lazyListState),
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
             }
@@ -82,7 +94,6 @@ fun RadialMenuListPane(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun RadialMenuListItem(
     name: String,
@@ -93,25 +104,27 @@ private fun RadialMenuListItem(
     onDelete: () -> Unit,
 ) {
     var showMenu by remember { mutableStateOf(false) }
+
     val interactionSource = remember { MutableInteractionSource() }
+
     val isHovered by interactionSource.collectIsHoveredAsState()
     val backgroundColor by animateColorAsState(
         targetValue = if (isHovered) {
             if (isSelected)
-                MaterialTheme.colorScheme.secondaryContainer
+                SokitsuTheme.colorScheme.secondary
             else
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        } else if (isSelected) MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.85f)
-        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+                SokitsuTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        } else if (isSelected) SokitsuTheme.colorScheme.secondary.copy(alpha = 0.85f)
+        else SokitsuTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
         animationSpec = tween(200),
         label = "RadialMenuListItem"
     )
     Row(
         modifier = Modifier
             .hoverable(interactionSource)
-            .clip(MaterialTheme.shapes.medium)
+            .clip(RectangleShape)
             .background(backgroundColor)
-            .onClick { onClick.invoke() }
+            .clickable(interactionSource = interactionSource, indication = null) { onClick() }
             .fillMaxWidth()
             .padding(12.dp, 6.dp, 6.dp, 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -122,52 +135,44 @@ private fun RadialMenuListItem(
             modifier = Modifier.weight(1f),
             overflow = TextOverflow.Ellipsis
         )
-        Box {
-            IconButton(onClick = { showMenu = true }, Modifier.plainTooltip { Text(HSLang.CustomRadialMenu.setting) }) {
-                Icon(Icons.MoreVert, null)
+            var menuAnchorBounds by remember { mutableStateOf(Rect.Zero) }
+            Box(modifier = Modifier.dropdownMenuAnchor { menuAnchorBounds = it }) {
+            IconButton(onClick = { showMenu = true }, Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.setting) }) {
+                Icon(Icons.Menu)
             }
+
 
             val menus = remember {
                 listOf(
                     MenuOption(
-                        text = { Text(HSLang.CustomRadialMenu.setting) },
-                        icon = { Icon(Icons.Settings, null) },
+                        text = { Text(component = HSLang.CustomRadialMenu.setting) },
+                        icon = { Icon(Icons.Setting) },
                         onClick = { showMenu = false; onEditSetting() },
                     ),
                     MenuOption(
-                        text = { Text(HSLang.CustomRadialMenu.editName) },
-                        icon = { Icon(Icons.EditNote, null) },
+                        text = { Text(component = HSLang.CustomRadialMenu.editName) },
+                        icon = { Icon(Icons.Edit) },
                         onClick = { showMenu = false; onRename() },
                     ),
                     MenuOption(
-                        text = { Text(HSLang.CustomRadialMenu.delete) },
-                        icon = { Icon(Icons.Delete, null) },
+                        text = { Text(component = HSLang.CustomRadialMenu.delete) },
+                        icon = { Icon(Icons.Delete) },
                         onClick = { showMenu = false; onDelete() },
                     ),
                 )
             }
 
-            DropdownMenuPopup(
+            DropdownMenu(
                 expanded = showMenu,
                 onDismissRequest = { showMenu = false },
+                anchorBounds = menuAnchorBounds,
             ) {
-                Surface(
-                    modifier = Modifier.hoverable(interactionSource = interactionSource),
-                    shape = MenuDefaults.groupShape(0, 1).shape,
-                    color = MenuDefaults.groupStandardContainerColor,
-                    tonalElevation = MenuDefaults.TonalElevation,
-                    shadowElevation = MenuDefaults.ShadowElevation,
-                ) {
-                    Column(modifier = Modifier.padding(0.dp, 4.dp)) {
-                        menus.forEachIndexed { index, option ->
-                            val shapes = MenuDefaults.itemShape(index, menus.size)
-                            DropdownMenuItem(
-                                text = option.text,
-                                onClick = option.onClick,
-                                leadingIcon = option.icon,
-                                shape = shapes.shape,
-                            )
-                        }
+                menus.forEach { option ->
+                    DropdownMenuItem(
+                        onClick = option.onClick,
+                        leadingIcon = option.icon,
+                    ) {
+                        option.text()
                     }
                 }
             }

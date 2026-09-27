@@ -1,15 +1,12 @@
 package moe.forpleuvoir.hiirosakura.functional.event.ui
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,19 +20,29 @@ import moe.forpleuvoir.hiirosakura.functional.event.HSEventManager
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber.ExecutorType
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
+import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
+import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.hiirosakura.ui.icon.defaults.FilterList
 import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Link
 import moe.forpleuvoir.hiirosakura.ui.icon.defaults.NotificationAdd
-import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.text.InlineStyleText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.DragHandle
-import moe.forpleuvoir.ibukigourd.ui.preset.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
-import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.rememberReorderableLazyListState
+import moe.forpleuvoir.hiirosakura.ui.compat.FilledTonalButton
 
 private val filterList by lazy {
     buildList {
@@ -49,7 +56,9 @@ fun HSEventManagerUI(
     modifier: Modifier = Modifier,
 ) {
     var filteredType by remember { mutableStateOf("all") }
+
     var editingSubscriber by remember { mutableStateOf<Int?>(null) }
+
     Column(
         modifier.fillMaxSize().padding(16.dp),
     ) {
@@ -60,9 +69,9 @@ fun HSEventManagerUI(
                 items = filterList,
                 content = {
                     Row {
-                        Icon(Icons.FilterList, null)
+                        VectorIcon(HSIcons.FilterList)
                         Spacer(Modifier.width(8.dp))
-                        Text(EventTypes.id2Text(it), modifier = Modifier.plainTooltip {
+                        Text(EventTypes.id2Text(it), modifier = Modifier.tooltip {
                             Text(EventTypes.id2TextComment(it))
                         })
                     }
@@ -72,15 +81,15 @@ fun HSEventManagerUI(
             FilledTonalButton(onClick = {
                 editingSubscriber = -1
             }) {
-                Icon(Icons.NotificationAdd, contentDescription = "")
+                VectorIcon(HSIcons.NotificationAdd, contentDescription = "")
                 Spacer(Modifier.width(8.dp))
-                Text(HSLang.Event.subscribe)
+                Text(component = HSLang.Event.subscribe)
             }
         }
         Spacer(Modifier.height(12.dp))
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             if (HSEventManager.subscribers.isEmpty()) {
-                Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
             } else {
                 val lazyListState = rememberLazyListState()
                 val hapticFeedback = LocalHapticFeedback.current
@@ -88,6 +97,7 @@ fun HSEventManagerUI(
                     HSEventManager.moveElement(from.index, to.index)
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
                 }
+
                 val canScroll = lazyListState.canScrollBackward || lazyListState.canScrollForward
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -102,8 +112,9 @@ fun HSEventManagerUI(
                             ReorderableItem(reorderableLazyListState, key) { isDragging ->
                                 val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                                 val handleInteraction = remember { MutableInteractionSource() }
+
                                 val handleHovered by handleInteraction.collectIsHoveredAsState()
-                                Card(
+                                Surface(
                                     modifier = Modifier.fillMaxWidth().scale(scale)
                                 ) {
                                     Row(
@@ -115,19 +126,15 @@ fun HSEventManagerUI(
                                             verticalAlignment = Alignment.CenterVertically,
                                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                                         ) {
-                                            DragHandle(
-                                                hapticFeedback,
-                                                handleInteraction,
-                                                handleHovered,
-                                                isDragging
-                                            )
+                                            DragHandle(modifier = Modifier)
                                             Text(
                                                 EventTypes.id2Text(subscriber.eventTypeId),
-                                                color = MaterialTheme.colorScheme.primary
+                                                color = SokitsuTheme.colorScheme.primary
                                             )
-                                            Icon(Icons.Link, null)
-                                            Text(InlineStyleText(subscriber.name))
+                                            VectorIcon(HSIcons.Link)
+                                            Text(component = InlineStyleText(subscriber.name))
                                         }
+
 
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
@@ -137,21 +144,21 @@ fun HSEventManagerUI(
                                             LaunchedEffect(enabled) {
                                                 subscriber.enabled = enabled
                                             }
-                                            Switch(enabled, onCheckedChange = { enabled = it }, Modifier.plainTooltip {
-                                                Text(HSLang.Common.enable)
+                                            Switch(enabled, onCheckedChange = { enabled = it }, Modifier.tooltip {
+                                                Text(component = HSLang.Common.enable)
                                             })
 
                                             IconButton({
                                                 editingSubscriber = index
-                                            }, Modifier.plainTooltip {
-                                                Text(HSLang.Event.subscriberEditor)
+                                            }, Modifier.tooltip {
+                                                Text(component = HSLang.Event.subscriberEditor)
                                             }) {
-                                                Icon(Icons.EditNote, null)
+                                                Icon(Icons.Edit)
                                             }
 
                                             RemoveConfirmButton(
                                                 subscriber.name,
-                                                { HSEventManager.remove(index) }
+                                                onConfirm = { HSEventManager.remove(index) },
                                             )
                                         }
                                     }
@@ -161,8 +168,8 @@ fun HSEventManagerUI(
                     }
                 }
 
-                VerticalScrollbar(
-                    adapter = rememberScrollbarAdapter(lazyListState),
+                VerticalScroller(
+                    adapter = rememberScrollerAdapter(lazyListState),
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
             }
@@ -180,8 +187,8 @@ fun HSEventManagerUI(
             )
             else HSEventManager.subscribers[idx].value,
             {
-                if (idx == -1) Text(HSLang.Event.subscribe)
-                else Text(HSLang.Event.subscriberEditor)
+                if (idx == -1) Text(component = HSLang.Event.subscribe)
+                else Text(component = HSLang.Event.subscriberEditor)
             },
             { editingSubscriber = null },
             {

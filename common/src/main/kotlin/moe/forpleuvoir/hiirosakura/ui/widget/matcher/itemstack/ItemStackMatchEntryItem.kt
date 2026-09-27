@@ -13,8 +13,8 @@ import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.hiirosakura.util.name
-import moe.forpleuvoir.ibukigourd.ui.preset.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 
 @Composable
 fun ItemStackMatchEntryItemInfo(entry: ItemStackMatchEntry.Item) {

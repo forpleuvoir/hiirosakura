@@ -1,12 +1,9 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,19 +20,33 @@ import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.appendTranslate
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.platformcontext.IGCompositionLocalProvider
-import moe.forpleuvoir.ibukigourd.ui.preset.*
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.plainTooltip
-import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberFabVisibilityByScroll
-import moe.forpleuvoir.ibukigourd.ui.preset.state.rememberHideActionState
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.util.fabVisibilityAnimation
+import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
+import moe.forpleuvoir.ibukigourd.ui.util.rememberHideActionState
 import net.minecraft.core.Holder
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.enchantment.Enchantment
 import net.minecraft.world.item.enchantment.ItemEnchantments
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import androidx.compose.foundation.layout.fillMaxWidth
+import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
+import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
+import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 
 @Composable
 fun ItemEnchantmentsComponentWrapper(
@@ -50,12 +61,14 @@ fun ItemEnchantmentsComponentWrapper(
     Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
         var showDialog by remember { mutableStateOf(false) }
 
+
         val tip = if (value.size() > 0) {
-            Modifier.plainTooltip {
+            Modifier.tooltip {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     value.entrySet().take(20).forEach { (holder, i) ->
                         Text(Literal("").append(enchantmentDescription(holder)).append(" ").appendTranslate("enchantment.level.$i", i.toString()))
                     }
+
                     if (value.size() > 20) {
                         Text("...")
                     }
@@ -63,25 +76,21 @@ fun ItemEnchantmentsComponentWrapper(
             }
         } else Modifier
 
-        AssistChip(
-            {},
+        FlatButton(
+            onClick = {},
             modifier = Modifier
                 .fillMaxHeight()
                 .then(tip)
                 .width(DataComponentEditorDefaults.entrySize.width),
-            label = {
-                Text(IGLang.ConfigWrapper.listConfigWrapperText(value.enchantments.size), overflow = TextOverflow.Ellipsis, maxLines = 1)
-            },
-            trailingIcon = {
-                IconButton(onClick = {
-                    showDialog = true
-                }) {
-                    Icon(Icons.EditNote, null)
-                }
-            }
-        )
-
-        if (showDialog) {
+        ) {
+Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.enchantments.size), overflow = TextOverflow.Ellipsis, maxLines = 1)
+IconButton(onClick = {
+    showDialog = true
+}) {
+    Icon(Icons.Edit)
+}
+        }
+if (showDialog) {
             ItemEnchantmentsComponentEditDialog(
                 value,
                 onValueChange,
@@ -132,7 +141,7 @@ fun ItemEnchantmentsComponentEditDialog(
 
                 val lazyListState = rememberLazyListState()
                 if (editingEnchantments.isEmpty()) {
-                    Text(IGLang.Misc.hasNothing, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
                 } else {
                     val canScroll = lazyListState.canScrollBackward || lazyListState.canScrollForward
                     LazyColumn(
@@ -144,7 +153,7 @@ fun ItemEnchantmentsComponentEditDialog(
                             editingEnchantments,
                             key = { _, entry -> entry.first }
                         ) { index, (enchantment, level) ->
-                            Card(
+                            Surface(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Row(
@@ -168,39 +177,40 @@ fun ItemEnchantmentsComponentEditDialog(
                                         }
                                     )
                                     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                                        IntField(
-                                            level,
-                                            {
+                                                                                OutlinedLabelBox(label = {
+                                                Text(key, suffix = "level", fallback = "level")
+                                            }, modifier = Modifier.height(68.dp).width(120.dp)) {
+                                            IntField(
+                                                level,
+                                                {
                                                 editingEnchantments[index] = editingEnchantments[index].copy(second = it)
                                             },
-                                            range = 1..255,
-                                            labelPosition = TextFieldLabelPosition.Attached(true),
-                                            label = {
-                                                Text(key, suffix = "level", fallback = "level")
-                                            },
-                                            modifier = Modifier.height(68.dp).width(120.dp),
-                                        )
+                                                valueRange = 1..255,
+                                                modifier = Modifier.fillMaxWidth(),
+                                            )
+                                        }
                                     }
 
 
                                     RemoveConfirmButton(
                                         enchantment.value().description.plainText,
-                                        { editingEnchantments.removeAt(index) }
+                                        onConfirm = { { editingEnchantments.removeAt(index) } },
                                     )
                                 }
                             }
                         }
                     }
 
-                    VerticalScrollbar(
-                        adapter = rememberScrollbarAdapter(lazyListState),
+                    VerticalScroller(
+                        adapter = rememberScrollerAdapter(lazyListState),
                         modifier = Modifier.align(Alignment.CenterEnd)
                     )
 
                 }
+
                 var showAddDialog by remember { mutableStateOf(false) }
 
-                FloatingActionButton(
+                Button(
                     onClick = {
                         otherEnchantments(null).firstOrNull()?.let {
                             showAddDialog = true
@@ -210,16 +220,16 @@ fun ItemEnchantmentsComponentEditDialog(
                         .align(Alignment.BottomEnd)
                         .padding(12.dp)
                         .size(40.dp)
-                        .fabVisibilityAnimation(
-                            rememberFabVisibilityByScroll(lazyListState),
-                            shouldHide = rememberHideActionState() && editingEnchantments.size == EnchatmentHelper.REGISTERED_ENCHANTMENT.size
-                        )
+                        .fabScrollVisibility(
+                            rememberFabScrollVisibility(lazyListState),
+                        ),
                 ) {
-                    Icon(Icons.Add, IGLang.Misc.add.plainText)
+                    Icon(Icons.Add)
                 }
 
                 if (showAddDialog) {
                     var level by remember { mutableStateOf(1) }
+
                     var enchantment by remember { mutableStateOf(otherEnchantments(null).first()) }
                     SimpleAlertDialog(
                         onDismissRequest = { showAddDialog = false },
@@ -227,9 +237,9 @@ fun ItemEnchantmentsComponentEditDialog(
                             editingEnchantments.addLast(enchantment to level)
                             true
                         },
-                        title = { Text(IGLang.Misc.add) },
+                        title = { Text(component = IGLang.Misc.add) },
                         content = {
-                            IGCompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
+                            
                                 Row {
                                     EnchatmentSelector(
                                         enchantment,
@@ -244,18 +254,18 @@ fun ItemEnchantmentsComponentEditDialog(
                                         }
                                     )
                                     Spacer(Modifier.width(8.dp))
-                                    IntField(
-                                        level,
-                                        { level = it },
-                                        range = 1..255,
-                                        labelPosition = TextFieldLabelPosition.Attached(true),
-                                        label = {
+                                                                        OutlinedLabelBox(label = {
                                             Text(key, suffix = "level", fallback = "level")
-                                        },
-                                        modifier = Modifier.height(68.dp).width(120.dp)
-                                    )
+                                        }, modifier = Modifier.height(68.dp).width(120.dp)) {
+                                        IntField(
+                                            level,
+                                            { level = it },
+                                            valueRange = 1..255,
+                                            modifier = Modifier.fillMaxWidth(),
+                                        )
+                                    }
                                 }
-                            }
+                            
                         }
                     )
 

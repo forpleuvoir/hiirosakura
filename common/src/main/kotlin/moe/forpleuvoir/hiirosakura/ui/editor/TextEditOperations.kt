@@ -114,6 +114,7 @@ internal fun TextFieldState.duplicateSelectionOrLine(): Boolean {
         return true
     }
 
+
     val min = minOf(sel.start, sel.end)
     val max = maxOf(sel.start, sel.end)
     val selectedText = text.substring(min, max)
@@ -139,6 +140,7 @@ internal fun TextFieldState.indent(indent: String): Boolean {
         return true
     }
 
+
     val effectiveEnd = if (max > min) max - 1 else max
     val blockStart = text.lineStartAt(min)
     val blockEnd = text.lineEndIncludingBreakAt(effectiveEnd)
@@ -150,7 +152,9 @@ internal fun TextFieldState.indent(indent: String): Boolean {
         pos = text.lineEndIncludingBreakAt(pos)
     }
 
+
     val edits = targetLines.map { TextEdit(it, 0, indent) }
+
     val newStart = mapOffsetAfterEdits(sel.start, edits)
     val newEnd = mapOffsetAfterEdits(sel.end, edits)
 
@@ -158,6 +162,7 @@ internal fun TextFieldState.indent(indent: String): Boolean {
         for ((start, _, insertText) in edits.sortedByDescending { it.start }) {
             replace(start, start, insertText)
         }
+
         val reversed = sel.start > sel.end
         selection = if (reversed) TextRange(newEnd, newStart) else TextRange(newStart, newEnd)
     }
@@ -181,6 +186,7 @@ internal fun TextFieldState.unindent(indent: String): Boolean {
         pos = text.lineEndIncludingBreakAt(pos)
     }
 
+
     val edits = mutableListOf<TextEdit>()
     for (lineStart in targetStarts) {
         val contentEnd = text.lineContentEndAt(lineStart)
@@ -189,6 +195,7 @@ internal fun TextFieldState.unindent(indent: String): Boolean {
             edits.add(TextEdit(lineStart, deleteLen, ""))
         }
     }
+
 
     if (edits.isEmpty()) return false
 
@@ -199,6 +206,7 @@ internal fun TextFieldState.unindent(indent: String): Boolean {
         for ((start, deleteLength, insertText) in edits.sortedByDescending { it.start }) {
             replace(start, start + deleteLength, insertText)
         }
+
         val reversed = sel.start > sel.end
         selection = if (reversed) TextRange(newEnd, newStart) else TextRange(newStart, newEnd)
     }
@@ -241,9 +249,11 @@ internal fun TextFieldState.toggleLineComment(prefix: String): Boolean {
         pos = text.lineEndIncludingBreakAt(pos)
     }
 
+
     val nonEmptyLines = targetLines.filter { lineStart ->
         text.lineContentEndAt(lineStart) > lineStart
     }
+
 
     if (nonEmptyLines.isEmpty()) return false
 
@@ -252,6 +262,7 @@ internal fun TextFieldState.toggleLineComment(prefix: String): Boolean {
         val firstNonWS = text.firstNonWhitespaceOffset(lineStart, contentEnd)
         firstNonWS + prefix.length <= contentEnd && text.hasPrefixAt(prefix, firstNonWS)
     }
+
 
     val edits = if (allCommented) {
         targetLines.mapNotNull { lineStart ->
@@ -271,6 +282,7 @@ internal fun TextFieldState.toggleLineComment(prefix: String): Boolean {
         }
     }
 
+
     if (edits.isEmpty()) return false
 
     val newStart = mapOffsetAfterEdits(sel.start, edits)
@@ -280,6 +292,7 @@ internal fun TextFieldState.toggleLineComment(prefix: String): Boolean {
         for ((start, deleteLength, insertText) in edits.sortedByDescending { it.start }) {
             replace(start, start + deleteLength, insertText)
         }
+
         val reversed = sel.start > sel.end
         selection = if (reversed) TextRange(newEnd, newStart) else TextRange(newStart, newEnd)
     }

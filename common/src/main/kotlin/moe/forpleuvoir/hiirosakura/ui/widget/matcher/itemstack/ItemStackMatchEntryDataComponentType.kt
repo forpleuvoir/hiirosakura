@@ -1,8 +1,8 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,10 +19,10 @@ import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.EditNote
-import moe.forpleuvoir.ibukigourd.ui.preset.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.preset.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun ItemStackMatchEntryDataComponentTypeInfo(entry: ItemStackMatchEntry.DataComponentType) {
@@ -48,8 +48,9 @@ internal fun ItemStackMatchEntryDataComponentTypeRow(
     Spacer(Modifier.width(6.dp))
     var showEditor by remember { mutableStateOf(false) }
     IconButton({ showEditor = true }) {
-        Icon(Icons.EditNote, "${IGLang.Misc.edit} ${entry.translateText.plainText}")
+        Icon(Icons.Edit)
     }
+
     if (showEditor) {
         ItemStackMatchEntryDataComponentTypeEditorDialog(
             { showEditor = false },
@@ -96,10 +97,12 @@ internal fun BasicItemStackMatchEntryDataComponentTypeEditor(
     ) {
         //从手中物品获取
         val width = remember { 440.dp }
+
         val components = remember(value) { ItemStackMatcher.handheldItemStack?.components?.keySet()?.toList() }
+
         if (!components.isNullOrEmpty()) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                Text(HSLang.Common.getFromHandItem)
+                Text(component = HSLang.Common.getFromHandItem)
                 var selected by remember(value) { mutableStateOf(components.find { it == value } ?: components.first()) }
                 DataComponentTypeSelector(
                     selected,
@@ -112,7 +115,7 @@ internal fun BasicItemStackMatchEntryDataComponentTypeEditor(
         Spacer(Modifier.height(12.dp))
         //从注册表获取
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-            Text(HSLang.ItemStackMatcher.Entry.dataComponentType)
+            Text(component = HSLang.ItemStackMatcher.Entry.dataComponentType)
             DataComponentTypeSelector(
                 value.componentType,
                 { onValueChange(value.copy(componentType = it)) },

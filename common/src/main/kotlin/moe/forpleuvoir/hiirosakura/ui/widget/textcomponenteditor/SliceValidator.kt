@@ -2,6 +2,7 @@ package moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor
 
 fun validateSlices(textLength: Int, slices: List<TextSlice>) {
     require(textLength >= 0) { "textLength must be >= 0, was $textLength" }
+
     if (textLength == 0) {
         require(slices.isEmpty()) { "Empty text must have no slices, got ${slices.size}" }
         return

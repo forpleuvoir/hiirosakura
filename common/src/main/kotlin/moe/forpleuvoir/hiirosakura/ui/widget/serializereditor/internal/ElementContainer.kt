@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -15,9 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Add
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.KeyboardArrowRight
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
 
 /**
  * 对象 / 数组编辑器的统一容器：
@@ -41,9 +45,9 @@ internal fun ElementContainer(
     )
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        
+        color = SokitsuTheme.colorScheme.surfaceVariant,
+        outlineColor = SokitsuTheme.colorScheme.outline.copy(alpha = 0.5f),
     ) {
         Column {
             Row(
@@ -54,25 +58,23 @@ internal fun ElementContainer(
                     .clickable(onClick = onToggle)
                     .padding(start = 8.dp, end = 6.dp, top = 4.dp, bottom = 4.dp),
             ) {
-                Icon(
-                    imageVector = Icons.KeyboardArrowRight,
-                    contentDescription = null,
+                Icon(Icons.ArrowRight,
                     modifier = Modifier
                         .size(18.dp)
                         .rotate(rotation),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = SokitsuTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.width(4.dp))
                 title()
                 Spacer(Modifier.weight(1f))
                 Surface(
-                    shape = RoundedCornerShape(10.dp),
-                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    
+                    color = SokitsuTheme.colorScheme.secondary,
                 ) {
                     Text(
                         text = count.toString(),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        style = SokitsuTheme.typography.button,
+                        color = SokitsuTheme.colorScheme.onSecondary,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                     )
                 }
@@ -80,13 +82,12 @@ internal fun ElementContainer(
                     onClick = onAdd,
                     modifier = Modifier.size(30.dp),
                 ) {
-                    Icon(
-                        imageVector = Icons.Add,
-                        contentDescription = null,
+                    Icon(Icons.Add,
                         modifier = Modifier.size(16.dp),
                     )
                 }
             }
+
             if (expanded) {
                 Row(
                     modifier = Modifier
@@ -99,8 +100,8 @@ internal fun ElementContainer(
                             .width(2.dp)
                             .fillMaxHeight()
                             .background(
-                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                                shape = RoundedCornerShape(1.dp),
+                                color = SokitsuTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                
                             ),
                     )
                     Spacer(Modifier.width(8.dp))
@@ -111,8 +112,8 @@ internal fun ElementContainer(
                         if (emptyText != null && count == 0) {
                             Text(
                                 text = emptyText,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = SokitsuTheme.typography.body,
+                                color = SokitsuTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(vertical = 4.dp),
                             )
                         }

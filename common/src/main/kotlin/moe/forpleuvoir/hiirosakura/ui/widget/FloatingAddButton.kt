@@ -3,16 +3,21 @@ package moe.forpleuvoir.hiirosakura.ui.widget
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.ui.icon.Icons
-import moe.forpleuvoir.ibukigourd.ui.icon.defaults.Add
-import moe.forpleuvoir.ibukigourd.ui.preset.modifier.fabVisibilityAnimation
-import moe.forpleuvoir.ibukigourd.ui.preset.state.FabVisibilityState
-import moe.forpleuvoir.ibukigourd.ui.preset.state.isQuickAction
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.util.FabVisibilityState
+import moe.forpleuvoir.ibukigourd.ui.util.isQuickAction
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import androidx.compose.ui.graphics.RectangleShape
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
+import moe.forpleuvoir.hiirosakura.ui.compat.FloatingActionButtonMenu
+import moe.forpleuvoir.hiirosakura.ui.compat.FloatingActionButtonMenuItem
+import moe.forpleuvoir.ibukigourd.ui.util.FabScrollVisibility
+import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 
 fun interface EntryEditor<T> {
     @Composable
@@ -29,17 +34,18 @@ data class AddMenuOption<T>(
     val editor: EntryEditor<T>?
 )
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun <T> FloatingAddButton(
     modifier: Modifier = Modifier,
-    fabVisibilityState: FabVisibilityState? = null,
+    fabVisibilityState: FabScrollVisibility? = null,
     addMenuOptions: List<AddMenuOption<T>>,
     addAction: (T) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
+
     var activeEditor: EntryEditor<T>? by remember { mutableStateOf(null) }
+
     var currentDefaultValue by remember { mutableStateOf<(() -> T)?>(null) }
 
     FloatingActionButtonMenu(
@@ -47,26 +53,23 @@ fun <T> FloatingAddButton(
         modifier = modifier
             .then(
                 if (fabVisibilityState != null && !expanded)
-                    Modifier.fabVisibilityAnimation(fabVisibilityState)
+                    Modifier.fabScrollVisibility(fabVisibilityState)
                 else Modifier
             ),
         button = {
-            FloatingActionButton(
-                modifier = Modifier.size(50.dp),
-                shape = MaterialTheme.shapes.extraLarge,
+            Button(
                 onClick = { expanded = !expanded },
+                modifier = Modifier.size(50.dp),
             ) {
                 val rotation by animateFloatAsState(
                     targetValue = if (expanded) 45f else 0f,
-                    animationSpec = tween(150)
+                    animationSpec = tween(150),
                 )
                 Icon(
-                    imageVector = Icons.Add,
-                    contentDescription = "Add",
-                    modifier = Modifier.rotate(rotation)
+                    Icons.Add,
+                    modifier = Modifier.rotate(rotation),
                 )
-            }
-        }
+            }}
     ) {
         addMenuOptions.forEach { option ->
             FloatingActionButtonMenuItem(
@@ -84,6 +87,7 @@ fun <T> FloatingAddButton(
             )
         }
     }
+
     if (activeEditor != null && currentDefaultValue != null) {
         activeEditor!!.invoke(
             addAction,

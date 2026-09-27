@@ -5,22 +5,27 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.ui.preset.DoubleField
-import moe.forpleuvoir.ibukigourd.ui.preset.FloatField
-import moe.forpleuvoir.ibukigourd.ui.preset.IntField
-import moe.forpleuvoir.ibukigourd.ui.preset.LocalNumberFieldStyle
-import moe.forpleuvoir.ibukigourd.ui.preset.LongField
-import moe.forpleuvoir.ibukigourd.ui.preset.NumberFieldStyle
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.DoubleField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LongField
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
 import java.math.BigDecimal
 import java.math.BigInteger
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
+import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import androidx.compose.foundation.layout.fillMaxWidth
+import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
+import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
 
 /**
  * 文本 / 数值编辑器的统一宽度，可通过 CompositionLocal 覆盖。
@@ -106,17 +111,15 @@ private fun IntEditor(
     modifier: Modifier,
 ) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-        IntField(
-            value = int,
-            onValueChange = { onValueChange(SerializePrimitive(it)) },
-            modifier = modifier
+                OutlinedLabelBox(label = { Text("Int") }, modifier = modifier
                 .width(LocalSerializeValueFieldWidth.current)
-                .height(ValueFieldHeight),
-            label = { Text("Int") },
-            textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-            shape = RoundedCornerShape(6.dp),
-            contentPadding = ValueFieldContentPadding,
-        )
+                .height(ValueFieldHeight)) {
+            IntField(
+                value = int,
+                onValueChange = { onValueChange(SerializePrimitive(it)) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+        }
     }
 }
 
@@ -127,17 +130,15 @@ private fun LongEditor(
     modifier: Modifier,
 ) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-        LongField(
-            value = long,
-            onValueChange = { onValueChange(SerializePrimitive(it)) },
-            modifier = modifier
+                OutlinedLabelBox(label = { Text("Long") }, modifier = modifier
                 .width(LocalSerializeValueFieldWidth.current)
-                .height(ValueFieldHeight),
-            label = { Text("Long") },
-            textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-            shape = RoundedCornerShape(6.dp),
-            contentPadding = ValueFieldContentPadding,
-        )
+                .height(ValueFieldHeight)) {
+            LongField(
+                value = long,
+                onValueChange = { onValueChange(SerializePrimitive(it)) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+        }
     }
 }
 
@@ -188,17 +189,15 @@ private fun FloatEditor(
     modifier: Modifier,
 ) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-        FloatField(
-            value = float,
-            onValueChange = { onValueChange(SerializePrimitive(it)) },
-            modifier = modifier
+                OutlinedLabelBox(label = { Text("Float") }, modifier = modifier
                 .width(LocalSerializeValueFieldWidth.current)
-                .height(ValueFieldHeight),
-            label = { Text("Float") },
-            textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-            shape = RoundedCornerShape(6.dp),
-            contentPadding = ValueFieldContentPadding,
-        )
+                .height(ValueFieldHeight)) {
+            FloatField(
+                value = float,
+                onValueChange = { onValueChange(SerializePrimitive(it)) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+        }
     }
 }
 
@@ -209,17 +208,15 @@ private fun DoubleEditor(
     modifier: Modifier,
 ) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-        DoubleField(
-            value = double,
-            onValueChange = { onValueChange(SerializePrimitive(it)) },
-            modifier = modifier
+                OutlinedLabelBox(label = { Text("Double") }, modifier = modifier
                 .width(LocalSerializeValueFieldWidth.current)
-                .height(ValueFieldHeight),
-            label = { Text("Double") },
-            textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-            shape = RoundedCornerShape(6.dp),
-            contentPadding = ValueFieldContentPadding,
-        )
+                .height(ValueFieldHeight)) {
+            DoubleField(
+                value = double,
+                onValueChange = { onValueChange(SerializePrimitive(it)) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+        }
     }
 }
 
@@ -284,26 +281,24 @@ private fun CompactValueField(
             state.edit { replace(0, length, value) }
         }
     }
-    OutlinedTextField(
-        state = state,
-        modifier = modifier.height(ValueFieldHeight),
-        isError = isError,
-        labelPosition = TextFieldLabelPosition.Attached(true),
-        label = { Text(label) },
-        textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-        lineLimits = TextFieldLineLimits.SingleLine,
-        shape = RoundedCornerShape(6.dp),
-        contentPadding = ValueFieldContentPadding,
-        keyboardOptions = keyboardOptions,
-    )
+    OutlinedLabelBox(label = { Text(label) }) {
+        TextField(
+            state = state,
+            modifier = modifier.height(ValueFieldHeight),
+            isError = isError,
+            lineLimits = TextFieldLineLimits.SingleLine,
+            contentPadding = ValueFieldContentPadding,
+            keyboardOptions = keyboardOptions,
+        )
+    }
 }
 
 @Composable
 private fun UnsupportedEditor(modifier: Modifier = Modifier) {
     Text(
         text = "Unsupported Type",
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.error,
+        style = SokitsuTheme.typography.body,
+        color = SokitsuTheme.colorScheme.error,
         modifier = modifier,
     )
 }

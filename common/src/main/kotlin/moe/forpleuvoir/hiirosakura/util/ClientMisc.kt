@@ -18,6 +18,7 @@ import org.joml.Vector3f
 import java.awt.SystemTray
 import java.awt.Toolkit
 import java.awt.TrayIcon
+import kotlin.time.Duration.Companion.milliseconds
 
 private val logger = logger("ClientMisc")
 
@@ -107,7 +108,7 @@ private fun sendAWTNotification(title: String, message: String): Boolean {
         defaultLaunch {
             systemTray.add(trayIcon)
             trayIcon.displayMessage(title, message, TrayIcon.MessageType.INFO)
-            delay(5000)
+            delay(5000.milliseconds)
             systemTray.remove(trayIcon)
         }
     }.onFailure {

@@ -75,6 +75,10 @@ import kotlinx.coroutines.delay
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import moe.forpleuvoir.ibukigourd.ui.item.ItemIconDefaults
+import kotlin.time.Duration.Companion.milliseconds
+import androidx.compose.foundation.interaction.HoverInteraction
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun ItemSelector(
@@ -303,7 +307,7 @@ fun ItemBrowser(
             revealedCount = 0
             val warmUp = displayItems.size.coerceAtMost(128)
             while (revealedCount < warmUp) {
-                delay(12)
+                delay(12.milliseconds)
                 revealedCount = (revealedCount + 6).coerceAtMost(warmUp)
             }
             revealedCount = displayItems.size
@@ -446,20 +450,24 @@ object ItemBrowserDefaults {
         // ItemIconDefaults.size(48dp),调用方要别的尺寸再显式传。
         modifier: Modifier = Modifier.size(ItemIconDefaults.size),
         showTooltip: Boolean = true,
+        // 物品着色(Color.White 为不调制):走物品绘制着色,不产生 graphicsLayer ——
+        // 本平台图层是命令烘焙 + 父链连锁重录,用 Modifier.alpha 表达「半透明」会给每个元素建图层。
+        color: Color = Color.White,
         onCLick: (ItemLike) -> Unit = {}
     ) {
         val interactionSource = remember { MutableInteractionSource() }
 
         val isHovered by interactionSource.collectIsHoveredAsState()
+
         Box(
             modifier = modifier
                 .aspectRatio(1f)
                 .hoverable(interactionSource)
                 .clickable(interactionSource = interactionSource, indication = null) { onCLick(item) }
+                // 悬停反馈改为 IG 的悬停高亮(原来是一圈 1dp 描边):
+                // 高亮块铺在内容之下,主题色 / 浓度 / 淡入淡出全部沿用 hoverHighlight 的定义。
+                .then(if (border) Modifier.hoverHighlight(interactionSource) else Modifier)
                 .then(
-                    if (isHovered && border) Modifier.border(1.dp, SokitsuTheme.colorScheme.outline)
-                    else Modifier
-                ).then(
                     if (showTooltip) Modifier.tooltip {
                         Column {
                             if (item is Item) {
@@ -485,7 +493,8 @@ object ItemBrowserDefaults {
                     icon,
                     size = DpSize(LocalItemIconSize.current, LocalItemIconSize.current),
                     showTooltip = false,
-                    scaleOnHover = scaleOnHover
+                    scaleOnHover = scaleOnHover,
+                    color = color,
                 )
             } else {
                 Canvas(Modifier.size(LocalItemIconSize.current)) {

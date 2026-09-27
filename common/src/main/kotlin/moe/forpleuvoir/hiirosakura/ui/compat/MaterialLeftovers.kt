@@ -30,6 +30,14 @@ import androidx.compose.runtime.remember
 import net.minecraft.client.gui.screens.Screen
 import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreen
 import moe.forpleuvoir.ibukigourd.render.extension.texture.IGTexture
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.tween
 
 /*
  * 旧版 material3 组件的本项目兼容实现（第二组）。
@@ -226,7 +234,17 @@ fun FloatingActionButtonMenu(
     horizontalAlignment = horizontalAlignment,
     verticalArrangement = Arrangement.spacedBy(8.dp),
 ) {
-    if (expanded) {
+    // 展开的菜单项要有过渡:原来直接 if(expanded) 出现/消失,点了就是硬切。
+    // 侧边按钮在菜单下方,所以从下方滑入(initialOffsetY 为正 = 起始位置更靠下)。
+    AnimatedVisibility(
+        visible = expanded,
+        enter = fadeIn(tween(150)) +
+                slideInVertically(tween(150)) { it / 3 } +
+                scaleIn(tween(150), initialScale = 0.9f),
+        exit = fadeOut(tween(120)) +
+                slideOutVertically(tween(120)) { it / 3 } +
+                scaleOut(tween(120), targetScale = 0.9f),
+    ) {
         Column(
             modifier = Modifier
                 .then(

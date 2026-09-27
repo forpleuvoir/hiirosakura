@@ -32,6 +32,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
 import moe.forpleuvoir.hiirosakura.ui.compat.FloatingActionButtonMenu
 import moe.forpleuvoir.hiirosakura.ui.compat.FloatingActionButtonMenuItem
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
 
 fun interface EntryEditor<T> {
     @Composable
@@ -123,6 +124,9 @@ fun <T> FloatingAddButton(
                     Button(
                         onClick = { expanded = !expanded },
                         modifier = Modifier.size(FabMenuButtonSize),
+                        // Icon 的尺寸是 fittedIconSize(会缩到可用空间),按钮默认的 contentPadding
+                        // 会把 3 倍图标钳回原大小;这里去掉内边距让图标能真的变大。
+                        contentPadding = PaddingValues(0.dp),
                     ) {
                         val rotation by animateFloatAsState(
                             targetValue = if (expanded) 45f else 0f,
@@ -130,6 +134,8 @@ fun <T> FloatingAddButton(
                         )
                         Icon(
                             Icons.Add,
+                            // 默认 scale = 2 在 50dp 按钮里偏小:放大到 3 倍像素
+                            scale = 2,
                             modifier = Modifier.rotate(rotation),
                         )
                     }

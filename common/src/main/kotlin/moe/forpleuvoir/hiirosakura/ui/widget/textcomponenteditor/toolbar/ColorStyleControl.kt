@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.StyleProperty
 import moe.forpleuvoir.ibukigourd.input.MouseButton
 import moe.forpleuvoir.ibukigourd.lang.IGLang
@@ -75,11 +76,9 @@ fun ColorStyleControl(
             .size(36.dp)
             .hoverable(interactionSource)
             .background(backgroundColor, CircleShape)
-            .then(
-                if (currentState != null && currentState != StyleProperty.Unset)
-                    Modifier.border(2.dp, SokitsuTheme.colorScheme.primary, CircleShape)
-                else Modifier
-            )
+            .thenIf(currentState != null && currentState != StyleProperty.Unset) {
+                Modifier.border(2.dp, SokitsuTheme.colorScheme.primary, CircleShape)
+            }
             .tooltip { tip() }
             .pointerInput(Unit) {
                 awaitPointerEventScope {

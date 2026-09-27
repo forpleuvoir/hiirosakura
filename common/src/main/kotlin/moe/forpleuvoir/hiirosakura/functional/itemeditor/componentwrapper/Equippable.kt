@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
@@ -180,23 +181,22 @@ private fun AllowedEntities(
     var showAllowedEntitiesDialog by remember { mutableStateOf(false) }
 
     val allowedEntities = value.allowedEntities
-    val tip = if (allowedEntities.isPresent && allowedEntities.get().size() > 0) {
-        Modifier.tooltip {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                allowedEntities.get().take(10).forEach {
-                    Text(it.value().description)
-                }
-
-                if (allowedEntities.get().size() > 10) {
-                    Text("...")
-                }
-            }
-        }
-    } else Modifier
     LabelBox(
         modifier = Modifier
             .fillMaxWidth()
-            .then(tip),
+            .thenIf(allowedEntities.isPresent && allowedEntities.get().size() > 0) {
+                Modifier.tooltip {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        allowedEntities.get().take(10).forEach {
+                            Text(it.value().description)
+                        }
+
+                        if (allowedEntities.get().size() > 10) {
+                            Text("...")
+                        }
+                    }
+                }
+            },
         label = { Text(key, suffix = "allowed_entities", fallback = "Allowed Entities") },
         contentPadding = LabeledFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
     ) {

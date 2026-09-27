@@ -12,6 +12,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
@@ -267,30 +268,29 @@ private fun RuleContent(
         //blocks
         val count = value.blocks.count()
         var showDialog by remember { mutableStateOf(false) }
-        val tip = if (count > 0) {
-            Modifier.tooltip {
-                FlowRow(
-                    modifier = Modifier.widthIn(max = 320.dp).padding(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    value.blocks.take(20).forEach { item ->
-                        ItemBrowserDefaults.ItemWrapper(
-                            item.value(),
-                            hoverHighlight = false,
-                            scaleOnHover = 1f,
-                            showTooltip = false,
-                            modifier = Modifier.size(36.dp)
-                        )
-                    }
-                }
-            }
-        } else Modifier
         LabelBox(
             modifier = Modifier
                 .height(64.dp)
                 .fillMaxWidth()
-                .then(tip),
+                .thenIf(count > 0) {
+                    Modifier.tooltip {
+                        FlowRow(
+                            modifier = Modifier.widthIn(max = 320.dp).padding(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            value.blocks.take(20).forEach { item ->
+                                ItemBrowserDefaults.ItemWrapper(
+                                    item.value(),
+                                    hoverHighlight = false,
+                                    scaleOnHover = 1f,
+                                    showTooltip = false,
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
+                        }
+                    }
+                },
             contentPadding = OutlinedTextFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
             label = {
                 Text(key, suffix = "blocks", fallback = "Blocks")

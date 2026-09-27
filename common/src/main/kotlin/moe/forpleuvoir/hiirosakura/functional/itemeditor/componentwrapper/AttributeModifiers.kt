@@ -17,6 +17,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
@@ -389,12 +390,15 @@ private fun ModifierEntryContent(
                     } ?: run {
                         val typeKey = value.display.type().asTextKey(key)
                         val commentKey = "${typeKey}.comment"
-                        val tip = if (Language.getInstance().has(commentKey)) {
-                            Modifier.tooltip {
-                                Text(Translatable(commentKey))
-                            }
-                        } else Modifier
-                        Text(value.display.type().asText(key), overflow = TextOverflow.Ellipsis, maxLines = 1, modifier = Modifier.fillMaxWidth().then(tip))
+                        Text(
+                            value.display.type().asText(key),
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                            modifier = Modifier.fillMaxWidth().thenIf(Language.getInstance().has(commentKey)) {
+                                Modifier.tooltip {
+                                    Text(Translatable(commentKey))
+                                }
+                            })
                     }
                 }
 
@@ -455,17 +459,16 @@ private fun DisplayTypeSelector(
     ) {
         entries.forEachIndexed { index, item ->
             val commentKey = "${item.asTextKey(key)}.comment"
-            val tip = if (Language.getInstance().has(commentKey)) {
-                Modifier.tooltip {
-                    Text(Translatable(commentKey))
-                }
-            } else Modifier
             RadioButton(
                 selected = value == item,
                 index = index,
                 count = entries.size,
                 onSelect = { onValueChange(item) },
-                modifier = tip,
+                modifier = Modifier.thenIf(Language.getInstance().has(commentKey)) {
+                    Modifier.tooltip {
+                        Text(Translatable(commentKey))
+                    }
+                },
             ) {
                 Text(
                     item.asText(key),

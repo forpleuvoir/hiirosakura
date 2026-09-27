@@ -12,6 +12,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIfNotNull
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeNull
@@ -92,15 +93,11 @@ fun KeyLabel(
         color = color,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        modifier = modifier.then(
-            if (onClick != null) {
-                Modifier
-                    .clip(RoundedCornerShape(4.dp))
-                    .clickable(onClick = onClick)
-            } else {
-                Modifier
-            }
-        ),
+        modifier = modifier.thenIfNotNull(onClick) {
+            Modifier
+                .clip(RoundedCornerShape(4.dp))
+                .clickable(onClick = it)
+        },
     )
 }
 

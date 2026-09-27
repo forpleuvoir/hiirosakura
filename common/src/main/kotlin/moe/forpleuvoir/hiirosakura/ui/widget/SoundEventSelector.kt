@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
@@ -200,14 +201,13 @@ fun OptionalHolderSoundEventSelector(
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
-    val tip = if (value.isPresent) {
-        Modifier.tooltip {
-            Text(value.get().value().location.toString())
-        }
-    } else Modifier
     LabelBox(
         label,
-        modifier.then(tip),
+        modifier.thenIf(value.isPresent) {
+            Modifier.tooltip {
+                Text(value.get().value().location.toString())
+            }
+        },
         
         contentPadding = contentPadding,
         labelStartPadding = labelStartPadding,

@@ -10,6 +10,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.ElementContainer
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.plus
@@ -105,9 +106,7 @@ private fun SerializeObjectEntry(
         else -> 0.dp
     }
 
-    val keyModifier = Modifier.width(keyWidth).then(
-        if (keyTopPadding > 0.dp) Modifier.padding(top = keyTopPadding) else Modifier
-    )
+    val keyModifier = Modifier.width(keyWidth).thenIf(keyTopPadding > 0.dp) { Modifier.padding(top = keyTopPadding) }
 
     SerializeElementEntryEditor(
         key = key,

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
@@ -77,24 +78,23 @@ fun RepairableComponentWrapper(
         val count = value.items.count()
         var showDialog by remember { mutableStateOf(false) }
 
-        val tip = if (count > 0) {
-            Modifier.tooltip {
-                FlowRow(
-                    modifier = Modifier.widthIn(max = 320.dp).padding(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    value.items.take(20).forEach { item ->
-                        ItemIcon(ItemStack(item), scaleOnHover = 1f, showTooltip = false)
-                    }
-                }
-            }
-        } else Modifier
         FlatButton(
             onClick = {},
             modifier = Modifier
                 .fillMaxHeight()
-                .then(tip)
+                .thenIf(count > 0) {
+                    Modifier.tooltip {
+                        FlowRow(
+                            modifier = Modifier.widthIn(max = 320.dp).padding(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            value.items.take(20).forEach { item ->
+                                ItemIcon(ItemStack(item), scaleOnHover = 1f, showTooltip = false)
+                            }
+                        }
+                    }
+                }
                 .width(DataComponentEditorDefaults.entrySize.width),
         ) {
 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {

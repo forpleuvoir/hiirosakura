@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.ibukigourd.text.translateComment
 import moe.forpleuvoir.ibukigourd.text.translateCommentKey
 import moe.forpleuvoir.ibukigourd.text.translateText
@@ -85,10 +86,8 @@ fun <E : Enum<E>> EnumSelector(
     content: @Composable (E) -> Unit = { Text(it.translateText) },
     label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (E, Boolean) -> Unit = { item, _ ->
-        val tip = if (Language.getInstance().has(item.translateCommentKey)) {
+        val tip = Modifier.thenIf(Language.getInstance().has(item.translateCommentKey)) {
             Modifier.tooltip { Text(item.translateComment) }
-        } else {
-            Modifier
         }
 
         Text(item.translateText, tip)

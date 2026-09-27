@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.ElementContainer
@@ -90,9 +91,7 @@ private fun SerializeArrayEntry(
         else -> 0.dp
     }
 
-    val keyModifier = Modifier.width(keyWidth).then(
-        if (keyTopPadding > 0.dp) Modifier.padding(top = keyTopPadding) else Modifier
-    )
+    val keyModifier = Modifier.width(keyWidth).thenIf(keyTopPadding > 0.dp) { Modifier.padding(top = keyTopPadding) }
 
     SerializeElementEntryEditor(
         key = index.toString(),

@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
@@ -59,25 +60,24 @@ fun ItemEnchantmentsComponentWrapper(
         var showDialog by remember { mutableStateOf(false) }
 
 
-        val tip = if (value.size() > 0) {
-            Modifier.tooltip {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    value.entrySet().take(20).forEach { (holder, i) ->
-                        Text(Literal("").append(enchantmentDescription(holder)).append(" ").appendTranslate("enchantment.level.$i", i.toString()))
-                    }
-
-                    if (value.size() > 20) {
-                        Text("...")
-                    }
-                }
-            }
-        } else Modifier
 
         FlatButton(
             onClick = {},
             modifier = Modifier
                 .fillMaxHeight()
-                .then(tip)
+                .thenIf(value.size() > 0) {
+                    Modifier.tooltip {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            value.entrySet().take(20).forEach { (holder, i) ->
+                                Text(Literal("").append(enchantmentDescription(holder)).append(" ").appendTranslate("enchantment.level.$i", i.toString()))
+                            }
+
+                            if (value.size() > 20) {
+                                Text("...")
+                            }
+                        }
+                    }
+                }
                 .width(DataComponentEditorDefaults.entrySize.width),
         ) {
 Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.enchantments.size), overflow = TextOverflow.Ellipsis, maxLines = 1)

@@ -10,6 +10,7 @@ import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalContentColor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -57,9 +58,7 @@ fun FormatButton(
             .size(36.dp)
             .hoverable(interactionSource)
             .background(backgroundColor, CircleShape)
-            .then(
-                if (effectiveState != StyleProperty.Unset) Modifier.border(2.dp, SokitsuTheme.colorScheme.primary, CircleShape) else Modifier
-            )
+            .thenIf(effectiveState != StyleProperty.Unset) { Modifier.border(2.dp, SokitsuTheme.colorScheme.primary, CircleShape) }
             .tooltip { tip() }
             .pointerInput(Unit) {
                 awaitPointerEventScope {

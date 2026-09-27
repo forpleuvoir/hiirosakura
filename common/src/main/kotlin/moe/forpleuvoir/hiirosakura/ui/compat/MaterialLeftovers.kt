@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.Dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
@@ -247,10 +248,7 @@ fun FloatingActionButtonMenu(
     ) {
         Column(
             modifier = Modifier
-                .then(
-                    if (menuMaxHeight == Dp.Unspecified) Modifier
-                    else Modifier.heightIn(max = menuMaxHeight).verticalScroll(rememberScrollState())
-                ),
+                .thenIf(menuMaxHeight != Dp.Unspecified) { Modifier.heightIn(max = menuMaxHeight).verticalScroll(rememberScrollState()) },
             horizontalAlignment = horizontalAlignment,
             verticalArrangement = Arrangement.spacedBy(8.dp),
             content = content,

@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import kotlinx.coroutines.delay
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
@@ -246,8 +247,8 @@ fun MultiItemSelectorDialog(
                                             modifier = Modifier
                                                 .size(selectedCellSize)
                                                 .onGloballyPositioned { slotPositions[itemKey] = it.positionInRoot() }
-                                                // 只在播放缩小时才套 scale,否则每个槽位都会白白多一个图层
-                                                .then(if (shrinking) Modifier.scale(scale) else Modifier),
+                                                // scale 仅在缩小时施加(scale 会产生 graphicsLayer)
+                                                .thenIf(shrinking) { Modifier.scale(scale) },
                                             contentAlignment = Alignment.Center,
                                         ) {
                                             // 正飞向这里的那一件先不画:槽位占好位置,图标等飞到位才出现

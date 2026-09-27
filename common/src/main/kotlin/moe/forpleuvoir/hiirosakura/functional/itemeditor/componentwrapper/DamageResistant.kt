@@ -20,6 +20,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
@@ -84,20 +85,19 @@ fun DamageResistantComponentWrapper(
         var showDialog by remember { mutableStateOf(false) }
 
 
-        val tip = if (count != 0) {
-            Modifier.tooltip {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    value.types.take(10).forEach { type ->
-                        Text(type.value().translatableText)
-                    }
-                }
-            }
-        } else Modifier
         FlatButton(
             onClick = {},
             modifier = Modifier
                 .fillMaxHeight()
-                .then(tip)
+                .thenIf(count != 0) {
+                    Modifier.tooltip {
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            value.types.take(10).forEach { type ->
+                                Text(type.value().translatableText)
+                            }
+                        }
+                    }
+                }
                 .width(DataComponentEditorDefaults.entrySize.width),
         ) {
 Text(component = IGLang.ConfigWrapper.listConfigWrapperText(count), overflow = TextOverflow.Ellipsis, maxLines = 1)

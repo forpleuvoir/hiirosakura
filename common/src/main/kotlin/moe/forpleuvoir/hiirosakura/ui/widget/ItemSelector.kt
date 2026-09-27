@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.*
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import kotlinx.coroutines.flow.distinctUntilChanged
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.util.ItemRegistryHelper
@@ -464,9 +465,9 @@ object ItemBrowserDefaults {
                 .clickable(interactionSource = interactionSource, indication = null) { onCLick(item) }
                 // 悬停反馈改为 IG 的悬停高亮(原来是一圈 1dp 描边):
                 // 高亮块铺在内容之下,主题色 / 浓度 / 淡入淡出全部沿用 hoverHighlight 的定义。
-                .then(if (hoverHighlight) Modifier.hoverHighlight(interactionSource) else Modifier)
-                .then(
-                    if (showTooltip) Modifier.tooltip {
+                .thenIf(hoverHighlight) { Modifier.hoverHighlight(interactionSource) }
+                .thenIf(showTooltip) {
+                    Modifier.tooltip {
                         Column {
                             if (item is Item) {
                                 Text(item.asItem().name)

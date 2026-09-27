@@ -22,8 +22,7 @@ import net.minecraft.world.item.component.KineticWeapon
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import androidx.compose.foundation.layout.fillMaxWidth
 
 @Composable
@@ -79,7 +78,7 @@ fun KineticWeaponEditorDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                        OutlinedLabelBox(label = { Text(key, suffix = "contact_cooldown_ticks") }, modifier = Modifier.weight(1f)) {
+                                        LabelBox(label = { Text(key, suffix = "contact_cooldown_ticks") }, modifier = Modifier.weight(1f)) {
                         IntField(
                             editing.contactCooldownTicks,
                             { editing = editing.copy(contactCooldownTicks = it) },
@@ -87,7 +86,7 @@ fun KineticWeaponEditorDialog(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                                        OutlinedLabelBox(label = { Text(key, suffix = "delay_ticks") }, modifier = Modifier.weight(1f)) {
+                                        LabelBox(label = { Text(key, suffix = "delay_ticks") }, modifier = Modifier.weight(1f)) {
                         IntField(
                             editing.delayTicks,
                             { editing = editing.copy(delayTicks = it) },
@@ -95,14 +94,14 @@ fun KineticWeaponEditorDialog(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                                        OutlinedLabelBox(label = { Text(key, suffix = "forward_movement") }, modifier = Modifier.weight(1f)) {
+                                        LabelBox(label = { Text(key, suffix = "forward_movement") }, modifier = Modifier.weight(1f)) {
                         FloatField(
                             editing.forwardMovement,
                             { editing = editing.copy(forwardMovement = it) },
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                                        OutlinedLabelBox(label = { Text(key, suffix = "damage_multiplier") }, modifier = Modifier.weight(1f)) {
+                                        LabelBox(label = { Text(key, suffix = "damage_multiplier") }, modifier = Modifier.weight(1f)) {
                         FloatField(
                             editing.damageMultiplier,
                             { editing = editing.copy(damageMultiplier = it) },
@@ -201,7 +200,7 @@ fun OptionalKineticWeaponConditionCard(
                 }
             }
             value.getOrNull()?.let { value ->
-                OutlinedLabelBox(label = { Text(key, suffix = "max_duration_ticks") }, modifier = Modifier) {
+                LabelBox(label = { Text(key, suffix = "max_duration_ticks") }, modifier = Modifier) {
                     IntField(
                         value.maxDurationTicks,
                         { onValueChange(Optional.of(value.copy(maxDurationTicks = it))) },
@@ -209,14 +208,14 @@ fun OptionalKineticWeaponConditionCard(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                                OutlinedLabelBox(label = { Text(key, suffix = "min_speed") }, modifier = Modifier) {
+                                LabelBox(label = { Text(key, suffix = "min_speed") }, modifier = Modifier) {
                     FloatField(
                         value.minSpeed,
                         { onValueChange(Optional.of(value.copy(minSpeed = it))) },
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                                OutlinedLabelBox(label = { Text(key, suffix = "min_relative_speed") }, modifier = Modifier) {
+                                LabelBox(label = { Text(key, suffix = "min_relative_speed") }, modifier = Modifier) {
                     FloatField(
                         value.minRelativeSpeed,
                         { onValueChange(Optional.of(value.copy(minRelativeSpeed = it))) },

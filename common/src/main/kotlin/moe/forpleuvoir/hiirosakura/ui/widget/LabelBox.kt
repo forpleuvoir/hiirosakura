@@ -15,7 +15,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
-import moe.forpleuvoir.hiirosakura.ui.compat.OutlinedTextFieldDefaults
 import androidx.compose.foundation.layout.calculateStartPadding
 
 /**
@@ -31,7 +30,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
  * @param content 框内内容
  */
 @Composable
-fun OutlinedLabelBox(
+fun LabelBox(
     label: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding,

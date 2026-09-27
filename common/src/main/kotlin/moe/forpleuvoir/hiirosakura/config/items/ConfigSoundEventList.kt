@@ -19,6 +19,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.nebula.common.util.checkType
 import moe.forpleuvoir.nebula.common.util.requireType
@@ -32,7 +33,6 @@ import moe.forpleuvoir.nebula.serialization.codec.Codec
 import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents
-import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 
 context(group: ConfigGroup)
 fun configSoundEventList(name: String, defaultValue: List<SoundEvent>) = configList(name, defaultValue, SoundEventCodec)
@@ -67,8 +67,7 @@ fun SoundEventListConfigWrapper(
         ) { showEditDialog = true }
 
         if (showEditDialog) {
-            val editingValue = rememberKeyedStateList(config)
-            var nextKey by remember { mutableLongStateOf(editingValue.size.toLong()) }
+            val editingValue = rememberKeyedList(config)
             EditDialog(
                 config = config,
                 editingValue = editingValue,
@@ -77,7 +76,7 @@ fun SoundEventListConfigWrapper(
                 onDismissRequest = { showEditDialog = false },
                 onConfirmRequest = {
                     config.clear()
-                    config.addAll(it.values())
+                    config.addAll(it.entries.values())
                     true
                 }
             ) {
@@ -94,7 +93,7 @@ fun SoundEventListConfigWrapper(
                             onDismissRequest = onDismissRequest,
                             title = { Text(component = IGLang.Misc.add) },
                             onConfirmRequest = {
-                                editingValue.add(Keyed(nextKey++, soundEvent))
+                                editingValue.add(soundEvent)
                                 true
                             },
                             content = {
@@ -105,11 +104,10 @@ fun SoundEventListConfigWrapper(
                 ) { lazyListState ->
                     EditDialogContentList(
                         data = editingValue,
-                        key = { it.key },
                         modifier = Modifier,
                         lazyListState = lazyListState
-                    ) { keyed, onValueChange ->
-                        SoundEventSelector(keyed.value, { onValueChange(keyed.copyValue(it)) }, modifier = Modifier.weight(1f))
+                    ) { value, onValueChange ->
+                        SoundEventSelector(value, { onValueChange(it) }, modifier = Modifier.weight(1f))
                     }
                 }
             }

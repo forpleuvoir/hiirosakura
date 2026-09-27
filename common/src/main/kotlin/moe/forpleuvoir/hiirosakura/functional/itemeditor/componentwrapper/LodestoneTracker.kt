@@ -5,13 +5,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
-import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -27,9 +25,7 @@ import kotlin.jvm.optionals.getOrNull
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import androidx.compose.foundation.layout.fillMaxWidth
 
 @Composable
@@ -146,7 +142,7 @@ private fun OptionalGlobalPosCard(
 
                 var currentDimension by remember { mutableStateOf(globalPos.dimension) }
 
-                OutlinedLabelBox(
+                LabelBox(
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(key, suffix = "dimension") },
                     contentPadding = PaddingValues(8.dp),
@@ -179,7 +175,7 @@ private fun OptionalGlobalPosCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                                        OutlinedLabelBox(label = { Text("X") }, modifier = Modifier.weight(1f)) {
+                                        LabelBox(label = { Text("X") }, modifier = Modifier.weight(1f)) {
                         IntField(
                             editX,
                             {
@@ -189,7 +185,7 @@ private fun OptionalGlobalPosCard(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                                        OutlinedLabelBox(label = { Text("Y") }, modifier = Modifier.weight(1f)) {
+                                        LabelBox(label = { Text("Y") }, modifier = Modifier.weight(1f)) {
                         IntField(
                             editY,
                             {
@@ -199,7 +195,7 @@ private fun OptionalGlobalPosCard(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                                        OutlinedLabelBox(label = { Text("Z") }, modifier = Modifier.weight(1f)) {
+                                        LabelBox(label = { Text("Z") }, modifier = Modifier.weight(1f)) {
                         IntField(
                             editZ,
                             {

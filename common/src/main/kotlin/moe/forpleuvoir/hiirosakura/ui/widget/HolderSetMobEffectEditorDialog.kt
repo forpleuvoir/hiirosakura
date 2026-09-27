@@ -23,11 +23,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.util.canScroll
-import moe.forpleuvoir.hiirosakura.ui.util.rememberSegmentedButtonWidth
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.core.HolderSet
@@ -40,6 +40,7 @@ import kotlin.jvm.optionals.getOrNull
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButtonGroup
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
@@ -50,8 +51,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.layout.Row
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 
 
 internal val mobEffectTags
@@ -87,15 +86,14 @@ fun HolderSetMobEffectEditorDialog(
         if (tag == null) mode = true
     }
 
-    val types = rememberKeyedStateList(value.map { it.value() }.toList())
-    var nextKey by remember { mutableLongStateOf(types.size.toLong()) }
+    val types = rememberKeyedList(value.map { it.value() }.toList())
 
     SimpleAlertDialog(
         onDismissRequest = onDismissRequest,
         title = title,
         onConfirmRequest = {
             val registry = registryAccess!!.lookupOrThrow(Registries.MOB_EFFECT)
-            val list = HolderSet.direct(types.values().map { registry.wrapAsHolder(it) })
+            val list = HolderSet.direct(types.entries.values().map { registry.wrapAsHolder(it) })
             onValueChange(
                 if (mode) list
                 else tag?.asHolderSet ?: list
@@ -105,29 +103,12 @@ fun HolderSetMobEffectEditorDialog(
         content = {
             Column {
                 firstTag?.let {
-                    Row {
-                        val buttonTexts = listOf(
-                            HSLang.ItemEditor.fromRegistry,
-                            HSLang.ItemEditor.fromTag,
-                        )
-                        val width = rememberSegmentedButtonWidth(
-                            items = buttonTexts,
-                            textStyle = SokitsuTheme.typography.button,
-                        ) { it }
-                        SegmentedButton(
-                            selected = mode,
-                            onClick = { mode = true },
-                            
-                            modifier = Modifier.width(width),
-                            label = { Text(component = HSLang.ItemEditor.fromRegistry) }
-                        )
-                        SegmentedButton(
-                            selected = !mode,
-                            onClick = { mode = false },
-                            
-                            modifier = Modifier.width(width),
-                            label = { Text(component = HSLang.ItemEditor.fromTag) }
-                        )
+                    RadioButtonGroup(
+                        selected = if (mode) 0 else 1,
+                        onSelect = { mode = it == 0 },
+                    ) {
+                        item { Text(component = HSLang.ItemEditor.fromRegistry) }
+                        item { Text(component = HSLang.ItemEditor.fromTag) }
                     }
                 }
                 Spacer(Modifier.height(12.dp))
@@ -150,8 +131,8 @@ fun HolderSetMobEffectEditorDialog(
                                 MobEffectSelector(
                                     mobEffects.findFirst().get(),
                                     { type ->
-                                        if (!types.any { it.value == type }) {
-                                            types.add(Keyed(nextKey++, type))
+                                        if (!types.entries.any { it.value == type }) {
+                                            types.add(type)
                                         }
                                     },
                                     modifier = Modifier.weight(1f).height(44.dp),
@@ -164,8 +145,8 @@ fun HolderSetMobEffectEditorDialog(
                                         firstTag,
                                         { tag ->
                                             tag.mobEffects.forEach { item ->
-                                                if (!types.any { it.value == item.value() }) {
-                                                    types.add(Keyed(nextKey++, item.value()))
+                                                if (!types.entries.any { it.value == item.value() }) {
+                                                    types.add(item.value())
                                                 }
                                             }
                                         },
@@ -176,17 +157,17 @@ fun HolderSetMobEffectEditorDialog(
                                 }
                             }
                             Spacer(Modifier.height(12.dp))
-                            OutlinedLabelBox(
+                            LabelBox(
                                 { Text(component = HSLang.ItemEditor.mobEffects) },
                             ) {
                                 Box(Modifier.fillMaxWidth().height(460.dp)) {
                                     val lazyListState = rememberLazyListState()
-                                    if (types.isEmpty()) {
+                                    if (types.entries.isEmpty()) {
                                         Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
                                     } else {
                                         val hapticFeedback = LocalHapticFeedback.current
                                         val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-                                            types.moveElement(from.index, to.index)
+                                            types.move(from.index, to.index)
                                             hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
                                         }
                                         LazyColumn(
@@ -194,11 +175,13 @@ fun HolderSetMobEffectEditorDialog(
                                             modifier = Modifier.padding(end = if (lazyListState.canScroll) 12.dp else 0.dp).fillMaxSize(),
                                             state = lazyListState
                                         ) {
-                                            itemsIndexed(
-                                                types,
+                                            itemsIndexed(types.entries,
                                                 key = { _, keyed -> keyed.key }
                                             ) { index, (key, type) ->
-                                                ReorderableItem(reorderableLazyListState, key) { isDragging ->
+                                                ReorderableItem(
+                                                    reorderableLazyListState, key,
+                                                    animateItemModifier = hsItemAnimation(),
+                                                ) { isDragging ->
                                                     val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                                                     val handleInteraction = remember { MutableInteractionSource() }
 
@@ -320,7 +303,7 @@ fun MobEffectTagSelector(
     shape: Shape = RectangleShape,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
-        OutlinedLabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+        LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
                 Selector(
                 selected = selected,
                 onSelect = onSelect,

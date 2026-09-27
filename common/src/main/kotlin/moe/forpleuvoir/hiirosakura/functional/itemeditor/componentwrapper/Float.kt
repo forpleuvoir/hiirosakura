@@ -12,7 +12,7 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
 import net.minecraft.resources.Identifier
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import androidx.compose.foundation.layout.fillMaxWidth
 import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
 import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
@@ -30,7 +30,7 @@ fun FloatComponentWrapper(
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                OutlinedLabelBox(label = { Text("Float [$valueRange]") }, modifier = Modifier.size(DataComponentEditorDefaults.entrySize)) {
+                LabelBox(label = { Text("Float [$valueRange]") }, modifier = Modifier.size(DataComponentEditorDefaults.entrySize)) {
             FloatField(
                 value = value,
                 onValueChange = onValueChange,

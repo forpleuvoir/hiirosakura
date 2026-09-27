@@ -16,21 +16,20 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.util.NullableInputTransformation
-import moe.forpleuvoir.hiirosakura.ui.util.NullableOutputTransformation
 import moe.forpleuvoir.hiirosakura.ui.util.NullableTrailingIcon
 import moe.forpleuvoir.hiirosakura.ui.widget.HolderSetBlockEditorDialog
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.ReorderableEditorVerticalGrid
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.util.fabVisibilityAnimation
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.core.HolderSet
@@ -53,7 +52,6 @@ import moe.forpleuvoir.hiirosakura.ui.compat.OutlinedToggleButton
 import moe.forpleuvoir.hiirosakura.ui.compat.FloatingActionButton
 import moe.forpleuvoir.hiirosakura.ui.compat.ElevatedCard
 import moe.forpleuvoir.hiirosakura.ui.compat.OutlinedTextFieldDefaults
-import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 
 @Composable
@@ -93,7 +91,7 @@ fun ToolEditorDialog(
     onDismissRequest: () -> Unit,
     title: @Composable () -> Unit,
 ) {
-    val rules = rememberKeyedStateList(value.rules)
+    val rules = rememberKeyedList(value.rules)
 
     var defaultMiningSpeed by remember { mutableFloatStateOf(value.defaultMiningSpeed) }
     var damagePerBlock by remember { mutableIntStateOf(value.damagePerBlock) }
@@ -103,7 +101,7 @@ fun ToolEditorDialog(
         onDismissRequest = onDismissRequest,
         title = title,
         onConfirmRequest = {
-            onValueChange(Tool(rules.values().toMutableList(), defaultMiningSpeed, damagePerBlock, canDestroyBlocksInCreative))
+            onValueChange(Tool(rules.entries.values().toMutableList(), defaultMiningSpeed, damagePerBlock, canDestroyBlocksInCreative))
             true
         },
         modifier = Modifier
@@ -119,7 +117,7 @@ fun ToolEditorDialog(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.Bottom,
                     ) {
-                        OutlinedLabelBox(
+                        LabelBox(
                             label = { Text(key, suffix = "default_mining_speed", fallback = "Default Mining Speed") },
                             modifier = Modifier.weight(1f, false),
                         ) {
@@ -129,7 +127,7 @@ fun ToolEditorDialog(
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         }
-                        OutlinedLabelBox(
+                        LabelBox(
                             label = { Text(key, suffix = "damage_per_block", fallback = "Damage Per Block") },
                             modifier = Modifier.weight(1f, false),
                         ) {
@@ -150,16 +148,15 @@ fun ToolEditorDialog(
                         }
                     }
                     Spacer(Modifier.height(12.dp))
-                    OutlinedLabelBox(
+                    LabelBox(
                         label = {
                             Text(key, suffix = "rules", fallback = "Rules")
                         },
                     ) {
-                        var nextKey by remember { mutableLongStateOf(rules.size.toLong()) }
                         ReorderableEditorVerticalGrid(
-                            rules,
+                            rules.entries,
                             key = { it.key },
-                            onMove = rules::moveElement,
+                            onMove = rules::move,
                             columns = GridCells.Adaptive(360.dp),
                             floatingActionButton = { lazyGridState ->
                                 var showAddDialog by remember { mutableStateOf(false) }
@@ -188,7 +185,7 @@ fun ToolEditorDialog(
                                     SimpleAlertDialog(
                                         onDismissRequest = { showAddDialog = false },
                                         onConfirmRequest = {
-                                            rules.addLast(Keyed(nextKey++, addingEntry))
+                                            rules.add(addingEntry)
                                             true
                                         },
                                         title = { Text(IGLang.Misc.add) },
@@ -206,7 +203,7 @@ fun ToolEditorDialog(
                             RuleCard(
                                 rule.value,
                                 {
-                                    rules[index] = rule.copyValue(it)
+                                    rules.setValue(index, it)
                                 },
                                 modifier = Modifier.scale(scale).width(360.dp),
                                 onRemove = {
@@ -289,7 +286,7 @@ private fun RuleContent(
                 }
             }
         } else Modifier
-        OutlinedLabelBox(
+        LabelBox(
             modifier = Modifier
                 .height(64.dp)
                 .fillMaxWidth()
@@ -342,7 +339,7 @@ private fun RuleContent(
         }
         //speed
         Spacer(Modifier.height(12.dp))
-                OutlinedLabelBox(label = { Text(key, suffix = "speed", fallback = "Speed") }) {
+                LabelBox(label = { Text(key, suffix = "speed", fallback = "Speed") }) {
             FloatField(
                         value = value.speed.getOrNull() ?: 0f,
                         onValueChange = { onValueChange(value.copy(speed = Optional.of(it))) },

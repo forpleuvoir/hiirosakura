@@ -10,7 +10,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.hapticfeedback.HapticFeedback
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
@@ -22,10 +21,10 @@ import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.util.fabVisibilityAnimation
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.core.Holder
@@ -40,7 +39,6 @@ import net.minecraft.world.item.component.Consumable
 import net.minecraft.world.item.consume_effects.*
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
@@ -48,13 +46,12 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
 import androidx.compose.foundation.layout.fillMaxWidth
 import moe.forpleuvoir.hiirosakura.ui.compat.OutlinedToggleButton
-import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 
 @Composable
@@ -97,12 +94,11 @@ fun ConsumableEditorDialog(
 ) {
     var editing by remember { mutableStateOf(value) }
 
-    val onConsumeEffects = rememberKeyedStateList(value.onConsumeEffects)
-    var nextKey by remember { mutableLongStateOf(onConsumeEffects.size.toLong()) }
+    val onConsumeEffects = rememberKeyedList(value.onConsumeEffects)
     FlexibleDialog(
         onDismissRequest,
         onConfirmRequest = {
-            onValueChange(editing.copy(onConsumeEffects = onConsumeEffects.values().toMutableList()))
+            onValueChange(editing.copy(onConsumeEffects = onConsumeEffects.entries.values().toMutableList()))
             true
         },
         modifier = Modifier
@@ -116,7 +112,7 @@ fun ConsumableEditorDialog(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.Bottom,
                 ) {
-                    OutlinedLabelBox(label = { Text(key, suffix = "consume_seconds") }, modifier = Modifier.weight(1f).height(64.dp)) {
+                    LabelBox(label = { Text(key, suffix = "consume_seconds") }, modifier = Modifier.weight(1f).height(64.dp)) {
                         FloatField(
                             editing.consumeSeconds,
                             { editing = editing.copy(consumeSeconds = it) },
@@ -147,14 +143,14 @@ fun ConsumableEditorDialog(
                     }
                 }
                 Spacer(Modifier.height(8.dp))
-                OutlinedLabelBox(
+                LabelBox(
                     label = { Text(key, suffix = "on_consume_effects") },
                     contentPadding = PaddingValues(8.dp, 12.dp),
                 ) {
                     ReorderableEditorList(
-                        onConsumeEffects,
+                        onConsumeEffects.entries,
                         key = { it.key },
-                        onMove = onConsumeEffects::removeRange,
+                        onMove = onConsumeEffects::move,
                         modifier = Modifier.fillMaxSize(),
                         floatingActionButton = { lazyListState ->
                             FloatingAddButton(
@@ -163,7 +159,7 @@ fun ConsumableEditorDialog(
                                 fabVisibilityState = rememberFabScrollVisibility(lazyListState),
                                 addMenuOptions = ConsumableEditor.consumeEffectAddMenuOptions,
                                 addAction = {
-                                    onConsumeEffects.add(Keyed(nextKey++, it))
+                                    onConsumeEffects.add(it)
                                 }
                             )
                         },
@@ -195,7 +191,7 @@ fun ConsumableEditorDialog(
                                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
                                         wrapper?.content(effect.value, {
-                                            onConsumeEffects[index] = effect.copyValue(it)
+                                            onConsumeEffects.setValue(index, it)
                                         })
 
                                         RemoveConfirmButton(
@@ -370,14 +366,13 @@ fun ApplyStatusEditorDialog(
 ) {
     var probability by remember { mutableFloatStateOf(value.probability) }
 
-    val list = rememberKeyedStateList(value.effects)
-    var nextKey by remember { mutableLongStateOf(list.size.toLong()) }
+    val list = rememberKeyedList(value.effects)
 
     val id = ConsumeEffect.Type.APPLY_EFFECTS.id
     FlexibleDialog(
         onDismissRequest,
         onConfirmRequest = {
-            onValueChange(ApplyStatusEffectsConsumeEffect(list.values().toMutableList(), probability))
+            onValueChange(ApplyStatusEffectsConsumeEffect(list.entries.values().toMutableList(), probability))
             true
         },
         title = { Text(id) },
@@ -388,7 +383,7 @@ fun ApplyStatusEditorDialog(
                     Modifier.size(if (maxWidth > 1150.dp) 1150.dp else 780.dp, 725.dp)
                 ) {
                     Row {
-                                                OutlinedLabelBox(label = { Text(id, suffix = "probability") }) {
+                                                LabelBox(label = { Text(id, suffix = "probability") }) {
                             FloatField(
                                 probability,
                                 { probability = it },
@@ -398,14 +393,14 @@ fun ApplyStatusEditorDialog(
                         Spacer(Modifier.width(8.dp))
                     }
                     Spacer(Modifier.height(8.dp))
-                    OutlinedLabelBox(
+                    LabelBox(
                         label = { Text(id, suffix = "effects") },
                         contentPadding = PaddingValues(8.dp, 12.dp),
                     ) {
                         ReorderableEditorVerticalGrid(
-                            list,
+                            list.entries,
                             key = { it.key },
-                            onMove = list::moveElement,
+                            onMove = list::move,
                             columns = GridCells.Adaptive(360.dp),
                             floatingActionButton = { lazyGridState ->
                                 var showAddDialog by remember { mutableStateOf(false) }
@@ -423,7 +418,7 @@ fun ApplyStatusEditorDialog(
                                 if (showAddDialog) {
                                     MobEffectInstanceEditorDialog(
                                         MobEffectInstance(MobEffects.LUCK),
-                                        { list.add(Keyed(nextKey++, it)) },
+                                        { list.add(it) },
                                         id,
                                         { showAddDialog = false },
                                         {
@@ -445,9 +440,9 @@ fun ApplyStatusEditorDialog(
                                     instance.value,
                                     {
                                         if (instance == it) {
-                                            list[index] = Keyed(nextKey++, it)
+                                            list.setValue(index, it)
                                         } else {
-                                            list[index] = instance.copyValue(it)
+                                            list.setValue(index, it)
                                         }
                                     },
                                     { list.removeAt(index) },

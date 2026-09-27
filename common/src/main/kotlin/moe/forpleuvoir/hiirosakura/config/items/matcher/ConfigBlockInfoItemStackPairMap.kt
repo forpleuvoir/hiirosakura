@@ -9,7 +9,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
@@ -30,8 +29,7 @@ import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.ConfigMap
 import moe.forpleuvoir.nebula.config.item.configMap
 import moe.forpleuvoir.nebula.serialization.codec.Codec
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 
 typealias BlockInfoItemStackPair = Pair<BlockInfoMatcher, ItemStackMatcher>
 
@@ -97,7 +95,6 @@ fun BlockInfoItemStackPairMapWrapper(
                 title = editorDialogTitle,
                 onDismissRequest = { showEditDialog = false },
             ) { data ->
-                var nextKey by remember { mutableLongStateOf(data.size.toLong()) }
                 EditDialogContent(
                     modifier = Modifier.fillMaxSize(),
                     header = {
@@ -116,7 +113,7 @@ fun BlockInfoItemStackPairMapWrapper(
                     },
                     addDialog = { onDismissRequest ->
                         val newKey = rememberTextFieldState("")
-                        val isDuplicate = remember(newKey.text.toString()) { data.any { it.value.key == newKey.text.toString() } }
+                        val isDuplicate = remember(newKey.text.toString()) { data.entries.any { it.value.key == newKey.text.toString() } }
 
                         var newItem by remember { mutableStateOf(ItemStackMatcher.handheldItemMatcher) }
 
@@ -127,7 +124,7 @@ fun BlockInfoItemStackPairMapWrapper(
                             text = {
                                 
                                     Column {
-                                        OutlinedLabelBox(label = { keyEditorLabel(isDuplicate, newKey.text.toString()) }) {
+                                        LabelBox(label = { keyEditorLabel(isDuplicate, newKey.text.toString()) }) {
                                             TextField(
                                                 state = newKey,
                                                 lineLimits = TextFieldLineLimits.SingleLine,
@@ -173,7 +170,7 @@ fun BlockInfoItemStackPairMapWrapper(
                                     onClick = {
                                         if (!isDuplicate) {
                                             val value = newBlock to newItem
-                                            data.add(Keyed(nextKey++, MapEntry(newKey.text.toString(), value)))
+                                            data.add(MapEntry(newKey.text.toString(), value))
                                             onDismissRequest()
                                         }
                                     },

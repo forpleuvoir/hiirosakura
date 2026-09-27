@@ -13,15 +13,13 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.T
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import net.minecraft.resources.Identifier
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun IdentifierComponentWrapper(
@@ -69,7 +67,7 @@ fun IdentifierEditorDialog(
         title = title,
         content = {
             Column {
-                OutlinedLabelBox(label = {
+                LabelBox(label = {
                         Row {
                             Text("Namespace")
                             if (!checkNamespace) {
@@ -85,7 +83,7 @@ fun IdentifierEditorDialog(
                     )
                 }
                 Spacer(Modifier.height(8.dp))
-                OutlinedLabelBox(label = {
+                LabelBox(label = {
                         Row {
                             Text("Path")
                             if (!checkPath) {

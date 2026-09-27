@@ -2,7 +2,6 @@ package moe.forpleuvoir.hiirosakura.ui.widget
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -20,12 +19,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.util.canScroll
-import moe.forpleuvoir.hiirosakura.ui.util.rememberSegmentedButtonWidth
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.nebula.common.util.requireType
 import net.minecraft.core.HolderSet
@@ -39,9 +38,9 @@ import kotlin.jvm.optionals.getOrNull
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButtonGroup
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.selector.Selector
 import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
 import androidx.compose.ui.graphics.RectangleShape
@@ -51,7 +50,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
 import androidx.compose.foundation.layout.Row
 import moe.forpleuvoir.hiirosakura.ui.compat.OutlinedCard
-import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 import moe.forpleuvoir.hiirosakura.ui.compat.RemoveButton
 
 internal val blockTags
@@ -86,14 +84,13 @@ fun HolderSetBlockEditorDialog(
         if (tag == null) mode = true
     }
 
-    val blocks = rememberKeyedStateList(value.map { it.value() }.toList())
-    var nextKey by remember { mutableLongStateOf(blocks.size.toLong()) }
+    val blocks = rememberKeyedList(value.map { it.value() }.toList())
 
     SimpleAlertDialog(
         onDismissRequest = onDismissRequest,
         title = title,
         onConfirmRequest = {
-            val list = HolderSet.direct(blocks.values().map { BuiltInRegistries.BLOCK.wrapAsHolder(it) })
+            val list = HolderSet.direct(blocks.entries.values().map { BuiltInRegistries.BLOCK.wrapAsHolder(it) })
             onValueChange(
                 if (mode) list
                 else tag?.asHolderSet ?: list
@@ -103,29 +100,12 @@ fun HolderSetBlockEditorDialog(
         content = {
             Column {
                 firstTag?.let {
-                    Row {
-                        val buttonTexts = listOf(
-                            HSLang.ItemEditor.fromRegistry,
-                            HSLang.ItemEditor.fromTag,
-                        )
-                        val width = rememberSegmentedButtonWidth(
-                            items = buttonTexts,
-                            textStyle = SokitsuTheme.typography.button,
-                        ) { it }
-                        SegmentedButton(
-                            selected = mode,
-                            onClick = { mode = true },
-                            
-                            modifier = Modifier.width(width),
-                            label = { Text(component = HSLang.ItemEditor.fromRegistry) }
-                        )
-                        SegmentedButton(
-                            selected = !mode,
-                            onClick = { mode = false },
-                            
-                            modifier = Modifier.width(width),
-                            label = { Text(component = HSLang.ItemEditor.fromTag) }
-                        )
+                    RadioButtonGroup(
+                        selected = if (mode) 0 else 1,
+                        onSelect = { mode = it == 0 },
+                    ) {
+                        item { Text(component = HSLang.ItemEditor.fromRegistry) }
+                        item { Text(component = HSLang.ItemEditor.fromTag) }
                     }
                 }
                 Spacer(Modifier.height(12.dp))
@@ -164,8 +144,8 @@ fun HolderSetBlockEditorDialog(
                                                         val block = if (selected is BlockItem) {
                                                             selected.block
                                                         } else selected.requireType<Block>()
-                                                        if (!blocks.any { keyed -> keyed.value == block }) {
-                                                            blocks.add(Keyed(nextKey++, block))
+                                                        if (!blocks.entries.any { keyed -> keyed.value == block }) {
+                                                            blocks.add(block)
                                                         }
                                                         showItemSelector = false
                                                     }
@@ -183,8 +163,8 @@ fun HolderSetBlockEditorDialog(
                                         it,
                                         { tag ->
                                             tag.blocks.forEach { item ->
-                                                if (!blocks.any { it.value == item.value() }) {
-                                                    blocks.add(Keyed(nextKey++, item.value()))
+                                                if (!blocks.entries.any { it.value == item.value() }) {
+                                                    blocks.add(item.value())
                                                 }
                                             }
                                         },
@@ -197,7 +177,7 @@ fun HolderSetBlockEditorDialog(
                                 }
                             }
                             Spacer(Modifier.height(12.dp))
-                            OutlinedLabelBox(
+                            LabelBox(
                                 { Text(component = HSLang.ItemEditor.items) },
                             ) {
                                 Box(Modifier.fillMaxWidth().height(460.dp)) {
@@ -211,7 +191,7 @@ fun HolderSetBlockEditorDialog(
                                         contentPadding = PaddingValues(if (lazyListState.canScroll) 12.dp else 0.dp),
                                         state = lazyListState
                                     ) {
-                                        itemsIndexed(blocks, key = { _, keyed -> keyed.key }) { index, (_, block) ->
+                                        itemsIndexed(blocks.entries, key = { _, keyed -> keyed.key }) { index, (_, block) ->
                                             val interactionSource = remember { MutableInteractionSource() }
 
                                             val isHovered by interactionSource.collectIsHoveredAsState()
@@ -357,7 +337,7 @@ fun BlockTagSelector(
     shape: Shape = RectangleShape,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
-        OutlinedLabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+        LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
                 Selector(
                 selected = selected,
                 onSelect = onSelect,

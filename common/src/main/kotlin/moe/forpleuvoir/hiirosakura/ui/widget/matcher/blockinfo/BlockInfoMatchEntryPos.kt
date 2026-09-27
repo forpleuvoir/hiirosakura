@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo
 
 import androidx.compose.foundation.layout.*
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import androidx.compose.runtime.*
@@ -16,16 +15,16 @@ import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.text.plainText
+
 import org.joml.Vector3i
 import org.joml.Vector3ic
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
 import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
 import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.hiirosakura.ui.icon.defaults.EditLocationAlt
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import androidx.compose.foundation.layout.fillMaxWidth
 import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
 import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
@@ -132,32 +131,41 @@ fun Vector3iEditor(
         verticalAlignment = Alignment.CenterVertically,
     ) {
 
-                OutlinedLabelBox(label = { Text("X", color = Color.Red) }, modifier = Modifier.width(fieldWidth)) {
+                LabelBox(label = { Text("X", color = Color.Red) }, modifier = Modifier.width(fieldWidth)) {
             IntField(
                 value = value.x(),
-                onValueChange = { x ->
-                val newValue = Vector3i(x, value.y(), value.z())
-                onValueChange(newValue)
+                onValueChange = { x ->
+
+                val newValue = Vector3i(x, value.y(), value.z())
+
+                onValueChange(newValue)
+
             },
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-                OutlinedLabelBox(label = { Text("Y", color = Color.Green) }, modifier = Modifier.width(fieldWidth)) {
+                LabelBox(label = { Text("Y", color = Color.Green) }, modifier = Modifier.width(fieldWidth)) {
             IntField(
                 value = value.y(),
-                onValueChange = { y ->
-                val newValue = Vector3i(value.x(), y, value.z())
-                onValueChange(newValue)
+                onValueChange = { y ->
+
+                val newValue = Vector3i(value.x(), y, value.z())
+
+                onValueChange(newValue)
+
             },
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-                OutlinedLabelBox(label = { Text("Z", color = Color.Blue) }, modifier = Modifier.width(fieldWidth)) {
+                LabelBox(label = { Text("Z", color = Color.Blue) }, modifier = Modifier.width(fieldWidth)) {
             IntField(
                 value = value.z(),
-                onValueChange = { z ->
-                val newValue = Vector3i(value.x(), value.y(), z)
-                onValueChange(newValue)
+                onValueChange = { z ->
+
+                val newValue = Vector3i(value.x(), value.y(), z)
+
+                onValueChange(newValue)
+
             },
                 modifier = Modifier.fillMaxWidth(),
             )

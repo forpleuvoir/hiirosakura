@@ -24,7 +24,6 @@ import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JexlSyntaxLanguage
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
-import moe.forpleuvoir.hiirosakura.ui.util.rememberSegmentedButtonWidth
 import moe.forpleuvoir.hiirosakura.ui.util.showErrorToast
 import moe.forpleuvoir.hiirosakura.ui.util.showSuccessToast
 import moe.forpleuvoir.ibukigourd.text.plainText
@@ -43,18 +42,21 @@ import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import androidx.compose.ui.graphics.RectangleShape
-import moe.forpleuvoir.hiirosakura.ui.widget.SegmentedButton
-import moe.forpleuvoir.hiirosakura.ui.widget.SegmentedButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import androidx.compose.foundation.layout.Row
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.hiirosakura.ui.icon.defaults.PlayArrow
 import androidx.compose.foundation.clickable
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.ButtonDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight
 
 internal val LocalMatchEntryRowHeight = staticCompositionLocalOf {
-    72.dp
+    80.dp
 }
 
 internal val LocalMatchEntryRowPadding = staticCompositionLocalOf {
@@ -140,7 +142,8 @@ internal fun MatchEntryModeDisplayer(
     Spacer(
         modifier.background(
             color = if (mode.asBoolean) Colors.LIME_MINT_GREEN.toComposeColor()
-            else Colors.ORANGERED.toComposeColor()).border(width = 0.5.dp, color = Color.White, RectangleShape)
+            else Colors.ORANGERED.toComposeColor()
+        ).border(width = 0.5.dp, color = Color.White, RectangleShape)
     )
 }
 
@@ -149,29 +152,24 @@ internal fun MatchEntryModeSelector(
     mode: MatchEntry.MatchMode,
     onModeChange: (MatchEntry.MatchMode) -> Unit,
 ) {
-    Row {
-        val width = rememberSegmentedButtonWidth(
-            items = listOf(
-                MatchEntry.MatchMode.Include.translateText,
-                MatchEntry.MatchMode.Exclude.translateText
-            ),
-            textStyle = SokitsuTheme.typography.button,
-        ) { it }
-        SegmentedButton(
+    Row(horizontalArrangement = Arrangement.spacedBy(RadioButtonDefaults.spacing)) {
+        RadioButton(
             selected = mode == MatchEntry.MatchMode.Include,
-            onClick = { onModeChange(MatchEntry.MatchMode.Include) },
-            
-            modifier = Modifier.width(width).tooltip {
+            onSelect = { onModeChange(MatchEntry.MatchMode.Include) },
+            index = 0,
+            count = 2,
+            modifier = Modifier.tooltip {
                 Text(MatchEntry.MatchMode.Include.translateComment)
             }
         ) {
             Text(MatchEntry.MatchMode.Include.translateText)
         }
-        SegmentedButton(
+        RadioButton(
             selected = mode == MatchEntry.MatchMode.Exclude,
-            onClick = { onModeChange(MatchEntry.MatchMode.Exclude) },
-            
-            modifier = Modifier.width(width).tooltip {
+            onSelect = { onModeChange(MatchEntry.MatchMode.Exclude) },
+            index = 1,
+            count = 2,
+            modifier = Modifier.tooltip {
                 Text(MatchEntry.MatchMode.Exclude.translateComment)
             }
         ) {
@@ -186,32 +184,23 @@ internal fun CompositeMatcherModeSelector(
     onModeChange: (CompositeMatcher.MatchMode) -> Unit,
 ) {
     val items = CompositeMatcher.MatchMode.entries
-    val textStyle = SokitsuTheme.typography.button
-    val width = rememberSegmentedButtonWidth(
-        items = items,
-        textStyle = textStyle,
-    ) {
-        it.translateText
-    }
-
-
     Row(
-        modifier = Modifier.width(IntrinsicSize.Max),
+        horizontalArrangement = Arrangement.spacedBy(RadioButtonDefaults.spacing),
     ) {
         items.forEachIndexed { index, item ->
-            SegmentedButton(
+            RadioButton(
                 selected = mode == item,
-                onClick = { onModeChange(item) },
-                
+                index = index,
+                count = items.size,
+                onSelect = { onModeChange(item) },
                 modifier = Modifier
-                    .width(width)
                     .tooltip {
                         Text(item.translateComment)
                     },
-                label = {
-                    Text(item.translateText, maxLines = 1)
-                }
-            )
+                colors = ButtonDefaults.colors(),
+            ) {
+                Text(item.translateText, maxLines = 1)
+            }
         }
     }
 }
@@ -235,7 +224,7 @@ internal fun TestButton(
     }, modifier = Modifier.tooltip {
         Text(tip)
     }) {
-        VectorIcon(HSIcons.PlayArrow)
+        Icon(Icons.ArrowRight)
     }
 }
 
@@ -256,8 +245,8 @@ internal fun BasicScriptEditor(
         val scrollState = rememberScrollState()
         TextField(
             state = state,
-            
-            modifier = Modifier.fillMaxSize() .codeEditorShortcuts(state),
+
+            modifier = Modifier.fillMaxSize().codeEditorShortcuts(state),
         )
 
         VerticalScroller(

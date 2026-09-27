@@ -18,7 +18,6 @@ import net.minecraft.resources.Identifier
 import net.minecraft.world.food.FoodProperties
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
@@ -26,8 +25,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import androidx.compose.foundation.layout.fillMaxWidth
 import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
 import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
@@ -166,21 +164,25 @@ if (showDialog) {
                 content = {
                     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                                        OutlinedLabelBox(label = { Text(key, suffix = "nutrition", fallback = "Nutrition") }, modifier = Modifier.width(300.dp)) {
+                                                        LabelBox(label = { Text(key, suffix = "nutrition", fallback = "Nutrition") }, modifier = Modifier.width(300.dp)) {
                                 IntField(
                                     editingFood.nutrition,
-                                    {
-                                    editingFood = FoodProperties(it, editingFood.saturation, editingFood.canAlwaysEat)
+                                    {
+
+                                    editingFood = FoodProperties(it, editingFood.saturation, editingFood.canAlwaysEat)
+
                                 },
                                     valueRange = 0..Int.MAX_VALUE,
                                     modifier = Modifier.fillMaxWidth(),
                                 )
                             }
-                                                        OutlinedLabelBox(label = { Text(key, suffix = "saturation", fallback = "Saturation") }, modifier = Modifier.width(300.dp)) {
+                                                        LabelBox(label = { Text(key, suffix = "saturation", fallback = "Saturation") }, modifier = Modifier.width(300.dp)) {
                                 FloatField(
                                     editingFood.saturation,
-                                    {
-                                    editingFood = FoodProperties(editingFood.nutrition, it, editingFood.canAlwaysEat)
+                                    {
+
+                                    editingFood = FoodProperties(editingFood.nutrition, it, editingFood.canAlwaysEat)
+
                                 },
                                     modifier = Modifier.fillMaxWidth(),
                                 )

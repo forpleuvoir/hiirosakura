@@ -1,7 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.*
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
@@ -65,7 +65,7 @@ fun AttackRangeEditorDialog(
         title = title,
         content = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                OutlinedLabelBox(label = { Text(key, suffix = "min_reach", fallback = "Min Reach") }, modifier = Modifier.width(300.dp)) {
+                                LabelBox(label = { Text(key, suffix = "min_reach", fallback = "Min Reach") }, modifier = Modifier.width(300.dp)) {
                     FloatField(
                         editing.minReach,
                         { editing = editing.copy(minReach = it) },
@@ -73,7 +73,7 @@ fun AttackRangeEditorDialog(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                                OutlinedLabelBox(label = { Text(key, suffix = "max_reach", fallback = "Max Reach") }, modifier = Modifier.width(300.dp)) {
+                                LabelBox(label = { Text(key, suffix = "max_reach", fallback = "Max Reach") }, modifier = Modifier.width(300.dp)) {
                     FloatField(
                         editing.maxReach,
                         { editing = editing.copy(maxReach = it) },
@@ -81,7 +81,7 @@ fun AttackRangeEditorDialog(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                                OutlinedLabelBox(label = { Text(key, suffix = "min_creative_reach", fallback = "Min Creative Reach") }, modifier = Modifier.width(300.dp)) {
+                                LabelBox(label = { Text(key, suffix = "min_creative_reach", fallback = "Min Creative Reach") }, modifier = Modifier.width(300.dp)) {
                     FloatField(
                         editing.minCreativeReach,
                         { editing = editing.copy(minCreativeReach = it) },
@@ -89,7 +89,7 @@ fun AttackRangeEditorDialog(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                                OutlinedLabelBox(label = { Text(key, suffix = "max_creative_reach", fallback = "Max Creative Reach") }, modifier = Modifier.width(300.dp)) {
+                                LabelBox(label = { Text(key, suffix = "max_creative_reach", fallback = "Max Creative Reach") }, modifier = Modifier.width(300.dp)) {
                     FloatField(
                         editing.maxCreativeReach,
                         { editing = editing.copy(maxCreativeReach = it) },
@@ -97,7 +97,7 @@ fun AttackRangeEditorDialog(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                                OutlinedLabelBox(label = { Text(key, suffix = "hitbox_margin", fallback = "Hitbox Margin") }, modifier = Modifier.width(300.dp)) {
+                                LabelBox(label = { Text(key, suffix = "hitbox_margin", fallback = "Hitbox Margin") }, modifier = Modifier.width(300.dp)) {
                     FloatField(
                         editing.hitboxMargin,
                         { editing = editing.copy(hitboxMargin = it) },
@@ -105,7 +105,7 @@ fun AttackRangeEditorDialog(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                                OutlinedLabelBox(label = { Text(key, suffix = "mob_factor", fallback = "Mob Factor") }, modifier = Modifier.width(300.dp)) {
+                                LabelBox(label = { Text(key, suffix = "mob_factor", fallback = "Mob Factor") }, modifier = Modifier.width(300.dp)) {
                     FloatField(
                         editing.mobFactor,
                         { editing = editing.copy(mobFactor = it) },

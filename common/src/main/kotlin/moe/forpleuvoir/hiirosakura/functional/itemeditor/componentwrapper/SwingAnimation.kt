@@ -16,8 +16,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.SwingAnimation
 import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import androidx.compose.foundation.layout.fillMaxWidth
 
 @Composable
@@ -74,11 +73,13 @@ fun SwingAnimationEditorDialog(
                     label = { Text(key, suffix = "type", fallback = "Type") },
                     modifier = Modifier.width(300.dp)
                 )
-                                OutlinedLabelBox(label = { Text(key, suffix = "duration", fallback = "Duration") }, modifier = Modifier.width(300.dp)) {
+                                LabelBox(label = { Text(key, suffix = "duration", fallback = "Duration") }, modifier = Modifier.width(300.dp)) {
                     IntField(
                         editing.duration,
-                        {
-                        editing = SwingAnimation(editing.type, it)
+                        {
+
+                        editing = SwingAnimation(editing.type, it)
+
                     },
                         valueRange = 1..Int.MAX_VALUE,
                         modifier = Modifier.fillMaxWidth(),

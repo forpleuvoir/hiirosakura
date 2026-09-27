@@ -16,12 +16,11 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.T
 import moe.forpleuvoir.hiirosakura.ui.util.canScroll
 import moe.forpleuvoir.hiirosakura.ui.widget.HolderSetEntityTypeEditorDialog
 import moe.forpleuvoir.hiirosakura.ui.widget.HolderSoundEventSelector
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.selector.Selector
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.core.Holder
@@ -48,7 +47,6 @@ import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun EquippableComponentWrapper(
@@ -195,7 +193,7 @@ private fun AllowedEntities(
             }
         }
     } else Modifier
-    OutlinedLabelBox(
+    LabelBox(
         modifier = Modifier
             .fillMaxWidth()
             .then(tip),
@@ -253,7 +251,7 @@ private fun CameraOverlay(
     onValueChange: (Equippable) -> Unit
 ) {
     var showCameraOverlayDialog by remember { mutableStateOf(false) }
-    OutlinedLabelBox(
+    LabelBox(
         modifier = Modifier
             .fillMaxWidth(),
         label = { Text(key, suffix = "camera_overlay", fallback = "Camera Overlay") },
@@ -306,7 +304,7 @@ private fun AssetId(
     onValueChange: (Equippable) -> Unit
 ) {
     var showAssetIDDialog by remember { mutableStateOf(false) }
-    OutlinedLabelBox(
+    LabelBox(
         modifier = Modifier
             .fillMaxWidth(),
         label = { Text(key, suffix = "asset_id", fallback = "Asset ID") },
@@ -361,7 +359,7 @@ private fun AssetId(
             title = { Text(key, suffix = "asset_id", fallback = "Asset ID") },
             content = {
                 Column {
-                    OutlinedLabelBox(label = {
+                    LabelBox(label = {
                             Row {
                                 Text("Namespace")
                                 if (!checkNamespace) {
@@ -377,7 +375,7 @@ private fun AssetId(
                         )
                     }
                     Spacer(Modifier.height(8.dp))
-                    OutlinedLabelBox(label = {
+                    LabelBox(label = {
                             Row {
                                 Text("Path")
                                 if (!checkPath) {
@@ -394,7 +392,7 @@ private fun AssetId(
                     }
                     Spacer(Modifier.height(8.dp))
                     var selected by remember { mutableStateOf(equipmentAssetKeys.first()) }
-                                        OutlinedLabelBox(label = { Text(component = HSLang.ItemEditor.fromResourceManager) }) {
+                                        LabelBox(label = { Text(component = HSLang.ItemEditor.fromResourceManager) }) {
                         Selector(
                                                 equipmentAssetKeys.first(),
                                                 {

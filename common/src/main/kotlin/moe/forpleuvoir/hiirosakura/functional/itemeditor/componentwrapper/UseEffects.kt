@@ -16,8 +16,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.UseEffects
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import androidx.compose.foundation.layout.fillMaxWidth
 
 @Composable
@@ -85,7 +84,7 @@ fun UseEffectsEditorDialog(
                     Text(key, suffix = "interact_vibrations")
                     Switch(editing.interactVibrations, { editing = editing.copy(interactVibrations = it) })
                 }
-                                OutlinedLabelBox(label = { Text(key, suffix = "speed_multiplier") }, modifier = Modifier.width(300.dp)) {
+                                LabelBox(label = { Text(key, suffix = "speed_multiplier") }, modifier = Modifier.width(300.dp)) {
                     FloatField(
                         editing.speedMultiplier,
                         { editing = editing.copy(speedMultiplier = it) },

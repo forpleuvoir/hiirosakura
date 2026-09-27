@@ -13,12 +13,10 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.T
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.Weapon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import androidx.compose.foundation.layout.fillMaxWidth
 import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
 import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
@@ -72,21 +70,25 @@ fun WeaponEditorDialog(
         content = {
             CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                        OutlinedLabelBox(label = { Text(key, suffix = "item_damage_per_attack", fallback = "Item Damage Per Attack") }, modifier = Modifier.width(300.dp)) {
+                                        LabelBox(label = { Text(key, suffix = "item_damage_per_attack", fallback = "Item Damage Per Attack") }, modifier = Modifier.width(300.dp)) {
                         IntField(
                             editingWeapon.itemDamagePerAttack,
-                            {
-                            editingWeapon = Weapon(it, editingWeapon.disableBlockingForSeconds)
+                            {
+
+                            editingWeapon = Weapon(it, editingWeapon.disableBlockingForSeconds)
+
                         },
                             valueRange = 0..Int.MAX_VALUE,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                                        OutlinedLabelBox(label = { Text(key, suffix = "disable_blocking_for_seconds", fallback = "Disable Blocking For Seconds") }, modifier = Modifier.width(300.dp)) {
+                                        LabelBox(label = { Text(key, suffix = "disable_blocking_for_seconds", fallback = "Disable Blocking For Seconds") }, modifier = Modifier.width(300.dp)) {
                         FloatField(
                             editingWeapon.disableBlockingForSeconds,
-                            {
-                            editingWeapon = Weapon(editingWeapon.itemDamagePerAttack, it)
+                            {
+
+                            editingWeapon = Weapon(editingWeapon.itemDamagePerAttack, it)
+
                         },
                             valueRange = 0f..Float.MAX_VALUE,
                             modifier = Modifier.fillMaxWidth(),

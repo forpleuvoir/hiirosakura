@@ -20,6 +20,7 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.modifier.vanillaTooltip
 import moe.forpleuvoir.hiirosakura.ui.util.canScroll
+import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.ibukigourd.text.plainText
@@ -33,6 +34,7 @@ import moe.forpleuvoir.ibukigourd.ui.util.isQuickAction
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.rememberHideActionState
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.network.chat.Component
@@ -49,7 +51,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 
 @Composable
@@ -98,8 +99,7 @@ private fun ItemLoreComponentEditDialog(
     title: @Composable () -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    val editingLines = rememberKeyedStateList(value.lines)
-    var nextKey by remember { mutableLongStateOf(editingLines.size.toLong()) }
+    val editingLines = rememberKeyedList(value.lines)
 
     val maxSize = ItemLore.MAX_LINES
     FlexibleDialog(
@@ -109,7 +109,7 @@ private fun ItemLoreComponentEditDialog(
             .padding(24.dp)
             .size(1000.dp, 720.dp),
         onConfirmRequest = {
-            onValueChange(ItemLore(editingLines.values().take(maxSize).toMutableList()))
+            onValueChange(ItemLore(editingLines.entries.values().take(maxSize).toMutableList()))
             true
         },
         content = {
@@ -120,12 +120,12 @@ private fun ItemLoreComponentEditDialog(
 
 
                 val lazyListState = rememberLazyListState()
-                if (editingLines.isEmpty()) {
+                if (editingLines.entries.isEmpty()) {
                     Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
                 } else {
                     val hapticFeedback = LocalHapticFeedback.current
                     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-                        editingLines.moveElement(from.index, to.index)
+                        editingLines.move(from.index, to.index)
                         hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
                     }
                     LazyColumn(
@@ -133,11 +133,13 @@ private fun ItemLoreComponentEditDialog(
                         modifier = Modifier.padding(end = if (lazyListState.canScroll) 12.dp else 0.dp).fillMaxSize(),
                         state = lazyListState
                     ) {
-                        itemsIndexed(
-                            editingLines,
+                        itemsIndexed(editingLines.entries,
                             key = { _, keyed -> keyed.key }
                         ) { index, (key, component) ->
-                            ReorderableItem(reorderableLazyListState, key) { isDragging ->
+                            ReorderableItem(
+                                reorderableLazyListState, key,
+                                animateItemModifier = hsItemAnimation(),
+                            ) { isDragging ->
                                 val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                                 val handleInteraction = remember { MutableInteractionSource() }
 
@@ -209,16 +211,16 @@ private fun ItemLoreComponentEditDialog(
                 ) {
                     Icon(Icons.Add)
                 }
-                fun value(idx: Int): Component = editingLines.getOrNull(idx)?.value ?: Texts.literal("")
+                fun value(idx: Int): Component = editingLines.entries.getOrNull(idx)?.value ?: Texts.literal("")
 
                 editingComponent?.let { idx ->
                     RichTextEditorDialog(
                         value(idx),
                         {
                             if (idx != -1)
-                                editingLines[idx] = editingLines[idx].copy(value = it)
+                                editingLines.setValue(idx, it)
                             else
-                                editingLines.add(Keyed(nextKey++, it))
+                                editingLines.add(it)
                         },
                         title
                     ) { editingComponent = null }
@@ -229,9 +231,9 @@ private fun ItemLoreComponentEditDialog(
                         value(idx),
                         {
                             if (idx != -1)
-                                editingLines[idx] = editingLines[idx].copy(value = it)
+                                editingLines.setValue(idx, it)
                             else
-                                editingLines.add(Keyed(nextKey++, it))
+                                editingLines.add(it)
                         },
                         title
                     ) { editingComponentInlineDialog = null }

@@ -21,6 +21,7 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.widget.DataComponentTypeSelector
+import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.hiirosakura.util.asText
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
@@ -34,6 +35,7 @@ import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.core.registries.BuiltInRegistries
@@ -52,7 +54,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 
 @Composable
 fun TooltipDisplayComponentWrapper(
@@ -125,20 +126,19 @@ fun TooltipDisplayEditorDialog(
 ) {
     var enabled by remember { mutableStateOf(value.hideTooltip) }
 
-    val list = rememberKeyedStateList(value.hiddenComponents.toList())
-    var nextKey by remember { mutableLongStateOf(list.size.toLong()) }
+    val list = rememberKeyedList(value.hiddenComponents.toList())
 
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
         modifier = modifier.padding(24.dp).width(900.dp).height(760.dp),
         title = title,
         onConfirmRequest = {
-            onValueChange(TooltipDisplay(enabled, ReferenceLinkedOpenHashSet(list.values())))
+            onValueChange(TooltipDisplay(enabled, ReferenceLinkedOpenHashSet(list.entries.values())))
             true
         },
         content = {
             Column {
-                val availableComponents = BuiltInRegistries.DATA_COMPONENT_TYPE.toList() - list.values().toSet()
+                val availableComponents = BuiltInRegistries.DATA_COMPONENT_TYPE.toList() - list.entries.values().toSet()
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -156,7 +156,7 @@ fun TooltipDisplayEditorDialog(
                         type,
                         {
                             type = it
-                            list.add(Keyed(nextKey++, it))
+                            list.add(it)
                         },
                         label = { Text(component = HSLang.ItemEditor.addItemComponent) },
                         content = {
@@ -173,12 +173,12 @@ fun TooltipDisplayEditorDialog(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     val lazyListState = rememberLazyListState()
 
-                    if (list.isEmpty()) {
+                    if (list.entries.isEmpty()) {
                         Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
                     } else {
                         val hapticFeedback = LocalHapticFeedback.current
                         val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-                            list.moveElement(from.index, to.index)
+                            list.move(from.index, to.index)
                             hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
                         }
 
@@ -188,11 +188,13 @@ fun TooltipDisplayEditorDialog(
                             modifier = Modifier.padding(end = if (canScroll) 12.dp else 0.dp).fillMaxSize(),
                             state = lazyListState
                         ) {
-                            itemsIndexed(
-                                list,
+                            itemsIndexed(list.entries,
                                 key = { _, keyed -> keyed.key }
                             ) { index, (key, component) ->
-                                ReorderableItem(reorderableLazyListState, key) { isDragging ->
+                                ReorderableItem(
+                                    reorderableLazyListState, key,
+                                    animateItemModifier = hsItemAnimation(),
+                                ) { isDragging ->
                                     val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                                     val handleInteraction = remember { MutableInteractionSource() }
 
@@ -214,7 +216,7 @@ fun TooltipDisplayEditorDialog(
                                                 DataComponentTypeSelector(
                                                     component,
                                                     {
-                                                        list[index] = list[index].copyValue(it)
+                                                        list.setValue(index, it)
                                                     },
                                                     items = listOf(component) + availableComponents,
                                                     modifier = Modifier.fillMaxWidth(),

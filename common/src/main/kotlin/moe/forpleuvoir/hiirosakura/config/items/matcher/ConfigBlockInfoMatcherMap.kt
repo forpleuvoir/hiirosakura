@@ -24,8 +24,7 @@ import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.ConfigMap
 import moe.forpleuvoir.nebula.config.item.configMap
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 
 context(group: ConfigGroup)
 fun configBlockInfoMatcherMap(name: String, defaultValue: Map<String, BlockInfoMatcher>) =
@@ -64,7 +63,6 @@ fun BlockInfoMatcherMapConfigWrapper(
                 title = editorDialogTitle,
                 onDismissRequest = { showEditDialog = false },
             ) { data ->
-                var nextKey by remember { mutableLongStateOf(data.size.toLong()) }
                 EditDialogContent(
                     modifier = Modifier.fillMaxSize(),
                     header = {
@@ -75,7 +73,7 @@ fun BlockInfoMatcherMapConfigWrapper(
                     },
                     addDialog = { onDismissRequest ->
                         val newKey = rememberTextFieldState("")
-                        val isDuplicate = remember(newKey.text.toString()) { data.any { it.value.key == newKey.text.toString() } }
+                        val isDuplicate = remember(newKey.text.toString()) { data.entries.any { it.value.key == newKey.text.toString() } }
 
                         var newValue by remember { mutableStateOf(BlockInfoMatcher.targetBlockMatcher) }
                         AlertDialog(
@@ -84,7 +82,7 @@ fun BlockInfoMatcherMapConfigWrapper(
                             text = {
                                 
                                     Column {
-                                        OutlinedLabelBox(label = { addKeyLabel(isDuplicate, newKey.text.toString()) }) {
+                                        LabelBox(label = { addKeyLabel(isDuplicate, newKey.text.toString()) }) {
                                             TextField(
                                                 state = newKey,
                                                 lineLimits = TextFieldLineLimits.SingleLine,
@@ -105,7 +103,7 @@ fun BlockInfoMatcherMapConfigWrapper(
                                 TextButton(
                                     onClick = {
                                         if (!isDuplicate) {
-                                            data.add(Keyed(nextKey++, MapEntry(newKey.text.toString(), newValue)))
+                                            data.add(MapEntry(newKey.text.toString(), newValue))
                                             onDismissRequest()
                                         }
                                     },

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.HorizontalDivider
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
@@ -40,21 +41,23 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.util.KeyedListState
+import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.hiirosakura.ui.util.rememberClipboardWriter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
-import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
 
 //region Displayer
 
@@ -135,13 +138,14 @@ fun BlockInfoMatcherDisplayer(
     FlatButton(
         onClick = {},
         modifier = modifier.tooltip {
-                                BlockInfoMatcherInfo(value)
+            BlockInfoMatcherInfo(value)
         },
     ) {
-(leadingIcon)?.invoke()
-BlockInfoMatcherSimpleInfo(value, Modifier.padding(vertical = 8.dp))
-(trailingIcon)?.invoke()
-    }}
+        (leadingIcon)?.invoke()
+        BlockInfoMatcherSimpleInfo(value, Modifier.padding(vertical = 8.dp))
+        (trailingIcon)?.invoke()
+    }
+}
 
 @Composable
 fun BlockInfoMatcherInfo(
@@ -204,7 +208,7 @@ fun BlockInfoMatchEntryInfo(entry: MatchEntry<BlockInfo>) {
 fun BasicBlockInfoMatcherEditor(
     mode: CompositeMatcher.MatchMode,
     onModeChange: (CompositeMatcher.MatchMode) -> Unit,
-    entries: SnapshotStateList<Keyed<BlockInfoMatchEntry>>,
+    entries: KeyedListState<BlockInfoMatchEntry>,
     isNested: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -223,13 +227,13 @@ fun BasicBlockInfoMatcherEditor(
                         HSLang.BlockInfoMatcher.testSuccess.plainText,
                         HSLang.BlockInfoMatcher.testFailed.plainText
                     ) {
-                        BlockInfoMatcher(mode, entries.values()).match(targetBlock)
+                        BlockInfoMatcher(mode, entries.entries.values()).match(targetBlock)
                     }
                 }
 
                 val copyToClipboard = rememberClipboardWriter()
                 FormatExportButton(IGLang.Misc.copySuccess(HSLang.BlockInfoMatcher.title).plainText) {
-                    copyToClipboard(it.encode(BlockInfoMatcher.serialization(BlockInfoMatcher(mode, entries.values()))))
+                    copyToClipboard(it.encode(BlockInfoMatcher.serialization(BlockInfoMatcher(mode, entries.entries.values()))))
                 }
                 FormatImportButton(HSLang.BlockInfoMatcher.title.plainText, HSLang.Common.success.plainText) {
                     BlockInfoMatcher.deserialization(it)
@@ -237,59 +241,67 @@ fun BasicBlockInfoMatcherEditor(
                         .let { result ->
                             onModeChange(result.mode)
                             entries.clear()
-                            entries.addAll(result.entries.mapIndexed { index, entry -> Keyed(index.toLong(), entry) })
+                            result.entries.forEach { entries.add(it) }
                         }
                 }
             }
         }
         Spacer(Modifier.height(16.dp))
-        Box(Modifier.fillMaxSize()) {
-
-            val lazyListState = rememberLazyListState()
-            val hapticFeedback = LocalHapticFeedback.current
+        // 滚动显隐的嵌套滚动回调必须挂在滚动容器的祖先上:FAB 是滚动容器的兄弟节点,
+        // 挂在 FAB 自身的 Modifier 上永远收不到位移(历史实现即因如此从未生效)。
+        val lazyListState = rememberLazyListState()
+        val fabVisibility = rememberFabScrollVisibility(lazyListState)
+        Box(
+            Modifier
+                .fillMaxSize()
+                .fabScrollVisibility(fabVisibility)
+        ) {
             val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-                entries.moveElement(from.index, to.index)
-                hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                entries.move(from.index, to.index)
             }
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                state = lazyListState
-            ) {
-                itemsIndexed(entries, key = { _, keyed -> keyed.key }) { index, (key, entry) ->
-                    ReorderableItem(reorderableLazyListState, key = key) { isDragging ->
-                        val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                        val handleInteraction = remember { MutableInteractionSource() }
+            Row {
+                LazyColumn(
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    state = lazyListState
+                ) {
+                    itemsIndexed(entries.entries, key = { _, keyed -> keyed.key }) { index, (key, entry) ->
+                        ReorderableItem(
+                            reorderableLazyListState, key = key,
+                            animateItemModifier = hsItemAnimation(),
+                        ) { _ ->
+                            BlockInfoMatchEntryRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                entry = entry,
+                                onChange = { newEntry ->
+                                    entries.setValue(index, newEntry)
+                                },
+                                onRemove = {
+                                    entries.removeAt(index)
+                                },
+                                moveHandler = {
+                                    DragHandle(modifier = Modifier.draggableHandle())
+                                }
+                            )
+                        }
 
-                        BlockInfoMatchEntryRow(
-                            modifier = Modifier.fillMaxWidth().scale(scale),
-                            entry = entry,
-                            onChange = { newEntry ->
-                                entries[index] = entries[index].copyValue(newEntry)
-                            },
-                            onRemove = {
-                                entries.removeAt(index)
-                            },
-                            moveHandler = {
-                                DragHandle(modifier = Modifier.draggableHandle(interactionSource = handleInteraction))
-                            }
-                        )
                     }
-
                 }
+                VerticalFlatScroller(
+                    adapter = rememberScrollerAdapter(lazyListState),
+                )
             }
-            VerticalScroller(
-                adapter = rememberScrollerAdapter(lazyListState),
-                modifier = Modifier.align(Alignment.CenterEnd)
-            )
 
             FloatingAddButton(
                 modifier = Modifier
                     .align(Alignment.BottomEnd),
-                fabVisibilityState = rememberFabScrollVisibility(lazyListState),
+                fabVisibilityState = fabVisibility,
                 addMenuOptions = if (isNested) nestedAddMenuOptions else addMenuOptions
             ) { newEntry ->
-                entries.add(Keyed(entries.size.toLong(), newEntry))
+                // key 必须单调递增且不复用:`entries.size` 在「删过元素再加」(以及导入后
+                // 与 0..n-1 重合)时会撞 key —— Lazy 直接抛 "Key was already used" 崩屏,
+                // 且 key 已存在时 animateItem 不会触发新条目动画。
+                entries.add(newEntry)
             }
         }
     }
@@ -303,7 +315,7 @@ fun BlockInfoMatcherEditorDialog(
 ) {
     var editingMode by remember(value) { mutableStateOf(value.mode) }
 
-    val editingEntries = rememberKeyedStateList(value.entries)
+    val editingEntries = rememberKeyedList(value.entries)
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(component = HSLang.BlockInfoMatcher.title) },
@@ -316,7 +328,7 @@ fun BlockInfoMatcherEditorDialog(
             )
         },
         onConfirmRequest = {
-            onValueChange(BlockInfoMatcher(editingMode, editingEntries.values()))
+            onValueChange(BlockInfoMatcher(editingMode, editingEntries.entries.values()))
             true
         }
     )

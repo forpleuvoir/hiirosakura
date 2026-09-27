@@ -22,10 +22,10 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.modifier.vanillaTooltip
-import moe.forpleuvoir.hiirosakura.ui.util.rememberSegmentedButtonWidth
 import moe.forpleuvoir.hiirosakura.ui.widget.EntityAttributeSelector
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.REGISTERED_ATTRIBUTE
+import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.RichTextEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.RichTextEditorState
 import moe.forpleuvoir.hiirosakura.util.asTranslateKey
@@ -36,10 +36,10 @@ import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.util.fabVisibilityAnimation
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.moveElement
@@ -58,7 +58,8 @@ import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyGridState
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
@@ -68,15 +69,12 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
-import moe.forpleuvoir.hiirosakura.ui.widget.SegmentedButton
-import moe.forpleuvoir.hiirosakura.ui.widget.SegmentedButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.hiirosakura.ui.util.rememberAdaptiveGridSpan
 import androidx.compose.foundation.layout.Row
-import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 
 @Composable
@@ -144,12 +142,12 @@ fun ItemAttributeModifiersEditor(
     title: @Composable () -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    val editingModifiers = rememberKeyedStateList(value.modifiers)
+    val editingModifiers = rememberKeyedList(value.modifiers)
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
         title = title,
         onConfirmRequest = {
-            onValueChange(ItemAttributeModifiers(editingModifiers.values().toMutableList()))
+            onValueChange(ItemAttributeModifiers(editingModifiers.entries.values().toMutableList()))
             true
         },
         modifier = Modifier.padding(24.dp),
@@ -162,15 +160,14 @@ fun ItemAttributeModifiersEditor(
                         .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    var nextKey by remember { mutableLongStateOf(editingModifiers.size.toLong()) }
 
                     val lazyGridState = rememberLazyGridState()
-                    if (editingModifiers.isEmpty()) {
+                    if (editingModifiers.entries.isEmpty()) {
                         Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
                     } else {
                         val hapticFeedback = LocalHapticFeedback.current
                         val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
-                            editingModifiers.moveElement(from.index, to.index)
+                            editingModifiers.move(from.index, to.index)
                             hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
                         }
 
@@ -184,8 +181,11 @@ fun ItemAttributeModifiersEditor(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            itemsIndexed(editingModifiers, key = { _, v -> v.key }) { index, item ->
-                                ReorderableItem(reorderableLazyGridState, item.key) { isDragging ->
+                            itemsIndexed(editingModifiers.entries, key = { _, v -> v.key }) { index, item ->
+                                ReorderableItem(
+                                    reorderableLazyGridState, item.key,
+                                    animateItemModifier = hsItemAnimation(),
+                                ) { isDragging ->
                                     val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                                     val handleInteraction = remember { MutableInteractionSource() }
 
@@ -193,7 +193,7 @@ fun ItemAttributeModifiersEditor(
                                     ModifierCard(
                                         item.value,
                                         {
-                                            editingModifiers[index] = item.copyValue(it)
+                                            editingModifiers.setValue(index, it)
                                         },
                                         modifier = Modifier.scale(scale).width(360.dp),
                                         onRemove = {
@@ -246,7 +246,7 @@ fun ItemAttributeModifiersEditor(
                         SimpleAlertDialog(
                             onDismissRequest = { showAddDialog = false },
                             onConfirmRequest = {
-                                editingModifiers.addLast(Keyed(nextKey++, addingEntry))
+                                editingModifiers.add(addingEntry)
                                 true
                             },
                             title = { Text(component = IGLang.Misc.add) },
@@ -317,7 +317,7 @@ private fun ModifierEntryContent(
             modifier = Modifier.fillMaxWidth()
         )
         //id
-        OutlinedLabelBox(
+        LabelBox(
             { Text(key, suffix = "id", fallback = "ID") },
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(16.dp, 8.dp, 8.dp, 8.dp)
@@ -343,7 +343,7 @@ private fun ModifierEntryContent(
             }
         }
         //amount
-        OutlinedLabelBox(label = { Text(key, suffix = "amount", fallback = "Amount") }, modifier = Modifier.fillMaxWidth()) {
+        LabelBox(label = { Text(key, suffix = "amount", fallback = "Amount") }, modifier = Modifier.fillMaxWidth()) {
             DoubleField(
                 value = value.modifier.amount,
                 onValueChange = { onValueChange(value.copy(amount = it)) },
@@ -365,7 +365,7 @@ private fun ModifierEntryContent(
             modifier = Modifier.fillMaxWidth()
         )
         //display
-        OutlinedLabelBox(
+        LabelBox(
             { Text(key, suffix = "display", fallback = "Display") },
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(16.dp, 8.dp, 8.dp, 8.dp)
@@ -450,14 +450,8 @@ private fun DisplayTypeSelector(
     key: Identifier,
 ) {
     val entries = ItemAttributeModifiers.Display.Type.entries
-    val width = rememberSegmentedButtonWidth(
-        items = entries,
-        textStyle = SokitsuTheme.typography.button,
-    ) { it.asText(key) }
-
-
     Row(
-        modifier = Modifier.width(IntrinsicSize.Max),
+        horizontalArrangement = Arrangement.spacedBy(RadioButtonDefaults.spacing),
     ) {
         entries.forEachIndexed { index, item ->
             val commentKey = "${item.asTextKey(key)}.comment"
@@ -466,20 +460,18 @@ private fun DisplayTypeSelector(
                     Text(Translatable(commentKey))
                 }
             } else Modifier
-            SegmentedButton(
+            RadioButton(
                 selected = value == item,
-                onClick = { onValueChange(item) },
-                
-                modifier = Modifier
-                    .width(width)
-                    .then(tip),
-                label = {
-                    Text(
-                        item.asText(key),
-                        maxLines = 1
-                    )
-                }
-            )
+                index = index,
+                count = entries.size,
+                onSelect = { onValueChange(item) },
+                modifier = tip,
+            ) {
+                Text(
+                    item.asText(key),
+                    maxLines = 1
+                )
+            }
         }
     }
 }

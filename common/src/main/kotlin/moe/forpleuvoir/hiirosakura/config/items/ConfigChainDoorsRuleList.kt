@@ -9,7 +9,6 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainDoorsRule
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainStrategy
-import moe.forpleuvoir.hiirosakura.ui.util.rememberSegmentedButtonWidth
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo.BlockInfoMatcherDisplayerInnerEditor
 import moe.forpleuvoir.ibukigourd.config.translateText
@@ -19,24 +18,24 @@ import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.hiirosakura.ui.configwrapper.ListConfigWrapperDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.ConfigList
 import moe.forpleuvoir.nebula.config.item.configList
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
 import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
 import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.HorizontalDivider
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.AlertDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
-import moe.forpleuvoir.hiirosakura.ui.widget.SegmentedButton
-import moe.forpleuvoir.hiirosakura.ui.widget.SegmentedButtonDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
 import androidx.compose.foundation.layout.Row
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
@@ -67,11 +66,8 @@ fun ChainDoorsRuleListConfigWrapper(
         ) { showEditDialog = true }
 
         if (showEditDialog) {
-            val editingValue = remember {
-                config.mapIndexed { index, value -> index.toLong() to value }.toMutableStateList()
-            }
+            val editingValue = rememberKeyedList(config)
 
-            var nextKey by remember { mutableLongStateOf(editingValue.size.toLong()) }
             EditDialog(
                 config = config,
                 editingValue = editingValue,
@@ -80,7 +76,7 @@ fun ChainDoorsRuleListConfigWrapper(
                 onDismissRequest = { showEditDialog = false },
                 onConfirmRequest = {
                     config.clear()
-                    it.forEach { (_, value) -> config.add(value) }
+                    it.entries.forEach { (_, value) -> config.add(value) }
                     true
                 }
             ) {
@@ -158,7 +154,7 @@ fun ChainDoorsRuleListConfigWrapper(
                             confirmButton = {
                                 TextButton(
                                     onClick = {
-                                        editingValue.add(nextKey++ to rule)
+                                        editingValue.add(rule)
                                         onDismissRequest()
                                     }
                                 ) {
@@ -175,10 +171,9 @@ fun ChainDoorsRuleListConfigWrapper(
                 ) { lazyListState ->
                     EditDialogContentList(
                         data = editingValue,
-                        key = { it.first },
                         modifier = Modifier,
                         lazyListState = lazyListState
-                    ) { (key, value), onValueChange ->
+                    ) { value, onValueChange ->
                         Row(
                             Modifier.weight(1f),
                             horizontalArrangement = Arrangement.spacedBy(LocalColumnSpacing.current),
@@ -187,26 +182,26 @@ fun ChainDoorsRuleListConfigWrapper(
                             //origin
                             BlockInfoMatcherDisplayerInnerEditor(
                                 value = value.originDoor,
-                                onValueChange = { onValueChange(key to value.copy(originDoor = it)) },
+                                onValueChange = { onValueChange(value.copy(originDoor = it)) },
                                 modifier = Modifier.weight(1f),
                             )
                             //chain
                             BlockInfoMatcherDisplayerInnerEditor(
                                 value = value.chainDoor,
-                                onValueChange = { onValueChange(key to value.copy(chainDoor = it)) },
+                                onValueChange = { onValueChange(value.copy(chainDoor = it)) },
                                 modifier = Modifier.weight(1f),
                             )
                             //keyToggleMode
                             Box(Modifier.width(100.dp), contentAlignment = Alignment.Center) {
                                 Switch(
                                     checked = value.keyToggleMode,
-                                    onCheckedChange = { onValueChange(key to value.copy(keyToggleMode = it)) },
+                                    onCheckedChange = { onValueChange(value.copy(keyToggleMode = it)) },
                                 )
                             }
                             //strategy
                             ChainStrategyDisplayerEditor(
                                 value.strategy,
-                                { onValueChange(key to value.copy(strategy = it)) },
+                                { onValueChange(value.copy(strategy = it)) },
                                 modifier = Modifier.width(180.dp),
                             )
                         }
@@ -339,26 +334,25 @@ private fun ChainStrategyEditor(
 
 
     Column {
-        Row {
-            val width = rememberSegmentedButtonWidth(
-                items = listOf(ChainStrategy.Neighborhood.text, ChainStrategy.Recursive.text),
-                textStyle = SokitsuTheme.typography.button,
-            ) { it }
-            SegmentedButton(
+        Row(horizontalArrangement = Arrangement.spacedBy(RadioButtonDefaults.spacing)) {
+            RadioButton(
                 selected = isNeighborhood,
-                onClick = { isNeighborhood = true },
-                
-                modifier = Modifier.width(width)
+                index = 0,
+                count = 2,
+                onSelect = { isNeighborhood = true },
+                // tip 挂在按钮上：RadioButtonGroup 的 item DSL 给不了每段自己的 tip
+                modifier = Modifier.tooltip { Text(ChainStrategy.Neighborhood.hoverText) },
             ) {
-                Text(ChainStrategy.Neighborhood.text, Modifier.tooltip { Text(ChainStrategy.Neighborhood.hoverText) })
+                Text(ChainStrategy.Neighborhood.text)
             }
-            SegmentedButton(
+            RadioButton(
                 selected = !isNeighborhood,
-                onClick = { isNeighborhood = false },
-                
-                modifier = Modifier.width(width)
+                index = 1,
+                count = 2,
+                onSelect = { isNeighborhood = false },
+                modifier = Modifier.tooltip { Text(ChainStrategy.Recursive.hoverText) },
             ) {
-                Text(ChainStrategy.Recursive.text, Modifier.tooltip { Text(ChainStrategy.Recursive.hoverText) })
+                Text(ChainStrategy.Recursive.text)
             }
         }
         Spacer(Modifier.height(16.dp))

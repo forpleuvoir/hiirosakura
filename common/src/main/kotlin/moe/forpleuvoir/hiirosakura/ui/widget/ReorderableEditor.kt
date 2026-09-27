@@ -73,6 +73,7 @@ fun <T, K : Any> ReorderableEditorList(
                     ReorderableItem(
                         state = reorderableState,
                         key = key(item),
+                        animateItemModifier = hsItemAnimation(),
                     ) { isDragging ->
                         itemContent(
                             index,
@@ -144,6 +145,7 @@ fun <T, K : Any> ReorderableEditorVerticalGrid(
                     ReorderableItem(
                         state = reorderableState,
                         key = key(item),
+                        animateItemModifier = hsItemAnimation(),
                     ) { isDragging ->
                         itemContent(
                             index,

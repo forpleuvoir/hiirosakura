@@ -16,14 +16,12 @@ import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
-import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.StringSelector
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun ItemStackMatchEntryTagInfo(entry: ItemStackMatchEntry.Tag) {
@@ -119,7 +117,7 @@ internal fun BasicItemStackMatchEntryTagEditor(
             )
             Spacer(Modifier.height(8.dp))
         }
-        OutlinedLabelBox(label = { Text(value.translateText) }) {
+        LabelBox(label = { Text(value.translateText) }) {
             TextField(
                 state = state,
                 modifier = Modifier.fillMaxWidth().height(120.dp),

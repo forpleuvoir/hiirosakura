@@ -25,10 +25,11 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
+import moe.forpleuvoir.ibukigourd.ui.util.KeyedListState
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.hiirosakura.ui.compat.TipBox
-import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 
 @Composable
 fun BlockInfoMatchEntryMatcherInfo(entry: BlockInfoMatchEntry.Matcher) {
@@ -81,7 +82,7 @@ internal fun BlockInfoMatchEntryMatcherEditorDialog(
 
     var editingMode by remember(value) { mutableStateOf(value.matcher.mode) }
 
-    val editingEntries = rememberKeyedStateList(value.matcher.entries)
+    val editingEntries = rememberKeyedList(value.matcher.entries)
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(value.translateText) },
@@ -96,7 +97,7 @@ internal fun BlockInfoMatchEntryMatcherEditorDialog(
             )
         },
         onConfirmRequest = {
-            onValueChange(BlockInfoMatchEntry.Matcher(BlockInfoMatcher(editingMode, editingEntries.values()), editingEntryMode))
+            onValueChange(BlockInfoMatchEntry.Matcher(BlockInfoMatcher(editingMode, editingEntries.entries.values()), editingEntryMode))
             true
         }
     )
@@ -108,7 +109,7 @@ internal fun BasicBlockInfoMatchEntryMatcherEditor(
     onEntryModeChange: (MatchEntry.MatchMode) -> Unit,
     mode: CompositeMatcher.MatchMode,
     onModeChange: (CompositeMatcher.MatchMode) -> Unit,
-    entries: SnapshotStateList<Keyed<BlockInfoMatchEntry>>,
+    entries: KeyedListState<BlockInfoMatchEntry>,
     modifier: Modifier = Modifier
 ) {
     BasicMatchEntryEditor(

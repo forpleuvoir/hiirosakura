@@ -29,11 +29,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
@@ -57,6 +57,8 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
+import moe.forpleuvoir.ibukigourd.ui.util.KeyedListState
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import moe.forpleuvoir.nebula.config.item.ConfigList
 import moe.forpleuvoir.nebula.config.item.ConfigMap
@@ -75,20 +77,6 @@ object ConfigRowWrapperCompat {
 
 
 
-
-/**
- * 旧版 `rememberKeyedList` 的等价物：返回 `SnapshotStateList<Keyed<T>>`。
- *
- * 新版上游把它改成了返回 `KeyedListState<T>`，旧调用点（`data[i] = x` / `add(Keyed(...))` / `forEach`）
- * 依赖列表语义，这里按旧行为提供。
- */
-@Composable
-fun <T> rememberKeyedStateList(list: List<T>): SnapshotStateList<Keyed<T>> = remember(list) {
-    mutableStateListOf<Keyed<T>>().apply {
-        var nextKey = 0L
-        list.forEach { add(Keyed(nextKey++, it)) }
-    }
-}
 
 object ListConfigWrapperDefaults {
 
@@ -127,16 +115,17 @@ object ListConfigWrapperDefaults {
         modifier: Modifier = Modifier,
         onDismissRequest: () -> Unit,
         title: @Composable (() -> Unit)? = { Text(component = InlineStyleText(config.translateText.plainText)) },
-        content: @Composable (data: SnapshotStateList<E>) -> Unit
+        content: @Composable (data: KeyedListState<E>) -> Unit
     ) {
-        val editingValue = remember { config.toList().toMutableStateList() }
+        // key 由 KeyedListState 单调分配(删除不回收),行身份跟数据走;不要再让调用方手工维护 key。
+        val editingValue = rememberKeyedList(config)
         FlexibleDialog(
             onDismissRequest = onDismissRequest,
             title = title,
             modifier = modifier,
             onConfirmRequest = {
                 config.clear()
-                editingValue.forEach { config.add(it) }
+                editingValue.entries.forEach { config.add(it.value) }
                 true
             },
             content = { content(editingValue) }
@@ -146,12 +135,12 @@ object ListConfigWrapperDefaults {
     @Composable
     fun <C : Any, E : Any> EditDialog(
         config: ConfigList<C>,
-        editingValue: SnapshotStateList<E>,
+        editingValue: KeyedListState<E>,
         modifier: Modifier = Modifier,
         onDismissRequest: () -> Unit,
         title: @Composable (() -> Unit)? = { Text(component = InlineStyleText(config.translateText.plainText)) },
-        onConfirmRequest: (data: SnapshotStateList<E>) -> Boolean,
-        content: @Composable (data: SnapshotStateList<E>) -> Unit
+        onConfirmRequest: (data: KeyedListState<E>) -> Boolean,
+        content: @Composable (data: KeyedListState<E>) -> Unit
     ) {
         FlexibleDialog(
             onDismissRequest = onDismissRequest,
@@ -268,8 +257,7 @@ object ListConfigWrapperDefaults {
 
     @Composable
     fun <E : Any> EditDialogContentList(
-        data: SnapshotStateList<E>,
-        key: (E) -> Any,
+        data: KeyedListState<E>,
         modifier: Modifier = Modifier,
         lazyListState: LazyListState = rememberLazyListState(),
         enableElementMove: Boolean = true,
@@ -281,7 +269,7 @@ object ListConfigWrapperDefaults {
         Box(modifier = modifier) {
             val hapticFeedback = LocalHapticFeedback.current
             val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-                data.moveElement(from.index, to.index)
+                data.move(from.index, to.index)
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
             }
 
@@ -293,8 +281,11 @@ object ListConfigWrapperDefaults {
                 verticalArrangement = verticalArrangement,
                 horizontalAlignment = horizontalAlignment,
             ) {
-                itemsIndexed(data, key = { _, e -> key(e) }) { index, entry ->
-                    ReorderableItem(reorderableLazyListState, key = key(entry)) { isDragging ->
+                itemsIndexed(data.entries, key = { _, e -> e.key }) { index, entry ->
+                    ReorderableItem(
+                        reorderableLazyListState, key = entry.key,
+                        animateItemModifier = hsItemAnimation(),
+                    ) { isDragging ->
                         val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                         val handleInteraction = remember { MutableInteractionSource() }
 
@@ -311,8 +302,8 @@ object ListConfigWrapperDefaults {
                                 Spacer(Modifier.width(LocalColumnSpacing.current))
                             }
 
-                            element(entry) {
-                                data[index] = it
+                            element(entry.value) {
+                                data.setValue(index, it)
                             }
 
                             Spacer(Modifier.width(LocalColumnSpacing.current))
@@ -382,17 +373,17 @@ object MapConfigWrapperDefaults {
         modifier: Modifier = Modifier,
         onDismissRequest: () -> Unit,
         title: @Composable (() -> Unit)? = { Text(component = InlineStyleText(config.translateText.plainText)) },
-        content: @Composable (data: SnapshotStateList<KeyedMapEntry<V>>) -> Unit
+        content: @Composable (data: KeyedListState<MapEntry<String, V>>) -> Unit
     ) {
         //编辑中的映射 确认之后写入config
-        val editingValue = rememberKeyedStateList(config.entries.map { MapEntry(it.key, it.value) })
+        val editingValue = rememberKeyedList(config.entries.map { MapEntry(it.key, it.value) })
         FlexibleDialog(
             onDismissRequest = onDismissRequest,
             title = title,
             modifier = modifier,
             onConfirmRequest = {
                 config.clear()
-                editingValue.forEach { (_, entry) ->
+                editingValue.entries.forEach { (_, entry) ->
                     val (key, value) = entry
                     config[key] = value
                 }
@@ -527,8 +518,7 @@ object MapConfigWrapperDefaults {
 
     @Composable
     fun <V : Any> EditDialogContentList(
-        data: SnapshotStateList<KeyedMapEntry<V>>,
-        key: (KeyedMapEntry<V>) -> Any = { it.key },
+        data: KeyedListState<MapEntry<String, V>>,
         modifier: Modifier = Modifier,
         lazyListState: LazyListState = rememberLazyListState(),
         enableElementMove: Boolean = true,
@@ -539,7 +529,7 @@ object MapConfigWrapperDefaults {
             KeyWrapper(
                 key,
                 onKeyChange,
-                { newKey -> key == newKey || data.any { it.value.key == newKey } },
+                { newKey -> key == newKey || data.entries.any { it.value.key == newKey } },
                 modifier = Modifier.weight(LocalKeyColumnWeight.current)
             )
         },
@@ -551,7 +541,7 @@ object MapConfigWrapperDefaults {
         ) {
             val hapticFeedback = LocalHapticFeedback.current
             val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-                data.moveElement(from.index, to.index)
+                data.move(from.index, to.index)
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
             }
 
@@ -563,10 +553,13 @@ object MapConfigWrapperDefaults {
                 verticalArrangement = verticalArrangement,
                 horizontalAlignment = horizontalAlignment,
             ) {
-                itemsIndexed(data, key = { _, entry -> key(entry) }) { index, entry ->
-                    ReorderableItem(reorderableLazyListState, key = key(entry)) { isDragging ->
+                itemsIndexed(data.entries, key = { _, entry -> entry.key }) { index, entry ->
+                    ReorderableItem(
+                        reorderableLazyListState, key = entry.key,
+                        animateItemModifier = hsItemAnimation(),
+                    ) { isDragging ->
                         val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                        val (mapKey, value) = data[index].value
+                        val (mapKey, value) = entry.value
                         val handleInteraction = remember { MutableInteractionSource() }
 
                         val handleHovered by handleInteraction.collectIsHoveredAsState()
@@ -585,13 +578,13 @@ object MapConfigWrapperDefaults {
 
                             //Key包装
                             keyWrapper(mapKey) { newKey ->
-                                data[index] = Keyed(data[index].key, data[index].value.copy(key = newKey))
+                                data.setValue(index, entry.value.copy(key = newKey))
                             }
                             Spacer(Modifier.width(LocalColumnSpacing.current))
 
                             //Value包装
                             valueWrapper(value) { newValue ->
-                                data[index] = Keyed(data[index].key, data[index].value.copy(value = newValue))
+                                data.setValue(index, entry.value.copy(value = newValue))
                             }
                             Spacer(Modifier.width(LocalColumnSpacing.current))
                             //移除按钮
@@ -652,7 +645,7 @@ object MapConfigWrapperDefaults {
                     }
                 },
                 text = {
-                    OutlinedLabelBox(
+                    LabelBox(
                         label = {
                             if (isDuplicate) Text(component = IGLang.ConfigWrapper.keyExists(newKey.text.toString()))
                             else Text(component = IGLang.ConfigWrapper.mapKey)

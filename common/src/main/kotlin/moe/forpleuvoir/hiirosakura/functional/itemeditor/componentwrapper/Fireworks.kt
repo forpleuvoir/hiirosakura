@@ -29,15 +29,15 @@ import it.unimi.dsi.fastutil.ints.IntList
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.ReorderableEditorVerticalGrid
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.util.fabVisibilityAnimation
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.*
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.FireworkExplosion
@@ -45,7 +45,6 @@ import net.minecraft.world.item.component.Fireworks
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
@@ -61,7 +60,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenu
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
 import moe.forpleuvoir.ibukigourd.util.toComposeColor
-import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenuItem
 import androidx.compose.ui.geometry.Rect
@@ -110,13 +108,12 @@ fun FireworksEditorDialog(
 ) {
     var flightDuration by remember { mutableIntStateOf(value.flightDuration) }
 
-    val explosions = rememberKeyedStateList(value.explosions)
-    var nextKey by remember { mutableLongStateOf(explosions.size.toLong()) }
+    val explosions = rememberKeyedList(value.explosions)
 
     FlexibleDialog(
         onDismissRequest,
         onConfirmRequest = {
-            onValueChange(Fireworks(flightDuration, explosions.values().toMutableList()))
+            onValueChange(Fireworks(flightDuration, explosions.entries.values().toMutableList()))
             true
         },
         modifier = Modifier
@@ -126,7 +123,7 @@ fun FireworksEditorDialog(
         title = title,
         content = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedLabelBox(label = { Text(key, suffix = "flight_duration") }, modifier = Modifier.height(64.dp).fillMaxWidth()) {
+                LabelBox(label = { Text(key, suffix = "flight_duration") }, modifier = Modifier.height(64.dp).fillMaxWidth()) {
                     IntField(
                         flightDuration,
                         { flightDuration = it.coerceIn(0..255) },
@@ -134,21 +131,21 @@ fun FireworksEditorDialog(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                OutlinedLabelBox(
+                LabelBox(
                     modifier = Modifier.fillMaxSize(),
                     label = { Text(key, suffix = "explosions") },
                     contentPadding = PaddingValues(8.dp),
                 ) {
                     ReorderableEditorVerticalGrid(
-                        explosions,
+                        explosions.entries,
                         key = { it.key },
-                        onMove = explosions::moveElement,
+                        onMove = explosions::move,
                         columns = GridCells.Adaptive(360.dp),
                         modifier = Modifier.fillMaxSize(),
                         floatingActionButton = { lazyGridState ->
                             Button(
                                 onClick = {
-                                    if (explosions.size < Fireworks.MAX_EXPLOSIONS) explosions.add(Keyed(nextKey++, FireworkExplosion.DEFAULT))
+                                    if (explosions.size < Fireworks.MAX_EXPLOSIONS) explosions.add(FireworkExplosion.DEFAULT)
                                 },
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
@@ -165,7 +162,7 @@ fun FireworksEditorDialog(
                             val handleHovered by handleInteraction.collectIsHoveredAsState()
                             ExplosionCard(
                                 explosion = explosion.value,
-                                onValueChange = { explosions[index] = explosion.copyValue(it) },
+                                onValueChange = { explosions.setValue(index, it) },
                                 onRemove = { explosions.removeAt(index) },
                                 key = key,
                                 hapticFeedback = hapticFeedback,
@@ -261,7 +258,7 @@ private fun ColorRow(
     colors: IntList,
     onColorsChange: (IntList) -> Unit,
 ) {
-    OutlinedLabelBox(
+    LabelBox(
         modifier = Modifier.fillMaxWidth(),
         label = { Text(key, suffix = labelSuffix) },
         contentPadding = PaddingValues(8.dp),

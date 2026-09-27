@@ -6,7 +6,6 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.chataddons.chatbubble.ChatBubbleServerConfig
@@ -31,10 +30,8 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
 
 context(group: ConfigGroup)
 fun configChatBubbleServerConfigMap(name: String, defaultValue: Map<String, ChatBubbleServerConfig>) =
@@ -83,7 +80,7 @@ fun ChatBubbleServerConfigForm(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         val regexState = rememberTextFieldStateBinding(value.regex) { onValueChange(value.copy(regex = it)) }
-        OutlinedLabelBox(label = { Text(component = ChatLang.bubbleServerConfigRegex) }) {
+        LabelBox(label = { Text(component = ChatLang.bubbleServerConfigRegex) }) {
             TextField(
                 state = regexState,
                 lineLimits = TextFieldLineLimits.SingleLine,
@@ -200,7 +197,6 @@ fun ChatBubbleServerConfigMapConfigWrapper(
                 title = editorDialogTitle,
                 onDismissRequest = { showEditDialog = false },
             ) { data ->
-                var nextKey by remember { mutableLongStateOf(data.size.toLong()) }
                 EditDialogContent(
                     modifier = Modifier.fillMaxSize(),
                     header = {
@@ -211,7 +207,7 @@ fun ChatBubbleServerConfigMapConfigWrapper(
                     },
                     addDialog = { onDismissRequest ->
                         val newKey = rememberTextFieldState("")
-                        val isDuplicate = remember(newKey.text.toString()) { data.any { it.value.key == newKey.text.toString() } }
+                        val isDuplicate = remember(newKey.text.toString()) { data.entries.any { it.value.key == newKey.text.toString() } }
 
                         var newValue by remember { mutableStateOf(ChatBubbleServerConfig()) }
                         SimpleAlertDialog(
@@ -219,13 +215,13 @@ fun ChatBubbleServerConfigMapConfigWrapper(
                             title = { Text(component = IGLang.Misc.add) },
                             onConfirmRequest = {
                                 if (!isDuplicate) {
-                                    data.add(Keyed(nextKey++, MapEntry(newKey.text.toString(), newValue)))
+                                    data.add(MapEntry(newKey.text.toString(), newValue))
                                 }
                                 true
                             },
                             content = {
                                 Column {
-                                    OutlinedLabelBox(label = {
+                                    LabelBox(label = {
                                             if (isDuplicate) Text(component = IGLang.ConfigWrapper.keyExists(newKey.text.toString()))
                                             else Text(component = ChatLang.bubbleServerName)
                                         }) {

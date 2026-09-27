@@ -16,7 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.ValueTextField
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
@@ -61,7 +61,7 @@ fun StringListConfigWrapper(
                     },
                     title = addContentLabel,
                     content = {
-                        OutlinedLabelBox(label = addContentLabel) {
+                        LabelBox(label = addContentLabel) {
                             ValueTextField(text, { text = it }, Modifier.fillMaxWidth())
                         }
                     },
@@ -70,7 +70,6 @@ fun StringListConfigWrapper(
         ) { lazyListState ->
             EditDialogContentList(
                 data = data,
-                key = { it },
                 lazyListState = lazyListState,
             ) { entry, onValueChange ->
                 ValueTextField(entry, onValueChange, Modifier.weight(1f))
@@ -123,11 +122,11 @@ fun StringPairListConfigWrapper(
                     title = firstHead,
                     content = {
                         Column {
-                            OutlinedLabelBox(label = addFirstLabel) {
+                            LabelBox(label = addFirstLabel) {
                                 ValueTextField(first, { first = it }, Modifier.fillMaxWidth())
                             }
                             Spacer(Modifier.height(8.dp))
-                            OutlinedLabelBox(label = addSecondLabel) {
+                            LabelBox(label = addSecondLabel) {
                                 ValueTextField(second, { second = it }, Modifier.fillMaxWidth())
                             }
                         }
@@ -137,7 +136,6 @@ fun StringPairListConfigWrapper(
         ) { lazyListState ->
             EditDialogContentList(
                 data = data,
-                key = { it },
                 lazyListState = lazyListState,
             ) { entry, onValueChange ->
                 Row(

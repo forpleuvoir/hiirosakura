@@ -19,10 +19,10 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.copyValue
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.ConfigList
 import moe.forpleuvoir.nebula.config.item.configList
-import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 
 context(group: ConfigGroup)
 fun configAutoReplantEntryList(name: String, defaultValue: List<AutoReplant.Entry>) = configList(name, defaultValue, AutoReplant.Entry)
@@ -49,8 +49,7 @@ fun AutoReplantEntryListConfigWrapper(
         ) { showEditDialog = true }
 
         if (showEditDialog) {
-            val editingValue = rememberKeyedStateList(config)
-            var nextKey by remember { mutableLongStateOf(editingValue.size.toLong()) }
+            val editingValue = rememberKeyedList(config)
             EditDialog(
                 config = config,
                 editingValue = editingValue,
@@ -59,7 +58,7 @@ fun AutoReplantEntryListConfigWrapper(
                 onDismissRequest = { showEditDialog = false },
                 onConfirmRequest = {
                     config.clear()
-                    it.forEach { (_, value) -> config.add(value) }
+                    it.entries.forEach { (_, value) -> config.add(value) }
                     true
                 }
             ) {
@@ -90,7 +89,7 @@ fun AutoReplantEntryListConfigWrapper(
                             onDismissRequest = onDismissRequest,
                             title = { Text(component = IGLang.Misc.add) },
                             onConfirmRequest = {
-                                editingValue.add(Keyed(nextKey++, entry))
+                                editingValue.add(entry)
                                 true
                             },
                             content = {
@@ -126,11 +125,9 @@ fun AutoReplantEntryListConfigWrapper(
                 ) { lazyListState ->
                     EditDialogContentList(
                         data = editingValue,
-                        key = { it.key },
                         modifier = Modifier,
                         lazyListState = lazyListState
-                    ) { keyed, onValueChange ->
-                        val value = keyed.value
+                    ) { value, onValueChange ->
                         Row(
                             Modifier.weight(1f),
                             horizontalArrangement = Arrangement.spacedBy(LocalColumnSpacing.current),
@@ -139,19 +136,19 @@ fun AutoReplantEntryListConfigWrapper(
                             //targetBlock
                             BlockInfoMatcherDisplayerInnerEditor(
                                 value.targetBlock,
-                                { onValueChange(keyed.copyValue(value.copy(targetBlock = it))) },
+                                { onValueChange(value.copy(targetBlock = it)) },
                                 modifier = Modifier.weight(1f),
                             )
                             //replantItem
                             ItemStackMatcherDisplayerInnerEditor(
                                 value.replantItem,
-                                { onValueChange(keyed.copyValue(value.copy(replantItem = it))) },
+                                { onValueChange(value.copy(replantItem = it)) },
                                 modifier = Modifier.weight(1f),
                             )
                             //groundBlock
                             BlockInfoMatcherDisplayerInnerEditor(
                                 value.groundBlock,
-                                { onValueChange(keyed.copyValue(value.copy(groundBlock = it))) },
+                                { onValueChange(value.copy(groundBlock = it)) },
                                 modifier = Modifier.weight(1f),
                             )
                         }

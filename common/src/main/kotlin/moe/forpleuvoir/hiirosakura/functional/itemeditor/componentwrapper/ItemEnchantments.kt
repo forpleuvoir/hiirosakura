@@ -21,16 +21,13 @@ import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.appendTranslate
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.util.fabVisibilityAnimation
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
-import moe.forpleuvoir.ibukigourd.ui.util.rememberHideActionState
 import net.minecraft.core.Holder
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.enchantment.Enchantment
 import net.minecraft.world.item.enchantment.ItemEnchantments
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
@@ -42,7 +39,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import androidx.compose.foundation.layout.fillMaxWidth
 import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
 import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
@@ -177,7 +174,7 @@ fun ItemEnchantmentsComponentEditDialog(
                                         }
                                     )
                                     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                                                                                OutlinedLabelBox(label = {
+                                                                                LabelBox(label = {
                                                 Text(key, suffix = "level", fallback = "level")
                                             }, modifier = Modifier.height(68.dp).width(120.dp)) {
                                             IntField(
@@ -254,7 +251,7 @@ fun ItemEnchantmentsComponentEditDialog(
                                         }
                                     )
                                     Spacer(Modifier.width(8.dp))
-                                                                        OutlinedLabelBox(label = {
+                                                                        LabelBox(label = {
                                             Text(key, suffix = "level", fallback = "level")
                                         }, modifier = Modifier.height(68.dp).width(120.dp)) {
                                         IntField(

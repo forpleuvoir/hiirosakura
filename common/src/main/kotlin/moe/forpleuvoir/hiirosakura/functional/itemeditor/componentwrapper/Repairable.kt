@@ -2,7 +2,6 @@ package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -23,10 +22,9 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.util.canScroll
-import moe.forpleuvoir.hiirosakura.ui.util.rememberSegmentedButtonWidth
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowser
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.name
 import moe.forpleuvoir.hiirosakura.util.registryAccess
@@ -34,6 +32,7 @@ import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
+import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import net.minecraft.core.HolderSet
 import net.minecraft.core.registries.BuiltInRegistries
@@ -46,27 +45,22 @@ import net.minecraft.world.item.enchantment.Repairable
 import kotlin.jvm.optionals.getOrNull
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButtonGroup
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.selector.Selector
 import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.ui.graphics.RectangleShape
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
-import moe.forpleuvoir.hiirosakura.ui.widget.SegmentedButton
-import moe.forpleuvoir.hiirosakura.ui.widget.SegmentedButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.hiirosakura.ui.util.rememberAdaptiveGridSpan
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
 import androidx.compose.foundation.layout.Row
 import moe.forpleuvoir.hiirosakura.ui.compat.OutlinedCard
-import moe.forpleuvoir.hiirosakura.ui.configwrapper.rememberKeyedStateList
 import moe.forpleuvoir.hiirosakura.ui.compat.RemoveButton
 
 @Composable
@@ -162,14 +156,13 @@ fun HolderSetItemEditorDialog(
         if (tag == null) mode = true
     }
 
-    val items = rememberKeyedStateList(value.map { it.value() }.toList())
-    var nextKey by remember { mutableLongStateOf(items.size.toLong()) }
+    val items = rememberKeyedList(value.map { it.value() }.toList())
 
     SimpleAlertDialog(
         onDismissRequest = onDismissRequest,
         title = title,
         onConfirmRequest = {
-            val list = HolderSet.direct(items.values().map { BuiltInRegistries.ITEM.wrapAsHolder(it) })
+            val list = HolderSet.direct(items.entries.values().map { BuiltInRegistries.ITEM.wrapAsHolder(it) })
             onValueChange(
                 if (mode) list
                 else tag?.asHolderSet ?: list
@@ -179,29 +172,12 @@ fun HolderSetItemEditorDialog(
         content = {
             Column {
                 firstTag?.let {
-                    Row {
-                        val buttonTexts = listOf(
-                            HSLang.ItemEditor.fromRegistry,
-                            HSLang.ItemEditor.fromTag,
-                        )
-                        val width = rememberSegmentedButtonWidth(
-                            items = buttonTexts,
-                            textStyle = SokitsuTheme.typography.button,
-                        ) { it }
-                        SegmentedButton(
-                            selected = mode,
-                            onClick = { mode = true },
-                            
-                            modifier = Modifier.width(width),
-                            label = { Text(component = HSLang.ItemEditor.fromRegistry) }
-                        )
-                        SegmentedButton(
-                            selected = !mode,
-                            onClick = { mode = false },
-                            
-                            modifier = Modifier.width(width),
-                            label = { Text(component = HSLang.ItemEditor.fromTag) }
-                        )
+                    RadioButtonGroup(
+                        selected = if (mode) 0 else 1,
+                        onSelect = { mode = it == 0 },
+                    ) {
+                        item { Text(component = HSLang.ItemEditor.fromRegistry) }
+                        item { Text(component = HSLang.ItemEditor.fromTag) }
                     }
                 }
                 Spacer(Modifier.height(12.dp))
@@ -240,8 +216,8 @@ fun HolderSetItemEditorDialog(
                                                 itemDisplay = {
                                                     ItemBrowserDefaults.ItemWrapper(it) { selected ->
                                                         val item = selected.asItem()
-                                                        if (!items.any { keyed -> keyed.value == item }) {
-                                                            items.add(Keyed(nextKey++, item))
+                                                        if (!items.entries.any { keyed -> keyed.value == item }) {
+                                                            items.add(item)
                                                         }
                                                         showItemSelector = false
                                                     }
@@ -259,8 +235,8 @@ fun HolderSetItemEditorDialog(
                                         it,
                                         { tag ->
                                             tag.items.forEach { item ->
-                                                if (!items.any { it.value == item.value() }) {
-                                                    items.add(Keyed(nextKey++, item.value()))
+                                                if (!items.entries.any { it.value == item.value() }) {
+                                                    items.add(item.value())
                                                 }
                                             }
                                         },
@@ -273,7 +249,7 @@ fun HolderSetItemEditorDialog(
                                 }
                             }
                             Spacer(Modifier.height(12.dp))
-                            OutlinedLabelBox(
+                            LabelBox(
                                 { Text(component = HSLang.ItemEditor.items) },
                             ) {
                                 Box(Modifier.fillMaxWidth().height(460.dp)) {
@@ -287,7 +263,7 @@ fun HolderSetItemEditorDialog(
                                         contentPadding = PaddingValues(if (lazyGridState.canScroll) 12.dp else 0.dp),
                                         state = lazyGridState
                                     ) {
-                                        itemsIndexed(items, key = { _, keyed -> keyed.key }) { index, (_, item) ->
+                                        itemsIndexed(items.entries, key = { _, keyed -> keyed.key }) { index, (_, item) ->
                                             val interactionSource = remember { MutableInteractionSource() }
 
                                             val isHovered by interactionSource.collectIsHoveredAsState()
@@ -432,7 +408,7 @@ fun ItemTagSelector(
     shape: Shape = RectangleShape,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
-        OutlinedLabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+        LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
                 Selector(
                 selected = selected,
                 onSelect = onSelect,

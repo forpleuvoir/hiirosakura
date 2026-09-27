@@ -4,37 +4,26 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.roundToIntRect
-import kotlinx.coroutines.isActive
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.modifier.vanillaTooltip
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.RichTextEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.RichTextEditorState
-import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.rectInMcWindow
-import moe.forpleuvoir.ibukigourd.render.extension.pushTextLines
 import moe.forpleuvoir.ibukigourd.text.inlinestyletext.InlineStyleTextParser
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.isQuickAction
-import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -137,7 +126,7 @@ fun InlineStyleTextEditorDialog(
                     modifier = Modifier .fillMaxWidth() .weight(1f),
                 )
                 Spacer(Modifier.height(12.dp))
-                OutlinedLabelBox(
+                LabelBox(
                     label = {
                         Text(component = HSLang.TextEditor.preview)
                     },

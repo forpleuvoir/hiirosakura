@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo
 
 import androidx.compose.foundation.layout.*
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
@@ -18,15 +17,15 @@ import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryModeDisplayer
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.rememberTextFieldStateBinding
 import moe.forpleuvoir.hiirosakura.util.targetBlock
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.text.plainText
+
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.selector.Selector
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.util.Util
 import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
 import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.icon.defaults.EditSquare
 import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Equal
 
@@ -139,14 +138,14 @@ internal fun BasicBlockInfoMatchEntryPropertyEditor(
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                OutlinedLabelBox(label = { Text(component = IGLang.ConfigWrapper.mapKey) }, modifier = Modifier.weight(1f)) {
+                LabelBox(label = { Text(component = IGLang.ConfigWrapper.mapKey) }, modifier = Modifier.weight(1f)) {
                     TextField(
                         state = keyState,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
                 VectorIcon(HSIcons.Equal, null, Modifier.padding(horizontal = 16.dp))
-                OutlinedLabelBox(label = { Text(component = IGLang.ConfigWrapper.mapValue) }, modifier = Modifier.weight(1f)) {
+                LabelBox(label = { Text(component = IGLang.ConfigWrapper.mapValue) }, modifier = Modifier.weight(1f)) {
                     TextField(
                         state = valueState,
                         modifier = Modifier.fillMaxWidth(),

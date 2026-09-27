@@ -266,7 +266,7 @@ fun BasicItemStackMatcherEditor(
                 entries.move(from.index, to.index)
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
             }
-            // 列表与滚动条各占一列:滚动条不再浮在列表上,不需要 Box + align 叠起来
+            // 列表与滚动条各占一列
             Row(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     modifier = Modifier.weight(1f).fillMaxHeight(),

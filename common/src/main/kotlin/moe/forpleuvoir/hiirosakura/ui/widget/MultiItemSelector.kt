@@ -39,8 +39,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import kotlinx.coroutines.delay
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
@@ -70,8 +70,6 @@ object MultiItemSelectorDefaults {
     /** 对话框尺寸(与单选版 [ItemSelector] 一致)。 */
     val LocalDialogSize = compositionLocalOf { DpSize(680.dp, 520.dp) }
 
-    /** 备选网格的内容内边距(同时决定格子尺寸)。 */
-    val LocalGridContentPadding = compositionLocalOf { PaddingValues(4.dp) }
 
     /** 已选容器的格间距。 */
     val LocalCellGap = compositionLocalOf { 4.dp }
@@ -124,7 +122,6 @@ fun MultiItemSelectorDialog(
 ) {
     // 观感参数一律从 CompositionLocal 取(见 MultiItemSelectorDefaults,可局部覆盖)
     val dialogSize = MultiItemSelectorDefaults.LocalDialogSize.current
-    val gridContentPadding = MultiItemSelectorDefaults.LocalGridContentPadding.current
     val cellGap = MultiItemSelectorDefaults.LocalCellGap.current
     val containerPadding = MultiItemSelectorDefaults.LocalContainerPadding.current
     val containerMaxHeight = MultiItemSelectorDefaults.LocalContainerMaxHeight.current
@@ -145,7 +142,7 @@ fun MultiItemSelectorDialog(
 
     var flyingItem by remember { mutableStateOf<Item?>(null) }
     var flyingFrom by remember { mutableStateOf(Offset.Zero) }
-    // 从 0 起:1f 会让覆盖层在槽位坐标还没上报的那一帧先画在终点(表现为闪一下)
+    // 初值 0:覆盖层在槽位坐标上报前停在起点
     val flyProgress = remember { Animatable(0f) }
     var shrinkingKey by remember { mutableStateOf<Any?>(null) }
     val selectedGridState = rememberLazyGridState()
@@ -158,7 +155,8 @@ fun MultiItemSelectorDialog(
         },
         content = {
             // 容器格子尺寸与网格取同一个来源,保证两边物品一样大
-            val selectedCellSize = ItemBrowserDefaults.gridCellSize(contentPadding = gridContentPadding)
+            // 槽位尺寸按图标尺寸定,间距交给网格的 arrangement
+            val selectedCellSize = ItemBrowserDefaults.gridCellSize(contentPadding = PaddingValues(0.dp))
             Box(
                 modifier = modifier
                     .size(dialogSize)
@@ -174,9 +172,7 @@ fun MultiItemSelectorDialog(
                                 item,
                                 // 悬停反馈由 ItemWrapper 内部挂的 IG 悬停高亮承担
                                 hoverHighlight = true,
-                                // 选中态 = 禁用态:50% 半透明。用**物品着色**表达 —— 它走物品绘制着色,
-                                // 不建 graphicsLayer(本平台图层是命令烘焙 + 父链连锁重录,用 Modifier.alpha
-                                // 会为每个选中项建层,选中越多越慢)。
+                                // 选中态(禁用态)用**物品着色**表达 50% 半透明:走物品绘制着色,不产生 graphicsLayer
                                 color = if (picked) Color.White.copy(alpha = disabledAlpha) else Color.White,
                                 showTooltip = showTooltip,
                                 modifier = Modifier
@@ -187,12 +183,11 @@ fun MultiItemSelectorDialog(
                                     // 备选区里点已经选中的物品:没有任何反应(移除只能在下方容器里点)
                                     picked -> Unit
                                     limit == null || selected.size < limit -> {
-                                        // 先立"正在飞"标志再入列:槽位**第一次组合**时就已经是隐藏的(不再闪一帧)
+                                        // 先置飞行标志再入列,使槽位首次组合即为隐藏
                                         flyingItem = asItem
                                         flyingFrom = (cellPositions[itemKey] ?: Offset.Zero) - overlayOrigin[0]
                                         selected.add(asItem)
-                                        // 自动滚到最新项:用 requestScrollToItem(非挂起,下次测量趟生效),
-                                        // 而不是在协程里 scrollToItem/animateScrollToItem —— 后者在这个渲染栈会卡死场景。
+                                        // 滚到最新项:requestScrollToItem 非挂起,下一次测量趟生效
                                         selectedGridState.requestScrollToItem(selected.size - 1)
                                     }
                                 }
@@ -208,9 +203,7 @@ fun MultiItemSelectorDialog(
                         Text("${selected.size}/$limit", modifier = Modifier.padding(limitLabelPadding))
                     }
 
-                    // 高度**由内容决定**(不自己算、不固定):加一行就长一行,一行也放得下。
-                    // 这里**不能**套 animateContentSize:内部是 LazyVerticalGrid + heightIn,
-                    // 网格会跟着动画后的高度一起长 → 目标尺寸每帧都变 → 尺寸动画永不收敛。
+                    // 高度由内容决定:网格为 LazyVerticalGrid + heightIn,父级尺寸动画与内部高度会互相驱动
                     Surface(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(containerPadding)) {
                             if (selected.isEmpty()) {
@@ -235,7 +228,7 @@ fun MultiItemSelectorDialog(
                                             targetValue = if (shrinking) 0f else 1f,
                                             animationSpec = tween(shrinkDuration.inWholeMilliseconds.toInt()),
                                         )
-                                        // 缩小动画放完再真正移除(否则物品先消失、动画没得播)
+                                        // 缩小动画结束后再移除
                                         LaunchedEffect(shrinking) {
                                             if (shrinking) {
                                                 delay(shrinkDuration)
@@ -245,7 +238,8 @@ fun MultiItemSelectorDialog(
                                         }
                                         Box(
                                             modifier = Modifier
-                                                .size(selectedCellSize)
+                                                // 槽位铺满整个格子(列宽由网格的 Adaptive 决定)
+                                                .fillMaxSize()
                                                 .onGloballyPositioned { slotPositions[itemKey] = it.positionInRoot() }
                                                 // scale 仅在缩小时施加(scale 会产生 graphicsLayer)
                                                 .thenIf(shrinking) { Modifier.scale(scale) },

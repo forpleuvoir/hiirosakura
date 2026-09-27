@@ -105,7 +105,7 @@ fun InlineStyleTextEditorDialog(
 
     val state = rememberTextFieldState(InlineStyleTextParser.inline(value))
 
-    // 输入即时同步回编辑值（新版 TextFieldState 不再接受 onChange 回调）
+    // 输入即时同步回编辑值
     LaunchedEffect(state) {
         snapshotFlow { state.text.toString() }.collect { text ->
             editingValue = InlineStyleTextParser.parse(text, InlineStyleTextParser.noneEventModifier)

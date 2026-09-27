@@ -22,8 +22,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.*
-import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import kotlinx.coroutines.flow.distinctUntilChanged
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.util.ItemRegistryHelper
 import moe.forpleuvoir.hiirosakura.util.key
@@ -79,6 +79,10 @@ import kotlin.time.Duration.Companion.milliseconds
 import androidx.compose.foundation.interaction.HoverInteraction
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.AnimatedVisibilityScope
 
 @Composable
 fun ItemSelector(
@@ -161,13 +165,13 @@ fun ItemBrowser(
     itemDisplay: @Composable (ItemLike) -> Unit = ItemBrowserDefaults::ItemWrapper,
     filter: (ItemLike) -> Boolean = { true },
     searchItems: List<ItemLike>? = null,
-    gridCellSize: Dp = ItemBrowserDefaults.gridCellSize(contentPadding = PaddingValues(4.dp)),
+    // 格子按图标尺寸定(内边距不计入 minSize,否则会被 Adaptive 拉伸得比图标大);间距交给网格的 arrangement。
+    gridCellSize: Dp = ItemBrowserDefaults.gridCellSize(contentPadding = PaddingValues(0.dp)),
     searchBarBackgroundColor: Color = SokitsuTheme.colorScheme.surface,
     modifier: Modifier = Modifier
 ) {
-    // 这两个默认值原来直接求值,而 ItemBrowser 会随对话框状态反复重组:
-    // `getAllTabs()` 内部是 `CreativeModeTabs.tryRebuildTabContents(...)`(重建全部分类内容),
-    // `allItem.toList()` 会复制整个物品注册表 —— 每重组一次就来一遍。改成只算一次。
+    // 两个默认值开销大(`getAllTabs()` 会重建分类内容、`allItem.toList()` 复制整个物品注册表),
+    // 而 ItemBrowser 会随对话框状态反复重组,故只在入参变化时求值。
     val groups = remember(itemGroups) { itemGroups ?: ItemRegistryHelper.getAllTabs() }
     val searchPool = remember(searchItems) { searchItems ?: ItemRegistryHelper.allItem.toList() }
 
@@ -181,24 +185,21 @@ fun ItemBrowser(
 
     var selectedTabIndex by remember { mutableStateOf(if (tabList.size > 1) 1 else 0) }
 
-    // 切分类从顶部开始:这里用「按分类各记一个网格状态」实现,而不是切页后 scrollToItem ——
-    // 后者是在协程里写滚动状态,在本渲染栈下会撞上测量/快照锁把整个场景卡死
-    // (见 FabVisibility.kt 的说明;本文件 181 行那次报错就是它)。
+    // 切分类从顶部开始:按分类各记一个网格状态(协程里写滚动状态会撞测量/快照锁)。
     val gridState = remember(selectedTabIndex) { LazyGridState() }
     // 滚动显隐的嵌套滚动回调必须挂在滚动容器的祖先上;搜索框是它的兄弟节点,挂在搜索框上收不到位移
     val fabVisibility = rememberFabScrollVisibility(gridState)
 
     val textFieldState = rememberTextFieldState()
     var searchQuery by remember { mutableStateOf("") }
-    // 用 snapshotFlow 收敛输入,而不是在组合期读 textFieldState.text:后者会让每次按键都重组
-    // 整个浏览器(含整个网格),输入非常卡。
+    // 输入经 snapshotFlow 收敛:组合期直接读 textFieldState.text 会让每次按键重组整个浏览器。
     LaunchedEffect(textFieldState) {
         snapshotFlow { textFieldState.text.toString() }
             .distinctUntilChanged()
             .collect { searchQuery = it }
     }
 
-    // 当前页签的物品清单:只在页签/入参变化时重算一次(原来用 mutableStateOf 包了一层多余状态)
+    // 当前页签的物品清单:只在页签/入参变化时重算
     val tabItems = remember(selectedTabIndex, groups, searchPool, filter) {
         if (selectedTabIndex != 0)
             ItemRegistryHelper.getItemsByTab(groups[selectedTabIndex - 1])
@@ -232,14 +233,12 @@ fun ItemBrowser(
     Column(
         modifier = modifier.fillMaxSize()
     ) {
-        // 分类条用 IG 的 TabRow + Tab。TabRow 是等宽的,分类多时**显式给出内容宽度**交给横向滚动 ——
-        // 与 IG dev 测试页 TabRowTest(40 个页签)完全同一个做法:外层 Box 横向滚动,
-        // 内层给足内容宽,滚轮(见 CMP 的 scrollDelta 修复)和拖动都能到达后面的分类。
+        // 分类条用 IG 的 TabRow + Tab(等宽):外层横向滚动 + 内层给足内容宽度,
+        // 滚轮与拖动都能到达超出一屏的分类。
         val tabDensity = LocalDensity.current
         val tabScroll = rememberScrollState()
         val tabContentWidth = CategoryTabWidth * tabList.size + TabRowDefaults.tabGap * (tabList.size - 1).coerceAtLeast(0)
-        // 选中页签自动滚进视野(照 IG dev 测试页 TabRowTest 的 M3 ScrollableTabData 同式):
-        // 没有这段的话,超出可视区的分类点不到、也翻不过去 —— 测试页能翻页靠的就是它。
+        // 选中页签自动滚进视野:超出可视区的分类否则点不到。
         LaunchedEffect(selectedTabIndex) {
             val maxScroll = snapshotFlow { tabScroll.maxValue }.first { it in 1 until Int.MAX_VALUE }
             val density = tabDensity
@@ -289,7 +288,7 @@ fun ItemBrowser(
             )
         }
         Spacer(Modifier.height(8.dp))
-        // 切换过渡:进度必须在**组合期**读(TabStrip 的注释:只在绘制期读的状态在本渲染栈推进不到)
+        // 切换过渡:进度在组合期读(只在绘制期读的状态在本渲染栈推进不到)
         val panelSlide = remember { Animatable(1f) }
         var previousTab by remember { mutableIntStateOf(selectedTabIndex) }
         LaunchedEffect(selectedTabIndex) {
@@ -325,7 +324,7 @@ fun ItemBrowser(
                 .fillMaxSize()
                 .fabScrollVisibility(fabVisibility)
         ) {
-            // 列表与滚动条各占一列:滚动条不再浮在列表上,所以不用 Box + align 叠起来
+            // 列表与滚动条各占一列
             Row(modifier = Modifier.fillMaxSize()) {
                 LazyVerticalGrid(
                     state = gridState,
@@ -354,7 +353,7 @@ fun ItemBrowser(
             if (selectedTabIndex == 0) {
                 // 与浮动按钮同一套显隐来源:滚动收起 + 按住隐藏动作键(IGConfig.Gui.hideActionKeyCode)收起
                 val hiddenByKey = rememberHideActionState()
-                androidx.compose.animation.AnimatedVisibility(
+                OverlayVisibility(
                     visible = !hiddenByKey && fabVisibility.state == FabVisibilityState.Visible,
                     modifier = Modifier
                         .align(BiasAlignment(0f, 0.85f))
@@ -387,8 +386,7 @@ private fun SearchBar(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 16.dp)
         ) {
-            // 输入区必须用 weight:原来这里是 fillMaxWidth,会吃掉整行宽度,
-            // 把清除按钮挤出 Row 之外 —— 既看不见也点不到。
+            // 输入区用 weight(否则会占满整行宽度,清空按钮被挤出可视区)
             Box(Modifier.weight(1f).height(48.dp), contentAlignment = Alignment.CenterStart) {
                 if (textFieldState.text.isEmpty()) {
                     Text(
@@ -405,7 +403,7 @@ private fun SearchBar(
             }
 
             if (textFieldState.text.isNotEmpty()) {
-                // 点按目标放大到 36dp、图标放大到 3 倍像素:原来默认尺寸太小不好点
+                // 点按目标 36dp、图标 3 倍像素(默认尺寸不易点中)
                 IconButton(
                     onClick = { textFieldState.edit { replace(0, length, "") } },
                     minSize = DpSize(36.dp, 36.dp),
@@ -428,6 +426,29 @@ private fun itemKey(item: ItemLike): Any = when (item) {
     is Item  -> item.key
     is Block -> item.key
     else     -> item
+}
+/**
+ * 覆盖层的显隐过渡。
+ *
+ * 调用点外层的 ColumnScope 存在同名扩展重载;本函数体内没有隐式接收者,裸名解析到顶层重载。
+ */
+@Composable
+private fun OverlayVisibility(
+    visible: Boolean,
+    modifier: Modifier = Modifier,
+    enter: EnterTransition = fadeIn(tween(150)),
+    exit: ExitTransition = fadeOut(tween(150)),
+    label: String = "overlayVisibility",
+    content: @Composable AnimatedVisibilityScope.() -> Unit,
+) {
+    AnimatedVisibility(
+        visible = visible,
+        modifier = modifier,
+        enter = enter,
+        exit = exit,
+        label = label,
+        content = content,
+    )
 }
 
 object ItemBrowserDefaults {
@@ -480,8 +501,7 @@ object ItemBrowserDefaults {
                             }
                         }
                     }
-                    else Modifier
-                ),
+                },
             contentAlignment = Alignment.Center
         ) {
             // ItemStack 构造放进 remember:网格滚动/重绘时不再反复构造;构造失败取 null 走下面的
@@ -511,4 +531,3 @@ object ItemBrowserDefaults {
         }
     }
 }
-

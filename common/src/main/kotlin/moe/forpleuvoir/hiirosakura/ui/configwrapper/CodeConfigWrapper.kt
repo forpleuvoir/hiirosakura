@@ -76,7 +76,7 @@ fun CodeConfigWrapper(
                     state = state,
                     lineLimits = TextFieldLineLimits.Default,
                     textStyle = Style.EMPTY.withFont(MinecraftFonts.FusionPixelMono),
-                    //TODO 有bug不生效
+                    //TODO 该项当前不生效
                     outputTransformation = rememberSyntaxHighlightTransformation(language, SyntaxHighlightDefaults.theme()),
                     modifier = Modifier.fillMaxSize().codeEditorShortcuts(state),
                     trailingIcon = {

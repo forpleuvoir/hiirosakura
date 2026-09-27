@@ -124,8 +124,7 @@ fun <T> FloatingAddButton(
                     Button(
                         onClick = { expanded = !expanded },
                         modifier = Modifier.size(FabMenuButtonSize),
-                        // Icon 的尺寸是 fittedIconSize(会缩到可用空间),按钮默认的 contentPadding
-                        // 会把 3 倍图标钳回原大小;这里去掉内边距让图标能真的变大。
+                        // Icon 尺寸走 fittedIconSize(缩到可用空间),故去掉 contentPadding 以放大图标
                         contentPadding = PaddingValues(0.dp),
                     ) {
                         val rotation by animateFloatAsState(

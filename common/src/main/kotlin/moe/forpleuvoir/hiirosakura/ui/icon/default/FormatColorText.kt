@@ -96,7 +96,7 @@ val HSIcons.FormatColorTextTop: ImageVector
             viewportHeight = 24f,
         ).apply {
             path(fill = SolidColor(Color.Black)) {
-                // 原来从这里开始的字母部分
+                // 字母部分从这里开始
                 moveTo(7.13f, 17f)
                 quadTo(6.55f, 17f, 6.21f, 16.51f)
                 reflectiveQuadTo(6.08f, 15.48f)

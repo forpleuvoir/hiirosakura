@@ -9,8 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.Dp
-import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.ButtonDefaults
@@ -235,7 +235,7 @@ fun FloatingActionButtonMenu(
     horizontalAlignment = horizontalAlignment,
     verticalArrangement = Arrangement.spacedBy(8.dp),
 ) {
-    // 展开的菜单项要有过渡:原来直接 if(expanded) 出现/消失,点了就是硬切。
+    // 菜单项展开/收起带过渡(fade + 位移 + 轻微缩放)
     // 侧边按钮在菜单下方,所以从下方滑入(initialOffsetY 为正 = 起始位置更靠下)。
     AnimatedVisibility(
         visible = expanded,

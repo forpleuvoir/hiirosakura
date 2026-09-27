@@ -35,7 +35,7 @@ import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import androidx.compose.ui.graphics.RectangleShape
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
@@ -87,7 +87,7 @@ fun CreateRadialMenuDialog(
         },
         content = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.width(400.dp)) {
-                OutlinedLabelBox(label = { Text(component = HSLang.Common.name) }) {
+                LabelBox(label = { Text(component = HSLang.Common.name) }) {
                     TextField(
                         nameState,
                         modifier = Modifier.fillMaxWidth(),
@@ -141,7 +141,7 @@ fun RenameMenuDialog(
         onConfirmRequest = { errorMessage == null },
         content = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.width(400.dp)) {
-                OutlinedLabelBox(label = {
+                LabelBox(label = {
                         errorMessage?.let {
                             Text(it, color = SokitsuTheme.colorScheme.error)
                         } ?: Text(component = HSLang.Common.name)

@@ -1,13 +1,11 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.serializereditor
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -22,7 +20,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import androidx.compose.foundation.layout.fillMaxWidth
 import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
 import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
@@ -111,7 +109,7 @@ private fun IntEditor(
     modifier: Modifier,
 ) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                OutlinedLabelBox(label = { Text("Int") }, modifier = modifier
+                LabelBox(label = { Text("Int") }, modifier = modifier
                 .width(LocalSerializeValueFieldWidth.current)
                 .height(ValueFieldHeight)) {
             IntField(
@@ -130,7 +128,7 @@ private fun LongEditor(
     modifier: Modifier,
 ) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                OutlinedLabelBox(label = { Text("Long") }, modifier = modifier
+                LabelBox(label = { Text("Long") }, modifier = modifier
                 .width(LocalSerializeValueFieldWidth.current)
                 .height(ValueFieldHeight)) {
             LongField(
@@ -189,7 +187,7 @@ private fun FloatEditor(
     modifier: Modifier,
 ) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                OutlinedLabelBox(label = { Text("Float") }, modifier = modifier
+                LabelBox(label = { Text("Float") }, modifier = modifier
                 .width(LocalSerializeValueFieldWidth.current)
                 .height(ValueFieldHeight)) {
             FloatField(
@@ -208,7 +206,7 @@ private fun DoubleEditor(
     modifier: Modifier,
 ) {
     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                OutlinedLabelBox(label = { Text("Double") }, modifier = modifier
+                LabelBox(label = { Text("Double") }, modifier = modifier
                 .width(LocalSerializeValueFieldWidth.current)
                 .height(ValueFieldHeight)) {
             DoubleField(
@@ -281,7 +279,7 @@ private fun CompactValueField(
             state.edit { replace(0, length, value) }
         }
     }
-    OutlinedLabelBox(label = { Text(label) }) {
+    LabelBox(label = { Text(label) }) {
         TextField(
             state = state,
             modifier = modifier.height(ValueFieldHeight),

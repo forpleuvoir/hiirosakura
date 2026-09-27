@@ -9,7 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.event.EventTypes
@@ -21,10 +20,7 @@ import moe.forpleuvoir.hiirosakura.functional.task.executor.CommandExecutor
 import moe.forpleuvoir.hiirosakura.functional.task.executor.MessageExecutor
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
 import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JexlSyntaxLanguage
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.ibukigourd.task.TickTask
 import kotlin.enums.enumEntries
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
@@ -97,7 +93,7 @@ fun HSEventSubscriberEditorDialog(
                         verticalAlignment = Alignment.Bottom,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        OutlinedLabelBox(
+                        LabelBox(
                             label = { Text(component = HSLang.Task.name) },
                             modifier = Modifier.weight(1f),
                         ) {
@@ -106,7 +102,7 @@ fun HSEventSubscriberEditorDialog(
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         }
-                        OutlinedLabelBox(
+                        LabelBox(
                             label = { Text(component = HSLang.Common.enable) },
                             contentPadding = PaddingValues(16.dp, 0.dp, 16.dp, 4.dp),
                             modifier = Modifier.height(66.5.dp)
@@ -134,7 +130,7 @@ fun HSEventSubscriberEditorDialog(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                                OutlinedLabelBox(label = { Text(component = HSLang.Task.delay) }, modifier = Modifier.weight(1f)) {
+                                LabelBox(label = { Text(component = HSLang.Task.delay) }, modifier = Modifier.weight(1f)) {
                                     IntField(
                                         delay,
                                         { delay = it },
@@ -142,7 +138,7 @@ fun HSEventSubscriberEditorDialog(
                                         modifier = Modifier.fillMaxWidth(),
                                     )
                                 }
-                                                                OutlinedLabelBox(label = { Text(component = HSLang.Task.period) }, modifier = Modifier.weight(1f)) {
+                                                                LabelBox(label = { Text(component = HSLang.Task.period) }, modifier = Modifier.weight(1f)) {
                                     IntField(
                                         period,
                                         { period = it },
@@ -150,7 +146,7 @@ fun HSEventSubscriberEditorDialog(
                                         modifier = Modifier.fillMaxWidth(),
                                     )
                                 }
-                                                                OutlinedLabelBox(label = { Text(component = HSLang.Task.times) }, modifier = Modifier.weight(1f)) {
+                                                                LabelBox(label = { Text(component = HSLang.Task.times) }, modifier = Modifier.weight(1f)) {
                                     IntField(
                                         times,
                                         { times = it },

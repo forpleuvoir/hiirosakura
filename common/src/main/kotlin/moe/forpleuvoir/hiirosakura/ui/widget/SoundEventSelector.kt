@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.clearText
@@ -49,8 +48,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.ui.graphics.RectangleShape
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.hiirosakura.ui.icon.defaults.PlayArrow
 import androidx.compose.foundation.clickable
 
@@ -146,7 +143,7 @@ fun SoundEventSelector(
     labelStartPadding: Dp? = 16.dp,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    OutlinedLabelBox(
+    LabelBox(
         label,
         modifier.tooltip {
             Text(value.location.toString())
@@ -208,7 +205,7 @@ fun OptionalHolderSoundEventSelector(
             Text(value.get().value().location.toString())
         }
     } else Modifier
-    OutlinedLabelBox(
+    LabelBox(
         label,
         modifier.then(tip),
         

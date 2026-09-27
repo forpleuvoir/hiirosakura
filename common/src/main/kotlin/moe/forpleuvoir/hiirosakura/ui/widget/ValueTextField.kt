@@ -45,7 +45,7 @@ fun ValueTextField(
         if (state.text.toString() != value) state.setTextAndPlaceCursorAtEnd(value)
     }
 
-    OutlinedLabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+    LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
         TextField(
             state = state,
             enabled = enabled,

@@ -21,7 +21,6 @@ import net.minecraft.world.effect.MobEffect
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.selector.Selector
@@ -31,8 +30,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
 import androidx.compose.ui.graphics.RectangleShape
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
 import androidx.compose.foundation.layout.fillMaxWidth
 
 @Composable
@@ -72,14 +69,14 @@ fun MobEffectInstanceEditorContent(
             label = { Text(key, suffix = "effect") },
             modifier = Modifier.fillMaxWidth()
         )
-                OutlinedLabelBox(label = { Text(key, suffix = "duration") }, modifier = Modifier.fillMaxWidth()) {
+                LabelBox(label = { Text(key, suffix = "duration") }, modifier = Modifier.fillMaxWidth()) {
             IntField(
                 value.duration,
                 onValueChange = { onValueChange(value.copy(duration = it)) },
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-                OutlinedLabelBox(label = { Text(key, suffix = "amplifier") }, modifier = Modifier.fillMaxWidth()) {
+                LabelBox(label = { Text(key, suffix = "amplifier") }, modifier = Modifier.fillMaxWidth()) {
             IntField(
                 value.amplifier,
                 onValueChange = { onValueChange(value.copy(amplifier = it)) },
@@ -131,7 +128,7 @@ fun MobEffectInstanceEditorContent(
             )
             Switch(value.showIcon, { onValueChange(value.copy(showIcon = it)) })
         }
-        OutlinedLabelBox(
+        LabelBox(
             label = { Text(key, suffix = "hidden_effect") },
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(16.dp, 8.dp, 8.dp, 8.dp)
@@ -277,7 +274,7 @@ fun MobEffectSelector(
     shape: Shape = RectangleShape,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
-        OutlinedLabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+        LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
                 Selector(
                 selected = selected,
                 onSelect = onSelect,

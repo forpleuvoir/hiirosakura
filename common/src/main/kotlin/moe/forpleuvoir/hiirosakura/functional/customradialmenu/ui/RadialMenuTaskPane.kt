@@ -19,6 +19,7 @@ import moe.forpleuvoir.hiirosakura.functional.customradialmenu.CustomRadialMenu
 import moe.forpleuvoir.hiirosakura.functional.customradialmenu.CustomRadialMenuManager
 import moe.forpleuvoir.hiirosakura.functional.task.IconTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.ui.TaskEditorDialog
+import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
@@ -111,7 +112,10 @@ fun RadialMenuTaskPane(
                     state = lazyListState,
                 ) {
                     itemsIndexed(menu.tasks, key = { _, keyed -> keyed.key }) { index, keyedTask ->
-                        ReorderableItem(reorderableLazyListState, keyedTask.key) { isDragging ->
+                        ReorderableItem(
+                            reorderableLazyListState, keyedTask.key,
+                            animateItemModifier = hsItemAnimation(),
+                        ) { isDragging ->
                             val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                             val handleInteraction = remember { MutableInteractionSource() }
 

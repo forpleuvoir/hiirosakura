@@ -20,6 +20,7 @@ import moe.forpleuvoir.hiirosakura.functional.event.HSEventManager
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventSubscriber.ExecutorType
 import moe.forpleuvoir.hiirosakura.functional.task.executor.ScriptExecutor
+import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
@@ -109,7 +110,10 @@ fun HSEventManagerUI(
                         key = { _, keyed -> keyed.key }
                     ) { index, (key, subscriber) ->
                         if (filteredType == "all" || subscriber.eventTypeId == filteredType) {
-                            ReorderableItem(reorderableLazyListState, key) { isDragging ->
+                            ReorderableItem(
+                                reorderableLazyListState, key,
+                                animateItemModifier = hsItemAnimation(),
+                            ) { isDragging ->
                                 val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                                 val handleInteraction = remember { MutableInteractionSource() }
 

@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
+import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.hiirosakura.util.registryAccess
@@ -151,7 +152,10 @@ private fun ItemStackList(
                     key = { _, keyed -> keyed.key }
                 ) { index, (key, item) ->
                     if (filter(item)) {
-                        ReorderableItem(reorderableLazyListState, key) { isDragging ->
+                        ReorderableItem(
+                            reorderableLazyListState, key,
+                            animateItemModifier = hsItemAnimation(),
+                        ) { isDragging ->
                             val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                             val handleInteraction = remember { MutableInteractionSource() }
 

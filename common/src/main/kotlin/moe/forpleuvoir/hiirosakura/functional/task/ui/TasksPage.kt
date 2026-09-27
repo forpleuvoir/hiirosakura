@@ -15,9 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask
@@ -25,11 +22,9 @@ import moe.forpleuvoir.hiirosakura.functional.task.IconTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.KeybindTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JexlSyntaxLanguage
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
-import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemSelector
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.task.TickTask
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
@@ -128,7 +123,10 @@ internal fun TasksPage(modifier: Modifier) {
                     state = lazyListState
                 ) {
                     itemsIndexed(TaskManager.taskList, key = { _, keyed -> keyed.key }) { index, task ->
-                        ReorderableItem(reorderableLazyListState, task.key) { isDragging ->
+                        ReorderableItem(
+                            reorderableLazyListState, task.key,
+                            animateItemModifier = hsItemAnimation(),
+                        ) { isDragging ->
                             val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
                             val handleInteraction = remember { MutableInteractionSource() }
 
@@ -256,7 +254,7 @@ fun <T : HSTickTask> TaskEditorDialog(
             ) {
                 Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     icon?.let {
-                        OutlinedLabelBox(
+                        LabelBox(
                             label = { Text(component = HSLang.Task.icon) },
 //                            contentPadding = PaddingValues(16.dp, 0.dp, 16.dp, 4.dp),
                             modifier = Modifier.height(66.5.dp)
@@ -264,13 +262,13 @@ fun <T : HSTickTask> TaskEditorDialog(
                             ItemSelector(it, { newIcon -> icon = newIcon }, false, 1.05f)
                         }
                     }
-                    OutlinedLabelBox(label = { Text(component = HSLang.Task.name) }) {
+                    LabelBox(label = { Text(component = HSLang.Task.name) }) {
                         TextField(
                             name,
                         )
                     }
                     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                                                OutlinedLabelBox(label = { Text(component = HSLang.Task.delay) }, modifier = Modifier.width(120.dp)) {
+                                                LabelBox(label = { Text(component = HSLang.Task.delay) }, modifier = Modifier.width(120.dp)) {
                             IntField(
                                 delay,
                                 { delay = it },
@@ -278,7 +276,7 @@ fun <T : HSTickTask> TaskEditorDialog(
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         }
-                                                OutlinedLabelBox(label = { Text(component = HSLang.Task.period) }, modifier = Modifier.width(120.dp)) {
+                                                LabelBox(label = { Text(component = HSLang.Task.period) }, modifier = Modifier.width(120.dp)) {
                             IntField(
                                 period,
                                 { period = it },
@@ -286,7 +284,7 @@ fun <T : HSTickTask> TaskEditorDialog(
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         }
-                                                OutlinedLabelBox(label = { Text(component = HSLang.Task.times) }, modifier = Modifier.width(120.dp)) {
+                                                LabelBox(label = { Text(component = HSLang.Task.times) }, modifier = Modifier.width(120.dp)) {
                             IntField(
                                 times,
                                 { times = it },
@@ -317,7 +315,7 @@ fun <T : HSTickTask> TaskEditorDialog(
                 //TODO替换成 脚本编辑器
                 Box {
                     val scrollState = rememberScrollState()
-                    OutlinedLabelBox(label = { Text(executorType.translateText) }) {
+                    LabelBox(label = { Text(executorType.translateText) }) {
                         TextField(
                             executor,
                             modifier = Modifier .fillMaxSize() .codeEditorShortcuts(executor),

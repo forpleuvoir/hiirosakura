@@ -7,10 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.*
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
@@ -23,7 +20,8 @@ import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.Fo
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.currentFormatDialect
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.format
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.lastUsedFormat
-import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.lang.IGLang
+
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.isQuickAction
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -34,19 +32,15 @@ import moe.forpleuvoir.nebula.serialization.json.JsonDialect
 import moe.forpleuvoir.nebula.serialization.toml.TomlDialect
 import moe.forpleuvoir.nebula.serialization.yaml.YamlDialect
 import kotlin.time.Duration.Companion.milliseconds
-import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
-import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.AlertDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Download
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Upload
 import moe.forpleuvoir.hiirosakura.ui.compat.TipBox
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 
 object FormatImportExportButtonDefaults {
 
@@ -130,7 +124,7 @@ fun FormatExportButton(
                 }
             } else expanded = true
         }) {
-            VectorIcon(HSIcons.Upload)
+            Icon(Icons.Export)
         }
     }
 
@@ -183,7 +177,7 @@ fun FormatImportButton(
                 expanded = true
             }
         }) {
-            VectorIcon(HSIcons.Download)
+            Icon(Icons.Import)
         }
 
         if (expanded) {
@@ -208,58 +202,58 @@ fun FormatImportButton(
                 dismissButton = { TextButton(onClick = { expanded = false }) { Text(component = IGLang.Misc.cancel) } },
                 title = { Text(title) },
                 text = {
-                    
-                        Column {
-                            FormatSelector(Modifier.fillMaxWidth())
-                            Box {
-                                var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
-                                val scrollState = rememberScrollState()
-                                var cursorInfo by remember { mutableStateOf("") }
-                                LaunchedEffect(Unit) {
-                                    while (isActive) {
-                                        cursorInfo = layoutResult?.let { layout ->
-                                            val start = state.selection.start
-                                            val end = state.selection.end
-                                            val startLine = layout.getLineForOffset(start)
-                                            val startColumn = start - layout.getLineStart(startLine)
-                                            if (start != end) {
-                                                val endLine = layout.getLineForOffset(end)
-                                                val endColumn = end - layout.getLineStart(endLine)
-                                                "${startLine + 1}:${startColumn + 1} .. ${endLine + 1}:${endColumn + 1}"
-                                            } else "${startLine + 1}:${startColumn + 1}"
-                                        } ?: "1:1"
-                                        delay(50.milliseconds)
-                                    }
-                                }
+                    Column {
+                        FormatSelector(Modifier.fillMaxWidth())
+                        Box {
+                            var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
-                                val transformation = rememberSyntaxHighlightTransformation(
-                                    language = when (format[lastUsedFormat].first) {
-                                        "Json" -> JsonSyntaxLanguage
-                                        "Hjson" -> HjsonSyntaxLanguage
-                                        "Yaml" -> YamlSyntaxLanguage
-                                        "Toml" -> TomlSyntaxLanguage
-                                        else -> throw NotImplementedError()
-                                    },
-                                    theme = SyntaxHighlightDefaults.theme(),
-                                    text = state.text.toString(),
-                                )
-                                OutlinedLabelBox(label = {
-                                        Text(cursorInfo)
-                                    }) {
-                                    TextField(
-                                        state,
-                                        
-                                        modifier = Modifier .fillMaxWidth() .height(480.dp) .codeEditorShortcuts(state),
-                                    )
+                            val scrollState = rememberScrollState()
+                            var cursorInfo by remember { mutableStateOf("") }
+                            LaunchedEffect(Unit) {
+                                while (isActive) {
+                                    cursorInfo = layoutResult?.let { layout ->
+                                        val start = state.selection.start
+                                        val end = state.selection.end
+                                        val startLine = layout.getLineForOffset(start)
+                                        val startColumn = start - layout.getLineStart(startLine)
+                                        if (start != end) {
+                                            val endLine = layout.getLineForOffset(end)
+                                            val endColumn = end - layout.getLineStart(endLine)
+                                            "${startLine + 1}:${startColumn + 1} .. ${endLine + 1}:${endColumn + 1}"
+                                        } else "${startLine + 1}:${startColumn + 1}"
+                                    } ?: "1:1"
+                                    delay(50.milliseconds)
                                 }
-                                VerticalScroller(
-                                    modifier = Modifier.align(Alignment.CenterEnd).padding(top = 14.dp, bottom = 6.dp, end = 4.dp).height(460.dp),
-                                    adapter = rememberScrollerAdapter(scrollState)
+                            }
+
+                            val transformation = rememberSyntaxHighlightTransformation(
+                                language = when (format[lastUsedFormat].first) {
+                                    "Json" -> JsonSyntaxLanguage
+                                    "Hjson" -> HjsonSyntaxLanguage
+                                    "Yaml" -> YamlSyntaxLanguage
+                                    "Toml" -> TomlSyntaxLanguage
+                                    else -> throw NotImplementedError()
+                                },
+                                theme = SyntaxHighlightDefaults.theme(),
+                                text = state.text.toString(),
+                            )
+                            LabelBox(label = {
+                                Text(cursorInfo)
+                            }) {
+                                TextField(
+                                    state,
+
+                                    modifier = Modifier.fillMaxWidth().height(480.dp).codeEditorShortcuts(state),
                                 )
                             }
+                            VerticalScroller(
+                                modifier = Modifier.align(Alignment.CenterEnd).padding(top = 14.dp, bottom = 6.dp, end = 4.dp).height(460.dp),
+                                adapter = rememberScrollerAdapter(scrollState)
+                            )
                         }
-                    
+                    }
+
                 }
             )
         }

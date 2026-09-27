@@ -23,7 +23,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.colorpicker.ColorPicker
 import moe.forpleuvoir.ibukigourd.ui.colorpicker.LocalColorPickerEnableAlpha
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.util.toNebulaColor
 
 @Composable
@@ -33,7 +32,7 @@ fun ColorListEditor(
     label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    OutlinedLabelBox(
+    LabelBox(
         modifier = modifier.fillMaxWidth(),
         label = label,
         contentPadding = PaddingValues(8.dp),

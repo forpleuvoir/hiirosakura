@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
@@ -17,7 +16,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.isActive
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrappers
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrappers.DataComponentWrapper
@@ -25,20 +23,18 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.T
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowser
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
-import moe.forpleuvoir.hiirosakura.ui.widget.OutlinedLabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.truncateLines
 import moe.forpleuvoir.hiirosakura.util.*
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.SerializeElementEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.SerializeElementType
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.matchesType
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
-import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.util.toComposeColor
-import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.core.Holder
@@ -62,7 +58,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 private val logger = logger("ItemStackEditor")
 
@@ -120,7 +115,7 @@ private fun ItemType(
     value: Holder<Item>,
     onValueChange: (Holder<Item>) -> Unit,
     modifier: Modifier = Modifier,
-) = OutlinedLabelBox(
+) = LabelBox(
     modifier = modifier,
     label = { Text(component = HSLang.ItemEditor.itemType) },
     contentPadding = PaddingValues(16.dp, 8.dp, 8.dp, 8.dp),
@@ -169,7 +164,7 @@ fun ItemCount(
     maxValue: Int,
     modifier: Modifier = Modifier
     ) {
-        OutlinedLabelBox(
+        LabelBox(
             label = {
                 Row {
                     Text(component = HSLang.ItemEditor.itemCount)
@@ -196,7 +191,7 @@ fun ItemPreview(
     val interactionSource = remember { MutableInteractionSource() }
 
     val hovered by interactionSource.collectIsHoveredAsState()
-    OutlinedLabelBox(
+    LabelBox(
         modifier = modifier.hoverable(interactionSource),
         label = { Text(component = HSLang.ItemEditor.itemPreview) },
         contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 8.dp),
@@ -237,7 +232,7 @@ private fun ComponentAdder(
 
     var buildingType by remember { mutableStateOf<DataComponentType<*>?>(null) }
 
-        OutlinedLabelBox(label = {
+        LabelBox(label = {
             Text(component = HSLang.ItemEditor.addItemComponent)
         }) {
         Selector(
@@ -373,7 +368,7 @@ private fun <C : Any> ComponentBuilderDialog(
 @Composable
 private fun Components(
     components: ObservableDataComponentMap
-) = OutlinedLabelBox(
+) = LabelBox(
     modifier = Modifier.fillMaxSize(),
     contentPadding = PaddingValues(16.dp, 16.dp, 8.dp, 16.dp),
     label = {

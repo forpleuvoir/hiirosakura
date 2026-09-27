@@ -53,7 +53,7 @@ fun StringSelector(
     shape: Shape? = null,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding,
 ) {
-    OutlinedLabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+    LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
             Selector(
             selected = selected,
             onSelect = onSelect,
@@ -103,7 +103,7 @@ fun <E : Enum<E>> EnumSelector(
     shape: Shape? = null,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding,
 ) {
-    OutlinedLabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
+    LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
             Selector(
             selected = selected,
             onSelect = onSelect,

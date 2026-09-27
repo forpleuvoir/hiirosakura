@@ -73,6 +73,8 @@ import androidx.compose.ui.platform.LocalDensity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import moe.forpleuvoir.ibukigourd.ui.item.ItemIconDefaults
 
 @Composable
 fun ItemSelector(
@@ -175,10 +177,10 @@ fun ItemBrowser(
 
     var selectedTabIndex by remember { mutableStateOf(if (tabList.size > 1) 1 else 0) }
 
-    val gridState = rememberLazyGridState()
-    // 切分类回到顶部:网格状态是跨分类共用的,不重置就会带着上一个分类的滚动位置
-    // (表现就是「翻页之后滚动条不在 0」,而且新分类可能一进来就停在半截)。
-    LaunchedEffect(selectedTabIndex) { gridState.scrollToItem(0) }
+    // 切分类从顶部开始:这里用「按分类各记一个网格状态」实现,而不是切页后 scrollToItem ——
+    // 后者是在协程里写滚动状态,在本渲染栈下会撞上测量/快照锁把整个场景卡死
+    // (见 FabVisibility.kt 的说明;本文件 181 行那次报错就是它)。
+    val gridState = remember(selectedTabIndex) { LazyGridState() }
     // 滚动显隐的嵌套滚动回调必须挂在滚动容器的祖先上;搜索框是它的兄弟节点,挂在搜索框上收不到位移
     val fabVisibility = rememberFabScrollVisibility(gridState)
 
@@ -440,7 +442,9 @@ object ItemBrowserDefaults {
         item: ItemLike,
         border: Boolean = true,
         scaleOnHover: Float = 1.1f,
-        modifier: Modifier = Modifier,
+        // 默认给一个尺寸:自身是 aspectRatio(1f),没有外部约束时会塌掉 —— 默认取
+        // ItemIconDefaults.size(48dp),调用方要别的尺寸再显式传。
+        modifier: Modifier = Modifier.size(ItemIconDefaults.size),
         showTooltip: Boolean = true,
         onCLick: (ItemLike) -> Unit = {}
     ) {

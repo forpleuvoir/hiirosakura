@@ -14,6 +14,7 @@ import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.nebula.common.api.Initializable
 import net.minecraft.commands.SharedSuggestionProvider
 import kotlin.io.path.Path
+import moe.forpleuvoir.ibukigourd.util.mc
 
 object TestCommand : Initializable {
 
@@ -25,6 +26,14 @@ object TestCommand : Initializable {
 
     context(context: CommandDispatcher<out SharedSuggestionProvider>)
     fun testCommand() = registerCommand("hstest") {
+        // 多物品选择器验收屏:点物品累积选中、下方容器可移除、确认才写回、上限 5 的实例
+        "multi_item_selector" {
+            execute {
+                mc.execute {
+                    openMultiItemSelectorTest()
+                }
+            }
+        }
         "config_keys" {
             execute {
                 val recorder = TranslationRecorder(false, keepExisting = true)

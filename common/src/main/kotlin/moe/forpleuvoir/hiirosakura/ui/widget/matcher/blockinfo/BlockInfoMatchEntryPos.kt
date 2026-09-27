@@ -26,8 +26,11 @@ import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
 import moe.forpleuvoir.hiirosakura.ui.icon.defaults.EditLocationAlt
 import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import androidx.compose.foundation.layout.fillMaxWidth
+import moe.forpleuvoir.compose_minecraft.platform.ui.text.MinecraftFonts
+import moe.forpleuvoir.compose_minecraft.platform.ui.text.toTextStyle
 import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
 import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
+import net.minecraft.network.chat.Style
 
 @Composable
 fun BlockInfoMatchEntryPosInfo(entry: BlockInfoMatchEntry.Pos) {
@@ -103,13 +106,13 @@ internal fun BasicBlockInfoMatchEntryPosEditor(
     ) {
         CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("min")
+                Text("min", style = Style.EMPTY.withFont(MinecraftFonts.FusionPixelMono).toTextStyle())
                 Spacer(Modifier.width(12.dp))
                 Vector3iEditor(value.min, onValueChange = { onValueChange(value.copy(min = it)) }, modifier = Modifier.height(64.dp))
             }
             Spacer(Modifier.height(12.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("max")
+                Text("max", style = Style.EMPTY.withFont(MinecraftFonts.FusionPixelMono).toTextStyle())
                 Spacer(Modifier.width(12.dp))
                 Vector3iEditor(value.max, onValueChange = { onValueChange(value.copy(max = it)) }, modifier = Modifier.height(64.dp))
             }
@@ -130,45 +133,38 @@ fun Vector3iEditor(
         horizontalArrangement = Arrangement.spacedBy(spacing),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-
-                LabelBox(label = { Text("X", color = Color.Red) }, modifier = Modifier.width(fieldWidth)) {
-            IntField(
-                value = value.x(),
-                onValueChange = { x ->
-
+        IntField(
+            value = value.x(),
+            leadingIcon = {
+                Text("X", color = Color.Red)
+            },
+            onValueChange = { x ->
                 val newValue = Vector3i(x, value.y(), value.z())
-
                 onValueChange(newValue)
-
             },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-                LabelBox(label = { Text("Y", color = Color.Green) }, modifier = Modifier.width(fieldWidth)) {
-            IntField(
-                value = value.y(),
-                onValueChange = { y ->
-
+            modifier = Modifier.width(fieldWidth),
+        )
+        IntField(
+            value = value.y(),
+            leadingIcon = {
+                Text("Y", color = Color.Green)
+            },
+            onValueChange = { y ->
                 val newValue = Vector3i(value.x(), y, value.z())
-
                 onValueChange(newValue)
-
             },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-                LabelBox(label = { Text("Z", color = Color.Blue) }, modifier = Modifier.width(fieldWidth)) {
-            IntField(
-                value = value.z(),
-                onValueChange = { z ->
-
+            modifier = Modifier.width(fieldWidth),
+        )
+        IntField(
+            value = value.z(),
+            leadingIcon = {
+                Text("Z", color = Color.Blue)
+            },
+            onValueChange = { z ->
                 val newValue = Vector3i(value.x(), value.y(), z)
-
                 onValueChange(newValue)
-
             },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
+            modifier = Modifier.width(fieldWidth),
+        )
     }
 }

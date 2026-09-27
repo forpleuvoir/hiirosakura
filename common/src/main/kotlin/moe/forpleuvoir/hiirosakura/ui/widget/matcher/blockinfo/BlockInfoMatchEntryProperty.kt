@@ -138,19 +138,21 @@ internal fun BasicBlockInfoMatchEntryPropertyEditor(
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                LabelBox(label = { Text(component = IGLang.ConfigWrapper.mapKey) }, modifier = Modifier.weight(1f)) {
-                    TextField(
-                        state = keyState,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-                VectorIcon(HSIcons.Equal, null, Modifier.padding(horizontal = 16.dp))
-                LabelBox(label = { Text(component = IGLang.ConfigWrapper.mapValue) }, modifier = Modifier.weight(1f)) {
-                    TextField(
-                        state = valueState,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
+                TextField(
+                    state = keyState,
+                    leadingIcon = {
+                        Text(component = IGLang.ConfigWrapper.mapKey)
+                    },
+                    modifier = Modifier.weight(1f),
+                )
+                Text(" = ")
+                TextField(
+                    state = valueState,
+                    leadingIcon = {
+                        Text(component = IGLang.ConfigWrapper.mapValue)
+                    },
+                    modifier = Modifier.weight(1f),
+                )
             }
         }
 

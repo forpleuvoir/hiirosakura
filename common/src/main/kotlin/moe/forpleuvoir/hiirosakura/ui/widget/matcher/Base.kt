@@ -48,12 +48,16 @@ import androidx.compose.foundation.layout.Row
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.hiirosakura.ui.icon.defaults.PlayArrow
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import moe.forpleuvoir.compose_minecraft.platform.ui.text.MinecraftFonts
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.ButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButtonDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight
+import net.minecraft.network.chat.Style
 
 internal val LocalMatchEntryRowHeight = staticCompositionLocalOf {
     80.dp
@@ -241,16 +245,17 @@ internal fun BasicScriptEditor(
         theme = SyntaxHighlightDefaults.theme(),
         text = state.text.toString(),
     )
-    Box {
+    Row {
         val scrollState = rememberScrollState()
         TextField(
             state = state,
-
+            lineLimits = TextFieldLineLimits.Default,
+            textStyle = Style.EMPTY.withFont(MinecraftFonts.FusionPixelMono),
+//            outputTransformation = transformation,
             modifier = Modifier.fillMaxSize().codeEditorShortcuts(state),
         )
 
-        VerticalScroller(
-            modifier = Modifier.align(Alignment.CenterEnd),
+        VerticalFlatScroller(
             adapter = rememberScrollerAdapter(scrollState)
         )
     }

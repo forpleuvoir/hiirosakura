@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.*
+import moe.forpleuvoir.hiirosakura.ui.util.canScroll
 import moe.forpleuvoir.hiirosakura.ui.widget.AddMenuOption
 import moe.forpleuvoir.hiirosakura.ui.widget.FloatingAddButton
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatExportButton
@@ -37,7 +38,10 @@ import moe.forpleuvoir.ibukigourd.text.appendLiteral
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.configControlHeight
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextFieldDefaults
 import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
@@ -56,7 +60,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.hiirosakura.ui.util.rememberClipboardWriter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
 
 //region Displayer
@@ -67,8 +70,9 @@ fun BlockInfoMatcherDisplayerEditor(
     onValueChange: (BlockInfoMatcher) -> Unit,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
+    editIconScale: Int = 2,
     modifier: Modifier = Modifier,
-    displayModifier: RowScope.() -> Modifier = { Modifier },
+    displayModifier: RowScope.() -> Modifier = { Modifier.weight(1f) },
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) = Row(
@@ -87,7 +91,7 @@ fun BlockInfoMatcherDisplayerEditor(
     IconButton(onClick = {
         showDialog = true
     }) {
-        Icon(Icons.Edit)
+        Icon(Icons.Edit, scale = editIconScale)
     }
 
     if (showDialog) {
@@ -135,15 +139,32 @@ fun BlockInfoMatcherDisplayer(
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null
 ) {
-    FlatButton(
-        onClick = {},
-        modifier = modifier.tooltip {
-            BlockInfoMatcherInfo(value)
-        },
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        (leadingIcon)?.invoke()
-        BlockInfoMatcherSimpleInfo(value, Modifier.padding(vertical = 8.dp))
-        (trailingIcon)?.invoke()
+        Surface(
+            modifier = Modifier
+                .weight(1f)
+                .height(configControlHeight())
+                .tooltip {
+                    BlockInfoMatcherInfo(value)
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(Modifier.padding(TextFieldDefaults.contentPadding())) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    leadingIcon?.invoke()
+                    BlockInfoMatcherSimpleInfo(value)
+                }
+            }
+        }
+
+        trailingIcon?.let { it() }
     }
 }
 
@@ -286,6 +307,9 @@ fun BasicBlockInfoMatcherEditor(
                         }
 
                     }
+                }
+                if (lazyListState.canScroll) {
+                    Spacer(Modifier.width(8.dp))
                 }
                 VerticalFlatScroller(
                     adapter = rememberScrollerAdapter(lazyListState),

@@ -1,24 +1,11 @@
 package moe.forpleuvoir.hiirosakura.ui.widget
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.*
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.input.TextFieldLineLimits
-import androidx.compose.foundation.text.input.clearText
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -27,8 +14,9 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.SharedConstants
@@ -39,27 +27,32 @@ import net.minecraft.network.chat.contents.TranslatableContents
 import net.minecraft.sounds.SoundEvent
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.selector.SelectorDialogExpanded
+import moe.forpleuvoir.ibukigourd.ui.selector.SelectorExpandedDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
-import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.HorizontalDivider
+import moe.forpleuvoir.hiirosakura.ui.icon.Play
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.ui.graphics.RectangleShape
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.PlayArrow
-import androidx.compose.foundation.clickable
 
+/**
+ * 试听按钮：按 [InlineEditFieldDefaults] 的规格绘制，与框内编辑按钮同形。
+ *
+ * 只放音效本身，不播 UI 点击音（按下即出声，再叠一层点击音只会盖住试听）。
+ */
 @Composable
 fun SoundPlayButton(
     soundSupplier: () -> SimpleSoundInstance,
     modifier: Modifier,
-) = IconButton({
-    mc.soundManager.play(soundSupplier())
-}, modifier = modifier) {
-    VectorIcon(HSIcons.PlayArrow, contentDescription = "PlaySound")
+) = CompositionLocalProvider(FlatButtonDefaults.LocalPressSound provides null) {
+    IconButton(
+        onClick = { mc.soundManager.play(soundSupplier()) },
+        modifier = modifier,
+        contentPadding = InlineEditFieldDefaults.ButtonContentPadding,
+        minSize = InlineEditFieldDefaults.ButtonMinSize,
+    ) {
+        Icon(Icons.Play)
+    }
 }
 
 @Composable
@@ -93,23 +86,6 @@ fun SoundEvent.getSubtitle(): MutableText {
         }
     }
     return Translatable(fallback, fallback)
-}
-
-@Composable
-fun SoundEventWrapper(
-    soundEvent: SoundEvent,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier.tooltip {
-            Text(soundEvent.location.toString())
-        },
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        SoundPlayButton(soundEvent)
-        Spacer(Modifier.width(8.dp))
-        Text(soundEvent.getSubtitle(), overflow = TextOverflow.Ellipsis)
-    }
 }
 
 @Composable
@@ -174,19 +150,96 @@ fun SoundEventSelector(
     }
 
     if (showDialog) {
-        SimpleAlertDialog(
+        SoundEventEditorDialog(
+            selected = value,
+            onSelect = onValueChange,
             onDismissRequest = { showDialog = false },
-            onConfirmRequest = { true },
-            content = {
-                SoundEventBrowser(modifier = Modifier.height(520.dp).fillMaxWidth()) {
-                    onValueChange(it)
-                    showDialog = false
-                }
-            },
-            confirmButton = {},
-            dismissButton = {}
         )
     }
+}
+
+/**
+ * 音效选择器（框内编辑按钮）：框内左端是试听按钮、右端是编辑按钮，与匹配器字段同形。
+ *
+ * @param value 当前音效
+ * @param onValueChange 音效变化回调
+ * @param modifier 作用于展示框
+ */
+@Composable
+fun SoundEventSelectorInnerEditor(
+    value: SoundEvent,
+    onValueChange: (SoundEvent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var showDialog by remember { mutableStateOf(false) }
+    InlineEditField(
+        onEdit = { showDialog = true },
+        modifier = modifier,
+        tooltip = { Text(value.location.toString()) },
+        leadingIcon = { SoundPlayButton(value) },
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        Text(value.getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
+    }
+    if (showDialog) {
+        SoundEventEditorDialog(
+            selected = value,
+            onSelect = onValueChange,
+            onDismissRequest = { showDialog = false },
+        )
+    }
+}
+
+/**
+ * 音效选择浮层：IG 选择器的弹窗载体（搜索栏 + 选项列表 + 细滚动条），选项左侧是试听按钮。
+ *
+ * 配置里存的是按 `Identifier` 新建的音效实例，与注册表实例不是同一个对象，因此选中态按
+ * `location` 比对。
+ *
+ * @param selected 当前音效，null 表示未选
+ * @param onSelect 选中回调
+ * @param onDismissRequest 关闭浮层
+ * @param items 候选音效，缺省取注册表里的全部音效
+ */
+@Composable
+private fun SoundEventEditorDialog(
+    selected: SoundEvent?,
+    onSelect: (SoundEvent) -> Unit,
+    onDismissRequest: () -> Unit,
+    items: List<SoundEvent> = BuiltInRegistries.SOUND_EVENT.toList(),
+) {
+    SelectorDialogExpanded(
+        onDismissRequest = onDismissRequest,
+        items = items,
+        onToggle = { sound ->
+            onSelect(sound)
+            onDismissRequest()
+        },
+        isSelected = { sound -> sound.location == selected?.location },
+        modifier = Modifier,
+        itemContent = { sound, _ ->
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SoundPlayButton(sound)
+                Text(sound.getSubtitle(), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        },
+        itemLeadingIcon = null,
+        itemTrailingIcon = null,
+        searchFilter = { sound, query ->
+            query.isBlank() ||
+                    sound.location.path.contains(query, ignoreCase = true) ||
+                    sound.location.toString().contains(query, ignoreCase = true) ||
+                    sound.getSubtitle().plainText.contains(query, ignoreCase = true)
+        },
+        onCancel = null,
+        title = null,
+        minWidth = SelectorExpandedDefaults.dialogMinWidth,
+        maxWidth = SelectorExpandedDefaults.dialogMaxWidth,
+        listMaxHeight = SelectorExpandedDefaults.dialogListMaxHeight,
+    )
 }
 
 @Composable
@@ -247,112 +300,11 @@ fun OptionalHolderSoundEventSelector(
     }
 
     if (showDialog) {
-        SimpleAlertDialog(
+        SoundEventEditorDialog(
+            selected = value.getOrNull()?.value(),
+            onSelect = { sound -> onValueChange(Optional.of(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound))) },
             onDismissRequest = { showDialog = false },
-            onConfirmRequest = { true },
-            content = {
-                SoundEventBrowser(modifier = Modifier.height(520.dp).fillMaxWidth()) {
-                    onValueChange(Optional.of(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(it)))
-                    showDialog = false
-                }
-            },
-            confirmButton = {},
-            dismissButton = {}
         )
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun SoundEventBrowser(
-    items: List<SoundEvent> = BuiltInRegistries.SOUND_EVENT.toList(),
-    modifier: Modifier = Modifier,
-    onClick: (SoundEvent) -> Unit,
-) {
-    Column(modifier = modifier.fillMaxSize()) {
-        val searchQuery = rememberTextFieldState()
-
-        val displayItems by remember(items, searchQuery.text) {
-            derivedStateOf {
-                if (searchQuery.text.isBlank()) items
-                else items.filter {
-                    it.location.path.contains(searchQuery.text, ignoreCase = true) ||
-                            it.location.toString().contains(searchQuery.text, ignoreCase = true) ||
-                            it.getSubtitle().plainText.contains(searchQuery.text, ignoreCase = true)
-                }
-            }
-        }
-
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 4.dp)
-                .height(40.dp)
-        ) {
-            Icon(Icons.Search)
-            Spacer(Modifier.width(8.dp))
-            BasicTextField(
-                searchQuery,
-                modifier = Modifier.weight(1f),
-                lineLimits = TextFieldLineLimits.SingleLine,
-                cursorBrush = SolidColor(SokitsuTheme.colorScheme.primary),
-            )
-            Spacer(Modifier.width(8.dp))
-            if (searchQuery.text.isNotEmpty()) {
-                val interactionSource = remember { MutableInteractionSource() }
-
-                val isHovered by interactionSource.collectIsHoveredAsState()
-
-                Icon(
-                    Icons.Close,
-                    modifier = Modifier
-                        .clickable { searchQuery.clearText() }
-                        .hoverable(interactionSource)
-                        .background(
-                            color = if (isHovered) SokitsuTheme.colorScheme.surfaceVariant else Color.Transparent)
-                        .padding(6.dp))
-            }
-        }
-
-        HorizontalDivider()
-
-        Box(modifier = Modifier.fillMaxSize()) {
-            val listState = rememberLazyListState()
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                contentPadding = PaddingValues(top = 4.dp),
-            ) {
-                items(displayItems) { soundEvent ->
-
-                    val interactionSource = remember { MutableInteractionSource() }
-
-                    val isHovered by interactionSource.collectIsHoveredAsState()
-                    val backgroundColor by animateColorAsState(
-                        targetValue = if (isHovered) SokitsuTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        else SokitsuTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
-                        animationSpec = tween(200),
-                    )
-
-                    SoundEventWrapper(
-                        soundEvent,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .hoverable(interactionSource)
-                            .background(backgroundColor, RectangleShape)
-                            .clickable { onClick(soundEvent) }
-                    )
-                }
-            }
-
-            VerticalScroller(
-                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                adapter = rememberScrollerAdapter(listState)
-            )
-        }
-    }
-}

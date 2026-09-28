@@ -36,8 +36,7 @@ import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.text.InlineStyleText
-import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigDialogTitle
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.asDerivedState
 import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
@@ -111,7 +110,7 @@ object ListConfigWrapperDefaults {
         config: ConfigList<E>,
         modifier: Modifier = Modifier,
         onDismissRequest: () -> Unit,
-        title: @Composable (() -> Unit)? = { Text(component = InlineStyleText(config.translateText.plainText)) },
+        title: @Composable (() -> Unit)? = { ConfigDialogTitle(config) },
         content: @Composable (data: KeyedListState<E>) -> Unit
     ) {
         // key 由 KeyedListState 单调分配(删除不回收),行身份跟数据走;不要再让调用方手工维护 key。
@@ -135,7 +134,7 @@ object ListConfigWrapperDefaults {
         editingValue: KeyedListState<E>,
         modifier: Modifier = Modifier,
         onDismissRequest: () -> Unit,
-        title: @Composable (() -> Unit)? = { Text(component = InlineStyleText(config.translateText.plainText)) },
+        title: @Composable (() -> Unit)? = { ConfigDialogTitle(config) },
         onConfirmRequest: (data: KeyedListState<E>) -> Boolean,
         content: @Composable (data: KeyedListState<E>) -> Unit
     ) {
@@ -369,7 +368,7 @@ object MapConfigWrapperDefaults {
         config: ConfigMap<V>,
         modifier: Modifier = Modifier,
         onDismissRequest: () -> Unit,
-        title: @Composable (() -> Unit)? = { Text(component = InlineStyleText(config.translateText.plainText)) },
+        title: @Composable (() -> Unit)? = { ConfigDialogTitle(config) },
         content: @Composable (data: KeyedListState<MapEntry<String, V>>) -> Unit
     ) {
         //编辑中的映射 确认之后写入config

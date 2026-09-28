@@ -71,6 +71,29 @@ fun ItemStackMatcherDisplayerEditor(
 }
 
 @Composable
+fun ItemStackMatcherDisplayerInnerEditor(
+    value: ItemStackMatcher,
+    onValueChange: (ItemStackMatcher) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var showDialog by remember { mutableStateOf(false) }
+    InlineEditField(
+        onEdit = { showDialog = true },
+        modifier = modifier,
+        tooltip = { ItemStackMatcherInfo(value) },
+    ) {
+        ItemStackMatcherSimpleInfo(value)
+    }
+    if (showDialog) {
+        ItemStackMatcherEditorDialog(
+            { showDialog = false },
+            value = value,
+            onValueChange = onValueChange
+        )
+    }
+}
+
+@Composable
 fun ItemStackMatcherDisplayer(
     value: ItemStackMatcher,
     modifier: Modifier = Modifier,

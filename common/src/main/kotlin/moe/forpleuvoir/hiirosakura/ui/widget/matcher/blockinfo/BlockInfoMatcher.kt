@@ -28,6 +28,7 @@ import moe.forpleuvoir.hiirosakura.ui.widget.AddMenuOption
 import moe.forpleuvoir.hiirosakura.ui.widget.FloatingAddButton
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatExportButton
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportButton
+import moe.forpleuvoir.hiirosakura.ui.widget.InlineEditField
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.CompositeMatcherModeSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatcherDialogContentSize
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryRow
@@ -111,18 +112,14 @@ fun BlockInfoMatcherDisplayerInnerEditor(
     modifier: Modifier = Modifier,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    BlockInfoMatcherDisplayer(
-        value = value,
-        modifier = Modifier.padding(vertical = 8.dp).then(modifier),
+    InlineEditField(
+        onEdit = { showDialog = true },
+        modifier = modifier,
+        tooltip = { BlockInfoMatcherInfo(value) },
         leadingIcon = leadingIcon,
-        trailingIcon = {
-            IconButton(onClick = {
-                showDialog = true
-            }) {
-                Icon(Icons.Edit)
-            }
-        }
-    )
+    ) {
+        BlockInfoMatcherSimpleInfo(value)
+    }
     if (showDialog) {
         BlockInfoMatcherEditorDialog(
             { showDialog = false },

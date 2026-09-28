@@ -158,7 +158,6 @@ fun ItemEnchantmentsComponentEditDialog(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-
                                     EnchatmentSelector(
                                         enchantment,
                                         onSelect = {
@@ -166,12 +165,13 @@ fun ItemEnchantmentsComponentEditDialog(
                                         },
                                         items = otherEnchantments(enchantment),
                                         modifier = Modifier.weight(1f),
-                                        searchFilter = { str, entry ->
+                                        searchFilter = { entry, str ->
                                             entry.registeredName.contains(str) || enchantmentDescription(entry).plainText.contains(str)
                                         },
-                                        label = {
-                                            Text(key, suffix = "enchantment", fallback = "enchantment")
-                                        }
+                                        //TODO 换别的方式
+//                                        label = {
+//                                            Text(key, suffix = "enchantment", fallback = "enchantment")
+//                                        }
                                     )
                                     CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
                                         LabelBox(label = {
@@ -243,12 +243,13 @@ fun ItemEnchantmentsComponentEditDialog(
                                     onSelect = { enchantment = it },
                                     items = otherEnchantments(enchantment),
                                     modifier = Modifier.weight(1f),
-                                    searchFilter = { str, entry ->
+                                    searchFilter = { entry,str ->
                                         entry.registeredName.contains(str) || entry.value().description.plainText.contains(str)
                                     },
-                                    label = {
-                                        Text(key, suffix = "enchantment", fallback = "enchantment")
-                                    }
+                                    //TODO 换别的方式
+//                                    label = {
+//                                        Text(key, suffix = "enchantment", fallback = "enchantment")
+//                                    }
                                 )
                                 Spacer(Modifier.width(8.dp))
                                 LabelBox(label = {

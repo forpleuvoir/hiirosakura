@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
-import moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack.ItemStackMatcherDisplayerInnerEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack.ItemStackMatcherDisplayerEditor
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
@@ -20,7 +20,6 @@ import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.hiirosakura.ui.configwrapper.MapConfigWrapperDefaults
 import moe.forpleuvoir.hiirosakura.ui.configwrapper.MapEntry
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.ConfigMap
 import moe.forpleuvoir.nebula.config.item.configMap
@@ -90,7 +89,7 @@ fun ItemStackMatcherMapConfigWrapper(
                                             )
                                         }
                                         Spacer(Modifier.height(8.dp))
-                                        ItemStackMatcherDisplayerInnerEditor(
+                                        ItemStackMatcherDisplayerEditor(
                                             value = newValue,
                                             onValueChange = { newValue = it },
                                             modifier = Modifier.fillMaxWidth(),
@@ -124,7 +123,7 @@ fun ItemStackMatcherMapConfigWrapper(
                         modifier = Modifier,
                         lazyListState = lazyListState,
                     ) { value, onValueChange ->
-                        ItemStackMatcherDisplayerInnerEditor(
+                        ItemStackMatcherDisplayerEditor(
                             value = value,
                             onValueChange = onValueChange,
                             modifier = Modifier.weight(LocalValueColumnWeight.current),

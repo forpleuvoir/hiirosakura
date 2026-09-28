@@ -146,9 +146,6 @@ internal fun BasicItemStackMatchEntryEnchantmentEditor(
                 },
                 items = EnchatmentHelper.REGISTERED_ENCHANTMENT,
                 modifier = Modifier.width(width),
-                searchFilter = { s, e ->
-                    s in e.registeredName || s in EnchatmentHelper.enchantmentDescription(e).plainText
-                }
             )
         }
         Spacer(Modifier.height(12.dp))
@@ -168,21 +165,19 @@ internal fun BasicItemStackMatchEntryEnchantmentEditor(
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text(component = HSLang.ItemStackMatcher.Entry.enchantmentLevelRange)
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.width(width)) {
-                CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                                        IntField(
-                        levelRange.first,
-                        { levelRange = it..levelRange.last },
-                        valueRange = 1..Int.MAX_VALUE,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    Text("≤..≤", modifier = Modifier.padding(horizontal = 12.dp))
-                                        IntField(
-                        levelRange.last,
-                        { levelRange = levelRange.first..it },
-                        valueRange = levelRange.first..Int.MAX_VALUE,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
+                IntField(
+                    levelRange.first,
+                    { levelRange = it..levelRange.last },
+                    valueRange = 1..Int.MAX_VALUE,
+                    modifier = Modifier.weight(1f),
+                )
+                Text("≤..≤", modifier = Modifier.padding(horizontal = 12.dp))
+                IntField(
+                    levelRange.last,
+                    { levelRange = levelRange.first..it },
+                    valueRange = levelRange.first..Int.MAX_VALUE,
+                    modifier = Modifier.weight(1f),
+                )
             }
         }
 

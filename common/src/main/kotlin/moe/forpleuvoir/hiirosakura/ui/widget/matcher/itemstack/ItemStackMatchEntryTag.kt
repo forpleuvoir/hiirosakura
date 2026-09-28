@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
@@ -117,11 +118,10 @@ internal fun BasicItemStackMatchEntryTagEditor(
             )
             Spacer(Modifier.height(8.dp))
         }
-        LabelBox(label = { Text(value.translateText) }) {
-            TextField(
-                state = state,
-                modifier = Modifier.fillMaxWidth().height(120.dp),
-            )
-        }
+        TextField(
+            state = state,
+            lineLimits = TextFieldLineLimits.Default,
+            modifier = Modifier.fillMaxWidth().height(120.dp),
+        )
     }
 }

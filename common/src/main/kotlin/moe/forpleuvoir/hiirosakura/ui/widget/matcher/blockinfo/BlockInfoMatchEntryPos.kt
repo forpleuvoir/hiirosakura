@@ -30,6 +30,8 @@ import moe.forpleuvoir.compose_minecraft.platform.ui.text.MinecraftFonts
 import moe.forpleuvoir.compose_minecraft.platform.ui.text.toTextStyle
 import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
 import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import net.minecraft.network.chat.Style
 
 @Composable
@@ -52,11 +54,11 @@ internal fun BlockInfoMatchEntryPosRow(
     onChange: (BlockInfoMatchEntry) -> Unit,
     modifier: Modifier = Modifier
 ) = Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-    Text(entry.asText, Modifier.weight(1f, false), overflow = TextOverflow.Ellipsis)
+    Text(entry.asText, Modifier.weight(1f, false), maxLines = 1, overflow = TextOverflow.Ellipsis)
     Spacer(Modifier.width(6.dp))
     var showEditor by remember { mutableStateOf(false) }
     IconButton({ showEditor = true }) {
-        VectorIcon(HSIcons.EditLocationAlt, "${IGLang.Misc.edit} ${entry.translateText.plainText}")
+        Icon(Icons.Edit)
     }
 
     if (showEditor) {

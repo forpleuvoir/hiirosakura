@@ -1,35 +1,24 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.HorizontalDivider
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
-import moe.forpleuvoir.hiirosakura.ui.widget.AddMenuOption
-import moe.forpleuvoir.hiirosakura.ui.widget.FloatingAddButton
-import moe.forpleuvoir.hiirosakura.ui.widget.FormatExportButton
-import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportButton
+import moe.forpleuvoir.hiirosakura.ui.util.canScroll
+import moe.forpleuvoir.hiirosakura.ui.util.rememberClipboardWriter
+import moe.forpleuvoir.hiirosakura.ui.widget.*
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.CompositeMatcherModeSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatcherDialogContentSize
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.MatchEntryRow
@@ -38,28 +27,17 @@ import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.appendLiteral
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateText
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.configControlHeight
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
 import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.ibukigourd.ui.util.KeyedListState
-import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
-import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
-import moe.forpleuvoir.ibukigourd.ui.util.Keyed
-import moe.forpleuvoir.ibukigourd.ui.util.copyValue
-import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
-import moe.forpleuvoir.ibukigourd.ui.util.values
-import moe.forpleuvoir.ibukigourd.util.moveElement
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.util.*
 import net.minecraft.world.item.ItemStack
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.hiirosakura.ui.util.rememberClipboardWriter
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 
 //region Displayer
 
@@ -68,51 +46,13 @@ fun ItemStackMatcherDisplayerEditor(
     value: ItemStackMatcher,
     onValueChange: (ItemStackMatcher) -> Unit,
     modifier: Modifier = Modifier,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    displayModifier: RowScope.() -> Modifier = { Modifier },
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
-    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = Row(
-    horizontalArrangement = horizontalArrangement,
-    verticalAlignment = verticalAlignment,
-    modifier = modifier
-) {
-    ItemStackMatcherDisplayer(
-        value = value,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        modifier = Modifier.padding(vertical = 8.dp).then(displayModifier()),
-    )
-    Spacer(Modifier.width(ConfigRowWrapper.spacing))
-    var showDialog by remember { mutableStateOf(false) }
-    IconButton(onClick = {
-        showDialog = true
-    }) {
-        Icon(Icons.Edit)
-    }
-
-    if (showDialog) {
-        ItemStackMatcherEditorDialog(
-            { showDialog = false },
-            value = value,
-            onValueChange = onValueChange
-        )
-    }
-}
-
-@Composable
-fun ItemStackMatcherDisplayerInnerEditor(
-    value: ItemStackMatcher,
-    onValueChange: (ItemStackMatcher) -> Unit,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
+    displayerModifier: @Composable RowScope.() -> Modifier = { Modifier.weight(1f) },
 ) {
     var showDialog by remember { mutableStateOf(false) }
     ItemStackMatcherDisplayer(
         value = value,
-        modifier = Modifier.padding(vertical = 8.dp).then(modifier),
-        leadingIcon = leadingIcon,
+        modifier = modifier,
+        displayerModifier = displayerModifier,
         trailingIcon = {
             IconButton(onClick = {
                 showDialog = true
@@ -134,19 +74,31 @@ fun ItemStackMatcherDisplayerInnerEditor(
 fun ItemStackMatcherDisplayer(
     value: ItemStackMatcher,
     modifier: Modifier = Modifier,
-    leadingIcon: @Composable (() -> Unit)? = null,
+    displayerModifier: @Composable RowScope.() -> Modifier = { Modifier.weight(1f) },
     trailingIcon: @Composable (() -> Unit)? = null
 ) {
-    FlatButton(
-        onClick = {},
-        modifier = modifier.tooltip {
-                                ItemStackMatcherInfo(value)
-        },
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-(leadingIcon)?.invoke()
-ItemStackMatcherSimpleInfo(value, Modifier.padding(vertical = 8.dp))
-(trailingIcon)?.invoke()
-    }}
+        Surface(
+            modifier = displayerModifier()
+                .height(configControlHeight())
+                .tooltip { ItemStackMatcherInfo(value) },
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(Modifier.padding(TextFieldDefaults.contentPadding())) {
+                ItemStackMatcherSimpleInfo(value)
+            }
+        }
+        trailingIcon?.let {
+            CompositionLocalProvider(LocalIconScale provides configIconScale()) {
+                it()
+            }
+        }
+    }
+}
 
 @Composable
 fun ItemStackMatcherInfo(
@@ -261,10 +213,8 @@ fun BasicItemStackMatcherEditor(
                 .fillMaxSize()
                 .fabScrollVisibility(fabVisibility)
         ) {
-            val hapticFeedback = LocalHapticFeedback.current
             val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
                 entries.move(from.index, to.index)
-                hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
             }
             // 列表与滚动条各占一列
             Row(modifier = Modifier.fillMaxSize()) {
@@ -277,13 +227,9 @@ fun BasicItemStackMatcherEditor(
                         ReorderableItem(
                             reorderableLazyListState, key = key,
                             animateItemModifier = hsItemAnimation(),
-                        ) { isDragging ->
-                            val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                            val handleInteraction = remember { MutableInteractionSource() }
-
-                            val handleHovered by handleInteraction.collectIsHoveredAsState()
+                        ) { _ ->
                             ItemStackMatchEntryRow(
-                                modifier = Modifier.fillMaxWidth().scale(scale),
+                                modifier = Modifier.fillMaxWidth(),
                                 entry = entry,
                                 onChange = { newEntry ->
                                     entries.setValue(index, newEntry)
@@ -292,14 +238,16 @@ fun BasicItemStackMatcherEditor(
                                     entries.removeAt(index)
                                 },
                                 moveHandler = {
-                                    DragHandle(modifier = Modifier)
+                                    DragHandle(modifier = Modifier.draggableHandle())
                                 }
                             )
                         }
 
                     }
                 }
-
+                if (lazyListState.canScroll) {
+                    Spacer(Modifier.width(8.dp))
+                }
                 VerticalFlatScroller(
                     adapter = rememberScrollerAdapter(lazyListState)
                 )

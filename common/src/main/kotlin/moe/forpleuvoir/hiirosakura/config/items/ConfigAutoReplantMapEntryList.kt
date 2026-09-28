@@ -9,7 +9,7 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.gameplay.AutoReplant
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo.BlockInfoMatcherDisplayerInnerEditor
-import moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack.ItemStackMatcherDisplayerInnerEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack.ItemStackMatcherDisplayerEditor
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
@@ -17,8 +17,6 @@ import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.hiirosakura.ui.configwrapper.ListConfigWrapperDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.ibukigourd.ui.util.Keyed
-import moe.forpleuvoir.ibukigourd.ui.util.copyValue
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.ConfigList
@@ -102,13 +100,13 @@ fun AutoReplantEntryListConfigWrapper(
                                             Text(component = HSLang.AutoReplant.mapEntryTargetBlock)
                                         }
                                     )
-                                    ItemStackMatcherDisplayerInnerEditor(
+                                    ItemStackMatcherDisplayerEditor(
                                         entry.replantItem,
                                         { entry = entry.copy(replantItem = it) },
                                         modifier = Modifier.fillMaxWidth(),
-                                        leadingIcon = {
-                                            Text(component = HSLang.AutoReplant.mapEntryReplantItem)
-                                        }
+//                                        leadingIcon = {
+//                                            Text(component = HSLang.AutoReplant.mapEntryReplantItem)
+//                                        }
                                     )
                                     BlockInfoMatcherDisplayerInnerEditor(
                                         entry.groundBlock,
@@ -140,7 +138,7 @@ fun AutoReplantEntryListConfigWrapper(
                                 modifier = Modifier.weight(1f),
                             )
                             //replantItem
-                            ItemStackMatcherDisplayerInnerEditor(
+                            ItemStackMatcherDisplayerEditor(
                                 value.replantItem,
                                 { onValueChange(value.copy(replantItem = it)) },
                                 modifier = Modifier.weight(1f),

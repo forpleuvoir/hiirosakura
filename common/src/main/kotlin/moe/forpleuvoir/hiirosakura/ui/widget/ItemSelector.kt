@@ -1,15 +1,15 @@
 package moe.forpleuvoir.hiirosakura.ui.widget
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -17,72 +17,38 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
-import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.ui.util.rememberAdaptiveGridSpan
 import moe.forpleuvoir.hiirosakura.util.ItemRegistryHelper
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.name
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.item.ItemIconDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.util.FabVisibilityState
-import moe.forpleuvoir.ibukigourd.ui.util.fabVisibilityAnimation
+import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
+import moe.forpleuvoir.ibukigourd.ui.util.rememberHideActionState
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceKey
 import net.minecraft.world.item.*
 import net.minecraft.world.level.ItemLike
 import net.minecraft.world.level.block.Block
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import androidx.compose.ui.graphics.RectangleShape
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.hiirosakura.ui.util.rememberAdaptiveGridSpan
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.compat.closeScreen
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.ButtonDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
-import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
-import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.unit.DpSize
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
-import androidx.compose.foundation.clickable
-import moe.forpleuvoir.ibukigourd.ui.util.rememberHideActionState
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.animation.core.Animatable
-import androidx.compose.ui.graphics.graphicsLayer
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Tab
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.TabRow
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.TabRowDefaults
-import androidx.compose.ui.platform.LocalDensity
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.delay
-import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.grid.LazyGridState
-import moe.forpleuvoir.ibukigourd.ui.item.ItemIconDefaults
 import kotlin.time.Duration.Companion.milliseconds
-import androidx.compose.foundation.interaction.HoverInteraction
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.AnimatedVisibilityScope
 
 @Composable
 fun ItemSelector(
@@ -93,7 +59,14 @@ fun ItemSelector(
     modifier: Modifier = Modifier,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    ItemBrowserDefaults.ItemWrapper(value, false, scaleOnHover, modifier.size(LocalItemIconVanillaSize.current), showTooltip) {
+    ItemBrowserDefaults.ItemWrapper(
+        value,
+        true,
+        scaleOnHover,
+        modifier.pointerHoverIcon(PointerIcon.Hand)
+            .size(LocalItemIconVanillaSize.current),
+        showTooltip
+    ) {
         showDialog = true
     }
 
@@ -126,7 +99,14 @@ fun BlockSelector(
     modifier: Modifier = Modifier,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    ItemBrowserDefaults.ItemWrapper(value, false, 1f, modifier.size(LocalItemIconVanillaSize.current), showTooltip) {
+    ItemBrowserDefaults.ItemWrapper(
+        value,
+        true,
+        1f,
+        modifier.pointerHoverIcon(PointerIcon.Hand)
+            .size(LocalItemIconVanillaSize.current),
+        showTooltip
+    ) {
         showDialog = true
     }
 
@@ -167,7 +147,6 @@ fun ItemBrowser(
     searchItems: List<ItemLike>? = null,
     // 格子按图标尺寸定(内边距不计入 minSize,否则会被 Adaptive 拉伸得比图标大);间距交给网格的 arrangement。
     gridCellSize: Dp = ItemBrowserDefaults.gridCellSize(contentPadding = PaddingValues(0.dp)),
-    searchBarBackgroundColor: Color = SokitsuTheme.colorScheme.surface,
     modifier: Modifier = Modifier
 ) {
     // 两个默认值开销大(`getAllTabs()` 会重建分类内容、`allItem.toList()` 复制整个物品注册表),
@@ -358,12 +337,11 @@ fun ItemBrowser(
                     modifier = Modifier
                         .align(BiasAlignment(0f, 0.85f))
                         .padding(horizontal = 24.dp, vertical = 8.dp),
-                    enter = fadeIn(tween(150)),
-                    exit = fadeOut(tween(150)),
+                    enter = fadeIn(tween(250)),
+                    exit = fadeOut(tween(250)),
                 ) {
                     SearchBar(
                         textFieldState = textFieldState,
-                        backgroundColor = searchBarBackgroundColor,
                         modifier = Modifier.width(320.dp)
                     )
                 }
@@ -375,48 +353,28 @@ fun ItemBrowser(
 @Composable
 private fun SearchBar(
     textFieldState: TextFieldState,
-    backgroundColor: Color = SokitsuTheme.colorScheme.surface,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
+    TextField(
+        state = textFieldState,
+        lineLimits = TextFieldLineLimits.SingleLine,
         modifier = modifier,
-        color = backgroundColor,
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        ) {
-            // 输入区用 weight(否则会占满整行宽度,清空按钮被挤出可视区)
-            Box(Modifier.weight(1f).height(48.dp), contentAlignment = Alignment.CenterStart) {
-                if (textFieldState.text.isEmpty()) {
-                    Text(
-                        component = IGLang.Misc.search,
-                        color = SokitsuTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                BasicTextField(
-                    state = textFieldState,
-                    lineLimits = TextFieldLineLimits.SingleLine,
-                    cursorBrush = SolidColor(SokitsuTheme.colorScheme.primary),
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-
-            if (textFieldState.text.isNotEmpty()) {
-                // 点按目标 36dp、图标 3 倍像素(默认尺寸不易点中)
+        hint = IGLang.Misc.search,
+        trailingIcon = if (textFieldState.text.isNotEmpty()) {
+            {
                 IconButton(
                     onClick = { textFieldState.edit { replace(0, length, "") } },
                     minSize = DpSize(36.dp, 36.dp),
                 ) {
-                    Icon(Icons.Close, scale = 3)
+                    Icon(Icons.Close)
                 }
             }
-        }
-    }
+        } else null
+    )
 }
 
 /** 物品图标的展示尺寸；新版上游移除了旧 IG 的同名组合本地量，这里按本项目像素风取值。 */
-val LocalItemIconVanillaSize = staticCompositionLocalOf { DpSize(32.dp, 32.dp) }
+val LocalItemIconVanillaSize = staticCompositionLocalOf { DpSize(48.dp, 48.dp) }
 
 /** 分类条每格的内容宽:够放「16dp 图标 + 间隙 + 完整分类名」(不截断)。 */
 private val CategoryTabWidth = 168.dp
@@ -427,6 +385,7 @@ private fun itemKey(item: ItemLike): Any = when (item) {
     is Block -> item.key
     else     -> item
 }
+
 /**
  * 覆盖层的显隐过渡。
  *
@@ -459,7 +418,7 @@ object ItemBrowserDefaults {
             .coerceAtMost(wrapperSize.height + contentPadding.calculateTopPadding() + contentPadding.calculateBottomPadding())
 
     val LocalItemIconSize = compositionLocalOf {
-        48.dp
+        64.dp
     }
 
     @Composable

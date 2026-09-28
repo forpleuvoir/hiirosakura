@@ -15,7 +15,7 @@ import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo.BlockInfoMatcherDisplayerInnerEditor
-import moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack.ItemStackMatcherDisplayerInnerEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack.ItemStackMatcherDisplayerEditor
 import moe.forpleuvoir.ibukigourd.config.item.pair
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
@@ -24,7 +24,6 @@ import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.hiirosakura.ui.configwrapper.MapConfigWrapperDefaults
 import moe.forpleuvoir.hiirosakura.ui.configwrapper.MapEntry
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.ConfigMap
 import moe.forpleuvoir.nebula.config.item.configMap
@@ -135,11 +134,10 @@ fun BlockInfoItemStackPairMapWrapper(
                                         Spacer(Modifier.height(8.dp))
                                         if (reverseValueColumnOrder) {
                                             // 反转顺序：先显示 ItemStack，再显示 BlockInfo
-                                            ItemStackMatcherDisplayerInnerEditor(
+                                            ItemStackMatcherDisplayerEditor(
                                                 value = newItem,
                                                 onValueChange = { newItem = it },
                                                 modifier = Modifier.fillMaxWidth(),
-                                                leadingIcon = itemStackEditorLabel
                                             )
                                             BlockInfoMatcherDisplayerInnerEditor(
                                                 value = newBlock,
@@ -155,11 +153,10 @@ fun BlockInfoItemStackPairMapWrapper(
                                                 modifier = Modifier.fillMaxWidth(),
                                                 leadingIcon = blockInfoEditorLabel
                                             )
-                                            ItemStackMatcherDisplayerInnerEditor(
+                                            ItemStackMatcherDisplayerEditor(
                                                 value = newItem,
                                                 onValueChange = { newItem = it },
                                                 modifier = Modifier.fillMaxWidth(),
-                                                leadingIcon = itemStackEditorLabel
                                             )
                                         }
                                     }
@@ -200,7 +197,7 @@ fun BlockInfoItemStackPairMapWrapper(
                             Row {
                                 if (reverseValueColumnOrder) {
                                     // 反转：ItemStack 在左，BlockInfo 在右
-                                    ItemStackMatcherDisplayerInnerEditor(
+                                    ItemStackMatcherDisplayerEditor(
                                         value = value.item,
                                         onValueChange = { onValueChange(value.copy(second = it)) },
                                         modifier = Modifier.weight(itemStackColumnWeight),
@@ -219,7 +216,7 @@ fun BlockInfoItemStackPairMapWrapper(
                                         modifier = Modifier.weight(blockInfoColumnWeight),
                                     )
                                     Spacer(Modifier.width(LocalColumnSpacing.current))
-                                    ItemStackMatcherDisplayerInnerEditor(
+                                    ItemStackMatcherDisplayerEditor(
                                         value = value.item,
                                         onValueChange = { onValueChange(value.copy(second = it)) },
                                         modifier = Modifier.weight(itemStackColumnWeight),

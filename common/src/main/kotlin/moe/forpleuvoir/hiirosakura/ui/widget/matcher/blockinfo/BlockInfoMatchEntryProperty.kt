@@ -28,6 +28,8 @@ import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
 import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.icon.defaults.EditSquare
 import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Equal
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 
 @Composable
 fun BlockInfoMatchEntryPropertyInfo(entry: BlockInfoMatchEntry.Property) {
@@ -49,11 +51,11 @@ internal fun BlockInfoMatchEntryPropertyRow(
     onChange: (BlockInfoMatchEntry) -> Unit,
     modifier: Modifier = Modifier
 ) = Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-    Text(entry.asText, Modifier.weight(1f, false), overflow = TextOverflow.Ellipsis)
+    Text(entry.asText, Modifier.weight(1f, false), maxLines = 1, overflow = TextOverflow.Ellipsis)
     Spacer(Modifier.width(6.dp))
     var showEditor by remember { mutableStateOf(false) }
     IconButton({ showEditor = true }) {
-        VectorIcon(HSIcons.EditSquare, "${IGLang.Misc.edit} ${entry.translateText.plainText}")
+        Icon(Icons.Edit)
     }
 
     if (showEditor) {
@@ -102,13 +104,11 @@ internal fun BasicBlockInfoMatchEntryPropertyEditor(
         modifier = modifier,
     ) {
         Column(Modifier.fillMaxWidth()) {
-            Text(value.translateText)
 
             val keyState = rememberTextFieldStateBinding(value.property.first) { onValueChange(value.copy(property = it to value.property.second)) }
 
             val valueState = rememberTextFieldStateBinding(value.property.second) { onValueChange(value.copy(property = value.property.first to it)) }
 
-            Spacer(Modifier.height(16.dp))
             val properties = remember {
                 mc.targetBlock?.state?.values?.map {
                     it.property.name to Util.getPropertyName(it.property, it.value)
@@ -134,7 +134,7 @@ internal fun BasicBlockInfoMatchEntryPropertyEditor(
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(16.dp))
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {

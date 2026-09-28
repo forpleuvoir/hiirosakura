@@ -49,7 +49,12 @@ repositories {
         url = 'https://thedarkcolour.github.io/KotlinForForge/'
         content { includeGroup "thedarkcolour" }
     }
-    maven { url = uri("https://maven.forpleuvoir.moe/snapshots") }
+    maven {
+        name = 'Forpleuvoir'
+        url = 'https://maven.forpleuvoir.moe/snapshots'
+        // 该仓库只提供 moe.forpleuvoir 下的构件
+        content { includeGroupAndSubgroups('moe.forpleuvoir') }
+    }
     maven {url = "https://api.modrinth.com/maven"}
 }
 

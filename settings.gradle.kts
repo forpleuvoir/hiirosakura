@@ -12,20 +12,7 @@ pluginManagement {
                 }
             }
             filter {
-                includeGroup("net.fabricmc")
-                includeGroup("net.fabricmc.unpick")
-                includeGroup("fabric-loom")
-            }
-        }
-        exclusiveContent {
-            forRepository {
-                maven {
-                    name = "Sponge"
-                    url = uri("https://repo.spongepowered.org/repository/maven-public")
-                }
-            }
-            filter {
-                includeGroupAndSubgroups("org.spongepowered")
+                includeGroupByRegex("net\\.fabricmc.*")
             }
         }
         maven { url = uri("https://maven.fabricmc.net/") }

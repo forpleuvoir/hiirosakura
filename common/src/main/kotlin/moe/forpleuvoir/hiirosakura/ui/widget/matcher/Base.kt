@@ -1,26 +1,23 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.matcher
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import moe.forpleuvoir.compose_minecraft.platform.ui.text.MinecraftFonts
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.CompositeMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.MatchEntry
 import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
+import moe.forpleuvoir.hiirosakura.ui.icon.Play
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.JexlSyntaxLanguage
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.SyntaxHighlightDefaults
 import moe.forpleuvoir.hiirosakura.ui.syntaxhighlight.compose.rememberSyntaxHighlightTransformation
@@ -29,34 +26,12 @@ import moe.forpleuvoir.hiirosakura.ui.util.showSuccessToast
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateComment
 import moe.forpleuvoir.ibukigourd.text.translateText
-
 import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.nebula.common.color.Colors
 import net.minecraft.network.chat.Component
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
-import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
-import androidx.compose.ui.graphics.RectangleShape
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import androidx.compose.foundation.layout.Row
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.PlayArrow
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.text.input.TextFieldLineLimits
-import moe.forpleuvoir.compose_minecraft.platform.ui.text.MinecraftFonts
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.ButtonDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButtonDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight
 import net.minecraft.network.chat.Style
 
 internal val LocalMatchEntryRowHeight = staticCompositionLocalOf {
@@ -228,7 +203,7 @@ internal fun TestButton(
     }, modifier = Modifier.tooltip {
         Text(tip)
     }) {
-        Icon(Icons.ArrowRight)
+        Icon(Icons.Play)
     }
 }
 

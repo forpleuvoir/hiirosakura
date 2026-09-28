@@ -75,9 +75,6 @@ object ConfigRowWrapperCompat {
     val spacing: Dp = 8.dp
 }
 
-
-
-
 object ListConfigWrapperDefaults {
 
     @Composable

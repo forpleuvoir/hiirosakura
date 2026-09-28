@@ -15,6 +15,7 @@ repositories {
         name = "Terraformers"
         url = uri("https://maven.terraformersmc.com/")
     }
+    mavenLocal()
 }
 
 dependencies {

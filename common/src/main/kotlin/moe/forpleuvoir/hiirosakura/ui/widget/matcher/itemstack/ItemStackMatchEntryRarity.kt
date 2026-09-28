@@ -41,7 +41,6 @@ internal fun ItemStackMatchEntryRarityRow(
     RaritySelector(
         entry.rarity,
         { onChange(entry.copy(rarity = it)) },
-        contentPadding = LabeledFieldDefaults.contentPadding(top = 10.dp, bottom = 10.dp),
         modifier = Modifier.width(200.dp),
     )
 }

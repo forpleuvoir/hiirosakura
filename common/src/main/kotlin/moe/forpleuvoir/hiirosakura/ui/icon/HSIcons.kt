@@ -1,5 +1,9 @@
 package moe.forpleuvoir.hiirosakura.ui.icon
 
+import moe.forpleuvoir.hiirosakura.util.identifier
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
+
 /**
  * HiiroSakura 自有矢量图标的宿主对象。
  *
@@ -8,3 +12,10 @@ package moe.forpleuvoir.hiirosakura.ui.icon
  * 所以自有图标一律挂在本对象下。
  */
 object HSIcons
+
+
+private val ICON_ATLAS = identifier("icon")
+
+private fun of(id: String) = SokitsuAtlasManager.sprite(ICON_ATLAS, identifier("icon/$id"))
+
+val Icons.Play get() = of("play")

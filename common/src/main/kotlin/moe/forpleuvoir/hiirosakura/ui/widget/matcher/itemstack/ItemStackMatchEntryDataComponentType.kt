@@ -103,10 +103,10 @@ internal fun BasicItemStackMatchEntryDataComponentTypeEditor(
         if (!components.isNullOrEmpty()) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                 Text(component = HSLang.Common.getFromHandItem)
-                var selected by remember(value) { mutableStateOf(components.find { it == value } ?: components.first()) }
+                var selected by remember(value) { mutableStateOf(components.find { it == value.componentType } ?: components.first()) }
                 DataComponentTypeSelector(
                     selected,
-                    { onValueChange(value.copy(componentType = it)) },
+                    { onValueChange(value.copy(componentType = it)); selected = it },
                     items = components,
                     modifier = Modifier.width(width)
                 )
@@ -120,7 +120,7 @@ internal fun BasicItemStackMatchEntryDataComponentTypeEditor(
                 value.componentType,
                 { onValueChange(value.copy(componentType = it)) },
                 modifier = Modifier.width(width),
-                searchFilter = { str, type ->
+                searchFilter = { type, str ->
                     str in type.keyOrUnknown.toString() || str in type.keyOrUnknown.asTranslateText().plainText
                 }
             )

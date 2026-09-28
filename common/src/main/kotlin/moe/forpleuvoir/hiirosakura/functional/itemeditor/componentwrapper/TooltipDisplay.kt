@@ -95,14 +95,14 @@ fun TooltipDisplayComponentWrapper(
                 }
                 .width(DataComponentEditorDefaults.entrySize.width),
         ) {
-Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.hiddenComponents.size), overflow = TextOverflow.Ellipsis, maxLines = 1)
-IconButton(onClick = {
-    showDialog = true
-}) {
-    Icon(Icons.Edit)
-}
+            Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.hiddenComponents.size), overflow = TextOverflow.Ellipsis, maxLines = 1)
+            IconButton(onClick = {
+                showDialog = true
+            }) {
+                Icon(Icons.Edit)
+            }
         }
-if (showDialog) {
+        if (showDialog) {
             TooltipDisplayEditorDialog(
                 key = key,
                 value = value,
@@ -158,13 +158,14 @@ fun TooltipDisplayEditorDialog(
                             type = it
                             list.add(it)
                         },
-                        label = { Text(component = HSLang.ItemEditor.addItemComponent) },
+                        // TODO 用别的方式代替
+//                        label = { Text(component = HSLang.ItemEditor.addItemComponent) },
                         content = {
                             Text(it.keyOrUnknown.toString(), overflow = TextOverflow.Ellipsis, maxLines = 1)
                         },
                         items = availableComponents,
                         modifier = Modifier.fillMaxWidth(0.75f),
-                        searchFilter = { str, type ->
+                        searchFilter = { type, str ->
                             str in type.keyOrUnknown(registryAccess!!).toString() || str in type.keyOrUnknown(registryAccess!!).asTranslateText().plainText
                         }
                     )
@@ -188,7 +189,8 @@ fun TooltipDisplayEditorDialog(
                             modifier = Modifier.padding(end = if (canScroll) 12.dp else 0.dp).fillMaxSize(),
                             state = lazyListState
                         ) {
-                            itemsIndexed(list.entries,
+                            itemsIndexed(
+                                list.entries,
                                 key = { _, keyed -> keyed.key }
                             ) { index, (key, component) ->
                                 ReorderableItem(
@@ -220,7 +222,7 @@ fun TooltipDisplayEditorDialog(
                                                     },
                                                     items = listOf(component) + availableComponents,
                                                     modifier = Modifier.fillMaxWidth(),
-                                                    searchFilter = { str, type ->
+                                                    searchFilter = { type, str ->
                                                         str in type.keyOrUnknown(registryAccess!!).toString() || str in type.keyOrUnknown(registryAccess!!)
                                                             .asTranslateText().plainText
                                                     }

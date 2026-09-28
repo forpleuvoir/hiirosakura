@@ -5,9 +5,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatchEntry
-import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
+import moe.forpleuvoir.hiirosakura.ui.widget.ItemIconButton
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.BasicMatchEntryEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.LocalMatchEntryInfoHeight
@@ -23,7 +24,7 @@ fun ItemStackMatchEntryItemInfo(entry: ItemStackMatchEntry.Item) {
         Spacer(Modifier.width(8.dp))
         Text(ItemStackMatchEntry.Item.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Spacer(Modifier.width(8.dp))
-        ItemBrowserDefaults.ItemWrapper(entry.item, showTooltip = false, scaleOnHover = 1f, hoverHighlight = false, modifier = Modifier.size(32.dp))
+        ItemIconButton(entry.item, showTooltip = false, scaleOnHover = 1f, hoverHighlight = false, itemIconSize = DpSize(32.dp, 32.dp), contentPadding = PaddingValues(0.dp))
         Spacer(Modifier.width(8.dp))
         Text(entry.asText, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }

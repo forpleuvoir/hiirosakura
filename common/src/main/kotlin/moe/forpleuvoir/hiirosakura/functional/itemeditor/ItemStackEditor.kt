@@ -22,7 +22,7 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowser
-import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
+import moe.forpleuvoir.hiirosakura.ui.widget.ItemIconButton
 import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.truncateLines
 import moe.forpleuvoir.hiirosakura.util.*
@@ -141,7 +141,7 @@ private fun ItemType(
                 content = {
                     ItemBrowser(
                         itemDisplay = {
-                            ItemBrowserDefaults.ItemWrapper(it) { selected ->
+                            ItemIconButton(it) { selected ->
                                 @Suppress("DEPRECATION")
                                 onValueChange(selected.asItem().builtInRegistryHolder())
                                 showDialog = false

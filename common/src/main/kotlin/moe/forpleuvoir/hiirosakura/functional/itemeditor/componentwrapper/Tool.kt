@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
@@ -19,7 +20,7 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.T
 import moe.forpleuvoir.hiirosakura.ui.util.NullableInputTransformation
 import moe.forpleuvoir.hiirosakura.ui.util.NullableTrailingIcon
 import moe.forpleuvoir.hiirosakura.ui.widget.HolderSetBlockEditorDialog
-import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
+import moe.forpleuvoir.hiirosakura.ui.widget.ItemIconButton
 import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.ReorderableEditorVerticalGrid
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
@@ -280,12 +281,13 @@ private fun RuleContent(
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             value.blocks.take(20).forEach { item ->
-                                ItemBrowserDefaults.ItemWrapper(
+                                ItemIconButton(
                                     item.value(),
                                     hoverHighlight = false,
                                     scaleOnHover = 1f,
                                     showTooltip = false,
-                                    modifier = Modifier.size(36.dp)
+                                    itemIconSize = DpSize(36.dp, 36.dp),
+                                    contentPadding = PaddingValues(0.dp),
                                 )
                             }
                         }
@@ -306,12 +308,13 @@ private fun RuleContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     value.blocks.take(6).forEach { item ->
-                        ItemBrowserDefaults.ItemWrapper(
+                        ItemIconButton(
                             item.value(),
                             hoverHighlight = false,
                             scaleOnHover = 1f,
                             showTooltip = false,
-                            modifier = Modifier.size(36.dp)
+                            itemIconSize = DpSize(36.dp, 36.dp),
+                            contentPadding = PaddingValues(0.dp),
                         )
                     }
                     if (count > 6)

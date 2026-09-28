@@ -35,7 +35,6 @@ import moe.forpleuvoir.hiirosakura.util.name
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
-import moe.forpleuvoir.ibukigourd.ui.item.ItemIconDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
@@ -59,13 +58,13 @@ fun ItemSelector(
     modifier: Modifier = Modifier,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    ItemBrowserDefaults.ItemWrapper(
+    ItemIconButton(
         value,
         true,
         scaleOnHover,
-        modifier.pointerHoverIcon(PointerIcon.Hand)
-            .size(LocalItemIconVanillaSize.current),
-        showTooltip
+        itemIconSize = LocalItemIconVanillaSize.current,
+        modifier = modifier.pointerHoverIcon(PointerIcon.Hand),
+        showTooltip = showTooltip
     ) {
         showDialog = true
     }
@@ -77,7 +76,7 @@ fun ItemSelector(
             content = {
                 ItemBrowser(
                     itemDisplay = {
-                        ItemBrowserDefaults.ItemWrapper(it) { selected ->
+                        ItemIconButton(it) { selected ->
                             onValueChange(selected.asItem())
                             showDialog = false
                         }
@@ -99,13 +98,13 @@ fun BlockSelector(
     modifier: Modifier = Modifier,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    ItemBrowserDefaults.ItemWrapper(
+    ItemIconButton(
         value,
         true,
         1f,
-        modifier.pointerHoverIcon(PointerIcon.Hand)
-            .size(LocalItemIconVanillaSize.current),
-        showTooltip
+        itemIconSize = LocalItemIconVanillaSize.current,
+        modifier = modifier.pointerHoverIcon(PointerIcon.Hand),
+        showTooltip = showTooltip
     ) {
         showDialog = true
     }
@@ -117,7 +116,7 @@ fun BlockSelector(
             content = {
                 ItemBrowser(
                     itemDisplay = {
-                        ItemBrowserDefaults.ItemWrapper(it) { selected ->
+                        ItemIconButton(it) { selected ->
                             if (selected is BlockItem) {
                                 onValueChange(selected.block)
                             } else if (selected is Block) {
@@ -142,7 +141,7 @@ fun BlockSelector(
 @Composable
 fun ItemBrowser(
     itemGroups: List<ResourceKey<CreativeModeTab>>? = null,
-    itemDisplay: @Composable (ItemLike) -> Unit = ItemBrowserDefaults::ItemWrapper,
+    itemDisplay: @Composable (ItemLike) -> Unit = ::ItemIconButton,
     filter: (ItemLike) -> Boolean = { true },
     searchItems: List<ItemLike>? = null,
     // 格子按图标尺寸定(内边距不计入 minSize,否则会被 Adaptive 拉伸得比图标大);间距交给网格的 arrangement。
@@ -413,80 +412,108 @@ private fun OverlayVisibility(
 object ItemBrowserDefaults {
 
     @Composable
-    fun gridCellSize(wrapperSize: DpSize = DpSize(LocalItemIconSize.current, LocalItemIconSize.current), contentPadding: PaddingValues): Dp =
+    fun gridCellSize(wrapperSize: DpSize = iconWrapperSize(), contentPadding: PaddingValues): Dp =
         (wrapperSize.width + contentPadding.calculateLeftPadding(LayoutDirection.Ltr) + contentPadding.calculateRightPadding(LayoutDirection.Ltr))
             .coerceAtMost(wrapperSize.height + contentPadding.calculateTopPadding() + contentPadding.calculateBottomPadding())
 
+    /** 图标外框尺寸:图标尺寸 + 四周内边距。 */
+    @Composable
+    fun iconWrapperSize(
+        iconSize: DpSize = DpSize(LocalItemIconSize.current, LocalItemIconSize.current),
+        padding: PaddingValues = LocalItemWrapperPadding.current,
+    ): DpSize = DpSize(
+        iconSize.width + padding.calculateLeftPadding(LayoutDirection.Ltr) + padding.calculateRightPadding(LayoutDirection.Ltr),
+        iconSize.height + padding.calculateTopPadding() + padding.calculateBottomPadding(),
+    )
+
     val LocalItemIconSize = compositionLocalOf {
-        64.dp
+        48.dp
     }
 
-    @Composable
-    fun ItemWrapper(
-        item: ItemLike,
-        hoverHighlight: Boolean = true,
-        scaleOnHover: Float = 1.1f,
-        // 默认给一个尺寸:自身是 aspectRatio(1f),没有外部约束时会塌掉 —— 默认取
-        // ItemIconDefaults.size(48dp),调用方要别的尺寸再显式传。
-        modifier: Modifier = Modifier.size(ItemIconDefaults.size),
-        showTooltip: Boolean = true,
-        // 物品着色(Color.White 为不调制):走物品绘制着色,不产生 graphicsLayer ——
-        // 本平台图层是命令烘焙 + 父链连锁重录,用 Modifier.alpha 表达「半透明」会给每个元素建图层。
-        color: Color = Color.White,
-        onCLick: (ItemLike) -> Unit = {}
-    ) {
-        val interactionSource = remember { MutableInteractionSource() }
+    /** 图标外框相对图标的内边距。 */
+    val LocalItemWrapperPadding = compositionLocalOf {
+        PaddingValues(4.dp)
+    }
 
+}
 
-        Box(
-            modifier = modifier
-                .aspectRatio(1f)
-                .hoverable(interactionSource)
-                .clickable(interactionSource = interactionSource, indication = null) { onCLick(item) }
-                // 悬停反馈改为 IG 的悬停高亮(原来是一圈 1dp 描边):
-                // 高亮块铺在内容之下,主题色 / 浓度 / 淡入淡出全部沿用 hoverHighlight 的定义。
-                .thenIf(hoverHighlight) { Modifier.hoverHighlight(interactionSource) }
-                .thenIf(showTooltip) {
-                    Modifier.tooltip {
-                        Column {
-                            if (item is Item) {
-                                Text(item.asItem().name)
-                                Spacer(Modifier.height(4.dp))
-                                Text(item.asItem().key.toString(), color = SokitsuTheme.colorScheme.onSurfaceVariant)
-                            } else if (item is Block) {
-                                Text(item.name)
-                                Spacer(Modifier.height(4.dp))
-                                Text(item.key.toString(), color = SokitsuTheme.colorScheme.onSurfaceVariant)
-                            }
+/**
+ * 物品图标按钮:图标按 [itemIconSize] 绘制,外框为「图标尺寸 + [contentPadding]」,
+ * 铺满外框的修饰器(悬停高亮)因此比图标大一圈。
+ *
+ * @param item 要展示的物品
+ * @param itemIconSize 图标绘制尺寸
+ * @param contentPadding 图标与其外框之间的内边距
+ * @param onCLick 点击回调,交出被点的物品
+ */
+@Composable
+fun ItemIconButton(
+    item: ItemLike,
+    hoverHighlight: Boolean = true,
+    scaleOnHover: Float = 1.1f,
+    itemIconSize: DpSize = DpSize(
+        ItemBrowserDefaults.LocalItemIconSize.current,
+        ItemBrowserDefaults.LocalItemIconSize.current
+    ),
+    contentPadding: PaddingValues = ItemBrowserDefaults.LocalItemWrapperPadding.current,
+    modifier: Modifier = Modifier,
+    showTooltip: Boolean = true,
+    // 物品着色(Color.White 为不调制):走物品绘制着色,不产生 graphicsLayer ——
+    // 本平台图层是命令烘焙 + 父链连锁重录,用 Modifier.alpha 表达「半透明」会给每个元素建图层。
+    color: Color = Color.White,
+    onCLick: (ItemLike) -> Unit = {}
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Box(
+        modifier = Modifier
+            // 悬停高亮铺满外框(含内边距),故挂在尺寸与内边距之外
+            .thenIf(hoverHighlight) { Modifier.hoverHighlight(interactionSource) }
+            .size(ItemBrowserDefaults.iconWrapperSize(itemIconSize, contentPadding))
+            .then(modifier)
+            .aspectRatio(1f)
+            .hoverable(interactionSource)
+            .clickable(interactionSource = interactionSource, indication = null) { onCLick(item) }
+            .thenIf(showTooltip) {
+                Modifier.tooltip {
+                    Column {
+                        if (item is Item) {
+                            Text(item.asItem().name)
+                            Spacer(Modifier.height(4.dp))
+                            Text(item.asItem().key.toString(), color = SokitsuTheme.colorScheme.onSurfaceVariant)
+                        } else if (item is Block) {
+                            Text(item.name)
+                            Spacer(Modifier.height(4.dp))
+                            Text(item.key.toString(), color = SokitsuTheme.colorScheme.onSurfaceVariant)
                         }
                     }
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            // ItemStack 构造放进 remember:网格滚动/重绘时不再反复构造;构造失败取 null 走下面的
-            // 占位格 —— 原来在组合期直接 closeScreen() + Toast 属于组合期副作用。
-            val icon = remember(item) { runCatching { ItemStack(item) }.getOrNull() }
-            if (icon != null && icon.item != Items.AIR) {
-                ItemIcon(
-                    icon,
-                    size = DpSize(LocalItemIconSize.current, LocalItemIconSize.current),
-                    showTooltip = false,
-                    scaleOnHover = scaleOnHover,
-                    color = color,
-                )
-            } else {
-                Canvas(Modifier.size(LocalItemIconSize.current)) {
-                    val tileSize = size / 2f
-                    for (row in 0 until 2) for (col in 0 until 2) {
-                        drawRect(
-                            color = if ((row + col) % 2 == 0) Color(128, 0, 128) else Color(0XFF000000),
-                            topLeft = Offset(col * tileSize.width, row * tileSize.height),
-                            size = tileSize
-                        )
-                    }
                 }
-
             }
+            .padding(contentPadding),
+        contentAlignment = Alignment.Center
+    ) {
+        // ItemStack 构造放进 remember:网格滚动/重绘时不再反复构造;构造失败取 null 走下面的占位格。
+        val icon = remember(item) { runCatching { ItemStack(item) }.getOrNull() }
+        if (icon != null && icon.item != Items.AIR) {
+            ItemIcon(
+                icon,
+                size = itemIconSize,
+                showTooltip = false,
+                scaleOnHover = scaleOnHover,
+                color = color,
+            )
+        } else {
+            Canvas(Modifier.size(itemIconSize)) {
+                val tileSize = size / 2f
+                for (row in 0 until 2) for (col in 0 until 2) {
+                    drawRect(
+                        color = if ((row + col) % 2 == 0) Color(128, 0, 128) else Color(0XFF000000),
+                        topLeft = Offset(col * tileSize.width, row * tileSize.height),
+                        size = tileSize
+                    )
+                }
+            }
+
         }
     }
 }

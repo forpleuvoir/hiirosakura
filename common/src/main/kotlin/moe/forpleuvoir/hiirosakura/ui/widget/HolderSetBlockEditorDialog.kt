@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.util.canScroll
@@ -140,7 +141,7 @@ fun HolderSetBlockEditorDialog(
                                         content = {
                                             ItemBrowser(
                                                 itemDisplay = {
-                                                    ItemBrowserDefaults.ItemWrapper(it) { selected ->
+                                                    ItemIconButton(it) { selected ->
                                                         val block = if (selected is BlockItem) {
                                                             selected.block
                                                         } else selected.requireType<Block>()
@@ -291,7 +292,7 @@ fun BlockTagSelector(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     types.take(20).forEach { item ->
-                        ItemBrowserDefaults.ItemWrapper(item.value(), scaleOnHover = 1f, showTooltip = false, hoverHighlight = false, modifier = Modifier.size(36.dp))
+                        ItemIconButton(item.value(), scaleOnHover = 1f, showTooltip = false, hoverHighlight = false, itemIconSize = DpSize(36.dp, 36.dp), contentPadding = PaddingValues(0.dp))
                     }
 
                     if (types.count() > 20) Text("...")
@@ -315,7 +316,7 @@ fun BlockTagSelector(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     types.take(20).forEach { item ->
-                        ItemBrowserDefaults.ItemWrapper(item.value(), scaleOnHover = 1f, showTooltip = false, hoverHighlight = false, modifier = Modifier.size(36.dp))
+                        ItemIconButton(item.value(), scaleOnHover = 1f, showTooltip = false, hoverHighlight = false, itemIconSize = DpSize(36.dp, 36.dp), contentPadding = PaddingValues(0.dp))
                     }
 
                     if (types.count() > 20) Text("...")

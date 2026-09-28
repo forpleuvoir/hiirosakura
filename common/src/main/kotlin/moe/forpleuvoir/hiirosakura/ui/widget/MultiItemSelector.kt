@@ -168,9 +168,9 @@ fun MultiItemSelectorDialog(
                             val asItem = item.asItem()
                             val picked = asItem in selected
                             val itemKey = asItem.key
-                            ItemBrowserDefaults.ItemWrapper(
+                            ItemIconButton(
                                 item,
-                                // 悬停反馈由 ItemWrapper 内部挂的 IG 悬停高亮承担
+                                // 悬停反馈由 ItemIconButton 内部挂的 IG 悬停高亮承担
                                 hoverHighlight = true,
                                 // 选中态(禁用态)用**物品着色**表达 50% 半透明:走物品绘制着色,不产生 graphicsLayer
                                 color = if (picked) Color.White.copy(alpha = disabledAlpha) else Color.White,
@@ -247,7 +247,7 @@ fun MultiItemSelectorDialog(
                                         ) {
                                             // 正飞向这里的那一件先不画:槽位占好位置,图标等飞到位才出现
                                             if (flyingItem != item) {
-                                                ItemBrowserDefaults.ItemWrapper(
+                                                ItemIconButton(
                                                     item,
                                                     hoverHighlight = false,
                                                     scaleOnHover = 1f,
@@ -337,11 +337,12 @@ fun MultiItemSelector(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (value.isEmpty()) {
-            ItemBrowserDefaults.ItemWrapper(
+            ItemIconButton(
                 Items.AIR,
                 hoverHighlight = false,
                 scaleOnHover = 1f,
-                modifier = Modifier.size(LocalItemIconVanillaSize.current),
+                itemIconSize = LocalItemIconVanillaSize.current,
+                contentPadding = PaddingValues(0.dp),
                 showTooltip = false,
             ) { showDialog = true }
         } else {
@@ -349,11 +350,12 @@ fun MultiItemSelector(
             // 而且 Row 没有懒加载,屏幕外的物品也会参与渲染。
             val preview = triggerPreviewCount
             value.take(preview).forEach { item ->
-                ItemBrowserDefaults.ItemWrapper(
+                ItemIconButton(
                     item,
                     hoverHighlight = false,
                     scaleOnHover = 1f,
-                    modifier = Modifier.size(LocalItemIconVanillaSize.current),
+                    itemIconSize = LocalItemIconVanillaSize.current,
+                    contentPadding = PaddingValues(0.dp),
                     showTooltip = showTooltip,
                 ) { showDialog = true }
             }

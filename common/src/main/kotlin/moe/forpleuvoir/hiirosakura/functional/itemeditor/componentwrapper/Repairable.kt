@@ -24,7 +24,7 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.util.canScroll
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowser
-import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
+import moe.forpleuvoir.hiirosakura.ui.widget.ItemIconButton
 import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.name
@@ -214,7 +214,7 @@ fun HolderSetItemEditorDialog(
                                         content = {
                                             ItemBrowser(
                                                 itemDisplay = {
-                                                    ItemBrowserDefaults.ItemWrapper(it) { selected ->
+                                                    ItemIconButton(it) { selected ->
                                                         val item = selected.asItem()
                                                         if (!items.entries.any { keyed -> keyed.value == item }) {
                                                             items.add(item)

@@ -17,6 +17,7 @@ import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.hiirosakura.ui.configwrapper.ListConfigWrapperDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.ConfigList
@@ -67,15 +68,24 @@ fun AutoReplantEntryListConfigWrapper(
                             contentHeader = {
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(LocalColumnSpacing.current)) {
                                     Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                                        Text(component = HSLang.AutoReplant.mapEntryTargetBlock)
+                                        Text(
+                                            component = HSLang.AutoReplant.mapEntryTargetBlock,
+                                            modifier = Modifier.tooltip { Text(component = HSLang.AutoReplant.mapEntryTargetBlockComment) },
+                                        )
                                     }
 
                                     Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                                        Text(component = HSLang.AutoReplant.mapEntryReplantItem)
+                                        Text(
+                                            component = HSLang.AutoReplant.mapEntryReplantItem,
+                                            modifier = Modifier.tooltip { Text(component = HSLang.AutoReplant.mapEntryReplantItemComment) },
+                                        )
                                     }
 
                                     Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                                        Text(component = HSLang.AutoReplant.mapEntryGroundBlock)
+                                        Text(
+                                            component = HSLang.AutoReplant.mapEntryGroundBlock,
+                                            modifier = Modifier.tooltip { Text(component = HSLang.AutoReplant.mapEntryGroundBlockComment) },
+                                        )
                                     }
                                 }
                             }
@@ -97,7 +107,10 @@ fun AutoReplantEntryListConfigWrapper(
                                         { entry = entry.copy(targetBlock = it) },
                                         modifier = Modifier.fillMaxWidth(),
                                         leadingIcon = {
-                                            Text(component = HSLang.AutoReplant.mapEntryTargetBlock)
+                                            Text(
+                                                component = HSLang.AutoReplant.mapEntryTargetBlock,
+                                                modifier = Modifier.tooltip { Text(component = HSLang.AutoReplant.mapEntryTargetBlockComment) },
+                                            )
                                         }
                                     )
                                     ItemStackMatcherDisplayerEditor(
@@ -113,7 +126,10 @@ fun AutoReplantEntryListConfigWrapper(
                                         { entry = entry.copy(groundBlock = it) },
                                         modifier = Modifier.fillMaxWidth(),
                                         leadingIcon = {
-                                            Text(component = HSLang.AutoReplant.mapEntryGroundBlock)
+                                            Text(
+                                                component = HSLang.AutoReplant.mapEntryGroundBlock,
+                                                modifier = Modifier.tooltip { Text(component = HSLang.AutoReplant.mapEntryGroundBlockComment) },
+                                            )
                                         }
                                     )
                                 }

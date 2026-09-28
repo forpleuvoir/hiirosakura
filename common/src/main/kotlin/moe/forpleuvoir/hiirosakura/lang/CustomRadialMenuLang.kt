@@ -3,7 +3,6 @@ package moe.forpleuvoir.hiirosakura.lang
 import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
-import moe.forpleuvoir.ibukigourd.text.style
 
 @Suppress("NOTHING_TO_INLINE")
 object CustomRadialMenuLang {
@@ -26,75 +25,61 @@ object CustomRadialMenuLang {
 
     inline val nameInvalid get() = lang("name_invalid")
 
-    inline val settingInnerColor
-        get() = lang("setting.inner_color").style {
-            hover(lang("setting.inner_color.comment"))
-        }
+    inline val settingInnerColor get() = lang("setting.inner_color")
 
-    inline val settingOuterColor
-        get() = lang("setting.outer_color").style {
-            hover(lang("setting.outer_color.comment"))
-        }
+    inline val settingOuterColor get() = lang("setting.outer_color")
 
-    inline val settingInnerSelectedColor
-        get() = lang("setting.inner_selected_color").style {
-            hover(lang("setting.inner_selected_color.comment"))
-        }
+    inline val settingInnerSelectedColor get() = lang("setting.inner_selected_color")
 
-    inline val settingOuterSelectedColor
-        get() = lang("setting.outer_selected_color").style {
-            hover(lang("setting.outer_selected_color.comment"))
-        }
+    inline val settingOuterSelectedColor get() = lang("setting.outer_selected_color")
 
-    inline val settingIconScale
-        get() = lang("setting.icon_scale").style {
-            hover(lang("setting.icon_scale.comment"))
-        }
+    inline val settingIconScale get() = lang("setting.icon_scale")
 
-    inline val settingInnerRadius
-        get() = lang("setting.inner_radius").style {
-            hover(lang("setting.inner_radius.comment"))
-        }
+    inline val settingInnerRadius get() = lang("setting.inner_radius")
 
-    inline val settingOuterRadius
-        get() = lang("setting.outer_radius").style {
-            hover(lang("setting.outer_radius.comment"))
-        }
+    inline val settingOuterRadius get() = lang("setting.outer_radius")
 
-    inline val settingOptionRadius
-        get() = lang("setting.option_radius").style {
-            hover(lang("setting.option_radius.comment"))
-        }
+    inline val settingOptionRadius get() = lang("setting.option_radius")
 
-    inline val settingGap
-        get() = lang("setting.gap").style {
-            hover(lang("setting.gap.comment"))
-        }
+    inline val settingGap get() = lang("setting.gap")
 
-    inline val settingPageSize
-        get() = lang("setting.page_size").style {
-            hover(lang("setting.page_size.comment"))
-        }
+    inline val settingPageSize get() = lang("setting.page_size")
 
-    inline val settingBorderColor
-        get() = lang("setting.border_color").style {
-            hover(lang("setting.border_color.comment"))
-        }
+    inline val settingBorderColor get() = lang("setting.border_color")
 
-    inline val settingSelectedBorderColor
-        get() = lang("setting.selected_border_color").style {
-            hover(lang("setting.selected_border_color.comment"))
-        }
+    inline val settingSelectedBorderColor get() = lang("setting.selected_border_color")
 
-    inline val settingCornerRadius
-        get() = lang("setting.corner_radius").style {
-            hover(lang("setting.corner_radius.comment"))
-        }
+    inline val settingCornerRadius get() = lang("setting.corner_radius")
 
-    inline val settingBorderWidth
-        get() = lang("setting.border_width").style {
-            hover(lang("setting.border_width.comment"))
-        }
+    inline val settingBorderWidth get() = lang("setting.border_width")
+
+    inline val settingInnerColorComment get() = lang("setting.inner_color.comment")
+
+    inline val settingOuterColorComment get() = lang("setting.outer_color.comment")
+
+    inline val settingInnerSelectedColorComment get() = lang("setting.inner_selected_color.comment")
+
+    inline val settingOuterSelectedColorComment get() = lang("setting.outer_selected_color.comment")
+
+    inline val settingIconScaleComment get() = lang("setting.icon_scale.comment")
+
+    inline val settingInnerRadiusComment get() = lang("setting.inner_radius.comment")
+
+    inline val settingOuterRadiusComment get() = lang("setting.outer_radius.comment")
+
+    inline val settingOptionRadiusComment get() = lang("setting.option_radius.comment")
+
+    inline val settingGapComment get() = lang("setting.gap.comment")
+
+    inline val settingPageSizeComment get() = lang("setting.page_size.comment")
+
+    inline val settingBorderColorComment get() = lang("setting.border_color.comment")
+
+    inline val settingSelectedBorderColorComment get() = lang("setting.selected_border_color.comment")
+
+    inline val settingCornerRadiusComment get() = lang("setting.corner_radius.comment")
+
+    inline val settingBorderWidthComment get() = lang("setting.border_width.comment")
 
     inline val delete get() = lang("delete")
     inline val deleteConfirm get() = lang("delete_confirm")

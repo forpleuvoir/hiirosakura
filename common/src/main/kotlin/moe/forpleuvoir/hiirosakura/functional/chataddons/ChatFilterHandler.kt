@@ -1,10 +1,12 @@
 package moe.forpleuvoir.hiirosakura.functional.chataddons
 
+import androidx.compose.ui.Modifier
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.configList
 import moe.forpleuvoir.nebula.serialization.codec.Codec
@@ -19,10 +21,16 @@ object ChatFilterHandler : ConfigGroup("chat_filter") {
             StringListConfigWrapper(
                 config,
                 addContentLabel = {
-                    Text(component = HSLang.Chat.filterExp)
+                    Text(
+                        component = HSLang.Chat.filterExp,
+                        modifier = Modifier.tooltip { Text(component = HSLang.Chat.filterExpComment) },
+                    )
                 },
                 contentHeader = {
-                    Text(component = HSLang.Chat.filterExp)
+                    Text(
+                        component = HSLang.Chat.filterExp,
+                        modifier = Modifier.tooltip { Text(component = HSLang.Chat.filterExpComment) },
+                    )
                 }
             )
         }

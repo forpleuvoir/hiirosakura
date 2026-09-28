@@ -29,6 +29,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
@@ -217,7 +218,10 @@ fun RadialMenuSettingDialog(
                     }
 
                     EntryRow {
-                        Text(HSLang.CustomRadialMenu.settingInnerColor.plainText)
+                        Text(
+                            text = HSLang.CustomRadialMenu.settingInnerColor.plainText,
+                            modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingInnerColorComment) },
+                        )
                         ColorPickButton(
                             color = draft.innerColor.toComposeColor(),
                             onValueChange = { draft = draft.copy(innerColor = it.toNebulaColor()) },
@@ -225,7 +229,10 @@ fun RadialMenuSettingDialog(
                         )
                     }
                     EntryRow {
-                        Text(HSLang.CustomRadialMenu.settingOuterColor.plainText)
+                        Text(
+                            text = HSLang.CustomRadialMenu.settingOuterColor.plainText,
+                            modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingOuterColorComment) },
+                        )
                         ColorPickButton(
                             color = draft.outerColor.toComposeColor(),
                             onValueChange = { draft = draft.copy(outerColor = it.toNebulaColor()) },
@@ -233,7 +240,10 @@ fun RadialMenuSettingDialog(
                         )
                     }
                     EntryRow {
-                        Text(HSLang.CustomRadialMenu.settingInnerSelectedColor.plainText)
+                        Text(
+                            text = HSLang.CustomRadialMenu.settingInnerSelectedColor.plainText,
+                            modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingInnerSelectedColorComment) },
+                        )
                         ColorPickButton(
                             color = draft.innerSelectedColor.toComposeColor(),
                             onValueChange = { draft = draft.copy(innerSelectedColor = it.toNebulaColor()) },
@@ -241,7 +251,10 @@ fun RadialMenuSettingDialog(
                         )
                     }
                     EntryRow {
-                        Text(HSLang.CustomRadialMenu.settingOuterSelectedColor.plainText)
+                        Text(
+                            text = HSLang.CustomRadialMenu.settingOuterSelectedColor.plainText,
+                            modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingOuterSelectedColorComment) },
+                        )
                         ColorPickButton(
                             color = draft.outerSelectedColor.toComposeColor(),
                             onValueChange = { draft = draft.copy(outerSelectedColor = it.toNebulaColor()) },
@@ -249,7 +262,10 @@ fun RadialMenuSettingDialog(
                         )
                     }
                     EntryRow {
-                        Text(HSLang.CustomRadialMenu.settingBorderColor.plainText)
+                        Text(
+                            text = HSLang.CustomRadialMenu.settingBorderColor.plainText,
+                            modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingBorderColorComment) },
+                        )
                         ColorPickButton(
                             color = draft.borderColor.toComposeColor(),
                             onValueChange = { draft = draft.copy(borderColor = it.toNebulaColor()) },
@@ -257,7 +273,10 @@ fun RadialMenuSettingDialog(
                         )
                     }
                     EntryRow {
-                        Text(HSLang.CustomRadialMenu.settingSelectedBorderColor.plainText)
+                        Text(
+                            text = HSLang.CustomRadialMenu.settingSelectedBorderColor.plainText,
+                            modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingSelectedBorderColorComment) },
+                        )
                         ColorPickButton(
                             color = draft.selectedBorderColor.toComposeColor(),
                             onValueChange = { draft = draft.copy(selectedBorderColor = it.toNebulaColor()) },
@@ -268,7 +287,10 @@ fun RadialMenuSettingDialog(
 
                     val width = 280.dp
                     EntryRow {
-                        Text(HSLang.CustomRadialMenu.settingIconScale.plainText)
+                        Text(
+                            text = HSLang.CustomRadialMenu.settingIconScale.plainText,
+                            modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingIconScaleComment) },
+                        )
                         Slider(
                             draft.iconScale,
                             { draft = draft.copy(iconScale = it) },
@@ -278,7 +300,10 @@ fun RadialMenuSettingDialog(
                     }
 
                     EntryRow {
-                        Text(HSLang.CustomRadialMenu.settingInnerRadius.plainText)
+                        Text(
+                            text = HSLang.CustomRadialMenu.settingInnerRadius.plainText,
+                            modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingInnerRadiusComment) },
+                        )
                         Slider(
                             draft.innerRadius,
                             { draft = draft.copy(innerRadius = it) },
@@ -288,7 +313,10 @@ fun RadialMenuSettingDialog(
                     }
 
                     EntryRow {
-                        Text(HSLang.CustomRadialMenu.settingOuterRadius.plainText)
+                        Text(
+                            text = HSLang.CustomRadialMenu.settingOuterRadius.plainText,
+                            modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingOuterRadiusComment) },
+                        )
                         Slider(
                             draft.outerRadius,
                             { draft = draft.copy(outerRadius = it) },
@@ -298,7 +326,10 @@ fun RadialMenuSettingDialog(
                     }
 
                     EntryRow {
-                        Text(HSLang.CustomRadialMenu.settingOptionRadius.plainText)
+                        Text(
+                            text = HSLang.CustomRadialMenu.settingOptionRadius.plainText,
+                            modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingOptionRadiusComment) },
+                        )
                         Slider(
                             draft.optionRadius,
                             { draft = draft.copy(optionRadius = it) },
@@ -308,17 +339,26 @@ fun RadialMenuSettingDialog(
                     }
 
                     EntryRow {
-                        Text(HSLang.CustomRadialMenu.settingGap.plainText)
+                        Text(
+                            text = HSLang.CustomRadialMenu.settingGap.plainText,
+                            modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingGapComment) },
+                        )
                         Slider(draft.gap, { draft = draft.copy(gap = it) }, valueRange = 0f..30f, modifier = Modifier.width(width).height(24.dp))
                     }
 
                     EntryRow {
-                        Text(HSLang.CustomRadialMenu.settingPageSize.plainText)
+                        Text(
+                            text = HSLang.CustomRadialMenu.settingPageSize.plainText,
+                            modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingPageSizeComment) },
+                        )
                         IntSlider(draft.pageSize, { draft = draft.copy(pageSize = it) }, valueRange = 4..12, modifier = Modifier.width(width).height(24.dp))
                     }
 
                     EntryRow {
-                        Text(HSLang.CustomRadialMenu.settingCornerRadius.plainText)
+                        Text(
+                            text = HSLang.CustomRadialMenu.settingCornerRadius.plainText,
+                            modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingCornerRadiusComment) },
+                        )
                         Slider(
                             draft.cornerRadius,
                             { draft = draft.copy(cornerRadius = it) },
@@ -328,7 +368,10 @@ fun RadialMenuSettingDialog(
                     }
 
                     EntryRow {
-                        Text(HSLang.CustomRadialMenu.settingBorderWidth.plainText)
+                        Text(
+                            text = HSLang.CustomRadialMenu.settingBorderWidth.plainText,
+                            modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingBorderWidthComment) },
+                        )
                         Slider(
                             draft.borderWidth,
                             { draft = draft.copy(borderWidth = it) },

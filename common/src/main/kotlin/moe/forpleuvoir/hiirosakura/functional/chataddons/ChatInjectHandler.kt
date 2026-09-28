@@ -1,11 +1,13 @@
 package moe.forpleuvoir.hiirosakura.functional.chataddons
 
+import androidx.compose.ui.Modifier
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.ibukigourd.config.item.configPairList
 import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.PairListConfigWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.ConfigSerde
 import moe.forpleuvoir.nebula.serialization.codec.Codec
@@ -19,10 +21,30 @@ object ChatInjectHandler : ConfigGroup("chat_inject") {
         .uiWrapper { config ->
             StringPairListConfigWrapper(
                 config,
-                firstHead = { Text(component = HSLang.Chat.injectExp) },
-                addFirstLabel = { Text(component = HSLang.Chat.injectExp) },
-                secondHead = { Text(component = HSLang.Chat.injectRegex) },
-                addSecondLabel = { Text(component = HSLang.Chat.injectRegex) },
+                firstHead = {
+                    Text(
+                        component = HSLang.Chat.injectExp,
+                        modifier = Modifier.tooltip { Text(component = HSLang.Chat.injectExpComment) },
+                    )
+                },
+                addFirstLabel = {
+                    Text(
+                        component = HSLang.Chat.injectExp,
+                        modifier = Modifier.tooltip { Text(component = HSLang.Chat.injectExpComment) },
+                    )
+                },
+                secondHead = {
+                    Text(
+                        component = HSLang.Chat.injectRegex,
+                        modifier = Modifier.tooltip { Text(component = HSLang.Chat.injectRegexComment) },
+                    )
+                },
+                addSecondLabel = {
+                    Text(
+                        component = HSLang.Chat.injectRegex,
+                        modifier = Modifier.tooltip { Text(component = HSLang.Chat.injectRegexComment) },
+                    )
+                },
             )
         }
 

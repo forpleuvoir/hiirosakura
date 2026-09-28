@@ -12,10 +12,6 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainDoorsRule
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainStrategy
 import moe.forpleuvoir.hiirosakura.ui.configwrapper.ListConfigWrapperDefaults
-import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
-import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Link2
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Radar
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo.BlockInfoMatcherDisplayerEditor
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
@@ -75,6 +71,12 @@ private object ChainDoorsRuleCardDefaults {
 
     /** 标签列与编辑器之间的水平间距。 */
     val LabelGap: Dp = 8.dp
+
+    /** 标签列左侧留白：标签不贴卡片边缘。 */
+    val LabelStartPadding: Dp = 8.dp
+
+    /** 开关行右侧留白：开关不贴卡片边缘。 */
+    val SwitchEndPadding: Dp = 8.dp
 
     /** 浮层宽度下限：一行放得下 [MinColumns] 张卡片。 */
     val DialogMinWidth: Dp
@@ -230,7 +232,15 @@ private fun ChainDoorsRuleForm(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(ChainDoorsRuleCardDefaults.RowSpacing),
     ) {
-        ChainDoorsLabeledRow(label = { Text(component = HSLang.ChainDoors.originDoor, maxLines = 1) }) {
+        ChainDoorsLabeledRow(
+            label = {
+                Text(
+                    component = HSLang.ChainDoors.originDoor,
+                    modifier = Modifier.tooltip { Text(component = HSLang.ChainDoors.originDoorComment) },
+                    maxLines = 1,
+                )
+            },
+        ) {
             BlockInfoMatcherDisplayerEditor(
                 value = value.originDoor,
                 onValueChange = { onValueChange(value.copy(originDoor = it)) },
@@ -238,7 +248,15 @@ private fun ChainDoorsRuleForm(
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-        ChainDoorsLabeledRow(label = { Text(component = HSLang.ChainDoors.chainDoor, maxLines = 1) }) {
+        ChainDoorsLabeledRow(
+            label = {
+                Text(
+                    component = HSLang.ChainDoors.chainDoor,
+                    modifier = Modifier.tooltip { Text(component = HSLang.ChainDoors.chainDoorComment) },
+                    maxLines = 1,
+                )
+            },
+        ) {
             BlockInfoMatcherDisplayerEditor(
                 value = value.chainDoor,
                 onValueChange = { onValueChange(value.copy(chainDoor = it)) },
@@ -247,13 +265,34 @@ private fun ChainDoorsRuleForm(
             )
         }
 
-        ChainDoorsLabeledRow(label = { Text(component = HSLang.ChainDoors.keyToggleMode, maxLines = 1) }) {
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+        ChainDoorsLabeledRow(
+            label = {
+                Text(
+                    component = HSLang.ChainDoors.keyToggleMode,
+                    modifier = Modifier.tooltip { Text(component = HSLang.ChainDoors.keyToggleModeComment) },
+                    maxLines = 1,
+                )
+            },
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = ChainDoorsRuleCardDefaults.SwitchEndPadding),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
                 Switch(value.keyToggleMode, { onValueChange(value.copy(keyToggleMode = it)) })
             }
         }
 
-        ChainDoorsLabeledRow(label = { Text(component = HSLang.ChainDoors.strategy, maxLines = 1) }) {
+        ChainDoorsLabeledRow(
+            label = {
+                Text(
+                    component = HSLang.ChainDoors.strategy,
+                    modifier = Modifier.tooltip { Text(component = HSLang.ChainDoors.strategyComment) },
+                    maxLines = 1,
+                )
+            },
+        ) {
             ChainStrategyDisplayerEditor(
                 value = value.strategy,
                 onValueChange = { onValueChange(value.copy(strategy = it)) },
@@ -283,7 +322,9 @@ private fun ChainDoorsLabeledRow(
     val editorModifier = Modifier.weight(ChainDoorsRuleCardDefaults.EditorWeight)
 
     Box(
-        modifier = Modifier.weight(ChainDoorsRuleCardDefaults.LabelWeight),
+        modifier = Modifier
+            .weight(ChainDoorsRuleCardDefaults.LabelWeight)
+            .padding(start = ChainDoorsRuleCardDefaults.LabelStartPadding),
         contentAlignment = Alignment.CenterStart,
     ) {
         label()
@@ -393,16 +434,7 @@ fun ChainStrategyDisplayer(
         contentAlignment = Alignment.Center,
     ) {
         Box(Modifier.padding(TextFieldDefaults.contentPadding())) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                when (value) {
-                    is ChainStrategy.Neighborhood -> VectorIcon(HSIcons.Radar)
-                    is ChainStrategy.Recursive    -> VectorIcon(HSIcons.Link2)
-                }
-                ChainStrategyInfo(value)
-            }
+            ChainStrategyInfo(value)
         }
     }
 }
@@ -483,12 +515,18 @@ private fun ChainStrategyEditor(
                 if (neighborhood) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(component = HSLang.ChainDoors.strategyRadius)
+                            Text(
+                                component = HSLang.ChainDoors.strategyRadius,
+                                modifier = Modifier.tooltip { Text(component = HSLang.ChainDoors.strategyRadiusComment) },
+                            )
                             IntField(neighborhoodValue.radius, { neighborhoodValue = neighborhoodValue.copy(radius = it) }, modifier = Modifier.width(width))
                         }
 
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(component = HSLang.ChainDoors.strategyShape)
+                            Text(
+                                component = HSLang.ChainDoors.strategyShape,
+                                modifier = Modifier.tooltip { Text(component = HSLang.ChainDoors.strategyShapeComment) },
+                            )
                             EnumSelector(
                                 selected = neighborhoodValue.shape,
                                 onSelect = { neighborhoodValue = neighborhoodValue.copy(shape = it) },
@@ -498,34 +536,52 @@ private fun ChainStrategyEditor(
                         }
 
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(component = HSLang.ChainDoors.strategySameBlock)
+                            Text(
+                                component = HSLang.ChainDoors.strategySameBlock,
+                                modifier = Modifier.tooltip { Text(component = HSLang.ChainDoors.strategySameBlockComment) },
+                            )
                             Switch(neighborhoodValue.sameBlock, { neighborhoodValue = neighborhoodValue.copy(sameBlock = it) })
                         }
 
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(component = HSLang.ChainDoors.strategySyncState)
+                            Text(
+                                component = HSLang.ChainDoors.strategySyncState,
+                                modifier = Modifier.tooltip { Text(component = HSLang.ChainDoors.strategySyncStateComment) },
+                            )
                             Switch(neighborhoodValue.syncState, { neighborhoodValue = neighborhoodValue.copy(syncState = it) })
                         }
 
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(component = HSLang.ChainDoors.strategyLimit)
+                            Text(
+                                component = HSLang.ChainDoors.strategyLimit,
+                                modifier = Modifier.tooltip { Text(component = HSLang.ChainDoors.strategyLimitComment) },
+                            )
                             IntField(neighborhoodValue.limit, { neighborhoodValue = neighborhoodValue.copy(limit = it) }, modifier = Modifier.width(width))
                         }
                     }
                 } else {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(component = HSLang.ChainDoors.strategySameBlock)
+                            Text(
+                                component = HSLang.ChainDoors.strategySameBlock,
+                                modifier = Modifier.tooltip { Text(component = HSLang.ChainDoors.strategySameBlockComment) },
+                            )
                             Switch(recursiveValue.sameBlock, { recursiveValue = recursiveValue.copy(sameBlock = it) })
                         }
 
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(component = HSLang.ChainDoors.strategySyncState)
+                            Text(
+                                component = HSLang.ChainDoors.strategySyncState,
+                                modifier = Modifier.tooltip { Text(component = HSLang.ChainDoors.strategySyncStateComment) },
+                            )
                             Switch(recursiveValue.syncState, { recursiveValue = recursiveValue.copy(syncState = it) })
                         }
 
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(component = HSLang.ChainDoors.strategyLimit)
+                            Text(
+                                component = HSLang.ChainDoors.strategyLimit,
+                                modifier = Modifier.tooltip { Text(component = HSLang.ChainDoors.strategyLimitComment) },
+                            )
                             IntField(recursiveValue.limit, { recursiveValue = recursiveValue.copy(limit = it) }, modifier = Modifier.width(width))
                         }
                     }

@@ -6,6 +6,8 @@ import moe.forpleuvoir.hiirosakura.config.items.configChatBubbleServerConfigMap
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.EntityMatcher
 import moe.forpleuvoir.ibukigourd.config.item.configVector2f
 import moe.forpleuvoir.ibukigourd.text.Text
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.config.ConfigGroup
 import moe.forpleuvoir.nebula.config.item.configBoolean
@@ -52,13 +54,15 @@ object ChatBubbleHandler : ConfigGroup("chat_bubble") {
         )
     )
 
-    init {
-//        uiWrapper { config ->
-//            ChatBubbleConfigGui(config)
-//        }
-    }
-
     private val bubbleQueue = ConcurrentLinkedQueue<ChatBubblePair>()
+
+    /**
+     * 配置页预览面板挂上去的气泡：非 null 时画在本地玩家头上，取代队列里的正式气泡。
+     *
+     * 面板挂载期间才非 null，卸载即清空；渲染线程每帧读它，故用 `@Volatile`。
+     */
+    @Volatile
+    var previewBubble: ChatBubble? = null
 
     @JvmStatic
     fun addChatBubble(text: Text, uuid: UUID?, profile: GameProfile?) {
@@ -73,6 +77,13 @@ object ChatBubbleHandler : ConfigGroup("chat_bubble") {
         poseStack: PoseStack,
         nodeCollector: SubmitNodeCollector
     ) {
+        previewBubble?.let { bubble ->
+            if (player === mc.player && !bubble.shouldRemove) {
+                bubble.render(packedLight, renderState, poseStack, nodeCollector, faceCamera = false)
+                return
+            }
+        }
+
         bubbleQueue.filter { it.bubble.shouldRemove }
             .let { bubbleQueue.removeAll(it.toSet()) }
 

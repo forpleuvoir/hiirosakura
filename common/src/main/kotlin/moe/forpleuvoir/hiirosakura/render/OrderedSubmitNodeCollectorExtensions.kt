@@ -24,6 +24,8 @@ import net.minecraft.client.renderer.OrderedSubmitNodeCollector
 import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.locale.Language
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Style
 import net.minecraft.network.chat.FormattedText
 import net.minecraft.util.LightCoordsUtil
 import kotlin.math.absoluteValue
@@ -258,7 +260,65 @@ fun pushSpeechBubbleTexture(
     pose: PoseStack.Pose,
     vertexConsumer: VertexConsumer
 ) {
-    pushNineSlicedTexture(arrowArea.left, arrowArea.top, arrowArea.width, arrowArea.height, color, arrowTexture, packedLight, pose, vertexConsumer)
+    // 箭头：负 border 的 |b| 像素画在锚点线之外、不占布局盒，其余是盒内内容；两块都按原始像素 1:1。
+    val arrowInsetLeft = (-arrowTexture.corner.left).coerceAtLeast(0)
+    val arrowInsetRight = (-arrowTexture.corner.right).coerceAtLeast(0)
+    val arrowInsetTop = (-arrowTexture.corner.top).coerceAtLeast(0)
+    val arrowInsetBottom = (-arrowTexture.corner.bottom).coerceAtLeast(0)
+    val arrowContentWidth = arrowTexture.uSize - arrowInsetLeft - arrowInsetRight
+    val arrowContentHeight = arrowTexture.vSize - arrowInsetTop - arrowInsetBottom
+    pushTexture(
+        arrowArea.left,
+        arrowArea.top,
+        arrowArea.width,
+        arrowArea.height,
+        arrowTexture.uStart + arrowInsetLeft,
+        arrowTexture.vStart + arrowInsetTop,
+        arrowContentWidth,
+        arrowContentHeight,
+        packedLight,
+        color,
+        arrowTexture.textureInfo.width,
+        arrowTexture.textureInfo.height,
+        pose,
+        vertexConsumer
+    )
+    if (arrowInsetTop > 0) {
+        pushTexture(
+            arrowArea.left,
+            arrowArea.top - arrowInsetTop,
+            arrowArea.width,
+            arrowInsetTop.toFloat(),
+            arrowTexture.uStart + arrowInsetLeft,
+            arrowTexture.vStart,
+            arrowContentWidth,
+            arrowInsetTop,
+            packedLight,
+            color,
+            arrowTexture.textureInfo.width,
+            arrowTexture.textureInfo.height,
+            pose,
+            vertexConsumer
+        )
+    }
+    if (arrowInsetLeft > 0) {
+        pushTexture(
+            arrowArea.left - arrowInsetLeft,
+            arrowArea.top,
+            arrowInsetLeft.toFloat(),
+            arrowArea.height,
+            arrowTexture.uStart,
+            arrowTexture.vStart + arrowInsetTop,
+            arrowInsetLeft,
+            arrowContentHeight,
+            packedLight,
+            color,
+            arrowTexture.textureInfo.width,
+            arrowTexture.textureInfo.height,
+            pose,
+            vertexConsumer
+        )
+    }
     val corner = bubbleTexture.corner
     if (!bubbleTexture.corner.isSpecified) {
         pushTexture(bubbleArea.left, bubbleArea.top, bubbleArea.width, bubbleArea.height, bubbleTexture, packedLight, color, pose, vertexConsumer)
@@ -542,12 +602,14 @@ fun OrderedSubmitNodeCollector.pushStringLines(
     backgroundColor: Color = Colors.BLACK.alpha(0),
     outlineColor: Color = Colors.BLACK.alpha(0),
     packedLight: Int = LightCoordsUtil.FULL_BRIGHT,
+    /** 逐行套用的样式（字体等）。 */
+    style: Style = Style.EMPTY,
     poseStack: PoseStack
 ) {
     textLines(
         verticalArrangement,
         area,
-        lines.wrapToLines(area.width.toFloat()),
+        lines.wrapToLines(area.width.toFloat()).map { Component.literal(it).withStyle(style) },
         horizontalAlignment,
         dropShadow,
         displayMode,

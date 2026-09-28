@@ -23,7 +23,11 @@ import moe.forpleuvoir.ibukigourd.render.extension.AnchorPosition
 import moe.forpleuvoir.ibukigourd.render.extension.pushSpeechBubbleTexture
 import moe.forpleuvoir.ibukigourd.render.extension.pushStringLines
 import moe.forpleuvoir.ibukigourd.render.extension.texture.Corner
+import net.minecraft.network.chat.Style
 import moe.forpleuvoir.ibukigourd.render.extension.texture.IGTexture
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.TextureFill
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuAtlasManager
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.texture.atlas.SokitsuSprite
 import moe.forpleuvoir.ibukigourd.render.extension.texture.TextureInfo
 import moe.forpleuvoir.ibukigourd.text.size
 import moe.forpleuvoir.ibukigourd.text.wrapToLines
@@ -53,19 +57,83 @@ class ChatBubble(
 ) {
     companion object {
 
-        internal val TEXTURE = TextureInfo(16, 16, identifier("texture/gui/chat/bubble.png"))
+        /** 气泡体 / 箭头所在的 sokitsu 图集与纹理 id（源文件在 `texture/sokitsu/ui/chat/`）。 */
+        private val ATLAS_ID = identifier("ui")
 
-        private val BUBBLE = IGTexture(Corner(4), 0, 0, 16, 9, TEXTURE)
+        private val BUBBLE_TEXTURE_ID = identifier("ui/chat/bubble")
 
-        private val ARROW = IGTexture(Corner(top = -4), 5, 13, 12, 16, TEXTURE)
+        private val ARROW_TEXTURE_ID = identifier("ui/chat/arrow")
+
+        /** 气泡体精灵：九宫格边框等取自纹理定义。 */
+        internal val BUBBLE: SokitsuSprite get() = SokitsuAtlasManager.sprite(ATLAS_ID, BUBBLE_TEXTURE_ID)
+
+        /** 箭头精灵。 */
+        internal val ARROW: SokitsuSprite get() = SokitsuAtlasManager.sprite(ATLAS_ID, ARROW_TEXTURE_ID)
+
+        /** 箭头布局盒高度（像素）：贴图高度扣掉负 border 的外侧像素。 */
+        internal val ARROW_BOX_HEIGHT: Int get() = ARROW.layerHeight() - ARROW.outsetTop() - ARROW.outsetBottom()
+
+        /** 气泡体九宫格的四条内边距（像素）：内容要按它们内缩。 */
+        internal val BUBBLE_PADDING_LEFT: Int get() = BUBBLE.paddingLeft().toInt()
+
+        internal val BUBBLE_PADDING_TOP: Int get() = BUBBLE.paddingTop().toInt()
+
+        internal val BUBBLE_PADDING_RIGHT: Int get() = BUBBLE.paddingRight().toInt()
+
+        internal val BUBBLE_PADDING_BOTTOM: Int get() = BUBBLE.paddingBottom().toInt()
 
         private val RENDER_TYPE get() = if (useIrisCompatiblePipeline.enabled) IRIS_RENDER_TYPE else VANILLA_RENDER_TYPE
 
-        private val VANILLA_RENDER_TYPE = HSRenderType.POSITION_TEX_COLOR.apply(TEXTURE.textureId)
+        private val VANILLA_RENDER_TYPE = HSRenderType.POSITION_TEX_COLOR.apply(ATLAS_ID)
 
-        private val IRIS_RENDER_TYPE = RenderTypes.entityTranslucent(TEXTURE.textureId)
+        private val IRIS_RENDER_TYPE = RenderTypes.entityTranslucent(ATLAS_ID)
 
-        private const val LINE_SPACING = 4f
+        /** 九宫格边框的左内边距（像素）；纹理未加载时用缺省值。 */
+        internal fun SokitsuSprite.paddingLeft(): Float =
+            ((layers.firstOrNull()?.fill as? TextureFill.NinePatch)?.border?.left ?: 5).toFloat()
+
+        /** 九宫格边框的上内边距（像素）。 */
+        internal fun SokitsuSprite.paddingTop(): Float =
+            ((layers.firstOrNull()?.fill as? TextureFill.NinePatch)?.border?.top ?: 4).toFloat()
+
+        /** 九宫格边框的右内边距（像素）。 */
+        internal fun SokitsuSprite.paddingRight(): Float =
+            ((layers.firstOrNull()?.fill as? TextureFill.NinePatch)?.border?.right ?: 5).toFloat()
+
+        /** 九宫格边框的下内边距（像素）。 */
+        internal fun SokitsuSprite.paddingBottom(): Float =
+            ((layers.firstOrNull()?.fill as? TextureFill.NinePatch)?.border?.bottom ?: 5).toFloat()
+
+        /** 图层宽度（像素）；纹理未加载时为 0。 */
+        internal fun SokitsuSprite.layerWidth(): Int = layers.firstOrNull()?.width ?: 0
+
+        /** 图层高度（像素）；纹理未加载时为 0。 */
+        internal fun SokitsuSprite.layerHeight(): Int = layers.firstOrNull()?.height ?: 0
+
+        /** 负 border 在左/右/上/下的外侧像素数（布局盒不含这些）。 */
+        internal fun SokitsuSprite.outsetLeft(): Int = (-paddingLeft().toInt()).coerceAtLeast(0)
+
+        internal fun SokitsuSprite.outsetRight(): Int = (-paddingRight().toInt()).coerceAtLeast(0)
+
+        internal fun SokitsuSprite.outsetTop(): Int = (-paddingTop().toInt()).coerceAtLeast(0)
+
+        internal fun SokitsuSprite.outsetBottom(): Int = (-paddingBottom().toInt()).coerceAtLeast(0)
+
+        /** 把精灵转成世界 blit 用的 [IGTexture]（图集尺寸 + 图层像素 UV + 图层九宫格角）。 */
+        private fun SokitsuSprite.toIGTexture(): IGTexture? {
+            val atlas = SokitsuAtlasManager.atlasTexture(atlasLocation) ?: return null
+            val layer = layers.firstOrNull() ?: return null
+            return IGTexture(
+                Corner(paddingLeft().toInt(), paddingRight().toInt(), paddingTop().toInt(), paddingBottom().toInt()),
+                layer.x,
+                layer.y,
+                layer.x + layer.width,
+                layer.y + layer.height,
+                TextureInfo(atlas.width, atlas.height, atlas.location),
+            )
+        }
+
+        internal const val LINE_SPACING = 4f
 
         private val currentServerName: String get() = ServerMarker.lastServerName
 
@@ -151,7 +219,8 @@ class ChatBubble(
             scale: Vector2fc,
             renderState: AvatarRenderState,
             nodeCollector: SubmitNodeCollector,
-            packedLight: Int
+            packedLight: Int,
+            faceCamera: Boolean
         ) {
             val packedLight = (ChatBubbleHandler.useMaxLight || !useIrisCompatiblePipeline.enabled).either(LightCoordsUtil.FULL_BRIGHT, packedLight)
 
@@ -163,25 +232,29 @@ class ChatBubble(
             poseStack.translate(0f, height + arrowArea.bottom * -s, 0f)
             poseStack.translate(scaledOffset.x(), scaledOffset.y(), 0f)
 
-            val camera = mc.gameRenderer.mainCamera()
-            val cameraYaw = camera.yRot()
-            val cameraPitch = camera.xRot()
-            poseStack.mulPose(Quaternionf().rotateY(-cameraYaw * (Math.PI.toFloat() / 180F)))// 水平旋转
-            if (!ChatBubbleHandler.onlyYRotation)
-                poseStack.mulPose(Quaternionf().rotateX(cameraPitch * (Math.PI.toFloat() / 180F))) // 垂直旋转
+            if (faceCamera) {
+                val camera = mc.gameRenderer.mainCamera()
+                poseStack.mulPose(Quaternionf().rotateY(-camera.yRot() * (Math.PI.toFloat() / 180F)))// 水平旋转
+                if (!ChatBubbleHandler.onlyYRotation)
+                    poseStack.mulPose(Quaternionf().rotateX(camera.xRot() * (Math.PI.toFloat() / 180F))) // 垂直旋转
+            }
 
+            val bubbleTexture = BUBBLE.toIGTexture()
+            val arrowTexture = ARROW.toIGTexture()
             poseStack.scale(scale.x() * s, scale.y() * s, -s)
-            nodeCollector.pushSpeechBubbleTexture(
-                bubbleArea,
-                BUBBLE,
-                arrowArea,
-                ARROW,
-                AnchorPosition.Below,
-                packedLight,
-                ChatBubbleHandler.textureColor.alpha(alpha),
-                poseStack,
-                RENDER_TYPE
-            )
+            if (bubbleTexture != null && arrowTexture != null) {
+                nodeCollector.pushSpeechBubbleTexture(
+                    bubbleArea,
+                    bubbleTexture,
+                    arrowArea,
+                    arrowTexture,
+                    AnchorPosition.Below,
+                    packedLight,
+                    ChatBubbleHandler.textureColor.alpha(alpha),
+                    poseStack,
+                    RENDER_TYPE
+                )
+            }
             nodeCollector.pushStringLines(
                 lines,
                 textArea.roundToIntRect(),
@@ -197,81 +270,63 @@ class ChatBubble(
             poseStack.popPose()
         }
 
-        private fun renderBubbleInGui(
-            area: Rect,
-            bubbleArea: Rect,
-            arrowArea: Rect,
-            textArea: Rect,
-            lines: List<String>,
-            alpha: Float,
-            offset: Vector2fc,
-            scale: Vector2fc,
-            guiGraphics: GuiGraphicsExtractor,
-        ) {
-            guiGraphics.apply {
-                pose().popMatrix()
-                pose().translation(area.center.x, area.top - textArea.center.y)
-                val offsetMul = 5f
-                pose().translate(offset.x() * offsetMul, -offset.y() * offsetMul)
-                pose().scale(scale)
-                pushSpeechBubbleTexture(bubbleArea, BUBBLE, arrowArea, ARROW, AnchorPosition.Above, ChatBubbleHandler.textureColor.alpha(alpha))
-                pushStringLines(
-                    lines,
-                    textArea.roundToIntRect(),
-                    Alignment.Start,
-                    Arrangement.spacedBy(LINE_SPACING.dp),
-                    defaultColor = ChatBubbleHandler.textColor.alpha(alpha)
-                )
-            }
-        }
-
     }
 
-    private val lines: List<String> = message.wrapToLines(ChatBubbleHandler.maxWidth)
+    /** 按 [ChatBubbleHandler.maxWidth] 折行后的消息文本。 */
+    internal val lines: List<String> = message.wrapToLines(ChatBubbleHandler.maxWidth)
 
-    private val textArea: Rect
+    /** 文本区：原点在箭头尖端，向上为负 y。 */
+    internal val textArea: Rect
 
-    private val bubbleArea: Rect
+    /** 气泡框：文本区四周各留一段内边距。 */
+    internal val bubbleArea: Rect
 
-    private val arrowArea: Rect
+    /** 箭头：贴 [bubbleArea] 底边居中。 */
+    internal val arrowArea: Rect
 
     init {
-        val (width, height) = lines.size(LINE_SPACING)
+        val (measuredWidth, measuredHeight) = lines.size(LINE_SPACING)
+        val width = measuredWidth
+        // 空消息没有行高，兜一行文本的高度（行高取自当前字体，不写死）
+        val height = measuredHeight.coerceAtLeast(mc.font.lineHeight.toFloat())
         val maxWidth = width.coerceAtLeast(7f)
-        textArea = Rect(Offset(x = -maxWidth / 2f, y = -height - 5f - ARROW.height), Size(maxWidth, height))
-        bubbleArea = textArea.expandEdges(5f, 4f, 5f, 5f)
-        arrowArea = Rect(Offset(textArea.center.x - ARROW.width / 2f, bubbleArea.bottom), Size(ARROW.width.toFloat(), ARROW.height.toFloat()))
+        val padLeft = BUBBLE.paddingLeft()
+        val padTop = BUBBLE.paddingTop()
+        val padRight = BUBBLE.paddingRight()
+        val padBottom = BUBBLE.paddingBottom()
+        // 布局盒 = 贴图扣掉负 border 的外侧像素（外侧那部分画在锚点线之外）
+        val arrowWidth = ARROW.layerWidth() - ARROW.outsetLeft() - ARROW.outsetRight()
+        val arrowHeight = ARROW.layerHeight() - ARROW.outsetTop() - ARROW.outsetBottom()
+        textArea = Rect(Offset(x = -maxWidth / 2f, y = -height - padBottom - arrowHeight), Size(maxWidth, height))
+        bubbleArea = textArea.expandEdges(padLeft, padTop, padRight, padBottom)
+        arrowArea = Rect(
+            Offset(textArea.center.x - arrowWidth / 2f, bubbleArea.bottom),
+            Size(arrowWidth.toFloat(), arrowHeight.toFloat()),
+        )
     }
-
 
     val shouldRemove: Boolean get() = timeMark.elapsedNow() > duration
 
+    /** 当前透明度：淡入 / 淡出进度，最低 0.05，完全不透明为 1。 */
+    val alpha: Float
+        get() = calculateAlpha(duration, fadeInDuration, fadeOutDuration, timeMark).coerceIn(0.05f, 1f)
+
+    /**
+     * 把气泡画在 [renderState] 对应实体的头顶。
+     *
+     * @param faceCamera 是否让气泡绕 Y 轴（以及非仅 Y 轴模式下的 X 轴）转向游戏相机；
+     *   配置页预览的取景与游戏相机无关，那里传 false 保持模型的自身朝向。
+     */
     fun render(
         packedLight: Int,
         renderState: AvatarRenderState,
         poseStack: PoseStack,
         nodeCollector: SubmitNodeCollector,
         scale: Vector2fc = ChatBubbleHandler.scale,
-        offset: Vector2fc = ChatBubbleHandler.offset
+        offset: Vector2fc = ChatBubbleHandler.offset,
+        faceCamera: Boolean = true
     ) {
-        val alpha = calculateAlpha(
-            duration,
-            fadeInDuration,
-            fadeOutDuration,
-            timeMark
-        ).coerceIn(0.05f, 1f)
-        renderBubble(bubbleArea, arrowArea, textArea, lines, alpha, poseStack, offset, scale, renderState, nodeCollector, packedLight)
-    }
-
-    fun renderInGui(guiGraphics: GuiGraphicsExtractor, area: Rect) {
-        val alpha = calculateAlpha(
-            duration,
-            fadeInDuration,
-            fadeOutDuration,
-            timeMark
-        ).coerceIn(0.05f, 1f)
-        renderBubbleInGui(area, bubbleArea, arrowArea, textArea, lines, alpha, ChatBubbleHandler.offset, ChatBubbleHandler.scale, guiGraphics)
+        renderBubble(bubbleArea, arrowArea, textArea, lines, alpha, poseStack, offset, scale, renderState, nodeCollector, packedLight, faceCamera)
     }
 
 }
-

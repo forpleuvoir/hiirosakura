@@ -52,6 +52,10 @@ object CommonLang {
 
     inline val chatBubblePreviewLock get() = lang("chat_bubble.preview.lock")
 
+    inline val chatBubblePreviewLocked get() = lang("chat_bubble.preview.locked")
+
+    inline val chatBubblePreviewMessage get() = lang("chat_bubble.preview.message")
+
     inline val itemInitFailure get() = lang("item_init_failure")
 
     inline val exportAsFormat get() = lang("export_as_format")

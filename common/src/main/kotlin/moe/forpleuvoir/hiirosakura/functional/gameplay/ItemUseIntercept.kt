@@ -24,9 +24,9 @@ object ItemUseIntercept : ConfigGroup("item_use_intercept") {
         .uiWrapper { config ->
             BlockInfoItemStackPairMapWrapper(
                 config,
-                keyHeader = {
+                keyLabel = {
                     Text(component = HSLang.Common.name)
-                }
+                },
             )
         }
 

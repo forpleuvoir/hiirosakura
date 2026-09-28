@@ -12,11 +12,9 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainDoorsRule
 import moe.forpleuvoir.hiirosakura.functional.gameplay.chaindoors.ChainStrategy
 import moe.forpleuvoir.hiirosakura.ui.configwrapper.ListConfigWrapperDefaults
-import moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo.BlockInfoMatcherDisplayerEditor
-import moe.forpleuvoir.ibukigourd.config.translateText
+import moe.forpleuvoir.hiirosakura.ui.widget.InlineEditField
+import moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo.BlockInfoMatcherDisplayerInnerEditor
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.text.InlineStyleText
-import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.text.translateText
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.*
 import moe.forpleuvoir.ibukigourd.ui.editdialog.*
@@ -108,9 +106,7 @@ private object ChainDoorsRuleCardDefaults {
 @Composable
 fun ChainDoorsRuleListConfigWrapper(
     config: ConfigList<ChainDoorsRule>,
-    editorDialogTitle: @Composable (() -> Unit)? = {
-        Text(component = InlineStyleText(config.translateText.plainText))
-    },
+    editorDialogTitle: @Composable (() -> Unit)? = { ConfigDialogTitle(config) },
     modifier: Modifier = Modifier,
     dialogModifier: Modifier = ChainDoorsRuleCardDefaults.DialogModifier,
 ) {
@@ -241,10 +237,9 @@ private fun ChainDoorsRuleForm(
                 )
             },
         ) {
-            BlockInfoMatcherDisplayerEditor(
+            BlockInfoMatcherDisplayerInnerEditor(
                 value = value.originDoor,
                 onValueChange = { onValueChange(value.copy(originDoor = it)) },
-                editIconScale = configIconScale(),
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -257,10 +252,9 @@ private fun ChainDoorsRuleForm(
                 )
             },
         ) {
-            BlockInfoMatcherDisplayerEditor(
+            BlockInfoMatcherDisplayerInnerEditor(
                 value = value.chainDoor,
                 onValueChange = { onValueChange(value.copy(chainDoor = it)) },
-                editIconScale = configIconScale(),
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -296,7 +290,6 @@ private fun ChainDoorsRuleForm(
             ChainStrategyDisplayerEditor(
                 value = value.strategy,
                 onValueChange = { onValueChange(value.copy(strategy = it)) },
-                editIconScale = configIconScale(),
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -338,21 +331,15 @@ private fun ChainDoorsLabeledRow(
 fun ChainStrategyDisplayerEditor(
     value: ChainStrategy,
     onValueChange: (ChainStrategy) -> Unit,
-    editIconScale: Int = 2,
     modifier: Modifier = Modifier,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    Row(
+    InlineEditField(
+        onEdit = { showDialog = true },
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
-        verticalAlignment = Alignment.CenterVertically,
+        tooltip = { ChainStrategyTooltip(value) },
     ) {
-        ChainStrategyDisplayer(value, Modifier.weight(1f))
-        IconButton({
-            showDialog = true
-        }) {
-            Icon(Icons.Edit, scale = editIconScale)
-        }
+        ChainStrategyInfo(value)
     }
     if (showDialog) {
         var editingValue by remember { mutableStateOf(value) }
@@ -383,58 +370,39 @@ fun ChainStrategyDisplayerEditor(
     }
 }
 
-/**
- * 策略展示：与方块匹配同形的只读框 —— [Surface] 承载、固定控件高度，悬停给出策略明细。
- *
- * @param value 当前策略
- * @param modifier 作用于展示框本体
- */
+/** 策略明细气泡：当前策略 + 半径 / 形状 / 同方块 / 同步状态 / 上限。 */
 @Composable
-fun ChainStrategyDisplayer(
-    value: ChainStrategy,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier
-            .height(configControlHeight())
-            .tooltip {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.width(240.dp)) {
-                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        ChainStrategyInfo(value)
-                    }
-                    HorizontalDivider()
-                    if (value is ChainStrategy.Neighborhood) {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(component = HSLang.ChainDoors.strategyRadius)
-                            Text("${value.radius}")
-                        }
-
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(component = HSLang.ChainDoors.strategyShape)
-                            Text(value.shape.translateText)
-                        }
-                    }
-
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(component = HSLang.ChainDoors.strategySameBlock)
-                        Text(component = IGLang.Misc.coloredSwitch(value.sameBlock))
-                    }
-
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(component = HSLang.ChainDoors.strategySyncState)
-                        Text(component = IGLang.Misc.coloredSwitch(value.syncState))
-                    }
-
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(component = HSLang.ChainDoors.strategyLimit)
-                        Text("${value.limit}")
-                    }
-                }
-            },
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(Modifier.padding(TextFieldDefaults.contentPadding())) {
+private fun ChainStrategyTooltip(value: ChainStrategy) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.width(240.dp)) {
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             ChainStrategyInfo(value)
+        }
+        HorizontalDivider()
+        if (value is ChainStrategy.Neighborhood) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(component = HSLang.ChainDoors.strategyRadius)
+                Text("${value.radius}")
+            }
+
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(component = HSLang.ChainDoors.strategyShape)
+                Text(value.shape.translateText)
+            }
+        }
+
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(component = HSLang.ChainDoors.strategySameBlock)
+            Text(component = IGLang.Misc.coloredSwitch(value.sameBlock))
+        }
+
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(component = HSLang.ChainDoors.strategySyncState)
+            Text(component = IGLang.Misc.coloredSwitch(value.syncState))
+        }
+
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(component = HSLang.ChainDoors.strategyLimit)
+            Text("${value.limit}")
         }
     }
 }

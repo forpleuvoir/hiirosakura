@@ -33,9 +33,9 @@ object BlockBreakProtection : ConfigGroup("block_break_protection") {
         BlockInfoItemStackPairMapWrapper(
             config,
             reverseValueColumnOrder = true,
-            keyHeader = {
+            keyLabel = {
                 Text(component = HSLang.Common.name)
-            }
+            },
         )
     }
 

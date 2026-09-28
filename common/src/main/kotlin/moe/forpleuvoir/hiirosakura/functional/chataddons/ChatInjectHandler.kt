@@ -4,7 +4,8 @@ import androidx.compose.ui.Modifier
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.ibukigourd.config.item.configPairList
 import moe.forpleuvoir.ibukigourd.config.item.configToggleKeybind
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.PairListConfigWrapper
+import moe.forpleuvoir.ibukigourd.text.InlineStyleText
+import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.uiWrapper
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
@@ -24,13 +25,13 @@ object ChatInjectHandler : ConfigGroup("chat_inject") {
                 firstHead = {
                     Text(
                         component = HSLang.Chat.injectExp,
-                        modifier = Modifier.tooltip { Text(component = HSLang.Chat.injectExpComment) },
+                        modifier = Modifier.tooltip { Text(component = InlineStyleText(HSLang.Chat.injectExpComment.plainText)) },
                     )
                 },
                 addFirstLabel = {
                     Text(
                         component = HSLang.Chat.injectExp,
-                        modifier = Modifier.tooltip { Text(component = HSLang.Chat.injectExpComment) },
+                        modifier = Modifier.tooltip { Text(component = InlineStyleText(HSLang.Chat.injectExpComment.plainText)) },
                     )
                 },
                 secondHead = {

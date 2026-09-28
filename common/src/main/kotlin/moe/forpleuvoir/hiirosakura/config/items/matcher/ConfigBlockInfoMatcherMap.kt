@@ -15,10 +15,9 @@ import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowserDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo.BlockInfoMatcherDisplayerInnerEditor
 import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.text.InlineStyleText
-import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.hiirosakura.ui.configwrapper.MapConfigWrapperDefaults
 import moe.forpleuvoir.hiirosakura.ui.configwrapper.MapEntry
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigDialogTitle
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.nebula.config.ConfigGroup
@@ -36,7 +35,7 @@ fun configBlockInfoMatcherMap(name: String, defaultValue: Map<String, BlockInfoM
 @Composable
 fun BlockInfoMatcherMapConfigWrapper(
     config: ConfigMap<BlockInfoMatcher>,
-    editorDialogTitle: @Composable (() -> Unit)? = { Text(component = InlineStyleText(config.translateText.plainText)) },
+    editorDialogTitle: @Composable (() -> Unit)? = { ConfigDialogTitle(config) },
     keyHeader: @Composable BoxScope.() -> Unit = { Text(component = IGLang.ConfigWrapper.mapKey) },
     addKeyLabel: @Composable (isDuplicate: Boolean, newKey: String) -> Unit = { isDuplicate, newKey ->
         if (isDuplicate) Text(component = IGLang.ConfigWrapper.keyExists(newKey))

@@ -11,9 +11,7 @@ object HSRenderType {
     val POSITION_TEX_COLOR: Function<Identifier, RenderType> = Util.memoize<Identifier, RenderType> { texture ->
         val state = RenderSetup.builder(HSRenderPipeline.TEXTURE)
             .affectsCrumbling()
-            .withTexture("Sampler0",texture)
-            .useLightmap()
-            .useOverlay()
+            .withTexture("Sampler0", texture)
             .createRenderSetup()
         RenderType.create("position_text_color", state)
     }

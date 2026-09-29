@@ -298,7 +298,7 @@ class ChatBubble(
         val arrowWidth = ARROW.layerWidth() - ARROW.outsetLeft() - ARROW.outsetRight()
         val arrowHeight = ARROW.layerHeight() - ARROW.outsetTop() - ARROW.outsetBottom()
         textArea = Rect(Offset(x = -maxWidth / 2f, y = -height - padBottom - arrowHeight), Size(maxWidth, height))
-        bubbleArea = textArea.expandEdges(padLeft, padTop, padRight, padBottom)
+        bubbleArea = textArea.expandEdges(top = padTop, bottom = padBottom, left = padLeft, right = padRight)
         arrowArea = Rect(
             Offset(textArea.center.x - arrowWidth / 2f, bubbleArea.bottom),
             Size(arrowWidth.toFloat(), arrowHeight.toFloat()),

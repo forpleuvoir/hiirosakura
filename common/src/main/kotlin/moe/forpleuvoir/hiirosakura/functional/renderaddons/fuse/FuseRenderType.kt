@@ -39,9 +39,9 @@ enum class FuseRenderType {
             contentColor: Color,
             packedLight: Int
         ) {
+            // 内条自区域左边缘起按 progress 取长度，右边缘 = left + width × progress
             nodeCollector.pushTexture(area, BORDER, packedLight, borderColor, poseStack, RENDER_TYPE)
-//            nodeCollector.pushTexture(area.copy(width = area.width * progress), CONTENT, packedLight, contentColor, poseStack, RENDER_TYPE)
-            nodeCollector.pushTexture(area.copy(right = area.width * progress - area.left), CONTENT, packedLight, contentColor, poseStack, RENDER_TYPE)
+            nodeCollector.pushTexture(area.copy(right = area.left + area.width * progress), CONTENT, packedLight, contentColor, poseStack, RENDER_TYPE)
         }
 
     }

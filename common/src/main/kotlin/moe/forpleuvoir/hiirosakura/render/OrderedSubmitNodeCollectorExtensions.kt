@@ -60,8 +60,13 @@ fun OrderedSubmitNodeCollector.pushTexture(
 private fun VertexConsumer.vertex(pose: PoseStack.Pose, x: Float, y: Float): VertexConsumer =
     addVertex(pose, x, y, 0f)
 
+/**
+ * 顶点法线取布局的 −y：调用方的姿势对 x / y 各做一次镜像（气泡与引信都是 `scale(-a, -a, a)`），
+ * 传 +y 会让 `core/entity` 的 per-face 光照（PER_FACE_LIGHTING）落到 `lightAccum` 下限 0.4，
+ * 纹理整体压暗到 40%；取 −y 则落在满亮分支。
+ */
 private fun VertexConsumer.setOLN(pose: PoseStack.Pose, packedLight: Int): VertexConsumer =
-    setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(pose, 0f, 1f, 0f)
+    setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(pose, 0f, -1f, 0f)
 
 private fun pushTexture(
     x: Float,

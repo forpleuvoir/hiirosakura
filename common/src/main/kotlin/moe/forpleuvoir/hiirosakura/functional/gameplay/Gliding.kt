@@ -56,15 +56,26 @@ object Gliding : ConfigGroup("gliding") {
 
     val fireworkMatcher by configItemStackMatcher(
         "firework_matcher", ItemStackMatcher(
-            CompositeMatcher.MatchMode.AnyMatch,
+            CompositeMatcher.MatchMode.AllMatch,
             ItemStackMatchEntry.Item(Items.FIREWORK_ROCKET),
             ItemStackMatchEntry.Script(
                 """
-                //If the item has an explosive property, exclude it.
+                // Get the fireworks component ("minecraft:fireworks") from the item stack
                 fireworks = itemStack.getComponent("minecraft:fireworks");
-                if(fireworks != null){
+                
+                // If the item actually contains a fireworks component
+                if (fireworks != null) {
+                    // Get the list of explosions in the firework rocket (may be null)
                     explosions = fireworks.explosions;
-                    if(explosions != null && explosions.size() > 0){
+                
+                    // Get the flight duration of the firework rocket
+                    flightDuration = fireworks.flightDuration;
+                
+                    // Check:
+                    // 1. flightDuration > 0: the firework has a flight duration;
+                    // 2. explosions == null || explosions.size() < 1: there are no explosion effects.
+                    if (flightDuration > 0 && (explosions == null || explosions.size() < 1)) {
+                        // The condition is met, so set result to true
                         result.set(true);
                     }
                 }

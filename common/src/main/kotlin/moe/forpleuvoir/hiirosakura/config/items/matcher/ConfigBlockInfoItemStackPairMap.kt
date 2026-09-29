@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.BlockInfoMatcher
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
@@ -19,28 +20,10 @@ import moe.forpleuvoir.hiirosakura.ui.widget.matcher.blockinfo.BlockInfoMatcherD
 import moe.forpleuvoir.hiirosakura.ui.widget.matcher.itemstack.ItemStackMatcherDisplayerInnerEditor
 import moe.forpleuvoir.ibukigourd.config.item.pair
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigDialogTitle
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigListRow
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.asDerivedState
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.configControlHeight
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogAddButton
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContent
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentCards
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentDefaults
-import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.AlertDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.*
+import moe.forpleuvoir.ibukigourd.ui.editdialog.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
@@ -187,14 +170,14 @@ fun BlockInfoItemStackPairMapWrapper(
                                     state = editingValue,
                                     lazyGridState = cardGridState,
                                     columns = BlockInfoItemStackPairCardDefaults.columnsFor(maxWidth),
-                                removeButton = { index, _ ->
-                                    RemoveConfirmButton(
-                                        message = editingValue.entries[index].value.key,
-                                        onConfirm = { editingValue.removeAt(index) },
-                                        iconScale = LocalIconScale.current,
-                                        contentPadding = EditDialogContentDefaults.iconPadding,
-                                    )
-                                },
+                                    removeButton = { index, _ ->
+                                        RemoveConfirmButton(
+                                            message = editingValue.entries[index].value.key,
+                                            onConfirm = { editingValue.removeAt(index) },
+                                            iconScale = LocalIconScale.current,
+                                            contentPadding = EditDialogContentDefaults.iconPadding,
+                                        )
+                                    },
                                 ) { _, entry, onValueChange ->
                                     BlockInfoItemStackPairCard(
                                         entry = entry,
@@ -361,15 +344,15 @@ private fun KeyEditDialog(
         title = { Text(component = IGLang.Misc.edit) },
         text = {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (duplicated) {
-                    Text(component = IGLang.ConfigWrapper.keyExists(newKey))
-                } else {
-                    Text(component = IGLang.ConfigWrapper.mapKey)
-                }
                 TextField(
                     state = state,
                     lineLimits = TextFieldLineLimits.SingleLine,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
+                        .thenIf(duplicated) {
+                            Modifier.tooltip(pinned = duplicated) {
+                                Text(component = IGLang.ConfigWrapper.keyExists(newKey))
+                            }
+                        },
                     isError = duplicated,
                 )
             }
@@ -413,15 +396,15 @@ private fun AddEntryDialog(
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 BlockInfoItemStackPairRow(label = keyLabel) {
                     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        if (duplicated) {
-                            Text(component = IGLang.ConfigWrapper.keyExists(newKey))
-                        } else {
-                            Text(component = IGLang.ConfigWrapper.mapKey)
-                        }
                         TextField(
                             state = keyState,
                             lineLimits = TextFieldLineLimits.SingleLine,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth()
+                                .thenIf(duplicated) {
+                                    Modifier.tooltip(pinned = duplicated) {
+                                        Text(component = IGLang.ConfigWrapper.keyExists(newKey))
+                                    }
+                                },
                             isError = duplicated,
                         )
                     }

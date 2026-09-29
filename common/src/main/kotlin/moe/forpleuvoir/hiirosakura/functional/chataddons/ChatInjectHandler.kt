@@ -24,17 +24,17 @@ object ChatInjectHandler : ConfigGroup("chat_inject") {
                 config,
                 firstHead = {
                     Text(
-                        component = HSLang.Chat.injectExp,
-                        modifier = Modifier.tooltip { Text(component = InlineStyleText(HSLang.Chat.injectExpComment.plainText)) },
+                        component = HSLang.Chat.injectRegex,
+                        modifier = Modifier.tooltip { Text(component = HSLang.Chat.injectRegexComment) },
                     )
                 },
-                addFirstLabel = {
+                secondHead = {
                     Text(
                         component = HSLang.Chat.injectExp,
                         modifier = Modifier.tooltip { Text(component = InlineStyleText(HSLang.Chat.injectExpComment.plainText)) },
                     )
                 },
-                secondHead = {
+                addFirstLabel = {
                     Text(
                         component = HSLang.Chat.injectRegex,
                         modifier = Modifier.tooltip { Text(component = HSLang.Chat.injectRegexComment) },
@@ -42,8 +42,8 @@ object ChatInjectHandler : ConfigGroup("chat_inject") {
                 },
                 addSecondLabel = {
                     Text(
-                        component = HSLang.Chat.injectRegex,
-                        modifier = Modifier.tooltip { Text(component = HSLang.Chat.injectRegexComment) },
+                        component = HSLang.Chat.injectExp,
+                        modifier = Modifier.tooltip { Text(component = InlineStyleText(HSLang.Chat.injectExpComment.plainText)) },
                     )
                 },
             )

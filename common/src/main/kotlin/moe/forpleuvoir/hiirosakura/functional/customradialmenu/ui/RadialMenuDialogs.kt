@@ -35,19 +35,30 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
-import androidx.compose.ui.graphics.RectangleShape
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.keybind.KeybindSetButton
 import moe.forpleuvoir.ibukigourd.ui.colorpicker.ColorPickButton
 import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.ibukigourd.util.toNebulaColor
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Slider
-import moe.forpleuvoir.hiirosakura.ui.compat.IntSlider
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatSlider
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntSlider
+import moe.forpleuvoir.ibukigourd.ui.keybind.KeybindSettingSetButton
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
+import moe.forpleuvoir.hiirosakura.ui.widget.ScrollbarColumn
+import androidx.compose.ui.graphics.RectangleShape
+
+/** 对话框内容宽度：控件宽度 + 间距 + 一个图标按钮槽（快捷键的扩展设置按钮）。 */
+private val DialogRowWidth = 528.dp
+
+/** 控件与右侧动作按钮之间的间距。 */
+private val DialogActionGap = 8.dp
+
+/** 对话框内图标倍率。 */
+private const val DialogIconScale = 2
+
+/** 设置浮层里所有控件的统一宽度：颜色按钮与数值滑条同宽。 */
+private val SettingControlWidth = 280.dp
 
 @Composable
 fun CreateRadialMenuDialog(
@@ -87,25 +98,39 @@ fun CreateRadialMenuDialog(
             }
         },
         content = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.width(400.dp)) {
-                LabelBox(label = { Text(component = HSLang.Common.name) }) {
-                    TextField(
-                        nameState,
-                        modifier = Modifier.fillMaxWidth(),
-                        lineLimits = TextFieldLineLimits.SingleLine,
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.width(DialogRowWidth),
+            ) {
+                val error = errorMessage
+                // 有错时挂一个"固定"气泡：不靠悬停，错误一出现就一直显示（与配置项里的重复键提示同款）
+                val errorTooltip = error?.let { message ->
+                    Modifier.tooltip(pinned = true) { Text(message) }
+                } ?: Modifier
+                TextField(
+                    nameState,
+                    modifier = Modifier.fillMaxWidth().then(errorTooltip),
+                    hint = HSLang.Common.name,
+                    isError = error != null,
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(DialogActionGap),
+                ) {
+                    KeybindSetButton(keybind = keybind, modifier = Modifier.weight(1f))
+                    KeybindSettingSetButton(
+                        keybindSetting = keybind.setting,
+                        onValueChange = { keybind.setFrom(it) },
+                        iconScale = DialogIconScale,
+                        contentPadding = ConfigControlDefaults.IconButtonPadding,
                     )
                 }
-                errorMessage?.let {
-                    Text(it, color = SokitsuTheme.colorScheme.error)
-                }
-                KeybindSetButton(
-                    keybind = keybind,
-                    modifier = Modifier.fillMaxWidth(),
-                )
             }
         },
         confirmButton = {
-            Button(onClick = {
+            TextButton(onClick = {
                 val name = nameState.text.toString().trim()
                 val menu = CustomRadialMenu(shortcuts = keybind, tasks = emptyList())
                 onConfirm(name, menu)
@@ -141,25 +166,27 @@ fun RenameMenuDialog(
         modifier = Modifier.padding(24.dp),
         onConfirmRequest = { errorMessage == null },
         content = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.width(400.dp)) {
-                LabelBox(label = {
-                        errorMessage?.let {
-                            Text(it, color = SokitsuTheme.colorScheme.error)
-                        } ?: Text(component = HSLang.Common.name)
-                    }) {
-                    TextField(
-                        state = nameState,
-                        modifier = Modifier.fillMaxWidth(),
-                        isError = errorMessage != null,
-                        lineLimits = TextFieldLineLimits.SingleLine,
-                    )
-                }
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.width(DialogRowWidth),
+            ) {
+                // 名字是否可用（为空 / 重名）走"固定"气泡提示，不再在框上方挂一行标签
+                val error = errorMessage
+                val errorTooltip = error?.let { message ->
+                    Modifier.tooltip(pinned = true) { Text(message) }
+                } ?: Modifier
+                TextField(
+                    state = nameState,
+                    modifier = Modifier.fillMaxWidth().then(errorTooltip),
+                    hint = HSLang.Common.name,
+                    isError = error != null,
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                )
             }
         },
         confirmButton = {
-            Button(
+            TextButton(
                 onClick = {
-
                     onConfirm(nameState.text.toString().trim())
                     onDismissRequest()
                 },
@@ -197,10 +224,10 @@ fun RadialMenuSettingDialog(
             } else true
         },
         content = {
-            Box {
+            Row {
                 val scrollState = rememberScrollState()
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(end = 12.dp).verticalScroll(scrollState),
+                    modifier = Modifier.weight(1f).verticalScroll(scrollState),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     errorMessage?.let {
@@ -225,6 +252,7 @@ fun RadialMenuSettingDialog(
                         ColorPickButton(
                             color = draft.innerColor.toComposeColor(),
                             onValueChange = { draft = draft.copy(innerColor = it.toNebulaColor()) },
+                            modifier = Modifier.width(SettingControlWidth),
                             title = { Text(component = HSLang.CustomRadialMenu.settingInnerColor) },
                         )
                     }
@@ -236,6 +264,7 @@ fun RadialMenuSettingDialog(
                         ColorPickButton(
                             color = draft.outerColor.toComposeColor(),
                             onValueChange = { draft = draft.copy(outerColor = it.toNebulaColor()) },
+                            modifier = Modifier.width(SettingControlWidth),
                             title = { Text(component = HSLang.CustomRadialMenu.settingOuterColor) },
                         )
                     }
@@ -247,6 +276,7 @@ fun RadialMenuSettingDialog(
                         ColorPickButton(
                             color = draft.innerSelectedColor.toComposeColor(),
                             onValueChange = { draft = draft.copy(innerSelectedColor = it.toNebulaColor()) },
+                            modifier = Modifier.width(SettingControlWidth),
                             title = { Text(component = HSLang.CustomRadialMenu.settingInnerSelectedColor) },
                         )
                     }
@@ -258,6 +288,7 @@ fun RadialMenuSettingDialog(
                         ColorPickButton(
                             color = draft.outerSelectedColor.toComposeColor(),
                             onValueChange = { draft = draft.copy(outerSelectedColor = it.toNebulaColor()) },
+                            modifier = Modifier.width(SettingControlWidth),
                             title = { Text(component = HSLang.CustomRadialMenu.settingOuterSelectedColor) },
                         )
                     }
@@ -269,6 +300,7 @@ fun RadialMenuSettingDialog(
                         ColorPickButton(
                             color = draft.borderColor.toComposeColor(),
                             onValueChange = { draft = draft.copy(borderColor = it.toNebulaColor()) },
+                            modifier = Modifier.width(SettingControlWidth),
                             title = { Text(component = HSLang.CustomRadialMenu.settingBorderColor) },
                         )
                     }
@@ -280,22 +312,22 @@ fun RadialMenuSettingDialog(
                         ColorPickButton(
                             color = draft.selectedBorderColor.toComposeColor(),
                             onValueChange = { draft = draft.copy(selectedBorderColor = it.toNebulaColor()) },
+                            modifier = Modifier.width(SettingControlWidth),
                             title = { Text(component = HSLang.CustomRadialMenu.settingSelectedBorderColor) },
                         )
                     }
 
 
-                    val width = 280.dp
                     EntryRow {
                         Text(
                             text = HSLang.CustomRadialMenu.settingIconScale.plainText,
                             modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingIconScaleComment) },
                         )
-                        Slider(
+                        FloatSlider(
                             draft.iconScale,
                             { draft = draft.copy(iconScale = it) },
                             valueRange = 0.2f..2f,
-                            modifier = Modifier.width(width).height(24.dp)
+                            modifier = Modifier.width(SettingControlWidth)
                         )
                     }
 
@@ -304,11 +336,11 @@ fun RadialMenuSettingDialog(
                             text = HSLang.CustomRadialMenu.settingInnerRadius.plainText,
                             modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingInnerRadiusComment) },
                         )
-                        Slider(
+                        FloatSlider(
                             draft.innerRadius,
                             { draft = draft.copy(innerRadius = it) },
                             valueRange = 80f..250f,
-                            modifier = Modifier.width(width).height(24.dp)
+                            modifier = Modifier.width(SettingControlWidth)
                         )
                     }
 
@@ -317,11 +349,11 @@ fun RadialMenuSettingDialog(
                             text = HSLang.CustomRadialMenu.settingOuterRadius.plainText,
                             modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingOuterRadiusComment) },
                         )
-                        Slider(
+                        FloatSlider(
                             draft.outerRadius,
                             { draft = draft.copy(outerRadius = it) },
                             valueRange = 200f..500f,
-                            modifier = Modifier.width(width).height(24.dp)
+                            modifier = Modifier.width(SettingControlWidth)
                         )
                     }
 
@@ -330,11 +362,11 @@ fun RadialMenuSettingDialog(
                             text = HSLang.CustomRadialMenu.settingOptionRadius.plainText,
                             modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingOptionRadiusComment) },
                         )
-                        Slider(
+                        FloatSlider(
                             draft.optionRadius,
                             { draft = draft.copy(optionRadius = it) },
                             valueRange = 150f..400f,
-                            modifier = Modifier.width(width).height(24.dp)
+                            modifier = Modifier.width(SettingControlWidth)
                         )
                     }
 
@@ -343,7 +375,7 @@ fun RadialMenuSettingDialog(
                             text = HSLang.CustomRadialMenu.settingGap.plainText,
                             modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingGapComment) },
                         )
-                        Slider(draft.gap, { draft = draft.copy(gap = it) }, valueRange = 0f..30f, modifier = Modifier.width(width).height(24.dp))
+                        FloatSlider(draft.gap, { draft = draft.copy(gap = it) }, valueRange = 0f..30f, modifier = Modifier.width(SettingControlWidth))
                     }
 
                     EntryRow {
@@ -351,7 +383,7 @@ fun RadialMenuSettingDialog(
                             text = HSLang.CustomRadialMenu.settingPageSize.plainText,
                             modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingPageSizeComment) },
                         )
-                        IntSlider(draft.pageSize, { draft = draft.copy(pageSize = it) }, valueRange = 4..12, modifier = Modifier.width(width).height(24.dp))
+                        IntSlider(draft.pageSize, { draft = draft.copy(pageSize = it) }, valueRange = 4..12, modifier = Modifier.width(SettingControlWidth))
                     }
 
                     EntryRow {
@@ -359,11 +391,11 @@ fun RadialMenuSettingDialog(
                             text = HSLang.CustomRadialMenu.settingCornerRadius.plainText,
                             modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingCornerRadiusComment) },
                         )
-                        Slider(
+                        FloatSlider(
                             draft.cornerRadius,
                             { draft = draft.copy(cornerRadius = it) },
                             valueRange = 0f..20f,
-                            modifier = Modifier.width(width).height(24.dp)
+                            modifier = Modifier.width(SettingControlWidth)
                         )
                     }
 
@@ -372,23 +404,20 @@ fun RadialMenuSettingDialog(
                             text = HSLang.CustomRadialMenu.settingBorderWidth.plainText,
                             modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingBorderWidthComment) },
                         )
-                        Slider(
+                        FloatSlider(
                             draft.borderWidth,
                             { draft = draft.copy(borderWidth = it) },
                             valueRange = 0f..10f,
-                            modifier = Modifier.width(width).height(24.dp)
+                            modifier = Modifier.width(SettingControlWidth)
                         )
                     }
                 }
 
-                VerticalScroller(
-                    adapter = rememberScrollerAdapter(scrollState),
-                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                )
+                ScrollbarColumn(scrollState)
             }
         },
         confirmButton = {
-            Button(onClick = {
+            TextButton(onClick = {
                 onConfirm(draft)
                 onDismissRequest()
             }) {
@@ -421,9 +450,9 @@ fun ImportTasksDialog(
                         Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
                     }
                 } else {
-                    Box(Modifier.fillMaxSize()) {
+                    Row(Modifier.fillMaxSize()) {
                         val state = rememberLazyListState()
-                        LazyColumn(modifier = Modifier.padding(end = 16.dp), verticalArrangement = Arrangement.spacedBy(4.dp), state = state) {
+                        LazyColumn(modifier = Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(4.dp), state = state) {
                             items(TaskManager.taskList, key = { it.key }) { keyed ->
                                 val checked = keyed.key in selectedKeys
                                 Row(
@@ -444,17 +473,14 @@ fun ImportTasksDialog(
                                 }
                             }
                         }
-                        VerticalScroller(
-                            adapter = rememberScrollerAdapter(state),
-                            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                        )
+                        ScrollbarColumn(state)
                     }
                 }
             }
         },
         onConfirmRequest = { true },
         confirmButton = {
-            Button(onClick = {
+            TextButton(onClick = {
                 val imported = TaskManager.taskList.filter { it.key in selectedKeys }.map { keyed ->
                     val task = keyed.value
                     IconTickTask(

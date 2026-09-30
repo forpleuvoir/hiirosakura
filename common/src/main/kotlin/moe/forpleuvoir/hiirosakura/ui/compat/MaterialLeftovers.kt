@@ -14,7 +14,6 @@ import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.ButtonDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Slider
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
 import androidx.compose.foundation.layout.Arrangement
@@ -105,22 +104,6 @@ fun OutlinedCard(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) = Surface(modifier = modifier, outlineColor = LocalColorScheme.current.outline, content = content)
-
-/** 旧版 `IntSlider`：转交 sokitsu [Slider]（整数区间换算为浮点区间）。 */
-@Composable
-fun IntSlider(
-    value: Int,
-    onValueChange: (Int) -> Unit,
-    valueRange: IntRange,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-) = Slider(
-    value = value.toFloat(),
-    onValueChange = { onValueChange(it.toInt()) },
-    modifier = modifier,
-    enabled = enabled,
-    valueRange = valueRange.first.toFloat()..valueRange.last.toFloat(),
-)
 
 /**
  * 旧版 material3 的 `OutlinedTextFieldDefaults`：像素风下只剩几何量，转交 [LabeledFieldDefaults]。

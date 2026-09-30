@@ -4,21 +4,29 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.customradialmenu.CustomRadialMenuManager
 import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigManagerDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SurfaceDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
 fun CustomRadialMenuManagerUI(modifier: Modifier = Modifier) {
@@ -45,31 +53,54 @@ fun CustomRadialMenuManagerUI(modifier: Modifier = Modifier) {
 
     val selectedMenu = selectedMenuKey?.let { CustomRadialMenuManager.customRadialMenus[it] }
 
+    // 两块内嵌面板共用一档底色（与配置页同款）
+    val panelColor = Color.Unspecified.resolve(ConfigManagerDefaults.PanelTone)
 
-    Row(modifier.fillMaxSize()) {
-        RadialMenuListPane(
-            selectedMenuKey = selectedMenuKey,
-            onSelectMenu = { selectedMenuKey = it },
-            onNewMenu = { showCreateDialog = true },
-            onEditSetting = { showSettingDialog = it },
-            onRename = { showRenameDialog = it },
-            onDeleteMenu = { showDeleteConfirm = it },
-        )
-
-        VerticalDivider(modifier = Modifier.fillMaxHeight())
-        AnimatedContent(
-            targetState = selectedMenuKey,
-            modifier = Modifier.weight(1f),
-            transitionSpec = {
-                fadeIn() togetherWith fadeOut()
-            },
-            label = "RadialMenuTaskPane",
-        ) { menuKey ->
-            RadialMenuTaskPane(
-                menu = selectedMenu,
-                menuKey = menuKey,
-                modifier = Modifier.fillMaxSize(),
+    Row(
+        modifier = modifier.fillMaxSize().padding(ConfigManagerDefaults.ContentPadding),
+        horizontalArrangement = Arrangement.spacedBy(ConfigManagerDefaults.ColumnSpacing),
+    ) {
+        Surface(
+            modifier = Modifier
+                .widthIn(
+                    min = ConfigManagerDefaults.GroupListMinWidth,
+                    max = ConfigManagerDefaults.GroupListMaxWidth,
+                )
+                .width(IntrinsicSize.Max)
+                .fillMaxHeight(),
+            color = panelColor,
+            sprite = SurfaceDefaults.embeddedPanel,
+        ) {
+            RadialMenuListPane(
+                selectedMenuKey = selectedMenuKey,
+                onSelectMenu = { selectedMenuKey = it },
+                onNewMenu = { showCreateDialog = true },
+                onEditSetting = { showSettingDialog = it },
+                onRename = { showRenameDialog = it },
+                onDeleteMenu = { showDeleteConfirm = it },
+                modifier = Modifier.fillMaxSize().padding(ConfigManagerDefaults.EmbedContentPadding),
             )
+        }
+
+        Surface(
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+            color = panelColor,
+            sprite = SurfaceDefaults.embeddedPanel,
+        ) {
+            AnimatedContent(
+                targetState = selectedMenuKey,
+                modifier = Modifier.fillMaxSize(),
+                transitionSpec = {
+                    fadeIn() togetherWith fadeOut()
+                },
+                label = "RadialMenuTaskPane",
+            ) { menuKey ->
+                RadialMenuTaskPane(
+                    menu = selectedMenu,
+                    menuKey = menuKey,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
         }
     }
 

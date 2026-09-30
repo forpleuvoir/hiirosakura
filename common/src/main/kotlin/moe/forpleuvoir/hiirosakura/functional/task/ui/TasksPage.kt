@@ -23,10 +23,10 @@ import moe.forpleuvoir.hiirosakura.functional.task.KeybindTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.hiirosakura.ui.editor.codeEditorShortcuts
 import moe.forpleuvoir.hiirosakura.ui.icon.Play
-import moe.forpleuvoir.hiirosakura.ui.util.canScroll
 import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.LocalItemIconVanillaSize
+import moe.forpleuvoir.hiirosakura.ui.widget.ScrollbarColumn
 import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.ibukigourd.input.Keybind
 import moe.forpleuvoir.ibukigourd.lang.IGLang
@@ -59,7 +59,7 @@ private object TaskRowDefaults {
     val KeybindWidth: Dp = 280.dp
 
     /** 行内边距。 */
-    val RowPadding: PaddingValues = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+    val RowPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
 
     /** 行内元素间距。 */
     val ItemSpacing: Dp = 8.dp
@@ -180,7 +180,6 @@ private fun TaskList(modifier: Modifier, onEdit: (Int) -> Unit) {
     val reorderState = rememberReorderableLazyListState(listState) { from, to ->
         TaskManager.moveElement(from.index, to.index)
     }
-    val canScroll = listState.canScroll
 
     Row(modifier = modifier.fillMaxSize()) {
         LazyColumn(
@@ -205,9 +204,7 @@ private fun TaskList(modifier: Modifier, onEdit: (Int) -> Unit) {
             }
         }
 
-        // 滚动条占自己的一列，不叠在列表上
-        if (canScroll) Spacer(Modifier.width(TaskRowDefaults.ItemSpacing))
-        VerticalFlatScroller(adapter = rememberScrollerAdapter(listState))
+        ScrollbarColumn(listState)
     }
 }
 
@@ -487,7 +484,7 @@ fun <T : HSTickTask> TaskEditorDialog(
             }
         },
         confirmButton = {
-            Button(onClick = {
+            TextButton(onClick = {
                 val setting = TickTask.Setting(delay, period, times)
                 val content = executor.text.toString()
                 val newTask: HSTickTask = when (task) {

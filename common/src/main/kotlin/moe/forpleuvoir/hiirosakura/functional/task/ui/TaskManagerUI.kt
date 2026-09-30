@@ -1,13 +1,10 @@
 package moe.forpleuvoir.hiirosakura.functional.task.ui
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,14 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.ui.widget.ScrollbarColumn
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigManagerDefaults
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SurfaceDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 
 /**
@@ -131,7 +126,7 @@ private fun TaskMenu(
                 }
             }
         }
-        MenuScrollbar(scrollState)
+        ScrollbarColumn(scrollState)
     }
 }
 
@@ -158,25 +153,4 @@ private fun TaskMenuItem(
         contentAlignment = Alignment.CenterStart,
         content = content,
     )
-}
-
-/**
- * 菜单滚动条列：与内容**并列**占一条固定宽度的布局列，不浮在内容之上。
- *
- * 没有可滚动空间时整列不出现（判定与滚动条自身的 `autoHide` 同源），免得右缘平白多出一条空位；
- * 本列只影响宽度、不影响高度，"出现 → 内容变窄 → 仍可滚"因此不会来回抖。
- */
-@Composable
-private fun MenuScrollbar(scrollState: ScrollState) {
-    // 首帧滚动容器还没量过（`maxValue` 仍是初值、`viewportSize` 为 0），先按"没有滚动条"处理
-    if (scrollState.viewportSize <= 0 || scrollState.maxValue <= 0) return
-    Spacer(Modifier.width(ConfigRowDefaults.ScrollbarSpacing))
-    Box(Modifier.width(ConfigRowDefaults.ScrollbarWidth).fillMaxHeight()) {
-        VerticalFlatScroller(
-            adapter = rememberScrollerAdapter(scrollState),
-            modifier = Modifier.fillMaxSize(),
-            autoHide = true,
-            autoFade = true,
-        )
-    }
 }

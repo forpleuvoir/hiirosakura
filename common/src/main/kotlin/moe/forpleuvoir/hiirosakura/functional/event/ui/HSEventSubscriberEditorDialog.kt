@@ -29,7 +29,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
 import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.StringSelector
@@ -201,7 +200,7 @@ fun HSEventSubscriberEditorDialog(
             }
         },
         confirmButton = {
-            Button(onClick = {
+            TextButton(onClick = {
                 val result = HSEventSubscriber(
                     name = name.text.toString(),
                     enabled = enabled,

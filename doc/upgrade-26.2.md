@@ -262,7 +262,7 @@ nebula `0.3.18 → 0.4.0` 把包 `moe.forpleuvoir.nebula.serialization.yml` 改�
 | `configwrapper/ConfigWrapperCompat.kt` | `ListConfigWrapperDefaults` / `MapConfigWrapperDefaults` / `MapEntry` / `ConfigRowWrapperCompat` / `rememberKeyedStateList`（旧版 `rememberKeyedList` 返回 `SnapshotStateList<Keyed<T>>` 的行为） |
 | `configwrapper/StringListConfigWrappers.kt` | `StringListConfigWrapper` / `StringPairListConfigWrapper`（聊天过滤与注入的列表编辑器） |
 | `compat/LegacyUiCompat.kt` | `NumberFieldStyle` / `LocalNumberFieldStyle` / `TipBox` / `BlitTexture`（含 `IGTexture` 重载）/ `closeScreen` / `openComposeScreen` |
-| `compat/MaterialLeftovers.kt` | `OutlinedToggleButton` / `FilledTonalButton` / `FloatingActionButton` / `ElevatedCard` / `OutlinedCard` / `RemoveButton` / `IntSlider` / `OutlinedTextFieldDefaults` / `FloatingActionButtonMenu` / `FloatingActionButtonMenuItem` / `openComposePopupScreen` / `ClipboardManager` + `rememberClipboardManager` |
+| `compat/MaterialLeftovers.kt` | `OutlinedToggleButton` / `FilledTonalButton` / `FloatingActionButton` / `ElevatedCard` / `OutlinedCard` / `RemoveButton` / `OutlinedTextFieldDefaults` / `FloatingActionButtonMenu` / `FloatingActionButtonMenuItem` / `openComposePopupScreen` / `ClipboardManager` + `rememberClipboardManager` |
 | `widget/SelectorCompat.kt` 等既有兼容件 | selector / 分段按钮 / 带标签输入框 / 裁剪板等 |
 
 ### 8.3 这一轮遇到的 MC 26.2 断链（与上游 UI 无关）

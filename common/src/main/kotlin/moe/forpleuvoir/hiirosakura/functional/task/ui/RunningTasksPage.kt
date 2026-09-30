@@ -14,7 +14,7 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTaskScheduler
 import moe.forpleuvoir.hiirosakura.functional.task.IconTickTask
-import moe.forpleuvoir.hiirosakura.ui.util.canScroll
+import moe.forpleuvoir.hiirosakura.ui.widget.ScrollbarColumn
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.task.TickTask
 import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
@@ -23,8 +23,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
@@ -81,9 +79,7 @@ internal fun RunningTasksPage(modifier: Modifier) {
                     }
                 }
 
-                // 滚动条占自己的一列，不叠在列表上
-                if (scrollState.canScroll) Spacer(Modifier.width(8.dp))
-                VerticalFlatScroller(adapter = rememberScrollerAdapter(scrollState))
+                ScrollbarColumn(scrollState)
             }
         }
     }

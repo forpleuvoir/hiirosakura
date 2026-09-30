@@ -10,10 +10,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
+import moe.forpleuvoir.hiirosakura.ui.widget.ScrollbarColumn
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigsWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.LocalConfigGroupAutoExpandLimit
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 
 /** 配置列表与滚动条共用的内边距。 */
 private val SettingsPadding = 16.dp
@@ -31,7 +30,7 @@ internal fun SettingsPage(modifier: Modifier) {
             )
 
             // 滚动条占自己的一列，不叠在配置列表上
-            VerticalFlatScroller(adapter = rememberScrollerAdapter(scrollState))
+            ScrollbarColumn(scrollState)
         }
     }
 }

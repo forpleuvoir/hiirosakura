@@ -17,9 +17,9 @@ import androidx.compose.ui.unit.dp
 
 object RadialMenuDefaults {
 
-    val InnerRadius: Dp = 150.dp
-    val OuterRadius: Dp = 330.dp
-    val OptionRadius: Dp = 240.dp
+    val InnerRadius: Dp = 180.dp
+    val OuterRadius: Dp = 460.dp
+    val OptionRadius: Dp = 320.dp
     const val START_ANGLE_DEGREE: Float = -90f
     const val GAP: Float = 12f
     val CornerRadius: Dp = 4.dp

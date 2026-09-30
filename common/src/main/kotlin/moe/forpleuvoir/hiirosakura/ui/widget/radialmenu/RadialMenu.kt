@@ -223,7 +223,7 @@ fun <T> RadialMenu(
                             PointerEventType.Scroll -> {
                                 val change = event.changes.firstOrNull() ?: continue
                                 if (change.scrollDelta.y != 0f) {
-                                    val direction = if (change.scrollDelta.y > 0f) 1 else -1
+                                    val direction = if (change.scrollDelta.y > 0f) -1 else 1
                                     val newPage = (state.currentPageIndex + direction)
                                         .coerceIn(0, (pageCount - 1).coerceAtLeast(0))
                                     if (newPage != state.currentPageIndex) {

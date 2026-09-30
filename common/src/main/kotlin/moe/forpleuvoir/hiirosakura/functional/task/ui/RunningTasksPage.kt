@@ -14,6 +14,7 @@ import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.HSTickTaskScheduler
 import moe.forpleuvoir.hiirosakura.functional.task.IconTickTask
+import moe.forpleuvoir.hiirosakura.ui.widget.PagePanel
 import moe.forpleuvoir.hiirosakura.ui.widget.ScrollbarColumn
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.task.TickTask
@@ -49,24 +50,24 @@ private val PollInterval = 50.milliseconds
 
 @Composable
 internal fun RunningTasksPage(modifier: Modifier) {
-    Box(modifier.fillMaxSize()) {
-        val tasks: List<RunningTaskSnapshot> by produceState(initialValue = emptyList()) {
-            while (true) {
-                val snapshot = HSTickTaskScheduler.runningTasks.map { (tickTask, task) ->
-                    RunningTaskSnapshot(tickTask, task, tickTask.times - tickTask.counter)
-                }
-                if (snapshot != value) value = snapshot
-                delay(PollInterval)
+    val tasks: List<RunningTaskSnapshot> by produceState(initialValue = emptyList()) {
+        while (true) {
+            val snapshot = HSTickTaskScheduler.runningTasks.map { (tickTask, task) ->
+                RunningTaskSnapshot(tickTask, task, tickTask.times - tickTask.counter)
             }
+            if (snapshot != value) value = snapshot
+            delay(PollInterval)
         }
+    }
 
+    PagePanel(modifier = modifier.fillMaxSize()) {
         if (tasks.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             val scrollState = rememberLazyListState()
-            Row(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            Row(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                     state = scrollState,

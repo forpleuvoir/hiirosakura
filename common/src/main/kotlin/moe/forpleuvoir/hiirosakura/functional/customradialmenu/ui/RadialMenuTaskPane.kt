@@ -1,16 +1,18 @@
 package moe.forpleuvoir.hiirosakura.functional.customradialmenu.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,6 +36,7 @@ import moe.forpleuvoir.hiirosakura.functional.customradialmenu.CustomRadialMenuM
 import moe.forpleuvoir.hiirosakura.functional.task.IconTickTask
 import moe.forpleuvoir.hiirosakura.functional.task.ui.TaskEditorDialog
 import moe.forpleuvoir.hiirosakura.ui.icon.Play
+import moe.forpleuvoir.hiirosakura.ui.widget.PagePanel
 import moe.forpleuvoir.hiirosakura.ui.widget.ScrollbarColumn
 import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.ibukigourd.lang.IGLang
@@ -61,17 +64,11 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 /** 任务行的尺寸与间距。 */
 private object TaskPaneDefaults {
 
-    /** 工具栏与任务列表之间的间距。 */
-    val HeaderGap: Dp = 16.dp
-
     /** 快捷键按钮宽度：与其它界面里的快捷键控件一致。 */
     val KeybindButtonWidth: Dp = 280.dp
 
     /** 图标按钮与相邻控件的间距。 */
     val IconSpacing: Dp = 8.dp
-
-    /** 图标按钮的倍率。 */
-    const val ICON_SCALE: Int = 2
 
     /** 快捷键整组宽度：按钮 + 间距 + 一个图标按钮槽（扩展设置）。 */
     val KeybindRowWidth: Dp = KeybindButtonWidth + IconSpacing + IconButtonDefaults.minSize.width
@@ -102,8 +99,10 @@ fun RadialMenuTaskPane(
     modifier: Modifier = Modifier,
 ) {
     if (menu == null || menuKey == null) {
-        Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
+        PagePanel(modifier = modifier.fillMaxSize()) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
+            }
         }
         return
     }
@@ -113,90 +112,34 @@ fun RadialMenuTaskPane(
     // null = 不显示编辑浮层，其余为 tasks 下标
     var editingTaskIndex by remember { mutableStateOf<Int?>(null) }
 
-    var keybindVersion by remember(menu) { mutableIntStateOf(0) }
-
-    Column(modifier.fillMaxSize().padding(16.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Row(
-                modifier = Modifier.width(TaskPaneDefaults.KeybindRowWidth),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(TaskPaneDefaults.ItemSpacing),
-            ) {
-                // 设置改动是原地修改 keybind，显示文本要重画，所以按版本重建按钮（与配置页同款做法）
-                key(keybindVersion) {
-                    KeybindSetButton(keybind = menu.shortcuts, modifier = Modifier.weight(1f))
-                }
-                KeybindSettingSetButton(
-                    keybindSetting = menu.shortcuts.setting,
-                    onValueChange = {
-                        menu.shortcuts.setFrom(it)
-                        keybindVersion++
-                    },
-                    iconScale = TaskPaneDefaults.ICON_SCALE,
-                    contentPadding = ConfigControlDefaults.IconButtonPadding,
+    PagePanel(
+        modifier = modifier.fillMaxSize(),
+        toolbar = {
+            // 切换菜单时只让两块面板的内容淡入淡出，面板自身保持不动
+            AnimatedContent(
+                targetState = menuKey,
+                transitionSpec = { fadeIn() togetherWith fadeOut() },
+                modifier = Modifier.fillMaxWidth(),
+                label = "RadialMenuToolbar",
+            ) { targetKey ->
+                RadialMenuToolbar(
+                    menu = CustomRadialMenuManager.customRadialMenus[targetKey] ?: menu,
+                    onNewTask = { showNewTaskDialog = true },
+                    onImportTasks = { showImportDialog = true },
                 )
             }
-
-            Spacer(Modifier.weight(1f))
-
-            Button(onClick = { showNewTaskDialog = true }) {
-                Icon(Icons.Add)
-                Spacer(Modifier.width(8.dp))
-                Text(component = HSLang.Task.newTask)
-            }
-            Button(onClick = { showImportDialog = true }) {
-                Icon(Icons.Import)
-                Spacer(Modifier.width(8.dp))
-                Text(component = HSLang.CustomRadialMenu.importTasks)
-            }
-        }
-
-        Spacer(Modifier.height(TaskPaneDefaults.HeaderGap))
-
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            if (menu.tasks.isEmpty()) {
-                Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
-            } else {
-                val listState = rememberLazyListState()
-                val reorderState = rememberReorderableLazyListState(listState) { from, to ->
-                    menu.moveTask(from.index, to.index)
-                    CustomRadialMenuManager.save()
-                }
-
-                Row(Modifier.fillMaxSize()) {
-                    LazyColumn(
-                        modifier = Modifier.weight(1f).fillMaxSize(),
-                        state = listState,
-                        verticalArrangement = Arrangement.spacedBy(TaskPaneDefaults.RowSpacing),
-                    ) {
-                        itemsIndexed(menu.tasks, key = { _, keyed -> keyed.key }) { index, keyed ->
-                            ReorderableItem(
-                                state = reorderState,
-                                key = keyed.key,
-                                animateItemModifier = hsItemAnimation(),
-                            ) {
-                                RadialMenuTaskRow(
-                                    task = keyed.value,
-                                    // 拖拽手势只能在 ReorderableItem 的作用域里取，因此在调用点算好再传进去
-                                    dragHandleModifier = Modifier.draggableHandle(),
-                                    onExecute = { keyed.value.execute() },
-                                    onEdit = { editingTaskIndex = index },
-                                    onRemove = {
-                                        menu.removeTaskAt(index)
-                                        CustomRadialMenuManager.save()
-                                    },
-                                )
-                            }
-                        }
-                    }
-
-                    ScrollbarColumn(listState)
-                }
-            }
+        },
+    ) {
+        AnimatedContent(
+            targetState = menuKey,
+            transitionSpec = { fadeIn() togetherWith fadeOut() },
+            modifier = Modifier.fillMaxSize(),
+            label = "RadialMenuTaskList",
+        ) { targetKey ->
+            RadialMenuTaskList(
+                menu = CustomRadialMenuManager.customRadialMenus[targetKey] ?: menu,
+                onEditTask = { editingTaskIndex = it },
+            )
         }
     }
 
@@ -237,6 +180,109 @@ fun RadialMenuTaskPane(
                 CustomRadialMenuManager.save()
             }
         )
+    }
+}
+
+/**
+ * 选中菜单的工具栏：快捷键与其扩展设置、「新建任务」与「从任务管理器导入任务」。
+ */
+@Composable
+private fun RadialMenuToolbar(
+    menu: CustomRadialMenu,
+    onNewTask: () -> Unit,
+    onImportTasks: () -> Unit,
+) {
+    var keybindVersion by remember(menu) { mutableIntStateOf(0) }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Row(
+            modifier = Modifier.width(TaskPaneDefaults.KeybindRowWidth),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(TaskPaneDefaults.ItemSpacing),
+        ) {
+            // 设置改的是 keybind 自身，显示文本不会因重画更新，按版本重建按钮
+            key(keybindVersion) {
+                KeybindSetButton(keybind = menu.shortcuts, modifier = Modifier.weight(1f))
+            }
+            KeybindSettingSetButton(
+                keybindSetting = menu.shortcuts.setting,
+                onValueChange = {
+                    menu.shortcuts.setFrom(it)
+                    keybindVersion++
+                },
+                iconScale = LocalSokitsuPixelScale.current,
+                contentPadding = ConfigControlDefaults.IconButtonPadding,
+            )
+        }
+
+        Spacer(Modifier.weight(1f))
+
+        Button(onClick = onNewTask) {
+            Icon(Icons.Add)
+            Spacer(Modifier.width(8.dp))
+            Text(component = HSLang.Task.newTask)
+        }
+        Button(onClick = onImportTasks) {
+            Icon(Icons.Import)
+            Spacer(Modifier.width(8.dp))
+            Text(component = HSLang.CustomRadialMenu.importTasks)
+        }
+    }
+}
+
+/**
+ * 选中菜单的任务列表：行可拖拽排序，滚动条占自己一列。
+ */
+@Composable
+private fun RadialMenuTaskList(
+    menu: CustomRadialMenu,
+    onEditTask: (Int) -> Unit,
+) {
+    if (menu.tasks.isEmpty()) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
+        }
+        return
+    }
+
+    val listState = rememberLazyListState()
+    val reorderState = rememberReorderableLazyListState(listState) { from, to ->
+        menu.moveTask(from.index, to.index)
+        CustomRadialMenuManager.save()
+    }
+
+    Row(Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.weight(1f).fillMaxSize(),
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(TaskPaneDefaults.RowSpacing),
+        ) {
+            itemsIndexed(menu.tasks, key = { _, keyed -> keyed.key }) { index, keyed ->
+                ReorderableItem(
+                    state = reorderState,
+                    key = keyed.key,
+                    animateItemModifier = hsItemAnimation(),
+                ) {
+                    RadialMenuTaskRow(
+                        task = keyed.value,
+                        // 拖拽手势只能在 ReorderableItem 的作用域里取，因此在调用点算好再传进去
+                        dragHandleModifier = Modifier.draggableHandle(),
+                        onExecute = { keyed.value.execute() },
+                        onEdit = { onEditTask(index) },
+                        onRemove = {
+                            menu.removeTaskAt(index)
+                            CustomRadialMenuManager.save()
+                        },
+                    )
+                }
+            }
+        }
+
+        ScrollbarColumn(listState)
     }
 }
 

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.ui.HSUiDefaults
 import moe.forpleuvoir.hiirosakura.functional.customradialmenu.CustomRadialMenu
 import moe.forpleuvoir.hiirosakura.functional.customradialmenu.CustomRadialMenuManager
 import moe.forpleuvoir.hiirosakura.functional.customradialmenu.CustomRadialMenuManager.validateMenuName
@@ -53,9 +54,6 @@ private val DialogRowWidth = 528.dp
 
 /** 控件与右侧动作按钮之间的间距。 */
 private val DialogActionGap = 8.dp
-
-/** 对话框内图标倍率。 */
-private const val DialogIconScale = 2
 
 /** 设置浮层里所有控件的统一宽度：颜色按钮与数值滑条同宽。 */
 private val SettingControlWidth = 280.dp
@@ -123,7 +121,7 @@ fun CreateRadialMenuDialog(
                     KeybindSettingSetButton(
                         keybindSetting = keybind.setting,
                         onValueChange = { keybind.setFrom(it) },
-                        iconScale = DialogIconScale,
+                        iconScale = HSUiDefaults.ICON_SCALE,
                         contentPadding = ConfigControlDefaults.IconButtonPadding,
                     )
                 }

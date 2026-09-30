@@ -77,11 +77,8 @@ fun TaskManagerUI(modifier: Modifier = Modifier) {
             )
         }
 
-        Surface(
-            modifier = Modifier.weight(1f).fillMaxHeight(),
-            color = panelColor,
-            sprite = SurfaceDefaults.embeddedPanel,
-        ) {
+        // 右列不再套面板：工具栏要落在面板之外，面板由各页自己出（见 PagePanel）
+        Column(Modifier.weight(1f).fillMaxHeight()) {
             when (selectedPage) {
                 PAGE_RUNNING  -> RunningTasksPage(Modifier.fillMaxSize())
                 PAGE_SETTINGS -> SettingsPage(Modifier.fillMaxSize())

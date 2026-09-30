@@ -26,6 +26,7 @@ import moe.forpleuvoir.hiirosakura.ui.icon.Play
 import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.LocalItemIconVanillaSize
+import moe.forpleuvoir.hiirosakura.ui.widget.PagePanel
 import moe.forpleuvoir.hiirosakura.ui.widget.ScrollbarColumn
 import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.ibukigourd.input.Keybind
@@ -104,49 +105,51 @@ internal fun TasksPage(modifier: Modifier) {
     // null = 不显示编辑浮层；-1 = 新建；其余为 taskList 下标
     var editingTaskIndex by remember { mutableStateOf<Int?>(null) }
 
-    Column(modifier.fillMaxSize().padding(16.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(component = HSLang.Task.tasks)
+    PagePanel(
+        modifier = modifier.fillMaxSize(),
+        toolbar = {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Button(onClick = {
-                    runCatching {
-                        TaskManager.reBindKey()
-                    }.onSuccess {
-                        ToastHandler.showContent { Text(component = HSLang.Common.success) }
-                    }.onFailure {
-                        ToastHandler.showContent { Text(it.message ?: "") }
+                Text(component = HSLang.Task.tasks)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Button(onClick = {
+                        runCatching {
+                            TaskManager.reBindKey()
+                        }.onSuccess {
+                            ToastHandler.showContent { Text(component = HSLang.Common.success) }
+                        }.onFailure {
+                            ToastHandler.showContent { Text(it.message ?: "") }
+                        }
+                    }) {
+                        Icon(Icons.SyncAlt)
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            component = HSLang.Task.reBindKey,
+                            modifier = Modifier.tooltip { Text(component = HSLang.Task.reBindKeyComment) },
+                        )
                     }
-                }) {
-                    Icon(Icons.SyncAlt)
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        component = HSLang.Task.reBindKey,
-                        modifier = Modifier.tooltip { Text(component = HSLang.Task.reBindKeyComment) },
-                    )
-                }
 
-                Button(onClick = { editingTaskIndex = -1 }) {
-                    Icon(Icons.Add)
-                    Spacer(Modifier.width(8.dp))
-                    Text(component = HSLang.Task.newTask)
+                    Button(onClick = { editingTaskIndex = -1 }) {
+                        Icon(Icons.Add)
+                        Spacer(Modifier.width(8.dp))
+                        Text(component = HSLang.Task.newTask)
+                    }
                 }
             }
-        }
-
-        Spacer(Modifier.height(16.dp))
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            if (TaskManager.taskList.isEmpty()) {
+        },
+    ) {
+        if (TaskManager.taskList.isEmpty()) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
-            } else {
-                TaskList(Modifier.fillMaxSize()) { editingTaskIndex = it }
             }
+        } else {
+            TaskList(Modifier.fillMaxSize()) { editingTaskIndex = it }
         }
     }
 

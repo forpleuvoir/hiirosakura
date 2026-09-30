@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.customradialmenu.CustomRadialMenuManager
+import moe.forpleuvoir.hiirosakura.ui.HSUiDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.ScrollbarColumn
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.InlineStyleText
@@ -46,9 +47,6 @@ private object MenuPaneDefaults {
     /** 「添加菜单项」按钮与列表之间的间距。 */
     val ButtonGap: Dp = 12.dp
 }
-
-/** 菜单项里图标的倍率。 */
-private const val MenuIconScale = 2
 
 /**
  * 左列：菜单列表 + 新建入口。
@@ -147,7 +145,7 @@ private fun RadialMenuListItem(
                 onClick = { showMenu = true },
                 modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.setting) },
             ) {
-                Icon(Icons.Menu, scale = MenuIconScale)
+                Icon(Icons.Menu, scale = HSUiDefaults.ICON_SCALE)
             }
 
             DropdownMenu(
@@ -157,21 +155,21 @@ private fun RadialMenuListItem(
             ) {
                 DropdownMenuItem(
                     onClick = { showMenu = false; onEditSetting() },
-                    leadingIcon = { Icon(Icons.Setting, scale = MenuIconScale) },
+                    leadingIcon = { Icon(Icons.Setting, scale = HSUiDefaults.ICON_SCALE) },
                 ) {
                     Text(component = HSLang.CustomRadialMenu.setting)
                 }
 
                 DropdownMenuItem(
                     onClick = { showMenu = false; onRename() },
-                    leadingIcon = { Icon(Icons.Edit, scale = MenuIconScale) },
+                    leadingIcon = { Icon(Icons.Edit, scale = HSUiDefaults.ICON_SCALE) },
                 ) {
                     Text(component = HSLang.CustomRadialMenu.editName)
                 }
 
                 DropdownMenuItem(
                     onClick = { showMenu = false; onDelete() },
-                    leadingIcon = { Icon(Icons.Delete, scale = MenuIconScale) },
+                    leadingIcon = { Icon(Icons.Delete, scale = HSUiDefaults.ICON_SCALE) },
                 ) {
                     Text(component = HSLang.CustomRadialMenu.delete)
                 }

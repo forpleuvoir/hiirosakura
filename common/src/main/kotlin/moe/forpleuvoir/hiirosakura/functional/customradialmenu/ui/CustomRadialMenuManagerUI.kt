@@ -1,9 +1,5 @@
 package moe.forpleuvoir.hiirosakura.functional.customradialmenu.ui
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -82,26 +78,12 @@ fun CustomRadialMenuManagerUI(modifier: Modifier = Modifier) {
             )
         }
 
-        Surface(
+        // 右列不再套面板：工具栏要落在面板之外，面板由页面自己出（见 PagePanel）
+        RadialMenuTaskPane(
+            menu = selectedMenu,
+            menuKey = selectedMenuKey,
             modifier = Modifier.weight(1f).fillMaxHeight(),
-            color = panelColor,
-            sprite = SurfaceDefaults.embeddedPanel,
-        ) {
-            AnimatedContent(
-                targetState = selectedMenuKey,
-                modifier = Modifier.fillMaxSize(),
-                transitionSpec = {
-                    fadeIn() togetherWith fadeOut()
-                },
-                label = "RadialMenuTaskPane",
-            ) { menuKey ->
-                RadialMenuTaskPane(
-                    menu = selectedMenu,
-                    menuKey = menuKey,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
+        )
     }
 
 

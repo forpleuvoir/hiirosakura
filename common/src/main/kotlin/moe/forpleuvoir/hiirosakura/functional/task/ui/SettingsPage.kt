@@ -2,20 +2,16 @@ package moe.forpleuvoir.hiirosakura.functional.task.ui
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
+import moe.forpleuvoir.hiirosakura.ui.widget.PagePanel
 import moe.forpleuvoir.hiirosakura.ui.widget.ScrollbarColumn
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigsWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.LocalConfigGroupAutoExpandLimit
-
-/** 配置列表与滚动条共用的内边距。 */
-private val SettingsPadding = 16.dp
 
 @Composable
 internal fun SettingsPage(modifier: Modifier) {
@@ -23,14 +19,16 @@ internal fun SettingsPage(modifier: Modifier) {
 
     // 任务管理器的分组整体默认展开：设置项不多，折叠着看要逐组点开
     CompositionLocalProvider(LocalConfigGroupAutoExpandLimit provides Int.MAX_VALUE) {
-        Row(modifier.fillMaxSize().padding(SettingsPadding)) {
-            ConfigsWrapper(
-                TaskManager.Config.children,
-                Modifier.weight(1f).verticalScroll(scrollState),
-            )
+        PagePanel(modifier = modifier.fillMaxSize()) {
+            Row(Modifier.fillMaxSize()) {
+                ConfigsWrapper(
+                    TaskManager.Config.children,
+                    Modifier.weight(1f).verticalScroll(scrollState),
+                )
 
-            // 滚动条占自己的一列，不叠在配置列表上
-            ScrollbarColumn(scrollState)
+                // 滚动条占自己的一列，不叠在配置列表上
+                ScrollbarColumn(scrollState)
+            }
         }
     }
 }

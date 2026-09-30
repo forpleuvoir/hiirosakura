@@ -142,6 +142,8 @@
   "hiirosakura.task.executor_type": "执行器类型",
   "hiirosakura.task.icon": "任务图标",
   "hiirosakura.task.executor": "执行器",
+  "hiirosakura.task.keybind": "快捷键",
+  "hiirosakura.task.actions": "操作",
   "hiirosakura.task.tasks": "任务列表",
   "hiirosakura.task.running_tasks": "运行中的任务",
   "hiirosakura.task.settings": "设置",

@@ -41,6 +41,10 @@ object TaskLang {
 
     inline val icon get() = lang("icon")
 
+    inline val keybind get() = lang("keybind")
+
+    inline val actions get() = lang("actions")
+
     inline val executor get() = lang("executor")
 
     inline val tasks get() = lang("tasks")

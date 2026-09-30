@@ -20,7 +20,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
@@ -139,60 +138,12 @@ object OutlinedTextFieldDefaults {
         LabeledFieldDefaults.contentPadding(top, bottom, start, end)
 }
 
-/**
- * 旧版 `NavigationRail`：sokitsu [Button] 列的等价实现。
- *
- * 新版上游没有导航栏组件；本项目只用到「一列可选项」，因此用等宽按钮列表达。
- */
-@Composable
-fun NavigationRail(
-    modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit,
-) = Column(
-    modifier = modifier,
-    verticalArrangement = Arrangement.spacedBy(4.dp),
-    content = content,
-)
-
-/** 旧版 `NavigationRailItem`：选中态用容器色板表达的一列按钮项。 */
-@Composable
-fun NavigationRailItem(
-    selected: Boolean,
-    onClick: () -> Unit,
-    icon: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    label: (@Composable () -> Unit)? = null,
-) {
-    val scheme = LocalColorScheme.current
-    Button(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-        colors = if (selected) {
-            ButtonDefaults.colors(color = scheme.primaryContainer, contentColor = scheme.onPrimaryContainer)
-        } else {
-            ButtonDefaults.colors()
-        },
-    ) {
-        icon()
-        label?.invoke()
-    }
-}
-
 /** 旧版 `BlitTexture` 的纹理对象重载：取 [IGTexture] 的纹理 id 绘制。 */
 @Composable
 fun BlitTexture(
     texture: IGTexture,
     modifier: Modifier = Modifier,
 ) = BlitTexture(texture.textureInfo.textureId, modifier)
-
-/** 旧版 `Card`：sokitsu [Surface] 等价实现。 */
-@Composable
-fun Card(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) = Surface(modifier = modifier, content = content)
 
 /** 旧版 `RemoveButton`：悬停出现的删除按钮。 */
 @Composable
@@ -203,13 +154,6 @@ fun RemoveButton(
 ) = IconButton(onClick = action, modifier = modifier, enabled = enabled) {
     Icon(Icons.Delete)
 }
-
-/**
- * 旧版 `LocalAutoExpandConfigGroupLimit`：配置页里分组自动展开的数量上限。
- *
- * 新版上游的配置页不再读取该组合本地量，这里保留取值以兼容旧调用点（不再影响展开行为）。
- */
-val LocalAutoExpandConfigGroupLimit = staticCompositionLocalOf { Int.MAX_VALUE }
 
 /**
  * 旧版 `FloatingActionButtonMenu`：按钮 + 展开菜单。

@@ -1,58 +1,182 @@
 package moe.forpleuvoir.hiirosakura.functional.task.ui
 
-import androidx.compose.foundation.layout.*
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalDivider
-import androidx.compose.runtime.*
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigManagerDefaults
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SurfaceDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
-import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Assignment
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Task
-import moe.forpleuvoir.hiirosakura.ui.compat.NavigationRail
-import moe.forpleuvoir.hiirosakura.ui.compat.NavigationRailItem
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.resolve
 
+/**
+ * 菜单项下标与页面下标一致：任务列表 / 运行中的任务 / 设置。
+ */
+private const val PAGE_TASKS = 0
+private const val PAGE_RUNNING = 1
+private const val PAGE_SETTINGS = 2
+
+/** 三个页面的标题，下标即页面下标。 */
+private val taskPages by lazy {
+    listOf(HSLang.Task.tasks, HSLang.Task.runningTasks, HSLang.Task.settings)
+}
+
+/**
+ * 任务管理器：左列菜单（三个页面）+ 右列内容，与配置页同一套骨架。
+ *
+ * 两列各坐在一张内嵌面板上，宽度与内边距直接取配置页的排版量 [ConfigManagerDefaults]，
+ * 因此与配置页看起来是一套；两列之间不画分割线（面板自带边框）。
+ */
 @Composable
 fun TaskManagerUI(modifier: Modifier = Modifier) {
-    var selectedPage by remember { mutableIntStateOf(0) }
+    var selectedPage by remember { mutableIntStateOf(PAGE_TASKS) }
+    // 两块内嵌面板共用一档底色，才不会一块深一块浅
+    val panelColor = Color.Unspecified.resolve(ConfigManagerDefaults.PanelTone)
 
-
-    Row(modifier.fillMaxSize()) {
-        NavigationRail(
-            modifier = Modifier.fillMaxHeight()
+    Row(
+        modifier = modifier.fillMaxSize().padding(ConfigManagerDefaults.ContentPadding),
+        horizontalArrangement = Arrangement.spacedBy(ConfigManagerDefaults.ColumnSpacing),
+    ) {
+        Surface(
+            modifier = Modifier
+                .widthIn(
+                    min = ConfigManagerDefaults.GroupListMinWidth,
+                    max = ConfigManagerDefaults.GroupListMaxWidth,
+                )
+                .width(IntrinsicSize.Max)
+                .fillMaxHeight(),
+            color = panelColor,
+            sprite = SurfaceDefaults.embeddedPanel,
         ) {
-            Spacer(Modifier.height(8.dp))
-            NavigationRailItem(
-                selected = selectedPage == 0,
-                onClick = { selectedPage = 0 },
-                icon = { VectorIcon(HSIcons.Task) },
-                label = { Text(component = HSLang.Task.tasks) }
-            )
-            NavigationRailItem(
-                selected = selectedPage == 1,
-                onClick = { selectedPage = 1 },
-                icon = { VectorIcon(HSIcons.Assignment) },
-                label = { Text(component = HSLang.Task.runningTasks) }
-            )
-            NavigationRailItem(
-                selected = selectedPage == 2,
-                onClick = { selectedPage = 2 },
-                icon = { Icon(Icons.Setting) },
-                label = { Text(component = HSLang.Task.settings) }
+            TaskMenu(
+                selected = selectedPage,
+                onSelect = { selectedPage = it },
+                modifier = Modifier.fillMaxSize().padding(ConfigManagerDefaults.EmbedContentPadding),
             )
         }
 
-        Spacer(Modifier.width(12.dp))
-        VerticalDivider()
-
-        when (selectedPage) {
-            0 -> TasksPage(Modifier.weight(1f))
-            1 -> RunningTasksPage(Modifier.weight(1f))
-            2 -> SettingsPage(Modifier.weight(1f))
+        Surface(
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+            color = panelColor,
+            sprite = SurfaceDefaults.embeddedPanel,
+        ) {
+            when (selectedPage) {
+                PAGE_RUNNING  -> RunningTasksPage(Modifier.fillMaxSize())
+                PAGE_SETTINGS -> SettingsPage(Modifier.fillMaxSize())
+                else          -> TasksPage(Modifier.fillMaxSize())
+            }
         }
+    }
+}
+
+/**
+ * 左列菜单：可滚动的项列表 + 并列的滚动条列。
+ *
+ * @param selected 当前选中的页面下标
+ * @param onSelect 选中回调，参数为页面下标
+ */
+@Composable
+private fun TaskMenu(
+    selected: Int,
+    onSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val scrollState = rememberScrollState()
+
+    Row(modifier) {
+        Column(
+            modifier = Modifier.weight(1f).fillMaxHeight().verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(ConfigManagerDefaults.GroupSpacing),
+        ) {
+            taskPages.forEachIndexed { index, title ->
+                TaskMenuItem(
+                    selected = index == selected,
+                    onClick = { onSelect(index) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    // 单行标签：不折行、不省略 —— 固有宽度恒等于文本宽度，面板宽度因此贴合最宽的项
+                    Text(
+                        component = title,
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Clip,
+                    )
+                }
+            }
+        }
+        MenuScrollbar(scrollState)
+    }
+}
+
+/**
+ * 菜单项：文字左对齐、贴满整行的 [FlatButton]。
+ *
+ * 选中时把 `focused` 素材当常态底色，于是选中项常亮、按下仍显示 `pressed`；
+ * `normal` 无素材，未选中项因此完全透明。
+ */
+@Composable
+private fun TaskMenuItem(
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable RowScope.() -> Unit,
+) {
+    val sprites = ConfigManagerDefaults.navItemSprite()
+    FlatButton(
+        onClick = onClick,
+        modifier = modifier,
+        sprite = if (selected) sprites.copy(normal = sprites.focused) else sprites,
+        minSize = ConfigManagerDefaults.NavItemMinSize,
+        contentPadding = ConfigManagerDefaults.NavItemPadding,
+        contentAlignment = Alignment.CenterStart,
+        content = content,
+    )
+}
+
+/**
+ * 菜单滚动条列：与内容**并列**占一条固定宽度的布局列，不浮在内容之上。
+ *
+ * 没有可滚动空间时整列不出现（判定与滚动条自身的 `autoHide` 同源），免得右缘平白多出一条空位；
+ * 本列只影响宽度、不影响高度，"出现 → 内容变窄 → 仍可滚"因此不会来回抖。
+ */
+@Composable
+private fun MenuScrollbar(scrollState: ScrollState) {
+    // 首帧滚动容器还没量过（`maxValue` 仍是初值、`viewportSize` 为 0），先按"没有滚动条"处理
+    if (scrollState.viewportSize <= 0 || scrollState.maxValue <= 0) return
+    Spacer(Modifier.width(ConfigRowDefaults.ScrollbarSpacing))
+    Box(Modifier.width(ConfigRowDefaults.ScrollbarWidth).fillMaxHeight()) {
+        VerticalFlatScroller(
+            adapter = rememberScrollerAdapter(scrollState),
+            modifier = Modifier.fillMaxSize(),
+            autoHide = true,
+            autoFade = true,
+        )
     }
 }

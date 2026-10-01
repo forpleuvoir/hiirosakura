@@ -20,8 +20,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import androidx.compose.foundation.layout.fillMaxWidth
-import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
-import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
 
 @Composable
 fun ItemStackMatchEntryCountInfo(entry: ItemStackMatchEntry.Count) {
@@ -95,21 +93,19 @@ internal fun BasicItemStackMatchEntryCountEditor(
         modifier = modifier,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                                IntField(
-                    value.count.first,
-                    { onValueChange(value.copy(count = it..value.count.last)) },
-                    valueRange = 1..Int.MAX_VALUE,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                Text("≤..≤", modifier = Modifier.padding(horizontal = 12.dp))
-                                IntField(
-                    value.count.last,
-                    { onValueChange(value.copy(count = value.count.first..it)) },
-                    valueRange = value.count.first..Int.MAX_VALUE,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
+            IntField(
+                value.count.first,
+                { onValueChange(value.copy(count = it..value.count.last)) },
+                valueRange = 1..Int.MAX_VALUE,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Text("≤..≤", modifier = Modifier.padding(horizontal = 12.dp))
+            IntField(
+                value.count.last,
+                { onValueChange(value.copy(count = value.count.first..it)) },
+                valueRange = value.count.first..Int.MAX_VALUE,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }

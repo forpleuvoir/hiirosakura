@@ -10,6 +10,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.text.plainText
@@ -66,17 +67,16 @@ fun MobEffectInstanceEditorContent(
         MobEffectSelector(
             value.effect.value(),
             { onValueChange(value.copy(effect = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(it))) },
-            label = { Text(key, suffix = "effect") },
             modifier = Modifier.fillMaxWidth()
         )
-                LabelBox(label = { Text(key, suffix = "duration") }, modifier = Modifier.fillMaxWidth()) {
+        LabelBox(label = { Text(key, suffix = "duration") }, modifier = Modifier.fillMaxWidth()) {
             IntField(
                 value.duration,
                 onValueChange = { onValueChange(value.copy(duration = it)) },
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-                LabelBox(label = { Text(key, suffix = "amplifier") }, modifier = Modifier.fillMaxWidth()) {
+        LabelBox(label = { Text(key, suffix = "amplifier") }, modifier = Modifier.fillMaxWidth()) {
             IntField(
                 value.amplifier,
                 onValueChange = { onValueChange(value.copy(amplifier = it)) },
@@ -171,7 +171,7 @@ fun MobEffectInstanceEditorContent(
                         },
                         key = key,
                         onDismissRequest = { showDialog = false },
-                        title = { Text(key, suffix = "hidden_effect") },
+                        title = { DataComponentDialogTitle(key, suffix = "hidden_effect") },
                     )
                 }
             }
@@ -253,7 +253,6 @@ fun MobEffectSelector(
             modifier = Modifier.tooltip { Text(it.descriptionId) }
         )
     },
-    label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (MobEffect, Boolean) -> Unit = { item, _ ->
         Text(
             item.displayName,
@@ -274,19 +273,17 @@ fun MobEffectSelector(
     shape: Shape = RectangleShape,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
-        LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
-                Selector(
-                selected = selected,
-                onSelect = onSelect,
-                items = items,
-                itemEquals = itemEquals,
-                content = content,
-                itemContent = itemContent,
-                enabled = enabled,
-                itemLeadingIcon = itemLeadingIcon,
-                itemTrailingIcon = itemTrailingIcon,
-                searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-    }
+    Selector(
+        selected = selected,
+        onSelect = onSelect,
+        items = items,
+        itemEquals = itemEquals,
+        content = content,
+        itemContent = itemContent,
+        enabled = enabled,
+        itemLeadingIcon = itemLeadingIcon,
+        itemTrailingIcon = itemTrailingIcon,
+        searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+        modifier = modifier.fillMaxWidth(),
+    )
+}

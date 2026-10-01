@@ -29,7 +29,6 @@ import moe.forpleuvoir.ibukigourd.ui.util.isQuickAction
 import moe.forpleuvoir.ibukigourd.ui.util.rememberHideActionState
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
 import moe.forpleuvoir.hiirosakura.ui.compat.FloatingActionButtonMenu
 import moe.forpleuvoir.hiirosakura.ui.compat.FloatingActionButtonMenuItem
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale

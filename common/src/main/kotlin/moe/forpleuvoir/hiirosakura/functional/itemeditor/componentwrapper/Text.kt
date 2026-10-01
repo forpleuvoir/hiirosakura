@@ -1,32 +1,39 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.modifier.vanillaTooltip
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.RichTextEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.RichTextEditorState
 import moe.forpleuvoir.ibukigourd.text.inlinestyletext.InlineStyleTextParser
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.util.isQuickAction
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
+import moe.forpleuvoir.compose_minecraft.platform.ui.text.LocalDefaultFont
+import moe.forpleuvoir.compose_minecraft.platform.ui.text.MinecraftFonts
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text as SokitsuText
 
 @Composable
 fun TextComponentWrapper(
@@ -35,39 +42,51 @@ fun TextComponentWrapper(
     onValueChange: (Component) -> Unit,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
-        var showDialog by remember { mutableStateOf(false) }
+) {
+    var showDialog by remember { mutableStateOf(false) }
 
-        var showInlineEditorDialog by remember { mutableStateOf(false) }
+    var showInlineEditorDialog by remember { mutableStateOf(false) }
 
-        FlatButton(
-            onClick = {},
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(DataComponentEditorDefaults.entrySize.width)
-                .vanillaTooltip(value),
-        ) {
-Text(value, overflow = TextOverflow.Ellipsis, maxLines = 1)
-IconButton(onClick = {
-    if (isQuickAction)
-        showInlineEditorDialog = true
-    else
-        showDialog = true
-}) {
-    Icon(Icons.Edit)
-}
-        }
-if (showDialog) {
-            RichTextEditorDialog(value, onValueChange, { Text(key) }) { showDialog = false }
-        }
-
-        if (showInlineEditorDialog) {
-            InlineStyleTextEditorDialog(value, onValueChange, { Text(key) }) { showInlineEditorDialog = false }
-        }
+    DataComponentDisplayRow(
+        key, removeAction, modifier, horizontalArrangement, verticalAlignment,
+        frameModifier = Modifier.vanillaTooltip(value),
+        onEdit = {
+            if (isQuickAction)
+                showInlineEditorDialog = true
+            else
+                showDialog = true
+        },
+    ) {
+        Text(value, overflow = TextOverflow.Ellipsis, maxLines = 1)
     }
+    if (showDialog) {
+        RichTextEditorDialog(value, onValueChange, { DataComponentDialogTitle(key) }) { showDialog = false }
+    }
+
+    if (showInlineEditorDialog) {
+        InlineStyleTextEditorDialog(value, onValueChange, { DataComponentDialogTitle(key) }) { showInlineEditorDialog = false }
+    }
+}
+
+/** 文本编辑浮层的尺寸约束：宽度只夹上下限，高度只给上限。 */
+private object TextEditorDialogDefaults {
+
+    /** 浮层宽度下限：多行编辑区与格式工具栏一行放得下。 */
+    val MinWidth: Dp = 720.dp
+
+    /** 浮层宽度上限。 */
+    val MaxWidth: Dp = 1000.dp
+
+    /** 浮层高度上限：编辑区与预览区共用的可视高度。 */
+    val MaxHeight: Dp = 760.dp
+
+    /** 浮层尺寸约束：宽度只夹上下限，具体宽度由窗口决定。 */
+    val DialogModifier: Modifier
+        get() = Modifier
+            .widthIn(min = MinWidth, max = MaxWidth)
+            .heightIn(max = MaxHeight)
 }
 
 @Composable
@@ -80,7 +99,7 @@ fun RichTextEditorDialog(
     val state = remember { RichTextEditorState.fromMcText(value) }
     FlexibleDialog(
         onDismissRequest,
-        modifier = Modifier.padding(24.dp).height(520.dp).width(720.dp),
+        modifier = TextEditorDialogDefaults.DialogModifier,
         onConfirmRequest = {
             onValueChange(state.mcText)
             true
@@ -113,7 +132,7 @@ fun InlineStyleTextEditorDialog(
     }
     FlexibleDialog(
         onDismissRequest,
-        modifier = Modifier.padding(24.dp).height(520.dp).width(720.dp),
+        modifier = TextEditorDialogDefaults.DialogModifier,
         onConfirmRequest = {
             onValueChange(editingValue)
             true
@@ -123,23 +142,28 @@ fun InlineStyleTextEditorDialog(
             Column(modifier = Modifier.fillMaxSize()) {
                 TextField(
                     state = state,
-                    modifier = Modifier .fillMaxWidth() .weight(1f),
+                    lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 6, maxHeightInLines = 12),
+                    modifier = Modifier.fillMaxWidth().weight(1f),
                 )
                 Spacer(Modifier.height(12.dp))
-                LabelBox(
-                    label = {
-                        Text(component = HSLang.TextEditor.preview)
+                DataComponentSection(
+                    title = {
+                        Text(component = HSLang.TextEditor.preview, fontSize = SokitsuTheme.typography.body.fontSize)
                     },
-                    modifier = Modifier.weight(1.25f).fillMaxWidth()
+                    modifier = Modifier.weight(1.25f).fillMaxWidth(),
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(
-                            component = editingValue,
-                            modifier = Modifier.fillMaxSize(),
-                        )
+                        CompositionLocalProvider(LocalDefaultFont provides MinecraftFonts.Default) {
+                            SokitsuText(
+                                component = editingValue,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                                fontSize = 18.sp,
+                            )
+                        }
                     }
                 }
 

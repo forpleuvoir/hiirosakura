@@ -1,18 +1,17 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.*
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.AttackRange
@@ -25,25 +24,30 @@ fun AttackRangeComponentWrapper(
     onValueChange: (AttackRange) -> Unit,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height)) {
-        var showDialog by remember { mutableStateOf(false) }
-        IconButton(onClick = {
-            showDialog = true
-        }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.Edit)
-        }
-        if (showDialog) {
-            AttackRangeEditorDialog(
-                key = key,
-                value = value,
-                onValueChange = onValueChange,
-                onDismissRequest = { showDialog = false },
-                title = { Text(key) }
-            )
-        }
+) {
+    var showDialog by remember { mutableStateOf(false) }
+
+    DataComponentDisplayRow(
+        key, removeAction, modifier, horizontalArrangement, verticalAlignment,
+        onEdit = { showDialog = true },
+    ) {
+        Text(
+            "reach ${value.minReach}~${value.maxReach} · creative ${value.minCreativeReach}~${value.maxCreativeReach} · hitbox_margin ${value.hitboxMargin} · mob_factor ${value.mobFactor}",
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+        )
+    }
+
+    if (showDialog) {
+        AttackRangeEditorDialog(
+            key = key,
+            value = value,
+            onValueChange = onValueChange,
+            onDismissRequest = { showDialog = false },
+            title = { DataComponentDialogTitle(key) }
+        )
     }
 }
 
@@ -64,54 +68,92 @@ fun AttackRangeEditorDialog(
         },
         title = title,
         content = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                LabelBox(label = { Text(key, suffix = "min_reach", fallback = "Min Reach") }, modifier = Modifier.width(300.dp)) {
-                    FloatField(
-                        editing.minReach,
-                        { editing = editing.copy(minReach = it) },
-                        valueRange = 0f..64.0f,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    DataComponentSection(
+                        key,
+                        suffix = "min_reach",
+                        fallback = "Min Reach",
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        FloatField(
+                            editing.minReach,
+                            { editing = editing.copy(minReach = it) },
+                            valueRange = 0f..64.0f,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    DataComponentSection(
+                        key,
+                        suffix = "max_reach",
+                        fallback = "Max Reach",
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        FloatField(
+                            editing.maxReach,
+                            { editing = editing.copy(maxReach = it) },
+                            valueRange = 0f..64.0f,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
-                                LabelBox(label = { Text(key, suffix = "max_reach", fallback = "Max Reach") }, modifier = Modifier.width(300.dp)) {
-                    FloatField(
-                        editing.maxReach,
-                        { editing = editing.copy(maxReach = it) },
-                        valueRange = 0f..64.0f,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    DataComponentSection(
+                        key,
+                        suffix = "min_creative_reach",
+                        fallback = "Min Creative Reach",
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        FloatField(
+                            editing.minCreativeReach,
+                            { editing = editing.copy(minCreativeReach = it) },
+                            valueRange = 0f..64.0f,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    DataComponentSection(
+                        key,
+                        suffix = "max_creative_reach",
+                        fallback = "Max Creative Reach",
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        FloatField(
+                            editing.maxCreativeReach,
+                            { editing = editing.copy(maxCreativeReach = it) },
+                            valueRange = 0f..64.0f,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
-                                LabelBox(label = { Text(key, suffix = "min_creative_reach", fallback = "Min Creative Reach") }, modifier = Modifier.width(300.dp)) {
-                    FloatField(
-                        editing.minCreativeReach,
-                        { editing = editing.copy(minCreativeReach = it) },
-                        valueRange = 0f..64.0f,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-                                LabelBox(label = { Text(key, suffix = "max_creative_reach", fallback = "Max Creative Reach") }, modifier = Modifier.width(300.dp)) {
-                    FloatField(
-                        editing.maxCreativeReach,
-                        { editing = editing.copy(maxCreativeReach = it) },
-                        valueRange = 0f..64.0f,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-                                LabelBox(label = { Text(key, suffix = "hitbox_margin", fallback = "Hitbox Margin") }, modifier = Modifier.width(300.dp)) {
-                    FloatField(
-                        editing.hitboxMargin,
-                        { editing = editing.copy(hitboxMargin = it) },
-                        valueRange = 0f..1.0f,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-                                LabelBox(label = { Text(key, suffix = "mob_factor", fallback = "Mob Factor") }, modifier = Modifier.width(300.dp)) {
-                    FloatField(
-                        editing.mobFactor,
-                        { editing = editing.copy(mobFactor = it) },
-                        valueRange = 0f..2.0f,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    DataComponentSection(
+                        key,
+                        suffix = "hitbox_margin",
+                        fallback = "Hitbox Margin",
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        FloatField(
+                            editing.hitboxMargin,
+                            { editing = editing.copy(hitboxMargin = it) },
+                            valueRange = 0f..1.0f,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    DataComponentSection(
+                        key,
+                        suffix = "mob_factor",
+                        fallback = "Mob Factor",
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        FloatField(
+                            editing.mobFactor,
+                            { editing = editing.copy(mobFactor = it) },
+                            valueRange = 0f..2.0f,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
             }
         }

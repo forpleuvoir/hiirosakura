@@ -1,5 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.*
@@ -7,19 +9,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
+import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import net.minecraft.resources.Identifier
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 
 @Composable
 fun IdentifierComponentWrapper(
@@ -28,23 +27,20 @@ fun IdentifierComponentWrapper(
     onValueChange: (Identifier) -> Unit,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
-        var showDialog by remember { mutableStateOf(false) }
-        FlatButton(
-            onClick = {},
-            modifier = Modifier.fillMaxHeight().width(DataComponentEditorDefaults.entrySize.width),
-        ) {
-Text(value, overflow = TextOverflow.Ellipsis, maxLines = 1)
-IconButton(onClick = { showDialog = true }) {
-    Icon(Icons.Edit)
-}
-        }
-if (showDialog) {
-            IdentifierEditorDialog(value, onValueChange, { Text(key) }, { showDialog = false })
-        }
+) {
+    var showDialog by remember { mutableStateOf(false) }
+
+    DataComponentDisplayRow(
+        key, removeAction, modifier, horizontalArrangement, verticalAlignment,
+        onEdit = { showDialog = true },
+    ) {
+        Text(value, overflow = TextOverflow.Ellipsis, maxLines = 1)
+    }
+
+    if (showDialog) {
+        IdentifierEditorDialog(value, onValueChange, { DataComponentDialogTitle(key) }, { showDialog = false })
     }
 }
 
@@ -66,37 +62,30 @@ fun IdentifierEditorDialog(
         onConfirmRequest = { true },
         title = title,
         content = {
-            Column {
-                LabelBox(label = {
-                        Row {
-                            Text("Namespace")
-                            if (!checkNamespace) {
-                                Spacer(Modifier.width(8.dp))
-                                Text("Non [a-z0-9_.-] character in namespace of location")
-                            }
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                DataComponentField(title = { Text("Namespace", fontSize = SokitsuTheme.typography.body.fontSize) }) {
+                    Column {
+                        TextField(
+                            namespace,
+                            isError = !checkNamespace,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        if (!checkNamespace) {
+                            Text("Non [a-z0-9_.-] character in namespace of location")
                         }
-                    }) {
-                    TextField(
-                        namespace,
-                        isError = !checkNamespace,
-                        modifier = Modifier.fillMaxWidth().height(68.dp),
-                    )
+                    }
                 }
-                Spacer(Modifier.height(8.dp))
-                LabelBox(label = {
-                        Row {
-                            Text("Path")
-                            if (!checkPath) {
-                                Spacer(Modifier.width(8.dp))
-                                Text("Non [a-z0-9/._-] character in path of location")
-                            }
+                DataComponentField(title = { Text("Path", fontSize = SokitsuTheme.typography.body.fontSize) }) {
+                    Column {
+                        TextField(
+                            path,
+                            isError = !checkPath,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        if (!checkPath) {
+                            Text("Non [a-z0-9/._-] character in path of location")
                         }
-                    }) {
-                    TextField(
-                        path,
-                        isError = !checkPath,
-                        modifier = Modifier.fillMaxWidth().height(68.dp),
-                    )
+                    }
                 }
             }
         },

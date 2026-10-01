@@ -1,6 +1,5 @@
 package moe.forpleuvoir.hiirosakura.ui.widget
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -20,7 +19,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
  *
  * @param value 当前值
  * @param onValueChange 输入回调
- * @param label 标签，画在框体上方
  * @param isError 错误态
  */
 @Composable
@@ -28,11 +26,9 @@ fun ValueTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    label: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
     enabled: Boolean = true,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.SingleLine,
-    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding,
 ) {
     val state = rememberTextFieldState(value)
 
@@ -45,13 +41,11 @@ fun ValueTextField(
         if (state.text.toString() != value) state.setTextAndPlaceCursorAtEnd(value)
     }
 
-    LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
-        TextField(
-            state = state,
-            enabled = enabled,
-            isError = isError,
-            lineLimits = lineLimits,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
+    TextField(
+        state = state,
+        enabled = enabled,
+        isError = isError,
+        lineLimits = lineLimits,
+        modifier = modifier.fillMaxWidth(),
+    )
 }

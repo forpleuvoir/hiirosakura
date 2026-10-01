@@ -1,5 +1,7 @@
 package moe.forpleuvoir.hiirosakura.config.items.matcher
 
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment

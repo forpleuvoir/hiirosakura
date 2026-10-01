@@ -93,7 +93,6 @@ fun HolderSoundEventSelector(
     value: Holder<SoundEvent>,
     onValueChange: (Holder<SoundEvent>) -> Unit,
     modifier: Modifier = Modifier,
-    label: @Composable (() -> Unit)? = null,
     shape: Shape = RectangleShape,
     contentPadding: PaddingValues = PaddingValues(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
     labelStartPadding: Dp? = 16.dp,
@@ -103,7 +102,6 @@ fun HolderSoundEventSelector(
         onValueChange(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(newValue))
     },
     modifier,
-    label,
     shape,
     contentPadding,
     labelStartPadding,
@@ -114,38 +112,30 @@ fun SoundEventSelector(
     value: SoundEvent,
     onValueChange: (SoundEvent) -> Unit,
     modifier: Modifier = Modifier,
-    label: @Composable (() -> Unit)? = null,
     shape: Shape = RectangleShape,
     contentPadding: PaddingValues = PaddingValues(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
     labelStartPadding: Dp? = 16.dp,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    LabelBox(
-        label,
-        modifier.tooltip {
+    Row(
+        modifier = modifier.fillMaxWidth().tooltip {
             Text(value.location.toString())
         },
-        
-        contentPadding = contentPadding,
-        labelStartPadding = labelStartPadding,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f, false),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.weight(1f, false),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                SoundPlayButton(value)
-                Spacer(Modifier.width(4.dp))
-                Text(value.getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
-            }
-            IconButton({
-                showDialog = true
-            }) {
-                Icon(Icons.Edit)
-            }
+            SoundPlayButton(value)
+            Spacer(Modifier.width(4.dp))
+            Text(value.getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
+        }
+        IconButton({
+            showDialog = true
+        }) {
+            Icon(Icons.Edit)
         }
     }
 
@@ -202,7 +192,7 @@ fun SoundEventSelectorInnerEditor(
  * @param items 候选音效，缺省取注册表里的全部音效
  */
 @Composable
-private fun SoundEventEditorDialog(
+fun SoundEventEditorDialog(
     selected: SoundEvent?,
     onSelect: (SoundEvent) -> Unit,
     onDismissRequest: () -> Unit,
@@ -247,55 +237,46 @@ fun OptionalHolderSoundEventSelector(
     value: Optional<Holder<SoundEvent>>,
     onValueChange: (Optional<Holder<SoundEvent>>) -> Unit,
     modifier: Modifier = Modifier,
-    label: @Composable (() -> Unit)? = null,
     shape: Shape = RectangleShape,
     contentPadding: PaddingValues = PaddingValues(top = 4.dp, bottom = 8.dp, start = 8.dp, end = 8.dp),
     labelStartPadding: Dp? = 16.dp,
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
-    LabelBox(
-        label,
-        modifier.thenIf(value.isPresent) {
+    Row(
+        modifier = modifier.fillMaxWidth().thenIf(value.isPresent) {
             Modifier.tooltip {
                 Text(value.get().value().location.toString())
             }
         },
-        
-        contentPadding = contentPadding,
-        labelStartPadding = labelStartPadding,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f, false),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.weight(1f, false),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                value.getOrNull()?.let {
-                    SoundPlayButton(it)
-                    Spacer(Modifier.width(4.dp))
-                    Text(it.value().getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
-                } ?: run {
-                    Spacer(Modifier.width(4.dp))
-                    Text(component = HSLang.Common.unset)
+            value.getOrNull()?.let {
+                SoundPlayButton(it)
+                Spacer(Modifier.width(4.dp))
+                Text(it.value().getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
+            } ?: run {
+                Spacer(Modifier.width(4.dp))
+                Text(component = HSLang.Common.unset)
+            }
+        }
+
+        Row {
+            value.getOrNull()?.let {
+                IconButton({ onValueChange(Optional.empty()) }) {
+                    Icon(Icons.Delete)
                 }
             }
-
-            Row {
-                value.getOrNull()?.let {
-                    IconButton({ onValueChange(Optional.empty()) }) {
-                        Icon(Icons.Delete)
-                    }
-                }
-                IconButton({
-                    showDialog = true
-                }) {
-                    Icon(Icons.Edit)
-                }
+            IconButton({
+                showDialog = true
+            }) {
+                Icon(Icons.Edit)
             }
-
         }
     }
 

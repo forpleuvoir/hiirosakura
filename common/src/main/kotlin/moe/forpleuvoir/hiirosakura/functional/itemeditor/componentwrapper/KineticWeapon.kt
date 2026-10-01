@@ -7,9 +7,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
+import androidx.compose.ui.text.style.TextOverflow
 import moe.forpleuvoir.hiirosakura.ui.widget.OptionalHolderSoundEventSelector
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
@@ -22,7 +25,6 @@ import net.minecraft.world.item.component.KineticWeapon
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import androidx.compose.foundation.layout.fillMaxWidth
 
 @Composable
@@ -32,26 +34,30 @@ fun KineticWeaponComponentWrapper(
     onValueChange: (KineticWeapon) -> Unit,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height)) {
-        var showDialog by remember { mutableStateOf(false) }
-        IconButton(onClick = {
-            showDialog = true
-        }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.Edit)
-        }
+) {
+    var showDialog by remember { mutableStateOf(false) }
 
-        if (showDialog) {
-            KineticWeaponEditorDialog(
-                key = key,
-                value = value,
-                onValueChange = onValueChange,
-                onDismissRequest = { showDialog = false },
-                title = { Text(key) }
-            )
-        }
+    DataComponentDisplayRow(
+        key, removeAction, modifier, horizontalArrangement, verticalAlignment,
+        onEdit = { showDialog = true },
+    ) {
+        Text(
+            "contact_cooldown_ticks ${value.contactCooldownTicks} · delay_ticks ${value.delayTicks} · forward_movement ${value.forwardMovement} · damage_multiplier ${value.damageMultiplier}",
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+        )
+    }
+
+    if (showDialog) {
+        KineticWeaponEditorDialog(
+            key = key,
+            value = value,
+            onValueChange = onValueChange,
+            onDismissRequest = { showDialog = false },
+            title = { DataComponentDialogTitle(key) }
+        )
     }
 }
 
@@ -78,7 +84,7 @@ fun KineticWeaponEditorDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                        LabelBox(label = { Text(key, suffix = "contact_cooldown_ticks") }, modifier = Modifier.weight(1f)) {
+                    DataComponentSection(key, suffix = "contact_cooldown_ticks", modifier = Modifier.weight(1f)) {
                         IntField(
                             editing.contactCooldownTicks,
                             { editing = editing.copy(contactCooldownTicks = it) },
@@ -86,7 +92,7 @@ fun KineticWeaponEditorDialog(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                                        LabelBox(label = { Text(key, suffix = "delay_ticks") }, modifier = Modifier.weight(1f)) {
+                    DataComponentSection(key, suffix = "delay_ticks", modifier = Modifier.weight(1f)) {
                         IntField(
                             editing.delayTicks,
                             { editing = editing.copy(delayTicks = it) },
@@ -94,35 +100,32 @@ fun KineticWeaponEditorDialog(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                                        LabelBox(label = { Text(key, suffix = "forward_movement") }, modifier = Modifier.weight(1f)) {
+                    DataComponentSection(key, suffix = "forward_movement", modifier = Modifier.weight(1f)) {
                         FloatField(
                             editing.forwardMovement,
                             { editing = editing.copy(forwardMovement = it) },
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                                        LabelBox(label = { Text(key, suffix = "damage_multiplier") }, modifier = Modifier.weight(1f)) {
+                    DataComponentSection(key, suffix = "damage_multiplier", modifier = Modifier.weight(1f)) {
                         FloatField(
                             editing.damageMultiplier,
                             { editing = editing.copy(damageMultiplier = it) },
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     OptionalHolderSoundEventSelector(
                         editing.sound,
                         { editing = editing.copy(sound = it) },
-                        label = { Text(key, suffix = "sound") },
-                        modifier = Modifier.weight(1f).height(64.dp)
+                        modifier = Modifier.weight(1f)
                     )
                     OptionalHolderSoundEventSelector(
                         editing.hitSound,
                         { editing = editing.copy(hitSound = it) },
-                        label = { Text(key, suffix = "hit_sound") },
-                        modifier = Modifier.weight(1f).height(64.dp)
+                        modifier = Modifier.weight(1f)
                     )
                 }
 
@@ -200,7 +203,7 @@ fun OptionalKineticWeaponConditionCard(
                 }
             }
             value.getOrNull()?.let { value ->
-                LabelBox(label = { Text(key, suffix = "max_duration_ticks") }, modifier = Modifier) {
+                DataComponentField(key, suffix = "max_duration_ticks", modifier = Modifier.fillMaxWidth()) {
                     IntField(
                         value.maxDurationTicks,
                         { onValueChange(Optional.of(value.copy(maxDurationTicks = it))) },
@@ -208,14 +211,14 @@ fun OptionalKineticWeaponConditionCard(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                                LabelBox(label = { Text(key, suffix = "min_speed") }, modifier = Modifier) {
+                DataComponentField(key, suffix = "min_speed", modifier = Modifier.fillMaxWidth()) {
                     FloatField(
                         value.minSpeed,
                         { onValueChange(Optional.of(value.copy(minSpeed = it))) },
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                                LabelBox(label = { Text(key, suffix = "min_relative_speed") }, modifier = Modifier) {
+                DataComponentField(key, suffix = "min_relative_speed", modifier = Modifier.fillMaxWidth()) {
                     FloatField(
                         value.minRelativeSpeed,
                         { onValueChange(Optional.of(value.copy(minRelativeSpeed = it))) },

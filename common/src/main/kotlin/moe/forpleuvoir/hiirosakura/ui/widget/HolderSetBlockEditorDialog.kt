@@ -1,11 +1,19 @@
 package moe.forpleuvoir.hiirosakura.ui.widget
 
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.configControlHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -46,12 +54,10 @@ import moe.forpleuvoir.ibukigourd.ui.selector.Selector
 import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
 import androidx.compose.ui.graphics.RectangleShape
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
 import androidx.compose.foundation.layout.Row
-import moe.forpleuvoir.hiirosakura.ui.compat.OutlinedCard
-import moe.forpleuvoir.hiirosakura.ui.compat.RemoveButton
 
 internal val blockTags
     get() = registryAccess!!.lookupOrThrow(Registries.BLOCK).tags.map { it.key() }
@@ -114,10 +120,10 @@ fun HolderSetBlockEditorDialog(
                     targetState = mode,
                     transitionSpec = {
                         if (targetState) {
-                            // false -> true：新内容从左侧进入
+                            // false -> true锛氭柊鍐呭浠庡乏渚ц繘鍏?
                             slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
                         } else {
-                            // true -> false：新内容从右侧进入
+                            // true -> false锛氭柊鍐呭浠庡彸渚ц繘鍏?
                             slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
                         }
                     },
@@ -129,7 +135,7 @@ fun HolderSetBlockEditorDialog(
                                 var showItemSelector by remember { mutableStateOf(false) }
                                 Button(
                                     onClick = { showItemSelector = true },
-                                    modifier = Modifier.weight(1f).height(44.dp),
+                                    modifier = Modifier.weight(1f).height(configControlHeight()),
                                 ) {
                                     Text(component = HSLang.ItemEditor.addFromRegistry)
                                 }
@@ -169,7 +175,7 @@ fun HolderSetBlockEditorDialog(
                                                 }
                                             }
                                         },
-                                        modifier = Modifier.weight(1f).height(44.dp),
+                                        modifier = Modifier.weight(1f).height(configControlHeight()),
                                         contentPadding = LabeledFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
                                         content = {
                                             Text(component = HSLang.ItemEditor.addFromTag)
@@ -178,27 +184,23 @@ fun HolderSetBlockEditorDialog(
                                 }
                             }
                             Spacer(Modifier.height(12.dp))
-                            LabelBox(
-                                { Text(component = HSLang.ItemEditor.items) },
-                            ) {
-                                Box(Modifier.fillMaxWidth().height(460.dp)) {
+                            DataComponentSection(component = HSLang.ItemEditor.items) {
+                                Row(modifier = Modifier.fillMaxWidth().height(460.dp)) {
                                     val lazyListState = rememberLazyGridState()
                                     LazyVerticalGrid(
-                                        modifier = Modifier
-                                            .fillMaxWidth(),
+                                        modifier = Modifier.weight(1f).fillMaxHeight(),
                                         columns = GridCells.Fixed(9),
                                         verticalArrangement = Arrangement.spacedBy(3.dp),
                                         horizontalArrangement = Arrangement.spacedBy(3.dp),
-                                        contentPadding = PaddingValues(if (lazyListState.canScroll) 12.dp else 0.dp),
                                         state = lazyListState
                                     ) {
                                         itemsIndexed(blocks.entries, key = { _, keyed -> keyed.key }) { index, (_, block) ->
                                             val interactionSource = remember { MutableInteractionSource() }
 
                                             val isHovered by interactionSource.collectIsHoveredAsState()
-                                            OutlinedCard(
+                                            Surface(
                                                 Modifier
-                                                    .size(48.dp)
+                                                    .aspectRatio(1f)
                                                     .hoverable(interactionSource)
                                                     .tooltip(interactionSource) {
                                                         Column {
@@ -238,9 +240,7 @@ fun HolderSetBlockEditorDialog(
                                                         label = "ItemRemoveButton",
                                                     ) { hovered ->
                                                         if (hovered) {
-                                                            RemoveButton {
-                                                                blocks.removeAt(index)
-                                                            }
+                                                            RemoveConfirmButton(message = block.name.string, onConfirm = { blocks.removeAt(index) })
                                                         } else {
                                                             ItemIcon(
                                                                 ItemStack(block),
@@ -254,8 +254,10 @@ fun HolderSetBlockEditorDialog(
                                         }
                                     }
 
-                                    VerticalScroller(
-                                        modifier = Modifier.align(Alignment.CenterEnd),
+                                    Spacer(Modifier.width(8.dp))
+
+                                    VerticalFlatScroller(
+                                        modifier = Modifier.fillMaxHeight(),
                                         adapter = rememberScrollerAdapter(lazyListState, 9)
                                     )
                                 }
@@ -292,7 +294,14 @@ fun BlockTagSelector(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     types.take(20).forEach { item ->
-                        ItemIconButton(item.value(), scaleOnHover = 1f, showTooltip = false, hoverHighlight = false, itemIconSize = DpSize(36.dp, 36.dp), contentPadding = PaddingValues(0.dp))
+                        ItemIconButton(
+                            item.value(),
+                            scaleOnHover = 1f,
+                            showTooltip = false,
+                            hoverHighlight = false,
+                            itemIconSize = DpSize(36.dp, 36.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        )
                     }
 
                     if (types.count() > 20) Text("...")
@@ -302,7 +311,6 @@ fun BlockTagSelector(
             Text("#${it.location}", maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     },
-    label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (TagKey<Block>, Boolean) -> Unit = { item, _ ->
         Row(Modifier.tooltip {
             val types = item.blocks
@@ -316,7 +324,14 @@ fun BlockTagSelector(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     types.take(20).forEach { item ->
-                        ItemIconButton(item.value(), scaleOnHover = 1f, showTooltip = false, hoverHighlight = false, itemIconSize = DpSize(36.dp, 36.dp), contentPadding = PaddingValues(0.dp))
+                        ItemIconButton(
+                            item.value(),
+                            scaleOnHover = 1f,
+                            showTooltip = false,
+                            hoverHighlight = false,
+                            itemIconSize = DpSize(36.dp, 36.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        )
                     }
 
                     if (types.count() > 20) Text("...")
@@ -338,19 +353,17 @@ fun BlockTagSelector(
     shape: Shape = RectangleShape,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
-        LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
-                Selector(
-                selected = selected,
-                onSelect = onSelect,
-                items = items,
-                itemEquals = itemEquals,
-                content = content,
-                itemContent = itemContent,
-                enabled = enabled,
-                itemLeadingIcon = itemLeadingIcon,
-                itemTrailingIcon = itemTrailingIcon,
-                searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-    }
+    Selector(
+        selected = selected,
+        onSelect = onSelect,
+        items = items,
+        itemEquals = itemEquals,
+        content = content,
+        itemContent = itemContent,
+        enabled = enabled,
+        itemLeadingIcon = itemLeadingIcon,
+        itemTrailingIcon = itemTrailingIcon,
+        searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+        modifier = modifier.fillMaxWidth(),
+    )
+}

@@ -1,5 +1,7 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.serializereditor
 
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +14,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
@@ -49,17 +52,20 @@ fun SerializeElementAdderDialog(
                 true
             }
         },
-        title = { Text(component = HSLang.SerializeEditor.addElement) },
+        title = { DataComponentDialogTitle(component = HSLang.SerializeEditor.addElement) },
         content = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                ValueTextField(value = currentKey, onValueChange = { currentKey = it; errorMessage = null }, modifier = Modifier.fillMaxWidth(), label = { Text(component = HSLang.SerializeEditor.key) })
-                EnumSelector(
-                    selected = selectedType,
-                    onSelect = { selectedType = it },
-                    items = SerializeElementType.entries,
-                    label = { Text(component = HSLang.SerializeEditor.type) },
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                DataComponentField(component = HSLang.SerializeEditor.key, modifier = Modifier.fillMaxWidth()) {
+                    ValueTextField(value = currentKey, onValueChange = { currentKey = it; errorMessage = null }, modifier = Modifier.fillMaxWidth())
+                }
+                DataComponentField(component = HSLang.SerializeEditor.type, modifier = Modifier.fillMaxWidth()) {
+                    EnumSelector(
+                        selected = selectedType,
+                        onSelect = { selectedType = it },
+                        items = SerializeElementType.entries,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
                 errorMessage?.let {
                     Text(
                         text = it,
@@ -85,7 +91,7 @@ fun SerializeArrayElementAdderDialog(
             onConfirm(selectedType.defaultValue.deepCopy())
             true
         },
-        title = { Text(component = HSLang.SerializeEditor.addElement) },
+        title = { DataComponentDialogTitle(component = HSLang.SerializeEditor.addElement) },
         content = {
             EnumSelector(
                 selected = selectedType,

@@ -23,11 +23,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.selector.Selector
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.util.Util
-import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
-import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.EditSquare
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.Equal
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 

@@ -50,7 +50,33 @@ class RichTextEditorState(
     val mcText: MutableText by derivedStateOf {
         val text = textState.text.toString()
         if (text.isEmpty()) Literal("")
-        else _slices.compose(text)
+        else slicesAlignedTo(text.length).compose(text)
+    }
+
+    /**
+     * 与当前文本长度对齐的切片。
+     *
+     * [slices] 由编辑后的效果更新，比本派生状态晚一次重组；长度不一致时按当前长度裁剪、
+     * 用相邻切片样式补足空缺与尾段，保证这一帧取到的是合法子串。
+     */
+    private fun slicesAlignedTo(length: Int): List<TextSlice> {
+        if (_slices.isEmpty()) return listOf(TextSlice(TextRange(0, length), defaultStyle))
+        if (currentTextLength() == length) return _slices
+        val aligned = mutableListOf<TextSlice>()
+        var cursor = 0
+        for (slice in _slices) {
+            val start = slice.range.start.coerceIn(cursor, length)
+            val end = slice.range.end.coerceIn(start, length)
+            if (start > cursor) {
+                aligned.add(TextSlice(TextRange(cursor, start), aligned.lastOrNull()?.style ?: defaultStyle))
+            }
+            if (start < end) aligned.add(TextSlice(TextRange(start, end), slice.style))
+            cursor = end
+        }
+        if (cursor < length) {
+            aligned.add(TextSlice(TextRange(cursor, length), aligned.lastOrNull()?.style ?: defaultStyle))
+        }
+        return aligned.ifEmpty { listOf(TextSlice(TextRange(0, length), defaultStyle)) }
     }
 
     fun replace(oldText: String, range: TextRange, replacement: String) {
@@ -162,7 +188,7 @@ class RichTextEditorState(
         ) {
             val text = when (val c = component.contents) {
                 is PlainTextContents -> c.text()
-                else -> component.string.take(32767)
+                else                 -> component.string.take(32767)
             }
 
             if (text.isNotEmpty()) {
@@ -186,9 +212,9 @@ class RichTextEditorState(
         )
 
         private fun Boolean?.toStyleProperty(): StyleProperty<Boolean> = when (this) {
-            true -> StyleProperty.Set(true)
+            true  -> StyleProperty.Set(true)
             false -> StyleProperty.None
-            null -> StyleProperty.Unset
+            null  -> StyleProperty.Unset
         }
 
         private val ALL_UNSET_PATCH = SliceStylePatch(
@@ -221,19 +247,24 @@ class RichTextEditorState(
                 val e = slice.range.end
 
                 when {
-                    e <= replaceRange.start -> adjusted.add(slice)
-                    s >= replaceRange.end -> adjusted.add(
+                    e <= replaceRange.start                          -> adjusted.add(slice)
+                    s >= replaceRange.end                            -> adjusted.add(
                         TextSlice(TextRange(s + shift, e + shift), slice.style)
                     )
-                    s >= replaceRange.start && e <= replaceRange.end -> { /* removed */ }
-                    s < replaceRange.start && e > replaceRange.end -> {
+
+                    s >= replaceRange.start && e <= replaceRange.end -> { /* removed */
+                    }
+
+                    s < replaceRange.start && e > replaceRange.end   -> {
                         adjusted.add(TextSlice(TextRange(s, replaceRange.start), slice.style))
                         adjusted.add(TextSlice(TextRange(replaceRange.end + shift, e + shift), slice.style))
                     }
-                    s < replaceRange.start -> {
+
+                    s < replaceRange.start                           -> {
                         adjusted.add(TextSlice(TextRange(s, replaceRange.start), slice.style))
                     }
-                    else -> {
+
+                    else                                             -> {
                         adjusted.add(TextSlice(TextRange(replaceRange.end + shift, e + shift), slice.style))
                     }
                 }

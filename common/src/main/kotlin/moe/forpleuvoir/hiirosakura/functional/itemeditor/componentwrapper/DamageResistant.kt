@@ -1,44 +1,31 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
+
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
-import moe.forpleuvoir.hiirosakura.ui.util.canScroll
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
-import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
+import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.util.Keyed
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.core.HolderSet
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.ComponentUtils
@@ -47,25 +34,17 @@ import net.minecraft.tags.TagKey
 import net.minecraft.world.damagesource.DamageType
 import net.minecraft.world.damagesource.DeathMessageType.INTENTIONAL_GAME_DESIGN
 import net.minecraft.world.item.component.DamageResistant
-import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.rememberReorderableLazyListState
 import kotlin.jvm.optionals.getOrNull
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButtonGroup
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContent
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentCards
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentDefaults
 import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.selector.Selector
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
-import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
-import androidx.compose.ui.graphics.RectangleShape
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
 import androidx.compose.foundation.layout.Row
 import net.minecraft.world.entity.EntityTypes
 
@@ -77,48 +56,102 @@ fun DamageResistantComponentWrapper(
     onValueChange: (DamageResistant) -> Unit,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
-        val count = value.types.count()
-        var showDialog by remember { mutableStateOf(false) }
+) {
+    val count = value.types.count()
+    var showDialog by remember { mutableStateOf(false) }
 
-
-        FlatButton(
-            onClick = {},
-            modifier = Modifier
-                .fillMaxHeight()
-                .thenIf(count != 0) {
-                    Modifier.tooltip {
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            value.types.take(10).forEach { type ->
-                                Text(type.value().translatableText)
-                            }
-                        }
+    DataComponentDisplayRow(
+        key, removeAction, modifier, horizontalArrangement, verticalAlignment,
+        frameModifier = Modifier.thenIf(count != 0) {
+            Modifier.tooltip {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    value.types.take(10).forEach { type ->
+                        Text(type.value().translatableText)
                     }
                 }
-                .width(DataComponentEditorDefaults.entrySize.width),
-        ) {
-            Text(component = IGLang.ConfigWrapper.listConfigWrapperText(count), overflow = TextOverflow.Ellipsis, maxLines = 1)
-            IconButton(onClick = {
-                showDialog = true
-            }) {
-                Icon(Icons.Edit)
             }
-        }
-        if (showDialog) {
-            HolderSetDamageTypeEditorDialog(
-                value = value.types,
-                onValueChange = { onValueChange(DamageResistant(it)) },
-                onDismissRequest = { showDialog = false },
-                title = { Text(key) }
-            )
-        }
+        },
+        onEdit = { showDialog = true },
+    ) {
+        Text(component = IGLang.ConfigWrapper.listConfigWrapperText(count), overflow = TextOverflow.Ellipsis, maxLines = 1)
+    }
+
+    if (showDialog) {
+        HolderSetDamageTypeEditorDialog(
+            value = value.types,
+            onValueChange = { onValueChange(DamageResistant(it)) },
+            onDismissRequest = { showDialog = false },
+            title = { DataComponentDialogTitle(key) }
+        )
     }
 }
 
+/**
+ * 伤害类型卡片的排版常量。
+ *
+ * 卡片宽度不写死：浮层宽度只给下限（一行放得下 [MinColumns] 张）与上限（一行最多 [MaxColumns] 张），
+ * 列数按实际可用宽度算。
+ */
+private object DamageTypeCardDefaults {
 
+    /** 一张卡片的最小宽度：伤害类型名称一行加卡片内边距。 */
+    val MinCardWidth: Dp = 360.dp
+
+    /** 一行的卡片数下限。 */
+    const val MinColumns: Int = 1
+
+    /** 一行的卡片数上限。 */
+    const val MaxColumns: Int = 2
+
+    /** 卡片间距，取卡片列表的缺省值（算列数时按它反推浮层宽度）。 */
+    val CardSpacing: Dp = EditDialogContentDefaults.cardSpacing
+
+    /** 卡片列表右侧细滚动条的占位宽度，算列数时先扣掉。 */
+    val ScrollbarAllowance: Dp = 16.dp
+
+    /** 浮层内容内边距，与 `FlexibleDialogDefaults.contentPadding` 一致。 */
+    val DialogContentPadding: Dp = 24.dp
+
+    /** 浮层宽度下限：一行放得下 [MinColumns] 张卡片。 */
+    val DialogMinWidth: Dp
+        get() = MinCardWidth * MinColumns + CardSpacing * (MinColumns - 1) + ScrollbarAllowance + DialogContentPadding * 2
+
+    /** 浮层宽度上限：一行最多 [MaxColumns] 张卡片。 */
+    val DialogMaxWidth: Dp
+        get() = MinCardWidth * MaxColumns + CardSpacing * (MaxColumns - 1) + ScrollbarAllowance + DialogContentPadding * 2
+
+    /** 浮层高度上限：可视区放得下两行卡片并有富余。 */
+    val DialogMaxHeight: Dp = 900.dp
+
+    /** 浮层尺寸约束：宽度只夹上下限，具体宽度由窗口决定。 */
+    val DialogModifier: Modifier
+        get() = Modifier
+            .widthIn(min = DialogMinWidth, max = DialogMaxWidth)
+            .heightIn(max = DialogMaxHeight)
+
+    /**
+     * 按浮层内容区的可用宽度算卡片列数：先扣掉滚动条占位，再按「一张卡片 + 一段间距」整除，
+     * 结果夹在 [MinColumns]..[MaxColumns] 内。
+     */
+    fun columnsFor(availableWidth: Dp): Int =
+        ((availableWidth - ScrollbarAllowance + CardSpacing) / (MinCardWidth + CardSpacing))
+            .toInt()
+            .coerceIn(MinColumns, MaxColumns)
+}
+
+/**
+ * 伤害类型编辑浮层：表头是来源模式开关与新增控件，下面是「一条伤害类型一张卡片」的卡片网格。
+ *
+ * 卡片头部的拖拽手柄与删除按钮由 `EditDialogContentCards` 提供，卡片体是伤害类型的死亡消息文本；
+ * 类型增删、排序都在副本上做，确认时才写回。
+ *
+ * @param value 待编辑的伤害类型集合
+ * @param onValueChange 确认时的写回
+ * @param onDismissRequest 关闭请求
+ * @param title 浮层标题
+ */
 @Composable
 fun HolderSetDamageTypeEditorDialog(
     value: HolderSet<DamageType>,
@@ -141,7 +174,7 @@ fun HolderSetDamageTypeEditorDialog(
 
     val types = rememberKeyedList(value.map { it.value() }.toList())
 
-    SimpleAlertDialog(
+    FlexibleDialog(
         onDismissRequest = onDismissRequest,
         title = title,
         onConfirmRequest = {
@@ -153,26 +186,37 @@ fun HolderSetDamageTypeEditorDialog(
             )
             true
         },
+        modifier = DamageTypeCardDefaults.DialogModifier,
         content = {
-            Column {
-                firstTag?.let {
-                    RadioButtonGroup(
-                        selected = if (mode) 0 else 1,
-                        onSelect = { mode = it == 0 },
-                    ) {
-                        item { Text(component = HSLang.ItemEditor.fromRegistry) }
-                        item { Text(component = HSLang.ItemEditor.fromTag) }
+            EditDialogContent(
+                modifier = Modifier.fillMaxSize(),
+                header = {
+                    Column {
+                        firstTag?.let {
+                            RadioButtonGroup(
+                                selected = if (mode) 0 else 1,
+                                onSelect = { mode = it == 0 },
+                            ) {
+                                item { Text(component = HSLang.ItemEditor.fromRegistry) }
+                                item { Text(component = HSLang.ItemEditor.fromTag) }
+                            }
+                        }
+                        Spacer(Modifier.height(12.dp))
+                        if (mode) {
+                            Text(
+                                component = HSLang.ItemEditor.tags,
+                                fontSize = SokitsuTheme.typography.body.fontSize,
+                            )
+                        }
                     }
-                }
-                Spacer(Modifier.height(12.dp))
+                },
+            ) { _ ->
                 AnimatedContent(
                     targetState = mode,
                     transitionSpec = {
                         if (targetState) {
-                            // false -> true：新内容从左侧进入
                             slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
                         } else {
-                            // true -> false：新内容从右侧进入
                             slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
                         }
                     },
@@ -188,8 +232,7 @@ fun HolderSetDamageTypeEditorDialog(
                                             types.add(type)
                                         }
                                     },
-                                    modifier = Modifier.weight(1f).height(44.dp),
-                                    contentPadding = LabeledFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
+                                    modifier = Modifier.weight(1f),
                                     content = { Text(component = HSLang.ItemEditor.addFromRegistry) }
                                 )
 
@@ -204,82 +247,35 @@ fun HolderSetDamageTypeEditorDialog(
                                                 }
                                             }
                                         },
-                                        modifier = Modifier.weight(1f).height(44.dp),
-                                        contentPadding = LabeledFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
+                                        modifier = Modifier.weight(1f),
                                         content = { Text(component = HSLang.ItemEditor.addFromTag) }
                                     )
                                 }
                             }
                             Spacer(Modifier.height(12.dp))
-                            LabelBox(
-                                { Text(component = HSLang.ItemEditor.tags) },
-                            ) {
-                                Box(Modifier.fillMaxWidth().height(460.dp)) {
-                                    val lazyListState = rememberLazyListState()
-                                    if (types.entries.isEmpty()) {
-                                        Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
-                                    } else {
-                                        val hapticFeedback = LocalHapticFeedback.current
-                                        val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-                                            types.move(from.index, to.index)
-                                            hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
-                                        }
-                                        LazyColumn(
-                                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                                            modifier = Modifier.padding(end = if (lazyListState.canScroll) 12.dp else 0.dp).fillMaxSize(),
-                                            state = lazyListState
-                                        ) {
-                                            itemsIndexed(
-                                                types.entries,
-                                                key = { _, keyed -> keyed.key }
-                                            ) { index, (key, type) ->
-                                                ReorderableItem(
-                                                    reorderableLazyListState, key,
-                                                    animateItemModifier = hsItemAnimation(),
-                                                ) { isDragging ->
-                                                    val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                                                    val handleInteraction = remember { MutableInteractionSource() }
-
-                                                    val handleHovered by handleInteraction.collectIsHoveredAsState()
-                                                    Surface(
-                                                        modifier = Modifier.fillMaxWidth().scale(scale).tooltip {
-                                                            Text(type.toString())
-                                                        }
-                                                    ) {
-                                                        Row(
-                                                            Modifier.padding(4.dp).fillMaxWidth(),
-                                                            verticalAlignment = Alignment.CenterVertically,
-                                                            horizontalArrangement = Arrangement.SpaceBetween
-                                                        ) {
-                                                            Row(
-                                                                verticalAlignment = Alignment.CenterVertically,
-                                                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                                            ) {
-                                                                DragHandle(modifier = Modifier)
-                                                                Text(type.translatableText)
-                                                            }
-
-
-                                                            Row(
-                                                                verticalAlignment = Alignment.CenterVertically,
-                                                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                                            ) {
-                                                                RemoveConfirmButton(
-                                                                    message = "",
-                                                                    onConfirm = { types.removeAt(index) },
-                                                                )
-                                                            }
-                                                        }
-                                                    }
-                                                }
+                            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                                if (types.entries.isEmpty()) {
+                                    Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
+                                } else {
+                                    EditDialogContentCards(
+                                        state = types,
+                                        columns = DamageTypeCardDefaults.columnsFor(maxWidth),
+                                        maxHeight = DamageTypeCardDefaults.DialogMaxHeight,
+                                        removeButton = { index, entry ->
+                                            RemoveConfirmButton(
+                                                message = entry.translatableText.plainText,
+                                                onConfirm = { types.removeAt(index) },
+                                                iconScale = LocalIconScale.current,
+                                                contentPadding = EditDialogContentDefaults.iconPadding,
+                                            )
+                                        },
+                                    ) { _, entry, _ ->
+                                        Text(
+                                            entry.translatableText,
+                                            modifier = Modifier.tooltip {
+                                                Text(entry.toString())
                                             }
-                                        }
-
-                                        VerticalScroller(
-                                            adapter = rememberScrollerAdapter(lazyListState),
-                                            modifier = Modifier.align(Alignment.CenterEnd)
                                         )
-
                                     }
                                 }
                             }
@@ -352,7 +348,6 @@ fun DamageTypeTagSelector(
             }
         )
     },
-    label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (TagKey<DamageType>, Boolean) -> Unit = { item, _ ->
         Text(
             "#${item.location}",
@@ -382,26 +377,20 @@ fun DamageTypeTagSelector(
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (TagKey<DamageType>) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (TagKey<DamageType>) -> Unit)?)? = null,
-    textStyle: TextStyle = LocalTextStyle.current,
-    interactionSource: MutableInteractionSource? = null,
-    shape: Shape = RectangleShape,
-    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
-    LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
-        Selector(
-            selected = selected,
-            onSelect = onSelect,
-            items = items,
-            itemEquals = itemEquals,
-            content = content,
-            itemContent = itemContent,
-            enabled = enabled,
-            itemLeadingIcon = itemLeadingIcon,
-            itemTrailingIcon = itemTrailingIcon,
-            searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
+    Selector(
+        selected = selected,
+        onSelect = onSelect,
+        items = items,
+        itemEquals = itemEquals,
+        content = content,
+        itemContent = itemContent,
+        enabled = enabled,
+        itemLeadingIcon = itemLeadingIcon,
+        itemTrailingIcon = itemTrailingIcon,
+        searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+        modifier = modifier,
+    )
 }
 
 
@@ -421,7 +410,6 @@ fun DamageTypeSelector(
             }
         )
     },
-    label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (DamageType, Boolean) -> Unit = { item, _ ->
         Text(item.translatableText, modifier = Modifier.tooltip {
             Text(item.toString())
@@ -434,24 +422,18 @@ fun DamageTypeSelector(
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (DamageType) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (DamageType) -> Unit)?)? = null,
-    textStyle: TextStyle = LocalTextStyle.current,
-    interactionSource: MutableInteractionSource? = null,
-    shape: Shape = RectangleShape,
-    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
-    LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
-        Selector(
-            selected = selected,
-            onSelect = onSelect,
-            items = items,
-            itemEquals = itemEquals,
-            content = content,
-            itemContent = itemContent,
-            enabled = enabled,
-            itemLeadingIcon = itemLeadingIcon,
-            itemTrailingIcon = itemTrailingIcon,
-            searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
+    Selector(
+        selected = selected,
+        onSelect = onSelect,
+        items = items,
+        itemEquals = itemEquals,
+        content = content,
+        itemContent = itemContent,
+        enabled = enabled,
+        itemLeadingIcon = itemLeadingIcon,
+        itemTrailingIcon = itemTrailingIcon,
+        searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+        modifier = modifier,
+    )
 }

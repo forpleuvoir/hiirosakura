@@ -22,7 +22,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.StringSelector
 
 @Composable

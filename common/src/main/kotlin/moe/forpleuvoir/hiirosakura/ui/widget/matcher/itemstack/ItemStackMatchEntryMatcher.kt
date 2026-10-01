@@ -29,7 +29,7 @@ import moe.forpleuvoir.ibukigourd.ui.util.KeyedListState
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.compat.TipBox
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 
 
 @Composable
@@ -52,11 +52,11 @@ internal fun ItemStackMatchEntryMatcherRow(
     onChange: (ItemStackMatchEntry) -> Unit,
     modifier: Modifier = Modifier
 ) = Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-    TipBox({
-        Text(component = HSLang.ItemStackMatcher.Entry.matcher)
-    }) {
-        Text(entry.asText, Modifier.weight(1f, false), overflow = TextOverflow.Ellipsis)
-    }
+    Text(
+        entry.asText,
+        Modifier.weight(1f, false).tooltip { Text(component = HSLang.ItemStackMatcher.Entry.matcher) },
+        overflow = TextOverflow.Ellipsis
+    )
     Spacer(Modifier.width(6.dp))
     var showEditor by remember { mutableStateOf(false) }
     IconButton({ showEditor = true }) {

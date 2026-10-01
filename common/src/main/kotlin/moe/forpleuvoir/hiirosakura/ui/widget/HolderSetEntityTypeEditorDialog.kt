@@ -1,5 +1,8 @@
 package moe.forpleuvoir.hiirosakura.ui.widget
 
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.slideInHorizontally
@@ -8,6 +11,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.configControlHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -46,7 +50,7 @@ import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.selector.Selector
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
 import androidx.compose.ui.graphics.RectangleShape
@@ -116,10 +120,10 @@ fun HolderSetEntityTypeEditorDialog(
                     targetState = mode,
                     transitionSpec = {
                         if (targetState) {
-                            // false -> true：新内容从左侧进入
+                            // false -> true锛氭柊鍐呭浠庡乏渚ц繘鍏?
                             slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
                         } else {
-                            // true -> false：新内容从右侧进入
+                            // true -> false锛氭柊鍐呭浠庡彸渚ц繘鍏?
                             slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
                         }
                     },
@@ -135,7 +139,7 @@ fun HolderSetEntityTypeEditorDialog(
                                             types.add(type)
                                         }
                                     },
-                                    modifier = Modifier.weight(1f).height(44.dp),
+                                    modifier = Modifier.weight(1f).height(configControlHeight()),
                                     contentPadding = LabeledFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
                                     content = { Text(component = HSLang.ItemEditor.addFromRegistry) }
                                 )
@@ -151,17 +155,15 @@ fun HolderSetEntityTypeEditorDialog(
                                                 }
                                             }
                                         },
-                                        modifier = Modifier.weight(1f).height(44.dp),
+                                        modifier = Modifier.weight(1f).height(configControlHeight()),
                                         contentPadding = LabeledFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
                                         content = { Text(component = HSLang.ItemEditor.addFromTag) }
                                     )
                                 }
                             }
                             Spacer(Modifier.height(12.dp))
-                            LabelBox(
-                                { Text(component = HSLang.ItemEditor.tags) },
-                            ) {
-                                Box(Modifier.fillMaxWidth().height(460.dp)) {
+                            DataComponentSection(component = HSLang.ItemEditor.tags) {
+                                Row(modifier = Modifier.fillMaxWidth().height(460.dp)) {
                                     val lazyListState = rememberLazyListState()
                                     if (types.entries.isEmpty()) {
                                         Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
@@ -173,10 +175,11 @@ fun HolderSetEntityTypeEditorDialog(
                                         }
                                         LazyColumn(
                                             verticalArrangement = Arrangement.spacedBy(8.dp),
-                                            modifier = Modifier.padding(end = if (lazyListState.canScroll) 12.dp else 0.dp).fillMaxSize(),
+                                            modifier = Modifier.weight(1f).fillMaxHeight(),
                                             state = lazyListState
                                         ) {
-                                            itemsIndexed(types.entries,
+                                            itemsIndexed(
+                                                types.entries,
                                                 key = { _, keyed -> keyed.key }
                                             ) { index, (key, type) ->
                                                 ReorderableItem(
@@ -219,9 +222,11 @@ fun HolderSetEntityTypeEditorDialog(
                                             }
                                         }
 
-                                        VerticalScroller(
+                                        Spacer(Modifier.width(8.dp))
+
+                                        VerticalFlatScroller(
                                             adapter = rememberScrollerAdapter(lazyListState),
-                                            modifier = Modifier.align(Alignment.CenterEnd)
+                                            modifier = Modifier.fillMaxHeight()
                                         )
 
                                     }
@@ -249,7 +254,6 @@ fun EntityTypeSelector(
     content: @Composable (EntityType<*>) -> Unit = {
         Text(it.description, maxLines = 1, overflow = TextOverflow.Ellipsis)
     },
-    label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (EntityType<*>, Boolean) -> Unit = { item, _ ->
         Text(item.description)
     },
@@ -265,22 +269,20 @@ fun EntityTypeSelector(
     shape: Shape = RectangleShape,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
-        LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
-                Selector(
-                selected = selected,
-                onSelect = onSelect,
-                items = items,
-                itemEquals = itemEquals,
-                content = content,
-                itemContent = itemContent,
-                enabled = enabled,
-                itemLeadingIcon = itemLeadingIcon,
-                itemTrailingIcon = itemTrailingIcon,
-                searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-    }
+    Selector(
+        selected = selected,
+        onSelect = onSelect,
+        items = items,
+        itemEquals = itemEquals,
+        content = content,
+        itemContent = itemContent,
+        enabled = enabled,
+        itemLeadingIcon = itemLeadingIcon,
+        itemTrailingIcon = itemTrailingIcon,
+        searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+        modifier = modifier.fillMaxWidth(),
+    )
+}
 
 
 @Composable
@@ -311,7 +313,6 @@ fun EntityTypeTagSelector(
             }
         )
     },
-    label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (TagKey<EntityType<*>>, Boolean) -> Unit = { item, _ ->
         Text(
             "#${item.location}",
@@ -346,19 +347,17 @@ fun EntityTypeTagSelector(
     shape: Shape = RectangleShape,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
-        LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
-                Selector(
-                selected = selected,
-                onSelect = onSelect,
-                items = items,
-                itemEquals = itemEquals,
-                content = content,
-                itemContent = itemContent,
-                enabled = enabled,
-                itemLeadingIcon = itemLeadingIcon,
-                itemTrailingIcon = itemTrailingIcon,
-                searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-    }
+    Selector(
+        selected = selected,
+        onSelect = onSelect,
+        items = items,
+        itemEquals = itemEquals,
+        content = content,
+        itemContent = itemContent,
+        enabled = enabled,
+        itemLeadingIcon = itemLeadingIcon,
+        itemTrailingIcon = itemTrailingIcon,
+        searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+        modifier = modifier.fillMaxWidth(),
+    )
+}

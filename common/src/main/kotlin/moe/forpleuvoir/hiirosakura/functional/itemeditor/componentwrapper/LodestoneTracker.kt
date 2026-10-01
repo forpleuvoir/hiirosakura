@@ -1,15 +1,21 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
+import androidx.compose.ui.text.style.TextOverflow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplay
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
+import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import moe.forpleuvoir.ibukigourd.util.mc
@@ -35,25 +41,31 @@ fun LodestoneTrackerComponentWrapper(
     onValueChange: (LodestoneTracker) -> Unit,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height)) {
-        var showDialog by remember { mutableStateOf(false) }
-        IconButton(onClick = {
-            showDialog = true
-        }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.Edit)
-        }
+) {
+    var showDialog by remember { mutableStateOf(false) }
 
-        if (showDialog) {
-            LodestoneTrackerEditorDialog(
-                value = value,
-                onValueChange = onValueChange,
-                onDismissRequest = { showDialog = false },
-                key = key
-            )
-        }
+    DataComponentDisplayRow(
+        key, removeAction, modifier, horizontalArrangement, verticalAlignment,
+        onEdit = { showDialog = true },
+    ) {
+        val target = value.target.getOrNull()
+        Text(
+            if (target == null) "tracked ${value.tracked}"
+            else "tracked ${value.tracked} · ${target.dimension.identifier()} ${target.pos.toShortString()}",
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+        )
+    }
+
+    if (showDialog) {
+        LodestoneTrackerEditorDialog(
+            value = value,
+            onValueChange = onValueChange,
+            onDismissRequest = { showDialog = false },
+            key = key
+        )
     }
 }
 
@@ -74,7 +86,7 @@ private fun LodestoneTrackerEditorDialog(
             onValueChange(LodestoneTracker(target, tracked))
             true
         },
-        title = { Text(key) },
+        title = { DataComponentDialogTitle(key) },
         content = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(
@@ -142,19 +154,12 @@ private fun OptionalGlobalPosCard(
 
                 var currentDimension by remember { mutableStateOf(globalPos.dimension) }
 
-                LabelBox(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(key, suffix = "dimension") },
-                    contentPadding = PaddingValues(8.dp),
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
+                DataComponentField(key, suffix = "dimension", modifier = Modifier.fillMaxWidth()) {
+                    DataComponentDisplay(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                        onEdit = { showIdEditor = true },
                     ) {
-                        Text(currentDimension.identifier().toString(), modifier = Modifier.weight(1f))
-                        IconButton(onClick = { showIdEditor = true }) {
-                            Icon(Icons.Edit)
-                        }
+                        Text(currentDimension.identifier().toString(), overflow = TextOverflow.Ellipsis, maxLines = 1)
                     }
                 }
 
@@ -166,7 +171,7 @@ private fun OptionalGlobalPosCard(
                             onValueChange(Optional.of(GlobalPos.of(currentDimension, BlockPos(editX, editY, editZ))))
                             showIdEditor = false
                         },
-                        { Text(key, suffix = "dimension") },
+                        { DataComponentDialogTitle(key, suffix = "dimension") },
                         { showIdEditor = false }
                     )
                 }
@@ -175,33 +180,42 @@ private fun OptionalGlobalPosCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                                        LabelBox(label = { Text("X") }, modifier = Modifier.weight(1f)) {
+                    DataComponentSection(
+                        title = { Text("X", fontSize = SokitsuTheme.typography.body.fontSize) },
+                        modifier = Modifier.weight(1f),
+                    ) {
                         IntField(
                             editX,
                             {
-                        editX = it
-                        onValueChange(Optional.of(GlobalPos.of(currentDimension, BlockPos(it, editY, editZ))))
-                    },
+                                editX = it
+                                onValueChange(Optional.of(GlobalPos.of(currentDimension, BlockPos(it, editY, editZ))))
+                            },
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                                        LabelBox(label = { Text("Y") }, modifier = Modifier.weight(1f)) {
+                    DataComponentSection(
+                        title = { Text("Y", fontSize = SokitsuTheme.typography.body.fontSize) },
+                        modifier = Modifier.weight(1f),
+                    ) {
                         IntField(
                             editY,
                             {
-                        editY = it
-                        onValueChange(Optional.of(GlobalPos.of(currentDimension, BlockPos(editX, it, editZ))))
-                    },
+                                editY = it
+                                onValueChange(Optional.of(GlobalPos.of(currentDimension, BlockPos(editX, it, editZ))))
+                            },
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                                        LabelBox(label = { Text("Z") }, modifier = Modifier.weight(1f)) {
+                    DataComponentSection(
+                        title = { Text("Z", fontSize = SokitsuTheme.typography.body.fontSize) },
+                        modifier = Modifier.weight(1f),
+                    ) {
                         IntField(
                             editZ,
                             {
-                        editZ = it
-                        onValueChange(Optional.of(GlobalPos.of(currentDimension, BlockPos(editX, editY, it))))
-                    },
+                                editZ = it
+                                onValueChange(Optional.of(GlobalPos.of(currentDimension, BlockPos(editX, editY, it))))
+                            },
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }

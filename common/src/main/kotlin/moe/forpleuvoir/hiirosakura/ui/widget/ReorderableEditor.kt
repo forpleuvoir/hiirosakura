@@ -22,7 +22,7 @@ import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyGridState
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.hiirosakura.ui.util.rememberAdaptiveGridSpan
 import androidx.compose.ui.platform.LocalDensity
@@ -34,7 +34,6 @@ fun <T, K : Any> ReorderableEditorList(
     onMove: (fromIndex: Int, toIndex: Int) -> Unit,
     modifier: Modifier = Modifier,
     listVerticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(8.dp),
-    scrollbarPadding: Dp = 12.dp,
     listContentPadding: PaddingValues = PaddingValues(0.dp),
     emptyContent: @Composable BoxScope.() -> Unit = {
         Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
@@ -58,37 +57,39 @@ fun <T, K : Any> ReorderableEditorList(
         if (items.isEmpty()) {
             emptyContent()
         } else {
-            LazyColumn(
-                state = lazyListState,
-                verticalArrangement = listVerticalArrangement,
-                contentPadding = listContentPadding,
-                modifier = Modifier
-                    .padding(end = if (lazyListState.canScroll) scrollbarPadding else 0.dp)
-                    .fillMaxSize(),
-            ) {
-                itemsIndexed(
-                    items = items,
-                    key = { _, item -> key(item) },
-                ) { index, item ->
-                    ReorderableItem(
-                        state = reorderableState,
-                        key = key(item),
-                        animateItemModifier = hsItemAnimation(),
-                    ) { isDragging ->
-                        itemContent(
-                            index,
-                            item,
-                            isDragging,
-                            hapticFeedback
-                        )
+            Row(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    state = lazyListState,
+                    verticalArrangement = listVerticalArrangement,
+                    contentPadding = listContentPadding,
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                ) {
+                    itemsIndexed(
+                        items = items,
+                        key = { _, item -> key(item) },
+                    ) { index, item ->
+                        ReorderableItem(
+                            state = reorderableState,
+                            key = key(item),
+                            animateItemModifier = hsItemAnimation(),
+                        ) { isDragging ->
+                            itemContent(
+                                index,
+                                item,
+                                isDragging,
+                                hapticFeedback
+                            )
+                        }
                     }
                 }
-            }
 
-            VerticalScroller(
-                adapter = rememberScrollerAdapter(lazyListState),
-                modifier = Modifier.align(Alignment.CenterEnd),
-            )
+                Spacer(Modifier.width(8.dp))
+
+                VerticalFlatScroller(
+                    adapter = rememberScrollerAdapter(lazyListState),
+                    modifier = Modifier.fillMaxHeight(),
+                )
+            }
         }
 
         floatingActionButton?.invoke(this, lazyListState)
@@ -104,7 +105,6 @@ fun <T, K : Any> ReorderableEditorVerticalGrid(
     modifier: Modifier = Modifier,
     gridVerticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(8.dp),
     gridHorizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
-    scrollbarPadding: Dp = 12.dp,
     gridContentPadding: PaddingValues = PaddingValues(8.dp),
     emptyContent: @Composable BoxScope.() -> Unit = {
         Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
@@ -128,50 +128,52 @@ fun <T, K : Any> ReorderableEditorVerticalGrid(
         if (items.isEmpty()) {
             emptyContent()
         } else {
-            LazyVerticalGrid(
-                columns = columns,
-                state = lazyGridState,
-                verticalArrangement = gridVerticalArrangement,
-                horizontalArrangement = gridHorizontalArrangement,
-                contentPadding = gridContentPadding,
-                modifier = Modifier
-                    .padding(end = if (lazyGridState.canScroll) scrollbarPadding else 0.dp)
-                    .fillMaxSize(),
-            ) {
-                itemsIndexed(
-                    items = items,
-                    key = { _, item -> key(item) },
-                ) { index, item ->
-                    ReorderableItem(
-                        state = reorderableState,
-                        key = key(item),
-                        animateItemModifier = hsItemAnimation(),
-                    ) { isDragging ->
-                        itemContent(
-                            index,
-                            item,
-                            isDragging,
-                            hapticFeedback
-                        )
+            Row(modifier = Modifier.fillMaxSize()) {
+                LazyVerticalGrid(
+                    columns = columns,
+                    state = lazyGridState,
+                    verticalArrangement = gridVerticalArrangement,
+                    horizontalArrangement = gridHorizontalArrangement,
+                    contentPadding = gridContentPadding,
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                ) {
+                    itemsIndexed(
+                        items = items,
+                        key = { _, item -> key(item) },
+                    ) { index, item ->
+                        ReorderableItem(
+                            state = reorderableState,
+                            key = key(item),
+                            animateItemModifier = hsItemAnimation(),
+                        ) { isDragging ->
+                            itemContent(
+                                index,
+                                item,
+                                isDragging,
+                                hapticFeedback
+                            )
+                        }
                     }
                 }
-            }
 
+                Spacer(Modifier.width(8.dp))
 
-            val density = LocalDensity.current
-            val spanCount = when (val cells = columns) {
-                // CMP 把 GridCells.Fixed 的 count 设为 private，改由交叉轴尺寸列表推列数
-                is GridCells.Fixed -> with(cells) {
-                    with(density) {
-                        calculateCrossAxisCellSizes(lazyGridState.layoutInfo.viewportSize.width, 0).size
+                val density = LocalDensity.current
+                val spanCount = when (val cells = columns) {
+                    // CMP 把 GridCells.Fixed 的 count 设为 private，改由交叉轴尺寸列表推列数
+                    is GridCells.Fixed -> with(cells) {
+                        with(density) {
+                            calculateCrossAxisCellSizes(lazyGridState.layoutInfo.viewportSize.width, 0).size
+                        }
                     }
+
+                    else               -> rememberAdaptiveGridSpan(lazyGridState)
                 }
-                else -> rememberAdaptiveGridSpan(lazyGridState)
+                VerticalFlatScroller(
+                    adapter = rememberScrollerAdapter(lazyGridState, spanCount),
+                    modifier = Modifier.fillMaxHeight(),
+                )
             }
-            VerticalScroller(
-                adapter = rememberScrollerAdapter(lazyGridState, spanCount),
-                modifier = Modifier.align(Alignment.CenterEnd),
-            )
         }
 
         floatingActionButton?.invoke(this, lazyGridState)

@@ -1,5 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -11,13 +13,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplay
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
-import moe.forpleuvoir.hiirosakura.ui.util.canScroll
 import moe.forpleuvoir.hiirosakura.ui.widget.HolderSetEntityTypeEditorDialog
 import moe.forpleuvoir.hiirosakura.ui.widget.HolderSoundEventSelector
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.selector.Selector
@@ -44,9 +46,9 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
-import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 
 @Composable
@@ -56,26 +58,32 @@ fun EquippableComponentWrapper(
     onValueChange: (Equippable) -> Unit,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height)) {
-        var showDialog by remember { mutableStateOf(false) }
-        IconButton(onClick = {
-            showDialog = true
-        }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.Edit)
-        }
+) {
+    var showDialog by remember { mutableStateOf(false) }
 
-        if (showDialog) {
-            EquippableEditorDialog(
-                key = key,
-                value = value,
-                onValueChange = onValueChange,
-                onDismissRequest = { showDialog = false },
-                title = { Text(key) }
-            )
-        }
+    DataComponentDisplayRow(
+        key, removeAction, modifier, horizontalArrangement, verticalAlignment,
+        onEdit = { showDialog = true },
+    ) {
+        Text(
+            "slot ${value.slot.serializedName} · asset_id ${
+                value.assetId.getOrNull()?.identifier() ?: "-"
+            } · dispensable ${value.dispensable} · swappable ${value.swappable}",
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+        )
+    }
+
+    if (showDialog) {
+        EquippableEditorDialog(
+            key = key,
+            value = value,
+            onValueChange = onValueChange,
+            onDismissRequest = { showDialog = false },
+            title = { DataComponentDialogTitle(key) }
+        )
     }
 }
 
@@ -98,30 +106,29 @@ fun EquippableEditorDialog(
             true
         },
         content = {
-            Box(
+            Row(
                 modifier = Modifier.heightIn(max = 750.dp)
             ) {
                 val scrollState = rememberScrollState()
                 Column(
                     Modifier
-                        .padding(end = if (scrollState.canScroll) 12.dp else 0.dp)
-                        .fillMaxWidth()
+                        .weight(1f)
+                        .fillMaxHeight()
                         .verticalScroll(scrollState),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     //slot
-                    EnumSelector(
-                        result.slot,
-                        { result = result.copy(slot = it) },
-                        label = {
-                            Text(key, suffix = "slot", fallback = "Slot")
-                        }
-                    )
+                    DataComponentField(key, suffix = "slot", fallback = "Slot", modifier = Modifier.fillMaxWidth()) {
+                        EnumSelector(
+                            selected = result.slot,
+                            onSelect = { result = result.copy(slot = it) },
+                            items = EquipmentSlot.entries,
+                        )
+                    }
                     //equipSound
                     HolderSoundEventSelector(
                         result.equipSound,
                         { result = result.copy(equipSound = it) },
-                        label = { Text(key, suffix = "equip_sound", fallback = "Equip Sound") },
                         contentPadding = LabeledFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -155,15 +162,15 @@ fun EquippableEditorDialog(
                     HolderSoundEventSelector(
                         result.shearingSound,
                         { result = result.copy(shearingSound = it) },
-                        label = { Text(key, suffix = "shearing_sound", fallback = "Shearing Sound") },
                         contentPadding = LabeledFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
                         modifier = Modifier.fillMaxWidth()
                     )
 
                 }
-                VerticalScroller(
+                Spacer(Modifier.width(8.dp))
+                VerticalFlatScroller(
                     adapter = rememberScrollerAdapter(scrollState),
-                    modifier = Modifier.align(Alignment.CenterEnd)
+                    modifier = Modifier.fillMaxHeight()
                 )
             }
         }
@@ -181,7 +188,10 @@ private fun AllowedEntities(
     var showAllowedEntitiesDialog by remember { mutableStateOf(false) }
 
     val allowedEntities = value.allowedEntities
-    LabelBox(
+    DataComponentField(
+        key,
+        suffix = "allowed_entities",
+        fallback = "Allowed Entities",
         modifier = Modifier
             .fillMaxWidth()
             .thenIf(allowedEntities.isPresent && allowedEntities.get().size() > 0) {
@@ -197,35 +207,27 @@ private fun AllowedEntities(
                     }
                 }
             },
-        label = { Text(key, suffix = "allowed_entities", fallback = "Allowed Entities") },
-        contentPadding = LabeledFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
     ) {
         Row(
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                modifier = Modifier.weight(1f, false),
-                verticalAlignment = Alignment.CenterVertically
+            DataComponentDisplay(
+                modifier = Modifier.weight(1f),
+                onEdit = { showAllowedEntitiesDialog = true },
             ) {
-                value.allowedEntities.getOrNull()?.let { allowedEntities ->
-                    Text(component = IGLang.ConfigWrapper.listConfigWrapperText(allowedEntities.size()), overflow = TextOverflow.Ellipsis, maxLines = 1)
+                value.allowedEntities.getOrNull()?.let { entities ->
+                    Text(component = IGLang.ConfigWrapper.listConfigWrapperText(entities.size()), overflow = TextOverflow.Ellipsis, maxLines = 1)
                 } ?: run {
                     Text(component = HSLang.Common.unset)
                 }
             }
 
-            Row {
-                IconButton({
-                    showAllowedEntitiesDialog = true
-                }) {
-                    Icon(Icons.Edit)
-                }
-                IconButton(onClick = {
-                    onValueChange(value.copy(allowedEntities = Optional.ofNullable(null)))
-                }) {
-                    Icon(Icons.Delete)
-                }
+            IconButton(onClick = {
+                onValueChange(value.copy(allowedEntities = Optional.ofNullable(null)))
+            }) {
+                Icon(Icons.Delete)
             }
         }
     }
@@ -238,7 +240,7 @@ private fun AllowedEntities(
                 onValueChange(value.copy(allowedEntities = Optional.ofNullable(it)))
             },
             onDismissRequest = { showAllowedEntitiesDialog = false },
-            title = { Text(key, suffix = "allowed_entities", fallback = "Allowed Entities") },
+            title = { DataComponentDialogTitle(key, suffix = "allowed_entities", fallback = "Allowed Entities") },
         )
     }
 }
@@ -251,19 +253,20 @@ private fun CameraOverlay(
     onValueChange: (Equippable) -> Unit
 ) {
     var showCameraOverlayDialog by remember { mutableStateOf(false) }
-    LabelBox(
-        modifier = Modifier
-            .fillMaxWidth(),
-        label = { Text(key, suffix = "camera_overlay", fallback = "Camera Overlay") },
-        contentPadding = LabeledFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
+    DataComponentField(
+        key,
+        suffix = "camera_overlay",
+        fallback = "Camera Overlay",
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                modifier = Modifier.weight(1f, false),
-                verticalAlignment = Alignment.CenterVertically
+            DataComponentDisplay(
+                modifier = Modifier.weight(1f),
+                onEdit = { showCameraOverlayDialog = true },
             ) {
                 value.cameraOverlay.getOrNull()?.let { overlay ->
                     Text(overlay, overflow = TextOverflow.Ellipsis, maxLines = 1)
@@ -272,17 +275,10 @@ private fun CameraOverlay(
                 }
             }
 
-            Row {
-                IconButton({
-                    showCameraOverlayDialog = true
-                }) {
-                    Icon(Icons.Edit)
-                }
-                IconButton(onClick = {
-                    onValueChange(value.copy(cameraOverlay = Optional.ofNullable(null)))
-                }) {
-                    Icon(Icons.Delete)
-                }
+            IconButton(onClick = {
+                onValueChange(value.copy(cameraOverlay = Optional.ofNullable(null)))
+            }) {
+                Icon(Icons.Delete)
             }
         }
     }
@@ -291,7 +287,7 @@ private fun CameraOverlay(
         IdentifierEditorDialog(
             value.cameraOverlay.getOrElse { identifier("minecraft", "misc/pumpkinblur") },
             { onValueChange(value.copy(cameraOverlay = Optional.of(it))) },
-            { Text(key, suffix = "camera_overlay", fallback = "Camera Overlay") },
+            { DataComponentDialogTitle(key, suffix = "camera_overlay", fallback = "Camera Overlay") },
             { showCameraOverlayDialog = false }
         )
     }
@@ -304,19 +300,20 @@ private fun AssetId(
     onValueChange: (Equippable) -> Unit
 ) {
     var showAssetIDDialog by remember { mutableStateOf(false) }
-    LabelBox(
-        modifier = Modifier
-            .fillMaxWidth(),
-        label = { Text(key, suffix = "asset_id", fallback = "Asset ID") },
-        contentPadding = LabeledFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
+    DataComponentField(
+        key,
+        suffix = "asset_id",
+        fallback = "Asset ID",
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                modifier = Modifier.weight(1f, false),
-                verticalAlignment = Alignment.CenterVertically
+            DataComponentDisplay(
+                modifier = Modifier.weight(1f),
+                onEdit = { showAssetIDDialog = true },
             ) {
                 value.assetId.getOrNull()?.let { assetId ->
                     Text(assetId.identifier(), overflow = TextOverflow.Ellipsis, maxLines = 1)
@@ -325,17 +322,10 @@ private fun AssetId(
                 }
             }
 
-            Row {
-                IconButton({
-                    showAssetIDDialog = true
-                }) {
-                    Icon(Icons.Edit)
-                }
-                IconButton(onClick = {
-                    onValueChange(value.copy(assetId = Optional.ofNullable(null)))
-                }) {
-                    Icon(Icons.Delete)
-                }
+            IconButton(onClick = {
+                onValueChange(value.copy(assetId = Optional.ofNullable(null)))
+            }) {
+                Icon(Icons.Delete)
             }
         }
     }
@@ -356,43 +346,39 @@ private fun AssetId(
         SimpleAlertDialog(
             onDismissRequest = { showAssetIDDialog = false },
             onConfirmRequest = { true },
-            title = { Text(key, suffix = "asset_id", fallback = "Asset ID") },
+            title = { DataComponentDialogTitle(key, suffix = "asset_id", fallback = "Asset ID") },
             content = {
                 Column {
-                    LabelBox(label = {
-                        Row {
-                            Text("Namespace")
+                    DataComponentField(title = { Text("Namespace", fontSize = SokitsuTheme.typography.body.fontSize) }) {
+                        Column {
+                            TextField(
+                                namespace,
+                                isError = !checkNamespace,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
                             if (!checkNamespace) {
-                                Spacer(Modifier.width(8.dp))
                                 Text("Non [a-z0-9_.-] character in namespace of location")
                             }
                         }
-                    }) {
-                        TextField(
-                            namespace,
-                            isError = !checkNamespace,
-                            modifier = Modifier.fillMaxWidth().height(68.dp),
-                        )
                     }
                     Spacer(Modifier.height(8.dp))
-                    LabelBox(label = {
-                        Row {
-                            Text("Path")
+                    DataComponentField(title = { Text("Path", fontSize = SokitsuTheme.typography.body.fontSize) }) {
+                        Column {
+                            TextField(
+                                path,
+                                isError = !checkPath,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
                             if (!checkPath) {
-                                Spacer(Modifier.width(8.dp))
                                 Text("Non [a-z0-9/._-] character in path of location")
                             }
                         }
-                    }) {
-                        TextField(
-                            path,
-                            isError = !checkPath,
-                            modifier = Modifier.fillMaxWidth().height(68.dp),
-                        )
                     }
                     Spacer(Modifier.height(8.dp))
                     var selected by remember { mutableStateOf(equipmentAssetKeys.first()) }
-                    LabelBox(label = { Text(component = HSLang.ItemEditor.fromResourceManager) }) {
+                    DataComponentField(title = {
+                        Text(component = HSLang.ItemEditor.fromResourceManager, fontSize = SokitsuTheme.typography.body.fontSize)
+                    }) {
                         Selector(
                             equipmentAssetKeys.first(),
                             {

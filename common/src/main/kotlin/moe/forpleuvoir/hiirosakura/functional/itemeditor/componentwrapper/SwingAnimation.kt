@@ -1,22 +1,21 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.*
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import net.minecraft.resources.Identifier
+import net.minecraft.world.item.SwingAnimationType
 import net.minecraft.world.item.component.SwingAnimation
-import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
 import androidx.compose.foundation.layout.fillMaxWidth
 
 @Composable
@@ -26,26 +25,30 @@ fun SwingAnimationComponentWrapper(
     onValueChange: (SwingAnimation) -> Unit,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height)) {
-        var showDialog by remember { mutableStateOf(false) }
-        IconButton(onClick = {
-            showDialog = true
-        }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.Edit)
-        }
+) {
+    var showDialog by remember { mutableStateOf(false) }
 
-        if (showDialog) {
-            SwingAnimationEditorDialog(
-                key = key,
-                value = value,
-                onValueChange = onValueChange,
-                onDismissRequest = { showDialog = false },
-                title = { Text(key) }
-            )
-        }
+    DataComponentDisplayRow(
+        key, removeAction, modifier, horizontalArrangement, verticalAlignment,
+        onEdit = { showDialog = true },
+    ) {
+        Text(
+            "type ${value.type.serializedName} · duration ${value.duration}",
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+        )
+    }
+
+    if (showDialog) {
+        SwingAnimationEditorDialog(
+            key = key,
+            value = value,
+            onValueChange = onValueChange,
+            onDismissRequest = { showDialog = false },
+            title = { DataComponentDialogTitle(key) }
+        )
     }
 }
 
@@ -66,21 +69,21 @@ fun SwingAnimationEditorDialog(
         },
         title = title,
         content = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                EnumSelector(
-                    editing.type,
-                    { editing = SwingAnimation(it, editing.duration) },
-                    label = { Text(key, suffix = "type", fallback = "Type") },
-                    modifier = Modifier.width(300.dp)
-                )
-                                LabelBox(label = { Text(key, suffix = "duration", fallback = "Duration") }, modifier = Modifier.width(300.dp)) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                DataComponentField(key, suffix = "type", fallback = "Type", modifier = Modifier.fillMaxWidth()) {
+                    EnumSelector(
+                        selected = editing.type,
+                        onSelect = { editing = SwingAnimation(it, editing.duration) },
+                        items = SwingAnimationType.entries,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                DataComponentField(key, suffix = "duration", fallback = "Duration", modifier = Modifier.fillMaxWidth()) {
                     IntField(
                         editing.duration,
-                        {
-
-                        editing = SwingAnimation(editing.type, it)
-
-                    },
+                        { editing = SwingAnimation(editing.type, it) },
                         valueRange = 1..Int.MAX_VALUE,
                         modifier = Modifier.fillMaxWidth(),
                     )

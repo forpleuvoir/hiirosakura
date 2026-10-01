@@ -1,23 +1,21 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.*
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.widget.ColorListEditor
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.FireworkExplosion
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
-import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
@@ -27,25 +25,29 @@ fun FireworkExplosionComponentWrapper(
     onValueChange: (FireworkExplosion) -> Unit,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height)) {
-        var showDialog by remember { mutableStateOf(false) }
-        IconButton(onClick = {
-            showDialog = true
-        }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.Edit)
-        }
+) {
+    var showDialog by remember { mutableStateOf(false) }
 
-        if (showDialog) {
-            FireworkExplosionEditorDialog(
-                value = value,
-                onValueChange = onValueChange,
-                onDismissRequest = { showDialog = false },
-                key = key
-            )
-        }
+    DataComponentDisplayRow(
+        key, removeAction, modifier, horizontalArrangement, verticalAlignment,
+        onEdit = { showDialog = true },
+    ) {
+        Text(
+            "shape ${value.shape.serializedName} · colors ${value.colors.size} · fade_colors ${value.fadeColors.size} · trail ${value.hasTrail} · twinkle ${value.hasTwinkle}",
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+        )
+    }
+
+    if (showDialog) {
+        FireworkExplosionEditorDialog(
+            value = value,
+            onValueChange = onValueChange,
+            onDismissRequest = { showDialog = false },
+            key = key
+        )
     }
 }
 
@@ -72,25 +74,29 @@ private fun FireworkExplosionEditorDialog(
             onValueChange(FireworkExplosion(shape, colors, fadeColors, hasTrail, hasTwinkle))
             true
         },
-        title = { Text(key) },
+        title = { DataComponentDialogTitle(key) },
         content = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                EnumSelector(
-                    shape,
-                    { shape = it },
-                    label = { Text(key, suffix = "shape") },
-                    modifier = Modifier.height(64.dp).fillMaxWidth()
-                )
-                ColorListEditor(
-                    colors = colors,
-                    onColorsChange = { colors = it },
-                    label = { Text(key, suffix = "colors") },
-                )
-                ColorListEditor(
-                    colors = fadeColors,
-                    onColorsChange = { fadeColors = it },
-                    label = { Text(key, suffix = "fade_colors") },
-                )
+                DataComponentField(key, suffix = "shape", modifier = Modifier.fillMaxWidth()) {
+                    EnumSelector(
+                        selected = shape,
+                        onSelect = { shape = it },
+                        items = FireworkExplosion.Shape.entries,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                DataComponentField(key, suffix = "colors") {
+                    ColorListEditor(
+                        colors = colors,
+                        onColorsChange = { colors = it },
+                    )
+                }
+                DataComponentField(key, suffix = "fade_colors") {
+                    ColorListEditor(
+                        colors = fadeColors,
+                        onColorsChange = { fadeColors = it },
+                    )
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,

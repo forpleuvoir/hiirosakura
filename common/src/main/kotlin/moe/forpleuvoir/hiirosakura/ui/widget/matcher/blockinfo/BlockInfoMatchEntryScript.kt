@@ -19,7 +19,7 @@ import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.compat.TipBox
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 
 @Composable
 fun BlockInfoMatchEntryScriptInfo(entry: BlockInfoMatchEntry.Script) {
@@ -49,11 +49,11 @@ internal fun BlockInfoMatchEntryScriptRow(
         lines.take(5).joinToString("\n") + "..."
     }
 
-    TipBox({
-        Text(displayText)
-    }) {
-        Text(entry.asText, Modifier.weight(1f, false), overflow = TextOverflow.Ellipsis)
-    }
+    Text(
+        entry.asText,
+        Modifier.weight(1f, false).tooltip { Text(displayText) },
+        overflow = TextOverflow.Ellipsis
+    )
     Spacer(Modifier.width(6.dp))
     var showEditor by remember { mutableStateOf(false) }
     IconButton({ showEditor = true }) {

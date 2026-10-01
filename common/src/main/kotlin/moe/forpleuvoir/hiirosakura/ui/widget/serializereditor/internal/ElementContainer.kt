@@ -21,7 +21,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
 
 /**
  * 对象 / 数组编辑器的统一容器：
@@ -45,7 +44,7 @@ internal fun ElementContainer(
     )
     Surface(
         modifier = modifier.fillMaxWidth(),
-        
+
         color = SokitsuTheme.colorScheme.surfaceVariant,
         outlineColor = SokitsuTheme.colorScheme.outline.copy(alpha = 0.5f),
     ) {
@@ -58,7 +57,8 @@ internal fun ElementContainer(
                     .clickable(onClick = onToggle)
                     .padding(start = 8.dp, end = 6.dp, top = 4.dp, bottom = 4.dp),
             ) {
-                Icon(Icons.ArrowRight,
+                Icon(
+                    Icons.ArrowRight,
                     modifier = Modifier
                         .size(18.dp)
                         .rotate(rotation),
@@ -68,7 +68,7 @@ internal fun ElementContainer(
                 title()
                 Spacer(Modifier.weight(1f))
                 Surface(
-                    
+
                     color = SokitsuTheme.colorScheme.secondary,
                 ) {
                     Text(
@@ -82,7 +82,8 @@ internal fun ElementContainer(
                     onClick = onAdd,
                     modifier = Modifier.size(30.dp),
                 ) {
-                    Icon(Icons.Add,
+                    Icon(
+                        Icons.Add,
                         modifier = Modifier.size(16.dp),
                     )
                 }
@@ -101,8 +102,8 @@ internal fun ElementContainer(
                             .fillMaxHeight()
                             .background(
                                 color = SokitsuTheme.colorScheme.outline.copy(alpha = 0.5f),
-                                
-                            ),
+
+                                ),
                     )
                     Spacer(Modifier.width(8.dp))
                     Column(

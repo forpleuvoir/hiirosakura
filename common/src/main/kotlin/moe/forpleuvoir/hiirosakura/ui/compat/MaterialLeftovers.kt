@@ -1,19 +1,14 @@
 package moe.forpleuvoir.hiirosakura.ui.compat
 
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
-import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.ButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +23,6 @@ import moe.forpleuvoir.hiirosakura.ui.util.rememberClipboardWriter
 import androidx.compose.runtime.remember
 import net.minecraft.client.gui.screens.Screen
 import moe.forpleuvoir.compose_minecraft.platform.screen.ComposeScreen
-import moe.forpleuvoir.ibukigourd.render.extension.texture.IGTexture
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -41,62 +35,9 @@ import androidx.compose.animation.core.tween
 /*
  * 旧版 material3 组件的本项目兼容实现（第二组）。
  *
- * 这些组件在 IG 的 UI 重写里随 material3 一起消失，本项目调用点用 sokitsu 组件等价实现：
- * 外观走主题槽位，m3 特有的形状/高度一类参数保留签名但不参与绘制。
+ * 这些组件在 IG 的 UI 重写里随 material3 一起消失，本项目调用点用 sokitsu 组件等价实现，
+ * 外观走主题槽位。
  */
-
-/**
- * 旧版 `OutlinedToggleButton`：选中态用容器色板表达的二态按钮。
- *
- * @param checked 是否选中
- * @param onCheckedChange 切换回调
- */
-@Composable
-fun OutlinedToggleButton(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    content: @Composable RowScope.() -> Unit,
-) {
-    val scheme = LocalColorScheme.current
-    Button(
-        onClick = { onCheckedChange(!checked) },
-        modifier = modifier,
-        enabled = enabled,
-        colors = if (checked) {
-            ButtonDefaults.colors(color = scheme.primaryContainer, contentColor = scheme.onPrimaryContainer)
-        } else {
-            ButtonDefaults.colors()
-        },
-        content = content,
-    )
-}
-
-/** 旧版 `FloatingActionButton`：sokitsu [Button] 等价实现（无悬浮阴影）。 */
-@Composable
-fun FloatingActionButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    content: @Composable RowScope.() -> Unit,
-) = Button(onClick = onClick, modifier = modifier, enabled = enabled, content = content)
-
-/** 旧版 `FilledTonalButton`：sokitsu [Button] 等价实现。 */
-@Composable
-fun FilledTonalButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    content: @Composable RowScope.() -> Unit,
-) = Button(onClick = onClick, modifier = modifier, enabled = enabled, content = content)
-
-/** 旧版 `ElevatedCard`：sokitsu [Surface] 等价实现（高度由素材决定）。 */
-@Composable
-fun ElevatedCard(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) = Surface(modifier = modifier, content = content)
 
 /** 旧版 `OutlinedCard`：sokitsu [Surface] + 描边色。 */
 @Composable
@@ -104,29 +45,6 @@ fun OutlinedCard(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) = Surface(modifier = modifier, outlineColor = LocalColorScheme.current.outline, content = content)
-
-/**
- * 旧版 material3 的 `OutlinedTextFieldDefaults`：像素风下只剩几何量，转交 [LabeledFieldDefaults]。
- */
-object OutlinedTextFieldDefaults {
-
-    /** 直角形状（新版没有圆角槽位）。 */
-    val shape = RectangleShape
-
-    /** 框内默认内边距。 */
-    val contentPadding: PaddingValues get() = LabeledFieldDefaults.contentPadding
-
-    /** 按边指定的框内边距。 */
-    fun contentPadding(top: Dp = 8.dp, bottom: Dp = 8.dp, start: Dp = 12.dp, end: Dp = 12.dp): PaddingValues =
-        LabeledFieldDefaults.contentPadding(top, bottom, start, end)
-}
-
-/** 旧版 `BlitTexture` 的纹理对象重载：取 [IGTexture] 的纹理 id 绘制。 */
-@Composable
-fun BlitTexture(
-    texture: IGTexture,
-    modifier: Modifier = Modifier,
-) = BlitTexture(texture.textureInfo.textureId, modifier)
 
 /** 旧版 `RemoveButton`：悬停出现的删除按钮。 */
 @Composable

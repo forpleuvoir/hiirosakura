@@ -1,39 +1,46 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
+
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
+import com.mojang.blaze3d.textures.FilterMode
+import moe.forpleuvoir.compose_minecraft.platform.render.plugins.UVMapping
+import moe.forpleuvoir.compose_minecraft.platform.ui.draw.minecraftTexture
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.widget.DyeColorSelector
-import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Text
 import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogAddButton
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContent
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentCards
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentDefaults
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.selector.Selector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
-import moe.forpleuvoir.ibukigourd.ui.util.Keyed
-import moe.forpleuvoir.ibukigourd.ui.util.copyValue
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
-import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.client.renderer.Sheets
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
@@ -41,32 +48,7 @@ import net.minecraft.resources.Identifier
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.level.block.entity.BannerPattern
 import net.minecraft.world.level.block.entity.BannerPatternLayers
-import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.rememberReorderableLazyListState
 import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
-import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.selector.Selector
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
-import androidx.compose.ui.graphics.RectangleShape
-import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
-import com.mojang.blaze3d.textures.FilterMode
-import moe.forpleuvoir.compose_minecraft.platform.render.plugins.UVMapping
-import moe.forpleuvoir.compose_minecraft.platform.ui.draw.minecraftTexture
-import androidx.compose.foundation.background
 
 @Composable
 fun BannerPatternComponentWrapper(
@@ -75,50 +57,106 @@ fun BannerPatternComponentWrapper(
     onValueChange: (BannerPatternLayers) -> Unit,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
-        var showDialog by remember { mutableStateOf(false) }
-        FlatButton(
-            onClick = {},
-            modifier = Modifier
-                .fillMaxHeight()
-                .tooltip {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.width(IntrinsicSize.Min)
-                    ) {
-                        value.layers().forEach {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                BannerPattern(it.pattern, it.color)
-                                Spacer(Modifier.width(8.dp))
-                                Text(it.description())
-                            }
-                        }
+) {
+    var showDialog by remember { mutableStateOf(false) }
+    DataComponentDisplayRow(
+        key, removeAction, modifier, horizontalArrangement, verticalAlignment,
+        tooltip = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.width(IntrinsicSize.Min)
+            ) {
+                value.layers().forEach {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        BannerPattern(it.pattern, it.color)
+                        Spacer(Modifier.width(8.dp))
+                        Text(it.description())
                     }
                 }
-                .width(DataComponentEditorDefaults.entrySize.width),
-        ) {
-Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.layers.size), overflow = TextOverflow.Ellipsis, maxLines = 1)
-IconButton(onClick = {
-    showDialog = true
-}) {
-    Icon(Icons.Edit)
-}
-        }
-if (showDialog) {
-            BannerPatternLayersEditorDialog(
-                key = key,
-                value = value,
-                onValueChange = onValueChange,
-                onDismissRequest = { showDialog = false },
-                title = { Text(key) }
-            )
-        }
+            }
+        },
+        onEdit = { showDialog = true },
+    ) {
+        Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.layers.size), overflow = TextOverflow.Ellipsis, maxLines = 1)
+    }
+    if (showDialog) {
+        BannerPatternLayersEditorDialog(
+            key = key,
+            value = value,
+            onValueChange = onValueChange,
+            onDismissRequest = { showDialog = false },
+            title = { DataComponentDialogTitle(key) }
+        )
     }
 }
 
+/**
+ * 旗帜图案卡片的排版常量。
+ *
+ * 卡片宽度不写死：浮层宽度只给下限（一行放得下 [MinColumns] 张）与上限（一行最多 [MaxColumns] 张），
+ * 列数按实际可用宽度算。
+ */
+private object BannerPatternCardDefaults {
+
+    /** 一张卡片的最小宽度：染料选择器 + 图案选择器 + 卡片内边距。 */
+    val MinCardWidth: Dp = 460.dp
+
+    /** 一行的卡片数下限。 */
+    const val MinColumns: Int = 1
+
+    /** 一行的卡片数上限。 */
+    const val MaxColumns: Int = 2
+
+    /** 卡片间距，取卡片列表的缺省值（算列数时按它反推浮层宽度）。 */
+    val CardSpacing: Dp = EditDialogContentDefaults.cardSpacing
+
+    /** 卡片列表右侧细滚动条的占位宽度，算列数时先扣掉。 */
+    val ScrollbarAllowance: Dp = 16.dp
+
+    /** 浮层内容内边距，与 `FlexibleDialogDefaults.contentPadding` 一致。 */
+    val DialogContentPadding: Dp = 24.dp
+
+    /** 浮层宽度下限：一行放得下 [MinColumns] 张卡片。 */
+    val DialogMinWidth: Dp
+        get() = MinCardWidth * MinColumns + CardSpacing * (MinColumns - 1) + ScrollbarAllowance + DialogContentPadding * 2
+
+    /** 浮层宽度上限：一行最多 [MaxColumns] 张卡片。 */
+    val DialogMaxWidth: Dp
+        get() = MinCardWidth * MaxColumns + CardSpacing * (MaxColumns - 1) + ScrollbarAllowance + DialogContentPadding * 2
+
+    /** 浮层高度上限：可视区放得下数行卡片并有富余。 */
+    val DialogMaxHeight: Dp = 800.dp
+
+    /** 浮层尺寸约束：宽度只夹上下限，具体宽度由窗口决定。 */
+    val DialogModifier: Modifier
+        get() = Modifier
+            .widthIn(min = DialogMinWidth, max = DialogMaxWidth)
+            .heightIn(max = DialogMaxHeight)
+
+    /**
+     * 按浮层内容区的可用宽度算卡片列数：先扣掉滚动条占位，再按「一张卡片 + 一段间距」整除，
+     * 结果夹在 [MinColumns]..[MaxColumns] 内。
+     */
+    fun columnsFor(availableWidth: Dp): Int =
+        ((availableWidth - ScrollbarAllowance + CardSpacing) / (MinCardWidth + CardSpacing))
+            .toInt()
+            .coerceIn(MinColumns, MaxColumns)
+}
+
+/**
+ * 旗帜图案编辑浮层：一层图案一张卡片。
+ *
+ * 卡片头部两端的拖拽手柄与删除按钮由 `EditDialogContentCards` 提供，卡片体是
+ * [BannerPatternLayerContent]；条目增删、排序与编辑都在副本上做，确认时才写回。
+ *
+ * @param key 语言键来源
+ * @param value 待编辑的旗帜图案层
+ * @param onValueChange 确认时的写回
+ * @param onDismissRequest 关闭请求
+ * @param title 浮层标题
+ */
 @Composable
 fun BannerPatternLayersEditorDialog(
     key: Identifier,
@@ -128,150 +166,125 @@ fun BannerPatternLayersEditorDialog(
     title: @Composable (() -> Unit)? = null,
 ) {
     val layers = rememberKeyedList(value.layers)
+
+    var showAddDialog by remember { mutableStateOf(false) }
+    // 卡片网格的滚动状态：浮动添加按钮的显隐以它为准
+    val cardGridState = rememberLazyGridState()
+    val addButtonVisibility = rememberFabScrollVisibility(cardGridState)
+
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
         onConfirmRequest = {
             onValueChange(BannerPatternLayers(layers.entries.values().toMutableList()))
             true
         },
-        modifier = Modifier.padding(24.dp).width(800.dp).height(720.dp),
+        modifier = BannerPatternCardDefaults.DialogModifier,
         title = title,
         content = {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                val lazyListState = rememberLazyListState()
-                if (layers.entries.isEmpty()) {
-                    Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
-                } else {
-                    val hapticFeedback = LocalHapticFeedback.current
-                    val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-                        layers.move(from.index, to.index)
-                        hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
-                    }
-
-                    val canScroll = lazyListState.canScrollBackward || lazyListState.canScrollForward
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(end = if (canScroll) 12.dp else 0.dp).fillMaxSize(),
-                        state = lazyListState
-                    ) {
-                        itemsIndexed(layers.entries,
-                            key = { _, keyed -> keyed.key }
-                        ) { index, (key, layer) ->
-                            ReorderableItem(
-                                reorderableLazyListState, key,
-                                animateItemModifier = hsItemAnimation(),
-                            ) { isDragging ->
-                                val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                                val handleInteraction = remember { MutableInteractionSource() }
-
-                                val handleHovered by handleInteraction.collectIsHoveredAsState()
-                                Surface(
-                                    modifier = Modifier.fillMaxWidth().scale(scale)
-                                ) {
-                                    Row(
-                                        Modifier.padding(12.dp).fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.weight(1f),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                        ) {
-                                            DragHandle(modifier = Modifier)
-                                            DyeColorSelector(
-                                                layer.color,
-                                                {
-                                                    layers.setValue(index, BannerPatternLayers.Layer(layer.pattern, it))
-                                                },
-                                                displayColor = {
-                                                    listOf(NebulaColor.fromARGB(it.textureDiffuseColor))
-                                                }
-                                            )
-                                            BannerPatternSelector(
-                                                layer.pattern,
-                                                {
-                                                    layers.setValue(index, BannerPatternLayers.Layer(it, layer.color))
-                                                },
-                                                layer.color,
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-                                        }
-
-                                        RemoveConfirmButton(
-                                            layer.pattern.translatableText(layer.color).plainText,
-                                            onConfirm = { { layers.removeAt(index) } },
-                                        )
-                                    }
-                                }
-                            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .fabScrollVisibility(addButtonVisibility),
+            ) {
+                EditDialogContent(
+                    modifier = Modifier.fillMaxSize(),
+                    header = {},
+                ) { _ ->
+                    BoxWithConstraints(Modifier.fillMaxWidth()) {
+                        EditDialogContentCards(
+                            state = layers,
+                            lazyGridState = cardGridState,
+                            columns = BannerPatternCardDefaults.columnsFor(maxWidth),
+                            maxHeight = BannerPatternCardDefaults.DialogMaxHeight,
+                            removeButton = { index, layer ->
+                                RemoveConfirmButton(
+                                    message = layer.pattern.translatableText(layer.color).plainText,
+                                    onConfirm = { layers.removeAt(index) },
+                                    iconScale = LocalIconScale.current,
+                                    contentPadding = EditDialogContentDefaults.iconPadding,
+                                )
+                            },
+                        ) { _, layer, onEntryChange ->
+                            BannerPatternLayerContent(layer, onEntryChange)
                         }
                     }
-
-                    VerticalScroller(
-                        adapter = rememberScrollerAdapter(lazyListState),
-                        modifier = Modifier.align(Alignment.CenterEnd)
-                    )
-
                 }
 
-
-                var showAddDialog by remember { mutableStateOf(false) }
-                Button(
-                    onClick = {
-                        showAddDialog = true
-                    },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(12.dp)
-                        .size(40.dp)
-                        .fabScrollVisibility(
-                    rememberFabScrollVisibility(lazyListState)
-                        ),
+                EditDialogAddButton(
+                    visibility = addButtonVisibility,
+                    modifier = Modifier.align(Alignment.BottomEnd),
                 ) {
-                    Icon(Icons.Add)
+                    Button(
+                        onClick = { showAddDialog = true },
+                        contentPadding = ConfigControlDefaults.IconButtonPadding,
+                    ) {
+                        Icon(Icons.Add, scale = configIconScale())
+                    }
                 }
-
-                if (showAddDialog) {
-                    var newColor by remember { mutableStateOf(DyeColor.WHITE) }
-
-                    var newPattern by remember { mutableStateOf(REGISTERED_BANNER_PATTERN[0]) }
-                    SimpleAlertDialog(
-                        onDismissRequest = { showAddDialog = false },
-                        onConfirmRequest = {
-                            layers.add(BannerPatternLayers.Layer(newPattern, newColor))
-                            true
-                        },
-                        title = { Text(component = IGLang.Misc.add) },
-                        content = {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            ) {
-                                DyeColorSelector(
-                                    newColor,
-                                    { newColor = it },
-                                    displayColor = {
-                                        listOf(NebulaColor.fromARGB(it.textureDiffuseColor))
-                                    }
-                                )
-                                BannerPatternSelector(
-                                    newPattern,
-                                    {
-                                        newPattern = it
-                                    },
-                                    newColor,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
-                    )
-                }
-
             }
 
+            if (showAddDialog) {
+                var newColor by remember { mutableStateOf(DyeColor.WHITE) }
+
+                var newPattern by remember { mutableStateOf(REGISTERED_BANNER_PATTERN[0]) }
+                SimpleAlertDialog(
+                    onDismissRequest = { showAddDialog = false },
+                    onConfirmRequest = {
+                        layers.add(BannerPatternLayers.Layer(newPattern, newColor))
+                        true
+                    },
+                    title = { DataComponentDialogTitle(component = IGLang.Misc.add) },
+                    content = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            DyeColorSelector(
+                                newColor,
+                                { newColor = it },
+                                displayColor = {
+                                    listOf(NebulaColor.fromARGB(it.textureDiffuseColor))
+                                }
+                            )
+                            BannerPatternSelector(
+                                newPattern,
+                                {
+                                    newPattern = it
+                                },
+                                newColor,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                )
+            }
         }
     )
+}
+
+/** 一条旗帜图案的卡片体：染料选择器 + 图案选择器。 */
+@Composable
+private fun BannerPatternLayerContent(
+    layer: BannerPatternLayers.Layer,
+    onValueChange: (BannerPatternLayers.Layer) -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        DyeColorSelector(
+            layer.color,
+            { onValueChange(BannerPatternLayers.Layer(layer.pattern, it)) },
+            displayColor = { listOf(NebulaColor.fromARGB(it.textureDiffuseColor)) },
+        )
+        BannerPatternSelector(
+            layer.pattern,
+            { onValueChange(BannerPatternLayers.Layer(it, layer.color)) },
+            layer.color,
+            modifier = Modifier.weight(1f),
+        )
+    }
 }
 
 
@@ -295,7 +308,6 @@ fun BannerPatternSelector(
             Text(it.translatableText(dyeColor))
         }
     },
-    label: @Composable (() -> Unit)? = null,
     itemContent: @Composable (Holder<BannerPattern>, Boolean) -> Unit = { item, _ ->
         Row(verticalAlignment = Alignment.CenterVertically) {
             BannerPattern(item, dyeColor)
@@ -308,27 +320,21 @@ fun BannerPatternSelector(
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (Holder<BannerPattern>) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (Holder<BannerPattern>) -> Unit)?)? = null,
-    textStyle: TextStyle = LocalTextStyle.current,
-    interactionSource: MutableInteractionSource? = null,
-    shape: Shape = RectangleShape,
-    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
-        LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
-                Selector(
-                selected = selected,
-                onSelect = onSelect,
-                items = items,
-                itemEquals = itemEquals,
-                content = content,
-                itemContent = itemContent,
-                enabled = enabled,
-                itemLeadingIcon = itemLeadingIcon,
-                itemTrailingIcon = itemTrailingIcon,
-                searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-    }
+    Selector(
+        selected = selected,
+        onSelect = onSelect,
+        items = items,
+        itemEquals = itemEquals,
+        content = content,
+        itemContent = itemContent,
+        enabled = enabled,
+        itemLeadingIcon = itemLeadingIcon,
+        itemTrailingIcon = itemTrailingIcon,
+        searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
+        modifier = modifier,
+    )
+}
 
 
 @Composable
@@ -349,7 +355,7 @@ fun BannerPattern(
         "textures/${textureId.path}.png",
     )
 
-    // 原版从 64×64 旗帜图案中截取：x = 0..21，y = 1..41
+    // 鍘熺増浠?64脳64 鏃楀笢鍥炬涓埅鍙栵細x = 0..21锛寉 = 1..41
     Box(
         modifier = modifier
             .background(Color(color.textureDiffuseColor))

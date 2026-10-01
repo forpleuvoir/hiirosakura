@@ -1,28 +1,23 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.toolbar
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.hoverable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalContentColor
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.*
-import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.StyleProperty
-import moe.forpleuvoir.ibukigourd.input.MouseButton
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
+/**
+ * 工具栏格式按钮：外观与左键交互交给 [IconButton]，选中态用容器色板表达。
+ *
+ * 三态：`Set` 取选中配色、`null`（选区内的取值不一致）取默认底色配主色内容、
+ * 其余（`None` / `Unset`）为未选中。
+ *
+ * 右键清空该属性：Initial 趟指针观察只消费次级键，主键仍留给按钮自身的 clickable。
+ */
 @Composable
 fun FormatButton(
     state: StyleProperty<Boolean>?,
@@ -32,68 +27,48 @@ fun FormatButton(
     label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var pressedButton by remember { mutableStateOf<MouseButton?>(null) }
-
+    val scheme = SokitsuTheme.colorScheme
 
     val effectiveState: StyleProperty<Boolean> = state ?: StyleProperty.Unset
 
-    val color = when (effectiveState) {
-        StyleProperty.None, StyleProperty.Unset -> LocalContentColor.current
-        is StyleProperty.Set<*>                 -> SokitsuTheme.colorScheme.primary
-    }
+    var rightPressed by remember { mutableStateOf(false) }
 
-
-    val interactionSource = remember { MutableInteractionSource() }
-
-    val isHovered by interactionSource.collectIsHoveredAsState()
-    val backgroundColor by animateColorAsState(
-        targetValue = if (isHovered) SokitsuTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        else SokitsuTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
-        animationSpec = tween(200),
-        label = "bgHoverHighlight"
-    )
-
-    Box(
+    IconButton(
+        onClick = onLeftClick,
         modifier = modifier
-            .size(36.dp)
-            .hoverable(interactionSource)
-            .background(backgroundColor, CircleShape)
-            .thenIf(effectiveState != StyleProperty.Unset) { Modifier.border(2.dp, SokitsuTheme.colorScheme.primary, CircleShape) }
             .tooltip { tip() }
             .pointerInput(Unit) {
                 awaitPointerEventScope {
                     while (true) {
                         val event = awaitPointerEvent(PointerEventPass.Initial)
                         when (event.type) {
-                            PointerEventType.Press   -> {
-                                pressedButton = when {
-                                    event.buttons.isPrimaryPressed   -> MouseButton.LEFT
-                                    event.buttons.isSecondaryPressed -> MouseButton.RIGHT
-                                    else                             -> null
-                                }
+                            PointerEventType.Press -> if (event.buttons.isSecondaryPressed) {
+                                rightPressed = true
                                 event.changes.forEach { it.consume() }
                             }
 
-                            PointerEventType.Release -> {
-                                val button = pressedButton
-                                pressedButton = null
-                                when (button) {
-                                    MouseButton.LEFT  -> onLeftClick()
-                                    MouseButton.RIGHT -> onRightClick()
-                                    else              -> {}
-                                }
+                            PointerEventType.Release -> if (rightPressed) {
+                                rightPressed = false
+                                onRightClick()
                                 event.changes.forEach { it.consume() }
                             }
 
-                            else                     -> {}
+                            else -> {}
                         }
                     }
                 }
             },
-        contentAlignment = Alignment.Center,
+        contentPadding = ConfigControlDefaults.IconButtonPadding,
+        colors = when {
+            effectiveState is StyleProperty.Set<*> -> FlatButtonDefaults.colors(
+                color = scheme.primaryContainer,
+                contentColor = scheme.onPrimaryContainer,
+            )
+
+            state == null                          -> FlatButtonDefaults.colors(contentColor = scheme.primary)
+            else                                   -> FlatButtonDefaults.colors()
+        },
     ) {
-        CompositionLocalProvider(LocalContentColor provides color) {
-            label()
-        }
+        label()
     }
 }

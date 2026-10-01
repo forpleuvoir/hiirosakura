@@ -1,19 +1,23 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
+
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
+import androidx.compose.ui.text.style.TextOverflow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplay
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.widget.*
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
@@ -22,11 +26,8 @@ import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
-import moe.forpleuvoir.ibukigourd.ui.util.Keyed
-import moe.forpleuvoir.ibukigourd.ui.util.copyValue
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
-import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.core.Holder
 import net.minecraft.core.HolderSet
 import net.minecraft.core.registries.BuiltInRegistries
@@ -37,21 +38,22 @@ import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.item.ItemUseAnimation
 import net.minecraft.world.item.component.Consumable
 import net.minecraft.world.item.consume_effects.*
-import sh.calvin.reorderable.ReorderableCollectionItemScope
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogAddButton
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContent
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentCards
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentDefaults
 import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
 import androidx.compose.foundation.layout.fillMaxWidth
-import moe.forpleuvoir.hiirosakura.ui.compat.OutlinedToggleButton
 import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 
 @Composable
@@ -61,29 +63,94 @@ fun ConsumableComponentWrapper(
     onValueChange: (Consumable) -> Unit,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height)) {
-        var showDialog by remember { mutableStateOf(false) }
-        IconButton(onClick = {
-            showDialog = true
-        }, modifier = Modifier.align(Alignment.CenterEnd)) {
-            Icon(Icons.Edit)
-        }
+) {
+    var showDialog by remember { mutableStateOf(false) }
 
-        if (showDialog) {
-            ConsumableEditorDialog(
-                key = key,
-                value = value,
-                onValueChange = onValueChange,
-                onDismissRequest = { showDialog = false },
-                title = { Text(key) }
-            )
-        }
+    DataComponentDisplayRow(
+        key, removeAction, modifier, horizontalArrangement, verticalAlignment,
+        onEdit = { showDialog = true },
+    ) {
+        Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.onConsumeEffects.size), overflow = TextOverflow.Ellipsis, maxLines = 1)
+    }
+
+    if (showDialog) {
+        ConsumableEditorDialog(
+            key = key,
+            value = value,
+            onValueChange = onValueChange,
+            onDismissRequest = { showDialog = false },
+            title = { DataComponentDialogTitle(key) }
+        )
     }
 }
 
+/**
+ * 消耗效果卡片的排版常量。
+ *
+ * 卡片宽度不写死：浮层宽度只给下限（一行放得下 [MinColumns] 张）与上限（一行最多 [MaxColumns] 张），
+ * 列数按实际可用宽度算。
+ */
+private object ConsumableCardDefaults {
+
+    /** 一张卡片的最小宽度：效果内容区（`ConsumableEditor.LocalConsumeEffectWrapperSize`）加卡片内边距。 */
+    val MinCardWidth: Dp = 420.dp
+
+    /** 一行的卡片数下限。 */
+    const val MinColumns: Int = 1
+
+    /** 一行的卡片数上限。 */
+    const val MaxColumns: Int = 2
+
+    /** 卡片间距，取卡片列表的缺省值（算列数时按它反推浮层宽度）。 */
+    val CardSpacing: Dp = EditDialogContentDefaults.cardSpacing
+
+    /** 卡片列表右侧细滚动条的占位宽度，算列数时先扣掉。 */
+    val ScrollbarAllowance: Dp = 16.dp
+
+    /** 浮层内容内边距，与 `FlexibleDialogDefaults.contentPadding` 一致。 */
+    val DialogContentPadding: Dp = 24.dp
+
+    /** 浮层宽度下限：一行放得下 [MinColumns] 张卡片。 */
+    val DialogMinWidth: Dp
+        get() = MinCardWidth * MinColumns + CardSpacing * (MinColumns - 1) + ScrollbarAllowance + DialogContentPadding * 2
+
+    /** 浮层宽度上限：一行最多 [MaxColumns] 张卡片。 */
+    val DialogMaxWidth: Dp
+        get() = MinCardWidth * MaxColumns + CardSpacing * (MaxColumns - 1) + ScrollbarAllowance + DialogContentPadding * 2
+
+    /** 浮层高度上限：可视区放得下两行卡片并有富余。 */
+    val DialogMaxHeight: Dp = 900.dp
+
+    /** 浮层尺寸约束：宽度只夹上下限，具体宽度由窗口决定。 */
+    val DialogModifier: Modifier
+        get() = Modifier
+            .widthIn(min = DialogMinWidth, max = DialogMaxWidth)
+            .heightIn(max = DialogMaxHeight)
+
+    /**
+     * 按浮层内容区的可用宽度算卡片列数：先扣掉滚动条占位，再按「一张卡片 + 一段间距」整除，
+     * 结果夹在 [MinColumns]..[MaxColumns] 内。
+     */
+    fun columnsFor(availableWidth: Dp): Int =
+        ((availableWidth - ScrollbarAllowance + CardSpacing) / (MinCardWidth + CardSpacing))
+            .toInt()
+            .coerceIn(MinColumns, MaxColumns)
+}
+
+/**
+ * 消耗组件编辑浮层：表头一行四项固定属性，下面是「一条消耗效果一张卡片」的卡片网格。
+ *
+ * 卡片头部的拖拽手柄与删除按钮由 `EditDialogContentCards` 提供，卡片体是 [ConsumeEffectContent]；
+ * 效果增删、排序与编辑都在副本上做，确认时才写回。
+ *
+ * @param key 语言键来源
+ * @param value 待编辑的消耗组件
+ * @param onValueChange 确认时的写回
+ * @param onDismissRequest 关闭请求
+ * @param title 浮层标题
+ */
 @Composable
 fun ConsumableEditorDialog(
     key: Identifier,
@@ -95,118 +162,126 @@ fun ConsumableEditorDialog(
     var editing by remember { mutableStateOf(value) }
 
     val onConsumeEffects = rememberKeyedList(value.onConsumeEffects)
+    // 卡片网格的滚动状态：浮动添加按钮的显隐以它为准
+    val cardGridState = rememberLazyGridState()
+    val addButtonVisibility = rememberFabScrollVisibility(cardGridState)
+
     FlexibleDialog(
         onDismissRequest,
         onConfirmRequest = {
             onValueChange(editing.copy(onConsumeEffects = onConsumeEffects.entries.values().toMutableList()))
             true
         },
-        modifier = Modifier
-            .width(920.dp)
-            .height(720.dp)
-            .padding(24.dp),
+        modifier = ConsumableCardDefaults.DialogModifier,
         title = title,
         content = {
-            Column {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.Bottom,
-                ) {
-                    LabelBox(label = { Text(key, suffix = "consume_seconds") }, modifier = Modifier.weight(1f).height(64.dp)) {
-                        FloatField(
-                            editing.consumeSeconds,
-                            { editing = editing.copy(consumeSeconds = it) },
-                            valueRange = 0f..64.0f,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                    }
-                    EnumSelector(
-                        editing.animation,
-                        { editing = editing.copy(animation = it) },
-                        label = { Text(key, suffix = "animation") },
-                        modifier = Modifier.weight(1f).height(64.dp)
-                    )
-                    HolderSoundEventSelector(
-                        editing.sound,
-                        { editing = editing.copy(sound = it) },
-                        label = { Text(key, suffix = "sound") },
-                        modifier = Modifier.weight(1f).height(64.dp)
-                    )
-                    OutlinedToggleButton(
-                        editing.hasConsumeParticles,
-                        { editing = editing.copy(hasConsumeParticles = it) },
-                        modifier = Modifier.weight(1f).height(56.dp)
-                    ) {
-                        Text(key, suffix = "has_consume_particles")
-                        Spacer(Modifier.width(8.dp))
-                        Text(component = IGLang.Misc.coloredSwitch(editing.hasConsumeParticles))
-                    }
-                }
-                Spacer(Modifier.height(8.dp))
-                LabelBox(
-                    label = { Text(key, suffix = "on_consume_effects") },
-                    contentPadding = PaddingValues(8.dp, 12.dp),
-                ) {
-                    ReorderableEditorList(
-                        onConsumeEffects.entries,
-                        key = { it.key },
-                        onMove = onConsumeEffects::move,
-                        modifier = Modifier.fillMaxSize(),
-                        floatingActionButton = { lazyListState ->
-                            FloatingAddButton(
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd),
-                                fabVisibilityState = rememberFabScrollVisibility(lazyListState),
-                                addMenuOptions = ConsumableEditor.consumeEffectAddMenuOptions,
-                                addAction = {
-                                    onConsumeEffects.add(it)
-                                }
-                            )
-                        },
-                        itemContent = { index, effect, isDragging, hapticFeedback ->
-                            val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                            val handleInteraction = remember { MutableInteractionSource() }
-
-                            val handleHovered by handleInteraction.collectIsHoveredAsState()
-
-                            val wrapper = ConsumableEditor.consumeEffectsWrappers[effect.value.type]
-                            Surface(
-                                modifier = Modifier.fillMaxWidth().scale(scale)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .fabScrollVisibility(addButtonVisibility),
+            ) {
+                EditDialogContent(
+                    modifier = Modifier.fillMaxSize(),
+                    header = {
+                        Column {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.Bottom,
                             ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                DataComponentSection(key, suffix = "consume_seconds", modifier = Modifier.weight(1f)) {
+                                    FloatField(
+                                        editing.consumeSeconds,
+                                        { editing = editing.copy(consumeSeconds = it) },
+                                        valueRange = 0f..64.0f,
+                                        modifier = Modifier.fillMaxWidth(),
+                                    )
+                                }
+                                DataComponentSection(key, suffix = "animation", modifier = Modifier.weight(1f)) {
+                                    EnumSelector(
+                                        selected = editing.animation,
+                                        onSelect = { editing = editing.copy(animation = it) },
+                                        items = ItemUseAnimation.entries,
+                                        modifier = Modifier.fillMaxWidth(),
+                                    )
+                                }
+                                HolderSoundEventSelector(
+                                    editing.sound,
+                                    { editing = editing.copy(sound = it) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                DataComponentSection(
+                                    key,
+                                    suffix = "has_consume_particles",
+                                    modifier = Modifier.weight(1f),
                                 ) {
                                     Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     ) {
-                                        DragHandle(modifier = Modifier)
-                                        wrapper?.title()
-                                    }
-
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        wrapper?.content(effect.value, {
-                                            onConsumeEffects.setValue(index, it)
-                                        })
-
-                                        RemoveConfirmButton(
-                                            ConsumeEffect.Type.APPLY_EFFECTS.id.asTranslateText().plainText,
-                                            onConfirm = { { onConsumeEffects.removeAt(index) } },
+                                        Switch(
+                                            editing.hasConsumeParticles,
+                                            { editing = editing.copy(hasConsumeParticles = it) },
                                         )
+                                        Text(component = IGLang.Misc.coloredSwitch(editing.hasConsumeParticles))
                                     }
                                 }
                             }
+                            Spacer(Modifier.height(12.dp))
+                            Text(key, suffix = "on_consume_effects", fontSize = SokitsuTheme.typography.body.fontSize)
                         }
+                    },
+                ) { _ ->
+                    BoxWithConstraints(Modifier.fillMaxWidth()) {
+                        EditDialogContentCards(
+                            state = onConsumeEffects,
+                            lazyGridState = cardGridState,
+                            columns = ConsumableCardDefaults.columnsFor(maxWidth),
+                            maxHeight = ConsumableCardDefaults.DialogMaxHeight,
+                            removeButton = { index, entry ->
+                                RemoveConfirmButton(
+                                    message = entry.type.id.asTranslateText().plainText,
+                                    onConfirm = { onConsumeEffects.removeAt(index) },
+                                    iconScale = LocalIconScale.current,
+                                    contentPadding = EditDialogContentDefaults.iconPadding,
+                                )
+                            },
+                        ) { _, entry, onEntryChange ->
+                            ConsumeEffectContent(entry, onEntryChange)
+                        }
+                    }
+                }
+
+                EditDialogAddButton(
+                    visibility = addButtonVisibility,
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                ) {
+                    FloatingAddButton(
+                        fabMargin = PaddingValues(0.dp),
+                        addMenuOptions = ConsumableEditor.consumeEffectAddMenuOptions,
+                        addAction = { onConsumeEffects.add(it) },
                     )
                 }
             }
         }
     )
+}
+
+/** 一条消耗效果的卡片体：效果类型标题 + 该类型自己的编辑控件。 */
+@Composable
+private fun ConsumeEffectContent(
+    effect: ConsumeEffect,
+    onValueChange: (ConsumeEffect) -> Unit,
+) {
+    val wrapper = ConsumableEditor.consumeEffectsWrappers[effect.type]
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        wrapper?.title()
+        wrapper?.content(effect, onValueChange)
+    }
 }
 
 object ConsumableEditor {
@@ -225,9 +300,8 @@ object ConsumableEditor {
                     modifier = Modifier.size(LocalConsumeEffectWrapperSize.current).padding(vertical = 4.dp),
                 ) {
                     var showDialog by remember { mutableStateOf(false) }
-                    FlatButton(
-                        onClick = {},
-                        modifier = Modifier.fillMaxSize().tooltip {
+                    DataComponentDisplay(
+                        modifier = Modifier.tooltip {
                             value.effects.take(20).forEach {
                                 Row {
                                     Text(it.effect.value().displayName)
@@ -238,13 +312,11 @@ object ConsumableEditor {
 
                             if (value.effects.size > 20) Text("...")
                         },
+                        onEdit = { showDialog = true },
                     ) {
-Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.effects.size))
-IconButton({ showDialog = true }) {
-    Icon(Icons.Edit)
-}
+                        Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.effects.size))
                     }
-if (showDialog) {
+                    if (showDialog) {
                         ApplyStatusEditorDialog({ showDialog = false }, value, { onValueChange(it) })
                     }
                 }
@@ -258,9 +330,8 @@ if (showDialog) {
                     modifier = Modifier.size(LocalConsumeEffectWrapperSize.current).padding(vertical = 4.dp),
                 ) {
                     var showDialog by remember { mutableStateOf(false) }
-               FlatButton(
-                        onClick = {},
-                        modifier = Modifier.fillMaxSize().tooltip {
+                    DataComponentDisplay(
+                        modifier = Modifier.tooltip {
                             value.effects.take(20).forEach {
                                 Row {
                                     Text(it.value().displayName)
@@ -269,13 +340,11 @@ if (showDialog) {
 
                             if (value.effects.count() > 20) Text("...")
                         },
+                        onEdit = { showDialog = true },
                     ) {
-Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.effects.count()))
-IconButton({ showDialog = true }) {
-    Icon(Icons.Edit)
-}
+                        Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.effects.count()))
                     }
-     if (showDialog) {
+                    if (showDialog) {
                         RemoveStatusEditorDialog({ showDialog = false }, value, { onValueChange(it) })
                     }
                 }
@@ -358,6 +427,65 @@ IconButton({ showDialog = true }) {
 
 //region ApplyStatus
 
+/**
+ * 状态效果卡片的排版常量。
+ *
+ * 卡片宽度不写死：浮层宽度只给下限（一行放得下 [MinColumns] 张）与上限（一行最多 [MaxColumns] 张），
+ * 列数按实际可用宽度算。
+ */
+private object MobEffectCardDefaults {
+
+    /** 一张卡片的最小宽度：状态效果选择器 + 时长 / 倍率输入框 + 卡片内边距。 */
+    val MinCardWidth: Dp = 360.dp
+
+    /** 一行的卡片数下限。 */
+    const val MinColumns: Int = 2
+
+    /** 一行的卡片数上限。 */
+    const val MaxColumns: Int = 3
+
+    /** 卡片间距，取卡片列表的缺省值（算列数时按它反推浮层宽度）。 */
+    val CardSpacing: Dp = EditDialogContentDefaults.cardSpacing
+
+    /** 卡片列表右侧细滚动条的占位宽度，算列数时先扣掉。 */
+    val ScrollbarAllowance: Dp = 16.dp
+
+    /** 浮层内容内边距，与 `FlexibleDialogDefaults.contentPadding` 一致。 */
+    val DialogContentPadding: Dp = 24.dp
+
+    /** 浮层宽度下限：一行放得下 [MinColumns] 张卡片。 */
+    val DialogMinWidth: Dp
+        get() = MinCardWidth * MinColumns + CardSpacing * (MinColumns - 1) + ScrollbarAllowance + DialogContentPadding * 2
+
+    /** 浮层宽度上限：一行最多 [MaxColumns] 张卡片。 */
+    val DialogMaxWidth: Dp
+        get() = MinCardWidth * MaxColumns + CardSpacing * (MaxColumns - 1) + ScrollbarAllowance + DialogContentPadding * 2
+
+    /** 浮层高度上限：可视区放得下两行卡片并有富余。 */
+    val DialogMaxHeight: Dp = 900.dp
+
+    /** 浮层尺寸约束：宽度只夹上下限，具体宽度由窗口决定。 */
+    val DialogModifier: Modifier
+        get() = Modifier
+            .widthIn(min = DialogMinWidth, max = DialogMaxWidth)
+            .heightIn(max = DialogMaxHeight)
+
+    /**
+     * 按浮层内容区的可用宽度算卡片列数：先扣掉滚动条占位，再按「一张卡片 + 一段间距」整除，
+     * 结果夹在 [MinColumns]..[MaxColumns] 内。
+     */
+    fun columnsFor(availableWidth: Dp): Int =
+        ((availableWidth - ScrollbarAllowance + CardSpacing) / (MinCardWidth + CardSpacing))
+            .toInt()
+            .coerceIn(MinColumns, MaxColumns)
+}
+
+/**
+ * 状态效果编辑浮层：表头是触发概率，下面是「一条状态效果一张卡片」的卡片网格。
+ *
+ * 卡片头部的拖拽手柄与删除按钮由 `EditDialogContentCards` 提供，卡片体是
+ * [MobEffectInstanceEditorContent]；效果增删、排序与编辑都在副本上做，确认时才写回。
+ */
 @Composable
 fun ApplyStatusEditorDialog(
     onDismissRequest: () -> Unit,
@@ -369,131 +497,87 @@ fun ApplyStatusEditorDialog(
     val list = rememberKeyedList(value.effects)
 
     val id = ConsumeEffect.Type.APPLY_EFFECTS.id
+    var showAddDialog by remember { mutableStateOf(false) }
+    // 卡片网格的滚动状态：浮动添加按钮的显隐以它为准
+    val cardGridState = rememberLazyGridState()
+    val addButtonVisibility = rememberFabScrollVisibility(cardGridState)
+
     FlexibleDialog(
         onDismissRequest,
         onConfirmRequest = {
             onValueChange(ApplyStatusEffectsConsumeEffect(list.entries.values().toMutableList(), probability))
             true
         },
-        title = { Text(id) },
-        modifier = Modifier.padding(24.dp),
+        title = { DataComponentDialogTitle(id) },
+        modifier = MobEffectCardDefaults.DialogModifier,
         content = {
-            BoxWithConstraints {
-                Column(
-                    Modifier.size(if (maxWidth > 1150.dp) 1150.dp else 780.dp, 725.dp)
-                ) {
-                    Row {
-                                                LabelBox(label = { Text(id, suffix = "probability") }) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .fabScrollVisibility(addButtonVisibility),
+            ) {
+                EditDialogContent(
+                    modifier = Modifier.fillMaxSize(),
+                    header = {
+                        DataComponentField(id, suffix = "probability") {
                             FloatField(
                                 probability,
                                 { probability = it },
                                 valueRange = 0f..1f,
                             )
                         }
-                        Spacer(Modifier.width(8.dp))
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    LabelBox(
-                        label = { Text(id, suffix = "effects") },
-                        contentPadding = PaddingValues(8.dp, 12.dp),
-                    ) {
-                        ReorderableEditorVerticalGrid(
-                            list.entries,
-                            key = { it.key },
-                            onMove = list::move,
-                            columns = GridCells.Adaptive(360.dp),
-                            floatingActionButton = { lazyGridState ->
-                                var showAddDialog by remember { mutableStateOf(false) }
-                                Button(
-                                    onClick = { showAddDialog = true },
-                                    modifier = Modifier
-                                        .align(Alignment.BottomEnd)
-                                        .padding(12.dp)
-                                        .size(40.dp)
-                                        .fabScrollVisibility(rememberFabScrollVisibility(lazyGridState)),
-                                ) {
-                                    Icon(Icons.Add)
-                                }
-
-                                if (showAddDialog) {
-                                    MobEffectInstanceEditorDialog(
-                                        MobEffectInstance(MobEffects.LUCK),
-                                        { list.add(it) },
-                                        id,
-                                        { showAddDialog = false },
-                                        {
-                                            Row {
-                                                Text(component = IGLang.Misc.add)
-                                                Spacer(Modifier.width(8.dp))
-                                                Text(id)
-                                            }
-                                        }
-                                    )
-                                }
-                            },
-                            itemContent = { index, instance, isDragging, hapticFeedback ->
-                                val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                                val handleInteraction = remember { MutableInteractionSource() }
-
-                                val handleHovered by handleInteraction.collectIsHoveredAsState()
-                                MobEffectInstanceCard(
-                                    instance.value,
-                                    {
-                                        if (instance == it) {
-                                            list.setValue(index, it)
-                                        } else {
-                                            list.setValue(index, it)
-                                        }
-                                    },
-                                    { list.removeAt(index) },
-                                    id,
-                                    hapticFeedback,
-                                    handleInteraction,
-                                    handleHovered,
-                                    isDragging,
-                                    modifier = Modifier.scale(scale).width(360.dp),
+                    },
+                ) { _ ->
+                    BoxWithConstraints(Modifier.fillMaxWidth()) {
+                        EditDialogContentCards(
+                            state = list,
+                            lazyGridState = cardGridState,
+                            columns = MobEffectCardDefaults.columnsFor(maxWidth),
+                            maxHeight = MobEffectCardDefaults.DialogMaxHeight,
+                            removeButton = { index, _ ->
+                                RemoveConfirmButton(
+                                    message = "#${index + 1}",
+                                    onConfirm = { list.removeAt(index) },
+                                    iconScale = LocalIconScale.current,
+                                    contentPadding = EditDialogContentDefaults.iconPadding,
                                 )
-                            }
-                        )
+                            },
+                        ) { _, entry, onEntryChange ->
+                            MobEffectInstanceEditorContent(entry, onEntryChange, id)
+                        }
+                    }
+                }
+
+                EditDialogAddButton(
+                    visibility = addButtonVisibility,
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                ) {
+                    Button(
+                        onClick = { showAddDialog = true },
+                        contentPadding = ConfigControlDefaults.IconButtonPadding,
+                    ) {
+                        Icon(Icons.Add, scale = configIconScale())
                     }
                 }
             }
-        }
-    )
-}
 
-@Composable
-private fun ReorderableCollectionItemScope.MobEffectInstanceCard(
-    value: MobEffectInstance,
-    onValueChange: (MobEffectInstance) -> Unit,
-    onRemove: () -> Unit,
-    key: Identifier,
-    hapticFeedback: HapticFeedback,
-    handleInteraction: MutableInteractionSource,
-    handleHovered: Boolean,
-    isDragging: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier,
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 16.dp)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                DragHandle(modifier = Modifier)
-                RemoveConfirmButton(
-                    key.asTranslateText(suffix = "mob_effect_instance").plainText,
-                    onRemove
+            if (showAddDialog) {
+                MobEffectInstanceEditorDialog(
+                    MobEffectInstance(MobEffects.LUCK),
+                    { list.add(it) },
+                    id,
+                    { showAddDialog = false },
+                    {
+                        Row {
+                            DataComponentDialogTitle(component = IGLang.Misc.add)
+                            Spacer(Modifier.width(8.dp))
+                            DataComponentDialogTitle(id)
+                        }
+                    }
                 )
             }
-            MobEffectInstanceEditorContent(value, onValueChange, key)
         }
-    }
+    )
 }
 
 //endregion
@@ -509,7 +593,7 @@ fun RemoveStatusEditorDialog(
         value.effects,
         { onValueChange(RemoveStatusEffectsConsumeEffect(it)) },
         onDismissRequest = onDismissRequest,
-        { Text(ConsumeEffect.Type.CLEAR_ALL_EFFECTS.id) }
+        { DataComponentDialogTitle(ConsumeEffect.Type.CLEAR_ALL_EFFECTS.id) }
     )
 }
 

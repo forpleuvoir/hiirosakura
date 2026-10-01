@@ -1,12 +1,9 @@
 package moe.forpleuvoir.hiirosakura.ui.widget
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.text.TextStyle
 import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.ibukigourd.text.translateComment
 import moe.forpleuvoir.ibukigourd.text.translateCommentKey
@@ -25,7 +22,6 @@ import net.minecraft.locale.Language
  * 包装之上，因此按旧签名复刻一层，实现转交新版 `Selector`：
  *
  * - 标签画在触发件上方（像素风没有浮动标签），由 [OutlinedLabelBox] 承担；
- * - `textStyle` / `interactionSource` / `shape` 保留签名但不参与绘制 —— 外观由主题与组件 meta 决定；
  * - 旧版 `searchFilter` 是 `(查询, 选项) -> Boolean`，新版是 `(选项, 查询) -> Boolean`，此处适配。
  */
 
@@ -49,13 +45,10 @@ fun StringSelector(
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (String) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (String) -> Unit)?)? = null,
-    textStyle: TextStyle = TextStyle.Default,
-    interactionSource: MutableInteractionSource? = null,
-    shape: Shape? = null,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding,
 ) {
     LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
-            Selector(
+        Selector(
             selected = selected,
             onSelect = onSelect,
             items = items,
@@ -97,13 +90,10 @@ fun <E : Enum<E>> EnumSelector(
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (E) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (E) -> Unit)?)? = null,
-    textStyle: TextStyle = TextStyle.Default,
-    interactionSource: MutableInteractionSource? = null,
-    shape: Shape? = null,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding,
 ) {
     LabelBox(label = label, modifier = modifier, contentPadding = contentPadding) {
-            Selector(
+        Selector(
             selected = selected,
             onSelect = onSelect,
             items = items,

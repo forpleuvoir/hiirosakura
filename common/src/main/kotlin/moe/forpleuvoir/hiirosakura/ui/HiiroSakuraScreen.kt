@@ -14,7 +14,6 @@ import moe.forpleuvoir.hiirosakura.functional.customradialmenu.ui.CustomRadialMe
 import moe.forpleuvoir.hiirosakura.functional.event.ui.HSEventManagerUI
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.ItemEditorManagerUI
 import moe.forpleuvoir.hiirosakura.functional.task.ui.TaskManagerUI
-import moe.forpleuvoir.hiirosakura.ui.compat.BlitTexture
 import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.config.translateText

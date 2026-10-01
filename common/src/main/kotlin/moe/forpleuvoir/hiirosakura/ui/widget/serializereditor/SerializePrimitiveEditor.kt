@@ -1,5 +1,8 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.serializereditor
 
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
+import net.minecraft.network.chat.Component
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -20,14 +23,10 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import androidx.compose.foundation.layout.fillMaxWidth
-import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
-import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
 
 /**
- * 文本 / 数值编辑器的统一宽度，可通过 CompositionLocal 覆盖。
- */
+ * 鏂囨湰 / 鏁板€肩紪杈戝櫒鐨勭粺涓€瀹藉害锛屽彲閫氳繃 CompositionLocal 瑕嗙洊銆? */
 val LocalSerializeValueFieldWidth = compositionLocalOf { 240.dp }
 
 private val ValueFieldHeight = 48.dp
@@ -44,7 +43,7 @@ fun SerializePrimitiveEditor(
         serializePrimitive.isString  -> StringEditor(serializePrimitive.asString!!, onValueChange, modifier)
         serializePrimitive.isBoolean -> BooleanEditor(serializePrimitive.asBoolean!!, onValueChange, modifier)
         serializePrimitive.isNumber  -> NumberEditor(serializePrimitive.asNumber!!, onValueChange, modifier)
-        else -> UnsupportedEditor(modifier)
+        else                         -> UnsupportedEditor(modifier)
     }
 }
 
@@ -57,7 +56,6 @@ private fun StringEditor(
     var value by remember(str) { mutableStateOf(str) }
     CompactValueField(
         value = value,
-        label = "String",
         onValueChange = { v ->
             value = v
             onValueChange(SerializePrimitive(v))
@@ -90,15 +88,15 @@ private fun NumberEditor(
     modifier: Modifier,
 ) {
     when (number) {
-        is Int -> IntEditor(number, onValueChange, modifier)
-        is Long -> LongEditor(number, onValueChange, modifier)
-        is Short -> ShortEditor(number, onValueChange, modifier)
-        is Byte -> ByteEditor(number, onValueChange, modifier)
-        is Float -> FloatEditor(number, onValueChange, modifier)
-        is Double -> DoubleEditor(number, onValueChange, modifier)
+        is Int        -> IntEditor(number, onValueChange, modifier)
+        is Long       -> LongEditor(number, onValueChange, modifier)
+        is Short      -> ShortEditor(number, onValueChange, modifier)
+        is Byte       -> ByteEditor(number, onValueChange, modifier)
+        is Float      -> FloatEditor(number, onValueChange, modifier)
+        is Double     -> DoubleEditor(number, onValueChange, modifier)
         is BigInteger -> BigIntEditor(number, onValueChange, modifier)
         is BigDecimal -> BigDecimalEditor(number, onValueChange, modifier)
-        else -> UnsupportedEditor(modifier)
+        else          -> UnsupportedEditor(modifier)
     }
 }
 
@@ -108,16 +106,15 @@ private fun IntEditor(
     onValueChange: (SerializePrimitive) -> Unit,
     modifier: Modifier,
 ) {
-    CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                LabelBox(label = { Text("Int") }, modifier = modifier
+    DataComponentField(component = Component.literal("Int")) {
+        IntField(
+            value = int,
+            onValueChange = { onValueChange(SerializePrimitive(it)) },
+            modifier = modifier
                 .width(LocalSerializeValueFieldWidth.current)
-                .height(ValueFieldHeight)) {
-            IntField(
-                value = int,
-                onValueChange = { onValueChange(SerializePrimitive(it)) },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-        }
+                .height(ValueFieldHeight)
+                .fillMaxWidth(),
+        )
     }
 }
 
@@ -127,16 +124,15 @@ private fun LongEditor(
     onValueChange: (SerializePrimitive) -> Unit,
     modifier: Modifier,
 ) {
-    CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                LabelBox(label = { Text("Long") }, modifier = modifier
+    DataComponentField(component = Component.literal("Long")) {
+        LongField(
+            value = long,
+            onValueChange = { onValueChange(SerializePrimitive(it)) },
+            modifier = modifier
                 .width(LocalSerializeValueFieldWidth.current)
-                .height(ValueFieldHeight)) {
-            LongField(
-                value = long,
-                onValueChange = { onValueChange(SerializePrimitive(it)) },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-        }
+                .height(ValueFieldHeight)
+                .fillMaxWidth(),
+        )
     }
 }
 
@@ -149,7 +145,6 @@ private fun ShortEditor(
     var value by remember(short) { mutableStateOf(short.toString()) }
     CompactValueField(
         value = value,
-        label = "Short",
         onValueChange = { v ->
             value = v
             v.toShortOrNull()?.let { onValueChange(SerializePrimitive(it)) }
@@ -169,7 +164,6 @@ private fun ByteEditor(
     var value by remember(byte) { mutableStateOf(byte.toString()) }
     CompactValueField(
         value = value,
-        label = "Byte",
         onValueChange = { v ->
             value = v
             v.toByteOrNull()?.let { onValueChange(SerializePrimitive(it)) }
@@ -186,16 +180,15 @@ private fun FloatEditor(
     onValueChange: (SerializePrimitive) -> Unit,
     modifier: Modifier,
 ) {
-    CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                LabelBox(label = { Text("Float") }, modifier = modifier
+    DataComponentField(component = Component.literal("Float")) {
+        FloatField(
+            value = float,
+            onValueChange = { onValueChange(SerializePrimitive(it)) },
+            modifier = modifier
                 .width(LocalSerializeValueFieldWidth.current)
-                .height(ValueFieldHeight)) {
-            FloatField(
-                value = float,
-                onValueChange = { onValueChange(SerializePrimitive(it)) },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-        }
+                .height(ValueFieldHeight)
+                .fillMaxWidth(),
+        )
     }
 }
 
@@ -205,16 +198,15 @@ private fun DoubleEditor(
     onValueChange: (SerializePrimitive) -> Unit,
     modifier: Modifier,
 ) {
-    CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-                LabelBox(label = { Text("Double") }, modifier = modifier
+    DataComponentField(component = Component.literal("Double")) {
+        DoubleField(
+            value = double,
+            onValueChange = { onValueChange(SerializePrimitive(it)) },
+            modifier = modifier
                 .width(LocalSerializeValueFieldWidth.current)
-                .height(ValueFieldHeight)) {
-            DoubleField(
-                value = double,
-                onValueChange = { onValueChange(SerializePrimitive(it)) },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-        }
+                .height(ValueFieldHeight)
+                .fillMaxWidth(),
+        )
     }
 }
 
@@ -227,7 +219,6 @@ private fun BigIntEditor(
     var value by remember(bigInt) { mutableStateOf(bigInt.toString()) }
     CompactValueField(
         value = value,
-        label = "BigInt",
         onValueChange = { v ->
             value = v
             runCatching { BigInteger(v) }.getOrNull()?.let { onValueChange(SerializePrimitive(it)) }
@@ -247,7 +238,6 @@ private fun BigDecimalEditor(
     var value by remember(bigDecimal) { mutableStateOf(bigDecimal.toString()) }
     CompactValueField(
         value = value,
-        label = "BigDecimal",
         onValueChange = { v ->
             value = v
             runCatching { BigDecimal(v) }.getOrNull()?.let { onValueChange(SerializePrimitive(it)) }
@@ -261,7 +251,6 @@ private fun BigDecimalEditor(
 @Composable
 private fun CompactValueField(
     value: String,
-    label: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
@@ -279,16 +268,14 @@ private fun CompactValueField(
             state.edit { replace(0, length, value) }
         }
     }
-    LabelBox(label = { Text(label) }) {
-        TextField(
-            state = state,
-            modifier = modifier.height(ValueFieldHeight),
-            isError = isError,
-            lineLimits = TextFieldLineLimits.SingleLine,
-            contentPadding = ValueFieldContentPadding,
-            keyboardOptions = keyboardOptions,
-        )
-    }
+    TextField(
+        state = state,
+        modifier = modifier.height(ValueFieldHeight),
+        isError = isError,
+        lineLimits = TextFieldLineLimits.SingleLine,
+        contentPadding = ValueFieldContentPadding,
+        keyboardOptions = keyboardOptions,
+    )
 }
 
 @Composable

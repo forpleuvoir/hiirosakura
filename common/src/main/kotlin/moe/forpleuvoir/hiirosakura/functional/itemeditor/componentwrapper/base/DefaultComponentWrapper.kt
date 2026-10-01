@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,12 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.SerializeElementEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.SerializeElementType
@@ -23,7 +21,6 @@ import moe.forpleuvoir.hiirosakura.ui.widget.truncateLines
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.util.registryAccess
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastContainer
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
@@ -38,29 +35,31 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.world.level.storage.loot.functions.SetAttributesFunction.modifier
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
-import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 private val logger = logger("DefaultComponentWrapper")
 
 private fun rootTypeOf(element: SerializeElement): SerializeElementType = when (element) {
-    is SerializeObject -> SerializeElementType.Object
-    is SerializeArray -> SerializeElementType.Array
+    is SerializeObject    -> SerializeElementType.Object
+    is SerializeArray     -> SerializeElementType.Array
     is SerializePrimitive -> when {
-        element.isString -> SerializeElementType.String
+        element.isString  -> SerializeElementType.String
         element.isBoolean -> SerializeElementType.Boolean
-        element.isNumber -> when (element.asNumber) {
-            is Int -> SerializeElementType.Int
-            is Long -> SerializeElementType.Long
-            is Float -> SerializeElementType.Float
+        element.isNumber  -> when (element.asNumber) {
+            is Int    -> SerializeElementType.Int
+            is Long   -> SerializeElementType.Long
+            is Float  -> SerializeElementType.Float
             is Double -> SerializeElementType.Double
-            is Byte -> SerializeElementType.Byte
-            is Short -> SerializeElementType.Short
-            else -> SerializeElementType.Object
+            is Byte   -> SerializeElementType.Byte
+            is Short  -> SerializeElementType.Short
+            else      -> SerializeElementType.Object
         }
-        else -> SerializeElementType.Object
+
+        else              -> SerializeElementType.Object
     }
-    is SerializeNull -> SerializeElementType.Null
+
+    is SerializeNull      -> SerializeElementType.Null
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -71,51 +70,54 @@ fun <C : Any> DefaultComponentWrapper(
     component: Any?,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     onValueChange: (C) -> Unit
 ) {
-    DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-        var showEditDialog by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(false) }
 
-        Box(Modifier.height(DataComponentEditorDefaults.entrySize.height), contentAlignment = Alignment.CenterEnd) {
-            IconButton({ showEditDialog = true }) {
-                Icon(Icons.Edit)
-            }
+    DataComponentDisplayRow(
+        key, removeAction, modifier, horizontalArrangement, verticalAlignment,
+        onEdit = { showEditDialog = true },
+    ) {
+        Text(
+            Component.literal(component.toString()),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+        )
+    }
 
-            if (showEditDialog) {
-                var data by remember { mutableStateOf<SerializeElement?>(null) }
-                LaunchedEffect(showEditDialog) {
-                    runCatching {
-                        componentType.codecOrThrow()
-                            .encodeStart(
-                                registryAccess!!.createSerializationContext(NebulaOps),
-                                component as C
-                            )
-                            .orThrow
-                    }.onSuccess {
-                        data = it
-                    }.onFailure {
-                        logger.error(it)
-                        ToastHandler.showContent {
-                            Text(it.stackTraceToString().truncateLines(8))
-                        }
-                    }
-                }
-                data?.let { element ->
-                    DefaultComponentEditorDialog(
-                        key = key,
-                        componentType = componentType,
-                        initialData = element,
-                        onDismiss = { showEditDialog = false },
-                        onValueChange = { newComponent ->
-                            onValueChange(newComponent)
-                            showEditDialog = false
-                        },
-                        modifier = Modifier.padding(24.dp),
+    if (showEditDialog) {
+        var data by remember { mutableStateOf<SerializeElement?>(null) }
+        LaunchedEffect(showEditDialog) {
+            runCatching {
+                componentType.codecOrThrow()
+                    .encodeStart(
+                        registryAccess!!.createSerializationContext(NebulaOps),
+                        component as C
                     )
+                    .orThrow
+            }.onSuccess {
+                data = it
+            }.onFailure {
+                logger.error(it)
+                ToastHandler.showContent {
+                    Text(it.stackTraceToString().truncateLines(8))
                 }
             }
+        }
+        data?.let { element ->
+            DefaultComponentEditorDialog(
+                key = key,
+                componentType = componentType,
+                initialData = element,
+                onDismiss = { showEditDialog = false },
+                onValueChange = { newComponent ->
+                    onValueChange(newComponent)
+                    showEditDialog = false
+                },
+                modifier = Modifier.padding(24.dp),
+            )
         }
     }
 }
@@ -139,7 +141,7 @@ private fun <C : Any> DefaultComponentEditorDialog(
     FlexibleDialog(
         onDismissRequest = onDismiss,
         modifier = modifier,
-        title = { Text(Component.literal(key.toString())) },
+        title = { DataComponentDialogTitle(Component.literal(key.toString())) },
         onConfirmRequest = {
             runCatching {
                 componentType.codecOrThrow()
@@ -168,7 +170,6 @@ private fun <C : Any> DefaultComponentEditorDialog(
                         }
                     },
                     items = SerializeElementType.entries,
-                    label = { Text(component = HSLang.ItemEditor.rootType) },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(8.dp))

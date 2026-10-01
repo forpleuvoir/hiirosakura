@@ -1,5 +1,7 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.serializereditor
 
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,6 +21,7 @@ import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.rememberM
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.removed
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.renamed
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.replaced
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
@@ -48,7 +51,7 @@ fun SerializeObjectEditor(
     )
 
     ElementContainer(
-        title = { Text(component = HSLang.SerializeEditor.objectType) },
+        title = { DataComponentDialogTitle(component = HSLang.SerializeEditor.objectType) },
         count = serializeObject.size,
         expanded = expanded.value,
         onToggle = { expanded.value = !expanded.value },
@@ -102,8 +105,8 @@ private fun SerializeObjectEntry(
 
     val keyTopPadding = when (value) {
         is SerializeObject, is SerializeArray -> 6.dp
-        is SerializePrimitive -> if (value.isString || value.isNumber) 8.dp else 0.dp
-        else -> 0.dp
+        is SerializePrimitive                 -> if (value.isString || value.isNumber) 8.dp else 0.dp
+        else                                  -> 0.dp
     }
 
     val keyModifier = Modifier.width(keyWidth).thenIf(keyTopPadding > 0.dp) { Modifier.padding(top = keyTopPadding) }
@@ -159,7 +162,7 @@ fun SerializeObjectEntryEditor(
 
     ElementContainer(
         modifier = modifier,
-        title = { Text(component = HSLang.SerializeEditor.objectType) },
+        title = { DataComponentDialogTitle(component = HSLang.SerializeEditor.objectType) },
         count = serializeObject.size,
         expanded = expanded.value,
         onToggle = { expanded.value = !expanded.value },
@@ -226,10 +229,12 @@ private fun RenameKeyDialog(
                 true
             }
         },
-        title = { Text(component = HSLang.SerializeEditor.renameKey) },
+        title = { DataComponentDialogTitle(component = HSLang.SerializeEditor.renameKey) },
         content = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                ValueTextField(value = newKey, onValueChange = { newKey = it; errorMessage = null }, modifier = Modifier.fillMaxWidth(), label = { Text(component = HSLang.SerializeEditor.key) })
+                DataComponentField(component = HSLang.SerializeEditor.key, modifier = Modifier.fillMaxWidth()) {
+                    ValueTextField(value = newKey, onValueChange = { newKey = it; errorMessage = null }, modifier = Modifier.fillMaxWidth())
+                }
                 errorMessage?.let {
                     Text(
                         text = it,

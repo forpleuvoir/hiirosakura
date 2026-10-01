@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import androidx.compose.runtime.*
@@ -29,78 +30,71 @@ import moe.forpleuvoir.ibukigourd.util.toNebulaColor
 fun ColorListEditor(
     colors: IntList,
     onColorsChange: (IntList) -> Unit,
-    label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LabelBox(
-        modifier = modifier.fillMaxWidth(),
-        label = label,
-        contentPadding = PaddingValues(8.dp),
+    Row(
+        modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            for (i in colors.indices) {
-                val color = colors.getInt(i)
-                var showColorPicker by remember(i) { mutableStateOf(false) }
+        for (i in colors.indices) {
+            val color = colors.getInt(i)
+            var showColorPicker by remember(i) { mutableStateOf(false) }
 
-                var pendingColor by remember(i) { mutableStateOf(NebulaColor.fromRGB(color)) }
+            var pendingColor by remember(i) { mutableStateOf(NebulaColor.fromRGB(color)) }
 
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(pendingColor.toComposeColor())
-                        .border(1.dp, SokitsuTheme.colorScheme.outline, CircleShape)
-                        .clickable { showColorPicker = true }
-                )
-                if (showColorPicker) {
-                    SimpleAlertDialog(
-                        onDismissRequest = { showColorPicker = false },
-                        onConfirmRequest = {
-                            val list = IntArrayList(colors)
-                            list.set(i, pendingColor.argb and 0xFFFFFF)
-                            onColorsChange(list)
-                            true
-                        },
-                        title = { Text(component = IGLang.Misc.edit) },
-                        content = {
-                            CompositionLocalProvider(LocalColorPickerEnableAlpha provides false) {
-                                ColorPicker(pendingColor.toComposeColor(), { pendingColor = it.toNebulaColor() })
-                            }
-                        }
-                    )
-                }
-            }
-
-            var showAddPicker by remember { mutableStateOf(false) }
-
-            var newColor by remember { mutableStateOf(NebulaColor.fromRGB(0xFF0000)) }
-            IconButton(
-                onClick = { showAddPicker = true },
-            ) {
-                Icon(Icons.Add)
-            }
-
-            if (showAddPicker) {
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .clip(CircleShape)
+                    .background(pendingColor.toComposeColor())
+                    .border(1.dp, SokitsuTheme.colorScheme.outline, CircleShape)
+                    .clickable { showColorPicker = true }
+            )
+            if (showColorPicker) {
                 SimpleAlertDialog(
-                    onDismissRequest = { showAddPicker = false },
+                    onDismissRequest = { showColorPicker = false },
                     onConfirmRequest = {
                         val list = IntArrayList(colors)
-                        list.add(newColor.rgb)
+                        list.set(i, pendingColor.argb and 0xFFFFFF)
                         onColorsChange(list)
                         true
                     },
-                    title = { Text(component = IGLang.Misc.add) },
+                    title = { DataComponentDialogTitle(component = IGLang.Misc.edit) },
                     content = {
                         CompositionLocalProvider(LocalColorPickerEnableAlpha provides false) {
-                            ColorPicker(newColor.toComposeColor(), { newColor = it.toNebulaColor() })
+                            ColorPicker(pendingColor.toComposeColor(), { pendingColor = it.toNebulaColor() })
                         }
                     }
                 )
             }
+        }
+
+        var showAddPicker by remember { mutableStateOf(false) }
+
+        var newColor by remember { mutableStateOf(NebulaColor.fromRGB(0xFF0000)) }
+        IconButton(
+            onClick = { showAddPicker = true },
+        ) {
+            Icon(Icons.Add)
+        }
+
+        if (showAddPicker) {
+            SimpleAlertDialog(
+                onDismissRequest = { showAddPicker = false },
+                onConfirmRequest = {
+                    val list = IntArrayList(colors)
+                    list.add(newColor.rgb)
+                    onColorsChange(list)
+                    true
+                },
+                title = { DataComponentDialogTitle(component = IGLang.Misc.add) },
+                content = {
+                    CompositionLocalProvider(LocalColorPickerEnableAlpha provides false) {
+                        ColorPicker(newColor.toComposeColor(), { newColor = it.toNebulaColor() })
+                    }
+                }
+            )
         }
     }
 }

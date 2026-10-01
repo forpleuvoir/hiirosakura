@@ -1,5 +1,7 @@
 package moe.forpleuvoir.hiirosakura.ui.configwrapper
 
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

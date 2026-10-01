@@ -13,6 +13,7 @@ import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.rememberE
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.rememberMaxLabelWidth
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.replacedAt
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.withoutAt
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
@@ -41,7 +42,7 @@ fun SerializeArrayEditor(
     )
 
     ElementContainer(
-        title = { Text(component = HSLang.SerializeEditor.arrayType) },
+        title = { DataComponentDialogTitle(component = HSLang.SerializeEditor.arrayType) },
         count = serializeArray.size,
         expanded = expanded.value,
         onToggle = { expanded.value = !expanded.value },
@@ -133,7 +134,7 @@ fun SerializeArrayEntryEditor(
 
     ElementContainer(
         modifier = modifier,
-        title = { Text(component = HSLang.SerializeEditor.arrayType) },
+        title = { DataComponentDialogTitle(component = HSLang.SerializeEditor.arrayType) },
         count = serializeArray.size,
         expanded = expanded.value,
         onToggle = { expanded.value = !expanded.value },

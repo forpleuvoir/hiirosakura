@@ -1,6 +1,7 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -8,9 +9,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import moe.forpleuvoir.compose_minecraft.platform.ui.text.LocalDefaultFont
+import moe.forpleuvoir.compose_minecraft.platform.ui.text.MinecraftFonts
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.toolbar.RichTextEditorToolbar
 import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
@@ -26,7 +30,7 @@ fun RichTextEditor(
     previewDefaultColor: Color = if ((IGConfig.Gui.Theme.mode == ThemeMode.Light)) Colors.BLACK else Colors.WHITE,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxWidth()) {
         RichTextEditorToolbar(
             state = state,
             modifier = Modifier.fillMaxWidth(),
@@ -34,27 +38,25 @@ fun RichTextEditor(
         Spacer(Modifier.height(8.dp))
         TextField(
             state = state.textState,
-            
-            modifier = Modifier .fillMaxWidth() .weight(1f) .richTextEditor(state),
+            lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 6, maxHeightInLines = 12),
+            modifier = Modifier.fillMaxWidth().richTextEditor(state),
         )
         Spacer(Modifier.height(12.dp))
-        LabelBox(
-            label = {
-                Text(component = HSLang.TextEditor.preview)
-            },
-            modifier = Modifier.weight(1.25f).fillMaxWidth()
+        Text(component = HSLang.TextEditor.preview)
+        Spacer(Modifier.height(4.dp))
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center,
         ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
+            CompositionLocalProvider(LocalDefaultFont provides MinecraftFonts.Default) {
                 Text(
                     component = state.mcText,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    fontSize = (mc.window.guiScale * mc.font.lineHeight).sp,
                 )
             }
         }
-
     }
 }
 

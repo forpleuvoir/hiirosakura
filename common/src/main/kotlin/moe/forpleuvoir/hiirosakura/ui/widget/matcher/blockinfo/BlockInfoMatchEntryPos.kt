@@ -21,15 +21,9 @@ import org.joml.Vector3i
 import org.joml.Vector3ic
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
-import moe.forpleuvoir.hiirosakura.ui.icon.HSIcons
-import moe.forpleuvoir.hiirosakura.ui.icon.VectorIcon
-import moe.forpleuvoir.hiirosakura.ui.icon.defaults.EditLocationAlt
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import androidx.compose.foundation.layout.fillMaxWidth
 import moe.forpleuvoir.compose_minecraft.platform.ui.text.MinecraftFonts
 import moe.forpleuvoir.compose_minecraft.platform.ui.text.toTextStyle
-import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
-import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import net.minecraft.network.chat.Style
@@ -106,18 +100,16 @@ internal fun BasicBlockInfoMatchEntryPosEditor(
         onModeChange = { onValueChange(value.copy(mode = it)) },
         modifier = modifier,
     ) {
-        CompositionLocalProvider(LocalNumberFieldStyle provides NumberFieldStyle.Outlined) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("min", style = Style.EMPTY.withFont(MinecraftFonts.FusionPixelMono).toTextStyle())
-                Spacer(Modifier.width(12.dp))
-                Vector3iEditor(value.min, onValueChange = { onValueChange(value.copy(min = it)) }, modifier = Modifier.height(64.dp))
-            }
-            Spacer(Modifier.height(12.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("max", style = Style.EMPTY.withFont(MinecraftFonts.FusionPixelMono).toTextStyle())
-                Spacer(Modifier.width(12.dp))
-                Vector3iEditor(value.max, onValueChange = { onValueChange(value.copy(max = it)) }, modifier = Modifier.height(64.dp))
-            }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("min", style = Style.EMPTY.withFont(MinecraftFonts.FusionPixelMono).toTextStyle())
+            Spacer(Modifier.width(12.dp))
+            Vector3iEditor(value.min, onValueChange = { onValueChange(value.copy(min = it)) }, modifier = Modifier.height(64.dp))
+        }
+        Spacer(Modifier.height(12.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("max", style = Style.EMPTY.withFont(MinecraftFonts.FusionPixelMono).toTextStyle())
+            Spacer(Modifier.width(12.dp))
+            Vector3iEditor(value.max, onValueChange = { onValueChange(value.copy(max = it)) }, modifier = Modifier.height(64.dp))
         }
     }
 }

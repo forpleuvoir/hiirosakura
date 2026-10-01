@@ -20,11 +20,13 @@ import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.Fo
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.currentFormatDialect
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.format
 import moe.forpleuvoir.hiirosakura.ui.widget.FormatImportExportButtonDefaults.lastUsedFormat
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.util.isQuickAction
 import moe.forpleuvoir.ibukigourd.util.mc
+import net.minecraft.network.chat.Component
 import moe.forpleuvoir.nebula.serialization.ast.SyntaxDialect
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.hjson.HJsonDialect
@@ -36,9 +38,9 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.AlertDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.hiirosakura.ui.compat.TipBox
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 
@@ -78,7 +80,7 @@ object FormatImportExportButtonDefaults {
     ) {
         AlertDialog(
             onDismissRequest,
-            title = { Text(component = HSLang.Common.exportAsFormat) },
+            title = { DataComponentDialogTitle(component = HSLang.Common.exportAsFormat) },
             text = { FormatSelector(Modifier.fillMaxWidth()) },
             confirmButton = { TextButton(onClick = { onConfirmRequest() }) { Text(component = IGLang.Misc.confirm) } },
             dismissButton = { TextButton(onClick = { onDismissRequest() }) { Text(component = IGLang.Misc.cancel) } }
@@ -107,8 +109,8 @@ fun FormatExportButton(
     var expanded by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
-    TipBox({ Text(component = HSLang.Common.exportAsFormat) }) {
-        IconButton(onClick = {
+    IconButton(
+        onClick = {
             if (isQuickAction) {
                 scope.launch {
                     withContext(Dispatchers.IO) {
@@ -123,9 +125,10 @@ fun FormatExportButton(
                     }
                 }
             } else expanded = true
-        }) {
-            Icon(Icons.Export)
-        }
+        },
+        modifier = Modifier.tooltip { Text(component = HSLang.Common.exportAsFormat) },
+    ) {
+        Icon(Icons.Export)
     }
 
     if (expanded) {
@@ -156,7 +159,7 @@ fun FormatImportButton(
     successMsg: String,
     decode: suspend (SerializeElement) -> Unit,
 ) {
-    TipBox({
+    Box(Modifier.tooltip {
         Text(component = HSLang.Common.importFromFormat)
     }) {
         var expanded by remember { mutableStateOf(false) }
@@ -200,7 +203,7 @@ fun FormatImportButton(
                     }) { Text(component = IGLang.Misc.confirm) }
                 },
                 dismissButton = { TextButton(onClick = { expanded = false }) { Text(component = IGLang.Misc.cancel) } },
-                title = { Text(title) },
+                title = { DataComponentDialogTitle(Component.literal(title)) },
                 text = {
 
                     Column {
@@ -209,6 +212,8 @@ fun FormatImportButton(
                             var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
                             val scrollState = rememberScrollState()
+                            // 文本区与其右侧滚动条共用的高度：滚动条要与文本区等高
+                            val editorHeight = 480.dp
                             var cursorInfo by remember { mutableStateOf("") }
                             LaunchedEffect(Unit) {
                                 while (isActive) {
@@ -238,19 +243,22 @@ fun FormatImportButton(
                                 theme = SyntaxHighlightDefaults.theme(),
                                 text = state.text.toString(),
                             )
-                            LabelBox(label = {
-                                Text(cursorInfo)
-                            }) {
-                                TextField(
-                                    state,
+                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Box(Modifier.padding(start = 12.dp)) { Text(cursorInfo) }
+                                    Spacer(Modifier.height(2.dp))
+                                    TextField(
+                                        state,
 
-                                    modifier = Modifier.fillMaxWidth().height(480.dp).codeEditorShortcuts(state),
+                                        modifier = Modifier.fillMaxWidth().height(editorHeight).codeEditorShortcuts(state),
+                                    )
+                                }
+                                Spacer(Modifier.width(8.dp))
+                                VerticalFlatScroller(
+                                    modifier = Modifier.height(editorHeight),
+                                    adapter = rememberScrollerAdapter(scrollState)
                                 )
                             }
-                            VerticalScroller(
-                                modifier = Modifier.align(Alignment.CenterEnd).padding(top = 14.dp, bottom = 6.dp, end = 4.dp).height(460.dp),
-                                adapter = rememberScrollerAdapter(scrollState)
-                            )
                         }
                     }
 

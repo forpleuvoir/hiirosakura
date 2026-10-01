@@ -89,7 +89,7 @@ fun ItemEditorManagerUI(
 @Composable
 private fun ToolBar(
     modifier: Modifier = Modifier.fillMaxWidth(),
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) {
     Row(
@@ -173,7 +173,7 @@ private fun ItemStackList(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                                     ) {
-                                        DragHandle(modifier = Modifier)
+                                        DragHandle(modifier = Modifier.draggableHandle())
                                         ItemIcon(item, showCount = true, scaleOnHover = 1f)
                                         Text(item.styledHoverName)
                                     }

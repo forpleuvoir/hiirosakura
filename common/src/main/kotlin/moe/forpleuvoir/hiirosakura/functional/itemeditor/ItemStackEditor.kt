@@ -1,7 +1,13 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor
 
+import moe.forpleuvoir.hiirosakura.ui.modifier.vanillaTooltip
+import moe.forpleuvoir.ibukigourd.util.mc
+import net.minecraft.world.item.TooltipFlag
+
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,13 +23,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrappers
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrappers.DataComponentWrapper
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowser
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemIconButton
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.truncateLines
 import moe.forpleuvoir.hiirosakura.util.*
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.SerializeElementEditor
@@ -32,7 +41,6 @@ import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.matchesType
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.nebula.common.color.Color
@@ -53,13 +61,16 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.selector.Selector
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
 import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SurfaceDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 
 private val logger = logger("ItemStackEditor")
+
+/** 物品类型格里图标与它悬停底色之间的内边距。 */
+private val itemTypeIconPadding = 4.dp
 
 @Composable
 fun ItemStackEditor(
@@ -70,14 +81,14 @@ fun ItemStackEditor(
 ) {
     var editingItem by remember { mutableStateOf(value) }
     FlexibleDialog(
-        modifier = modifier.padding(24.dp).size(1300.dp, 900.dp),
+        modifier = modifier.padding(24.dp).size(1300.dp, 1050.dp),
         onDismissRequest = onDismissRequest,
         onConfirmRequest = {
             onValueChange(editingItem)
             true
         },
         title = {
-            Text(component = HSLang.ItemEditor.title)
+            DataComponentDialogTitle(component = HSLang.ItemEditor.title)
         },
         content = {
             var item by remember { mutableStateOf(value.typeHolder()) }
@@ -99,10 +110,10 @@ fun ItemStackEditor(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                ItemPreview(editingItem, modifier = Modifier.height(66.5.dp).weight(1f))
-                ItemType(item, { item = it }, modifier = Modifier.height(66.5.dp).weight(1f))
-                ItemCount(count, { count = it }, dataComponents.maxCount, modifier = Modifier.height(66.5.dp).weight(0.5f))
-                ComponentAdder(dataComponents, modifier = Modifier.height(66.5.dp).weight(1.75f))
+                ItemPreview(editingItem, modifier = Modifier.weight(0.75f))
+                ItemType(item, { item = it }, modifier = Modifier.weight(0.75f))
+                ItemCount(count, { count = it }, dataComponents.maxCount, modifier = Modifier.weight(0.5f))
+                ComponentAdder(dataComponents, modifier = Modifier.weight(1.75f))
             }
             Spacer(Modifier.height(12.dp))
             Components(dataComponents)
@@ -115,24 +126,31 @@ private fun ItemType(
     value: Holder<Item>,
     onValueChange: (Holder<Item>) -> Unit,
     modifier: Modifier = Modifier,
-) = LabelBox(
+) = DataComponentSection(
     modifier = modifier,
-    label = { Text(component = HSLang.ItemEditor.itemType) },
-    contentPadding = PaddingValues(16.dp, 8.dp, 8.dp, 8.dp),
+    title = { Text(component = HSLang.ItemEditor.itemType, fontSize = LabeledFieldDefaults.labelFontSize) },
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         var showDialog by remember { mutableStateOf(false) }
 
-        ItemIcon(ItemStack(value), modifier = Modifier, showTooltip = false, scaleOnHover = 1f)
-        Spacer(Modifier.width(8.dp))
-        Text(value.value().name, modifier = Modifier.weight(1f), overflow = TextOverflow.Ellipsis, maxLines = 1)
-        Spacer(Modifier.width(8.dp))
-        IconButton(onClick = { showDialog = true }) {
-            Icon(Icons.Edit)
+        val typeInteraction = remember { MutableInteractionSource() }
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .hoverHighlight(typeInteraction)
+                    .clickable(typeInteraction, indication = null) { showDialog = true }
+                    .padding(itemTypeIconPadding),
+            ) {
+                ItemIcon(ItemStack(value), modifier = Modifier, showTooltip = false, scaleOnHover = 1f)
+            }
+            Spacer(Modifier.width(8.dp))
+            Text(value.value().name, modifier = Modifier.weight(1f), overflow = TextOverflow.Ellipsis, maxLines = 1)
         }
-
 
         if (showDialog) {
             FlexibleDialog(
@@ -163,25 +181,25 @@ fun ItemCount(
     onValueChange: (Int) -> Unit,
     maxValue: Int,
     modifier: Modifier = Modifier
+) {
+    DataComponentSection(
+        modifier = modifier,
+        title = {
+            Row {
+                Text(component = HSLang.ItemEditor.itemCount, fontSize = LabeledFieldDefaults.labelFontSize)
+                Spacer(Modifier.width(8.dp))
+                Text("1..$maxValue", fontSize = LabeledFieldDefaults.labelFontSize)
+            }
+        },
     ) {
-        LabelBox(
-            label = {
-                Row {
-                    Text(component = HSLang.ItemEditor.itemCount)
-                    Spacer(Modifier.width(8.dp))
-                    Text("1..${maxValue}")
-                }
-            },
-            modifier = modifier,
-        ) {
-            IntField(
-                value,
-                onValueChange,
-                valueRange = 1..maxValue,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
+        IntField(
+            value,
+            onValueChange,
+            valueRange = 1..maxValue,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
+}
 
 @Composable
 fun ItemPreview(
@@ -191,18 +209,27 @@ fun ItemPreview(
     val interactionSource = remember { MutableInteractionSource() }
 
     val hovered by interactionSource.collectIsHoveredAsState()
-    LabelBox(
-        modifier = modifier.hoverable(interactionSource),
-        label = { Text(component = HSLang.ItemEditor.itemPreview) },
-        contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 8.dp),
+    DataComponentSection(
+        modifier = modifier,
+        title = { Text(component = HSLang.ItemEditor.itemPreview, fontSize = LabeledFieldDefaults.labelFontSize) },
     ) {
-
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxHeight()) {
+        Row(
+            modifier = Modifier
+                .hoverable(interactionSource)
+                .vanillaTooltip(
+                    value.getTooltipLines(
+                        Item.TooltipContext.of(mc.level),
+                        mc.player,
+                        if (mc.options.advancedItemTooltips) TooltipFlag.ADVANCED else TooltipFlag.NORMAL,
+                    )
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             ItemIcon(
                 value,
                 modifier = Modifier,
                 showCount = true,
-                showTooltip = true,
+                showTooltip = false,
                 scaleOnHover = 1f,
                 countStyle = TextStyle(
                     color = Colors.WHITE.toComposeColor(),
@@ -232,59 +259,58 @@ private fun ComponentAdder(
 
     var buildingType by remember { mutableStateOf<DataComponentType<*>?>(null) }
 
-        LabelBox(label = {
-            Text(component = HSLang.ItemEditor.addItemComponent)
-        }) {
+    DataComponentSection(
+        modifier = modifier,
+        title = { Text(component = HSLang.ItemEditor.addItemComponent, fontSize = LabeledFieldDefaults.labelFontSize) },
+    ) {
         Selector(
-                selected = selected,
-                onSelect = { type ->
-                    selected = type
-                    runCatching {
-                        DataComponentWrappers.defaultValue(type)?.let {
-                            if (!dataComponents.delegate.has(type)) {
-                                dataComponents[type as DataComponentType<Any>] = it
-                            } else {
-                                ToastHandler.showContent { Text(component = HSLang.ItemEditor.itemComponentExist(type.keyOrUnknown(registryManager))) }
-                            }
-                        } ?: run {
-                            buildingType = type
+            selected = selected,
+            onSelect = { type ->
+                selected = type
+                runCatching {
+                    DataComponentWrappers.defaultValue(type)?.let {
+                        if (!dataComponents.delegate.has(type)) {
+                            dataComponents[type as DataComponentType<Any>] = it
+                        } else {
+                            ToastHandler.showContent { Text(component = HSLang.ItemEditor.itemComponentExist(type.keyOrUnknown(registryManager))) }
                         }
-                    }.onFailure {
-                        ToastHandler.showContent {
-                            Text(it.stackTraceToString(), maxLines = 16, overflow = TextOverflow.Ellipsis, color = Colors.RED.toComposeColor())
-                        }
-                        DataComponentWrappers.log.error(it)
+                    } ?: run {
+                        buildingType = type
                     }
-                },
-                items = components,
-                
-                modifier = modifier,
-                searchFilter = { type, str ->
-                    val id = type.keyOrUnknown(registryManager)
-                    id.toString().contains(str) || id.asTranslateText().plainText.contains(str)
-                },
-                content = {
-                    Text(it.keyOrUnknown(registryManager).toString())
-                },
-                itemContent = { type, _ ->
-                    val isAdapted = DataComponentWrappers.isAdaptedComponent(type)
-                    val color = if (isAdapted)
-                        Color.fromHSV(195f / 360f, 1f, 1f).toComposeColor()
-                    else
-                        Color.fromHSV(5f / 360f, .6f, 1f).toComposeColor()
-                    Column {
-                        val identifier = type.keyOrUnknown(registryManager)
-                        Text(
-                            identifier = identifier,
-                            color = color
-                        )
-                        val hasTranslation = Language.getInstance().has(identifier.asTranslateKey())
-                        if (hasTranslation) {
-                            Text(Component.literal(identifier.toString()), color = color, fontSize = SokitsuTheme.typography.body.fontSize)
-                        }
+                }.onFailure {
+                    ToastHandler.showContent {
+                        Text(it.stackTraceToString(), maxLines = 16, overflow = TextOverflow.Ellipsis, color = Colors.RED.toComposeColor())
+                    }
+                    DataComponentWrappers.log.error(it)
+                }
+            },
+            items = components,
+            searchFilter = { type, str ->
+                val id = type.keyOrUnknown(registryManager)
+                id.toString().contains(str) || id.asTranslateText().plainText.contains(str)
+            },
+            content = {
+                Text(it.keyOrUnknown(registryManager).toString())
+            },
+            itemContent = { type, _ ->
+                val isAdapted = DataComponentWrappers.isAdaptedComponent(type)
+                val color = if (isAdapted)
+                    Color.fromHSV(195f / 360f, 1f, 1f).toComposeColor()
+                else
+                    Color.fromHSV(5f / 360f, .6f, 1f).toComposeColor()
+                Column {
+                    val identifier = type.keyOrUnknown(registryManager)
+                    Text(
+                        identifier = identifier,
+                        color = color
+                    )
+                    val hasTranslation = Language.getInstance().has(identifier.asTranslateKey())
+                    if (hasTranslation) {
+                        Text(Component.literal(identifier.toString()), color = color, fontSize = LabeledFieldDefaults.labelFontSize)
                     }
                 }
-            )
+            }
+        )
     }
 
     buildingType?.let { type ->
@@ -319,7 +345,7 @@ private fun <C : Any> ComponentBuilderDialog(
     FlexibleDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.padding(24.dp),
-        title = { Text(Component.literal(type.keyOrUnknown(registryAccess!!).toString())) },
+        title = { DataComponentDialogTitle(Component.literal(type.keyOrUnknown(registryAccess!!).toString())) },
         onConfirmRequest = {
             runCatching {
                 type.codecOrThrow()
@@ -350,7 +376,6 @@ private fun <C : Any> ComponentBuilderDialog(
                         }
                     },
                     items = SerializeElementType.entries,
-                    label = { Text(component = HSLang.ItemEditor.rootType) },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(8.dp))
@@ -368,45 +393,52 @@ private fun <C : Any> ComponentBuilderDialog(
 @Composable
 private fun Components(
     components: ObservableDataComponentMap
-) = LabelBox(
-    modifier = Modifier.fillMaxSize(),
-    contentPadding = PaddingValues(16.dp, 16.dp, 8.dp, 16.dp),
-    label = {
-        Text(component = HSLang.ItemEditor.dataComponents)
-    }
 ) {
     val lazyListState = rememberLazyListState()
-    if (components.isEmpty()) {
-        Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
-    } else {
-        val canScroll = lazyListState.canScrollBackward || lazyListState.canScrollForward
-        Box {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(end = if (canScroll) 12.dp else 8.dp).fillMaxSize(),
-                state = lazyListState
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        sprite = SurfaceDefaults.embeddedPanel,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(12.dp),
+        ) {
+            Box(
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                contentAlignment = Alignment.TopStart,
             ) {
-                items(
-                    components.keySet().sortedBy { it.keyOrUnknown(registryAccess!!) },
-                    key = { type -> type.keyOrUnknown(registryAccess!!) }
-                ) { type ->
-                    components[type]?.let { component ->
-                        DataComponentWrapper(
-                            type,
-                            component,
-                            removeAction = {
-                                components.remove(type)
+                if (components.isEmpty()) {
+                    Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
+                } else {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxSize(),
+                        state = lazyListState
+                    ) {
+                        items(
+                            components.keySet().sortedBy { it.keyOrUnknown(registryAccess!!) },
+                            key = { type -> type.keyOrUnknown(registryAccess!!) }
+                        ) { type ->
+                            components[type]?.let { component ->
+                                DataComponentWrapper(
+                                    type,
+                                    component,
+                                    removeAction = {
+                                        components.remove(type)
+                                    }
+                                ) {
+                                    components[type as DataComponentType<Any>] = it
+                                }
                             }
-                        ) {
-                            components[type as DataComponentType<Any>] = it
                         }
                     }
                 }
             }
 
-            VerticalScroller(
+            Spacer(Modifier.width(8.dp))
+
+            VerticalFlatScroller(
                 adapter = rememberScrollerAdapter(lazyListState),
-                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight()
+                modifier = Modifier.fillMaxHeight(),
             )
         }
     }

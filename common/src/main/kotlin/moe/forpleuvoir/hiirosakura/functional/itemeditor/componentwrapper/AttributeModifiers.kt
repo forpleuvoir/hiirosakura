@@ -1,32 +1,27 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayText
+
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
+
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.hapticfeedback.HapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEditorDefaults
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentEntryRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplay
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.ui.modifier.vanillaTooltip
 import moe.forpleuvoir.hiirosakura.ui.widget.EntityAttributeSelector
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.REGISTERED_ATTRIBUTE
-import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.RichTextEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.RichTextEditorState
 import moe.forpleuvoir.hiirosakura.util.asTranslateKey
@@ -54,27 +49,24 @@ import net.minecraft.world.entity.ai.attributes.Attribute
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.minecraft.world.item.component.ItemAttributeModifiers
 import net.minecraft.world.item.component.ItemAttributeModifiers.Display.Type.*
-import sh.calvin.reorderable.ReorderableCollectionItemScope
-import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.rememberReorderableLazyGridState
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogAddButton
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContent
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentCards
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentDefaults
 import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.DoubleField
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.hiirosakura.ui.widget.EnumSelector
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.hiirosakura.ui.util.rememberAdaptiveGridSpan
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
 import androidx.compose.foundation.layout.Row
 import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 
@@ -85,35 +77,31 @@ fun AttributeModifiersComponentWrapper(
     onValueChange: (ItemAttributeModifiers) -> Unit,
     removeAction: () -> Unit,
     modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp, Alignment.End),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Box(modifier = Modifier.height(DataComponentEditorDefaults.entrySize.height).padding(vertical = 4.dp)) {
-        var showDialog by remember { mutableStateOf(false) }
+) {
+    var showDialog by remember { mutableStateOf(false) }
 
-        FlatButton(
-            onClick = {},
-            modifier = Modifier
-                .fillMaxHeight()
-                .vanillaTooltip(getDisplayTexts(value))
-                .width(DataComponentEditorDefaults.entrySize.width),
-        ) {
-            Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.modifiers.size))
-            IconButton(onClick = {
-                showDialog = true
-            }) {
-                Icon(Icons.Edit)
-            }
-        }
-        if (showDialog) {
-            ItemAttributeModifiersEditor(
-                value,
-                onValueChange,
-                key,
-                { Text(key) },
-                onDismissRequest = { showDialog = false }
-            )
-        }
+    DataComponentDisplayRow(
+        key, removeAction, modifier, horizontalArrangement, verticalAlignment,
+        frameModifier = Modifier.vanillaTooltip(getDisplayTexts(value)),
+        onEdit = { showDialog = true },
+    ) {
+        Text(
+            component = IGLang.ConfigWrapper.listConfigWrapperText(value.modifiers.size),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+        )
+    }
+
+    if (showDialog) {
+        ItemAttributeModifiersEditor(
+            value,
+            onValueChange,
+            key,
+            { DataComponentDialogTitle(key) },
+            onDismissRequest = { showDialog = false }
+        )
     }
 }
 
@@ -135,15 +123,87 @@ private fun getDisplayTexts(value: ItemAttributeModifiers) = buildList {
     }
 }
 
+/**
+ * 属性修饰符卡片的排版常量。
+ *
+ * 卡片宽度不写死：浮层宽度只给下限（一行放得下 [MinColumns] 张）与上限（一行最多 [MaxColumns] 张），
+ * 列数按实际可用宽度算。
+ */
+private object ItemAttributeModifiersCardDefaults {
+
+    /** 一张卡片的最小宽度：标签 + 编辑控件 + 卡片内边距。 */
+    val MinCardWidth: Dp = 560.dp
+
+    /** 一行的卡片数下限。 */
+    const val MinColumns: Int = 1
+
+    /** 一行的卡片数上限。 */
+    const val MaxColumns: Int = 2
+
+    /** 卡片间距，取卡片列表的缺省值（算列数时按它反推浮层宽度）。 */
+    val CardSpacing: Dp = EditDialogContentDefaults.cardSpacing
+
+    /** 卡片列表右侧细滚动条的占位宽度，算列数时先扣掉。 */
+    val ScrollbarAllowance: Dp = 16.dp
+
+    /** 浮层内容内边距，与 `FlexibleDialogDefaults.contentPadding` 一致。 */
+    val DialogContentPadding: Dp = 24.dp
+
+    /** 浮层宽度下限：一行放得下 [MinColumns] 张卡片。 */
+    val DialogMinWidth: Dp
+        get() = MinCardWidth * MinColumns + CardSpacing * (MinColumns - 1) + ScrollbarAllowance + DialogContentPadding * 2
+
+    /** 浮层宽度上限：一行最多 [MaxColumns] 张卡片。 */
+    val DialogMaxWidth: Dp
+        get() = MinCardWidth * MaxColumns + CardSpacing * (MaxColumns - 1) + ScrollbarAllowance + DialogContentPadding * 2
+
+    /** 浮层高度上限：可视区放得下两行卡片并有富余。 */
+    val DialogMaxHeight: Dp = 1100.dp
+
+    /** 浮层尺寸约束：宽度只夹上下限，具体宽度由窗口决定。 */
+    val DialogModifier: Modifier
+        get() = Modifier
+            .widthIn(min = DialogMinWidth, max = DialogMaxWidth)
+            .heightIn(max = DialogMaxHeight)
+
+    /**
+     * 按浮层内容区的可用宽度算卡片列数：先扣掉滚动条占位，再按「一张卡片 + 一段间距」整除，
+     * 结果夹在 [MinColumns]..[MaxColumns] 内。
+     */
+    fun columnsFor(availableWidth: Dp): Int =
+        ((availableWidth - ScrollbarAllowance + CardSpacing) / (MinCardWidth + CardSpacing))
+            .toInt()
+            .coerceIn(MinColumns, MaxColumns)
+}
+
+/**
+ * 属性修饰符编辑浮层：一条修饰符一张卡片。
+ *
+ * 卡片头部两端是拖拽手柄与删除按钮（由 `EditDialogContentCards` 提供），卡片体是
+ * [ModifierEntryContent]；条目增删、排序与编辑都在副本上做，确认时才写回。
+ *
+ * @param value 待编辑的属性修饰符组件
+ * @param onValueChange 确认时的写回
+ * @param key 语言键来源
+ * @param title 浮层标题
+ * @param onDismissRequest 关闭请求
+ * @param dialogModifier 附加到浮层的尺寸修饰；缺省用卡片布局的下限 / 上限
+ */
 @Composable
 fun ItemAttributeModifiersEditor(
     value: ItemAttributeModifiers,
     onValueChange: (ItemAttributeModifiers) -> Unit,
     key: Identifier,
     title: @Composable () -> Unit,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    dialogModifier: Modifier = ItemAttributeModifiersCardDefaults.DialogModifier,
 ) {
     val editingModifiers = rememberKeyedList(value.modifiers)
+    var showAddDialog by remember { mutableStateOf(false) }
+    // 卡片网格的滚动状态：浮动添加按钮的显隐以它为准
+    val cardGridState = rememberLazyGridState()
+    val addButtonVisibility = rememberFabScrollVisibility(cardGridState)
+
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
         title = title,
@@ -151,151 +211,78 @@ fun ItemAttributeModifiersEditor(
             onValueChange(ItemAttributeModifiers(editingModifiers.entries.values().toMutableList()))
             true
         },
-        modifier = Modifier.padding(24.dp),
+        modifier = dialogModifier,
         content = {
-            BoxWithConstraints {
-                Box(
-                    modifier = Modifier
-                        .height(820.dp)
-                        .width(if (maxWidth > 1140.dp) 1140.dp else 780.dp)
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-
-                    val lazyGridState = rememberLazyGridState()
-                    if (editingModifiers.entries.isEmpty()) {
-                        Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
-                    } else {
-                        val hapticFeedback = LocalHapticFeedback.current
-                        val reorderableLazyGridState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
-                            editingModifiers.move(from.index, to.index)
-                            hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
-                        }
-
-
-                        val canScroll = lazyGridState.canScrollBackward || lazyGridState.canScrollForward
-                        LazyVerticalGrid(
-                            state = lazyGridState,
-                            columns = GridCells.Adaptive(360.dp),
-                            modifier = Modifier.padding(end = if (canScroll) 12.dp else 0.dp).fillMaxHeight(),
-                            contentPadding = PaddingValues(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            itemsIndexed(editingModifiers.entries, key = { _, v -> v.key }) { index, item ->
-                                ReorderableItem(
-                                    reorderableLazyGridState, item.key,
-                                    animateItemModifier = hsItemAnimation(),
-                                ) { isDragging ->
-                                    val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                                    val handleInteraction = remember { MutableInteractionSource() }
-
-                                    val handleHovered by handleInteraction.collectIsHoveredAsState()
-                                    ModifierCard(
-                                        item.value,
-                                        {
-                                            editingModifiers.setValue(index, it)
-                                        },
-                                        modifier = Modifier.scale(scale).width(360.dp),
-                                        onRemove = {
-                                            editingModifiers.removeAt(index)
-                                        },
-                                        key = key,
-                                        hapticFeedback = hapticFeedback,
-                                        handleInteraction = handleInteraction,
-                                        handleHovered = handleHovered,
-                                        isDragging = isDragging,
-                                    )
-                                }
-                            }
-                        }
-
-                        VerticalScroller(
-                            adapter = rememberScrollerAdapter(lazyGridState, rememberAdaptiveGridSpan(lazyGridState)),
-                            modifier = Modifier.align(Alignment.CenterEnd)
-                        )
-                    }
-
-                    var showAddDialog by remember { mutableStateOf(false) }
-                    Button(
-                        onClick = {
-                            showAddDialog = true
-                        },
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(12.dp)
-                            .size(40.dp)
-                            .fabScrollVisibility(rememberFabScrollVisibility(lazyGridState)),
-                    ) {
-                        Icon(Icons.Add)
-                    }
-
-                    if (showAddDialog) {
-                        var addingEntry by remember {
-                            mutableStateOf(
-                                ItemAttributeModifiers.Entry(
-                                    REGISTERED_ATTRIBUTE.first(),
-                                    AttributeModifier(
-                                        Identifier.parse("minecraft:unknow"),
-                                        0.0,
-                                        AttributeModifier.Operation.ADD_VALUE
-                                    ),
-                                    EquipmentSlotGroup.MAINHAND
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .fabScrollVisibility(addButtonVisibility),
+            ) {
+                EditDialogContent(
+                    modifier = Modifier.fillMaxSize(),
+                    header = {},
+                ) { _ ->
+                    BoxWithConstraints(Modifier.fillMaxWidth()) {
+                        EditDialogContentCards(
+                            state = editingModifiers,
+                            lazyGridState = cardGridState,
+                            columns = ItemAttributeModifiersCardDefaults.columnsFor(maxWidth),
+                            maxHeight = ItemAttributeModifiersCardDefaults.DialogMaxHeight,
+                            removeButton = { index, _ ->
+                                RemoveConfirmButton(
+                                    message = "#${index + 1}",
+                                    onConfirm = { editingModifiers.removeAt(index) },
+                                    iconScale = LocalIconScale.current,
+                                    contentPadding = EditDialogContentDefaults.iconPadding,
                                 )
-                            )
-                        }
-                        SimpleAlertDialog(
-                            onDismissRequest = { showAddDialog = false },
-                            onConfirmRequest = {
-                                editingModifiers.add(addingEntry)
-                                true
                             },
-                            title = { Text(component = IGLang.Misc.add) },
-                            content = {
-                                ModifierEntryContent(addingEntry, { addingEntry = it }, key)
-                            }
-                        )
+                        ) { _, entry, onEntryChange ->
+                            ModifierEntryContent(entry, onEntryChange, key)
+                        }
+                    }
+                }
+
+                EditDialogAddButton(
+                    visibility = addButtonVisibility,
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                ) {
+                    Button(
+                        onClick = { showAddDialog = true },
+                        contentPadding = ConfigControlDefaults.IconButtonPadding,
+                    ) {
+                        Icon(Icons.Add, scale = configIconScale())
                     }
                 }
             }
-        }
-    )
 
-
-}
-
-@Composable
-private fun ReorderableCollectionItemScope.ModifierCard(
-    value: ItemAttributeModifiers.Entry,
-    onValueChange: (ItemAttributeModifiers.Entry) -> Unit,
-    onRemove: () -> Unit,
-    key: Identifier,
-    hapticFeedback: HapticFeedback,
-    handleInteraction: MutableInteractionSource,
-    handleHovered: Boolean,
-    isDragging: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier,
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 16.dp)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                DragHandle(modifier = Modifier)
-                RemoveConfirmButton(
-                    key.asTranslateText(suffix = "modifier", fallback = "Modifier").plainText,
-                    onRemove
+            if (showAddDialog) {
+                var addingEntry by remember {
+                    mutableStateOf(
+                        ItemAttributeModifiers.Entry(
+                            REGISTERED_ATTRIBUTE.first(),
+                            AttributeModifier(
+                                Identifier.parse("minecraft:unknow"),
+                                0.0,
+                                AttributeModifier.Operation.ADD_VALUE
+                            ),
+                            EquipmentSlotGroup.MAINHAND
+                        )
+                    )
+                }
+                SimpleAlertDialog(
+                    onDismissRequest = { showAddDialog = false },
+                    onConfirmRequest = {
+                        editingModifiers.add(addingEntry)
+                        true
+                    },
+                    title = { DataComponentDialogTitle(component = IGLang.Misc.add) },
+                    content = {
+                        ModifierEntryContent(addingEntry, { addingEntry = it }, key)
+                    }
                 )
             }
-            ModifierEntryContent(value, onValueChange, key)
         }
-    }
+    )
 }
 
 @Composable
@@ -305,46 +292,41 @@ private fun ModifierEntryContent(
     key: Identifier
 ) {
     Column(
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         //attribute
-        EntityAttributeSelector(
-            value.attribute,
-            { onValueChange(value.copy(attribute = it)) },
-            label = { Text(key, suffix = "attribute", fallback = "Attribute") },
-            content = {
-                Text(it.registeredName, overflow = TextOverflow.Ellipsis, maxLines = 1)
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
+        DataComponentField(key, suffix = "attribute", fallback = "Attribute", modifier = Modifier.fillMaxWidth()) {
+            EntityAttributeSelector(
+                value.attribute,
+                { onValueChange(value.copy(attribute = it)) },
+                content = {
+                    Text(it.registeredName, overflow = TextOverflow.Ellipsis, maxLines = 1)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
         //id
-        LabelBox(
-            { Text(key, suffix = "id", fallback = "ID") },
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(16.dp, 8.dp, 8.dp, 8.dp)
-        ) {
-            Row(
+        var showIdDialog by remember { mutableStateOf(false) }
+
+        DataComponentField(key, suffix = "id", fallback = "ID", modifier = Modifier.fillMaxWidth()) {
+            DataComponentDisplay(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+                onEdit = { showIdDialog = true },
             ) {
-                var showDialog by remember { mutableStateOf(false) }
-
-                Text(value.modifier.id, overflow = TextOverflow.Ellipsis, maxLines = 1, modifier = Modifier.weight(1f))
-                IconButton(onClick = { showDialog = true }) {
-                    Icon(Icons.Edit)
-                }
-
-                if (showDialog) {
-                    IdentifierEditorDialog(
-                        value.modifier.id,
-                        { onValueChange(value.copy(id = it)) },
-                        { Text(key, suffix = "id", fallback = "ID") },
-                        { showDialog = false })
-                }
+                DataComponentDisplayText(Component.literal(value.modifier.id.toString()))
             }
         }
+
+        if (showIdDialog) {
+            IdentifierEditorDialog(
+                value.modifier.id,
+                { onValueChange(value.copy(id = it)) },
+                { DataComponentDialogTitle(key, suffix = "id", fallback = "ID") },
+                { showIdDialog = false })
+        }
         //amount
-        LabelBox(label = { Text(key, suffix = "amount", fallback = "Amount") }, modifier = Modifier.fillMaxWidth()) {
+        DataComponentField(key, suffix = "amount", fallback = "Amount", modifier = Modifier.fillMaxWidth()) {
             DoubleField(
                 value = value.modifier.amount,
                 onValueChange = { onValueChange(value.copy(amount = it)) },
@@ -352,97 +334,90 @@ private fun ModifierEntryContent(
             )
         }
         //operation
-        EnumSelector(
-            value.modifier.operation,
-            { onValueChange(value.copy(operation = it)) },
-            label = { Text(key, suffix = "operation", fallback = "Operation") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        //slot
-        EnumSelector(
-            value.slot,
-            { onValueChange(value.copy(slot = it)) },
-            label = { Text(key, suffix = "slot", fallback = "Slot") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        //display
-        LabelBox(
-            { Text(key, suffix = "display", fallback = "Display") },
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(16.dp, 8.dp, 8.dp, 8.dp)
-        ) {
-            Row(
+        DataComponentField(key, suffix = "operation", fallback = "Operation", modifier = Modifier.fillMaxWidth()) {
+            EnumSelector(
+                selected = value.modifier.operation,
+                onSelect = { onValueChange(value.copy(operation = it)) },
+                items = AttributeModifier.Operation.entries,
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+            )
+        }
+        //slot
+        DataComponentField(key, suffix = "slot", fallback = "Slot", modifier = Modifier.fillMaxWidth()) {
+            EnumSelector(
+                selected = value.slot,
+                onSelect = { onValueChange(value.copy(slot = it)) },
+                items = EquipmentSlotGroup.entries,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        //display
+        var showDisplayDialog by remember { mutableStateOf(false) }
+
+        DataComponentField(key, suffix = "display", fallback = "Display", modifier = Modifier.fillMaxWidth()) {
+            DataComponentDisplay(
+                modifier = Modifier.fillMaxWidth(),
+                onEdit = { showDisplayDialog = true },
             ) {
-                var showDialog by remember { mutableStateOf(false) }
+                var overrideText: Component? by remember(value.display) { mutableStateOf(null) }
 
+                value.display.apply({
+                    overrideText = it
+                }, mc.player, value.attribute, value.modifier)
 
-                Column(modifier = Modifier.weight(1f)) {
-                    var overrideText: Component? by remember(value.display) { mutableStateOf(null) }
-
-                    value.display.apply({
-                        overrideText = it
-                    }, mc.player, value.attribute, value.modifier)
-
-                    overrideText?.let {
-                        Text(it, overflow = TextOverflow.Ellipsis, maxLines = 1, modifier = Modifier.fillMaxWidth().vanillaTooltip(it))
-                    } ?: run {
-                        val typeKey = value.display.type().asTextKey(key)
-                        val commentKey = "${typeKey}.comment"
-                        Text(
-                            value.display.type().asText(key),
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                            modifier = Modifier.fillMaxWidth().thenIf(Language.getInstance().has(commentKey)) {
-                                Modifier.tooltip {
-                                    Text(Translatable(commentKey))
-                                }
-                            })
-                    }
-                }
-
-                IconButton(onClick = { showDialog = true }) {
-                    Icon(Icons.Edit)
-                }
-
-                if (showDialog) {
-                    var editingType by remember { mutableStateOf(value.display.type()) }
-
-                    val state = remember {
-                        RichTextEditorState.fromMcText((value.display as? ItemAttributeModifiers.Display.OverrideText)?.component ?: Literal(""))
-                    }
-                    SimpleAlertDialog(
-                        onDismissRequest = { showDialog = false },
-                        onConfirmRequest = {
-                            onValueChange(
-                                value.copy(
-                                    display = when (editingType) {
-                                        DEFAULT  -> ItemAttributeModifiers.Display.attributeModifiers()
-                                        HIDDEN   -> ItemAttributeModifiers.Display.hidden()
-                                        OVERRIDE -> ItemAttributeModifiers.Display.override(state.mcText)
-                                    }
-                                )
-                            )
-                            true
-                        },
-                        title = { Text(key, suffix = "display", fallback = "Display") },
-                        content = {
-                            Column(Modifier.fillMaxWidth()) {
-                                DisplayTypeSelector(editingType, { editingType = it }, key)
-                                Spacer(Modifier.height(8.dp))
-                                AnimatedVisibility(visible = editingType == OVERRIDE) {
-                                    RichTextEditor(
-                                        state = state,
-                                        modifier = Modifier.height(480.dp).width(720.dp),
-                                        enabledPreviewRender = editingType == OVERRIDE
-                                    )
-                                }
+                overrideText?.let {
+                    DataComponentDisplayText(it, modifier = Modifier.fillMaxWidth())
+                } ?: run {
+                    val typeKey = value.display.type().asTextKey(key)
+                    val commentKey = "${typeKey}.comment"
+                    Text(
+                        value.display.type().asText(key),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                        modifier = Modifier.fillMaxWidth().thenIf(Language.getInstance().has(commentKey)) {
+                            Modifier.tooltip {
+                                Text(Translatable(commentKey))
                             }
-                        }
-                    )
+                        })
                 }
             }
+        }
+
+        if (showDisplayDialog) {
+            var editingType by remember { mutableStateOf(value.display.type()) }
+
+            val state = remember {
+                RichTextEditorState.fromMcText((value.display as? ItemAttributeModifiers.Display.OverrideText)?.component ?: Literal(""))
+            }
+            SimpleAlertDialog(
+                onDismissRequest = { showDisplayDialog = false },
+                onConfirmRequest = {
+                    onValueChange(
+                        value.copy(
+                            display = when (editingType) {
+                                DEFAULT  -> ItemAttributeModifiers.Display.attributeModifiers()
+                                HIDDEN   -> ItemAttributeModifiers.Display.hidden()
+                                OVERRIDE -> ItemAttributeModifiers.Display.override(state.mcText)
+                            }
+                        )
+                    )
+                    true
+                },
+                title = { DataComponentDialogTitle(key, suffix = "display", fallback = "Display") },
+                content = {
+                    Column(Modifier.fillMaxWidth()) {
+                        DisplayTypeSelector(editingType, { editingType = it }, key)
+                        Spacer(Modifier.height(8.dp))
+                        AnimatedVisibility(visible = editingType == OVERRIDE) {
+                            RichTextEditor(
+                                state = state,
+                                modifier = Modifier.fillMaxWidth(),
+                                enabledPreviewRender = editingType == OVERRIDE
+                            )
+                        }
+                    }
+                }
+            )
         }
     }
 }

@@ -191,8 +191,7 @@ fun HSEventSubscriberEditorDialog(
                             modifier = Modifier.weight(1f),
                         ) {
                             IntField(
-                                delay,
-                                { delay = it },
+                                delay, { delay = it },
                                 valueRange = 0..EventEditorDefaults.MAX_SETTING,
                                 modifier = Modifier.fillMaxWidth(),
                             )
@@ -326,8 +325,6 @@ fun EventTypeSelector(
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (String) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (String) -> Unit)?)? = null,
-    textStyle: TextStyle = LocalTextStyle.current,
-    interactionSource: MutableInteractionSource? = null,
     contentPadding: PaddingValues = TextFieldDefaults.contentPadding(),
 ) = StringSelector(
     selected = selected,
@@ -342,7 +339,5 @@ fun EventTypeSelector(
     modifier = modifier,
     itemLeadingIcon = itemLeadingIcon,
     itemTrailingIcon = itemTrailingIcon,
-    textStyle = textStyle,
-    interactionSource = interactionSource,
     contentPadding = contentPadding,
 )

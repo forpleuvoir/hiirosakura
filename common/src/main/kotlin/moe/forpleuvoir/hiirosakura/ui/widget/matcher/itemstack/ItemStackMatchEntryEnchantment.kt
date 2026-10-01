@@ -29,9 +29,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import androidx.compose.foundation.layout.fillMaxWidth
-import moe.forpleuvoir.hiirosakura.ui.compat.NumberFieldStyle
-import moe.forpleuvoir.hiirosakura.ui.compat.LocalNumberFieldStyle
-import moe.forpleuvoir.hiirosakura.ui.compat.TipBox
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 
 @Composable
 fun ItemStackMatchEntryEnchantmentInfo(entry: ItemStackMatchEntry.Enchantment) {
@@ -152,14 +150,12 @@ internal fun BasicItemStackMatchEntryEnchantmentEditor(
         //附魔ID
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text(component = HSLang.ItemStackMatcher.Entry.enchantmentID)
-            TipBox({
-                Text(EnchatmentHelper.enchantmentDescription(state.text.toString()))
-            }) {
-                TextField(
-                    state,
-                    modifier = Modifier.width(width),
-                )
-            }
+            TextField(
+                state,
+                modifier = Modifier.width(width).tooltip {
+                    Text(EnchatmentHelper.enchantmentDescription(state.text.toString()))
+                },
+            )
         }
         Spacer(Modifier.height(12.dp))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {

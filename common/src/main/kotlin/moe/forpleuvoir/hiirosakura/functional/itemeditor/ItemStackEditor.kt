@@ -129,6 +129,7 @@ private fun ItemType(
 ) = DataComponentSection(
     modifier = modifier,
     title = { Text(component = HSLang.ItemEditor.itemType, fontSize = LabeledFieldDefaults.labelFontSize) },
+    labelIndent = 0.dp,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -208,10 +209,10 @@ fun ItemPreview(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
-    val hovered by interactionSource.collectIsHoveredAsState()
     DataComponentSection(
         modifier = modifier,
         title = { Text(component = HSLang.ItemEditor.itemPreview, fontSize = LabeledFieldDefaults.labelFontSize) },
+        labelIndent = 0.dp,
     ) {
         Row(
             modifier = Modifier
@@ -221,7 +222,8 @@ fun ItemPreview(
                         Item.TooltipContext.of(mc.level),
                         mc.player,
                         if (mc.options.advancedItemTooltips) TooltipFlag.ADVANCED else TooltipFlag.NORMAL,
-                    )
+                    ),
+                    style = value.get(DataComponents.TOOLTIP_STYLE),
                 ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -238,7 +240,7 @@ fun ItemPreview(
                 )
             )
             Spacer(Modifier.width(8.dp))
-            Text(value.hoverName, overflow = TextOverflow.Ellipsis, maxLines = 1)
+            Text(value.styledHoverName, overflow = TextOverflow.Ellipsis, maxLines = 1)
         }
     }
 }

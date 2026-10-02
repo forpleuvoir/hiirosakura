@@ -39,6 +39,19 @@ class RichTextEditorState(
 
     private var defaultStyleFromUser: Boolean = false
 
+    /**
+     * 最近一次非塌缩选区。
+     *
+     * 输入框失焦时平台会把选区塌缩为光标（collapseSelectionToMax），点击工具栏按钮即触发失焦；
+     * 该记录在输入框聚焦期间的塌缩时清空（用户主动取消选区），失焦导致的塌缩时保留，
+     * 供工具栏在选区被平台清掉后仍能定位目标区间。
+     */
+    internal var lastNonCollapsedSelection: TextRange? = null
+
+    /** 输入框是否处于聚焦态，由编辑区 modifier 回写 */
+    internal var fieldFocused: Boolean = false
+
+    /** 为 true 时 [syncDefaultStyleFromCursor] 跳过一次同步并复位；文本编辑或工具栏修改默认样式后置位 */
     @Suppress("PropertyName")
     internal var _editJustHappened: Boolean by mutableStateOf(false)
 
@@ -113,6 +126,8 @@ class RichTextEditorState(
     fun updateDefaultStyle(patch: SliceStylePatch) {
         defaultStyle = defaultStyle.apply(patch.normalized())
         defaultStyleFromUser = true
+        // 修改后的下一次光标变化不将默认样式同步回光标处样式，避免刚设置的值被覆盖
+        _editJustHappened = true
     }
 
     fun syncDefaultStyleFromCursor(cursor: Int) {

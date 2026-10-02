@@ -2,6 +2,8 @@ package moe.forpleuvoir.hiirosakura.test
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType
+import moe.forpleuvoir.compose_minecraft.platform.render.text.TextRenderConfig
+import net.minecraft.network.chat.Component
 import moe.forpleuvoir.hiirosakura.config.HSConfig
 import moe.forpleuvoir.hiirosakura.functional.task.TaskManager
 import moe.forpleuvoir.ibukigourd.command.clientSource
@@ -32,6 +34,14 @@ object TestCommand : Initializable {
                 mc.execute {
                     openMultiItemSelectorTest()
                 }
+            }
+        }
+        // 切换 CMP 的文本行盒/基线调试绘制（TextRenderConfig.debugTextBounds）
+        "text_bounds" {
+            execute {
+                val enabled = !TextRenderConfig.debugTextBounds
+                TextRenderConfig.debugTextBounds = enabled
+                mc.player?.sendSystemMessage(Component.literal("debugTextBounds = $enabled"))
             }
         }
         "config_keys" {

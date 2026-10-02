@@ -1,5 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentList
+
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
 
 import androidx.compose.foundation.layout.*
@@ -188,39 +190,10 @@ fun ItemEnchantmentsComponentEditDialog(
             true
         },
         content = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .fabScrollVisibility(addButtonVisibility),
-            ) {
-                EditDialogContent(
-                    modifier = Modifier.fillMaxSize(),
-                    header = {},
-                ) { _ ->
-                    BoxWithConstraints(Modifier.fillMaxWidth()) {
-                        EditDialogContentCards(
-                            state = editingEnchantments,
-                            lazyGridState = cardGridState,
-                            columns = ItemEnchantmentsCardDefaults.columnsFor(maxWidth),
-                            maxHeight = ItemEnchantmentsCardDefaults.DialogMaxHeight,
-                            removeButton = { index, entry ->
-                                RemoveConfirmButton(
-                                    message = entry.first.value().description.plainText,
-                                    onConfirm = { editingEnchantments.removeAt(index) },
-                                    iconScale = LocalIconScale.current,
-                                    contentPadding = EditDialogContentDefaults.iconPadding,
-                                )
-                            },
-                        ) { _, entry, onEntryChange ->
-                            EnchantmentEntryContent(entry, onEntryChange, selectableEnchantments(entry.first))
-                        }
-                    }
-                }
-
-                EditDialogAddButton(
-                    visibility = addButtonVisibility,
-                    modifier = Modifier.align(Alignment.BottomEnd),
-                ) {
+            EditDialogContent(
+                modifier = Modifier.fillMaxSize(),
+                header = {},
+                addButton = {
                     Button(
                         onClick = {
                             selectableEnchantments(null).firstOrNull()?.let { showAddDialog = true }
@@ -228,6 +201,24 @@ fun ItemEnchantmentsComponentEditDialog(
                         contentPadding = ConfigControlDefaults.IconButtonPadding,
                     ) {
                         Icon(Icons.Add, scale = configIconScale())
+                    }
+                },
+            ) { listState ->
+                EditDialogContentList(
+                    state = editingEnchantments,
+                    lazyListState = listState,
+                    maxHeight = ItemEnchantmentsCardDefaults.DialogMaxHeight,
+                    removeButton = { index, entry ->
+                        RemoveConfirmButton(
+                            message = entry.first.value().description.plainText,
+                            onConfirm = { editingEnchantments.removeAt(index) },
+                            iconScale = LocalIconScale.current,
+                            contentPadding = EditDialogContentDefaults.iconPadding,
+                        )
+                    },
+                ) {
+                    column(width = weight(1f)) { index, entry ->
+                        EnchantmentEntryContent(entry.value, { editingEnchantments.setValue(index, it) }, selectableEnchantments(entry.value.first))
                     }
                 }
             }

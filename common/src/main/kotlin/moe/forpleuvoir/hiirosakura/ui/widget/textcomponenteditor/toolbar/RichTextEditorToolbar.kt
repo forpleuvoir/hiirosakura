@@ -26,7 +26,7 @@ fun RichTextEditorToolbar(
     state: RichTextEditorState,
     modifier: Modifier = Modifier,
 ) {
-    val selection = state.textState.selection
+    val selection = effectiveStyleSelection(state) ?: TextRange.Zero
     val hasSelection = selection.length > 0 && selection.start < selection.end
 
     val selectionStyleState: SliceStyleState? = remember(selection, state.slices) {
@@ -137,10 +137,9 @@ fun RichTextEditorToolbar(
 private enum class PropertyToggle { Bold, Italic, Underlined, Strikethrough, Obfuscated }
 
 private fun applyToggle(state: RichTextEditorState, toggle: PropertyToggle) {
-    val sel = state.textState.selection
-    val hasSel = sel.length > 0 && sel.start < sel.end
+    val sel = effectiveStyleSelection(state)
 
-    val current: StyleProperty<Boolean>? = if (hasSel) {
+    val current: StyleProperty<Boolean>? = if (sel != null) {
         val s = state.slices.computeSelectionStyleState(sel)
         when (toggle) {
             PropertyToggle.Bold          -> s.bold
@@ -181,8 +180,8 @@ private fun applyStyleAction(
     state: RichTextEditorState,
     patch: SliceStylePatch,
 ) {
-    val sel = state.textState.selection
-    if (sel.length > 0 && sel.start < sel.end) {
+    val sel = effectiveStyleSelection(state)
+    if (sel != null) {
         state.applyStyle(sel, patch)
     } else {
         state.updateDefaultStyle(patch)

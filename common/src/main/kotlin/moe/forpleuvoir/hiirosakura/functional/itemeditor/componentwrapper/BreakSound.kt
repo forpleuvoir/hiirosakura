@@ -1,15 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
-import androidx.compose.ui.text.style.TextAlign
-
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -45,14 +37,7 @@ fun BreakSoundComponentWrapper(
         leading = { SoundPlayButton(value) },
         onEdit = { showDialog = true },
     ) {
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            moe.forpleuvoir.ibukigourd.ui.sokitsu.Text(
-                component = value.value().getSubtitle(),
-                textAlign = TextAlign.Center,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-            )
-        }
+        Text(value.value().getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
     }
 
     if (showDialog) {

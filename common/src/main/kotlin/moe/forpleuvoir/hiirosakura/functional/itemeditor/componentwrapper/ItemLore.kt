@@ -1,5 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentList
+
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
 
 import androidx.compose.foundation.layout.*
@@ -159,51 +161,10 @@ private fun ItemLoreComponentEditDialog(
             true
         },
         content = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .fabScrollVisibility(addButtonVisibility),
-            ) {
-                EditDialogContent(
-                    modifier = Modifier.fillMaxSize(),
-                    header = {},
-                ) { _ ->
-                    BoxWithConstraints(Modifier.fillMaxWidth()) {
-                        EditDialogContentCards(
-                            state = editingLines,
-                            lazyGridState = cardGridState,
-                            columns = ItemLoreCardDefaults.columnsFor(maxWidth),
-                            maxHeight = ItemLoreCardDefaults.DialogMaxHeight,
-                            actions = { index, _ ->
-                                IconButton({
-                                    if (isQuickAction)
-                                        editingComponentInlineDialog = index
-                                    else
-                                        editingComponent = index
-                                }, Modifier.tooltip { Text(component = IGLang.Misc.edit) }) {
-                                    Icon(Icons.Edit)
-                                }
-                            },
-                            removeButton = { index, component ->
-                                RemoveConfirmButton(
-                                    message = component.toString(),
-                                    onConfirm = { editingLines.removeAt(index) },
-                                    iconScale = LocalIconScale.current,
-                                    contentPadding = EditDialogContentDefaults.iconPadding,
-                                )
-                            },
-                        ) { _, component, _ ->
-                            DataComponentDisplay(modifier = Modifier.fillMaxWidth()) {
-                                Text(component, overflow = TextOverflow.Ellipsis, maxLines = 1)
-                            }
-                        }
-                    }
-                }
-
-                EditDialogAddButton(
-                    visibility = addButtonVisibility,
-                    modifier = Modifier.align(Alignment.BottomEnd),
-                ) {
+            EditDialogContent(
+                modifier = Modifier.fillMaxSize(),
+                header = {},
+                addButton = {
                     Button(
                         onClick = {
                             if (isQuickAction)
@@ -215,35 +176,65 @@ private fun ItemLoreComponentEditDialog(
                     ) {
                         Icon(Icons.Add, scale = configIconScale())
                     }
+                },
+            ) { listState ->
+                EditDialogContentList(
+                    state = editingLines,
+                    lazyListState = listState,
+                    maxHeight = ItemLoreCardDefaults.DialogMaxHeight,
+                    removeButton = { index, component ->
+                        RemoveConfirmButton(
+                            message = component.toString(),
+                            onConfirm = { editingLines.removeAt(index) },
+                            iconScale = LocalIconScale.current,
+                            contentPadding = EditDialogContentDefaults.iconPadding,
+                        )
+                    },
+                ) {
+                    column(width = weight(1f)) { index, entry ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            DataComponentDisplay(modifier = Modifier.weight(1f)) {
+                                Text(entry.value, overflow = TextOverflow.Ellipsis, maxLines = 1)
+                            }
+                            IconButton({
+                                if (isQuickAction)
+                                    editingComponentInlineDialog = index
+                                else
+                                    editingComponent = index
+                            }, Modifier.tooltip { Text(component = IGLang.Misc.edit) }) {
+                                Icon(Icons.Edit)
+                            }
+                        }
+                    }
                 }
+            }
 
-                fun value(idx: Int): Component = editingLines.entries.getOrNull(idx)?.value ?: Texts.literal("")
+            fun value(idx: Int): Component = editingLines.entries.getOrNull(idx)?.value ?: Texts.literal("")
 
-                editingComponent?.let { idx ->
-                    RichTextEditorDialog(
-                        value(idx),
-                        {
-                            if (idx != -1)
-                                editingLines.setValue(idx, it)
-                            else
-                                editingLines.add(it)
-                        },
-                        title
-                    ) { editingComponent = null }
-                }
+            editingComponent?.let { idx ->
+                RichTextEditorDialog(
+                    value(idx),
+                    {
+                        if (idx != -1)
+                            editingLines.setValue(idx, it)
+                        else
+                            editingLines.add(it)
+                    },
+                    title
+                ) { editingComponent = null }
+            }
 
-                editingComponentInlineDialog?.let { idx ->
-                    InlineStyleTextEditorDialog(
-                        value(idx),
-                        {
-                            if (idx != -1)
-                                editingLines.setValue(idx, it)
-                            else
-                                editingLines.add(it)
-                        },
-                        title
-                    ) { editingComponentInlineDialog = null }
-                }
+            editingComponentInlineDialog?.let { idx ->
+                InlineStyleTextEditorDialog(
+                    value(idx),
+                    {
+                        if (idx != -1)
+                            editingLines.setValue(idx, it)
+                        else
+                            editingLines.add(it)
+                    },
+                    title
+                ) { editingComponentInlineDialog = null }
             }
         }
     )

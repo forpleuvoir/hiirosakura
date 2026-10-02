@@ -4,11 +4,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -43,6 +45,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.ProvideTextStyle
  * @param modifier 作用于整块（标题 + 内容）
  * @param contentPadding 内容内边距
  * @param labelStartPadding 标题距逻辑起始边的偏移；null 时跟随 [contentPadding] 的起始边距
+ * @param labelIndent 标题内容相对标题起始边的额外缩进
  * @param content 内容
  */
 @Composable
@@ -51,6 +54,7 @@ fun LabelBox(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding,
     labelStartPadding: Dp? = null,
+    labelIndent: Dp = LabeledFieldDefaults.LabelIndent,
     content: @Composable BoxScope.() -> Unit,
 ) {
     Column(modifier = modifier) {
@@ -64,7 +68,10 @@ fun LabelBox(
                                 ?: contentPadding.calculateStartPadding(LocalLayoutDirection.current),
                         ),
                     ) {
-                        label()
+                        Row {
+                            Spacer(Modifier.width(labelIndent))
+                            label()
+                        }
                     }
                 }
             }
@@ -89,6 +96,9 @@ object LabeledFieldDefaults {
 
     /** 标题与内容之间的垂直间距。 */
     val LabelSpacing: Dp = 2.dp
+
+    /** 标题内容相对标题起始边的额外缩进。 */
+    val LabelIndent: Dp = 12.dp
 
     /** 内容默认内边距。 */
     val contentPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 8.dp)

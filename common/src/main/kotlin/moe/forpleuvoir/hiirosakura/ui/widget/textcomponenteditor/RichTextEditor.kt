@@ -39,6 +39,7 @@ fun RichTextEditor(
         TextField(
             state = state.textState,
             lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 6, maxHeightInLines = 12),
+            outputTransformation = state.outputTransformation,
             modifier = Modifier.fillMaxWidth().richTextEditor(state),
         )
         Spacer(Modifier.height(12.dp))

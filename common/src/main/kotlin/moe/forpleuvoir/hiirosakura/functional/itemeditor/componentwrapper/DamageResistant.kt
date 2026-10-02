@@ -1,5 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentList
+
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
 
 import androidx.compose.animation.AnimatedContent
@@ -210,7 +212,7 @@ fun HolderSetDamageTypeEditorDialog(
                         }
                     }
                 },
-            ) { _ ->
+            ) { listState ->
                 AnimatedContent(
                     targetState = mode,
                     transitionSpec = {
@@ -253,32 +255,32 @@ fun HolderSetDamageTypeEditorDialog(
                                 }
                             }
                             Spacer(Modifier.height(12.dp))
-                            BoxWithConstraints(Modifier.fillMaxWidth()) {
-                                if (types.entries.isEmpty()) {
-                                    Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
-                                } else {
-                                    EditDialogContentCards(
-                                        state = types,
-                                        columns = DamageTypeCardDefaults.columnsFor(maxWidth),
-                                        maxHeight = DamageTypeCardDefaults.DialogMaxHeight,
-                                        removeButton = { index, entry ->
-                                            RemoveConfirmButton(
-                                                message = entry.translatableText.plainText,
-                                                onConfirm = { types.removeAt(index) },
-                                                iconScale = LocalIconScale.current,
-                                                contentPadding = EditDialogContentDefaults.iconPadding,
-                                            )
-                                        },
-                                    ) { _, entry, _ ->
+                            EditDialogContentList(
+                                state = types,
+                                lazyListState = listState,
+                                maxHeight = DamageTypeCardDefaults.DialogMaxHeight,
+                                removeButton = { index, entry ->
+                                    RemoveConfirmButton(
+                                        message = entry.translatableText.plainText,
+                                        onConfirm = { types.removeAt(index) },
+                                        iconScale = LocalIconScale.current,
+                                        contentPadding = EditDialogContentDefaults.iconPadding,
+                                    )
+                                },
+                                columns = {
+                                    column(
+                                        width = weight(1f),
+                                        alignment = Alignment.CenterStart,
+                                    ) { _, entry ->
                                         Text(
-                                            entry.translatableText,
+                                            entry.value.translatableText,
                                             modifier = Modifier.tooltip {
-                                                Text(entry.toString())
+                                                Text(entry.value.toString())
                                             }
                                         )
                                     }
-                                }
-                            }
+                                },
+                            )
                         }
 
                     } else {

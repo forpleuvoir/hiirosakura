@@ -1,19 +1,16 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base
 
-import androidx.compose.foundation.hoverable
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
+import androidx.compose.foundation.layout.PaddingValues
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
+import net.minecraft.network.chat.Style
 
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.TextAutoSize
-import moe.forpleuvoir.compose_minecraft.platform.ui.text.resolveDefaultFontSize
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.ProvideTextStyle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,44 +23,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.text.resolveDefaultFontSize
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.ui.widget.InlineEditField
+import moe.forpleuvoir.hiirosakura.ui.widget.InlineEditFieldDefaults
 import moe.forpleuvoir.hiirosakura.util.asTranslateKey
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.hiirosakura.util.identifier
 import moe.forpleuvoir.hiirosakura.util.logger
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.*
 import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.nebula.common.util.primitive.toTitleCase
 import net.minecraft.locale.Language
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
-import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
-import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlBlock
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
-import moe.forpleuvoir.hiirosakura.ui.widget.InlineEditField
-import moe.forpleuvoir.hiirosakura.ui.widget.InlineEditFieldDefaults
-import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentDefaults
-import androidx.compose.ui.unit.DpSize
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.configControlHeight
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButtonDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextFieldDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text as SokitsuText
 
 val unknownComponentType = identifier("unknown_component_type")
@@ -100,7 +85,10 @@ fun DataComponentDisplay(
             contentAlignment = Alignment.CenterStart,
         ) { content() }
     } else {
-        Surface(modifier = modifier.thenIf(tooltip != null) { Modifier.tooltip { tooltip?.invoke() } }) {
+        Surface(
+            modifier = modifier.thenIf(tooltip != null) { Modifier.tooltip { tooltip?.invoke() } },
+            color = InlineEditFieldDefaults.FieldColor
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -125,13 +113,15 @@ private val entrySlotSpacing = 8.dp
 /** 展示框内首元素与内容的间距。 */
 private val leadingGap = 4.dp
 
+val DataComponentCardContentPadding = PaddingValues(bottom = 12.dp, start = 12.dp, end = 12.dp)
+
 /** 组件列表行的编辑动作：铅笔按钮，占动作格。 */
 @Composable
 fun DataComponentEditButton(onClick: () -> Unit) = IconButton(
     onClick = onClick,
     modifier = Modifier.tooltip { Text(component = IGLang.Misc.edit) },
-    contentPadding = InlineEditFieldDefaults.ButtonContentPadding,
-    minSize = InlineEditFieldDefaults.ButtonMinSize,
+    contentPadding = IconButtonDefaults.contentPadding,
+    minSize = IconButtonDefaults.minSize,
 ) {
     Icon(Icons.Edit, scale = LocalIconScale.current)
 }
@@ -274,27 +264,25 @@ fun DataComponentField(
 }
 
 /**
- * 区块标题：标题在上、内容在下，两者之间留 2dp；内容占满整块宽度。
- *
- * 用于标题下面跟的不是单个控件而是整片内容的场合（列表、网格、预览区）。
+ * 区块标题：转发给 [LabelBox]（标题在上、内容在下，label 字号由它统一注入）。
  *
  * @param modifier 作用于整块
  * @param title 标题
+ * @param labelIndent 标题内容相对标题起始边的额外缩进
  * @param content 内容
  */
 @Composable
 fun DataComponentSection(
     modifier: Modifier = Modifier,
     title: @Composable () -> Unit,
+    labelIndent: Dp = LabeledFieldDefaults.LabelIndent,
     content: @Composable () -> Unit,
-) = Column(modifier = modifier) {
-    title()
-    Spacer(Modifier.height(2.dp))
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.CenterStart,
-    ) { content() }
-}
+) = LabelBox(
+    label = title,
+    modifier = modifier,
+    contentPadding = PaddingValues(0.dp),
+    labelIndent = labelIndent,
+) { content() }
 
 /**
  * 以语言键为标题的 [DataComponentField]：标题字号取像素字体原生网格折算的最小锐利字号
@@ -432,22 +420,14 @@ fun Text(
     commentAppendMode: CommentAppendMode = CommentAppendMode.Tooltip,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
-    autoSize: TextAutoSize? = null,
+    style: Style = Style.EMPTY,
     fontSize: TextUnit = TextUnit.Unspecified,
-    fontStyle: FontStyle? = null,
-    fontWeight: FontWeight? = null,
-    fontFamily: FontFamily? = null,
-    letterSpacing: TextUnit = TextUnit.Unspecified,
-    textDecoration: TextDecoration? = null,
-    textAlign: TextAlign? = null,
-    lineHeight: TextUnit = TextUnit.Unspecified,
+    textAlign: TextAlign = TextAlign.Unspecified,
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
-    inlineContent: Map<String, InlineTextContent> = mapOf(),
-    onTextLayout: (TextLayoutResult) -> Unit = {},
-    style: TextStyle = LocalTextStyle.current,
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
 ) {
     val key = identifier.asTranslateKey(prefix, suffix)
     val commentKey = "$key.comment"
@@ -470,7 +450,7 @@ fun Text(
 
     val resolvedFontSize = if (fontSize.isSp) fontSize else resolveDefaultFontSize()
 
-    Text(
+    moe.forpleuvoir.ibukigourd.ui.sokitsu.Text(
         component = if (hasComment && commentAppendMode is CommentAppendMode.Append) {
             val sep = if (commentAppendMode.newLine) "\n" else " "
             val comment = Language.getInstance().getOrDefault(commentKey)
@@ -481,10 +461,14 @@ fun Text(
         },
         modifier = actualModifier,
         color = color,
+        style = style,
         fontSize = resolvedFontSize,
+        textAlign = textAlign,
         overflow = overflow,
         softWrap = softWrap,
         maxLines = maxLines,
+        minLines = minLines,
+        onTextLayout = onTextLayout,
     )
 }
 

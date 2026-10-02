@@ -68,6 +68,7 @@ import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
 import androidx.compose.foundation.layout.Row
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentCardContentPadding
 import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 
 @Composable
@@ -237,7 +238,7 @@ fun ItemAttributeModifiersEditor(
                                 )
                             },
                         ) { _, entry, onEntryChange ->
-                            ModifierEntryContent(entry, onEntryChange, key)
+                            ModifierEntryContent(entry, onEntryChange, key, Modifier.padding(DataComponentCardContentPadding))
                         }
                     }
                 }
@@ -289,10 +290,11 @@ fun ItemAttributeModifiersEditor(
 private fun ModifierEntryContent(
     value: ItemAttributeModifiers.Entry,
     onValueChange: (ItemAttributeModifiers.Entry) -> Unit,
-    key: Identifier
+    key: Identifier,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         //attribute

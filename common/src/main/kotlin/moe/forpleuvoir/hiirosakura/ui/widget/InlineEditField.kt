@@ -3,8 +3,10 @@ package moe.forpleuvoir.hiirosakura.ui.widget
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
@@ -15,6 +17,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 
 /**
@@ -51,6 +54,7 @@ fun InlineEditField(
 
     Surface(
         modifier = fieldModifier,
+        color = InlineEditFieldDefaults.FieldColor,
         contentAlignment = Alignment.CenterStart,
     ) {
         Row(
@@ -87,6 +91,15 @@ object InlineEditFieldDefaults {
     /** 框内动作按钮的内容内边距。 */
     val ButtonContentPadding: PaddingValues = ConfigControlDefaults.IconButtonPadding
 
-    /** 展示框内边距：左侧比右侧宽一档，内容不贴框、按钮贴右端。 */
-    val FieldPadding: PaddingValues = PaddingValues(start = 16.dp, end = 12.dp)
+    /** 展示框内边距。 */
+    val FieldPadding: PaddingValues = PaddingValues(horizontal = 12.dp)
+
+    /**
+     * 展示框背景色：与文本输入框容器同色（文本输入框该色为色板的 surfaceVariant）。
+     *
+     * 本处自持一份取值，不引用上游的字段 token。
+     */
+    val FieldColor: Color
+        @Composable @ReadOnlyComposable
+        get() = LocalColorScheme.current.surfaceVariant
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.isCtrlPressed
@@ -104,10 +105,30 @@ fun Modifier.richTextEditor(state: RichTextEditorState): Modifier {
     }
 
     LaunchedEffect(state.textState.selection) {
-        state.syncDefaultStyleFromCursor(state.textState.selection.end)
+        val selection = state.textState.selection
+        if (selection.length > 0) {
+            state.lastNonCollapsedSelection = selection
+        } else if (state.fieldFocused) {
+            // 聚焦期间的塌缩是用户主动取消选区；失焦导致的塌缩（平台 collapseSelectionToMax）保留记录
+            state.lastNonCollapsedSelection = null
+        }
+        state.syncDefaultStyleFromCursor(selection.end)
     }
 
-    return this.onPreviewKeyEvent { event ->
-        event.isCtrlPressed && (event.key == Key.Z || event.key == Key.Y)
-    }
+    return this
+        .onFocusChanged { state.fieldFocused = it.isFocused }
+        .onPreviewKeyEvent { event ->
+            event.isCtrlPressed && (event.key == Key.Z || event.key == Key.Y)
+        }
+}
+
+/**
+ * 工具栏应用样式的目标选区：当前选区非塌缩时取当前选区；
+ * 选区已被平台塌缩（点击工具栏按钮导致输入框失焦）时回落到 [RichTextEditorState.lastNonCollapsedSelection]；
+ * 均无则返回 null（样式作用于默认样式，即后续输入）。
+ */
+internal fun effectiveStyleSelection(state: RichTextEditorState): TextRange? {
+    val selection = state.textState.selection
+    if (selection.length > 0 && selection.start < selection.end) return selection
+    return state.lastNonCollapsedSelection
 }

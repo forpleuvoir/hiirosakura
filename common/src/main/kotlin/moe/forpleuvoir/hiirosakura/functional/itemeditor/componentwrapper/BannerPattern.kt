@@ -1,5 +1,7 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
+import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentList
+
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
 
 import androidx.compose.foundation.background
@@ -181,44 +183,33 @@ fun BannerPatternLayersEditorDialog(
         modifier = BannerPatternCardDefaults.DialogModifier,
         title = title,
         content = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .fabScrollVisibility(addButtonVisibility),
-            ) {
-                EditDialogContent(
-                    modifier = Modifier.fillMaxSize(),
-                    header = {},
-                ) { _ ->
-                    BoxWithConstraints(Modifier.fillMaxWidth()) {
-                        EditDialogContentCards(
-                            state = layers,
-                            lazyGridState = cardGridState,
-                            columns = BannerPatternCardDefaults.columnsFor(maxWidth),
-                            maxHeight = BannerPatternCardDefaults.DialogMaxHeight,
-                            removeButton = { index, layer ->
-                                RemoveConfirmButton(
-                                    message = layer.pattern.translatableText(layer.color).plainText,
-                                    onConfirm = { layers.removeAt(index) },
-                                    iconScale = LocalIconScale.current,
-                                    contentPadding = EditDialogContentDefaults.iconPadding,
-                                )
-                            },
-                        ) { _, layer, onEntryChange ->
-                            BannerPatternLayerContent(layer, onEntryChange)
-                        }
-                    }
-                }
-
-                EditDialogAddButton(
-                    visibility = addButtonVisibility,
-                    modifier = Modifier.align(Alignment.BottomEnd),
-                ) {
+            EditDialogContent(
+                modifier = Modifier.fillMaxSize(),
+                header = {},
+                addButton = {
                     Button(
                         onClick = { showAddDialog = true },
                         contentPadding = ConfigControlDefaults.IconButtonPadding,
                     ) {
                         Icon(Icons.Add, scale = configIconScale())
+                    }
+                },
+            ) { listState ->
+                EditDialogContentList(
+                    state = layers,
+                    lazyListState = listState,
+                    maxHeight = BannerPatternCardDefaults.DialogMaxHeight,
+                    removeButton = { index, layer ->
+                        RemoveConfirmButton(
+                            message = layer.pattern.translatableText(layer.color).plainText,
+                            onConfirm = { layers.removeAt(index) },
+                            iconScale = LocalIconScale.current,
+                            contentPadding = EditDialogContentDefaults.iconPadding,
+                        )
+                    },
+                ) {
+                    column(width = weight(1f)) { index, entry ->
+                        BannerPatternLayerContent(entry.value) { layers.setValue(index, it) }
                     }
                 }
             }

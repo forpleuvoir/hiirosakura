@@ -1,27 +1,14 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base
 
-import androidx.compose.foundation.layout.PaddingValues
-import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
-import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
-
-import net.minecraft.network.chat.Style
-
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -31,6 +18,8 @@ import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.widget.InlineEditField
 import moe.forpleuvoir.hiirosakura.ui.widget.InlineEditFieldDefaults
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
+import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.hiirosakura.util.asTranslateKey
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.hiirosakura.util.identifier
@@ -48,7 +37,12 @@ import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.nebula.common.util.primitive.toTitleCase
 import net.minecraft.locale.Language
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Style
 import net.minecraft.resources.Identifier
+import kotlin.Boolean
+import kotlin.Int
+import kotlin.String
+import kotlin.Unit
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text as SokitsuText
 
 val unknownComponentType = identifier("unknown_component_type")
@@ -99,7 +93,6 @@ fun DataComponentDisplay(
             ) {
                 if (leading != null) {
                     leading()
-                    Spacer(Modifier.width(leadingGap))
                 }
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) { content() }
             }
@@ -109,9 +102,6 @@ fun DataComponentDisplay(
 
 /** 组件行内三格之间的间距。 */
 private val entrySlotSpacing = 8.dp
-
-/** 展示框内首元素与内容的间距。 */
-private val leadingGap = 4.dp
 
 val DataComponentCardContentPadding = PaddingValues(bottom = 12.dp, start = 12.dp, end = 12.dp)
 
@@ -131,6 +121,8 @@ fun DataComponentEditButton(onClick: () -> Unit) = IconButton(
  *
  * 判定与配置页注释行同一套（`TextLayoutResult.hasVisualOverflow`），未截断不弹。
  *
+ * 文本自身追加 `fillMaxWidth`：定宽后段落按所在槽位宽度排版，省略号铺满槽位剩余宽度。
+ *
  * @param text 文本
  * @param modifier 作用于文本
  */
@@ -139,15 +131,16 @@ fun DataComponentDisplayText(text: Component, modifier: Modifier = Modifier) {
     var truncated by remember(text) { mutableStateOf(false) }
     val interactionSource = remember(text) { MutableInteractionSource() }
 
-    moe.forpleuvoir.ibukigourd.ui.sokitsu.Text(
+    Text(
         component = text,
         modifier = modifier
+            .fillMaxWidth()
             .thenIf(truncated) {
                 Modifier.tooltip(
                     interactionSource = interactionSource,
                     delay = ConfigRowDefaults.TooltipDelay,
                 ) {
-                    moe.forpleuvoir.ibukigourd.ui.sokitsu.Text(component = text)
+                    Text(component = text)
                 }
             }
             .hoverable(interactionSource),
@@ -325,7 +318,8 @@ fun DataComponentSection(
 ) = DataComponentSection(
     modifier = modifier,
     title = { Text(key, suffix = suffix, fallback = fallback, fontSize = SokitsuTheme.typography.body.fontSize) },
-) { content() }
+    content = content
+)
 
 /**
  * 编辑浮层标题：显式给 subtitle 字号。
@@ -440,17 +434,17 @@ fun Text(
         else                         -> Translatable(key, fallback)
     }
 
-
     val actualModifier = if (hasComment && commentAppendMode is CommentAppendMode.Tooltip) {
-        modifier.tooltip { Text(Translatable(commentKey)) }
+        modifier.tooltip {
+            Text(Translatable(commentKey), fontSize = SokitsuTheme.typography.body.fontSize)
+        }
     } else {
         modifier
     }
 
-
     val resolvedFontSize = if (fontSize.isSp) fontSize else resolveDefaultFontSize()
 
-    moe.forpleuvoir.ibukigourd.ui.sokitsu.Text(
+    Text(
         component = if (hasComment && commentAppendMode is CommentAppendMode.Append) {
             val sep = if (commentAppendMode.newLine) "\n" else " "
             val comment = Language.getInstance().getOrDefault(commentKey)

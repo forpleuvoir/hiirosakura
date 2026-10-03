@@ -1,9 +1,5 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayText
-
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -14,11 +10,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplay
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.*
 import moe.forpleuvoir.hiirosakura.ui.modifier.vanillaTooltip
 import moe.forpleuvoir.hiirosakura.ui.widget.EntityAttributeSelector
 import moe.forpleuvoir.hiirosakura.ui.widget.REGISTERED_ATTRIBUTE
@@ -31,14 +23,17 @@ import moe.forpleuvoir.ibukigourd.text.Literal
 import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
+import moe.forpleuvoir.ibukigourd.ui.editdialog.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
-import moe.forpleuvoir.ibukigourd.ui.util.Keyed
-import moe.forpleuvoir.ibukigourd.ui.util.copyValue
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.ChatFormatting
 import net.minecraft.core.Holder
 import net.minecraft.locale.Language
@@ -49,27 +44,6 @@ import net.minecraft.world.entity.ai.attributes.Attribute
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.minecraft.world.item.component.ItemAttributeModifiers
 import net.minecraft.world.item.component.ItemAttributeModifiers.Display.Type.*
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButtonDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogAddButton
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContent
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentCards
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentDefaults
-import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.DoubleField
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
-import androidx.compose.foundation.layout.Row
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentCardContentPadding
-import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 
 @Composable
 fun AttributeModifiersComponentWrapper(
@@ -85,7 +59,9 @@ fun AttributeModifiersComponentWrapper(
 
     DataComponentDisplayRow(
         key, removeAction, modifier, horizontalArrangement, verticalAlignment,
-        frameModifier = Modifier.vanillaTooltip(getDisplayTexts(value)),
+        frameModifier = Modifier.thenIf(value.modifiers.isNotEmpty()) {
+            Modifier.vanillaTooltip(getDisplayTexts(value))
+        },
         onEdit = { showDialog = true },
     ) {
         Text(
@@ -414,7 +390,6 @@ private fun ModifierEntryContent(
                             RichTextEditor(
                                 state = state,
                                 modifier = Modifier.fillMaxWidth(),
-                                enabledPreviewRender = editingType == OVERRIDE
                             )
                         }
                     }

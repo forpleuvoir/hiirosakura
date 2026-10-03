@@ -50,7 +50,6 @@ import net.minecraft.resources.Identifier
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.level.block.entity.BannerPattern
 import net.minecraft.world.level.block.entity.BannerPatternLayers
-import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
 
 @Composable
 fun BannerPatternComponentWrapper(
@@ -171,8 +170,6 @@ fun BannerPatternLayersEditorDialog(
 
     var showAddDialog by remember { mutableStateOf(false) }
     // 卡片网格的滚动状态：浮动添加按钮的显隐以它为准
-    val cardGridState = rememberLazyGridState()
-    val addButtonVisibility = rememberFabScrollVisibility(cardGridState)
 
     FlexibleDialog(
         onDismissRequest = onDismissRequest,
@@ -233,9 +230,7 @@ fun BannerPatternLayersEditorDialog(
                             DyeColorSelector(
                                 newColor,
                                 { newColor = it },
-                                displayColor = {
-                                    listOf(NebulaColor.fromARGB(it.textureDiffuseColor))
-                                }
+                                displayColor = { Color(it.textureDiffuseColor) }
                             )
                             BannerPatternSelector(
                                 newPattern,
@@ -267,7 +262,7 @@ private fun BannerPatternLayerContent(
         DyeColorSelector(
             layer.color,
             { onValueChange(BannerPatternLayers.Layer(layer.pattern, it)) },
-            displayColor = { listOf(NebulaColor.fromARGB(it.textureDiffuseColor)) },
+            displayColor = { Color(it.textureDiffuseColor) },
         )
         BannerPatternSelector(
             layer.pattern,

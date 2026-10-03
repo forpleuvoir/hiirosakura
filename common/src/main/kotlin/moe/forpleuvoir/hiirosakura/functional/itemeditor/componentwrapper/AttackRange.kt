@@ -8,11 +8,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.AttackRange
 
@@ -29,14 +30,23 @@ fun AttackRangeComponentWrapper(
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
+    var shopTooltip by remember { mutableStateOf(false) }
     DataComponentDisplayRow(
         key, removeAction, modifier, horizontalArrangement, verticalAlignment,
+        frameModifier = Modifier.thenIf(shopTooltip) {
+            Modifier.tooltip {
+                Text("reach ${value.minReach}~${value.maxReach}\ncreative ${value.minCreativeReach}~${value.maxCreativeReach}\nhitbox_margin ${value.hitboxMargin}\nmob_factor ${value.mobFactor}")
+            }
+        },
         onEdit = { showDialog = true },
     ) {
         Text(
             "reach ${value.minReach}~${value.maxReach} · creative ${value.minCreativeReach}~${value.maxCreativeReach} · hitbox_margin ${value.hitboxMargin} · mob_factor ${value.mobFactor}",
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
+            onTextLayout = {
+                shopTooltip = it.hasVisualOverflow
+            },
         )
     }
 

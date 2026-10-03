@@ -1,33 +1,22 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.toolbar
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.*
-import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.StyleProperty
 import moe.forpleuvoir.ibukigourd.input.MouseButton
-import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.colorpicker.ColorPicker
 import moe.forpleuvoir.ibukigourd.ui.colorpicker.LocalColorPickerEnableAlpha
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ProvideContentColorTextStyle
 import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalContentColor
-import moe.forpleuvoir.hiirosakura.ui.compat.closeScreen
-import moe.forpleuvoir.hiirosakura.ui.compat.openComposePopupScreen
 import moe.forpleuvoir.ibukigourd.util.toNebulaColor
 
 private val MINECRAFT_CHAT_COLOR_RGB = listOf(
@@ -65,6 +54,8 @@ fun ColorStyleControl(
 
     var otherButton by remember { mutableStateOf<MouseButton?>(null) }
 
+    var showColorPicker by remember { mutableStateOf(false) }
+
     IconButton(
         onClick = onLeftClick,
         modifier = modifier
@@ -88,7 +79,7 @@ fun ColorStyleControl(
                                 otherButton = null
                                 when (button) {
                                     MouseButton.MIDDLE -> {
-                                        openColorPickerScreen(pendingColor, onPendingColorChange, enabledAlpha, tip)
+                                        showColorPicker = true
                                         event.changes.forEach { it.consume() }
                                     }
 
@@ -119,91 +110,59 @@ fun ColorStyleControl(
     ) {
         label(current, pendingColor.toComposeColor())
     }
+
+    if (showColorPicker) {
+        ColorPickerDialog(
+            pendingColor = pendingColor,
+            onPendingColorChange = onPendingColorChange,
+            enabledAlpha = enabledAlpha,
+            tip = tip,
+            onDismissRequest = { showColorPicker = false },
+        )
+    }
 }
 
 
-private fun openColorPickerScreen(
+/**
+ * 取色弹窗：编辑 [pendingColor] 的副本，只有确认时经 [onPendingColorChange] 提交。
+ *
+ * 正文宽度由 [ColorPicker] 自身约束，面板尺寸随内容；取消 / 遮罩 / Esc 关闭时丢弃草稿。
+ *
+ * @param pendingColor 打开时的初始颜色
+ * @param onPendingColorChange 确认时的写回
+ * @param enabledAlpha alpha 通道是否可编辑
+ * @param tip 弹窗标题
+ * @param onDismissRequest 关闭请求
+ */
+@Composable
+private fun ColorPickerDialog(
     pendingColor: NebulaColor,
     onPendingColorChange: (NebulaColor) -> Unit,
     enabledAlpha: Boolean = false,
-    tip: @Composable () -> Unit
+    tip: @Composable () -> Unit,
+    onDismissRequest: () -> Unit,
 ) {
-    openComposePopupScreen {
-        SokitsuTheme {
-            var editingColor by remember { mutableStateOf(pendingColor) }
+    var editingColor by remember { mutableStateOf(pendingColor) }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) {
-                        closeScreen()
-                    },
-                contentAlignment = Alignment.Center
+    FlexibleDialog(
+        onDismissRequest = onDismissRequest,
+        onConfirmRequest = {
+            onPendingColorChange(editingColor)
+            true
+        },
+        title = tip,
+        content = {
+            CompositionLocalProvider(
+                LocalContentColor provides SokitsuTheme.colorScheme.onSurfaceVariant,
+                LocalColorPickerEnableAlpha provides enabledAlpha,
             ) {
-
-                Surface(
-                    modifier = Modifier
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) { },
-
-                    color = SokitsuTheme.colorScheme.surface,
-                ) {
-                    Column(
-                        modifier = Modifier.padding(PaddingValues(24.dp)),
-                    ) {
-                        Box(Modifier.padding(bottom = 12.dp)) {
-                            ProvideContentColorTextStyle(
-                                contentColor = SokitsuTheme.colorScheme.onSurface,
-                                textStyle = SokitsuTheme.typography.title
-                            ) {
-                                tip()
-                            }
-                        }
-
-                        CompositionLocalProvider(
-                            LocalContentColor provides SokitsuTheme.colorScheme.onSurfaceVariant,
-                            LocalColorPickerEnableAlpha provides enabledAlpha,
-                        ) {
-                            Column(
-                                modifier = Modifier.weight(1f, false)
-                            ) {
-                                ColorPicker(
-                                    editingColor.toComposeColor(),
-                                    {
-                                        editingColor = it.toNebulaColor()
-                                    },
-                                )
-                            }
-                        }
-
-
-                        Row(
-                            modifier = Modifier
-                                .align(Alignment.End)
-                                .padding(PaddingValues(top = 16.dp)),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            Box(Modifier.padding(end = 8.dp)) {
-                                TextButton(onClick = { closeScreen() }) {
-                                    Text(component = IGLang.Misc.cancel)
-                                }
-                            }
-                            TextButton(onClick = {
-                                onPendingColorChange(editingColor)
-                                closeScreen()
-                            }) {
-                                Text(component = IGLang.Misc.confirm)
-                            }
-                        }
-                    }
-                }
-
+                ColorPicker(
+                    editingColor.toComposeColor(),
+                    {
+                        editingColor = it.toNebulaColor()
+                    },
+                )
             }
-        }
-    }
+        },
+    )
 }

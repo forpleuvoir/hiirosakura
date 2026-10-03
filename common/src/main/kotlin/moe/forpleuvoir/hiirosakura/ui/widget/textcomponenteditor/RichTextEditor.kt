@@ -2,13 +2,15 @@ package moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.input.TextFieldLineLimits
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -16,18 +18,13 @@ import moe.forpleuvoir.compose_minecraft.platform.ui.text.LocalDefaultFont
 import moe.forpleuvoir.compose_minecraft.platform.ui.text.MinecraftFonts
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.widget.textcomponenteditor.toolbar.RichTextEditorToolbar
-import moe.forpleuvoir.ibukigourd.mod.config.IGConfig
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.util.mc
-import moe.forpleuvoir.nebula.common.color.Color
-import moe.forpleuvoir.nebula.common.color.Colors
-import moe.forpleuvoir.ibukigourd.mod.config.ThemeMode
 
 @Composable
 fun RichTextEditor(
     state: RichTextEditorState = remember { RichTextEditorState() },
-    enabledPreviewRender: Boolean = true,
-    previewDefaultColor: Color = if ((IGConfig.Gui.Theme.mode == ThemeMode.Light)) Colors.BLACK else Colors.WHITE,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -54,25 +51,9 @@ fun RichTextEditor(
                     component = state.mcText,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    fontSize = (mc.window.guiScale * mc.font.lineHeight).sp,
+                    fontSize = ((1 / LocalDensity.current.density) * (mc.window.guiScale * mc.font.lineHeight)).sp,
                 )
             }
         }
     }
-}
-
-
-fun LayoutCoordinates.rectInMcWindow(): Rect {
-    val guiScale = mc.window.guiScale.toFloat()
-    require(guiScale > 0f) { "guiScale must be greater than 0" }
-
-
-    val position = positionInWindow()
-
-    return Rect(
-        left = position.x / guiScale,
-        top = position.y / guiScale,
-        right = (position.x + size.width) / guiScale,
-        bottom = (position.y + size.height) / guiScale,
-    )
 }

@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplay
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
@@ -56,7 +57,9 @@ fun ItemLoreComponentWrapper(
 
     DataComponentDisplayRow(
         key, removeAction, modifier, horizontalArrangement, verticalAlignment,
-        frameModifier = Modifier.vanillaTooltip(value.styledLines),
+        frameModifier = Modifier.thenIf(value.lines.isNotEmpty()){
+            Modifier.vanillaTooltip(value.styledLines)
+        },
         onEdit = { showDialog = true },
     ) {
         Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.styledLines().size), overflow = TextOverflow.Ellipsis, maxLines = 1)

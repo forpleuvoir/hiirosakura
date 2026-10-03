@@ -1,23 +1,22 @@
 package moe.forpleuvoir.hiirosakura.ui.widget
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.ui.icon.Play
 import moe.forpleuvoir.ibukigourd.text.MutableText
 import moe.forpleuvoir.ibukigourd.text.Translatable
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlatButtonDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.selector.SelectorDialogExpanded
+import moe.forpleuvoir.ibukigourd.ui.selector.SelectorExpandedDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.SharedConstants
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
@@ -27,16 +26,9 @@ import net.minecraft.network.chat.contents.TranslatableContents
 import net.minecraft.sounds.SoundEvent
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
-import moe.forpleuvoir.ibukigourd.ui.selector.SelectorDialogExpanded
-import moe.forpleuvoir.ibukigourd.ui.selector.SelectorExpandedDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.hiirosakura.ui.icon.Play
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import androidx.compose.ui.graphics.RectangleShape
 
 /**
- * 试听按钮：按 [InlineEditFieldDefaults] 的规格绘制，与框内编辑按钮同形。
+ * 试听按钮：按 [DisplayFieldDefaults] 的规格绘制，与框内编辑按钮同形。
  *
  * 只放音效本身，不播 UI 点击音（按下即出声，再叠一层点击音只会盖住试听）。
  */
@@ -48,8 +40,6 @@ fun SoundPlayButton(
     IconButton(
         onClick = { mc.soundManager.play(soundSupplier()) },
         modifier = modifier,
-        contentPadding = InlineEditFieldDefaults.ButtonContentPadding,
-        minSize = InlineEditFieldDefaults.ButtonMinSize,
     ) {
         Icon(Icons.Play)
     }
@@ -93,18 +83,12 @@ fun HolderSoundEventSelector(
     value: Holder<SoundEvent>,
     onValueChange: (Holder<SoundEvent>) -> Unit,
     modifier: Modifier = Modifier,
-    shape: Shape = RectangleShape,
-    contentPadding: PaddingValues = PaddingValues(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
-    labelStartPadding: Dp? = 16.dp,
 ) = SoundEventSelector(
     value.value(),
     { newValue ->
         onValueChange(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(newValue))
     },
     modifier,
-    shape,
-    contentPadding,
-    labelStartPadding,
 )
 
 @Composable
@@ -112,9 +96,6 @@ fun SoundEventSelector(
     value: SoundEvent,
     onValueChange: (SoundEvent) -> Unit,
     modifier: Modifier = Modifier,
-    shape: Shape = RectangleShape,
-    contentPadding: PaddingValues = PaddingValues(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 8.dp),
-    labelStartPadding: Dp? = 16.dp,
 ) {
     var showDialog by remember { mutableStateOf(false) }
     Row(
@@ -155,6 +136,31 @@ fun SoundEventSelector(
  * @param onValueChange 音效变化回调
  * @param modifier 作用于展示框
  */
+@Composable
+fun HolderSoundEventSelectorInnerEditor(
+    value: Holder<SoundEvent>,
+    onValueChange: (Holder<SoundEvent>) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var showDialog by remember { mutableStateOf(false) }
+    InlineEditField(
+        onEdit = { showDialog = true },
+        modifier = modifier,
+        tooltip = { Text(value.value().location.toString()) },
+        leadingIcon = { SoundPlayButton(value) },
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        Text(value.value().getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
+    }
+    if (showDialog) {
+        SoundEventEditorDialog(
+            selected = value.value(),
+            onSelect = { onValueChange(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(it)) },
+            onDismissRequest = { showDialog = false },
+        )
+    }
+}
+
 @Composable
 fun SoundEventSelectorInnerEditor(
     value: SoundEvent,
@@ -237,9 +243,6 @@ fun OptionalHolderSoundEventSelector(
     value: Optional<Holder<SoundEvent>>,
     onValueChange: (Optional<Holder<SoundEvent>>) -> Unit,
     modifier: Modifier = Modifier,
-    shape: Shape = RectangleShape,
-    contentPadding: PaddingValues = PaddingValues(top = 4.dp, bottom = 8.dp, start = 8.dp, end = 8.dp),
-    labelStartPadding: Dp? = 16.dp,
 ) {
     var showDialog by remember { mutableStateOf(false) }
 

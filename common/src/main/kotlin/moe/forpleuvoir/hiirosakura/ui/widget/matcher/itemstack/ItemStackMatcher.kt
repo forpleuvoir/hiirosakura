@@ -33,6 +33,7 @@ import moe.forpleuvoir.ibukigourd.ui.configwrapper.configControlHeight
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
 import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.util.*
 import net.minecraft.world.item.ItemStack
@@ -100,6 +101,7 @@ fun ItemStackMatcherDisplayer(
     displayerModifier: @Composable RowScope.() -> Modifier = { Modifier.weight(1f) },
     trailingIcon: @Composable (() -> Unit)? = null
 ) {
+
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
@@ -110,6 +112,7 @@ fun ItemStackMatcherDisplayer(
                 .height(configControlHeight())
                 .tooltip { ItemStackMatcherInfo(value) },
             contentAlignment = Alignment.Center,
+            color = SokitsuTheme.colorScheme.surfaceVariant
         ) {
             Box(Modifier.padding(TextFieldDefaults.contentPadding())) {
                 ItemStackMatcherSimpleInfo(value)

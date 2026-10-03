@@ -1,30 +1,30 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
-
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.style.TextOverflow
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplay
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.*
 import moe.forpleuvoir.hiirosakura.ui.widget.*
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.Texts
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.configControlHeight
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
+import moe.forpleuvoir.ibukigourd.ui.editdialog.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
@@ -38,23 +38,6 @@ import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.item.ItemUseAnimation
 import net.minecraft.world.item.component.Consumable
 import net.minecraft.world.item.consume_effects.*
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogAddButton
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContent
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentCards
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentDefaults
-import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
-import androidx.compose.foundation.layout.fillMaxWidth
-import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 
 @Composable
 fun ConsumableComponentWrapper(
@@ -161,7 +144,7 @@ fun ConsumableEditorDialog(
 ) {
     var editing by remember { mutableStateOf(value) }
 
-    val onConsumeEffects = rememberKeyedList(value.onConsumeEffects)
+    val onConsumeEffects = rememberKeyedList(value.onConsumeEffects, policy = referentialEqualityPolicy())
     // 卡片网格的滚动状态：浮动添加按钮的显隐以它为准
     val cardGridState = rememberLazyGridState()
     val addButtonVisibility = rememberFabScrollVisibility(cardGridState)
@@ -205,27 +188,24 @@ fun ConsumableEditorDialog(
                                         modifier = Modifier.fillMaxWidth(),
                                     )
                                 }
-                                HolderSoundEventSelector(
-                                    editing.sound,
-                                    { editing = editing.copy(sound = it) },
-                                    modifier = Modifier.weight(1f)
-                                )
+                                DataComponentSection(key, suffix = "sound", modifier = Modifier.weight(1f)) {
+                                    HolderSoundEventSelectorInnerEditor(
+                                        editing.sound,
+                                        { editing = editing.copy(sound = it) },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+
                                 DataComponentSection(
                                     key,
                                     suffix = "has_consume_particles",
                                     modifier = Modifier.weight(1f),
                                 ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                    ) {
-                                        Switch(
-                                            editing.hasConsumeParticles,
-                                            { editing = editing.copy(hasConsumeParticles = it) },
-                                        )
-                                        Text(component = IGLang.Misc.coloredSwitch(editing.hasConsumeParticles))
-                                    }
+                                    ToggleButton(
+                                        editing.hasConsumeParticles,
+                                        { editing = editing.copy(hasConsumeParticles = it) },
+                                        modifier = Modifier.fillMaxWidth().height(configControlHeight()),
+                                    )
                                 }
                             }
                             Spacer(Modifier.height(12.dp))
@@ -239,6 +219,12 @@ fun ConsumableEditorDialog(
                             lazyGridState = cardGridState,
                             columns = ConsumableCardDefaults.columnsFor(maxWidth),
                             maxHeight = ConsumableCardDefaults.DialogMaxHeight,
+                            title = { _, entry ->
+                                val wrapper = ConsumableEditor.consumeEffectsWrappers[entry.type]
+                                Box(Modifier.align(Alignment.Center)) {
+                                    wrapper?.title()
+                                }
+                            },
                             removeButton = { index, entry ->
                                 RemoveConfirmButton(
                                     message = entry.type.id.asTranslateText().plainText,
@@ -248,7 +234,10 @@ fun ConsumableEditorDialog(
                                 )
                             },
                         ) { _, entry, onEntryChange ->
-                            ConsumeEffectContent(entry, onEntryChange)
+                            val wrapper = ConsumableEditor.consumeEffectsWrappers[entry.type]
+                            Box(Modifier.padding(DataComponentCardContentPadding)) {
+                                wrapper?.content(entry, onEntryChange)
+                            }
                         }
                     }
                 }
@@ -268,57 +257,42 @@ fun ConsumableEditorDialog(
     )
 }
 
-/** 一条消耗效果的卡片体：效果类型标题 + 该类型自己的编辑控件。 */
-@Composable
-private fun ConsumeEffectContent(
-    effect: ConsumeEffect,
-    onValueChange: (ConsumeEffect) -> Unit,
-) {
-    val wrapper = ConsumableEditor.consumeEffectsWrappers[effect.type]
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        wrapper?.title()
-        wrapper?.content(effect, onValueChange)
-    }
-}
-
 object ConsumableEditor {
-
-    val LocalConsumeEffectWrapperSize = staticCompositionLocalOf {
-        DpSize(280.dp, 56.dp)
-    }
-
 
     val consumeEffectsWrappers = mutableMapOf<ConsumeEffect.Type<*>, ConsumeEffectWrapper>(
         ConsumeEffect.Type.APPLY_EFFECTS to ConsumeEffectWrapper(
             title = { Text(ConsumeEffect.Type.APPLY_EFFECTS.id) },
             content = { value, onValueChange ->
                 val value = value as ApplyStatusEffectsConsumeEffect
-                Box(
-                    modifier = Modifier.size(LocalConsumeEffectWrapperSize.current).padding(vertical = 4.dp),
-                ) {
-                    var showDialog by remember { mutableStateOf(false) }
-                    DataComponentDisplay(
-                        modifier = Modifier.tooltip {
-                            value.effects.take(20).forEach {
-                                Row {
-                                    Text(it.effect.value().displayName)
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(Texts.translatable("enchantment.level.${it.amplifier}", it.amplifier.toString()))
+                var showDialog by remember { mutableStateOf(false) }
+                DataComponentDisplay(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .thenIf(value.effects.isNotEmpty()) {
+                            Modifier.tooltip {
+                                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                    Row {
+                                        Text(ConsumeEffect.Type.APPLY_EFFECTS.id, suffix ="probability")
+                                        Spacer(Modifier.width(8.dp))
+                                        Text("%.2f".format(value.probability * 100) + "%")
+                                    }
+                                    value.effects.take(20).forEach {
+                                        Row {
+                                            Text(it.effect.value().displayName)
+                                            Spacer(Modifier.width(8.dp))
+                                            Text(Texts.translatable("enchantment.level.${it.amplifier}", it.amplifier.toString()))
+                                        }
+                                    }
+                                    if (value.effects.size > 20) Text("...")
                                 }
                             }
-
-                            if (value.effects.size > 20) Text("...")
                         },
-                        onEdit = { showDialog = true },
-                    ) {
-                        Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.effects.size))
-                    }
-                    if (showDialog) {
-                        ApplyStatusEditorDialog({ showDialog = false }, value, { onValueChange(it) })
-                    }
+                    onEdit = { showDialog = true },
+                ) {
+                    Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.effects.size))
+                }
+                if (showDialog) {
+                    ApplyStatusEditorDialog({ showDialog = false }, value, { onValueChange(it) })
                 }
             }
         ),
@@ -326,63 +300,60 @@ object ConsumableEditor {
             title = { Text(ConsumeEffect.Type.REMOVE_EFFECTS.id) },
             content = { value, onValueChange ->
                 val value = value as RemoveStatusEffectsConsumeEffect
-                Box(
-                    modifier = Modifier.size(LocalConsumeEffectWrapperSize.current).padding(vertical = 4.dp),
-                ) {
-                    var showDialog by remember { mutableStateOf(false) }
-                    DataComponentDisplay(
-                        modifier = Modifier.tooltip {
-                            value.effects.take(20).forEach {
-                                Row {
-                                    Text(it.value().displayName)
+                var showDialog by remember { mutableStateOf(false) }
+                DataComponentDisplay(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .thenIf(!value.effects.none()) {
+                            Modifier.tooltip {
+                                value.effects.take(20).forEach {
+                                    Row {
+                                        Text(it.value().displayName)
+                                    }
                                 }
+                                if (value.effects.count() > 20) Text("...")
                             }
-
-                            if (value.effects.count() > 20) Text("...")
                         },
-                        onEdit = { showDialog = true },
-                    ) {
-                        Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.effects.count()))
-                    }
-                    if (showDialog) {
-                        RemoveStatusEditorDialog({ showDialog = false }, value, { onValueChange(it) })
-                    }
+                    onEdit = { showDialog = true },
+                ) {
+                    Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.effects.count()))
+                }
+                if (showDialog) {
+                    RemoveStatusEditorDialog({ showDialog = false }, value, { onValueChange(it) })
                 }
             }
         ),
         ConsumeEffect.Type.CLEAR_ALL_EFFECTS to ConsumeEffectWrapper(
             title = { Text(ConsumeEffect.Type.CLEAR_ALL_EFFECTS.id) },
-            content = { _, _ -> Spacer(Modifier.size(LocalConsumeEffectWrapperSize.current)) }
+            content = { _, _ ->
+                DisplayField(
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    Text("Unit")
+                }
+            }
         ),
         ConsumeEffect.Type.TELEPORT_RANDOMLY to ConsumeEffectWrapper(
             title = { Text(ConsumeEffect.Type.TELEPORT_RANDOMLY.id) },
             content = { value, onValueChange ->
                 val value = value as TeleportRandomlyConsumeEffect
-                Box(
-                    modifier = Modifier.size(LocalConsumeEffectWrapperSize.current).padding(vertical = 4.dp),
-                ) {
-                    FloatField(
-                        value.diameter,
-                        { onValueChange(TeleportRandomlyConsumeEffect(it)) },
-                        valueRange = 0f..Float.MAX_VALUE,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+                FloatField(
+                    value.diameter,
+                    { onValueChange(TeleportRandomlyConsumeEffect(it)) },
+                    valueRange = 0f..Float.MAX_VALUE,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         ),
         ConsumeEffect.Type.PLAY_SOUND to ConsumeEffectWrapper(
             title = { Text(ConsumeEffect.Type.PLAY_SOUND.id) },
             content = { value, onValueChange ->
                 val value = value as PlaySoundConsumeEffect
-                Box(
-                    modifier = Modifier.size(LocalConsumeEffectWrapperSize.current).padding(vertical = 4.dp),
-                ) {
-                    HolderSoundEventSelector(
-                        value.sound,
-                        { onValueChange(PlaySoundConsumeEffect(it)) },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
+                HolderSoundEventSelectorInnerEditor(
+                    value.sound,
+                    { onValueChange(PlaySoundConsumeEffect(it)) },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         )
     )
@@ -494,7 +465,7 @@ fun ApplyStatusEditorDialog(
 ) {
     var probability by remember { mutableFloatStateOf(value.probability) }
 
-    val list = rememberKeyedList(value.effects)
+    val list = rememberKeyedList(value.effects, key = value, policy = referentialEqualityPolicy())
 
     val id = ConsumeEffect.Type.APPLY_EFFECTS.id
     var showAddDialog by remember { mutableStateOf(false) }
@@ -519,7 +490,9 @@ fun ApplyStatusEditorDialog(
                 EditDialogContent(
                     modifier = Modifier.fillMaxSize(),
                     header = {
-                        DataComponentField(id, suffix = "probability") {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(id, suffix = "probability")
+                            Spacer(Modifier.width(9.dp))
                             FloatField(
                                 probability,
                                 { probability = it },
@@ -543,7 +516,9 @@ fun ApplyStatusEditorDialog(
                                 )
                             },
                         ) { _, entry, onEntryChange ->
-                            MobEffectInstanceEditorContent(entry, onEntryChange, id)
+                            Box(Modifier.padding(DataComponentCardContentPadding)) {
+                                MobEffectInstanceEditorContent(entry, onEntryChange, id)
+                            }
                         }
                     }
                 }

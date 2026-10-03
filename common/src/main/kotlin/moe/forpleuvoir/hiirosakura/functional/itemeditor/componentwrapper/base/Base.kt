@@ -16,8 +16,9 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.compose_minecraft.platform.ui.text.resolveDefaultFontSize
 import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.ui.widget.DisplayField
 import moe.forpleuvoir.hiirosakura.ui.widget.InlineEditField
-import moe.forpleuvoir.hiirosakura.ui.widget.InlineEditFieldDefaults
+import moe.forpleuvoir.hiirosakura.ui.widget.DisplayFieldDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.hiirosakura.util.asTranslateKey
@@ -33,7 +34,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.nebula.common.util.primitive.toTitleCase
 import net.minecraft.locale.Language
 import net.minecraft.network.chat.Component
@@ -79,24 +79,13 @@ fun DataComponentDisplay(
             contentAlignment = Alignment.CenterStart,
         ) { content() }
     } else {
-        Surface(
-            modifier = modifier.thenIf(tooltip != null) { Modifier.tooltip { tooltip?.invoke() } },
-            color = InlineEditFieldDefaults.FieldColor
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(configControlHeight())
-                    .padding(InlineEditFieldDefaults.FieldPadding),
-                horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (leading != null) {
-                    leading()
-                }
-                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) { content() }
-            }
-        }
+        DisplayField(
+            modifier = modifier,
+            tooltip = tooltip,
+            leadingIcon = leading,
+            contentAlignment = Alignment.CenterStart,
+            content = content,
+        )
     }
 }
 
@@ -508,9 +497,9 @@ fun DataComponentEntryRow(
         ) {
             val style = LocalTextStyle.current.copy(
                 color = if (DataComponentWrappers.isAdaptedComponent(key))
-                    moe.forpleuvoir.nebula.common.color.Color.fromHSV(195f / 360f, 1f, 1f).toComposeColor()
+                    Color.hsv(195f, 1f, 1f)
                 else
-                    moe.forpleuvoir.nebula.common.color.Color.fromHSV(5f / 360f, .6f, 1f).toComposeColor()
+                    Color.hsv(5f, 0.6f, 1f)
             )
             ProvideTextStyle(style) {
                 Column(modifier = Modifier.weight(1f)) {

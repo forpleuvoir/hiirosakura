@@ -7,17 +7,20 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigRowWrapper
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.configControlHeight
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButtonDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 
 /**
@@ -41,49 +44,68 @@ fun InlineEditField(
     modifier: Modifier = Modifier,
     tooltip: (@Composable () -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
+    height: Dp = configControlHeight(),
     contentAlignment: Alignment = Alignment.Center,
     editIconScale: Int = 2,
     content: @Composable () -> Unit,
 ) {
-    val tooltipContent = tooltip
-    val fieldModifier = if (tooltipContent == null) {
-        modifier.height(configControlHeight())
-    } else {
-        modifier.height(configControlHeight()).tooltip { tooltipContent() }
-    }
+    DisplayField(
+        modifier = modifier,
+        tooltip = tooltip,
+        leadingIcon = leadingIcon,
+        trailingIcon = {
+            IconButton(onClick = onEdit) { Icon(Icons.Edit) }
+        },
+        height = height,
+        contentAlignment = contentAlignment,
+        editIconScale = editIconScale,
+        content = content
+    )
+}
 
+@Composable
+fun DisplayField(
+    modifier: Modifier = Modifier,
+    tooltip: (@Composable () -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    height: Dp = configControlHeight(),
+    contentAlignment: Alignment = Alignment.Center,
+    editIconScale: Int = 2,
+    content: @Composable () -> Unit,
+) {
     Surface(
-        modifier = fieldModifier,
-        color = InlineEditFieldDefaults.FieldColor,
+        modifier = modifier
+            .height(height)
+            .thenIf(tooltip != null) { Modifier.tooltip { tooltip!!() } },
+        color = DisplayFieldDefaults.FieldColor,
         contentAlignment = Alignment.CenterStart,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(InlineEditFieldDefaults.FieldPadding),
+            modifier = Modifier.fillMaxWidth().padding(DisplayFieldDefaults.calculatePadding(leadingIcon != null, trailingIcon != null)),
             horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            leadingIcon?.invoke()
-            Box(Modifier.weight(1f), contentAlignment = contentAlignment) {
-                content()
-            }
-            CompositionLocalProvider(LocalIconScale provides editIconScale) {
-                IconButton(
-                    onClick = onEdit,
-                    contentPadding = InlineEditFieldDefaults.ButtonContentPadding,
-                    minSize = InlineEditFieldDefaults.ButtonMinSize,
-                ) {
-                    Icon(Icons.Edit)
+            CompositionLocalProvider(
+                LocalIconScale provides editIconScale,
+                IconButtonDefaults.LocalContentPadding provides DisplayFieldDefaults.ButtonContentPadding,
+                IconButtonDefaults.LocalMinSize provides DisplayFieldDefaults.ButtonMinSize,
+            ) {
+                leadingIcon?.invoke()
+                Box(Modifier.weight(1f), contentAlignment = contentAlignment) {
+                    content()
                 }
+                trailingIcon?.invoke()
             }
         }
     }
 }
 
 /**
- * [InlineEditField] 的缺省规格：框内自带的编辑按钮与调用方塞进框内的动作按钮（试听之类）
+ * [DisplayField] 的缺省规格：框内自带的编辑按钮与调用方塞进框内的动作按钮（试听之类）
  * 取同一组值，才保持同形。
  */
-object InlineEditFieldDefaults {
+object DisplayFieldDefaults {
 
     /** 框内动作按钮的最小尺寸：按 2 倍图标（32dp）留一圈，可塞进配置控件的统一高度内。 */
     val ButtonMinSize: DpSize = DpSize(40.dp, 40.dp)
@@ -101,5 +123,12 @@ object InlineEditFieldDefaults {
      */
     val FieldColor: Color
         @Composable @ReadOnlyComposable
-        get() = LocalColorScheme.current.surfaceVariant
+        get() = SokitsuTheme.colorScheme.surfaceVariant
+
+    @Composable
+    fun calculatePadding(hasLeadingIcon: Boolean, hasTrailingIcon: Boolean): PaddingValues {
+        val start = if (hasLeadingIcon) 12.dp else 16.dp
+        val end = if (hasTrailingIcon) 12.dp else 16.dp
+        return PaddingValues(start = start, end = end)
+    }
 }

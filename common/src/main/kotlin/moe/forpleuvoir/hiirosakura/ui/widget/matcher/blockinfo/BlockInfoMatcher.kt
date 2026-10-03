@@ -62,6 +62,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 import moe.forpleuvoir.hiirosakura.ui.util.rememberClipboardWriter
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 
 //region Displayer
 
@@ -149,6 +150,7 @@ fun BlockInfoMatcherDisplayer(
                     BlockInfoMatcherInfo(value)
                 },
             contentAlignment = Alignment.Center,
+            color = SokitsuTheme.colorScheme.surfaceVariant
         ) {
             Box(Modifier.padding(TextFieldDefaults.contentPadding())) {
                 Row(

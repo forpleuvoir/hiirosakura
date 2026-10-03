@@ -1,9 +1,5 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
-import moe.forpleuvoir.hiirosakura.HSLang
-
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.*
@@ -14,38 +10,22 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplay
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
+import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.*
 import moe.forpleuvoir.hiirosakura.ui.util.NullableInputTransformation
 import moe.forpleuvoir.hiirosakura.ui.util.NullableTrailingIcon
 import moe.forpleuvoir.hiirosakura.ui.widget.HolderSetBlockEditorDialog
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemIconButton
+import moe.forpleuvoir.hiirosakura.ui.widget.ToggleButton
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.configControlHeight
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogAddButton
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContent
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentCards
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentDefaults
-import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.ButtonDefaults
+import moe.forpleuvoir.ibukigourd.ui.editdialog.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalColorScheme
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FloatField
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
@@ -221,20 +201,11 @@ fun ToolEditorDialog(
                                 suffix = "can_destroy_blocks_in_creative",
                                 modifier = Modifier.weight(1f),
                             ) {
-                                Button(
-                                    onClick = { canDestroyBlocksInCreative = !canDestroyBlocksInCreative },
+                                ToggleButton(
+                                    canDestroyBlocksInCreative,
+                                    { canDestroyBlocksInCreative = it },
                                     modifier = Modifier.fillMaxWidth().height(configControlHeight()),
-                                    colors = if (canDestroyBlocksInCreative) {
-                                        ButtonDefaults.colors(
-                                            color = LocalColorScheme.current.primaryContainer,
-                                            contentColor = LocalColorScheme.current.onPrimaryContainer,
-                                        )
-                                    } else {
-                                        ButtonDefaults.colors()
-                                    },
-                                ) {
-                                    Text(IGLang.Misc.coloredSwitch(canDestroyBlocksInCreative))
-                                }
+                                )
                             }
                         }
                     },

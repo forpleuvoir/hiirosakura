@@ -1,33 +1,22 @@
 package moe.forpleuvoir.hiirosakura.config.items
 
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
-
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.ui.widget.SoundEventEditorDialog
 import moe.forpleuvoir.hiirosakura.ui.widget.SoundEventSelectorInnerEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.getSubtitle
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigDialogDefaults
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigDialogTitle
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigListRow
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.asDerivedState
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.*
 import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContent
 import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentDefaults
 import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentList
 import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
 import moe.forpleuvoir.nebula.common.util.checkType
@@ -106,13 +95,17 @@ private fun SoundEventListEditDialog(
         minWidth = ConfigDialogDefaults.MinWidth,
         maxHeight = ConfigDialogDefaults.MaxHeight,
         content = {
+            var showDialog by remember { mutableStateOf(false) }
+
             EditDialogContent(
                 modifier = Modifier.width(ConfigDialogDefaults.ContentWidth),
                 // 表头交给表格自己（列宽与单元格天然对齐），这里不再叠一层
                 header = {},
                 addButton = {
                     Button(
-                        onClick = { keyed.add(SoundEvents.EMPTY) },
+                        onClick = {
+                            showDialog = true
+                        },
                         contentPadding = ConfigControlDefaults.IconButtonPadding,
                     ) {
                         Icon(Icons.Add, scale = configIconScale())
@@ -143,6 +136,14 @@ private fun SoundEventListEditDialog(
                             )
                         }
                     },
+                )
+            }
+
+            if (showDialog) {
+                SoundEventEditorDialog(
+                    selected = SoundEvents.EMPTY,
+                    onSelect = { sound -> keyed.add(sound) },
+                    onDismissRequest = { showDialog = false },
                 )
             }
         },

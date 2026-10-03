@@ -129,7 +129,6 @@ fun EquippableEditorDialog(
                     HolderSoundEventSelector(
                         result.equipSound,
                         { result = result.copy(equipSound = it) },
-                        contentPadding = LabeledFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
                         modifier = Modifier.fillMaxWidth()
                     )
                     //assetId
@@ -162,7 +161,6 @@ fun EquippableEditorDialog(
                     HolderSoundEventSelector(
                         result.shearingSound,
                         { result = result.copy(shearingSound = it) },
-                        contentPadding = LabeledFieldDefaults.contentPadding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 16.dp),
                         modifier = Modifier.fillMaxWidth()
                     )
 

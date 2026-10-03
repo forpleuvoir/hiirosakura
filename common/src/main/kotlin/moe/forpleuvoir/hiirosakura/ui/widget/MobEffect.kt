@@ -32,6 +32,8 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.layout.fillMaxWidth
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.SokitsuScreen
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 
 @Composable
 fun MobEffectInstanceEditorDialog(
@@ -67,16 +69,25 @@ fun MobEffectInstanceEditorContent(
         MobEffectSelector(
             value.effect.value(),
             { onValueChange(value.copy(effect = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(it))) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(0.dp)
         )
-        LabelBox(label = { Text(key, suffix = "duration") }, modifier = Modifier.fillMaxWidth()) {
+        LabelBox(
+            label = { Text(key, suffix = "duration", fontSize = SokitsuTheme.typography.body.fontSize) },
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(0.dp)
+        ) {
             IntField(
                 value.duration,
                 onValueChange = { onValueChange(value.copy(duration = it)) },
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-        LabelBox(label = { Text(key, suffix = "amplifier") }, modifier = Modifier.fillMaxWidth()) {
+        LabelBox(
+            label = { Text(key, suffix = "amplifier", fontSize = SokitsuTheme.typography.body.fontSize) },
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(0.dp)
+        ) {
             IntField(
                 value.amplifier,
                 onValueChange = { onValueChange(value.copy(amplifier = it)) },
@@ -129,51 +140,47 @@ fun MobEffectInstanceEditorContent(
             Switch(value.showIcon, { onValueChange(value.copy(showIcon = it)) })
         }
         LabelBox(
-            label = { Text(key, suffix = "hidden_effect") },
+            label = { Text(key, suffix = "hidden_effect", fontSize = SokitsuTheme.typography.body.fontSize) },
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(16.dp, 8.dp, 8.dp, 8.dp)
+            contentPadding = PaddingValues(0.dp)
         ) {
-            Row(
+            var showDialog by remember { mutableStateOf(false) }
+            DisplayField(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                var showDialog by remember { mutableStateOf(false) }
-
-                value.hiddenEffect?.let { hiddenEffect ->
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            hiddenEffect.effect.value().displayName,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.mobEffectInstanceTip(hiddenEffect, key)
-                        )
-                        RemoveConfirmButton(
-                            message = key.asTranslateText(suffix = "hidden_effect", fallback = "Hidden Effect").plainText,
-                            onConfirm = { onValueChange(value.copy(hiddenEffect = null)) },
-                        )
+                contentAlignment = Alignment.CenterStart,
+                trailingIcon = {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        value.hiddenEffect?.let {
+                            RemoveConfirmButton(
+                                message = key.asTranslateText(suffix = "hidden_effect", fallback = "Hidden Effect").plainText,
+                                onConfirm = { onValueChange(value.copy(hiddenEffect = null)) },
+                            )
+                        }
+                        IconButton(onClick = { showDialog = true }) {
+                            Icon(Icons.Edit)
+                        }
                     }
-                } ?: Text(component = HSLang.Common.unset, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-
-                IconButton(onClick = { showDialog = true }) {
-                    Icon(Icons.Edit)
                 }
-
-
-                if (showDialog) {
-                    MobEffectInstanceEditorDialog(
-                        value.hiddenEffect ?: MobEffectInstance(MobEffects.LUCK),
-                        {
-                            onValueChange(value.copy(hiddenEffect = it))
-                        },
-                        key = key,
-                        onDismissRequest = { showDialog = false },
-                        title = { DataComponentDialogTitle(key, suffix = "hidden_effect") },
+            ) {
+                value.hiddenEffect?.let { hiddenEffect ->
+                    Text(
+                        hiddenEffect.effect.value().displayName,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.mobEffectInstanceTip(hiddenEffect, key)
                     )
-                }
+                } ?: Text(component = HSLang.Common.unset, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            if (showDialog) {
+                MobEffectInstanceEditorDialog(
+                    value.hiddenEffect ?: MobEffectInstance(MobEffects.LUCK),
+                    {
+                        onValueChange(value.copy(hiddenEffect = it))
+                    },
+                    key = key,
+                    onDismissRequest = { showDialog = false },
+                    title = { DataComponentDialogTitle(key, suffix = "hidden_effect") },
+                )
             }
         }
     }

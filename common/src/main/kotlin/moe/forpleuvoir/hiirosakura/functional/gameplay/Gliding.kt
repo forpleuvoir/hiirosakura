@@ -57,7 +57,6 @@ object Gliding : ConfigGroup("gliding") {
     val fireworkMatcher by configItemStackMatcher(
         "firework_matcher", ItemStackMatcher(
             CompositeMatcher.MatchMode.AllMatch,
-            ItemStackMatchEntry.Item(Items.FIREWORK_ROCKET),
             ItemStackMatchEntry.Script(
                 """
                 // Get the fireworks component ("minecraft:fireworks") from the item stack
@@ -79,7 +78,7 @@ object Gliding : ConfigGroup("gliding") {
                         result.set(true);
                     }
                 }
-            """.trimIndent(), MatchEntry.MatchMode.Exclude
+            """.trimIndent(), MatchEntry.MatchMode.Include
             ),
         )
     )

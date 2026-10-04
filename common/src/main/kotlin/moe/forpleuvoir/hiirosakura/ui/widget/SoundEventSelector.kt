@@ -6,7 +6,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.ui.icon.Play
 import moe.forpleuvoir.ibukigourd.text.MutableText
@@ -217,6 +216,7 @@ fun SoundEventEditorDialog(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(ConfigRowWrapper.spacing),
                 verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.tooltip { Text(sound.location.toString()) },
             ) {
                 SoundPlayButton(sound)
                 Text(sound.getSubtitle(), maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -245,43 +245,33 @@ fun OptionalHolderSoundEventSelector(
     modifier: Modifier = Modifier,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-
-    Row(
-        modifier = modifier.fillMaxWidth().thenIf(value.isPresent) {
-            Modifier.tooltip {
-                Text(value.get().value().location.toString())
-            }
-        },
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Row(
-            modifier = Modifier.weight(1f, false),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            value.getOrNull()?.let {
-                SoundPlayButton(it)
-                Spacer(Modifier.width(4.dp))
-                Text(it.value().getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
-            } ?: run {
-                Spacer(Modifier.width(4.dp))
-                Text(component = HSLang.Common.unset)
-            }
-        }
-
-        Row {
-            value.getOrNull()?.let {
-                IconButton({ onValueChange(Optional.empty()) }) {
-                    Icon(Icons.Delete)
+    DisplayField(
+        modifier = modifier,
+        tooltip = if (value.isPresent) {
+            { Text(value.get().value().location.toString()) }
+        } else null,
+        leadingIcon = { value.getOrNull()?.let { SoundPlayButton(it) } },
+        trailingIcon = {
+            Row {
+                value.getOrNull()?.let {
+                    IconButton({ onValueChange(Optional.empty()) }) {
+                        Icon(Icons.Delete)
+                    }
+                }
+                IconButton({
+                    showDialog = true
+                }) {
+                    Icon(Icons.Edit)
                 }
             }
-            IconButton({
-                showDialog = true
-            }) {
-                Icon(Icons.Edit)
-            }
-        }
+        },
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        value.getOrNull()?.let {
+            Text(it.value().getSubtitle(), overflow = TextOverflow.Ellipsis, maxLines = 1)
+        } ?: Text(HSLang.Common.unset)
     }
+
 
     if (showDialog) {
         SoundEventEditorDialog(

@@ -1,7 +1,6 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
-
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -13,17 +12,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
 import moe.forpleuvoir.hiirosakura.HSLang
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplay
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.*
+import moe.forpleuvoir.hiirosakura.ui.util.canScroll
+import moe.forpleuvoir.hiirosakura.ui.widget.DisplayField
 import moe.forpleuvoir.hiirosakura.ui.widget.HolderSetEntityTypeEditorDialog
 import moe.forpleuvoir.hiirosakura.ui.widget.HolderSoundEventSelector
+import moe.forpleuvoir.hiirosakura.ui.widget.HolderSoundEventSelectorInnerEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlBlock
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
 import moe.forpleuvoir.ibukigourd.ui.selector.Selector
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.util.identifier
 import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.core.Holder
@@ -40,16 +42,6 @@ import net.minecraft.world.item.equipment.Equippable
 import java.util.*
 import kotlin.jvm.optionals.getOrElse
 import kotlin.jvm.optionals.getOrNull
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
-import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
 
 @Composable
 fun EquippableComponentWrapper(
@@ -105,15 +97,15 @@ fun EquippableEditorDialog(
             onValueChange(result)
             true
         },
+        maxWidth = AlertDialogDefaults.maxWidth + 120.dp,
         content = {
             Row(
-                modifier = Modifier.heightIn(max = 750.dp)
+                modifier = Modifier.height(IntrinsicSize.Min),
             ) {
                 val scrollState = rememberScrollState()
                 Column(
                     Modifier
                         .weight(1f)
-                        .fillMaxHeight()
                         .verticalScroll(scrollState),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
@@ -126,11 +118,13 @@ fun EquippableEditorDialog(
                         )
                     }
                     //equipSound
-                    HolderSoundEventSelector(
-                        result.equipSound,
-                        { result = result.copy(equipSound = it) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    DataComponentField(key, suffix = "equip_sound", modifier = Modifier.fillMaxWidth()) {
+                        HolderSoundEventSelectorInnerEditor(
+                            result.equipSound,
+                            { result = result.copy(equipSound = it) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                     //assetId
                     AssetId(key, result) { result = it }
                     //cameraOverlay
@@ -158,18 +152,20 @@ fun EquippableEditorDialog(
                         Switch(result.canBeSheared, { result = result.copy(canBeSheared = it) })
                     }
                     //shearingSound
-                    HolderSoundEventSelector(
-                        result.shearingSound,
-                        { result = result.copy(shearingSound = it) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
+                    EntryRow(key, "shearing_sound") {
+                        ConfigControlBlock {
+                            HolderSoundEventSelectorInnerEditor(
+                                result.shearingSound,
+                                { result = result.copy(shearingSound = it) },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
                 }
-                Spacer(Modifier.width(8.dp))
-                VerticalFlatScroller(
-                    adapter = rememberScrollerAdapter(scrollState),
-                    modifier = Modifier.fillMaxHeight()
-                )
+                if (scrollState.canScroll) {
+                    Spacer(Modifier.width(8.dp))
+                    VerticalFlatScroller(adapter = rememberScrollerAdapter(scrollState), modifier = Modifier.fillMaxHeight())
+                }
             }
         }
     )
@@ -190,42 +186,49 @@ private fun AllowedEntities(
         key,
         suffix = "allowed_entities",
         fallback = "Allowed Entities",
-        modifier = Modifier
-            .fillMaxWidth()
-            .thenIf(allowedEntities.isPresent && allowedEntities.get().size() > 0) {
-                Modifier.tooltip {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        allowedEntities.get().take(10).forEach {
-                            Text(it.value().description)
-                        }
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        DisplayField(
+            modifier = Modifier.fillMaxWidth()
+                .thenIf(allowedEntities.isPresent && allowedEntities.get().size() > 0) {
+                    Modifier.tooltip {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            allowedEntities.get().take(10).forEach {
+                                Text(it.value().description)
+                            }
 
-                        if (allowedEntities.get().size() > 10) {
-                            Text("...")
+                            if (allowedEntities.get().size() > 10) {
+                                Text("...")
+                            }
                         }
                     }
-                }
-            },
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            DataComponentDisplay(
-                modifier = Modifier.weight(1f),
-                onEdit = { showAllowedEntitiesDialog = true },
-            ) {
-                value.allowedEntities.getOrNull()?.let { entities ->
-                    Text(component = IGLang.ConfigWrapper.listConfigWrapperText(entities.size()), overflow = TextOverflow.Ellipsis, maxLines = 1)
-                } ?: run {
-                    Text(component = HSLang.Common.unset)
+                },
+            contentAlignment = Alignment.CenterStart,
+            trailingIcon = {
+                Row {
+                    if (value.cameraOverlay.isPresent) {
+                        IconButton(onClick = {
+                            onValueChange(value.copy(allowedEntities = Optional.ofNullable(null)))
+                        }) {
+                            Icon(Icons.Delete)
+                        }
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    IconButton(onClick = { showAllowedEntitiesDialog = true }) { Icon(Icons.Edit) }
                 }
             }
-
-            IconButton(onClick = {
-                onValueChange(value.copy(allowedEntities = Optional.ofNullable(null)))
-            }) {
-                Icon(Icons.Delete)
+        ) {
+            value.allowedEntities.getOrNull()?.let { entities ->
+                var showTooltip by remember { mutableStateOf(false) }
+                Text(
+                    IGLang.ConfigWrapper.listConfigWrapperText(entities.size()),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    softWrap = false,
+                    onTextLayout = { showTooltip = it.hasVisualOverflow }
+                )
+            } ?: run {
+                Text(component = HSLang.Common.unset)
             }
         }
     }
@@ -257,26 +260,39 @@ private fun CameraOverlay(
         fallback = "Camera Overlay",
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Row(
+        DisplayField(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            DataComponentDisplay(
-                modifier = Modifier.weight(1f),
-                onEdit = { showCameraOverlayDialog = true },
-            ) {
-                value.cameraOverlay.getOrNull()?.let { overlay ->
-                    Text(overlay, overflow = TextOverflow.Ellipsis, maxLines = 1)
-                } ?: run {
-                    Text(component = HSLang.Common.unset)
+            contentAlignment = Alignment.CenterStart,
+            trailingIcon = {
+                Row {
+                    if (value.cameraOverlay.isPresent) {
+                        IconButton(onClick = {
+                            onValueChange(value.copy(cameraOverlay = Optional.ofNullable(null)))
+                        }) {
+                            Icon(Icons.Delete)
+                        }
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    IconButton(onClick = { showCameraOverlayDialog = true }) { Icon(Icons.Edit) }
                 }
             }
-
-            IconButton(onClick = {
-                onValueChange(value.copy(cameraOverlay = Optional.ofNullable(null)))
-            }) {
-                Icon(Icons.Delete)
+        ) {
+            value.cameraOverlay.getOrNull()?.let { overlay ->
+                var showTooltip by remember { mutableStateOf(false) }
+                Text(
+                    overlay,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    softWrap = false,
+                    modifier = Modifier.thenIf(showTooltip) {
+                        Modifier.tooltip {
+                            Text(overlay)
+                        }
+                    },
+                    onTextLayout = { showTooltip = it.hasVisualOverflow }
+                )
+            } ?: run {
+                Text(component = HSLang.Common.unset)
             }
         }
     }
@@ -304,26 +320,39 @@ private fun AssetId(
         fallback = "Asset ID",
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Row(
+        DisplayField(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            DataComponentDisplay(
-                modifier = Modifier.weight(1f),
-                onEdit = { showAssetIDDialog = true },
-            ) {
-                value.assetId.getOrNull()?.let { assetId ->
-                    Text(assetId.identifier(), overflow = TextOverflow.Ellipsis, maxLines = 1)
-                } ?: run {
-                    Text(component = HSLang.Common.unset)
+            contentAlignment = Alignment.CenterStart,
+            trailingIcon = {
+                Row {
+                    if (value.assetId.isPresent) {
+                        IconButton(onClick = {
+                            onValueChange(value.copy(assetId = Optional.ofNullable(null)))
+                        }) {
+                            Icon(Icons.Delete)
+                        }
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    IconButton(onClick = { showAssetIDDialog = true }) { Icon(Icons.Edit) }
                 }
             }
-
-            IconButton(onClick = {
-                onValueChange(value.copy(assetId = Optional.ofNullable(null)))
-            }) {
-                Icon(Icons.Delete)
+        ) {
+            value.assetId.getOrNull()?.let { assetId ->
+                var showTooltip by remember { mutableStateOf(false) }
+                Text(
+                    assetId.identifier(),
+                    modifier = Modifier.thenIf(showTooltip) {
+                        Modifier.tooltip {
+                            Text(assetId.identifier())
+                        }
+                    },
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    softWrap = false,
+                    onTextLayout = { showTooltip = it.hasVisualOverflow }
+                )
+            } ?: run {
+                Text(component = HSLang.Common.unset)
             }
         }
     }
@@ -347,38 +376,44 @@ private fun AssetId(
             title = { DataComponentDialogTitle(key, suffix = "asset_id", fallback = "Asset ID") },
             content = {
                 Column {
-                    DataComponentField(title = { Text("Namespace", fontSize = SokitsuTheme.typography.body.fontSize) }) {
-                        Column {
-                            TextField(
-                                namespace,
-                                isError = !checkNamespace,
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                            if (!checkNamespace) {
-                                Text("Non [a-z0-9_.-] character in namespace of location")
-                            }
-                        }
+                    LabelBox(
+                        label = { Text(HSLang.ItemEditor.namespace, fontSize = SokitsuTheme.typography.body.fontSize) }
+                    ) {
+                        TextField(
+                            namespace,
+                            isError = !checkNamespace,
+                            modifier = Modifier
+                                .thenIf(!checkNamespace) {
+                                    Modifier.tooltip(pinned = !checkNamespace) {
+                                        Text(HSLang.ItemEditor.namespaceInvalid)
+                                    }
+                                }
+                                .fillMaxWidth(),
+                        )
                     }
                     Spacer(Modifier.height(8.dp))
-                    DataComponentField(title = { Text("Path", fontSize = SokitsuTheme.typography.body.fontSize) }) {
-                        Column {
-                            TextField(
-                                path,
-                                isError = !checkPath,
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                            if (!checkPath) {
-                                Text("Non [a-z0-9/._-] character in path of location")
-                            }
-                        }
+                    LabelBox(
+                        label = { Text(HSLang.ItemEditor.path, fontSize = SokitsuTheme.typography.body.fontSize) }
+                    ) {
+                        TextField(
+                            path,
+                            isError = !checkPath,
+                            modifier = Modifier
+                                .thenIf(!checkPath) {
+                                    Modifier.tooltip(pinned = !checkPath) {
+                                        Text(HSLang.ItemEditor.pathInvalid)
+                                    }
+                                }
+                                .fillMaxWidth(),
+                        )
                     }
                     Spacer(Modifier.height(8.dp))
-                    var selected by remember { mutableStateOf(equipmentAssetKeys.first()) }
-                    DataComponentField(title = {
-                        Text(component = HSLang.ItemEditor.fromResourceManager, fontSize = SokitsuTheme.typography.body.fontSize)
-                    }) {
+                    LabelBox(
+                        label = { Text(HSLang.ItemEditor.fromResourceManager, fontSize = SokitsuTheme.typography.body.fontSize) }
+                    ) {
+                        var selected by remember { mutableStateOf(equipmentAssetKeys.first()) }
                         Selector(
-                            equipmentAssetKeys.first(),
+                            selected,
                             {
                                 namespace.edit {
                                     replace(0, length, it.identifier().namespace)
@@ -389,7 +424,6 @@ private fun AssetId(
                                 selected = it
                             },
                             items = equipmentAssetKeys,
-
                             content = {
                                 Text(it.identifier(), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             },
@@ -422,7 +456,7 @@ private fun AssetId(
 }
 
 @Composable
-private fun EntryRow(key: Identifier, suffix: String, fallback: String, content: @Composable RowScope. () -> Unit) {
+private fun EntryRow(key: Identifier, suffix: String, fallback: String? = null, content: @Composable RowScope. () -> Unit) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
         Text(key, suffix = suffix, fallback = fallback)
         content()

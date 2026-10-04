@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.component.Weapon
@@ -70,10 +71,9 @@ fun WeaponEditorDialog(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                DataComponentField(
+                DataComponentSection(
                     key,
                     suffix = "item_damage_per_attack",
-                    fallback = "Item Damage Per Attack",
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     IntField(
@@ -83,10 +83,9 @@ fun WeaponEditorDialog(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                DataComponentField(
+                DataComponentSection(
                     key,
                     suffix = "disable_blocking_for_seconds",
-                    fallback = "Disable Blocking For Seconds",
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     FloatField(

@@ -91,7 +91,6 @@ fun UseEffectsEditorDialog(
                         editing.speedMultiplier,
                         { editing = editing.copy(speedMultiplier = it) },
                         valueRange = 0f..1f,
-                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }

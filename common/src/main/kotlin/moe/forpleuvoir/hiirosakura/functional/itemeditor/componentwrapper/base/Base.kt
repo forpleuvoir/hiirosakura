@@ -485,13 +485,13 @@ fun DataComponentEntryRow(
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .hoverable(interactionSource)
             .hoverHighlight(interactionSource),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .hoverable(interactionSource)
-                .padding(20.dp, 8.dp, 12.dp, 8.dp),
+                .padding(16.dp, 8.dp, 12.dp, 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {

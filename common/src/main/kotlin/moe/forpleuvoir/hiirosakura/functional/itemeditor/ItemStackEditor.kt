@@ -1,14 +1,8 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor
 
-import moe.forpleuvoir.hiirosakura.ui.modifier.vanillaTooltip
-import moe.forpleuvoir.ibukigourd.util.mc
-import net.minecraft.world.item.TooltipFlag
-
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.hoverHighlight
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,24 +18,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrappers
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrappers.DataComponentWrapper
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
+import moe.forpleuvoir.hiirosakura.ui.modifier.vanillaTooltip
+import moe.forpleuvoir.hiirosakura.ui.util.LocalRegistryAccess
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowser
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemIconButton
 import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
-import moe.forpleuvoir.hiirosakura.ui.widget.truncateLines
-import moe.forpleuvoir.hiirosakura.util.*
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.SerializeElementEditor
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.SerializeElementType
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.matchesType
-import moe.forpleuvoir.ibukigourd.util.NebulaOps
+import moe.forpleuvoir.hiirosakura.ui.widget.truncateLines
+import moe.forpleuvoir.hiirosakura.util.*
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
+import moe.forpleuvoir.ibukigourd.ui.selector.Selector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
+import moe.forpleuvoir.ibukigourd.util.NebulaOps
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.nebula.common.color.Color
 import moe.forpleuvoir.nebula.common.color.Colors
@@ -55,17 +56,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.selector.Selector
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
-import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.SurfaceDefaults
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
+import net.minecraft.world.item.TooltipFlag
 
 private val logger = logger("ItemStackEditor")
 
@@ -112,8 +103,9 @@ fun ItemStackEditor(
             ) {
                 ItemPreview(editingItem, modifier = Modifier.weight(0.75f))
                 ItemType(item, { item = it }, modifier = Modifier.weight(0.75f))
-                ItemCount(count, { count = it }, dataComponents.maxCount, modifier = Modifier.weight(0.5f))
-                ComponentAdder(dataComponents, modifier = Modifier.weight(1.75f))
+                ItemCount(count, { count = it }, dataComponents.maxCount, modifier = Modifier.weight(0.65f))
+                //todo 加一个添加后转跳到目标位置
+                ComponentAdder(dataComponents, modifier = Modifier.weight(1.5f))
             }
             Spacer(Modifier.height(12.dp))
             Components(dataComponents)
@@ -252,7 +244,7 @@ private fun ComponentAdder(
     dataComponents: ObservableDataComponentMap,
     modifier: Modifier = Modifier,
 ) {
-    val registryManager = registryAccess!!
+    val registryManager = LocalRegistryAccess.current
 
     val components =
         registryManager.lookupOrThrow(Registries.DATA_COMPONENT_TYPE).sortedBy { it.key(registryManager) } - dataComponents.keySet()
@@ -343,15 +335,15 @@ private fun <C : Any> ComponentBuilderDialog(
     var rootType by remember { mutableStateOf(SerializeElementType.Object) }
 
     var data by remember { mutableStateOf(SerializeElementType.Object.defaultValue) }
-
+    val registryAccess = LocalRegistryAccess.current
     FlexibleDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.padding(24.dp),
-        title = { DataComponentDialogTitle(Component.literal(type.keyOrUnknown(registryAccess!!).toString())) },
+        title = { DataComponentDialogTitle(Component.literal(type.keyOrUnknown(LocalRegistryAccess.current).toString())) },
         onConfirmRequest = {
             runCatching {
                 type.codecOrThrow()
-                    .parse(registryAccess!!.createSerializationContext(NebulaOps), data)
+                    .parse(registryAccess.createSerializationContext(NebulaOps), data)
                     .orThrow
             }.fold(
                 onSuccess = { result ->
@@ -411,14 +403,15 @@ private fun Components(
                 if (components.isEmpty()) {
                     Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
                 } else {
+                    val registryAccess = LocalRegistryAccess.current
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxSize(),
                         state = lazyListState
                     ) {
                         items(
-                            components.keySet().sortedBy { it.keyOrUnknown(registryAccess!!) },
-                            key = { type -> type.keyOrUnknown(registryAccess!!) }
+                            components.keySet().sortedBy { it.keyOrUnknown(registryAccess) },
+                            key = { type -> type.keyOrUnknown(registryAccess) }
                         ) { type ->
                             components[type]?.let { component ->
                                 DataComponentWrapper(

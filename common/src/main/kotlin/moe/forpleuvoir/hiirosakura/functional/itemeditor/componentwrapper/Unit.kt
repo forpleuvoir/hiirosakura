@@ -1,6 +1,8 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,5 +19,7 @@ fun UnitComponentWrapper(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
 ) = DataComponentEntryRow(key, removeAction, modifier, horizontalArrangement, verticalAlignment) {
-    Text(key, suffix = "unit", fallback = "Unit")
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+        Text(key, suffix = "unit", fallback = "Unit")
+    }
 }

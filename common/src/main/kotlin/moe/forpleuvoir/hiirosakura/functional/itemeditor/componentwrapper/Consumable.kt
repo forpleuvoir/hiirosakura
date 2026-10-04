@@ -272,7 +272,7 @@ object ConsumableEditor {
                             Modifier.tooltip {
                                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                                     Row {
-                                        Text(ConsumeEffect.Type.APPLY_EFFECTS.id, suffix ="probability")
+                                        Text(ConsumeEffect.Type.APPLY_EFFECTS.id, suffix = "probability")
                                         Spacer(Modifier.width(8.dp))
                                         Text("%.2f".format(value.probability * 100) + "%")
                                     }
@@ -306,12 +306,14 @@ object ConsumableEditor {
                         .fillMaxWidth()
                         .thenIf(!value.effects.none()) {
                             Modifier.tooltip {
-                                value.effects.take(20).forEach {
-                                    Row {
-                                        Text(it.value().displayName)
+                                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                    value.effects.take(20).forEach {
+                                        Row {
+                                            Text(it.value().displayName)
+                                        }
                                     }
+                                    if (value.effects.count() > 20) Text("...")
                                 }
-                                if (value.effects.count() > 20) Text("...")
                             }
                         },
                     onEdit = { showDialog = true },

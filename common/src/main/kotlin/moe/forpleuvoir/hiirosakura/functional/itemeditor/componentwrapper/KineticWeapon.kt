@@ -117,16 +117,20 @@ fun KineticWeaponEditorDialog(
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OptionalHolderSoundEventSelector(
-                        editing.sound,
-                        { editing = editing.copy(sound = it) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    OptionalHolderSoundEventSelector(
-                        editing.hitSound,
-                        { editing = editing.copy(hitSound = it) },
-                        modifier = Modifier.weight(1f)
-                    )
+                    DataComponentSection(key, suffix = "sound", modifier = Modifier.weight(1f)) {
+                        OptionalHolderSoundEventSelector(
+                            editing.sound,
+                            { editing = editing.copy(sound = it) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    DataComponentSection(key, suffix = "hit_sound", modifier = Modifier.weight(1f)) {
+                        OptionalHolderSoundEventSelector(
+                            editing.hitSound,
+                            { editing = editing.copy(hitSound = it) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
 
                 Row(
@@ -203,7 +207,7 @@ fun OptionalKineticWeaponConditionCard(
                 }
             }
             value.getOrNull()?.let { value ->
-                DataComponentField(key, suffix = "max_duration_ticks", modifier = Modifier.fillMaxWidth()) {
+                DataComponentSection(key, suffix = "max_duration_ticks", modifier = Modifier.fillMaxWidth()) {
                     IntField(
                         value.maxDurationTicks,
                         { onValueChange(Optional.of(value.copy(maxDurationTicks = it))) },
@@ -211,14 +215,14 @@ fun OptionalKineticWeaponConditionCard(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                DataComponentField(key, suffix = "min_speed", modifier = Modifier.fillMaxWidth()) {
+                DataComponentSection(key, suffix = "min_speed", modifier = Modifier.fillMaxWidth()) {
                     FloatField(
                         value.minSpeed,
                         { onValueChange(Optional.of(value.copy(minSpeed = it))) },
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                DataComponentField(key, suffix = "min_relative_speed", modifier = Modifier.fillMaxWidth()) {
+                DataComponentSection(key, suffix = "min_relative_speed", modifier = Modifier.fillMaxWidth()) {
                     FloatField(
                         value.minRelativeSpeed,
                         { onValueChange(Optional.of(value.copy(minRelativeSpeed = it))) },

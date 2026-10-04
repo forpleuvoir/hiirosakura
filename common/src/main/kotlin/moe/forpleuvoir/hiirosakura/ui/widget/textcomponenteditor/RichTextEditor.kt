@@ -37,7 +37,7 @@ fun RichTextEditor(
             state = state.textState,
             lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 6, maxHeightInLines = 12),
             outputTransformation = state.outputTransformation,
-            modifier = Modifier.fillMaxWidth().richTextEditor(state),
+            modifier = Modifier.fillMaxWidth().height(260.dp).richTextEditor(state),
         )
         Spacer(Modifier.height(12.dp))
         Text(component = HSLang.TextEditor.preview)

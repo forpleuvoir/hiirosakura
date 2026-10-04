@@ -1,72 +1,53 @@
 package moe.forpleuvoir.hiirosakura.ui.widget
 
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
-
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.configControlHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
+import moe.forpleuvoir.hiirosakura.ui.util.LocalRegistryAccess
 import moe.forpleuvoir.hiirosakura.ui.util.canScroll
-import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.util.Keyed
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.configControlHeight
+import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.selector.Selector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
-import moe.forpleuvoir.ibukigourd.util.moveElement
 import net.minecraft.core.HolderSet
+import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.Registries
 import net.minecraft.tags.TagKey
 import net.minecraft.world.entity.EntityType
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import kotlin.jvm.optionals.getOrNull
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButtonGroup
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.editdialog.DragHandle
-import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.selector.Selector
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.foundation.layout.Row
 
 internal val entityTypeTags
-    get() = registryAccess!!.lookupOrThrow(Registries.ENTITY_TYPE).tags.map { it.key() }
+    @Composable get() = LocalRegistryAccess.current.lookupOrThrow(Registries.ENTITY_TYPE).tags.map { it.key() }
 
-internal val TagKey<EntityType<*>>.entityTypes
-    get() = registryAccess!!.lookupOrThrow(Registries.ENTITY_TYPE).getTagOrEmpty(this)
+internal fun TagKey<EntityType<*>>.entityTypes(registryAccess: RegistryAccess) =
+    registryAccess.lookupOrThrow(Registries.ENTITY_TYPE).getTagOrEmpty(this)
 
 internal val entityTypes
-    get() = registryAccess!!.lookupOrThrow(Registries.ENTITY_TYPE).stream()
+    @Composable get() = LocalRegistryAccess.current.lookupOrThrow(Registries.ENTITY_TYPE).stream()
 
-private val TagKey<EntityType<*>>.asHolderSet
-    get() = registryAccess!!.lookupOrThrow(Registries.ENTITY_TYPE).tags.filter {
+private fun TagKey<EntityType<*>>.asHolderSet(registryAccess: RegistryAccess) =
+    registryAccess.lookupOrThrow(Registries.ENTITY_TYPE).tags.filter {
         it.key().location == this.location
     }.findFirst().get()
 
@@ -84,26 +65,26 @@ fun HolderSetEntityTypeEditorDialog(
         )
     }
 
-
     var mode by remember { mutableStateOf(value !is HolderSet.Named) }
     LaunchedEffect(tag) {
         if (tag == null) mode = true
     }
 
     val types = rememberKeyedList(value.map { it.value() }.toList())
-
+    val registryAccess = LocalRegistryAccess.current
     SimpleAlertDialog(
         onDismissRequest = onDismissRequest,
         title = title,
         onConfirmRequest = {
-            val registry = registryAccess!!.lookupOrThrow(Registries.ENTITY_TYPE)
+            val registry = registryAccess.lookupOrThrow(Registries.ENTITY_TYPE)
             val list = HolderSet.direct(types.entries.values().map { registry.wrapAsHolder(it) })
             onValueChange(
                 if (mode) list
-                else tag?.asHolderSet ?: list
+                else tag?.asHolderSet(registryAccess) ?: list
             )
             true
         },
+        maxWidth = AlertDialogDefaults.maxWidth + 120.dp,
         content = {
             Column {
                 firstTag?.let {
@@ -120,10 +101,8 @@ fun HolderSetEntityTypeEditorDialog(
                     targetState = mode,
                     transitionSpec = {
                         if (targetState) {
-                            // false -> true锛氭柊鍐呭浠庡乏渚ц繘鍏?
                             slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
                         } else {
-                            // true -> false锛氭柊鍐呭浠庡彸渚ц繘鍏?
                             slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
                         }
                     },
@@ -131,7 +110,7 @@ fun HolderSetEntityTypeEditorDialog(
                 ) { currentMode ->
                     if (currentMode) {
                         Column {
-                            Row(verticalAlignment = Alignment.Bottom) {
+                            Row {
                                 EntityTypeSelector(
                                     entityTypes.findFirst().get(),
                                     { type ->
@@ -140,7 +119,6 @@ fun HolderSetEntityTypeEditorDialog(
                                         }
                                     },
                                     modifier = Modifier.weight(1f).height(configControlHeight()),
-                                    contentPadding = LabeledFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
                                     content = { Text(component = HSLang.ItemEditor.addFromRegistry) }
                                 )
 
@@ -149,29 +127,29 @@ fun HolderSetEntityTypeEditorDialog(
                                     EntityTypeTagSelector(
                                         it,
                                         { tag ->
-                                            tag.entityTypes.forEach { item ->
-                                                if (!types.entries.any { it.value == item.value() }) {
+                                            tag.entityTypes(registryAccess).forEach { item ->
+                                                if (!types.entries.any { keyed -> keyed.value == item.value() }) {
                                                     types.add(item.value())
                                                 }
                                             }
                                         },
                                         modifier = Modifier.weight(1f).height(configControlHeight()),
-                                        contentPadding = LabeledFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
                                         content = { Text(component = HSLang.ItemEditor.addFromTag) }
                                     )
                                 }
                             }
                             Spacer(Modifier.height(12.dp))
-                            DataComponentSection(component = HSLang.ItemEditor.tags) {
+                            DataComponentSection(component = HSLang.ItemEditor.entities) {
                                 Row(modifier = Modifier.fillMaxWidth().height(460.dp)) {
                                     val lazyListState = rememberLazyListState()
                                     if (types.entries.isEmpty()) {
-                                        Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
-                                    } else {
-                                        val hapticFeedback = LocalHapticFeedback.current
+                                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                            Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
+                                        }
+                                    }
+                                    else {
                                         val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
                                             types.move(from.index, to.index)
-                                            hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
                                         }
                                         LazyColumn(
                                             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -183,36 +161,30 @@ fun HolderSetEntityTypeEditorDialog(
                                                 key = { _, keyed -> keyed.key }
                                             ) { index, (key, type) ->
                                                 ReorderableItem(
-                                                    reorderableLazyListState, key,
-                                                    animateItemModifier = hsItemAnimation(),
-                                                ) { isDragging ->
-                                                    val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                                                    val handleInteraction = remember { MutableInteractionSource() }
-
-                                                    val handleHovered by handleInteraction.collectIsHoveredAsState()
+                                                    reorderableLazyListState,
+                                                    key,
+                                                ) { _ ->
                                                     Surface(
-                                                        modifier = Modifier.fillMaxWidth().scale(scale)
+                                                        modifier = Modifier.fillMaxWidth()
                                                     ) {
-                                                        Row(
-                                                            Modifier.padding(4.dp).fillMaxWidth(),
-                                                            verticalAlignment = Alignment.CenterVertically,
-                                                            horizontalArrangement = Arrangement.SpaceBetween
-                                                        ) {
+                                                        CompositionLocalProvider(IconButtonDefaults.LocalMinSize provides DisplayFieldDefaults.ButtonMinSize) {
                                                             Row(
+                                                                Modifier
+                                                                    .padding(horizontal = 12.dp, vertical = 10.dp)
+                                                                    .fillMaxWidth(),
                                                                 verticalAlignment = Alignment.CenterVertically,
-                                                                horizontalArrangement = Arrangement.spacedBy(12.dp)
                                                             ) {
-                                                                DragHandle(modifier = Modifier)
-                                                                Text(type.description)
-                                                            }
-
-
-                                                            Row(
-                                                                verticalAlignment = Alignment.CenterVertically,
-                                                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                                            ) {
+                                                                DragHandle(modifier = Modifier.draggableHandle())
+                                                                Spacer(Modifier.width(12.dp))
+                                                                Text(
+                                                                    type.description,
+                                                                    modifier = Modifier
+                                                                        .weight(1f)
+                                                                        .tooltip { Text(type.descriptionId) }
+                                                                )
+                                                                Spacer(Modifier.width(12.dp))
                                                                 RemoveConfirmButton(
-                                                                    "",
+                                                                    type.description.string,
                                                                     onConfirm = { types.removeAt(index) },
                                                                 )
                                                             }
@@ -221,21 +193,21 @@ fun HolderSetEntityTypeEditorDialog(
                                                 }
                                             }
                                         }
+                                        if (lazyListState.canScroll) {
+                                            Spacer(Modifier.width(8.dp))
 
-                                        Spacer(Modifier.width(8.dp))
-
-                                        VerticalFlatScroller(
-                                            adapter = rememberScrollerAdapter(lazyListState),
-                                            modifier = Modifier.fillMaxHeight()
-                                        )
-
+                                            VerticalFlatScroller(
+                                                adapter = rememberScrollerAdapter(lazyListState),
+                                                modifier = Modifier.fillMaxHeight()
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
 
                     } else {
-                        tag?.let { EntityTypeTagSelector(it, { tag = it }) }
+                        tag?.let { EntityTypeTagSelector(it, { tagKey -> tag = tagKey }) }
                             ?: Text(component = IGLang.Misc.hasNothing)
                     }
                 }
@@ -263,11 +235,7 @@ fun EntityTypeSelector(
     },
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (EntityType<*>) -> Unit)?)? = null,
-    itemTrailingIcon: ((Boolean) -> (@Composable (EntityType<*>) -> Unit)?)? = null,
-    textStyle: TextStyle = LocalTextStyle.current,
-    interactionSource: MutableInteractionSource? = null,
-    shape: Shape = RectangleShape,
-    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
+    itemTrailingIcon: ((Boolean) -> (@Composable (EntityType<*>) -> Unit)?)? = null
 ) {
     Selector(
         selected = selected,
@@ -291,23 +259,24 @@ fun EntityTypeTagSelector(
     onSelect: (TagKey<EntityType<*>>) -> Unit,
     items: List<TagKey<EntityType<*>>> = entityTypeTags.toList(),
     itemEquals: (TagKey<EntityType<*>>, TagKey<EntityType<*>>) -> Boolean = { a, b -> a == b },
+    registryAccess: RegistryAccess = LocalRegistryAccess.current,
     content: @Composable (TagKey<EntityType<*>>) -> Unit = {
         Text(
             "#${it.location}",
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.tooltip {
-                val types = it.entityTypes
+                val types = it.entityTypes(registryAccess)
                 if (types.count() == 0) {
                     Text(component = IGLang.Misc.hasNothing)
                     return@tooltip
                 } else {
                     Column {
-                        types.take(20).forEach { type ->
+                        types.take(15).forEach { type ->
                             Text(type.value().description)
                         }
 
-                        if (types.count() > 20) Text("...")
+                        if (types.count() > 15) Text("...")
                     }
                 }
             }
@@ -317,17 +286,17 @@ fun EntityTypeTagSelector(
         Text(
             "#${item.location}",
             modifier = Modifier.tooltip {
-                val types = item.entityTypes
+                val types = item.entityTypes(registryAccess)
                 if (types.count() == 0) {
                     Text(component = IGLang.Misc.hasNothing)
                     return@tooltip
                 } else {
                     Column {
-                        types.take(20).forEach { type ->
+                        types.take(15).forEach { type ->
                             Text(type.value().description)
                         }
 
-                        if (types.count() > 20) Text("...")
+                        if (types.count() > 15) Text("...")
                     }
                 }
             }
@@ -335,17 +304,13 @@ fun EntityTypeTagSelector(
     },
     enabled: Boolean = true,
     searchFilter: ((String, TagKey<EntityType<*>>) -> Boolean)? = { str, tag ->
-        str in tag.location.toString() || tag.entityTypes.any {
+        str in tag.location.toString() || tag.entityTypes(registryAccess).any {
             str in it.value().description.plainText || str in it.value().descriptionId
         }
     },
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (TagKey<EntityType<*>>) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (TagKey<EntityType<*>>) -> Unit)?)? = null,
-    textStyle: TextStyle = LocalTextStyle.current,
-    interactionSource: MutableInteractionSource? = null,
-    shape: Shape = RectangleShape,
-    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
     Selector(
         selected = selected,

@@ -1,7 +1,5 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.*
@@ -11,31 +9,21 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentCardContentPadding
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
+import moe.forpleuvoir.hiirosakura.ui.util.LocalRegistryAccess
 import moe.forpleuvoir.hiirosakura.ui.widget.DataComponentTypeSelector
 import moe.forpleuvoir.hiirosakura.util.asText
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.hiirosakura.util.keyOrUnknown
-import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogAddButton
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContent
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentCards
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentDefaults
-import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.HorizontalDivider
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
+import moe.forpleuvoir.ibukigourd.ui.editdialog.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
 import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
@@ -72,7 +60,7 @@ fun TooltipDisplayComponentWrapper(
                     Text(component = IGLang.Misc.hasNothing)
                 } else {
                     value.hiddenComponents.take(10).forEach { component ->
-                        Text(component.keyOrUnknown(registryAccess!!))
+                        Text(component.keyOrUnknown(LocalRegistryAccess.current))
                     }
 
                     if (value.hiddenComponents.size > 10) Text("...")
@@ -204,6 +192,7 @@ fun TooltipDisplayEditorDialog(
                         }
                     },
                 ) { _ ->
+                    val registryAccess =LocalRegistryAccess.current
                     BoxWithConstraints(Modifier.fillMaxWidth()) {
                         EditDialogContentCards(
                             state = list,
@@ -212,9 +201,8 @@ fun TooltipDisplayEditorDialog(
                             maxHeight = TooltipDisplayCardDefaults.DialogMaxHeight,
                             removeButton = { index, component ->
                                 RemoveConfirmButton(
-                                    message = component.keyOrUnknown(registryAccess!!).asText().plainText,
+                                    message = component.keyOrUnknown(registryAccess).asText().plainText,
                                     onConfirm = { list.removeAt(index) },
-                                    iconScale = LocalIconScale.current,
                                     contentPadding = EditDialogContentDefaults.iconPadding,
                                 )
                             },
@@ -223,9 +211,9 @@ fun TooltipDisplayEditorDialog(
                                 component,
                                 { onEntryChange(it) },
                                 items = listOf(component) + availableComponents,
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.padding(DataComponentCardContentPadding).fillMaxWidth(),
                                 searchFilter = { type, str ->
-                                    str in type.keyOrUnknown(registryAccess!!).toString() || str in type.keyOrUnknown(registryAccess!!)
+                                    str in type.keyOrUnknown(registryAccess).toString() || str in type.keyOrUnknown(registryAccess)
                                         .asTranslateText().plainText
                                 }
                             )
@@ -247,6 +235,7 @@ fun TooltipDisplayEditorDialog(
 
                 if (showAddDialog) {
                     var type by remember(availableComponents) { mutableStateOf(availableComponents.first()) }
+                    val registryAccess  = LocalRegistryAccess.current
                     SimpleAlertDialog(
                         onDismissRequest = { showAddDialog = false },
                         onConfirmRequest = {
@@ -266,7 +255,7 @@ fun TooltipDisplayEditorDialog(
                                 items = availableComponents,
                                 modifier = Modifier.fillMaxWidth(),
                                 searchFilter = { type, str ->
-                                    str in type.keyOrUnknown(registryAccess!!).toString() || str in type.keyOrUnknown(registryAccess!!)
+                                    str in type.keyOrUnknown(registryAccess).toString() || str in type.keyOrUnknown(registryAccess)
                                         .asTranslateText().plainText
                                 }
                             )

@@ -1,12 +1,9 @@
 package moe.forpleuvoir.hiirosakura.ui.widget
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
@@ -14,26 +11,17 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
+import moe.forpleuvoir.ibukigourd.ui.selector.Selector
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.Identifier
 import net.minecraft.world.effect.MobEffect
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.selector.Selector
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.foundation.layout.fillMaxWidth
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.SokitsuScreen
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 
 @Composable
 fun MobEffectInstanceEditorDialog(
@@ -70,7 +58,6 @@ fun MobEffectInstanceEditorContent(
             value.effect.value(),
             { onValueChange(value.copy(effect = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(it))) },
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(0.dp)
         )
         LabelBox(
             label = { Text(key, suffix = "duration", fontSize = SokitsuTheme.typography.body.fontSize) },
@@ -275,10 +262,6 @@ fun MobEffectSelector(
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (MobEffect) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (MobEffect) -> Unit)?)? = null,
-    textStyle: TextStyle = LocalTextStyle.current,
-    interactionSource: MutableInteractionSource? = null,
-    shape: Shape = RectangleShape,
-    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
     Selector(
         selected = selected,

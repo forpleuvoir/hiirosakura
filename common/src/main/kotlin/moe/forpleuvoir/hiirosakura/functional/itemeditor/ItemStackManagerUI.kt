@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
+import moe.forpleuvoir.hiirosakura.ui.util.LocalRegistryAccess
 import moe.forpleuvoir.hiirosakura.ui.widget.hsItemAnimation
 import moe.forpleuvoir.hiirosakura.util.key
 import moe.forpleuvoir.hiirosakura.util.logger
@@ -62,28 +63,32 @@ fun ItemEditorManagerUI(
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(8.dp),
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally
 ) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = verticalArrangement,
-        horizontalAlignment = horizontalAlignment
-    ) {
-        val deferred = ItemStackManager.loadDataAsync(registryAccess)
-        var loaded by remember { mutableStateOf(false) }
-        LaunchedEffect(Unit) {
-            deferred.await()
-            loaded = true
-        }
-        DisposableEffect(Unit) {
-            onDispose {
-                @Suppress("DeferredResultUnused")
-                ItemStackManager.saveDataAsync(registryAccess)
+    CompositionLocalProvider(LocalRegistryAccess provides registryAccess) {
+        Column(
+            modifier = modifier,
+            verticalArrangement = verticalArrangement,
+            horizontalAlignment = horizontalAlignment
+        ) {
+            val registryAccess = LocalRegistryAccess.current
+            val deferred = ItemStackManager.loadDataAsync(registryAccess)
+            var loaded by remember { mutableStateOf(false) }
+            LaunchedEffect(Unit) {
+                deferred.await()
+                loaded = true
             }
+            DisposableEffect(Unit) {
+                onDispose {
+                    @Suppress("DeferredResultUnused")
+                    ItemStackManager.saveDataAsync(registryAccess)
+                }
+            }
+
+            ToolBar()
+
+            ItemStackList(loaded)
         }
-
-        ToolBar()
-
-        ItemStackList(loaded)
     }
+
 }
 
 @Composable
@@ -138,13 +143,11 @@ private fun ItemStackList(
                 Text(component = IGLang.Misc.hasNothing, color = SokitsuTheme.colorScheme.onSurfaceVariant)
             }
         } else {
+            val registryAccess = LocalRegistryAccess.current
             val lazyListState = rememberLazyListState()
-            val hapticFeedback = LocalHapticFeedback.current
             val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
                 ItemStackManager.moveElement(from.index, to.index)
-                hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
             }
-
             var editingItemIndex by remember { mutableStateOf<Int?>(null) }
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxSize(), state = lazyListState) {
                 itemsIndexed(
@@ -153,15 +156,10 @@ private fun ItemStackList(
                 ) { index, (key, item) ->
                     if (filter(item)) {
                         ReorderableItem(
-                            reorderableLazyListState, key,
-                            animateItemModifier = hsItemAnimation(),
-                        ) { isDragging ->
-                            val scale by animateFloatAsState(if (isDragging) 1.015f else 1.0f)
-                            val handleInteraction = remember { MutableInteractionSource() }
-
-                            val handleHovered by handleInteraction.collectIsHoveredAsState()
+                            reorderableLazyListState, key
+                        ) { _ ->
                             Surface(
-                                modifier = Modifier.fillMaxWidth().scale(scale)
+                                modifier = Modifier.fillMaxWidth()
                             ) {
                                 Row(
                                     Modifier.padding(12.dp).fillMaxWidth(),
@@ -203,7 +201,7 @@ private fun ItemStackList(
                                         IconButton(
                                             onClick = {
                                                 runCatching {
-                                                    val command = item.asCommand()
+                                                    val command = item.asCommand(registryAccess)
                                                     copyToClipboard(command)
                                                     ToastHandler.showContent {
                                                         Text(command, modifier = Modifier.widthIn(max = 720.dp).heightIn(max = 400.dp))
@@ -261,9 +259,9 @@ private fun ItemStackList(
 }
 
 
-fun ItemStack.asCommand(): String {
+fun ItemStack.asCommand(registryAccess: RegistryAccess): String {
     val tag = DataComponentPatch.CODEC
-        .encodeStart(registryAccess!!.createSerializationContext(NbtOps.INSTANCE), componentsPatch)
+        .encodeStart(registryAccess.createSerializationContext(NbtOps.INSTANCE), componentsPatch)
         .orThrow
         .getAsString()
     return "/give @p ${item.key}$tag $count"

@@ -1,19 +1,11 @@
 package moe.forpleuvoir.hiirosakura.ui.widget
 
-import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
-
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
-
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
-
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.configControlHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -21,22 +13,30 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
+import moe.forpleuvoir.hiirosakura.ui.util.LocalRegistryAccess
 import moe.forpleuvoir.hiirosakura.ui.util.canScroll
+import moe.forpleuvoir.hiirosakura.util.ItemRegistryHelper
 import moe.forpleuvoir.hiirosakura.util.key
-import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.util.Keyed
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.configControlHeight
+import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
+import moe.forpleuvoir.ibukigourd.ui.selector.Selector
+import moe.forpleuvoir.ibukigourd.ui.selector.SelectorTrigger
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.util.isQuickAction
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
 import moe.forpleuvoir.ibukigourd.ui.util.values
-import moe.forpleuvoir.nebula.common.util.requireType
 import net.minecraft.core.HolderSet
+import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.tags.TagKey
@@ -44,33 +44,30 @@ import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Block
 import kotlin.jvm.optionals.getOrNull
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.RadioButtonGroup
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.selector.Selector
-import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
-import androidx.compose.ui.graphics.RectangleShape
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.VerticalFlatScroller
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.rememberScrollerAdapter
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalTextStyle
-import androidx.compose.foundation.layout.Row
 
 internal val blockTags
-    get() = registryAccess!!.lookupOrThrow(Registries.BLOCK).tags.map { it.key() }
+    @Composable get() = LocalRegistryAccess.current.lookupOrThrow(Registries.BLOCK).tags.map { it.key() }
 
-internal val TagKey<Block>.blocks
-    get() = registryAccess!!.lookupOrThrow(Registries.BLOCK).getTagOrEmpty(this)
+internal fun TagKey<Block>.blocks(registryAccess: RegistryAccess) =
+    registryAccess.lookupOrThrow(Registries.BLOCK).getTagOrEmpty(this)
 
-internal val TagKey<Block>.asHolderSet
-    get() = registryAccess!!.lookupOrThrow(Registries.BLOCK).tags.filter {
+internal fun TagKey<Block>.asHolderSet(registryAccess: RegistryAccess) =
+    registryAccess.lookupOrThrow(Registries.BLOCK).tags.filter {
         it.key().location == this.location
     }.findFirst().get()
 
 
+/**
+ * 方块集合编辑浮层：表头是来源模式开关与新增控件，下面是 9 列方块图标网格。
+ *
+ * 方块不是可编辑字段，网格保持图标格结构：悬停时格子换成带二次确认的删除按钮，
+ * 新增走「从注册表添加」的选择器（[ItemBrowser]）；增删与模式切换都在副本上做，确认时才写回。
+ *
+ * @param value 待编辑的方块集合
+ * @param onValueChange 确认时的写回
+ * @param onDismissRequest 关闭请求
+ * @param title 浮层标题
+ */
 @Composable
 fun HolderSetBlockEditorDialog(
     value: HolderSet<Block>,
@@ -85,13 +82,13 @@ fun HolderSetBlockEditorDialog(
         )
     }
 
-
     var mode by remember { mutableStateOf(value !is HolderSet.Named) }
     LaunchedEffect(tag) {
         if (tag == null) mode = true
     }
 
     val blocks = rememberKeyedList(value.map { it.value() }.toList())
+    val registryAccess = LocalRegistryAccess.current
 
     SimpleAlertDialog(
         onDismissRequest = onDismissRequest,
@@ -100,10 +97,11 @@ fun HolderSetBlockEditorDialog(
             val list = HolderSet.direct(blocks.entries.values().map { BuiltInRegistries.BLOCK.wrapAsHolder(it) })
             onValueChange(
                 if (mode) list
-                else tag?.asHolderSet ?: list
+                else tag?.asHolderSet(registryAccess) ?: list
             )
             true
         },
+        maxWidth = AlertDialogDefaults.maxWidth + 120.dp,
         content = {
             Column {
                 firstTag?.let {
@@ -116,14 +114,13 @@ fun HolderSetBlockEditorDialog(
                     }
                 }
                 Spacer(Modifier.height(12.dp))
+
                 AnimatedContent(
                     targetState = mode,
                     transitionSpec = {
                         if (targetState) {
-                            // false -> true锛氭柊鍐呭浠庡乏渚ц繘鍏?
                             slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
                         } else {
-                            // true -> false锛氭柊鍐呭浠庡彸渚ц繘鍏?
                             slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
                         }
                     },
@@ -131,139 +128,135 @@ fun HolderSetBlockEditorDialog(
                 ) { currentMode ->
                     if (currentMode) {
                         Column {
-                            Row(verticalAlignment = Alignment.Bottom) {
-                                var showItemSelector by remember { mutableStateOf(false) }
-                                Button(
-                                    onClick = { showItemSelector = true },
-                                    modifier = Modifier.weight(1f).height(configControlHeight()),
-                                ) {
-                                    Text(component = HSLang.ItemEditor.addFromRegistry)
-                                }
-
-                                if (showItemSelector) {
-                                    FlexibleDialog(
-                                        onDismissRequest = { showItemSelector = false },
-                                        onConfirmRequest = { true },
-                                        content = {
-                                            ItemBrowser(
-                                                itemDisplay = {
-                                                    ItemIconButton(it) { selected ->
-                                                        val block = if (selected is BlockItem) {
-                                                            selected.block
-                                                        } else selected.requireType<Block>()
-                                                        if (!blocks.entries.any { keyed -> keyed.value == block }) {
-                                                            blocks.add(block)
-                                                        }
-                                                        showItemSelector = false
-                                                    }
-                                                },
-                                                modifier = Modifier.size(680.dp, 520.dp)
-                                            )
-                                        },
-                                        confirmButton = {},
-                                        dismissButton = {}
-                                    )
-                                }
+                            Row {
+                                BlockSelector(
+                                    { block ->
+                                        if (!blocks.entries.any { keyed -> keyed.value == block }) {
+                                            blocks.add(block)
+                                        }
+                                    },
+                                    modifier = Modifier.weight(1f).height(configControlHeight())
+                                )
                                 firstTag?.let {
                                     Spacer(Modifier.width(12.dp))
                                     BlockTagSelector(
                                         it,
                                         { tag ->
-                                            tag.blocks.forEach { item ->
-                                                if (!blocks.entries.any { it.value == item.value() }) {
+                                            tag.blocks(registryAccess).forEach { item ->
+                                                if (!blocks.entries.any { keyed -> keyed.value == item.value() }) {
                                                     blocks.add(item.value())
                                                 }
                                             }
                                         },
-                                        modifier = Modifier.weight(1f).height(configControlHeight()),
-                                        contentPadding = LabeledFieldDefaults.contentPadding(top = 8.dp, bottom = 8.dp),
                                         content = {
                                             Text(component = HSLang.ItemEditor.addFromTag)
-                                        }
+                                        },
+                                        modifier = Modifier.weight(1f).height(configControlHeight())
                                     )
                                 }
                             }
                             Spacer(Modifier.height(12.dp))
-                            DataComponentSection(component = HSLang.ItemEditor.items) {
-                                Row(modifier = Modifier.fillMaxWidth().height(460.dp)) {
-                                    val lazyListState = rememberLazyGridState()
-                                    LazyVerticalGrid(
-                                        modifier = Modifier.weight(1f).fillMaxHeight(),
-                                        columns = GridCells.Fixed(9),
-                                        verticalArrangement = Arrangement.spacedBy(3.dp),
-                                        horizontalArrangement = Arrangement.spacedBy(3.dp),
-                                        state = lazyListState
-                                    ) {
-                                        itemsIndexed(blocks.entries, key = { _, keyed -> keyed.key }) { index, (_, block) ->
-                                            val interactionSource = remember { MutableInteractionSource() }
-
-                                            val isHovered by interactionSource.collectIsHoveredAsState()
-                                            Surface(
-                                                Modifier
-                                                    .aspectRatio(1f)
-                                                    .hoverable(interactionSource)
-                                                    .tooltip(interactionSource) {
-                                                        Column {
-                                                            Text(block.name)
-                                                            Spacer(Modifier.height(4.dp))
-                                                            Text(block.key.toString(), color = SokitsuTheme.colorScheme.primaryContainer)
-                                                        }
-                                                    },
-                                            ) {
-                                                Box(Modifier.fillMaxSize().padding(6.dp), contentAlignment = Alignment.Center) {
-                                                    AnimatedContent(
-                                                        targetState = isHovered,
-                                                        modifier = Modifier
-                                                            .fillMaxSize(),
-                                                        transitionSpec = {
-                                                            if (targetState) {
-                                                                // 删除按钮从右边进入，物品图标向左离开
-                                                                slideIntoContainer(
-                                                                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                                                                    animationSpec = tween(180),
-                                                                ) togetherWith slideOutOfContainer(
-                                                                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                                                                    animationSpec = tween(180),
-                                                                )
-                                                            } else {
-                                                                // 物品图标从左边返回，删除按钮向右离开
-                                                                slideIntoContainer(
-                                                                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                                                                    animationSpec = tween(180),
-                                                                ) togetherWith slideOutOfContainer(
-                                                                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                                                                    animationSpec = tween(180),
-                                                                )
+                            DataComponentSection(title = {
+                                Text(component = HSLang.ItemEditor.blocks, fontSize = SokitsuTheme.typography.body.fontSize)
+                            }) {
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth().height(460.dp),
+                                    sprite = SurfaceDefaults.embeddedPanel,
+                                ) {
+                                    val gridState = rememberLazyGridState()
+                                    Row(modifier = Modifier.fillMaxSize().padding(12.dp)) {
+                                        LazyVerticalGrid(
+                                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                                            columns = GridCells.Fixed(ItemGridDefaults.Columns),
+                                            verticalArrangement = Arrangement.spacedBy(ItemGridDefaults.CellSpacing),
+                                            horizontalArrangement = Arrangement.spacedBy(ItemGridDefaults.CellSpacing),
+                                            state = gridState
+                                        ) {
+                                            itemsIndexed(blocks.entries, key = { _, keyed -> keyed.key }) { index, (_, block) ->
+                                                val interactionSource = remember { MutableInteractionSource() }
+                                                val isHovered by interactionSource.collectIsHoveredAsState()
+                                                Surface(
+                                                    Modifier
+                                                        .size(ItemGridDefaults.CellSize)
+                                                        .hoverable(interactionSource)
+                                                        .tooltip(interactionSource) {
+                                                            Column {
+                                                                Text(block.name)
+                                                                Spacer(Modifier.height(4.dp))
+                                                                Text(block.key.toString(), color = SokitsuTheme.colorScheme.onSurfaceVariant)
                                                             }
                                                         },
-                                                        contentAlignment = Alignment.Center,
-                                                        label = "ItemRemoveButton",
-                                                    ) { hovered ->
-                                                        if (hovered) {
-                                                            RemoveConfirmButton(message = block.name.string, onConfirm = { blocks.removeAt(index) })
-                                                        } else {
-                                                            ItemIcon(
-                                                                ItemStack(block),
-                                                                scaleOnHover = 1f,
-                                                                showTooltip = false,
+                                                ) {
+                                                    Box(Modifier.fillMaxSize().padding(6.dp), contentAlignment = Alignment.Center) {
+                                                        var showDialog by remember { mutableStateOf(false) }
+                                                        AnimatedContent(
+                                                            targetState = isHovered,
+                                                            modifier = Modifier
+                                                                .fillMaxSize(),
+                                                            transitionSpec = {
+                                                                if (targetState) {
+                                                                    slideIntoContainer(
+                                                                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                                                                        animationSpec = tween(180),
+                                                                    ) togetherWith slideOutOfContainer(
+                                                                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                                                                        animationSpec = tween(180),
+                                                                    )
+                                                                } else {
+                                                                    slideIntoContainer(
+                                                                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                                                                        animationSpec = tween(180),
+                                                                    ) togetherWith slideOutOfContainer(
+                                                                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                                                                        animationSpec = tween(180),
+                                                                    )
+                                                                }
+                                                            },
+                                                            contentAlignment = Alignment.Center,
+                                                            label = "ItemRemoveButton",
+                                                        ) { hovered ->
+                                                            if (hovered) {
+                                                                IconButton(
+                                                                    onClick = { if (isQuickAction) blocks.removeAt(index) else showDialog = true },
+                                                                ) {
+                                                                    Icon(Icons.Delete)
+                                                                }
+                                                            } else {
+                                                                ItemIcon(
+                                                                    ItemStack(block),
+                                                                    scaleOnHover = 1f,
+                                                                    showTooltip = false,
+                                                                )
+                                                            }
+                                                        }
+
+                                                        if (showDialog) {
+                                                            SimpleAlertDialog(
+                                                                onDismissRequest = { showDialog = false },
+                                                                onConfirmRequest = {
+                                                                    blocks.removeAt(index)
+                                                                    true
+                                                                },
+                                                                title = {
+                                                                    Text(IGLang.Misc.removeConfirm(block.name.plainText))
+                                                                },
                                                             )
                                                         }
                                                     }
                                                 }
                                             }
                                         }
+                                        if (gridState.canScroll) {
+                                            Spacer(Modifier.width(8.dp))
+                                            VerticalFlatScroller(
+                                                modifier = Modifier.fillMaxHeight(),
+                                                adapter = rememberScrollerAdapter(gridState, ItemGridDefaults.Columns)
+                                            )
+                                        }
                                     }
-
-                                    Spacer(Modifier.width(8.dp))
-
-                                    VerticalFlatScroller(
-                                        modifier = Modifier.fillMaxHeight(),
-                                        adapter = rememberScrollerAdapter(lazyListState, 9)
-                                    )
                                 }
                             }
                         }
-
                     } else {
                         tag?.let { BlockTagSelector(it, { tag = it }) }
                             ?: Text(component = IGLang.Misc.hasNothing)
@@ -274,6 +267,47 @@ fun HolderSetBlockEditorDialog(
     )
 }
 
+@Composable
+private fun BlockSelector(
+    onSelect: (Block) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var showDialog by remember { mutableStateOf(false) }
+    SelectorTrigger(
+        content = {
+            Text(component = HSLang.ItemEditor.addFromRegistry, overflow = TextOverflow.Ellipsis, maxLines = 1)
+        },
+        modifier = modifier,
+        expanded = showDialog,
+        onClick = {
+            showDialog = true
+        },
+    )
+    if (showDialog) {
+        FlexibleDialog(
+            onDismissRequest = { showDialog = false },
+            onConfirmRequest = { true },
+            content = {
+                ItemBrowser(
+                    itemDisplay = {
+                        ItemIconButton(it) { selected ->
+                            when (selected) {
+                                is BlockItem -> onSelect(selected.block)
+                                is Block     -> onSelect(selected)
+                            }
+                            showDialog = false
+                        }
+                    },
+                    filter = { it is BlockItem || it is Block },
+                    searchItems = ItemRegistryHelper.allBlock.toList(),
+                    modifier = Modifier.size(680.dp, 520.dp)
+                )
+            },
+            confirmButton = {},
+            dismissButton = {}
+        )
+    }
+}
 
 @Composable
 fun BlockTagSelector(
@@ -281,9 +315,10 @@ fun BlockTagSelector(
     onSelect: (TagKey<Block>) -> Unit,
     items: List<TagKey<Block>> = blockTags.toList(),
     itemEquals: (TagKey<Block>, TagKey<Block>) -> Boolean = { a, b -> a == b },
+    registryAccess: RegistryAccess = LocalRegistryAccess.current,
     content: @Composable (TagKey<Block>) -> Unit = {
         Row(Modifier.tooltip {
-            val types = it.blocks
+            val types = it.blocks(registryAccess)
             if (types.count() == 0) {
                 Text(component = IGLang.Misc.hasNothing)
                 return@tooltip
@@ -313,7 +348,7 @@ fun BlockTagSelector(
     },
     itemContent: @Composable (TagKey<Block>, Boolean) -> Unit = { item, _ ->
         Row(Modifier.tooltip {
-            val types = item.blocks
+            val types = item.blocks(registryAccess)
             if (types.count() == 0) {
                 Text(component = IGLang.Misc.hasNothing)
                 return@tooltip
@@ -343,15 +378,11 @@ fun BlockTagSelector(
     },
     enabled: Boolean = true,
     searchFilter: ((String, TagKey<Block>) -> Boolean)? = { str, tag ->
-        str in tag.location.toString() || tag.blocks.any { str in it.value().name.plainText }
+        str in tag.location.toString() || tag.blocks(registryAccess).any { str in it.value().name.plainText }
     },
     modifier: Modifier = Modifier,
     itemLeadingIcon: ((Boolean) -> (@Composable (TagKey<Block>) -> Unit)?)? = null,
     itemTrailingIcon: ((Boolean) -> (@Composable (TagKey<Block>) -> Unit)?)? = null,
-    textStyle: TextStyle = LocalTextStyle.current,
-    interactionSource: MutableInteractionSource? = null,
-    shape: Shape = RectangleShape,
-    contentPadding: PaddingValues = LabeledFieldDefaults.contentPadding(),
 ) {
     Selector(
         selected = selected,
@@ -364,6 +395,6 @@ fun BlockTagSelector(
         itemLeadingIcon = itemLeadingIcon,
         itemTrailingIcon = itemTrailingIcon,
         searchFilter = searchFilter?.let { filter -> { item, query -> filter(query, item) } },
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
     )
 }

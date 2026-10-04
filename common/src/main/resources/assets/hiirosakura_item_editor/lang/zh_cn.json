@@ -1,6 +1,7 @@
 {
   "#hs.ItemEditor": "物品编辑器",
   "hiirosakura.item_editor": "物品编辑器",
+  "hiirosakura.item_editor.loading": "加载中",
   "hiirosakura.item_editor.save_success": "物品编辑器 保存成功",
   "hiirosakura.item_editor.add_from_handheld_item": "以手持物品为基础添加",
   "hiirosakura.item_editor.get_to_backpack": "获取到背包",

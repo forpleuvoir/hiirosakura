@@ -1,74 +1,39 @@
 package moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper
 
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.LocalSokitsuPixelScale
-
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.pointer.PointerButton
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.style.TextOverflow
-import it.unimi.dsi.fastutil.ints.IntArrayList
-import it.unimi.dsi.fastutil.ints.IntList
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.*
+import moe.forpleuvoir.hiirosakura.ui.widget.ColorListEditor
 import moe.forpleuvoir.hiirosakura.util.asTranslateText
 import moe.forpleuvoir.ibukigourd.lang.IGLang
+import moe.forpleuvoir.ibukigourd.text.Literal
+import moe.forpleuvoir.ibukigourd.text.appendNewLine
 import moe.forpleuvoir.ibukigourd.text.plainText
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
+import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
+import moe.forpleuvoir.ibukigourd.ui.editdialog.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
+import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
 import moe.forpleuvoir.ibukigourd.ui.util.rememberFabScrollVisibility
-import moe.forpleuvoir.ibukigourd.ui.util.*
 import moe.forpleuvoir.ibukigourd.ui.util.rememberKeyedList
+import moe.forpleuvoir.ibukigourd.ui.util.values
+import moe.forpleuvoir.ibukigourd.util.mc
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
 import net.minecraft.resources.Identifier
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.TooltipFlag
 import net.minecraft.world.item.component.FireworkExplosion
 import net.minecraft.world.item.component.Fireworks
-import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogAddButton
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContent
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentCards
-import moe.forpleuvoir.ibukigourd.ui.editdialog.EditDialogContentDefaults
-import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigControlDefaults
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.configIconScale
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IntField
-import moe.forpleuvoir.ibukigourd.ui.colorpicker.ColorPicker
-import moe.forpleuvoir.ibukigourd.ui.colorpicker.LocalColorPickerEnableAlpha
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenu
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
-import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
-import moe.forpleuvoir.ibukigourd.util.toComposeColor
-import moe.forpleuvoir.ibukigourd.ui.util.fabScrollVisibility
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.DropdownMenuItem
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.menu.dropdownMenuAnchor
-import moe.forpleuvoir.ibukigourd.util.toNebulaColor
 
 @Composable
 fun FireworksComponentWrapper(
@@ -84,6 +49,18 @@ fun FireworksComponentWrapper(
 
     DataComponentDisplayRow(
         key, removeAction, modifier, horizontalArrangement, verticalAlignment,
+        frameModifier = Modifier.thenIf(mc.player != null) {
+            Modifier.tooltip {
+                val tooltip = mutableListOf<Component>()
+                value.addToTooltip(Item.TooltipContext.EMPTY, { tooltip.add(it) }, TooltipFlag.NORMAL, mc.player!!)
+                val base: MutableComponent = Literal("")
+                for ((index, element) in tooltip.withIndex()) {
+                    base.append(element)
+                    if (index != tooltip.lastIndex) base.appendNewLine()
+                }
+                Text(base)
+            }
+        },
         onEdit = { showDialog = true },
     ) {
         Text(component = IGLang.ConfigWrapper.listConfigWrapperText(value.explosions.size), overflow = TextOverflow.Ellipsis, maxLines = 1)
@@ -223,7 +200,7 @@ fun FireworksEditorDialog(
                                 )
                             },
                         ) { _, explosion, onEntryChange ->
-                            ExplosionContent(explosion, onEntryChange, key)
+                            ExplosionContent(explosion, onEntryChange, key, Modifier.padding(DataComponentCardContentPadding))
                         }
                     }
                 }
@@ -252,34 +229,32 @@ private fun ExplosionContent(
     explosion: FireworkExplosion,
     onValueChange: (FireworkExplosion) -> Unit,
     key: Identifier,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            DataComponentSection(key, suffix = "shape", modifier = Modifier.weight(1f)) {
-                EnumSelector(
-                    selected = explosion.shape,
-                    onSelect = { onValueChange(FireworkExplosion(it, explosion.colors, explosion.fadeColors, explosion.hasTrail, explosion.hasTwinkle)) },
-                    items = FireworkExplosion.Shape.entries,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-        }
-        DataComponentField(key, suffix = "colors") {
-            ColorRow(
-                colors = explosion.colors,
-                onColorsChange = { onValueChange(FireworkExplosion(explosion.shape, it, explosion.fadeColors, explosion.hasTrail, explosion.hasTwinkle)) },
+        DataComponentSection(key, suffix = "shape") {
+            EnumSelector(
+                selected = explosion.shape,
+                onSelect = { onValueChange(FireworkExplosion(it, explosion.colors, explosion.fadeColors, explosion.hasTrail, explosion.hasTwinkle)) },
+                items = FireworkExplosion.Shape.entries,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
-        DataComponentField(key, suffix = "fade_colors") {
-            ColorRow(
-                colors = explosion.fadeColors,
-                onColorsChange = { onValueChange(FireworkExplosion(explosion.shape, explosion.colors, it, explosion.hasTrail, explosion.hasTwinkle)) },
+        DataComponentSection(key, suffix = "colors") {
+            ColorListEditor(
+                explosion.colors,
+                { onValueChange(FireworkExplosion(explosion.shape, it, explosion.fadeColors, explosion.hasTrail, explosion.hasTwinkle)) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        DataComponentSection(key, suffix = "fade_colors") {
+            ColorListEditor(
+                explosion.fadeColors,
+                { onValueChange(FireworkExplosion(explosion.shape, explosion.colors, it, explosion.hasTrail, explosion.hasTwinkle)) },
+                modifier = Modifier.fillMaxWidth(),
             )
         }
         Row(
@@ -304,150 +279,6 @@ private fun ExplosionContent(
             Switch(
                 explosion.hasTwinkle,
                 { onValueChange(FireworkExplosion(explosion.shape, explosion.colors, explosion.fadeColors, explosion.hasTrail, it)) })
-        }
-    }
-}
-
-@Composable
-private fun ColorRow(
-    colors: IntList,
-    onColorsChange: (IntList) -> Unit,
-) {
-    val scrollState = rememberScrollState()
-    var addCount by remember { mutableIntStateOf(0) }
-    LaunchedEffect(addCount) {
-        scrollState.animateScrollTo(Int.MAX_VALUE)
-    }
-
-    Row(
-        modifier = Modifier
-            .horizontalScroll(scrollState)
-            .scrollable(
-                state = scrollState,
-                orientation = Orientation.Vertical,
-                reverseDirection = true,
-            ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        for (i in colors.indices) {
-            val color = colors.getInt(i)
-            ColorCircle(
-                color = color,
-                onEdit = { newColor ->
-                    val list = IntArrayList(colors)
-                    list.set(i, newColor.argb and 0xFFFFFF)
-                    onColorsChange(list)
-                },
-                onRemove = {
-                    val list = IntArrayList(colors)
-                    list.removeInt(i)
-                    onColorsChange(list)
-                },
-            )
-        }
-
-        var showAddPicker by remember { mutableStateOf(false) }
-
-        var newColor by remember { mutableStateOf(NebulaColor.fromRGB(0xFF0000)) }
-        IconButton(
-            onClick = { showAddPicker = true },
-        ) {
-            Icon(Icons.Add)
-        }
-
-        if (showAddPicker) {
-            SimpleAlertDialog(
-                onDismissRequest = { showAddPicker = false },
-                onConfirmRequest = {
-                    val list = IntArrayList(colors)
-                    list.add(newColor.rgb)
-                    onColorsChange(list)
-                    addCount++
-                    true
-                },
-                title = { DataComponentDialogTitle(component = IGLang.Misc.add) },
-                content = {
-                    CompositionLocalProvider(LocalColorPickerEnableAlpha provides false) {
-                        ColorPicker(newColor.toComposeColor(), { newColor = it.toNebulaColor() })
-                    }
-                }
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun ColorCircle(
-    color: Int,
-    onEdit: (NebulaColor) -> Unit,
-    onRemove: () -> Unit,
-) {
-    var showColorPicker by remember { mutableStateOf(false) }
-
-    var showContextMenu by remember { mutableStateOf(false) }
-
-    var pendingColor by remember(color) { mutableStateOf(NebulaColor.fromRGB(color)) }
-
-
-    var menuAnchorBounds by remember { mutableStateOf(Rect.Zero) }
-    Box(modifier = Modifier.dropdownMenuAnchor { menuAnchorBounds = it }) {
-        IconButton(
-            onClick = { showColorPicker = true },
-            modifier = Modifier
-                .size(28.dp)
-                .onPointerEvent(PointerEventType.Press) { event ->
-                    if (event.button == PointerButton.Secondary) {
-                        showContextMenu = true
-                    }
-                },
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(CircleShape)
-                    .background(pendingColor.toComposeColor())
-                    .border(1.dp, SokitsuTheme.colorScheme.outline, CircleShape)
-            )
-        }
-        DropdownMenu(
-            expanded = showContextMenu,
-            onDismissRequest = { showContextMenu = false },
-            anchorBounds = menuAnchorBounds,
-        ) {
-            DropdownMenuItem(
-                onClick = {
-                    showContextMenu = false
-                    showColorPicker = true
-                },
-            ) {
-                Text(component = IGLang.Misc.edit)
-            }
-            DropdownMenuItem(
-                onClick = {
-                    showContextMenu = false
-                    onRemove()
-                },
-            ) {
-                Text(component = IGLang.Misc.remove)
-            }
-        }
-
-        if (showColorPicker) {
-            SimpleAlertDialog(
-                onDismissRequest = { showColorPicker = false },
-                onConfirmRequest = {
-                    onEdit(pendingColor)
-                    true
-                },
-                title = { DataComponentDialogTitle(component = IGLang.Misc.edit) },
-                content = {
-                    CompositionLocalProvider(LocalColorPickerEnableAlpha provides false) {
-                        ColorPicker(pendingColor.toComposeColor(), { pendingColor = it.toNebulaColor() })
-                    }
-                }
-            )
         }
     }
 }

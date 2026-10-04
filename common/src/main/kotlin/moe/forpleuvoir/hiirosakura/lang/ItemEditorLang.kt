@@ -33,6 +33,7 @@ object ItemEditorLang {
     inline val itemPreview get() = lang("item_preview")
 
     inline val itemCount get() = lang("item_count")
+
     inline val rootType get() = lang("root_type")
 
     inline val addItemComponent get() = lang("add_item_component")
@@ -52,7 +53,14 @@ object ItemEditorLang {
     inline val addFromRegistry get() = lang("add_from_registry")
     inline val addFromTag get() = lang("add_from_tag")
     inline val tags get() = lang("tags")
+    inline val damageTypes get() = lang("damage_types")
+    inline val entities get() = lang("entities")
     inline val items get() = lang("items")
+    inline val blocks get() = lang("blocks")
     inline val mobEffects get() = lang("mob_effects")
     inline val fromResourceManager get() = lang("from_resource_manager")
+    inline val namespace get() = lang("namespace")
+    inline val path get() = lang("path")
+    inline val namespaceInvalid get() = lang("namespace_invalid")
+    inline val pathInvalid get() = lang("path_invalid")
 }

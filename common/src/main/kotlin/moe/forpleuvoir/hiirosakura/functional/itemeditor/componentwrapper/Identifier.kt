@@ -9,16 +9,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import moe.forpleuvoir.compose_minecraft.platform.ui.thenIf
+import moe.forpleuvoir.hiirosakura.HSLang
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDisplayRow
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
 import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
+import moe.forpleuvoir.hiirosakura.ui.widget.LabelBox
 import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
 import net.minecraft.resources.Identifier
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 
 @Composable
 fun IdentifierComponentWrapper(
@@ -62,30 +66,36 @@ fun IdentifierEditorDialog(
         onConfirmRequest = { true },
         title = title,
         content = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                DataComponentField(title = { Text("Namespace", fontSize = SokitsuTheme.typography.body.fontSize) }) {
-                    Column {
-                        TextField(
-                            namespace,
-                            isError = !checkNamespace,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                        if (!checkNamespace) {
-                            Text("Non [a-z0-9_.-] character in namespace of location")
-                        }
-                    }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                LabelBox(
+                    label = { Text(component = HSLang.ItemEditor.namespace, fontSize = SokitsuTheme.typography.body.fontSize) }
+                ) {
+                    TextField(
+                        namespace,
+                        isError = !checkNamespace,
+                        modifier = Modifier
+                            .thenIf(!checkNamespace) {
+                                Modifier.tooltip(pinned = !checkNamespace) {
+                                    Text(component = HSLang.ItemEditor.namespaceInvalid)
+                                }
+                            }
+                            .fillMaxWidth(),
+                    )
                 }
-                DataComponentField(title = { Text("Path", fontSize = SokitsuTheme.typography.body.fontSize) }) {
-                    Column {
-                        TextField(
-                            path,
-                            isError = !checkPath,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                        if (!checkPath) {
-                            Text("Non [a-z0-9/._-] character in path of location")
-                        }
-                    }
+                LabelBox(
+                    label = { Text(component = HSLang.ItemEditor.path, fontSize = SokitsuTheme.typography.body.fontSize) }
+                ) {
+                    TextField(
+                        path,
+                        isError = !checkPath,
+                        modifier = Modifier
+                            .thenIf(!checkPath) {
+                                Modifier.tooltip(pinned = !checkPath) {
+                                    Text(component = HSLang.ItemEditor.pathInvalid)
+                                }
+                            }
+                            .fillMaxWidth(),
+                    )
                 }
             }
         },

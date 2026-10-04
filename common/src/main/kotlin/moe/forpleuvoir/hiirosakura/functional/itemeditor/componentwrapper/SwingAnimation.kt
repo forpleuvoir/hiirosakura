@@ -17,6 +17,7 @@ import net.minecraft.world.item.SwingAnimationType
 import net.minecraft.world.item.component.SwingAnimation
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
 import androidx.compose.foundation.layout.fillMaxWidth
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
 
 @Composable
 fun SwingAnimationComponentWrapper(
@@ -72,7 +73,7 @@ fun SwingAnimationEditorDialog(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                DataComponentField(key, suffix = "type", fallback = "Type", modifier = Modifier.fillMaxWidth()) {
+                DataComponentSection(key, suffix = "type", modifier = Modifier.fillMaxWidth()) {
                     EnumSelector(
                         selected = editing.type,
                         onSelect = { editing = SwingAnimation(it, editing.duration) },
@@ -80,7 +81,7 @@ fun SwingAnimationEditorDialog(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                DataComponentField(key, suffix = "duration", fallback = "Duration", modifier = Modifier.fillMaxWidth()) {
+                DataComponentSection(key, suffix = "duration", modifier = Modifier.fillMaxWidth()) {
                     IntField(
                         editing.duration,
                         { editing = SwingAnimation(editing.type, it) },

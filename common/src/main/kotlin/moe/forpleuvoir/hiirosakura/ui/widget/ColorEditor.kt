@@ -1,30 +1,35 @@
 package moe.forpleuvoir.hiirosakura.ui.widget
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
-import moe.forpleuvoir.ibukigourd.lang.IGLang
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
-import moe.forpleuvoir.ibukigourd.util.toComposeColor
-import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
+import androidx.compose.ui.util.fastForEachIndexed
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.ints.IntList
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
-import moe.forpleuvoir.ibukigourd.ui.sokitsu.SimpleAlertDialog
+import moe.forpleuvoir.ibukigourd.lang.IGLang
 import moe.forpleuvoir.ibukigourd.ui.colorpicker.ColorPicker
-import moe.forpleuvoir.ibukigourd.ui.colorpicker.LocalColorPickerEnableAlpha
+import moe.forpleuvoir.ibukigourd.ui.colorpicker.ColorPickerDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
+import moe.forpleuvoir.ibukigourd.util.contrasting
+import moe.forpleuvoir.ibukigourd.util.toComposeColor
 import moe.forpleuvoir.ibukigourd.util.toNebulaColor
+import moe.forpleuvoir.nebula.common.color.Color as NebulaColor
 
 @Composable
 fun ColorListEditor(
@@ -32,69 +37,82 @@ fun ColorListEditor(
     onColorsChange: (IntList) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    var editingColorIndex by remember { mutableStateOf(-1) }
+    DisplayField(
+        modifier = modifier,
+        trailingIcon = {
+            IconButton(onClick = { editingColorIndex = colors.size }) { Icon(Icons.Add) }
+        }
     ) {
-        for (i in colors.indices) {
-            val color = colors.getInt(i)
-            var showColorPicker by remember(i) { mutableStateOf(false) }
-
-            var pendingColor by remember(i) { mutableStateOf(NebulaColor.fromRGB(color)) }
-
-            Box(
-                modifier = Modifier
-                    .size(28.dp)
-                    .clip(CircleShape)
-                    .background(pendingColor.toComposeColor())
-                    .border(1.dp, SokitsuTheme.colorScheme.outline, CircleShape)
-                    .clickable { showColorPicker = true }
-            )
-            if (showColorPicker) {
-                SimpleAlertDialog(
-                    onDismissRequest = { showColorPicker = false },
-                    onConfirmRequest = {
-                        val list = IntArrayList(colors)
-                        list.set(i, pendingColor.argb and 0xFFFFFF)
-                        onColorsChange(list)
-                        true
-                    },
-                    title = { DataComponentDialogTitle(component = IGLang.Misc.edit) },
-                    content = {
-                        CompositionLocalProvider(LocalColorPickerEnableAlpha provides false) {
-                            ColorPicker(pendingColor.toComposeColor(), { pendingColor = it.toNebulaColor() })
-                        }
-                    }
-                )
+        val scrollState = rememberScrollState()
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .horizontalScroll(scrollState)
+                .scrollable(
+                    state = scrollState,
+                    orientation = Orientation.Vertical,
+                    reverseDirection = true,
+                ),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            colors.fastForEachIndexed { index, c ->
+                val color = NebulaColor.fromRGB(c).toComposeColor()
+                val interactionSource = remember { MutableInteractionSource() }
+                val hovered by interactionSource.collectIsHoveredAsState()
+                val outlineColor = if (hovered) color.contrasting() else SokitsuTheme.colorScheme.outline
+                Surface(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clickable { editingColorIndex = index }
+                        .hoverable(interactionSource)
+                        .pointerHoverIcon(PointerIcon.Hand),
+                    outlineColor = outlineColor,
+                    color = color,
+                ) {}
             }
         }
+    }
 
-        var showAddPicker by remember { mutableStateOf(false) }
-
-        var newColor by remember { mutableStateOf(NebulaColor.fromRGB(0xFF0000)) }
-        IconButton(
-            onClick = { showAddPicker = true },
-        ) {
-            Icon(Icons.Add)
-        }
-
-        if (showAddPicker) {
-            SimpleAlertDialog(
-                onDismissRequest = { showAddPicker = false },
-                onConfirmRequest = {
-                    val list = IntArrayList(colors)
-                    list.add(newColor.rgb)
-                    onColorsChange(list)
-                    true
-                },
-                title = { DataComponentDialogTitle(component = IGLang.Misc.add) },
-                content = {
-                    CompositionLocalProvider(LocalColorPickerEnableAlpha provides false) {
-                        ColorPicker(newColor.toComposeColor(), { newColor = it.toNebulaColor() })
-                    }
-                }
+    if (editingColorIndex != -1) {
+        val isAdd = editingColorIndex == colors.size
+        var editingColor by remember {
+            mutableStateOf(
+                if (isAdd) Color.Red
+                else NebulaColor.fromRGB(colors.getInt(editingColorIndex)).toComposeColor()
             )
         }
+        AlertDialog(
+            onDismissRequest = { editingColorIndex = -1 },
+            confirmButton = {
+                FlatButton(onClick = {
+                    val list = IntArrayList(colors)
+                    val newColor = editingColor.toNebulaColor().rgb
+                    if (isAdd) {
+                        list.add(newColor)
+                    } else {
+                        list.set(editingColorIndex, newColor)
+                    }
+                    onColorsChange(list)
+                    editingColorIndex = -1
+                }) {
+                    Text(IGLang.Misc.confirm)
+                }
+            },
+            dismissButton = {
+                FlatButton(onClick = { editingColorIndex = -1 }) {
+                    Text(IGLang.Misc.cancel)
+                }
+            },
+            title = { if (isAdd) Text(IGLang.Misc.add) else Text(IGLang.Misc.edit) },
+            text = {
+                ColorPicker(
+                    color = editingColor,
+                    onValueChange = { editingColor = it },
+                )
+            },
+            minWidth = ColorPickerDefaults.DialogWidth,
+            maxWidth = ColorPickerDefaults.DialogWidth,
+        )
     }
 }

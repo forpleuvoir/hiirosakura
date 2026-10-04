@@ -20,6 +20,7 @@ import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.matchesType
 import moe.forpleuvoir.hiirosakura.ui.widget.truncateLines
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.hiirosakura.HSLang
+import moe.forpleuvoir.hiirosakura.ui.util.LocalRegistryAccess
 import moe.forpleuvoir.hiirosakura.util.registryAccess
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastContainer
@@ -89,11 +90,12 @@ fun <C : Any> DefaultComponentWrapper(
 
     if (showEditDialog) {
         var data by remember { mutableStateOf<SerializeElement?>(null) }
-        LaunchedEffect(showEditDialog) {
+        val registryAccess = LocalRegistryAccess.current
+        LaunchedEffect(true) {
             runCatching {
                 componentType.codecOrThrow()
                     .encodeStart(
-                        registryAccess!!.createSerializationContext(NebulaOps),
+                        registryAccess.createSerializationContext(NebulaOps),
                         component as C
                     )
                     .orThrow
@@ -137,7 +139,7 @@ private fun <C : Any> DefaultComponentEditorDialog(
     var data by remember { mutableStateOf(initialData) }
 
     var errorMessage by remember { mutableStateOf<String?>(null) }
-
+    val registryAccess = LocalRegistryAccess.current
     FlexibleDialog(
         onDismissRequest = onDismiss,
         modifier = modifier,
@@ -145,7 +147,7 @@ private fun <C : Any> DefaultComponentEditorDialog(
         onConfirmRequest = {
             runCatching {
                 componentType.codecOrThrow()
-                    .parse(registryAccess!!.createSerializationContext(NebulaOps), data)
+                    .parse(registryAccess.createSerializationContext(NebulaOps), data)
                     .orThrow
             }.fold(
                 onSuccess = { result ->

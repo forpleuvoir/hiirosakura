@@ -50,7 +50,7 @@ class RadialMenuSetting(
     val pageSize: Int = pageSize.coerceIn(4, 12)
     val cornerRadius: Float = cornerRadius.coerceIn(0f, 20f)
     val borderWidth: Float = borderWidth.coerceIn(0f, 10f)
-    val tiltDegree: Float = tiltDegree.coerceIn(0f, 45f)
+    val tiltDegree: Float = tiltDegree.coerceIn(0f, 20f)
 
     fun copy(
         innerColor: Color = this.innerColor,

@@ -418,7 +418,7 @@ fun RadialMenuSettingDialog(
                         FloatSlider(
                             draft.tiltDegree,
                             { draft = draft.copy(tiltDegree = it) },
-                            valueRange = 0f..45f,
+                            valueRange = 0f..20f,
                             modifier = Modifier.width(SettingControlWidth)
                         )
                     }

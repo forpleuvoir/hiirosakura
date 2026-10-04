@@ -80,7 +80,7 @@ object QuickTickTaskExecuteScreen : ConfigGroup("quick_tick_task_execute") {
 
     val borderWidth by configFloat("border_width", RadialMenuDefaults.BorderWidth.value, 0f, 10f)
 
-    val tiltDegree by configFloat("tilt_degree", RadialMenuDefaults.TILT_DEGREE, 0f, 45f)
+    val tiltDegree by configFloat("tilt_degree", RadialMenuDefaults.TILT_DEGREE, 0f, 20f)
 
     val singlePageMaxCount by configInt("single_page_max_count", RadialMenuDefaults.OPTIONS_PRE_PAGE, 4, 12)
 

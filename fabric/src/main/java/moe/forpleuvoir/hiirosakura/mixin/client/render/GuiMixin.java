@@ -39,10 +39,9 @@ public abstract class GuiMixin {
     private int toolHighlightTimer;
 
     @Redirect(
-            // 26.2 的 extractSelectedItemName 有 (graphics) 与 (graphics, yShift) 两个重载：
-            // 前者只转发到后者，textWithBackdrop 调用全在后者体内，因此需要写全描述符选中它
-            method = "extractSelectedItemName(Lnet/minecraft/client/gui/GuiGraphicsExtractor;I)V",
-            require = 2,
+            // 原版 26.2 的 Hud 只有一个 extractSelectedItemName(GuiGraphicsExtractor)，
+            // 选中物品名的 textWithBackdrop 就在它体内，因此注入按方法名匹配即可
+            method = "extractSelectedItemName",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;textWithBackdrop(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIII)V"

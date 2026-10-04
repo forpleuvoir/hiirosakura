@@ -20,7 +20,6 @@ dependencies {
 
     compileOnly(libs.bundles.jexl)
 
-    compileOnlyApi(libs.nebula)
     compileOnly(libs.composeMinecraft.common)
 
     implementation(libs.ibukigourd.common)

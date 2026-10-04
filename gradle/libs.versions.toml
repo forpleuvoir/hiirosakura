@@ -6,7 +6,6 @@ kotlinxCoroutines = "1.11.0"
 kotlinxSerialization = "1.11.0"
 
 #other
-nebula = "0.4.0"
 #compose
 composeMinecraft = "0.1.0"
 jexl = "3.6.2"
@@ -52,8 +51,7 @@ ibukigourd-common = { group = "moe.forpleuvoir", name = "ibukigourd-common-26.2"
 ibukigourd-fabric = { group = "moe.forpleuvoir", name = "ibukigourd-fabric-26.2", version.ref = "ibukigourd" }
 ibukigourd-neoforge = { group = "moe.forpleuvoir", name = "ibukigourd-neoforge-26.2", version.ref = "ibukigourd" }
 
-#nebula / compose-minecraft
-nebula = { group = "moe.forpleuvoir", name = "nebula", version.ref = "nebula" }
+#compose-minecraft
 composeMinecraft-common = { group = "moe.forpleuvoir", name = "compose_minecraft-common-26.2", version.ref = "composeMinecraft" }
 
 #Fabric

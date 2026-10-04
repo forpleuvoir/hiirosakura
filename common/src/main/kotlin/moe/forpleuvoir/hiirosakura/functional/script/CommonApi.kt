@@ -7,7 +7,11 @@ import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.config.HSConfig
 import moe.forpleuvoir.hiirosakura.functional.customradialmenu.CustomRadialMenuManager
 import moe.forpleuvoir.hiirosakura.functional.event.HSEventManager
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.ItemStackEditor
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.asCommand
 import moe.forpleuvoir.hiirosakura.input.InputSimulator
+import moe.forpleuvoir.hiirosakura.ui.compat.closeScreen
+import moe.forpleuvoir.hiirosakura.ui.compat.openComposeScreen
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.MouseButton
@@ -143,11 +147,11 @@ interface CommonApi {
     }
 
     fun scheduleStartTick(delay: Int, runner: Runnable) {
-        mc.scheduleStartTick { _, _ -> runner.run() }
+        mc.scheduleStartTick(delay) { _, _ -> runner.run() }
     }
 
     fun scheduleEndTick(delay: Int, runner: Runnable) {
-        mc.scheduleEndTick { _, _ -> runner.run() }
+        mc.scheduleEndTick(delay) { _, _ -> runner.run() }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -182,18 +186,36 @@ interface CommonApi {
         CustomRadialMenuManager.customRadialMenus[menuKey]?.open()
     }
 
+    /**
+     * 打开物品编辑器，并以主手物品作为初始内容。
+     *
+     * 确认编辑结果后：创造模式下把结果写入当前选中的快捷栏槽位并发包同步给服务端；其它模式下把
+     * `/give` 指令写入剪贴板并弹出提示。主手为空时不打开界面。
+     */
     fun editItem() {
-//        mc.player?.let { player ->
-//            if (!player.mainHandItem.isEmpty) {
-//                ItemStackEditor { stack ->
-//                    if (player.isCreative) player.inventory.selectedItem = stack
-//                    else {
-//                        mc.keyboardHandler.clipboard = stack.asCommand()
-//                        Toast.showToast(HSLang.itemEditorCopyToCommand)
-//                    }
-//                }.open()
-//            }
-//        }
+        mc.execute {
+            val player = mc.player ?: return@execute
+            val editing = player.mainHandItem
+            if (editing.isEmpty) return@execute
+            openComposeScreen(renderParent = true) {
+                ItemStackEditor(
+                    value = editing,
+                    onDismissRequest = { closeScreen() },
+                    onValueChange = { edited ->
+                        if (player.isCreative) {
+                            mc.gameMode?.handleCreativeModeItemAdd(edited, 36 + player.inventory.selectedSlot)
+                        } else {
+                            runCatching {
+                                val command = edited.asCommand(player.level().registryAccess())
+                                mc.keyboardHandler.clipboard = command
+                                ToastHandler.showContent { Text(command) }
+                            }.onFailure { logger.warn(it) }
+                        }
+                        closeScreen()
+                    },
+                )
+            }
+        }
     }
 
 }

@@ -99,9 +99,11 @@ class HSEntityHitResult(override val vanilla: EntityHitResult) : HSHitResult(van
 
     /**
      * 表示命中的实体对象。
-     * 将传入的实体命中结果中的实体封装为 HSEntity 类型。
+     *
+     * 按实体类型分派：本地玩家为 `MainPlayer`、其他玩家为 `HSPlayerEntity`、生物为
+     * `HSLivingEntity`、其余为 `HSEntity`。
      */
-    private val entity = HSEntity(vanilla.entity)
+    private val entity = HSEntity.fromEntity(vanilla.entity)
 
     /**
      * 返回一个封装的实体（Entity）的实例。
@@ -190,9 +192,11 @@ class HSBlockHitResult(override val vanilla: BlockHitResult) : HSHitResult(vanil
      *                  该参数不区分大小写。
      * @param i 偏移量的距离，表示沿指定方向移动的方块数。
      * @return 表示目标方块状态的 BlockState 对象。
+     * @throws IllegalArgumentException 方向名无法解析时抛出。
      */
     fun offset(direction: String, i: Int): HSBlockState {
-        return HSBlockState(mc.level!!.getBlockState(vanilla.blockPos.relative(Direction.byName(direction.lowercase())!!)))
+        val dir = Direction.byName(direction.lowercase()) ?: throw IllegalArgumentException("Unknown direction: $direction")
+        return HSBlockState(mc.level!!.getBlockState(vanilla.blockPos.relative(dir, i)))
     }
 
 }

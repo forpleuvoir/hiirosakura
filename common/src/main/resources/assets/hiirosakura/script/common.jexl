@@ -6,7 +6,7 @@ toast = (msg) -> common:toast(msg);
 
 logger = (msg) -> common:logger(msg);
 
-notify = (title, msg) -> common:notify(title, msg);
+notify = (title, msg) -> common:sendNotification(title, msg);
 
 state = (key) -> {
     var current = common:getGlobalData("_hs_" + key);

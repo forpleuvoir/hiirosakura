@@ -241,7 +241,7 @@ sealed class EntityMatchEntry(override val mode: MatchEntry.MatchMode, val type:
             val result = AtomicBoolean(false)
             ScriptExecutor(
                 script, mutableMapOf(
-                    "entity" to HSEntity(obj),
+                    "entity" to HSEntity.fromEntity(obj),
                     "result" to result
                 )
             ).execute()

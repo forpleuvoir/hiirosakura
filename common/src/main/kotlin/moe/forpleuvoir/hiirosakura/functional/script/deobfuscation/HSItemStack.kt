@@ -42,14 +42,14 @@ class HSItemStack(@JvmField val vanilla: ItemStack) {
     }
 
     /**
-     * 获取当前物品的唯一标识符，并将其转换为字符串形式。
+     * 获取当前物品的注册名。
      *
-     * 该方法通过 `Registries.ITEM` 注册表，获取当前物品的唯一标识符，
-     * 然后返回其字符串表示形式，用于唯一标记和识别物品。
+     * 通过 `BuiltInRegistries.ITEM` 取得该物品的标识符，返回 `命名空间:路径` 形式（例如
+     * `minecraft:diamond_sword`）。
      *
-     * @return 当前物品唯一标识符的字符串形式。
+     * @return 当前物品注册名的字符串形式。
      */
-    fun getItem() = BuiltInRegistries.ITEM.getId(vanilla.item).toString()
+    fun getItem() = BuiltInRegistries.ITEM.getKey(vanilla.item).toString()
 
     fun getTags(): List<String> = vanilla.tags().map { it.location.toString() }.toList()
 
@@ -105,11 +105,14 @@ class HSItemStack(@JvmField val vanilla: ItemStack) {
      * 获取物品的损坏百分比。
      *
      * 此方法通过将当前物品的损坏值与最大耐久值相除，来计算当前物品的损坏比例。
-     * 返回的百分比值以浮点数表示，范围为 0.0 到 1.0。
+     * 不可损坏的物品（最大耐久为 0）返回 0.0。
      *
-     * @return 表示物品损坏比例的浮点数值。
+     * @return 表示物品损坏比例的浮点数值，范围 0.0 到 1.0。
      */
-    fun getDamagePercent() = vanilla.damageValue.toFloat() / vanilla.maxDamage
+    fun getDamagePercent(): Float {
+        val maxDamage = vanilla.maxDamage
+        return if (maxDamage <= 0) 0f else vanilla.damageValue.toFloat() / maxDamage
+    }
 
     /**
      * 获取当前物品堆栈的稀有度（Rarity）信息，以字符串形式返回。
@@ -131,12 +134,13 @@ class HSItemStack(@JvmField val vanilla: ItemStack) {
      * 此方法通过访问 `stack` 对象中的 `DataComponentTypes.ENCHANTMENTS` 数据组件，
      * 获取附魔信息，并将其转换为字符串形式的列表返回。
      *
-     * 通过 `appendTooltip` 方法遍历附魔数据，并将每个附魔的字符串表示形式添加到结果列表中。
+     * 提示上下文取自当前客户端世界（`mc.level`），附魔的本地化名称需要它的注册表；
+     * 未进入世界时退化为无注册表上下文，此时返回空列表。
      *
      * @return 包含附魔字符串的列表。如果没有附魔数据，则返回空列表。
      */
     fun getEnchantments() = buildList {
-        vanilla.get(DataComponents.ENCHANTMENTS)?.addToTooltip(Item.TooltipContext.EMPTY, {
+        vanilla.get(DataComponents.ENCHANTMENTS)?.addToTooltip(Item.TooltipContext.of(mc.level), {
             add(it.string)
         }, mc.tooltipFlag, vanilla)
     }
@@ -147,10 +151,13 @@ class HSItemStack(@JvmField val vanilla: ItemStack) {
      * 该方法从 `stack` 中提取存储的附魔信息，并将其转化为字符串格式存储到一个列表中返回。
      * 如果当前物品堆未包含存储的附魔信息，则返回的列表为空。
      *
+     * 提示上下文取自当前客户端世界（`mc.level`），附魔的本地化名称需要它的注册表；
+     * 未进入世界时退化为无注册表上下文，此时返回空列表。
+     *
      * @return 包含存储附魔名称的列表。
      */
     fun getStoredEnchantments() = buildList {
-        vanilla.get(DataComponents.STORED_ENCHANTMENTS)?.addToTooltip(Item.TooltipContext.EMPTY, {
+        vanilla.get(DataComponents.STORED_ENCHANTMENTS)?.addToTooltip(Item.TooltipContext.of(mc.level), {
             add(it.string)
         }, mc.tooltipFlag, vanilla.components)
     }

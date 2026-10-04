@@ -101,14 +101,22 @@ open class HSEntity(open val vanilla: Entity) {
     fun getEyePos() = vanilla.eyePosition.toVector()
 
     /**
-     * 获取实体的速度。
+     * 获取实体的瞬时移动速度。
      *
-     * 此方法返回当前实体的速度值，通常由 `entity.speed` 属性提供。
-     * 速度是一个数值类型，表示实体的运动速率。
+     * 取实体本 tick 的位移向量长度，单位为方块每 tick。
      *
      * @return 实体的速度值。
      */
-    fun getSpeed() = vanilla.flyDist
+    fun getSpeed() = vanilla.deltaMovement.length().toFloat()
+
+    /**
+     * 获取实体的累计移动距离。
+     *
+     * 对应原版的 `flyDist` 字段：实体每次移动时按其位移长度累加，不随时间衰减。
+     *
+     * @return 实体累计移动距离，单位为方块。
+     */
+    fun getFlyDistance() = vanilla.flyDist
 
     /**
      * 获取实体对象的 UUID 的字符串形式。
@@ -129,12 +137,12 @@ open class HSEntity(open val vanilla: Entity) {
     /**
      * 获取实体类型的字符串表示形式。
      *
-     * 该方法通过 `Registries.ENTITY_TYPE` 注册表获取当前实体的唯一标识符，
-     * 并将其转换为字符串表示形式。通常用于标识实体的实际类型。
+     * 该方法通过 `BuiltInRegistries.ENTITY_TYPE` 注册表获取当前实体的标识符，
+     * 返回 `命名空间:路径` 形式（例如 `minecraft:zombie`）。
      *
      * @return 当前实体类型的字符串表示形式。
      */
-    fun getType() = BuiltInRegistries.ENTITY_TYPE.getId(vanilla.type).toString()
+    fun getType() = BuiltInRegistries.ENTITY_TYPE.getKey(vanilla.type).toString()
 
     /**
      * 获取当前实体所在世界的唯一标识符。
@@ -207,7 +215,7 @@ open class HSEntity(open val vanilla: Entity) {
      *
      * @return 如果实体为隐形，则返回 `true`；否则返回 `false`。
      */
-    fun sInvisible() = vanilla.isInvisible
+    fun isInvisible() = vanilla.isInvisible
 
     /**
      * 判断实体是否处于无敌状态。

@@ -80,6 +80,8 @@ object QuickTickTaskExecuteScreen : ConfigGroup("quick_tick_task_execute") {
 
     val borderWidth by configFloat("border_width", RadialMenuDefaults.BorderWidth.value, 0f, 10f)
 
+    val tiltDegree by configFloat("tilt_degree", RadialMenuDefaults.TILT_DEGREE, 0f, 45f)
+
     val singlePageMaxCount by configInt("single_page_max_count", RadialMenuDefaults.OPTIONS_PRE_PAGE, 4, 12)
 
     internal val hitAlignment = BiasAlignment(0f, 0.85f)
@@ -113,6 +115,7 @@ object QuickTickTaskExecuteScreen : ConfigGroup("quick_tick_task_execute") {
                     selectedInnerColor = innerSelectedColor.toComposeColor(),
                     selectedBorderColor = selectedBorderColor.toComposeColor(),
                     borderWidth = borderWidth.dp,
+                    tiltDegree = tiltDegree,
                     onOptionClick = { keyed, button ->
                         when (button) {
                             LEFT -> keyed?.let {

@@ -24,6 +24,9 @@ object RadialMenuDefaults {
     const val GAP: Float = 12f
     val CornerRadius: Dp = 4.dp
     val BorderWidth: Dp = 2.dp
+
+    /** 指针移到外半径处时的最大倾角（度），0 为不倾斜 */
+    const val TILT_DEGREE: Float = 8f
     const val OPTIONS_PRE_PAGE: Int = 8
     val OptionContentSize: Dp = 72.dp
     val IndicatorHeight: Dp = 6.dp

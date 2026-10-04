@@ -409,6 +409,19 @@ fun RadialMenuSettingDialog(
                             modifier = Modifier.width(SettingControlWidth)
                         )
                     }
+
+                    EntryRow {
+                        Text(
+                            text = HSLang.CustomRadialMenu.settingTiltDegree.plainText,
+                            modifier = Modifier.tooltip { Text(component = HSLang.CustomRadialMenu.settingTiltDegreeComment) },
+                        )
+                        FloatSlider(
+                            draft.tiltDegree,
+                            { draft = draft.copy(tiltDegree = it) },
+                            valueRange = 0f..45f,
+                            modifier = Modifier.width(SettingControlWidth)
+                        )
+                    }
                 }
 
                 ScrollbarColumn(scrollState)

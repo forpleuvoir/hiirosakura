@@ -20,6 +20,7 @@ class RadialMenuSetting(
     val selectedBorderColor: Color = Defaults.selectedBorderColor,
     cornerRadius: Float = Defaults.cornerRadius,
     borderWidth: Float = Defaults.borderWidth,
+    tiltDegree: Float = Defaults.tiltDegree,
 ) {
 
     companion object : Codec<RadialMenuSetting> by Codec.create<RadialMenuSetting>()
@@ -37,6 +38,7 @@ class RadialMenuSetting(
         .field(RadialMenuSetting::selectedBorderColor).default(Defaults.selectedBorderColor).skipDefault().codec(Codec.color)
         .field(RadialMenuSetting::cornerRadius).default(Defaults.cornerRadius).skipDefault().codec(Codec.float)
         .field(RadialMenuSetting::borderWidth).default(Defaults.borderWidth).skipDefault().codec(Codec.float)
+        .field(RadialMenuSetting::tiltDegree).default(Defaults.tiltDegree).skipDefault().codec(Codec.float)
         .build(::RadialMenuSetting)
 
 
@@ -48,6 +50,7 @@ class RadialMenuSetting(
     val pageSize: Int = pageSize.coerceIn(4, 12)
     val cornerRadius: Float = cornerRadius.coerceIn(0f, 20f)
     val borderWidth: Float = borderWidth.coerceIn(0f, 10f)
+    val tiltDegree: Float = tiltDegree.coerceIn(0f, 45f)
 
     fun copy(
         innerColor: Color = this.innerColor,
@@ -64,6 +67,7 @@ class RadialMenuSetting(
         selectedBorderColor: Color = this.selectedBorderColor,
         cornerRadius: Float = this.cornerRadius,
         borderWidth: Float = this.borderWidth,
+        tiltDegree: Float = this.tiltDegree,
     ): RadialMenuSetting = RadialMenuSetting(
         innerColor,
         outerColor,
@@ -79,6 +83,7 @@ class RadialMenuSetting(
         selectedBorderColor,
         cornerRadius,
         borderWidth,
+        tiltDegree,
     )
 
 }

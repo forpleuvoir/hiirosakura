@@ -144,6 +144,7 @@ class CustomRadialMenu(
                     selectedInnerColor = s.innerSelectedColor.toComposeColor(),
                     selectedBorderColor = s.selectedBorderColor.toComposeColor(),
                     borderWidth = s.borderWidth.dp,
+                    tiltDegree = s.tiltDegree,
                     onOptionClick = { keyed, button ->
                         when (button) {
                             LEFT -> keyed?.let {

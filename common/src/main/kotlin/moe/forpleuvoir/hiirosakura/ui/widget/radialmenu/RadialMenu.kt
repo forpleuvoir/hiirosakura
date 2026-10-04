@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.radialmenu
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
@@ -22,8 +23,25 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.ibukigourd.input.MouseButton
 import kotlin.math.cos
+import kotlin.math.hypot
 import kotlin.math.roundToInt
 import kotlin.math.sin
+
+/**
+ * 把指针位置换算成两个转轴的目标角度：偏移按外半径归一化，超出半径只保留方向。
+ *
+ * 方向与鼠标偏移相反（鼠标在右 → 右侧远离观察者，鼠标在下 → 下侧远离观察者）；指针为空时回正。
+ *
+ * @param maxDegree 指针到达外半径时的最大倾角（度）
+ */
+private fun tiltTargetOf(position: Offset?, center: Offset, radius: Float, maxDegree: Float): Pair<Float, Float> {
+    if (position == null) return 0f to 0f
+    val dx = (position.x - center.x) / radius
+    val dy = (position.y - center.y) / radius
+    val magnitude = hypot(dx, dy)
+    val scale = if (magnitude > 1f) 1f / magnitude else 1f
+    return (-dy * scale * maxDegree) to (dx * scale * maxDegree)
+}
 
 /**
  * 径向菜单（Radial Menu）
@@ -49,6 +67,7 @@ import kotlin.math.sin
  * @param selectedInnerColor 选中扇区的中心颜色
  * @param selectedBorderColor 选中扇区的描边颜色
  * @param borderWidth 扇区的描边宽度（选中与未选中共用），0 时不描边
+ * @param tiltDegree 指针到达外半径时的最大倾角（度），0 为不倾斜
  * @param animation 扇区动画参数（缩放、沿中心点方向的位移等）；
  * 整体旋转无需专门参数，直接在外部对 [startAngleDegree] 做动画即可，命中测试会随之一致旋转
  * @param onOptionClick 选项点击回调，点击扇区时触发：扇区有选项则接收对应选项，无选项则为 null；点击扇区以外区域不触发
@@ -76,6 +95,7 @@ fun <T> RadialMenu(
     selectedInnerColor: Color = RadialMenuDefaults.SelectedInnerColor,
     selectedBorderColor: Color = RadialMenuDefaults.SelectedBorderColor,
     borderWidth: Dp = RadialMenuDefaults.BorderWidth,
+    tiltDegree: Float = RadialMenuDefaults.TILT_DEGREE,
     animation: RadialMenuAnimation = RadialMenuDefaults.Animation,
     onOptionClick: (T?, MouseButton) -> Unit = { _, _ -> },
     onEmptyClick: (MouseButton) -> Unit = {},
@@ -89,6 +109,7 @@ fun <T> RadialMenu(
     require(gap >= 0f) { "gap must be >= 0" }
     require(cornerRadius >= 0.dp) { "cornerRadius must be >= 0" }
     require(borderWidth >= 0.dp) { "borderWidth must be >= 0" }
+    require(tiltDegree >= 0f) { "tiltDegree must be >= 0" }
 
 
     val density = LocalDensity.current
@@ -166,6 +187,21 @@ fun <T> RadialMenu(
         derivedStateOf { currentPage.getOrNull(hoveredIndex) }
     }
 
+    // 鼠标作为法线引导点：只取外半径以内的偏移，超出即钳到最大值（方向仍跟随鼠标）。
+    // 指针只写状态、不在组合期读取：倾斜量在图层块里取，属性变化只让本层失效，不触发整页重组
+    val pointerPosition = remember { mutableStateOf<Offset?>(null) }
+    val tiltRadius = actualOuterRadiusPx.coerceAtLeast(1f)
+    val tiltRotationX = remember { Animatable(0f) }
+    val tiltRotationY = remember { Animatable(0f) }
+    LaunchedEffect(tiltRadius, center, tiltDegree) {
+        snapshotFlow { pointerPosition.value }.collect { position ->
+            val (targetX, targetY) = tiltTargetOf(position, center, tiltRadius, tiltDegree)
+            // 直接落值：菜单自带的 tween(150ms, FastOutSlowIn) 是给选中反馈的缓动，跟鼠标会明显滞后
+            tiltRotationX.snapTo(targetX)
+            tiltRotationY.snapTo(targetY)
+        }
+    }
+
 
     val currentOnOptionClick by rememberUpdatedState(onOptionClick)
     val currentOnEmptyClick by rememberUpdatedState(onEmptyClick)
@@ -181,6 +217,7 @@ fun <T> RadialMenu(
                         when (event.type) {
                             PointerEventType.Move   -> {
                                 val change = event.changes.firstOrNull() ?: continue
+                                pointerPosition.value = change.position
                                 hoveredIndex = findSectorIndex(
                                     sectors = sectors,
                                     center = center,
@@ -190,7 +227,10 @@ fun <T> RadialMenu(
                                 )
                             }
 
-                            PointerEventType.Exit   -> hoveredIndex = -1
+                            PointerEventType.Exit   -> {
+                                hoveredIndex = -1
+                                pointerPosition.value = null
+                            }
                             PointerEventType.Press  -> {
                                 val change = event.changes.firstOrNull() ?: continue
                                 val idx = findSectorIndex(
@@ -236,6 +276,12 @@ fun <T> RadialMenu(
                         }
                     }
                 }
+            }
+            // 倾斜：图层放在 pointerInput 之后，指针坐标仍取未倾斜的空间（不构成反馈）；
+            // 角度只在这里读，鼠标移动不会让上面的组合体重组
+            .graphicsLayer {
+                rotationX = tiltRotationX.value
+                rotationY = tiltRotationY.value
             }
             .drawBehind {
                 val sectorRadialOffsetPx = animation.sectorRadialOffset.toPx() * layoutScale

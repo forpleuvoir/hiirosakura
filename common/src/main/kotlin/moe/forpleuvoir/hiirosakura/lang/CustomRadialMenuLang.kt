@@ -53,6 +53,8 @@ object CustomRadialMenuLang {
 
     inline val settingBorderWidth get() = lang("setting.border_width")
 
+    inline val settingTiltDegree get() = lang("setting.tilt_degree")
+
     inline val settingInnerColorComment get() = lang("setting.inner_color.comment")
 
     inline val settingOuterColorComment get() = lang("setting.outer_color.comment")
@@ -80,6 +82,8 @@ object CustomRadialMenuLang {
     inline val settingCornerRadiusComment get() = lang("setting.corner_radius.comment")
 
     inline val settingBorderWidthComment get() = lang("setting.border_width.comment")
+
+    inline val settingTiltDegreeComment get() = lang("setting.tilt_degree.comment")
 
     inline val delete get() = lang("delete")
     inline val deleteConfirm get() = lang("delete_confirm")

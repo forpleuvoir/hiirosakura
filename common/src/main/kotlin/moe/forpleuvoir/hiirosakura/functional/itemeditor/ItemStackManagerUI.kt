@@ -203,7 +203,7 @@ private fun ItemStackList(
             ItemStackManager.items[index].value,
             { editingItemIndex = null },
             onValueChange = {
-                ItemStackManager.items[index].copyValue(it)
+                ItemStackManager.updateValue(index, it)
             }
         )
     }

@@ -5,6 +5,7 @@ import moe.forpleuvoir.hiirosakura.HiiroSakura
 import moe.forpleuvoir.hiirosakura.platform.PLATFORM
 import moe.forpleuvoir.hiirosakura.util.logger
 import moe.forpleuvoir.ibukigourd.ui.util.Keyed
+import moe.forpleuvoir.ibukigourd.ui.util.copyValue
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
 import moe.forpleuvoir.ibukigourd.util.moveElement
 import kotlinx.coroutines.sync.Mutex
@@ -47,6 +48,12 @@ object ItemStackManager {
 
     fun add(itemStack: ItemStack) {
         items.add(Keyed(nextKey++, itemStack))
+        changed = true
+    }
+
+    /** 就地替换指定条目的值，条目 key 保持不变。 */
+    fun updateValue(index: Int, itemStack: ItemStack) {
+        items[index] = items[index].copyValue(itemStack)
         changed = true
     }
 

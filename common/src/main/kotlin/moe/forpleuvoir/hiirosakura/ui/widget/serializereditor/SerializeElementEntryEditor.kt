@@ -22,6 +22,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Surface
 
+/** key 标签样式：主题正文字号 + 等宽字体。 */
 @Composable
 internal fun keyLabelStyle(): TextStyle =
     SokitsuTheme.typography.body.copy(fontFamily = FontFamily.Monospace)
@@ -53,10 +54,12 @@ fun SerializeElementEntryEditor(
                 onValueChange = onValueChange,
                 modifier = Modifier.weight(1f),
             )
-            is SerializePrimitive -> SerializePrimitiveEditor(
-                serializePrimitive = data,
-                onValueChange = onValueChange,
-            )
+            is SerializePrimitive -> Box(Modifier.weight(1f)) {
+                SerializePrimitiveEditor(
+                    serializePrimitive = data,
+                    onValueChange = onValueChange,
+                )
+            }
             is SerializeNull -> NullEditor()
         }
     }

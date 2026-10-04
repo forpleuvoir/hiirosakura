@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -160,6 +159,7 @@ fun HSEventManagerUI(
                                     subscriber = subscriber,
                                     // 拖拽手势只能在 ReorderableItem 的作用域里取，因此在调用点算好再传进去
                                     dragHandleModifier = Modifier.draggableHandle(),
+                                    onEnabledChange = { HSEventManager.setEnabled(index, it) },
                                     onEdit = { editingSubscriber = index },
                                     onRemove = { HSEventManager.remove(index) },
                                 )
@@ -205,11 +205,13 @@ fun HSEventManagerUI(
  * 行不画容器，悬停时由 [hoverHighlight] 铺一层高亮（与配置行、任务行同款反馈）。
  *
  * @param dragHandleModifier 拖拽手势修饰符，由调用方在 [ReorderableItem] 作用域内取好后传入
+ * @param onEnabledChange 启用开关回调：写回模型并同步事件注册
  */
 @Composable
 private fun EventSubscriberRow(
     subscriber: HSEventSubscriber,
     dragHandleModifier: Modifier,
+    onEnabledChange: (Boolean) -> Unit,
     onEdit: () -> Unit,
     onRemove: () -> Unit,
 ) {
@@ -246,18 +248,23 @@ private fun EventSubscriberRow(
                 overflow = TextOverflow.Ellipsis,
             )
 
+            // 本地状态只负责开关的即时反馈：模型字段不是快照状态，写它不会触发重组
             var enabled by remember { mutableStateOf(subscriber.enabled) }
-            LaunchedEffect(enabled) {
-                subscriber.enabled = enabled
-            }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(EventRowDefaults.ActionSpacing),
             ) {
-                Switch(enabled, onCheckedChange = { enabled = it }, Modifier.tooltip {
-                    Text(component = HSLang.Common.enable)
-                })
+                Switch(
+                    enabled,
+                    onCheckedChange = {
+                        enabled = it
+                        onEnabledChange(it)
+                    },
+                    Modifier.tooltip {
+                        Text(component = HSLang.Common.enable)
+                    },
+                )
 
                 IconButton(onEdit, Modifier.tooltip {
                     Text(component = HSLang.Event.subscriberEditor)

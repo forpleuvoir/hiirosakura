@@ -172,7 +172,7 @@ interface CommonApi {
 
     fun enableEvent(name: String, enable: Boolean) {
         HSEventManager.subscribers.values().find { it.name == name }?.let {
-            it.enabled = enable
+            HSEventManager.setEnabled(it, enable)
             ToastHandler.showContent { Text(component = HSLang.Event.enableEvent(name, enable)) }
         } ?: ToastHandler.showContent { Text(component = HSLang.Event.enableEventNotFound(name)) }
 

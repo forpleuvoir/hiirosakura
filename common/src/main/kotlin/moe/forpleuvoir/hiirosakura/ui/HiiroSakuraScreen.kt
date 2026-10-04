@@ -20,12 +20,20 @@ import moe.forpleuvoir.ibukigourd.config.translateText
 import moe.forpleuvoir.ibukigourd.ui.ModScreen
 import moe.forpleuvoir.ibukigourd.ui.ModScreenIcon
 import moe.forpleuvoir.ibukigourd.ui.ModScreenTab
-import moe.forpleuvoir.ibukigourd.ui.rememberModScreenState
+import moe.forpleuvoir.ibukigourd.ui.ModScreenState
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.ConfigManagerWrapper
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.SokitsuScreen
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import net.minecraft.client.gui.screens.Screen
+
+/**
+ * 上次停留的页签。
+ *
+ * 屏内的 `rememberModScreenState` 随屏幕实例销毁、每次打开都回到第一页，这里在进程内留一份，
+ * 重开界面回到上次的页签（页数变化时由 [ModScreenState] 自己按页数钳制）。
+ */
+private val screenState = ModScreenState()
 
 /**
  * 打开 HiiroSakura 主界面。
@@ -67,7 +75,7 @@ internal fun HiiroSakuraScreenContent() {
     }
     ModScreen(
         tabs = tabs,
-        state = rememberModScreenState(),
+        state = screenState,
         title = {
             Text(HiiroSakura.MOD_NAME, color = Color(0xFFBD4246), fontWeight = FontWeight.Bold)
         },

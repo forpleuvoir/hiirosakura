@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.SerializeElementEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.SerializeElementJsonEditorDialog
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.SerializeElementType
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.matchesType
 import moe.forpleuvoir.hiirosakura.ui.widget.truncateLines
@@ -26,6 +27,7 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.FlexibleDialog
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastContainer
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
 import moe.forpleuvoir.ibukigourd.util.NebulaOps
+import moe.forpleuvoir.ibukigourd.ui.util.isQuickAction
 import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeNull
@@ -77,9 +79,14 @@ fun <C : Any> DefaultComponentWrapper(
 ) {
     var showEditDialog by remember { mutableStateOf(false) }
 
+    var jsonMode by remember { mutableStateOf(false) }
+
     DataComponentDisplayRow(
         key, removeAction, modifier, horizontalArrangement, verticalAlignment,
-        onEdit = { showEditDialog = true },
+        onEdit = {
+            jsonMode = isQuickAction
+            showEditDialog = true
+        },
     ) {
         Text(
             Component.literal(component.toString()),
@@ -109,17 +116,46 @@ fun <C : Any> DefaultComponentWrapper(
             }
         }
         data?.let { element ->
-            DefaultComponentEditorDialog(
-                key = key,
-                componentType = componentType,
-                initialData = element,
-                onDismiss = { showEditDialog = false },
-                onValueChange = { newComponent ->
-                    onValueChange(newComponent)
-                    showEditDialog = false
-                },
-                modifier = Modifier.padding(24.dp),
-            )
+            if (jsonMode) {
+                // 快速动作键：跳过组件编辑器，直接编辑整份 JSON
+                SerializeElementJsonEditorDialog(
+                    title = { DataComponentDialogTitle(Component.literal(key.toString())) },
+                    initialData = element,
+                    onDismissRequest = { showEditDialog = false },
+                    onConfirmRequest = { json ->
+                        runCatching {
+                            componentType.codecOrThrow()
+                                .parse(registryAccess.createSerializationContext(NebulaOps), json)
+                                .orThrow
+                        }.fold(
+                            onSuccess = { result ->
+                                onValueChange(result)
+                                showEditDialog = false
+                                true
+                            },
+                            onFailure = { e ->
+                                logger.error(e)
+                                ToastHandler.showContent {
+                                    Text(e.stackTraceToString().truncateLines(8))
+                                }
+                                false
+                            },
+                        )
+                    },
+                )
+            } else {
+                DefaultComponentEditorDialog(
+                    key = key,
+                    componentType = componentType,
+                    initialData = element,
+                    onDismiss = { showEditDialog = false },
+                    onValueChange = { newComponent ->
+                        onValueChange(newComponent)
+                        showEditDialog = false
+                    },
+                    modifier = Modifier.padding(24.dp),
+                )
+            }
         }
     }
 }

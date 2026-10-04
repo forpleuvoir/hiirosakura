@@ -29,10 +29,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import moe.forpleuvoir.compose_minecraft.platform.ui.text.LocalDefaultFont
 import moe.forpleuvoir.compose_minecraft.platform.ui.text.MinecraftFonts
+import moe.forpleuvoir.ibukigourd.util.mc
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text as SokitsuText
 
 @Composable
@@ -161,7 +163,7 @@ fun InlineStyleTextEditorDialog(
                                 component = editingValue,
                                 modifier = Modifier.fillMaxWidth(),
                                 textAlign = TextAlign.Center,
-                                fontSize = 18.sp,
+                                fontSize = ((1 / LocalDensity.current.density) * (mc.window.guiScale * mc.font.lineHeight)).sp,
                             )
                         }
                     }

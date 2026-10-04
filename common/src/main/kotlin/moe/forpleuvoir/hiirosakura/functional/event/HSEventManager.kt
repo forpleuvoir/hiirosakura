@@ -34,6 +34,21 @@ object HSEventManager : HiiroSakuraData {
         task.subscribe()
     }
 
+    /**
+     * 切换启用状态并同步事件注册：关闭时注销，开启时重新注册。
+     *
+     * [HSEventSubscriber.subscribe] 内部先注销、再按当前状态决定是否注册，两个方向都只需调它。
+     */
+    fun setEnabled(subscriber: HSEventSubscriber, enabled: Boolean) {
+        subscriber.enabled = enabled
+        subscriber.subscribe()
+    }
+
+    /** 按下标切换启用状态，见 [setEnabled]。 */
+    fun setEnabled(index: Int, enabled: Boolean) {
+        subscribers.getOrNull(index)?.value?.let { setEnabled(it, enabled) }
+    }
+
     fun moveElement(fromIndex: Int, toIndex: Int) {
         subscribers.moveElement(fromIndex, toIndex)
     }

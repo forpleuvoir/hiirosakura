@@ -1,6 +1,5 @@
 package moe.forpleuvoir.hiirosakura.ui.widget.serializereditor
 
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
 import net.minecraft.network.chat.Component
 
 import androidx.compose.foundation.layout.*
@@ -8,6 +7,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -23,7 +23,6 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.TextField
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Switch
-import androidx.compose.foundation.layout.fillMaxWidth
 
 /**
  * 鏂囨湰 / 鏁板€肩紪杈戝櫒鐨勭粺涓€瀹藉害锛屽彲閫氳繃 CompositionLocal 瑕嗙洊銆? */
@@ -32,6 +31,26 @@ val LocalSerializeValueFieldWidth = compositionLocalOf { 240.dp }
 private val ValueFieldHeight = 48.dp
 
 private val ValueFieldContentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+
+/** 类型标签：主题正文字号。 */
+@Composable
+private fun TypeLabel(type: String) =
+    Text(component = Component.literal(type), fontSize = SokitsuTheme.typography.body.fontSize)
+
+/** 原始类型编辑器：类型标签在左，控件紧随其后。 */
+@Composable
+private fun PrimitiveField(
+    type: String,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) = Row(
+    modifier = modifier,
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
+) {
+    TypeLabel(type)
+    content()
+}
 
 @Composable
 fun SerializePrimitiveEditor(
@@ -54,14 +73,16 @@ private fun StringEditor(
     modifier: Modifier,
 ) {
     var value by remember(str) { mutableStateOf(str) }
-    CompactValueField(
-        value = value,
-        onValueChange = { v ->
-            value = v
-            onValueChange(SerializePrimitive(v))
-        },
-        modifier = modifier.width(LocalSerializeValueFieldWidth.current),
-    )
+    PrimitiveField(type = "String", modifier = modifier) {
+        CompactValueField(
+            value = value,
+            onValueChange = { v ->
+                value = v
+                onValueChange(SerializePrimitive(v))
+            },
+            modifier = Modifier.width(LocalSerializeValueFieldWidth.current),
+        )
+    }
 }
 
 @Composable
@@ -71,14 +92,15 @@ private fun BooleanEditor(
     modifier: Modifier,
 ) {
     var checked by remember(boolean) { mutableStateOf(boolean) }
-    Switch(
-        checked = checked,
-        onCheckedChange = { c ->
-            checked = c
-            onValueChange(SerializePrimitive(c))
-        },
-        modifier = modifier,
-    )
+    PrimitiveField(type = "Boolean", modifier = modifier) {
+        Switch(
+            checked = checked,
+            onCheckedChange = { c ->
+                checked = c
+                onValueChange(SerializePrimitive(c))
+            },
+        )
+    }
 }
 
 @Composable
@@ -106,14 +128,13 @@ private fun IntEditor(
     onValueChange: (SerializePrimitive) -> Unit,
     modifier: Modifier,
 ) {
-    DataComponentField(component = Component.literal("Int")) {
+    PrimitiveField(type = "Int", modifier = modifier) {
         IntField(
             value = int,
             onValueChange = { onValueChange(SerializePrimitive(it)) },
-            modifier = modifier
+            modifier = Modifier
                 .width(LocalSerializeValueFieldWidth.current)
-                .height(ValueFieldHeight)
-                .fillMaxWidth(),
+                .height(ValueFieldHeight),
         )
     }
 }
@@ -124,14 +145,13 @@ private fun LongEditor(
     onValueChange: (SerializePrimitive) -> Unit,
     modifier: Modifier,
 ) {
-    DataComponentField(component = Component.literal("Long")) {
+    PrimitiveField(type = "Long", modifier = modifier) {
         LongField(
             value = long,
             onValueChange = { onValueChange(SerializePrimitive(it)) },
-            modifier = modifier
+            modifier = Modifier
                 .width(LocalSerializeValueFieldWidth.current)
-                .height(ValueFieldHeight)
-                .fillMaxWidth(),
+                .height(ValueFieldHeight),
         )
     }
 }
@@ -143,16 +163,18 @@ private fun ShortEditor(
     modifier: Modifier,
 ) {
     var value by remember(short) { mutableStateOf(short.toString()) }
-    CompactValueField(
-        value = value,
-        onValueChange = { v ->
-            value = v
-            v.toShortOrNull()?.let { onValueChange(SerializePrimitive(it)) }
-        },
-        isError = value.isNotEmpty() && value.toShortOrNull() == null,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-        modifier = modifier.width(LocalSerializeValueFieldWidth.current),
-    )
+    PrimitiveField(type = "Short", modifier = modifier) {
+        CompactValueField(
+            value = value,
+            onValueChange = { v ->
+                value = v
+                v.toShortOrNull()?.let { onValueChange(SerializePrimitive(it)) }
+            },
+            isError = value.isNotEmpty() && value.toShortOrNull() == null,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+            modifier = Modifier.width(LocalSerializeValueFieldWidth.current),
+        )
+    }
 }
 
 @Composable
@@ -162,16 +184,18 @@ private fun ByteEditor(
     modifier: Modifier,
 ) {
     var value by remember(byte) { mutableStateOf(byte.toString()) }
-    CompactValueField(
-        value = value,
-        onValueChange = { v ->
-            value = v
-            v.toByteOrNull()?.let { onValueChange(SerializePrimitive(it)) }
-        },
-        isError = value.isNotEmpty() && value.toByteOrNull() == null,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-        modifier = modifier.width(LocalSerializeValueFieldWidth.current),
-    )
+    PrimitiveField(type = "Byte", modifier = modifier) {
+        CompactValueField(
+            value = value,
+            onValueChange = { v ->
+                value = v
+                v.toByteOrNull()?.let { onValueChange(SerializePrimitive(it)) }
+            },
+            isError = value.isNotEmpty() && value.toByteOrNull() == null,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+            modifier = Modifier.width(LocalSerializeValueFieldWidth.current),
+        )
+    }
 }
 
 @Composable
@@ -180,14 +204,13 @@ private fun FloatEditor(
     onValueChange: (SerializePrimitive) -> Unit,
     modifier: Modifier,
 ) {
-    DataComponentField(component = Component.literal("Float")) {
+    PrimitiveField(type = "Float", modifier = modifier) {
         FloatField(
             value = float,
             onValueChange = { onValueChange(SerializePrimitive(it)) },
-            modifier = modifier
+            modifier = Modifier
                 .width(LocalSerializeValueFieldWidth.current)
-                .height(ValueFieldHeight)
-                .fillMaxWidth(),
+                .height(ValueFieldHeight),
         )
     }
 }
@@ -198,14 +221,13 @@ private fun DoubleEditor(
     onValueChange: (SerializePrimitive) -> Unit,
     modifier: Modifier,
 ) {
-    DataComponentField(component = Component.literal("Double")) {
+    PrimitiveField(type = "Double", modifier = modifier) {
         DoubleField(
             value = double,
             onValueChange = { onValueChange(SerializePrimitive(it)) },
-            modifier = modifier
+            modifier = Modifier
                 .width(LocalSerializeValueFieldWidth.current)
-                .height(ValueFieldHeight)
-                .fillMaxWidth(),
+                .height(ValueFieldHeight),
         )
     }
 }
@@ -217,16 +239,18 @@ private fun BigIntEditor(
     modifier: Modifier,
 ) {
     var value by remember(bigInt) { mutableStateOf(bigInt.toString()) }
-    CompactValueField(
-        value = value,
-        onValueChange = { v ->
-            value = v
-            runCatching { BigInteger(v) }.getOrNull()?.let { onValueChange(SerializePrimitive(it)) }
-        },
-        isError = value.isNotEmpty() && runCatching { BigInteger(value) }.isFailure,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-        modifier = modifier.width(LocalSerializeValueFieldWidth.current),
-    )
+    PrimitiveField(type = "BigInteger", modifier = modifier) {
+        CompactValueField(
+            value = value,
+            onValueChange = { v ->
+                value = v
+                runCatching { BigInteger(v) }.getOrNull()?.let { onValueChange(SerializePrimitive(it)) }
+            },
+            isError = value.isNotEmpty() && runCatching { BigInteger(value) }.isFailure,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+            modifier = Modifier.width(LocalSerializeValueFieldWidth.current),
+        )
+    }
 }
 
 @Composable
@@ -236,16 +260,18 @@ private fun BigDecimalEditor(
     modifier: Modifier,
 ) {
     var value by remember(bigDecimal) { mutableStateOf(bigDecimal.toString()) }
-    CompactValueField(
-        value = value,
-        onValueChange = { v ->
-            value = v
-            runCatching { BigDecimal(v) }.getOrNull()?.let { onValueChange(SerializePrimitive(it)) }
-        },
-        isError = value.isNotEmpty() && runCatching { BigDecimal(value) }.isFailure,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
-        modifier = modifier.width(LocalSerializeValueFieldWidth.current),
-    )
+    PrimitiveField(type = "BigDecimal", modifier = modifier) {
+        CompactValueField(
+            value = value,
+            onValueChange = { v ->
+                value = v
+                runCatching { BigDecimal(v) }.getOrNull()?.let { onValueChange(SerializePrimitive(it)) }
+            },
+            isError = value.isNotEmpty() && runCatching { BigDecimal(value) }.isFailure,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
+            modifier = Modifier.width(LocalSerializeValueFieldWidth.current),
+        )
+    }
 }
 
 @Composable

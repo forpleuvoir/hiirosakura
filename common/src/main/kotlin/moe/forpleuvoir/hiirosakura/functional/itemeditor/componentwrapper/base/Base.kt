@@ -32,6 +32,7 @@ import moe.forpleuvoir.ibukigourd.ui.configwrapper.*
 import moe.forpleuvoir.ibukigourd.ui.editdialog.RemoveConfirmButton
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.ProvideContentColorTextStyle
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.tooltip.tooltip
 import moe.forpleuvoir.nebula.common.util.primitive.toTitleCase
@@ -48,6 +49,16 @@ import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text as SokitsuText
 val unknownComponentType = identifier("unknown_component_type")
 
 private val logger = logger("ComponentWrapper:Base")
+
+
+/**
+ * 组件名配色：已适配取主题主色，未适配取主题辅色。
+ *
+ * 取配色方案槽位而非固定色，亮色 / 暗色主题下都随方案变化。
+ */
+@Composable
+fun adaptedComponentColor(adapted: Boolean): Color =
+    if (adapted) SokitsuTheme.colorScheme.primary else SokitsuTheme.colorScheme.secondary
 
 
 /**
@@ -495,13 +506,10 @@ fun DataComponentEntryRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val style = LocalTextStyle.current.copy(
-                color = if (DataComponentWrappers.isAdaptedComponent(key))
-                    Color.hsv(195f, 1f, 1f)
-                else
-                    Color.hsv(5f, 0.6f, 1f)
-            )
-            ProvideTextStyle(style) {
+            // 颜色同时给 LocalContentColor 与 LocalTextStyle：sokitsu 的 Text 未显式指定颜色时
+            // 先取样式的颜色、再取 LocalContentColor，只 ProvideTextStyle 会被内容色盖成白色
+            val color = adaptedComponentColor(DataComponentWrappers.isAdaptedComponent(key))
+            ProvideContentColorTextStyle(color, LocalTextStyle.current.copy(color = color)) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(key, overflow = TextOverflow.Ellipsis, maxLines = 1)
                     val hasTranslation = Language.getInstance().has(key.asTranslateKey())

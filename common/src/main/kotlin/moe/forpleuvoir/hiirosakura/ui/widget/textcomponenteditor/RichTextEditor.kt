@@ -37,7 +37,7 @@ fun RichTextEditor(
             state = state.textState,
             lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 6, maxHeightInLines = 12),
             outputTransformation = state.outputTransformation,
-            modifier = Modifier.fillMaxWidth().height(260.dp).richTextEditor(state),
+            modifier = Modifier.fillMaxWidth().height(180.dp).richTextEditor(state),
         )
         Spacer(Modifier.height(12.dp))
         Text(component = HSLang.TextEditor.preview)
@@ -49,7 +49,7 @@ fun RichTextEditor(
             CompositionLocalProvider(LocalDefaultFont provides MinecraftFonts.Default) {
                 Text(
                     component = state.mcText,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(180.dp),
                     textAlign = TextAlign.Center,
                     fontSize = ((1 / LocalDensity.current.density) * (mc.window.guiScale * mc.font.lineHeight)).sp,
                 )

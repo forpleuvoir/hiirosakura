@@ -13,7 +13,6 @@ import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.rememberE
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.rememberMaxLabelWidth
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.replacedAt
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.internal.withoutAt
-import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentDialogTitle
 import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icons
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Text
@@ -21,9 +20,12 @@ import moe.forpleuvoir.nebula.serialization.base.SerializeArray
 import moe.forpleuvoir.nebula.serialization.base.SerializeElement
 import moe.forpleuvoir.nebula.serialization.base.SerializeObject
 import moe.forpleuvoir.nebula.serialization.base.SerializePrimitive
+import moe.forpleuvoir.hiirosakura.ui.widget.DisplayFieldDefaults
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Icon
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButton
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.IconButtonDefaults
+import moe.forpleuvoir.ibukigourd.ui.sokitsu.LocalIconScale
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 @Composable
@@ -42,7 +44,7 @@ fun SerializeArrayEditor(
     )
 
     ElementContainer(
-        title = { DataComponentDialogTitle(component = HSLang.SerializeEditor.arrayType) },
+        title = { Text(component = HSLang.SerializeEditor.arrayType, fontSize = SokitsuTheme.typography.body.fontSize) },
         count = serializeArray.size,
         expanded = expanded.value,
         onToggle = { expanded.value = !expanded.value },
@@ -86,13 +88,10 @@ private fun SerializeArrayEntry(
     onValueChange: (SerializeElement) -> Unit,
     onRemove: () -> Unit,
 ) {
-    val keyTopPadding = when (value) {
-        is SerializeObject, is SerializeArray -> 6.dp
-        is SerializePrimitive                 -> if (value.isString || value.isNumber) 8.dp else 0.dp
-        else                                  -> 0.dp
-    }
+    // 原始类型与类型标签同行居中；对象 / 数组让 key 对齐容器头部标题行
+    val keyTopPadding = if (value is SerializeObject || value is SerializeArray) 12.dp else 0.dp
 
-    val keyModifier = Modifier.width(keyWidth).thenIf(keyTopPadding > 0.dp) { Modifier.padding(top = keyTopPadding) }
+    val keyModifier = Modifier.widthIn(min = keyWidth).thenIf(keyTopPadding > 0.dp) { Modifier.padding(top = keyTopPadding) }
 
     SerializeElementEntryEditor(
         key = index.toString(),
@@ -106,11 +105,13 @@ private fun SerializeArrayEntry(
         },
         onValueChange = onValueChange,
         actions = {
-            IconButton(
-                onClick = onRemove,
-                modifier = Modifier.size(30.dp),
+            CompositionLocalProvider(
+                LocalIconScale provides 2,
+                IconButtonDefaults.LocalMinSize provides DisplayFieldDefaults.ButtonMinSize,
             ) {
-                Icon(Icons.Delete, Modifier.size(15.dp))
+                IconButton(onClick = onRemove) {
+                    Icon(Icons.Delete)
+                }
             }
         },
     )
@@ -134,7 +135,7 @@ fun SerializeArrayEntryEditor(
 
     ElementContainer(
         modifier = modifier,
-        title = { DataComponentDialogTitle(component = HSLang.SerializeEditor.arrayType) },
+        title = { Text(component = HSLang.SerializeEditor.arrayType, fontSize = SokitsuTheme.typography.body.fontSize) },
         count = serializeArray.size,
         expanded = expanded.value,
         onToggle = { expanded.value = !expanded.value },

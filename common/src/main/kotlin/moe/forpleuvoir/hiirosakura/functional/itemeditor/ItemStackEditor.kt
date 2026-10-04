@@ -5,6 +5,7 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
@@ -21,6 +22,7 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrappers
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentWrappers.DataComponentWrapper
+import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.adaptedComponentColor
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
 import moe.forpleuvoir.hiirosakura.functional.misc.matcher.ItemStackMatcher
 import moe.forpleuvoir.hiirosakura.ui.modifier.vanillaTooltip
@@ -29,6 +31,7 @@ import moe.forpleuvoir.hiirosakura.ui.widget.ItemBrowser
 import moe.forpleuvoir.hiirosakura.ui.widget.ItemIconButton
 import moe.forpleuvoir.hiirosakura.ui.widget.LabeledFieldDefaults
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.SerializeElementEditor
+import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.SerializeElementJsonEditorDialog
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.SerializeElementType
 import moe.forpleuvoir.hiirosakura.ui.widget.serializereditor.matchesType
 import moe.forpleuvoir.hiirosakura.ui.widget.truncateLines
@@ -38,6 +41,7 @@ import moe.forpleuvoir.ibukigourd.text.plainText
 import moe.forpleuvoir.ibukigourd.ui.configwrapper.EnumSelector
 import moe.forpleuvoir.ibukigourd.ui.item.ItemIcon
 import moe.forpleuvoir.ibukigourd.ui.selector.Selector
+import moe.forpleuvoir.ibukigourd.ui.util.isQuickAction
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.*
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.theme.SokitsuTheme
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.toast.ToastHandler
@@ -95,6 +99,20 @@ fun ItemStackEditor(
                 editingItem = ItemStack(item, count, dataComponents.delegate.copy())
             }
 
+            val registryManager = LocalRegistryAccess.current
+            val componentsListState = rememberLazyListState()
+            var scrollTarget by remember { mutableStateOf<DataComponentType<*>?>(null) }
+            val sortedComponentTypes = dataComponents.keySet().sortedBy { it.keyOrUnknown(registryManager) }
+            // 新增组件后把列表滚到它所在的行
+            LaunchedEffect(dataComponents.revision) {
+                val target = scrollTarget ?: return@LaunchedEffect
+                val index = sortedComponentTypes.indexOf(target)
+                if (index >= 0) {
+                    componentsListState.scrollToItem(index)
+                    scrollTarget = null
+                }
+            }
+
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -104,11 +122,14 @@ fun ItemStackEditor(
                 ItemPreview(editingItem, modifier = Modifier.weight(0.75f))
                 ItemType(item, { item = it }, modifier = Modifier.weight(0.75f))
                 ItemCount(count, { count = it }, dataComponents.maxCount, modifier = Modifier.weight(0.65f))
-                //todo 加一个添加后转跳到目标位置
-                ComponentAdder(dataComponents, modifier = Modifier.weight(1.5f))
+                ComponentAdder(
+                    dataComponents = dataComponents,
+                    onAdded = { scrollTarget = it },
+                    modifier = Modifier.weight(1.5f),
+                )
             }
             Spacer(Modifier.height(12.dp))
-            Components(dataComponents)
+            Components(dataComponents, listState = componentsListState)
         }
     )
 }
@@ -242,6 +263,7 @@ fun ItemPreview(
 @Composable
 private fun ComponentAdder(
     dataComponents: ObservableDataComponentMap,
+    onAdded: (DataComponentType<*>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val registryManager = LocalRegistryAccess.current
@@ -252,6 +274,8 @@ private fun ComponentAdder(
     var selected by remember { mutableStateOf(components.first()) }
 
     var buildingType by remember { mutableStateOf<DataComponentType<*>?>(null) }
+
+    var buildingJson by remember { mutableStateOf(false) }
 
     DataComponentSection(
         modifier = modifier,
@@ -265,10 +289,12 @@ private fun ComponentAdder(
                     DataComponentWrappers.defaultValue(type)?.let {
                         if (!dataComponents.delegate.has(type)) {
                             dataComponents[type as DataComponentType<Any>] = it
+                            onAdded(type)
                         } else {
                             ToastHandler.showContent { Text(component = HSLang.ItemEditor.itemComponentExist(type.keyOrUnknown(registryManager))) }
                         }
                     } ?: run {
+                        buildingJson = isQuickAction
                         buildingType = type
                     }
                 }.onFailure {
@@ -287,11 +313,7 @@ private fun ComponentAdder(
                 Text(it.keyOrUnknown(registryManager).toString())
             },
             itemContent = { type, _ ->
-                val isAdapted = DataComponentWrappers.isAdaptedComponent(type)
-                val color = if (isAdapted)
-                    Color.fromHSV(195f / 360f, 1f, 1f).toComposeColor()
-                else
-                    Color.fromHSV(5f / 360f, .6f, 1f).toComposeColor()
+                val color = adaptedComponentColor(DataComponentWrappers.isAdaptedComponent(type))
                 Column {
                     val identifier = type.keyOrUnknown(registryManager)
                     Text(
@@ -308,20 +330,58 @@ private fun ComponentAdder(
     }
 
     buildingType?.let { type ->
-        ComponentBuilderDialog(
-            type = type as DataComponentType<Any>,
-            onDismiss = { buildingType = null },
-            onValueChange = { component ->
-                if (!dataComponents.delegate.has(type)) {
-                    dataComponents[type] = component
-                } else {
-                    ToastHandler.showContent {
-                        Text(component = HSLang.ItemEditor.itemComponentExist(type.keyOrUnknown(registryManager)))
+        if (buildingJson) {
+            // 快速动作键：跳过组件构建器，直接编辑整份 JSON
+            val anyType = type as DataComponentType<Any>
+            SerializeElementJsonEditorDialog(
+                title = { DataComponentDialogTitle(Component.literal(type.keyOrUnknown(registryManager).toString())) },
+                initialData = SerializeElementType.Object.defaultValue,
+                onDismissRequest = { buildingType = null },
+                onConfirmRequest = { json ->
+                    runCatching {
+                        anyType.codecOrThrow()
+                            .parse(registryManager.createSerializationContext(NebulaOps), json)
+                            .orThrow
+                    }.fold(
+                        onSuccess = { component ->
+                            if (!dataComponents.delegate.has(anyType)) {
+                                dataComponents[anyType] = component
+                                onAdded(type)
+                            } else {
+                                ToastHandler.showContent {
+                                    Text(component = HSLang.ItemEditor.itemComponentExist(type.keyOrUnknown(registryManager)))
+                                }
+                            }
+                            buildingType = null
+                            true
+                        },
+                        onFailure = { e ->
+                            DataComponentWrappers.log.error(e)
+                            ToastHandler.showContent {
+                                Text(e.stackTraceToString().truncateLines(8))
+                            }
+                            false
+                        },
+                    )
+                },
+            )
+        } else {
+            ComponentBuilderDialog(
+                type = type as DataComponentType<Any>,
+                onDismiss = { buildingType = null },
+                onValueChange = { component ->
+                    if (!dataComponents.delegate.has(type)) {
+                        dataComponents[type] = component
+                        onAdded(type)
+                    } else {
+                        ToastHandler.showContent {
+                            Text(component = HSLang.ItemEditor.itemComponentExist(type.keyOrUnknown(registryManager)))
+                        }
                     }
-                }
-                buildingType = null
-            },
-        )
+                    buildingType = null
+                },
+            )
+        }
     }
 }
 
@@ -386,9 +446,9 @@ private fun <C : Any> ComponentBuilderDialog(
 @Suppress("UNCHECKED_CAST")
 @Composable
 private fun Components(
-    components: ObservableDataComponentMap
+    components: ObservableDataComponentMap,
+    listState: LazyListState,
 ) {
-    val lazyListState = rememberLazyListState()
     Surface(
         modifier = Modifier.fillMaxSize(),
         sprite = SurfaceDefaults.embeddedPanel,
@@ -407,7 +467,7 @@ private fun Components(
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxSize(),
-                        state = lazyListState
+                        state = listState
                     ) {
                         items(
                             components.keySet().sortedBy { it.keyOrUnknown(registryAccess) },
@@ -432,7 +492,7 @@ private fun Components(
             Spacer(Modifier.width(8.dp))
 
             VerticalFlatScroller(
-                adapter = rememberScrollerAdapter(lazyListState),
+                adapter = rememberScrollerAdapter(listState),
                 modifier = Modifier.fillMaxHeight(),
             )
         }

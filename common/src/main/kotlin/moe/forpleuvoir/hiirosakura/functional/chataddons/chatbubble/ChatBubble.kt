@@ -234,9 +234,9 @@ class ChatBubble(
 
             if (faceCamera) {
                 val camera = mc.gameRenderer.mainCamera()
-                poseStack.mulPose(Quaternionf().rotateY(-camera.yRot() * (Math.PI.toFloat() / 180F)))// 水平旋转
+                poseStack.rotate(Quaternionf().rotateY(-camera.yRot() * (Math.PI.toFloat() / 180F)))// 水平旋转
                 if (!ChatBubbleHandler.onlyYRotation)
-                    poseStack.mulPose(Quaternionf().rotateX(camera.xRot() * (Math.PI.toFloat() / 180F))) // 垂直旋转
+                    poseStack.rotate(Quaternionf().rotateX(camera.xRot() * (Math.PI.toFloat() / 180F))) // 垂直旋转
             }
 
             val bubbleTexture = BUBBLE.toIGTexture()

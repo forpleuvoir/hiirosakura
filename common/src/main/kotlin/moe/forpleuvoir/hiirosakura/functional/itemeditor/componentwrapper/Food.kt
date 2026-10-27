@@ -10,7 +10,7 @@ import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.D
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentField
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.DataComponentSection
 import moe.forpleuvoir.hiirosakura.functional.itemeditor.componentwrapper.base.Text
-import com.mojang.blaze3d.textures.FilterMode
+import com.mojang.renderpearl.api.textures.FilterMode
 import moe.forpleuvoir.compose_minecraft.platform.render.plugins.UVMapping
 import moe.forpleuvoir.compose_minecraft.platform.ui.draw.minecraftTexture
 import moe.forpleuvoir.hiirosakura.platform.PLATFORM

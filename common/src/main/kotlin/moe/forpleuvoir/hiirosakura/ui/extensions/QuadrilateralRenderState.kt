@@ -1,6 +1,6 @@
 package moe.forpleuvoir.hiirosakura.ui.extensions
 
-import com.mojang.blaze3d.pipeline.RenderPipeline
+import com.mojang.renderpearl.api.pipeline.RenderPipeline
 import com.mojang.blaze3d.vertex.VertexConsumer
 import moe.forpleuvoir.ibukigourd.render.color
 import moe.forpleuvoir.ibukigourd.render.vertex

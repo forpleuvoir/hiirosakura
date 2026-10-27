@@ -11,7 +11,7 @@ object DataComponentPreBinder {
     private val logger = logger()
 
     private val DUMMY_OWNER = object : HolderOwner<Any> {
-        override fun canSerializeIn(registry: HolderOwner<Any>) = false
+        override fun canSerialize(owner: HolderOwner<Any>) = false
     }
 
     /** 已经用「静态注册表」兜底绑定过（主菜单等还没有服务端注册表的场合）。 */

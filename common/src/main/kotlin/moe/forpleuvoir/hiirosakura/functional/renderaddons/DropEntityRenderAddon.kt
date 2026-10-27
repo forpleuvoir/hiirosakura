@@ -127,9 +127,9 @@ object DropEntityRenderAddon : ConfigGroup("drop_entity") {
             mc.gameRenderer.mainCamera().rotation().getEulerAnglesXYZ(vector3f)
 
             // 组合Y轴朝向和Z轴旋转
-            poseStack.mulPose(Axis.YP.rotationDegrees(-yaw))
+            poseStack.rotate(Axis.YP.rotationDegrees(-yaw))
         } else
-            poseStack.mulPose(cameraRenderState.orientation)
+            poseStack.rotate(cameraRenderState.orientation)
 
         poseStack.scale(0.025f, -0.025f, 0.025f)
 
@@ -169,7 +169,6 @@ object DropEntityRenderAddon : ConfigGroup("drop_entity") {
     }
 
 }
-
 
 
 

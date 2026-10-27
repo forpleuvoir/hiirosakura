@@ -1,3 +1,15 @@
+v4.1.0+alpha
+  - `Minecraft`版本更新至`26.3`（Fabric API `0.165.0+26.3` / Loader `0.20.1` / Loom `1.19.3` / Fabric Kotlin `1.14.2+kotlin.2.4.21`；NeoForge `26.3.0.99` / moddev `2.0.148` / neoForm `26.3-1` / Kotlin for Forge `6.4.0`；ModMenu `21.0.0`）
+  - 工具链更新至`Kotlin` `2.4.21` / `Gradle` `9.8.2`；`Mixin` `0.8.7` + MixinExtras `0.5.5`
+  - 依赖`IbukiGourd` `1.1.0-alpha`（坐标 `-26.3`），UI 依赖`compose-minecraft` `0.2.0`
+  - **【渲染】**自定义渲染管线随 26.3 迁到`renderpearl`：`RenderPipeline` / `BlendFunction` / `ColorTargetState` / `DepthStencilState` / `PrimitiveTopology` 改在`com.mojang.renderpearl.api.pipeline`，`FilterMode` 改在`com.mojang.renderpearl.api.textures`；管线改挂投影矩阵 + 动态变换矩阵两个绑定组
+  - **【渲染】**生成世界中的头顶文字（掉落物名称、聊天气泡、TNT 与苦力怕引信进度）改用新的姿势旋转接口，朝向与倾斜效果不变
+  - **【输入】**输入模拟改用原版的按键动作常量；无法识别的鼠标键码不再发包
+  - **【物品编辑器】**`map_color` 组件在 26.3 已移除，对应编辑行删除；`swing_animation` 拆成`attack_animation`与`interact_animation`两行
+  - **【脚本】**`isShovel` / `isHoe` / `isAxe` 改按物品标签判定
+  - **【玩法】**滑翔中禁用烟花交互改用新的挥手与物品使用动画接口
+  - **【破坏性变更】**依赖坐标随 MC 版本变为`moe.forpleuvoir:ibukigourd-<platform>-26.3` / `compose_minecraft-<platform>-26.3`
+
 v4.0.0+alpha
   - `Minecraft`版本更新至`26.2`（Fabric API `0.157.0+26.2` / Loader `0.19.3` / Loom `1.17.19`；NeoForge `26.2.0.59` / moddev `2.0.143`；ModMenu `20.0.1`）
   - 依赖`IbukiGourd` `1.0.0-alpha`，UI 全面改用其组件库与屏幕 / 面板 / 浮层骨架；渲染改用自研`compose-minecraft` `0.1.0`

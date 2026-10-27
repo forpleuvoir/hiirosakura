@@ -86,11 +86,11 @@ interface CommonApi {
     }
 
     fun mousePress(mouseCode: Int, duration: Long) {
-        InputSimulator.mousePress(MouseButton.fromCode(mouseCode), duration)
+        MouseButton.fromCode(mouseCode)?.let { InputSimulator.mousePress(it, duration) }
     }
 
     fun mousePress(mouse: String, duration: Long) {
-        InputSimulator.mousePress(MouseButton.fromCode(InputConstants.getKey(mouse).value), duration)
+        MouseButton.fromCode(InputConstants.getKey(mouse).value)?.let { InputSimulator.mousePress(it, duration) }
     }
 
     fun attack(duration: Long = 1) {

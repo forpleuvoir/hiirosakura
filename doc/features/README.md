@@ -4,8 +4,8 @@ HiiroSakura 是一个客户端增强模组：它不添加新方块或新物品�
 
 | 项目 | 说明 |
 |---|---|
-| 模组版本 | `4.0.0+alpha` |
-| 游戏版本 | Minecraft `26.2` |
+| 模组版本 | `4.1.0+alpha` |
+| 游戏版本 | Minecraft `26.3` |
 | 加载器 | Fabric、NeoForge |
 | 运行侧 | 仅客户端，服务端不需要安装 |
 | 前置模组 | [IbukiGourd](https://modrinth.com/mod/ibukigourd) |

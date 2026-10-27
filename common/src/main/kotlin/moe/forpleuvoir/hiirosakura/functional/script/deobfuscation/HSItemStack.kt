@@ -7,6 +7,7 @@ import moe.forpleuvoir.ibukigourd.util.mc
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.Identifier
+import net.minecraft.tags.ItemTags
 import net.minecraft.world.item.*
 import kotlin.jvm.optionals.getOrNull
 
@@ -70,11 +71,11 @@ class HSItemStack(@JvmField val vanilla: ItemStack) {
     fun getItemName(): String = vanilla.itemName.string
 
 
-    fun isShovel() = vanilla.item is ShovelItem
+    fun isShovel() = vanilla.typeHolder().`is`(ItemTags.SHOVELS)
 
-    fun isHoe() = vanilla.item is HoeItem
+    fun isHoe() = vanilla.typeHolder().`is`(ItemTags.HOES)
 
-    fun isAxe() = vanilla.item is AxeItem
+    fun isAxe() = vanilla.typeHolder().`is`(ItemTags.AXES)
 
     fun isShield() = vanilla.item is ShieldItem
 

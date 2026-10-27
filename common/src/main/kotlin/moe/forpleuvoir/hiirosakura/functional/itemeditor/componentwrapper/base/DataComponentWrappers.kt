@@ -122,9 +122,6 @@ object DataComponentWrappers : Initializable {
         register(DYED_COLOR, { DyedItemColor(DyedItemColor.LEATHER_COLOR) }) { key, c, m, rm, onValueChange ->
             IntComponentWrapper(key, c.rgb(), { onValueChange(DyedItemColor(it)) }, 0..0xFFFFFF, modifier = m, removeAction = rm)
         }
-        register(MAP_COLOR, { MapItemColor.DEFAULT }) { key, c, m, rm, onValueChange ->
-            IntComponentWrapper(key, c.rgb(), { onValueChange(MapItemColor(it)) }, 0..0xFFFFFF, modifier = m, removeAction = rm)
-        }
         //endregion
         //region Float
         register(POTION_DURATION_SCALE, { 1f }) { key, c, m, rm, onValueChange ->
@@ -244,7 +241,10 @@ object DataComponentWrappers : Initializable {
         }
         //endregion
         //region Swing Animation
-        register(SWING_ANIMATION, { SwingAnimation.DEFAULT }) { key, c, m, rm, onValueChange ->
+        register(ATTACK_ANIMATION, { SwingAnimation.DEFAULT }) { key, c, m, rm, onValueChange ->
+            SwingAnimationComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
+        }
+        register(INTERACT_ANIMATION, { SwingAnimation.DEFAULT }) { key, c, m, rm, onValueChange ->
             SwingAnimationComponentWrapper(key, c, onValueChange, modifier = m, removeAction = rm)
         }
         //endregion

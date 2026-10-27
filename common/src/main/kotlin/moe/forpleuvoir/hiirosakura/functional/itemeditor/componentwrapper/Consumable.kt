@@ -341,7 +341,7 @@ object ConsumableEditor {
                 val value = value as TeleportRandomlyConsumeEffect
                 FloatField(
                     value.diameter,
-                    { onValueChange(TeleportRandomlyConsumeEffect(it)) },
+                    { onValueChange(TeleportRandomlyConsumeEffect(it, value.directionalParticles)) },
                     valueRange = 0f..Float.MAX_VALUE,
                     modifier = Modifier.fillMaxWidth(),
                 )

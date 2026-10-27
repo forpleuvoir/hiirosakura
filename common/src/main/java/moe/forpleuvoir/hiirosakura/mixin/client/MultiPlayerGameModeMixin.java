@@ -35,6 +35,13 @@ public abstract class MultiPlayerGameModeMixin {
     @Final
     private Minecraft minecraft;
 
+    @Inject(method = "dropItem", at = @At(value = "HEAD"), cancellable = true)
+    public void dropItem(LocalPlayer player, boolean all, CallbackInfo ci) {
+        if (!ItemDropIntercept.canDrop(player.getMainHandItem())) {
+            ci.cancel();
+        }
+    }
+
     @Inject(method = "startDestroyBlock", at = @At(value = "HEAD"), cancellable = true)
     public void startDestroyBlock(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> cir) {
         hiirosakura$breakBlockEvent(pos, direction, cir);

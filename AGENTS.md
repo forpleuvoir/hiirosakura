@@ -17,15 +17,15 @@ HiiroSakura 是使用 Kotlin 开发的 Minecraft 客户端增强模组，同时�
 
 | 项目 | 当前配置 |
 |---|---|
-| HiiroSakura | `3.5.3+beta` |
-| Kotlin / Java | Kotlin `2.4.0` / Java `25` |
-| Minecraft | `26.1.2` |
-| Fabric | Loader `0.19.2`、API `0.146.1+26.1.2`、Loom `1.16-SNAPSHOT` |
-| Fabric Language Kotlin | `1.13.12+kotlin.2.4.0` |
-| NeoForge | `26.1.2.22-beta`、ModDev `2.0.141`、NeoForm `26.1.2-1` |
-| Kotlin for Forge | `6.3.0` |
-| Mixin | `0.8.5`、MixinExtras `0.5.3` |
-| IbukiGourd | `0.11.1+alpha` |
+| HiiroSakura | `4.0.0+alpha` |
+| Kotlin / Java | Kotlin `2.4.21` / Java `25` |
+| Minecraft | `26.3` |
+| Fabric | Loader `0.20.1`、API `0.165.0+26.3`、Loom `1.19.3` |
+| Fabric Language Kotlin | `1.14.2+kotlin.2.4.21` |
+| NeoForge | `26.3.0.99`、ModDev `2.0.148`、NeoForm `26.3-1` |
+| Kotlin for Forge | `6.4.0` |
+| Mixin | `0.8.7`、MixinExtras `0.5.5` |
+| IbukiGourd | `1.1.0-alpha` |
 | 脚本引擎 | Apache Commons JEXL `3.6.2` |
 
 不要在无关任务中升级依赖。涉及 Minecraft、Kotlin、加载器或 IbukiGourd 升级时，同时检查映射、Mixin 注入点、平台 API、资源元数据、依赖打包方式和两端构建。

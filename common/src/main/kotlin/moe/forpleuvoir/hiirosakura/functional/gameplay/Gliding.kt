@@ -90,11 +90,11 @@ object Gliding : ConfigGroup("gliding") {
         if (player.isFallFlying && itemStack.item == Items.FIREWORK_ROCKET) {
             val result = mc.gameMode!!.useItem(player, hand)
             if (result is InteractionResult.Success) {
-                if (result.swingSource() == InteractionResult.SwingSource.CLIENT) {
-                    player.swing(hand);
+                if (result.swingSource() == InteractionResult.SwingSource.PREDICTED) {
+                    player.swing(hand, itemStack.getInteractAnimation(), false)
                 }
 
-                mc.gameRenderer.itemInHandRenderer.itemUsed(hand)
+                player.itemUsed(hand)
                 return true
             }
         }

@@ -5,10 +5,8 @@ import com.mojang.authlib.GameProfile;
 import moe.forpleuvoir.hiirosakura.functional.event.events.PlayerDeathContext;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.AutoSwitchElytra;
 import moe.forpleuvoir.hiirosakura.functional.gameplay.GamePlay;
-import moe.forpleuvoir.hiirosakura.functional.gameplay.ItemDropIntercept;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -49,14 +47,6 @@ public abstract class LocalPlayerMixin extends Player {
         var player = (LocalPlayer) (Object) this;
         if (!player.isFallFlying()) {
             AutoSwitchElytra.trySwitchChestplate(player);
-        }
-    }
-
-    @Inject(method = "drop", at = @At(value = "HEAD"), cancellable = true)
-    public void drop(boolean all, CallbackInfoReturnable<Boolean> cir) {
-        ItemStack itemStack = this.getMainHandItem();
-        if (!ItemDropIntercept.canDrop(itemStack)) {
-            cir.setReturnValue(false);
         }
     }
 

@@ -1,5 +1,6 @@
 package moe.forpleuvoir.hiirosakura.input
 
+import com.mojang.blaze3d.platform.InputConstants
 import moe.forpleuvoir.ibukigourd.event.events.client.ClientTickEvent
 import moe.forpleuvoir.ibukigourd.input.KeyCode
 import moe.forpleuvoir.ibukigourd.input.Keyboard
@@ -11,7 +12,6 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.MouseHandler
 import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonInfo
-import org.lwjgl.glfw.GLFW
 import moe.forpleuvoir.ibukigourd.ui.sokitsu.Button
 
 object InputSimulator : Initializable {
@@ -38,12 +38,12 @@ object InputSimulator : Initializable {
             val (duration, lastDuration) = value
 
             val action = if (lastDuration == duration) {
-                GLFW.GLFW_PRESS
+                InputConstants.PRESS
             } else if (lastDuration > 0) {
-                GLFW.GLFW_REPEAT
+                InputConstants.REPEAT
             } else {
                 keyRemoveList.add(keyCode)
-                GLFW.GLFW_RELEASE
+                InputConstants.RELEASE
             }
 
             onKey(keyCode.code, 0, action, 0)
@@ -57,15 +57,15 @@ object InputSimulator : Initializable {
             val (duration, lastDuration) = value
 
             val action = if (lastDuration == duration) {
-                GLFW.GLFW_PRESS
+                InputConstants.PRESS
             } else if (lastDuration > 0) {
-                GLFW.GLFW_REPEAT
+                InputConstants.REPEAT
             } else {
                 mouseRemoveList.add(mouse)
-                GLFW.GLFW_RELEASE
+                InputConstants.RELEASE
             }
 
-            if (action != GLFW.GLFW_REPEAT) onMouseButton(mouse.code, action, 0)
+            if (action != InputConstants.REPEAT) onMouseButton(mouse.code, action, 0)
             mousePressed[mouse] = duration to lastDuration - 1
         }
         mouseRemoveList.forEach { mousePressed.remove(it) }
@@ -89,15 +89,15 @@ object InputSimulator : Initializable {
     }
 
     fun attack(duration: Long = 1) {
-        mousePress(MouseButton.fromCode(client.options.keyAttack.key.value), duration)
+        MouseButton.fromCode(client.options.keyAttack.key.value)?.let { mousePress(it, duration) }
     }
 
     fun use(duration: Long = 1) {
-        mousePress(MouseButton.fromCode(client.options.keyUse.key.value), duration)
+        MouseButton.fromCode(client.options.keyUse.key.value)?.let { mousePress(it, duration) }
     }
 
     fun pickItem(duration: Long = 1) {
-        mousePress(MouseButton.fromCode(client.options.keyPickItem.key.value), duration)
+        MouseButton.fromCode(client.options.keyPickItem.key.value)?.let { mousePress(it, duration) }
     }
 
     fun moveForward(duration: Long = 1) {

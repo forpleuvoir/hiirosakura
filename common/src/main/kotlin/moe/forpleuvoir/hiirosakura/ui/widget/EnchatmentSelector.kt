@@ -43,7 +43,7 @@ object EnchatmentHelper {
 
 
     val CLIENT_REGISTERED_ENCHANTMENT: List<Holder.Reference<Enchantment>> by lazy {
-        VanillaRegistries.createLookup()
+        VanillaRegistries.createWorldLookup()
             .lookupOrThrow(Registries.ENCHANTMENT)
             .listElements()
             .toList()

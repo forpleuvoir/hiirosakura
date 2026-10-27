@@ -1,3 +1,6 @@
+v4.1.1+alpha
+  - 修复聊天过滤与消息接收事件对服务端系统消息不生效：注入点改为 ChatComponent 写入聊天队列的入口，玩家消息与系统消息都会经过处理
+
 v4.1.0+alpha
   - `Minecraft`版本更新至`26.3`（Fabric API `0.165.0+26.3` / Loader `0.20.1` / Loom `1.19.3` / Fabric Kotlin `1.14.2+kotlin.2.4.21`；NeoForge `26.3.0.99` / moddev `2.0.148` / neoForm `26.3-1` / Kotlin for Forge `6.4.0`；ModMenu `21.0.0`）
   - 工具链更新至`Kotlin` `2.4.21` / `Gradle` `9.8.2`；`Mixin` `0.8.7` + MixinExtras `0.5.5`

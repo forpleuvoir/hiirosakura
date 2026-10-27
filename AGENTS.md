@@ -17,7 +17,7 @@ HiiroSakura 是使用 Kotlin 开发的 Minecraft 客户端增强模组，同时�
 
 | 项目 | 当前配置 |
 |---|---|
-| HiiroSakura | `4.0.0+alpha` |
+| HiiroSakura | `4.1.1+alpha` |
 | Kotlin / Java | Kotlin `2.4.21` / Java `25` |
 | Minecraft | `26.3` |
 | Fabric | Loader `0.20.1`、API `0.165.0+26.3`、Loom `1.19.3` |

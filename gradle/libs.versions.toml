@@ -30,6 +30,9 @@ fabricLoom = "1.19.3"
 fabricKotlin = "1.14.2+kotlin.2.4.21"
 modMenu = "21.0.0"
 
+# Modrinth upload
+minotaur = "2.9.0"
+
 # NeoForge, see https://projects.neoforged.net/ for new versions
 neoforgedModDev = "2.0.148"
 neoForm = "26.3-1"
@@ -79,3 +82,4 @@ jexl = ["jexl", "logging"]
 [plugins]
 fabricLoom = { id = "net.fabricmc.fabric-loom", version.ref = "fabricLoom" }
 neoforgedModDev = { id = "net.neoforged.moddev", version.ref = "neoforgedModDev" }
+minotaur = { id = "com.modrinth.minotaur", version.ref = "minotaur" }

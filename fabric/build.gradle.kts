@@ -5,6 +5,7 @@ import kotlin.random.Random
 
 plugins {
     id("multiloader-loader")
+    alias(libs.plugins.minotaur)
     alias(libs.plugins.fabricLoom)
 }
 

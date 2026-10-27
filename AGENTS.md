@@ -51,6 +51,7 @@ HiiroSakura 是使用 Kotlin 开发的 Minecraft 客户端增强模组，同时�
 - 真实的平台差异沿用现有 `platform` / `platform.services` 抽象，不在共享业务里散布加载器判断。
 - `common` 通过可消费 configuration 向加载器模块提供 Kotlin、Java 和资源源目录。修改源集拼接前，先阅读三个模块的构建脚本及 `buildSrc` 约定插件。
 - JEXL 在 Fabric 侧通过 `include`、NeoForge 侧通过 `jarJar` 打包。新增需随模组分发的依赖时，分别核对两端策略。
+- 更新日志两份同版本维护：`CHANGE_LOG.md`（中文）与 `CHANGE_LOG-ENG.md`（英文），Modrinth 上传统一取英文条目。
 - 根构建脚本会生成 `hiirosakura.info.toml`；它是构建派生文件，不要手工维护。
 - `modJar/`、`runs/`、各模块 `build/`、`.gradle/`、`.idea/` 与 `.kotlin/` 属于本地产物，不应提交。
 
@@ -113,6 +114,7 @@ Wrapper 常用任务：
 ./gradlew :neoforge:build
 ./gradlew build
 ./gradlew buildAllModJar
+./gradlew publishModToModrinth
 
 # Windows cmd.exe
 gradlew.bat :common:compileKotlin
@@ -120,10 +122,12 @@ gradlew.bat :fabric:build
 gradlew.bat :neoforge:build
 gradlew.bat build
 gradlew.bat buildAllModJar
+gradlew.bat publishModToModrinth
 ```
 
 - 公共 Kotlin 改动至少验证 `common` 编译；涉及平台、资源、Mixin 或 Minecraft API 时验证相应加载器；高风险公共改动验证两端。
 - `buildAllModJar` 依赖 Fabric 与 NeoForge 的 `jar`，并将重命名后的产物复制到 `modJar/<minecraft-version>/`。
+- `publishModToModrinth` 通过 Minotaur 把两个加载器的产物上传到 Modrinth，需要 `MODRINTH_TOKEN` 环境变量或用户级 `gradle.properties` 里的 `modrinth.token`；字段来源与边界见 `doc/modrinth-upload.md`。
 - `src/devOnly` 只用于开发环境验证，不代表存在完整自动化测试覆盖。
 - 编译成功不等于 Compose 交互、Mixin、序列化或游戏内行为已经验证。只报告实际执行过的检查。
 - 发布任务会产生外部影响，只有用户明确要求并确认目标仓库与版本后才能执行。
